@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
@@ -17,6 +18,9 @@ import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.widgets.IntegerWidget;
+import org.commcare.views.widgets.NepaliDateWidget;
+import org.javarosa.core.model.data.DateData;
+import org.javarosa.core.model.data.IAnswerData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +56,7 @@ public class CalendarLocaleTest {
      * type of form exercises uncommon end-of-form code paths
      */
     @Test
-    public void testHiddenRepeatAtEndOfForm() {
+    public void testNepaliEthiopianCalendar() {
         ShadowActivity shadowActivity =
                 ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f0");
 
@@ -62,17 +66,14 @@ public class CalendarLocaleTest {
         String intentActivityName = formEntryIntent.getComponent().getClassName();
         assertTrue(intentActivityName.equals(FormEntryActivity.class.getName()));
 
-        ShadowActivity shadowFormEntryActivity = navigateFormEntry(formEntryIntent);
+        ShadowActivity shadowFormEntryActivity = navigateCalendarForm(formEntryIntent);
 
-        // trigger CommCareHomeActivity.onActivityResult for the completion of
-        // FormEntryActivity
         shadowActivity.receiveResult(formEntryIntent,
                 shadowFormEntryActivity.getResultCode(),
                 shadowFormEntryActivity.getResultIntent());
-        assertStoredForms();
     }
 
-    private ShadowActivity navigateFormEntry(Intent formEntryIntent) {
+    private ShadowActivity navigateCalendarForm(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
                 Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
@@ -81,10 +82,24 @@ public class CalendarLocaleTest {
         ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
 
         // enter an answer for the question
-        QuestionsView questionsView = formEntryActivity.getODKView();
-        IntegerWidget favoriteNumber = (IntegerWidget)questionsView.getWidgets().get(0);
-        favoriteNumber.setAnswer("2");
+        TextView dayText = (TextView)formEntryActivity.findViewById(R.id.daytxt);
+        TextView monthText = (TextView)formEntryActivity.findViewById(R.id.monthtxt);
+        TextView yearText = (TextView)formEntryActivity.findViewById(R.id.yeartxt);
+
+        assertEquals(monthText.getText(), "Ashadh");
+        assertEquals(dayText.getText(), "19");
+        assertEquals(yearText.getText(), "2073");
         assertTrue(nextButton.getTag().equals(FormEntryActivity.NAV_STATE_NEXT));
+
+        nextButton.performClick();
+
+        TextView ethiopianDayText = (TextView)formEntryActivity.findViewById(R.id.daytxt);
+        TextView ethiopianMonthText = (TextView)formEntryActivity.findViewById(R.id.monthtxt);
+        TextView ethiopianYearText = (TextView)formEntryActivity.findViewById(R.id.yeartxt);
+        assertEquals(ethiopianMonthText.getText(), "Senie");
+        assertEquals(ethiopianDayText.getText(), "26");
+        assertEquals(ethiopianYearText.getText(), "2008");
+
         // Finish off the form even by clicking next.
         // The form progress meter thinks there is more to do, but that is a bug.
         nextButton.performClick();
@@ -97,15 +112,5 @@ public class CalendarLocaleTest {
         return shadowFormEntryActivity;
     }
 
-    private void assertStoredForms() {
-        SqlStorage<FormRecord> formsStorage =
-                CommCareApplication._().getUserStorage(FormRecord.class);
 
-        int unsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS,
-                FormRecord.STATUS_UNSENT).size();
-        int incompleteForms = formsStorage.getIDsForValue(FormRecord.META_STATUS,
-                FormRecord.STATUS_INCOMPLETE).size();
-        assertEquals("There should be a single form waiting to be sent", 1, unsentForms);
-        assertEquals("There shouldn't be any forms saved as incomplete", 0, incompleteForms);
-    }
 }

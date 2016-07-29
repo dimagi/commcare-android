@@ -1,0 +1,11 @@
+app.display.name=Date Widgets
+cchq.case=Case
+cchq.referral=Referral
+forms.m0f0=Nepali/Ethiopian
+homescreen.title=Date Widgets
+lang.current=nep
+m0.case_long.case_name_1.header=Name
+m0.case_long.title=Cases
+m0.case_short.case_name_1.header=Name
+m0.case_short.title=Cases
+modules.m0=Date Widgets

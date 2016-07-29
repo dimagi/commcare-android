@@ -1,0 +1,35 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Nepali/Ethiopian</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/A004324C-3198-4B79-A6CB-997816B6EEF5" uiVersion="1" version="12" name="Nepali/Ethiopian">
+					<nepali/>
+					<ethiopian/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/nepali" type="xsd:date"/>
+			<bind nodeset="/data/ethiopian" type="xsd:date"/>
+			<setvalue event="xforms-ready" ref="/data/nepali" value="date('2016-07-03')"/>
+			<setvalue event="xforms-ready" ref="/data/ethiopian" value="date('2016-07-03')"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="nepali-label">
+						<value>Nepali Widget</value>
+					</text>
+					<text id="ethiopian-label">
+						<value>Ethiopian Widget</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<input ref="/data/nepali" appearance="nepali">
+			<label ref="jr:itext('nepali-label')"/>
+		</input>
+		<input ref="/data/ethiopian" appearance="ethiopian">
+			<label ref="jr:itext('ethiopian-label')"/>
+		</input>
+	</h:body>
+</h:html>
