@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+  <message nature="submit_success">Here are your keys!</message>
+  <auth_keys domain="flipper" issued="2016-07-05T14:31:40Z">
+    <key_record valid="2015-08-24T16:00:37Z" expires="2016-07-19T16:00:37Z">
+      <uuid>1234512345</uuid>
+      <key type="AES256">e0gqSdKo4efPSr6jlo+i+H9uKrVc4Yf0KnvMJt9Vhu0=</key>
+    </key_record>
+  </auth_keys>
+</OpenRosaResponse>

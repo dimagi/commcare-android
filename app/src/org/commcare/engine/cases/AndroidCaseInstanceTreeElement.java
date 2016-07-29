@@ -153,6 +153,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         return ids;
     }
 
+    @Override
     public String getCacheIndex(TreeReference ref) {
         //NOTE: there's no evaluation here as to whether the ref is suitable
         //we only follow one pattern for now and it's evaluated below. 

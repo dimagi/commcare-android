@@ -56,10 +56,12 @@ public class JavaHttpReference implements Reference {
     }
 
 
+    @Override
     public String getLocalURI() {
         return uri;
     }
 
+    @Override
     public Reference[] probeAlternativeReferences() {
         return new Reference[0];
     }

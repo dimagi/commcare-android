@@ -23,10 +23,12 @@ public class JavaFileReference implements Reference {
         this.uri = uri;
     }
 
+    @Override
     public boolean doesBinaryExist() throws IOException {
         return file().exists();
     }
 
+    @Override
     public OutputStream getOutputStream() throws IOException {
         File f = file();
         FileUtil.ensureFilePathExists(f);
@@ -34,6 +36,7 @@ public class JavaFileReference implements Reference {
         return new FileOutputStream(f);
     }
 
+    @Override
     public InputStream getStream() throws IOException {
         File file = file();
         //CTS: Removed a thing here that created an empty file. Not sure why that was there.
@@ -43,14 +46,17 @@ public class JavaFileReference implements Reference {
         return new FileInputStream(file);
     }
 
+    @Override
     public String getURI() {
         return "jr://file/" + uri;
     }
 
+    @Override
     public boolean isReadOnly() {
         return false;
     }
 
+    @Override
     public void remove() throws IOException {
         File file = file();
         if (!file.delete()) {
@@ -62,10 +68,12 @@ public class JavaFileReference implements Reference {
         return new File(getLocalURI());
     }
 
+    @Override
     public String getLocalURI() {
         return new File(localPart + File.separator + uri).getAbsolutePath();
     }
 
+    @Override
     public Reference[] probeAlternativeReferences() {
         return new Reference[0];
     }

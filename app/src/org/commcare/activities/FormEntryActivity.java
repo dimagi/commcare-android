@@ -50,6 +50,7 @@ import org.commcare.activities.components.FormNavigationController;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.FormRelevancyUpdating;
 import org.commcare.activities.components.ImageCaptureProcessing;
+import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.utils.CompoundIntentList;
@@ -593,7 +594,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean processIntentResponse(Intent response, boolean wasIntentCancelled) {
         // keep track of whether we should auto advance
         boolean wasAnswerSet = false;
-        boolean quick = false;
+        boolean isQuick = false;
 
         //For now we don't process bulk callout responses
         if(mFormController.isPendingCalloutBulk()) {
@@ -609,7 +610,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             IntentCallout ic = pendingIntentWidget.getIntentCallout();
 
             if (!wasIntentCancelled) {
-                quick = "quick".equals(ic.getAppearance());
+                isQuick = "quick".equals(ic.getAppearance());
                 TreeReference context = null;
                 if (mFormController.getPendingCalloutFormIndex() != null) {
                     context = mFormController.getPendingCalloutFormIndex().getReference();
@@ -621,7 +622,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         // auto advance if we got a good result and are in quick mode
-        if (wasAnswerSet && quick) {
+        if (wasAnswerSet && isQuick) {
             showNextView();
         } else {
             refreshCurrentView();
@@ -732,6 +733,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        if (CommCareApplication._().isConsumerApp()) {
+            // Do not show options menu at all if this is a consumer app
+            return super.onPrepareOptionsMenu(menu);
+        }
+
         GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY);
 
         menu.removeItem(MENU_LANGUAGES);
@@ -1608,6 +1614,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         saveInlineVideoState();
+
+        if (isFinishing()) {
+            PollSensorController.INSTANCE.stopLocationPolling();
+        }
     }
 
     private void saveInlineVideoState() {

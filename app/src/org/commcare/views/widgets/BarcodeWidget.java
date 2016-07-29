@@ -40,9 +40,8 @@ public class BarcodeWidget extends IntentWidget {
     }
 
     @Override
-    public void makeButton() {
+    protected void setupButton() {
         setOrientation(LinearLayout.VERTICAL);
-        launchIntentButton = new Button(getContext());
         WidgetUtils.setupButton(launchIntentButton,
                 getButtonLabel(),
                 mAnswerFontsize,
@@ -74,7 +73,7 @@ public class BarcodeWidget extends IntentWidget {
     }
 
     @Override
-    public void makeTextView() {
+    public void setupTextView() {
         if ("editable".equals(ic.getAppearance())) {
             // set text formatting
             mStringAnswer = new EditText(getContext());
@@ -88,7 +87,7 @@ public class BarcodeWidget extends IntentWidget {
             // finish complex layout
             addView(mStringAnswer);
         } else {
-            super.makeTextView();
+            super.setupTextView();
         }
     }
 }

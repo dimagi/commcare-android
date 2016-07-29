@@ -62,12 +62,10 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
 
     @Override
     public void cleanup() {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
-    public abstract boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException;
+    public abstract boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException;
 
     @Override
     public boolean install(Resource r, ResourceLocation location,
@@ -306,6 +304,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         }
     }
 
+    @Override
     public int rollback(Resource r) {
 
         //TODO: These filepath ops need to be the same for this all to work,
@@ -428,6 +427,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         return input.substring(0, invalid);
     }
 
+    @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> issues) {
         try {
             Reference ref = ReferenceManager._().DeriveReference(localLocation);

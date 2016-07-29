@@ -207,13 +207,14 @@ def main():
             lambda: download(*sys.argv[2:5]),
         'media_download':
             lambda: download(*sys.argv[2:5], with_media=True),
+        'login':
+            lambda: login(sys.argv[2], sys.argv[3]),
         'help':
             lambda: print(HELP_MSG),
         'clear_restore_cache':
             lambda: clear_restore_cache(),
         'install':
             lambda: install(sys.argv[2])}
-
 
     dispatch[command]()
 

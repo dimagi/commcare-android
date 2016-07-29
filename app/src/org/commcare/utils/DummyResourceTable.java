@@ -31,26 +31,32 @@ public class DummyResourceTable extends ResourceTable {
     @Override
     public InstallerFactory getInstallers() {
         return new InstallerFactory() {
+            @Override
             public ResourceInstaller getProfileInstaller(boolean forceInstall) {
                 return getDummyInstaller();
             }
 
+            @Override
             public ResourceInstaller getXFormInstaller() {
                 return getDummyInstaller();
             }
 
+            @Override
             public ResourceInstaller getSuiteInstaller() {
                 return getDummyInstaller();
             }
 
+            @Override
             public ResourceInstaller getLocaleFileInstaller(String locale) {
                 return getDummyInstaller();
             }
 
+            @Override
             public ResourceInstaller getLoginImageInstaller() {
                 return getDummyInstaller();
             }
 
+            @Override
             public ResourceInstaller getMediaInstaller(String path) {
                 return getDummyInstaller();
             }
@@ -58,40 +64,39 @@ public class DummyResourceTable extends ResourceTable {
             private ResourceInstaller getDummyInstaller() {
                 return new ResourceInstaller() {
 
+                    @Override
                     public void readExternal(DataInputStream in,
                                              PrototypeFactory pf) throws IOException,
                             DeserializationException {
-                        // TODO Auto-generated method stub
-
                     }
 
+                    @Override
                     public void writeExternal(DataOutputStream out)
                             throws IOException {
-                        // TODO Auto-generated method stub
-
                     }
 
+                    @Override
                     public boolean requiresRuntimeInitialization() {
-                        // TODO Auto-generated method stub
                         return false;
                     }
 
-                    public boolean initialize(CommCareInstance instance)
+                    @Override
+                    public boolean initialize(CommCareInstance instance, boolean isUpgrade)
                             throws ResourceInitializationException {
-                        // TODO Auto-generated method stub
                         return true;
                     }
 
+                    @Override
                     public boolean install(Resource r,
                                            ResourceLocation location, Reference ref,
                                            ResourceTable table, CommCareInstance instance,
                                            boolean upgrade)
                             throws UnresolvedResourceException,
                             UnfullfilledRequirementsException {
-                        // TODO Auto-generated method stub
                         return true;
                     }
 
+                    @Override
                     public int rollback(Resource r) {
                         throw new RuntimeException("Basic Installer resources can't rolled back");
                     }
@@ -99,39 +104,34 @@ public class DummyResourceTable extends ResourceTable {
                     @Override
                     public boolean uninstall(Resource r)
                             throws UnresolvedResourceException {
-                        // TODO Auto-generated method stub
                         return true;
                     }
 
                     @Override
                     public boolean unstage(Resource r, int newStatus) {
-                        // TODO Auto-generated method stub
                         return true;
                     }
 
                     @Override
                     public boolean revert(Resource r, ResourceTable table) {
-                        // TODO Auto-generated method stub
                         return true;
                     }
 
                     @Override
                     public boolean upgrade(Resource r)
                             throws UnresolvedResourceException {
-                        // TODO Auto-generated method stub
                         return true;
                     }
 
 
+                    @Override
                     public void cleanup() {
-                        // TODO Auto-generated method stub
-
                     }
 
+                    @Override
                     public boolean verifyInstallation(Resource r, Vector problems) {
                         return false;
                     }
-
                 };
             }
 
@@ -209,7 +209,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void initializeResources(CommCareInstance instance)
+    public void initializeResources(CommCareInstance instance, boolean isUpgrade)
             throws ResourceInitializationException {
     }
 

@@ -38,10 +38,12 @@ public enum ProcessIssues implements MessageTag {
 
     private final String root, category;
 
+    @Override
     public String getLocaleKeyBase() {
         return root;
     }
 
+    @Override
     public String getCategory() {
         return category;
     }

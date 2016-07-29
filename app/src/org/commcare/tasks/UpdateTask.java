@@ -175,7 +175,7 @@ public class UpdateTask
         taskWasCancelledByUser = false;
 
         if (pinnedNotificationProgress != null) {
-            pinnedNotificationProgress.handleTaskCancellation(result);
+            pinnedNotificationProgress.handleTaskCancellation();
         }
 
         resourceManager.upgradeCancelled();

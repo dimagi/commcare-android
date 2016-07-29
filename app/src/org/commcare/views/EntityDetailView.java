@@ -168,6 +168,7 @@ public class EntityDetailView extends FrameLayout {
             callout.setText(textField);
             if (current != PHONE) {
                 callout.setOnClickListener(new OnClickListener() {
+                    @Override
                     public void onClick(View v) {
                         listener.callRequested(callout.getText().toString());
                     }
@@ -235,6 +236,7 @@ public class EntityDetailView extends FrameLayout {
             if (current != ADDRESS) {
                 addressButton.setText(Localization.get("select.address.show"));
                 addressButton.setOnClickListener(new OnClickListener() {
+                    @Override
                     public void onClick(View v) {
                         listener.addressRequested(GeoUtils.getGeoIntentURI(address));
                     }
@@ -312,6 +314,7 @@ public class EntityDetailView extends FrameLayout {
 
             videoButton.setOnClickListener(new OnClickListener() {
 
+                @Override
                 public void onClick(View v) {
                     listener.playVideo(location);
                 }
