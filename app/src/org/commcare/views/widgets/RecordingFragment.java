@@ -247,6 +247,14 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
             recorder.release();
             this.recorder = null;
         }
+
+        if(player != null){
+            try{
+                player.release();
+            }catch(IllegalStateException e){
+                //Do nothing because player wasn't recording
+            }
+        }
     }
 
     public String getFileName(){
