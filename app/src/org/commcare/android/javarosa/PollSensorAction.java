@@ -67,7 +67,7 @@ public class PollSensorAction extends Action {
         return null;
     }
 
-    void update(Location location) {
+    void updateReference(Location location) {
         if (target != null) {
             String result = GeoUtils.locationToString(location);
             TreeReference qualifiedReference = contextRef == null ? target : target.contextualize(contextRef);

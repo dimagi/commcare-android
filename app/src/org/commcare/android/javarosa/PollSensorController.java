@@ -100,7 +100,7 @@ public enum PollSensorController implements LocationListener {
     public void onLocationChanged(Location location) {
         if (location != null) {
             for (PollSensorAction action : actions) {
-                action.update(location);
+                action.updateReference(location);
             }
 
             if (location.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
