@@ -295,27 +295,27 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
 
         //Some but not all fields are empty
         if(month.isEmpty() || day.isEmpty() || year.isEmpty()){
-            return new InvalidDateData(Localization.get("empty.fields"), new DateData(calendar.getTime()), day, month, year);
+            return new InvalidDateData(Localization.get("calendar.empty.fields"), new DateData(calendar.getTime()), day, month, year);
         }
 
         //Invalid year (too low)
         if(Integer.parseInt(year) < MINYEAR){
-            return new InvalidDateData(Localization.get("low.year"), new DateData(calendar.getTime()), day, month, year);
+            return new InvalidDateData(Localization.get("calendar.low.year"), new DateData(calendar.getTime()), day, month, year);
         }
 
         //Invalid day (too high)
         if(Integer.parseInt(day) > calendar.getActualMaximum(Calendar.DAY_OF_MONTH)){
-            return new InvalidDateData(Localization.get("high.date") + " " + String.valueOf(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)), new DateData(calendar.getTime()), day, month, year);
+            return new InvalidDateData(Localization.get("calendar.high.date") + " " + String.valueOf(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)), new DateData(calendar.getTime()), day, month, year);
         }
 
         //Invalid day (too low)
         if(Integer.parseInt(day)< 1){
-            return new InvalidDateData(Localization.get("low.date"), new DateData(calendar.getTime()), day, month, year);
+            return new InvalidDateData(Localization.get("calendar.low.date"), new DateData(calendar.getTime()), day, month, year);
         }
 
         //Invalid year (too high)
         if(Integer.parseInt(year) > maxYear){
-            return new InvalidDateData(Localization.get("high.year") + " " + String.valueOf(maxYear), new DateData(calendar.getTime()), day, month, year);
+            return new InvalidDateData(Localization.get("calendar.high.year") + " " + String.valueOf(maxYear), new DateData(calendar.getTime()), day, month, year);
         }
 
         return super.getAnswer();

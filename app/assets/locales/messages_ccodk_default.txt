@@ -406,12 +406,12 @@ template.malformed.chevron=The template file set for your print job has improper
 cannot.set.template=Could not set your print template
 no.file.browser=Your device does not have a file browser installed. Please download one from the playstore and then try again.
 
-empty.fields=Please complete all fields
-low.year=Year must be > 1900
-invalid.month=Month is invalid
-high.date=Date can be at most
-low.date=Date must be at least 1
-high.year=Year can be at most
+calendar.empty.fields=Please complete all fields
+calendar.low.year=Year must be > 1900
+calendar.invalid.month=Month is invalid
+calendar.high.date=Date can be at most
+calendar.low.date=Date must be at least 1
+calendar.high.year=Year can be at most
 
 #Add new localization strings here
 
