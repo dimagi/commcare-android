@@ -23,7 +23,6 @@ import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
-import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -53,6 +52,8 @@ import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.AndroidArrayDataSource;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.views.media.MediaLayout;
@@ -135,12 +136,10 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * Displays questions, animates transitions between
  * questions, and allows the user to enter data.
- *
- * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActivity>
         implements AnimationListener, FormSavedListener, FormSaveCallback,
-        AdvanceToNextListener, WidgetChangedListener {
+        WithUIController, AdvanceToNextListener, WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
 
     // Defines for FormEntryActivity
@@ -209,7 +208,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // Path to a particular form instance
     public static String mInstancePath;
     private String mInstanceDestination;
-    private GestureDetector mGestureDetector;
 
     private SecretKeySpec symetricKey = null;
 
@@ -218,7 +216,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private Animation mInAnimation;
     private Animation mOutAnimation;
 
-    private ViewGroup mViewPane;
     private QuestionsView questionsView;
     private int indexOfLastChangedWidget = -1;
 
@@ -259,6 +256,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     enum AnimationType {
         LEFT, RIGHT, FADE
     }
+    private FormEntryActivityUIController uiController;
 
     @Override
     @SuppressLint("NewApi")
@@ -274,7 +272,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return;
         }
 
-        setupUI();
+        uiController.setupUI();
 
         // Load JavaRosa modules. needed to restore forms.
         new XFormsModule().registerModule();
@@ -346,76 +344,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         registerReceiver(mLocationServiceIssueReceiver, filter);
     }
 
-    private void setupUI() {
-        setContentView(R.layout.screen_form_entry);
-
-        ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
-        ImageButton prevButton = (ImageButton)this.findViewById(R.id.nav_btn_prev);
-
-        Button multiIntentDispatchButton = (Button)this.findViewById(R.id.multiple_intent_dispatch_button);
-
-        View finishButton = this.findViewById(R.id.nav_btn_finish);
-
-        TextView finishText = (TextView)finishButton.findViewById(R.id.nav_btn_finish_text);
-        finishText.setText(Localization.get("form.entry.finish.button").toUpperCase());
-
-        nextButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GoogleAnalyticsUtils.reportFormNavForward(
-                        GoogleAnalyticsFields.LABEL_ARROW,
-                        GoogleAnalyticsFields.VALUE_FORM_NOT_DONE);
-                FormEntryActivity.this.showNextView();
-            }
-        });
-
-        prevButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!NAV_STATE_QUIT.equals(v.getTag())) {
-                    GoogleAnalyticsUtils.reportFormNavBackward(GoogleAnalyticsFields.LABEL_ARROW);
-                    FormEntryActivity.this.showPreviousView(true);
-                } else {
-                    GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_PROGRESS_BAR_ARROW);
-                    FormEntryActivity.this.triggerUserQuitInput();
-                }
-            }
-        });
-
-        finishButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GoogleAnalyticsUtils.reportFormNavForward(
-                        GoogleAnalyticsFields.LABEL_ARROW,
-                        GoogleAnalyticsFields.VALUE_FORM_DONE);
-                triggerUserFormComplete();
-            }
-        });
-
-        multiIntentDispatchButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fireCompoundIntentDispatch();
-            }
-        });
-
-
-        mViewPane = (ViewGroup)findViewById(R.id.form_entry_pane);
-
-        requestMajorLayoutUpdates();
-
-        if (questionsView != null) {
-            questionsView.teardownView();
-        }
-
-        // re-set defaults in case the app got in a bad state.
-        isAnimatingSwipe = false;
-        isDialogShowing = false;
-        questionsView = null;
-        mInAnimation = null;
-        mOutAnimation = null;
-        mGestureDetector = new GestureDetector(this);
-    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -994,7 +922,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * repeat dialog, or the submit screen. Also saves answers to the data model after checking
      * constraints.
      */
-    private void showNextView() { showNextView(false); }
+    protected void showNextView() { showNextView(false); }
     private void showNextView(boolean resuming) {
         if (currentPromptIsQuestion()) {
             if (!saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS)) {
@@ -1066,72 +994,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    /**
-     * Determines what should be displayed between a question, or the start screen and displays the
-     * appropriate view. Also saves answers to the data model without checking constraints.
-     */
-    private void showPreviousView(boolean showSwipeAnimation) {
-        // The answer is saved on a back swipe, but question constraints are ignored.
-
-
-
-        if (currentPromptIsQuestion()) {
-            saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-        }
-
-        // Any info stored about the last changed widget is useless when we move to a new view
-        resetLastChangedWidget();
-
-        FormIndex startIndex = mFormController.getFormIndex();
-        FormIndex lastValidIndex = startIndex;
-
-        if (mFormController.getEvent() != FormEntryController.EVENT_BEGINNING_OF_FORM) {
-            int event = mFormController.stepToPreviousEvent();
-
-            //Step backwards until we either find a question, the beginning of the form,
-            //or a field list with valid questions inside
-            while (event != FormEntryController.EVENT_BEGINNING_OF_FORM
-                    && event != FormEntryController.EVENT_QUESTION
-                    && !(event == FormEntryController.EVENT_GROUP
-                            && mFormController.indexIsInFieldList() && mFormController
-                            .getQuestionPrompts().length != 0)) {
-                event = mFormController.stepToPreviousEvent();
-                lastValidIndex = mFormController.getFormIndex();
-            }
-
-            if(event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
-                // we can't go all the way back to the beginning, so we've
-                // gotta hit the last index that was valid
-                mFormController.jumpToIndex(lastValidIndex);
-
-                //Did we jump at all? (not sure how we could have, but there might be a mismatch)
-                if(lastValidIndex.equals(startIndex)) {
-                    //If not, don't even bother changing the view. 
-                    //NOTE: This needs to be the same as the
-                    //exit condition below, in case either changes
-                    FormEntryActivity.this.triggerUserQuitInput();
-                    return;
-                }
-
-                //We might have walked all the way back still, which isn't great, 
-                //so keep moving forward again until we find it
-                if(lastValidIndex.isBeginningOfFormIndex()) {
-                    //there must be a repeat between where we started and the beginning of hte form, walk back up to it
-                    this.showNextView(true);
-                    return;
-                }
-            }
-            QuestionsView next = createView();
-            if (showSwipeAnimation) {
-                showView(next, AnimationType.LEFT);
-            } else {
-                showView(next, AnimationType.FADE, false);
-            }
-
-        } else {
-            FormEntryActivity.this.triggerUserQuitInput();
-        }
-    }
 
     /**
      * Displays the View specified by the parameter 'next', animating both the current view and next
@@ -2451,5 +2313,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } else {
             return mFormController.getFormEntrySessionString();
         }
+    }
+
+    @Override
+    public void initUIController() {
+        uiController = new FormEntryActivityUIController(this);
+    }
+
+    @Override
+    public CommCareActivityUIController getUIController() {
+        return uiController;
     }
 }
