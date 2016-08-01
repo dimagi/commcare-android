@@ -20,9 +20,9 @@ public class AndroidArrayDataSource implements ArrayDataSource {
 
     @Override
     public String[] getArray(String key) {
-        if(key.contains("ethiopian")){
+        if(key.contains("ethiopian_months")){
             return context.getResources().getStringArray(R.array.ethiopian_months);
-        } else if(key.contains("nepali")){
+        } else if(key.contains("nepali_months")){
             return context.getResources().getStringArray(R.array.nepali_months);
         }
         throw new Resources.NotFoundException("Couldn't find Android array for key " + key);
