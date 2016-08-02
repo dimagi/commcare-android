@@ -21,26 +21,37 @@ import android.widget.Toast;
 import org.commcare.activities.components.FormLayoutHelpers;
 import org.commcare.activities.components.FormNavigationController;
 import org.commcare.activities.components.FormNavigationUI;
+import org.commcare.activities.components.FormRelevancyUpdating;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.HorizontalPaneledChoiceDialog;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.XPathArityException;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Vector;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -249,7 +260,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             hasGroupLabel = true;
             FormLayoutHelpers.updateGroupViewVisibility(activity, true, shouldHideGroupLabel);
         }
-        activity.updateCompoundIntentButtonVisibility();
+        updateCompoundIntentButtonVisibility();
     }
 
     /**
@@ -613,7 +624,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         isAnimatingSwipe = true;
     }
 
-    protected boolean hasGroupLabel() {
+    private boolean hasGroupLabel() {
         return hasGroupLabel;
     }
 
@@ -649,4 +660,82 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         indexOfLastChangedWidget = questionsView.getWidgets().indexOf(changedWidget);
     }
 
+    /**
+     * Identifies whether the questionlist featues an aggregatable intent callout and
+     * displays the appropriate button if so.
+     */
+    private void updateCompoundIntentButtonVisibility() {
+        CompoundIntentList i = questionsView.getAggregateIntentCallout();
+        if (i == null) {
+            hideCompoundIntentCalloutButton();
+        } else {
+            Button compoundDispatchButton =
+                    (Button)activity.findViewById(R.id.multiple_intent_dispatch_button);
+            compoundDispatchButton.setVisibility(View.VISIBLE);
+            compoundDispatchButton.setText(i.getTitle() + ": " + i.getNumberOfCallouts());
+        }
+    }
+
+    protected void hideCompoundIntentCalloutButton() {
+        activity.findViewById(R.id.multiple_intent_dispatch_button).setVisibility(View.GONE);
+    }
+
+    protected void updateFormRelevancies() {
+        ArrayList<QuestionWidget> oldWidgets = questionsView.getWidgets();
+        // These 2 calls need to be made here, rather than in the for loop below, because at that
+        // point the widgets will have already started being updated to the values for the new view
+        ArrayList<Vector<SelectChoice>> oldSelectChoices =
+                FormRelevancyUpdating.getOldSelectChoicesForEachWidget(oldWidgets);
+        ArrayList<String> oldQuestionTexts =
+                FormRelevancyUpdating.getOldQuestionTextsForEachWidget(oldWidgets);
+
+        activity.saveAnswersForCurrentScreen(FormEntryActivity.DO_NOT_EVALUATE_CONSTRAINTS);
+
+        FormEntryPrompt[] newValidPrompts;
+        try {
+            newValidPrompts = FormEntryActivity.mFormController.getQuestionPrompts();
+        } catch (XPathException e) {
+            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryActivity.EXIT);
+            return;
+        }
+        Set<FormEntryPrompt> promptsLeftInView = new HashSet<>();
+
+        ArrayList<Integer> shouldRemoveFromView = new ArrayList<>();
+        // Loop through all of the old widgets to determine which ones should stay in the new view
+        for (int i = 0; i < oldWidgets.size(); i++) {
+
+            //Intent widgets need to be fully rebuilt to update their intent callouts
+            //depending on model changes.
+            if (oldWidgets.get(i) instanceof IntentWidget) {
+                shouldRemoveFromView.add(i);
+                continue;
+            }
+            FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
+            String priorQuestionTextForThisWidget = oldQuestionTexts.get(i);
+            Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);
+
+            FormEntryPrompt equivalentNewPrompt =
+                    FormRelevancyUpdating.getEquivalentPromptInNewList(newValidPrompts,
+                            oldPrompt, priorQuestionTextForThisWidget, priorSelectChoicesForThisWidget);
+            if (equivalentNewPrompt != null) {
+                promptsLeftInView.add(equivalentNewPrompt);
+            } else {
+                // If there is no equivalent prompt in the list of new prompts, then this prompt is
+                // no longer relevant in the new view, so it should get removed
+                shouldRemoveFromView.add(i);
+            }
+        }
+        // Remove "atomically" to not mess up iterations
+        questionsView.removeQuestionsFromIndex(shouldRemoveFromView);
+
+        // Now go through add add any new prompts that we need
+        for (int i = 0; i < newValidPrompts.length; ++i) {
+            FormEntryPrompt prompt = newValidPrompts[i];
+            if (!promptsLeftInView.contains(prompt)) {
+                // If the old version of this prompt was NOT left in the view, then add it
+                questionsView.addQuestionToIndex(prompt, FormEntryActivity.mFormController.getWidgetFactory(), i);
+            }
+        }
+        updateCompoundIntentButtonVisibility();
+    }
 }
