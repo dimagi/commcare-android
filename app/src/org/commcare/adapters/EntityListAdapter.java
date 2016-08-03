@@ -25,7 +25,7 @@ import org.commcare.utils.CachingAsyncImageLoader;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityActionViewUtils;
 import org.commcare.views.EntityView;
-import org.commcare.views.GridEntityView;
+import org.commcare.views.EntityViewTile;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
@@ -257,16 +257,16 @@ public class EntityListAdapter implements ListAdapter {
 
         if (usesGridView) {
             // if we use a <grid>, setup an AdvancedEntityView
-            return getGridView(entity, (GridEntityView)convertView);
+            return getGridView(entity, (EntityViewTile)convertView);
         } else {
             return getListEntityView(entity, (EntityView)convertView, position);
         }
     }
 
-    private View getGridView(Entity<TreeReference> entity, GridEntityView emv) {
+    private View getGridView(Entity<TreeReference> entity, EntityViewTile emv) {
         int[] titleColor = AndroidUtil.getThemeColorIDs(commCareActivity, new int[]{R.attr.entity_select_title_text_color});
         if (emv == null) {
-            emv = new GridEntityView(commCareActivity, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
+            emv = new EntityViewTile(commCareActivity, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
         } else {
             emv.setSearchTerms(currentSearchTerms);
             emv.setViews(commCareActivity, detail, entity);

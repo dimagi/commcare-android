@@ -43,7 +43,7 @@ import java.util.Arrays;
  *         Each panel is defined by a Detail and an Entity
  *         Significant axis of configuration are NUMBER_ROWS, NUMBER_COLUMNS, AND CELL_HEIGHT_DIVISOR defined below
  */
-public class GridEntityView extends GridLayout {
+public class EntityViewTile extends GridLayout {
 
     private String[] searchTerms;
     private View[] mRowViews;
@@ -79,7 +79,7 @@ public class GridEntityView extends GridLayout {
      * Used to create a entity view tile outside of a managed context (like
      * for an individual entity out of a search context).
      */
-    public GridEntityView(Context context, Detail detail, Entity entity) {
+    public EntityViewTile(Context context, Detail detail, Entity entity) {
         this(context, detail, entity, new String[0], new CachingAsyncImageLoader(context), false);
     }
 
@@ -87,7 +87,8 @@ public class GridEntityView extends GridLayout {
      * Constructor for an entity tile in a managed context, like a list of entities being displayed
      * all at once for searching.
      */
-    public GridEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, boolean fuzzySearchEnabled) {
+    public EntityViewTile(Context context, Detail detail, Entity entity, String[] searchTerms,
+                          CachingAsyncImageLoader mLoader, boolean fuzzySearchEnabled) {
         super(context);
         this.searchTerms = searchTerms;
         this.mIsAsynchronous = entity instanceof AsyncEntity;
