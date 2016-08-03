@@ -38,7 +38,7 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.SessionStateUninitException;
-import org.commcare.views.GridEntityView;
+import org.commcare.views.EntityViewTile;
 import org.commcare.views.TabbedDetailView;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -411,7 +411,7 @@ public class BreadcrumbBarFragment extends Fragment {
         Entity entity = nef.getEntity(ref);
 
         Log.v("DEBUG-v", "Creating new GridEntityView for text header text");
-        GridEntityView tile = new GridEntityView(this.getActivity(), detail, entity);
+        EntityViewTile tile = new EntityViewTile(this.getActivity(), detail, entity);
         int[] textColor = AndroidUtil.getThemeColorIDs(getActivity(), new int[]{R.attr.drawer_pulldown_text_color, R.attr.menu_tile_title_text_color});
         tile.setTextColor(textColor[0]);
         tile.setTitleTextColor(textColor[1]);
