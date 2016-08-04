@@ -415,7 +415,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     new String[]{toastText});
         }
         uiController.setErrorMessageUI(toastText);
-        Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
     }
 
     /**
