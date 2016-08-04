@@ -771,8 +771,8 @@ fingerprint.match.25=★★
 fingerprint.match.0=★
 fingerprint.match.unknown=?
 
-calendar.empty.fields=empty fields
-calendar.low.year=year value below min value of 
-calendar.high.year=year value above max value of ${0}
-calendar.low.day=day value below min value of 1
-calendar.high.day=day value above max value of ${0}
+calendar.empty.fields=Empty fields
+calendar.low.year=Year value below min value of 
+calendar.high.year=Year value above max value of ${0}
+calendar.low.day=Day value below min value of 1
+calendar.high.day=Day value above max value of ${0}

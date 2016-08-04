@@ -44,6 +44,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     private LinearLayout gregorianView;
     private Spinner monthSpinner;
     private final ImageButton openCalButton;
+    private static final int EMPTY_MONTH_ENTRY_INDEX = 12;
 
     private List<String> monthList;
     private final int maxYear;
@@ -122,17 +123,15 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         monthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                validateDayTextOnButtonPress();
-                int previouslySelectedMonth = monthArrayPointer;
-                // Need to have a valid monthArrayPointer if they pick the
-                // empty option, so mod everything by 12
-                monthArrayPointer = position % 12;
-                int monthDifference = monthArrayPointer - previouslySelectedMonth;
-                DateTime dt = new DateTime(calendar.getTimeInMillis()).plusMonths(monthDifference);
-                calendar.setTimeInMillis(dt.getMillis());
-
-                // No need to redraw the day/year if month is blank
-                if (position < 12) {
+                if (position != EMPTY_MONTH_ENTRY_INDEX) {
+                    validateDayTextOnButtonPress();
+                    int previouslySelectedMonth = monthArrayPointer;
+                    // Need to have a valid monthArrayPointer if they pick the
+                    // empty option, so mod everything by 12
+                    monthArrayPointer = position % 12;
+                    int monthDifference = monthArrayPointer - previouslySelectedMonth;
+                    DateTime dt = new DateTime(calendar.getTimeInMillis()).plusMonths(monthDifference);
+                    calendar.setTimeInMillis(dt.getMillis());
                     refreshDisplay();
                 }
             }
@@ -202,8 +201,6 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         calendar.set(Calendar.YEAR, Integer.parseInt(yearTextValue));
     }
 
-    // Day-specific validation. Refactored into a separate method because it's
-    // called during month selection.
     private void validateDayTextOnButtonPress() {
         String dayTextString = dayText.getText().toString();
         int dayTextValue = Integer.parseInt(dayTextString);
@@ -343,6 +340,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     private void clearAll() {
         dayText.setText("");
         yearText.setText("");
+        monthSpinner.setSelection(EMPTY_MONTH_ENTRY_INDEX);
         setFocus(getContext());
     }
 
