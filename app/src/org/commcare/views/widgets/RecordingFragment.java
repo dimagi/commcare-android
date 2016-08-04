@@ -30,14 +30,16 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by Saumya on 6/15/2016.
- * A popup dialog fragment that handles recording_fragment and saving of audio files without external callout
+ * A popup dialog fragment that handles recording_fragment and saving of audio
+ * files without external callout.
+ *
+ * @author Saumya Jain (sjain@dimagi.com)
  */
-
 public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     private String fileName;
-    private final String FILE_EXT = "/Android/data/org.commcare.dalvik/temp/Custom_Recording.mp4";
+    private static final String FILE_EXT =
+            "/Android/data/org.commcare.dalvik/temp/Custom_Recording.mp4";
 
     private LinearLayout layout;
     private ImageButton toggleRecording;
@@ -85,7 +87,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         instruction.setText(Localization.get("after.recording"));
     }
 
-    protected void setWindowSize() {
+    private void setWindowSize() {
         Rect displayRectangle = new Rect();
         Window window = getActivity().getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
@@ -93,7 +95,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
     }
 
-    protected void prepareText() {
+    private void prepareText() {
         TextView header = (TextView) layout.findViewById(R.id.recording_header);
         header.setText(Localization.get("recording.header"));
         instruction = (TextView) layout.findViewById(R.id.recording_instruction);
@@ -222,7 +224,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         instruction.setText(Localization.get("after.recording"));
     }
 
-    public void saveRecording(){
+    private void saveRecording(){
         if(listener != null){
             listener.onRecordingCompletion();
         }
@@ -261,7 +263,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         return fileName;
     }
 
-    public static void disableScreenRotation(Activity context) {
+    private static void disableScreenRotation(Activity context) {
         int currentOrientation = context.getResources().getConfiguration().orientation;
 
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -272,11 +274,11 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         }
     }
 
-    public static void enableScreenRotation(Activity context) {
+    private static void enableScreenRotation(Activity context) {
         context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
     }
 
-    protected void playAudio() {
+    private void playAudio() {
 
         Uri myPath = Uri.parse(fileName);
         player = MediaPlayer.create(getContext(), myPath);

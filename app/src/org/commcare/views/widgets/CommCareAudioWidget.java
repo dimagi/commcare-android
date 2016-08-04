@@ -38,25 +38,26 @@ public class CommCareAudioWidget extends AudioWidget
     private LinearLayout layout;
     private ImageButton mPlayButton;
     private TextView recordingNameText;
-    private String questionIndexText;
+    private final String questionIndexText;
     private MediaPlayer player;
 
-    public CommCareAudioWidget(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic){
+    public CommCareAudioWidget(Context context, FormEntryPrompt prompt,
+                               PendingCalloutInterface pic) {
         super(context, prompt, pic);
-        fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
+        fm = ((FragmentActivity)getContext()).getSupportFragmentManager();
         recorder = new RecordingFragment();
         recorder.setListener(this);
         questionIndexText = prompt.getIndex().toString();
     }
 
     @Override
-    protected void initializeButtons(final FormEntryPrompt prompt){
-        LayoutInflater vi = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        layout = (LinearLayout) vi.inflate(R.layout.audio_prototype, null);
+    protected void initializeButtons(final FormEntryPrompt prompt) {
+        LayoutInflater vi = LayoutInflater.from(getContext());
+        layout = (LinearLayout)vi.inflate(R.layout.audio_prototype, null);
 
-        mPlayButton = (ImageButton) layout.findViewById(R.id.play_audio);
-        ImageButton captureButton = (ImageButton) layout.findViewById(R.id.capture_button);
-        ImageButton chooseButton = (ImageButton) layout.findViewById(R.id.choose_file);
+        mPlayButton = (ImageButton)layout.findViewById(R.id.play_audio);
+        ImageButton captureButton = (ImageButton)layout.findViewById(R.id.capture_button);
+        ImageButton chooseButton = (ImageButton)layout.findViewById(R.id.choose_file);
 
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,15 +99,14 @@ public class CommCareAudioWidget extends AudioWidget
     }
 
     @Override
-    public IAnswerData getAnswer(){
-        if(player != null){
-
-            try{
-                if(player.isPlaying()){
+    public IAnswerData getAnswer() {
+        if (player != null) {
+            try {
+                if (player.isPlaying()) {
                     System.out.println("Playing");
                     player.pause();
                 }
-            }catch(IllegalStateException e){
+            } catch (IllegalStateException e) {
                 //Do nothing because player is not playing
             }
 
@@ -117,27 +117,27 @@ public class CommCareAudioWidget extends AudioWidget
     }
 
     @Override
-    public void setupLayout(){
-        recordingNameText = (TextView) layout.findViewById(R.id.recording_text);
+    public void setupLayout() {
+        recordingNameText = (TextView)layout.findViewById(R.id.recording_text);
         recordingNameText.setText(Localization.get("recording.prompt"));
         addView(layout);
     }
 
     @Override
-    protected void captureAudio(FormEntryPrompt prompt){
+    protected void captureAudio(FormEntryPrompt prompt) {
         recorder.show(fm, "Recorder");
     }
 
     @Override
-    public void setBinaryData(Object binaryuri){
+    public void setBinaryData(Object binaryuri) {
         super.setBinaryData(binaryuri);
-        if(recordedFileName != null){
+        if (recordedFileName != null) {
             recordingNameText.setText(recordedFileName);
         }
     }
 
     @Override
-    public void onRecordingCompletion(){
+    public void onRecordingCompletion() {
         setBinaryData(recorder.getFileName());
         mPlayButton.setEnabled(true);
         mPlayButton.setBackgroundResource(R.drawable.play);
@@ -146,7 +146,7 @@ public class CommCareAudioWidget extends AudioWidget
     }
 
     @Override
-    public String getFileExtension(){
+    public String getFileExtension() {
         return questionIndexText;
     }
 
@@ -171,7 +171,7 @@ public class CommCareAudioWidget extends AudioWidget
         });
     }
 
-    private void pauseAudioPlayer(){
+    private void pauseAudioPlayer() {
         player.pause();
         mPlayButton.setBackgroundResource(R.drawable.play);
         mPlayButton.setOnClickListener(new OnClickListener() {
@@ -183,7 +183,7 @@ public class CommCareAudioWidget extends AudioWidget
         });
     }
 
-    private void resumeAudioPlayer(){
+    private void resumeAudioPlayer() {
         player.start();
         mPlayButton.setBackgroundResource(R.drawable.pause);
         mPlayButton.setOnClickListener(new OnClickListener() {
@@ -195,7 +195,7 @@ public class CommCareAudioWidget extends AudioWidget
         });
     }
 
-    private void resetAudioPlayer(){
+    private void resetAudioPlayer() {
         player.release();
         mPlayButton.setBackgroundResource(R.drawable.play);
         mPlayButton.setOnClickListener(new OnClickListener() {
@@ -209,32 +209,34 @@ public class CommCareAudioWidget extends AudioWidget
 
     @Override
     protected void togglePlayButton(boolean enabled) {
-        if(enabled){
+        if (enabled) {
             mPlayButton.setBackgroundResource(R.drawable.play);
-        }else{
+        } else {
             mPlayButton.setBackgroundResource(R.drawable.play_disabled);
         }
         mPlayButton.setEnabled(enabled);
     }
 
     @Override
-    protected void reloadFile(){
+    protected void reloadFile() {
         super.reloadFile();
         recordingNameText.setTextColor(getResources().getColor(R.color.black));
-        if(mBinaryName.contains(CUSTOM_TAG)){
+        if (mBinaryName.contains(CUSTOM_TAG)) {
             recordingNameText.setText(Localization.get("recording.custom"));
-        }else{
+        } else {
             recordingNameText.setText(mBinaryName);
         }
     }
 
     @Override
-    public void setOnLongClickListener(OnLongClickListener l) {}
+    public void setOnLongClickListener(OnLongClickListener l) {
+    }
 
     @Override
-    public void cancelLongPress() {}
+    public void cancelLongPress() {
+    }
 
     @Override
-    public void unsetListeners() {}
-
+    public void unsetListeners() {
+    }
 }
