@@ -315,7 +315,6 @@ public class GoogleAnalyticsUtils {
     }
 
     public static void reportLanguageAtPointOfFormEntry(String language) {
-        System.out.println("Language at time of form entry: " + language);
         reportEvent(GoogleAnalyticsFields.CATEGORY_LANGUAGE_STATS,
                 GoogleAnalyticsFields.ACTION_LANGUAGE_AT_FORM_ENTRY, language);
     }
