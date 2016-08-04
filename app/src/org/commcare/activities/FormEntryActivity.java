@@ -283,7 +283,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(
                 getApplicationContext()));
 
-        loadStateFromBundle(savedInstanceState);
+        if (savedInstanceState == null) {
+            GoogleAnalyticsUtils.reportLanguageAtPointOfFormEntry(Localization.getCurrentLocale());
+        } else {
+            loadStateFromBundle(savedInstanceState);
+        }
 
         // Need to override CalendarUtil's month localizer
         CalendarUtils.setArrayDataSource(new AndroidArrayDataSource(this));
