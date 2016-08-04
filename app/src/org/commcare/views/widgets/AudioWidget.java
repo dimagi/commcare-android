@@ -131,8 +131,7 @@ public class AudioWidget extends QuestionWidget {
             }
         });
 
-        String acq = prompt.getAppearanceHint();
-        if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
+        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(prompt.getAppearanceHint())) {
             mChooseButton.setVisibility(View.GONE);
         }
 
