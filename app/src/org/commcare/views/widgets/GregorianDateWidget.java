@@ -300,22 +300,22 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
 
         //Invalid year (too low)
         if(Integer.parseInt(year) < MINYEAR){
-            return new InvalidDateData(Localization.get("calendar.low.year"), new DateData(calendar.getTime()), day, month, year);
+            return new InvalidDateData(Localization.get("calendar.low.year", MINYEAR), new DateData(calendar.getTime()), day, month, year);
         }
 
         //Invalid day (too high)
         if(Integer.parseInt(day) > calendar.getActualMaximum(Calendar.DAY_OF_MONTH)){
-            return new InvalidDateData(Localization.get("calendar.high.date") + " " + String.valueOf(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)), new DateData(calendar.getTime()), day, month, year);
+            return new InvalidDateData(Localization.get("calendar.high.day", String.valueOf(calendar.getActualMaximum(Calendar.DAY_OF_MONTH))), new DateData(calendar.getTime()), day, month, year);
         }
 
         //Invalid day (too low)
         if(Integer.parseInt(day)< 1){
-            return new InvalidDateData(Localization.get("calendar.low.date"), new DateData(calendar.getTime()), day, month, year);
+            return new InvalidDateData(Localization.get("calendar.low.day"), new DateData(calendar.getTime()), day, month, year);
         }
 
         //Invalid year (too high)
         if(Integer.parseInt(year) > maxYear){
-            return new InvalidDateData(Localization.get("calendar.high.year") + " " + String.valueOf(maxYear), new DateData(calendar.getTime()), day, month, year);
+            return new InvalidDateData(Localization.get("calendar.high.year", String.valueOf(maxYear)), new DateData(calendar.getTime()), day, month, year);
         }
 
         return super.getAnswer();
