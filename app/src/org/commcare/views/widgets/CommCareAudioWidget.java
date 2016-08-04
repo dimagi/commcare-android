@@ -23,13 +23,15 @@ import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.spongycastle.asn1.iana.IANAObjectIdentifiers;
 
 /**
- * Created by Saumya on 6/3/2016.
- * An alternative audio widget that records and plays audio natively without callout to any external application
+ * An alternative audio widget that records and plays audio natively without
+ * callout to any external application.
+ *
+ * @author Saumya Jain (sjain@dimagi.com)
  */
-public class CommCareAudioWidget extends AudioWidget implements RecordingFragment.RecordingCompletionListener {
+public class CommCareAudioWidget extends AudioWidget
+        implements RecordingFragment.RecordingCompletionListener {
 
     private final RecordingFragment recorder;
     private final FragmentManager fm;

@@ -71,11 +71,6 @@ public class AudioWidget extends QuestionWidget {
         } else {
             togglePlayButton(false);
         }
-
-        String acq = prompt.getAppearanceHint();
-        if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
-            mChooseButton.setVisibility(View.GONE);
-        }
     }
 
     protected void reloadFile() {
@@ -89,7 +84,6 @@ public class AudioWidget extends QuestionWidget {
     }
 
     protected void initializeButtons(final FormEntryPrompt prompt){
-
         // setup capture button
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
@@ -137,6 +131,11 @@ public class AudioWidget extends QuestionWidget {
                 }
             }
         });
+
+        String acq = prompt.getAppearanceHint();
+        if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
+            mChooseButton.setVisibility(View.GONE);
+        }
 
         // on play, launch the appropriate viewer
         mPlayButton.setOnClickListener(new View.OnClickListener() {
