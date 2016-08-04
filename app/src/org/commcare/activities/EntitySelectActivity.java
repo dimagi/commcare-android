@@ -23,6 +23,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -242,7 +243,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 setupLandscapeDualPaneView();
             } else {
                 setContentView(R.layout.entity_select_layout);
-
                 restoreExistingSelection(isOrientationChange);
             }
         } else {
@@ -252,7 +252,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
         view.setOnItemClickListener(this);
 
-        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
+        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesEntityTileView());
         setupToolbar(view);
         setupMapNav();
     }
@@ -373,7 +373,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void setupUIFromAdapter(ListView view) {
         view.setAdapter(adapter);
-        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
+        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesEntityTileView());
 
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
@@ -471,7 +471,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         header.removeAllViews();
 
         // only add headers if we're not using grid mode
-        if (!shortSelect.usesGridView()) {
+        if (!shortSelect.usesEntityTileView()) {
             boolean hasCalloutResponseData = (adapter != null && adapter.hasCalloutResponseData());
             //Hm, sadly we possibly need to rebuild this each time.
             EntityView v =
@@ -937,11 +937,19 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
 
-        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-
-        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
-
         adapter = new EntityListAdapter(this, detail, references, entities, order, factory, hideActions);
+        ListView listView = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+        GridView gridView = ((GridView)this.findViewById(R.id.screen_entity_select_grid));
+        if (adapter.usesGridLayout()) {
+            listView.setVisibility(View.GONE);
+            gridView.setVisibility(View.VISIBLE);
+        } else {
+            listView.setVisibility(View.VISIBLE);
+            gridView.setVisibility(View.GONE);
+            EntitySelectViewSetup.setupDivider(this, listView, adapter.usesCaseTiles());
+        }
+
+
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);

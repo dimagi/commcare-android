@@ -11,8 +11,6 @@ import android.widget.ListAdapter;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
@@ -82,7 +80,8 @@ public class EntityListAdapter implements ListAdapter {
     private final CachingAsyncImageLoader mImageLoader;
 
     // false until we determine the Detail has at least one <grid> block
-    private boolean usesGridView = false;
+    private boolean usesCaseTiles = false;
+
     // key to data mapping used to attach callout results to individual entities
     private OrderedHashtable<String, String> calloutResponseData = new OrderedHashtable<>();
 
@@ -123,10 +122,7 @@ public class EntityListAdapter implements ListAdapter {
             mImageLoader = null;
         }
 
-        this.usesGridView = detail.usesGridView();
-        if (usesGridView) {
-            GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_USING_GRIDVIEW);
-        }
+        this.usesCaseTiles = detail.usesEntityTileView();
         this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
 
         setCurrent(new ArrayList<>(full));
@@ -255,7 +251,7 @@ public class EntityListAdapter implements ListAdapter {
     private View getEntityView(int position, View convertView) {
         Entity<TreeReference> entity = current.get(position);
 
-        if (usesGridView) {
+        if (usesCaseTiles) {
             // if we use a <grid>, setup an AdvancedEntityView
             return getGridView(entity, (EntityViewTile)convertView);
         } else {
@@ -470,5 +466,13 @@ public class EntityListAdapter implements ListAdapter {
         if (isFilteringByCalloutResult) {
             CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
         }
+    }
+
+    public boolean usesCaseTiles() {
+        return usesCaseTiles;
+    }
+
+    public boolean usesGridLayout() {
+        return false;
     }
 }
