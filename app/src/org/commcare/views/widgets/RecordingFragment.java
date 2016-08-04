@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.content.DialogInterface;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.javarosa.core.services.locale.Localization;
@@ -35,7 +36,7 @@ import java.io.IOException;
  *
  * @author Saumya Jain (sjain@dimagi.com)
  */
-public class RecordingFragment extends android.support.v4.app.DialogFragment{
+public class RecordingFragment extends android.support.v4.app.DialogFragment {
 
     private String fileName;
     private static final String FILE_EXT =
@@ -56,16 +57,16 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     private MediaPlayer player;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        layout = (LinearLayout) inflater.inflate(R.layout.recording_fragment, container);
-        disableScreenRotation((Activity) getContext());
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        layout = (LinearLayout)inflater.inflate(R.layout.recording_fragment, container);
+        disableScreenRotation((Activity)getContext());
         prepareButtons();
         prepareText();
         setWindowSize();
         fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_EXT + listener.getFileExtension();
 
         File f = new File(fileName);
-        if(f.exists()){
+        if (f.exists()) {
             reloadSavedRecording();
         }
 
@@ -96,18 +97,18 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     }
 
     private void prepareText() {
-        TextView header = (TextView) layout.findViewById(R.id.recording_header);
+        TextView header = (TextView)layout.findViewById(R.id.recording_header);
         header.setText(Localization.get("recording.header"));
-        instruction = (TextView) layout.findViewById(R.id.recording_instruction);
+        instruction = (TextView)layout.findViewById(R.id.recording_instruction);
         instruction.setText(Localization.get("before.recording"));
-        recordingDuration = (Chronometer) layout.findViewById(R.id.recording_time);
+        recordingDuration = (Chronometer)layout.findViewById(R.id.recording_time);
     }
 
     private void prepareButtons() {
-        ImageButton discardRecording = (ImageButton) layout.findViewById(R.id.discardrecording);
-        toggleRecording = (ImageButton) layout.findViewById(R.id.startrecording);
-        saveRecording = (Button) layout.findViewById(R.id.saverecording);
-        recordAgain = (Button) layout.findViewById(R.id.recycle);
+        ImageButton discardRecording = (ImageButton)layout.findViewById(R.id.discardrecording);
+        toggleRecording = (ImageButton)layout.findViewById(R.id.startrecording);
+        saveRecording = (Button)layout.findViewById(R.id.saverecording);
+        recordAgain = (Button)layout.findViewById(R.id.recycle);
 
         recordAgain.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,16 +139,16 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
             }
         });
         saveRecording.setText(Localization.get("save"));
-        recordingProgress = (ProgressBar) layout.findViewById(R.id.demo_mpc);
+        recordingProgress = (ProgressBar)layout.findViewById(R.id.demo_mpc);
     }
 
     private void resetRecordingView() {
-        if(recorder != null){
+        if (recorder != null) {
             recorder.release();
             recorder = null;
         }
 
-        if(player != null){
+        if (player != null) {
             resetAudioPlayer();
         }
 
@@ -165,8 +166,8 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         GoogleAnalyticsUtils.reportRecordingRecycled();
     }
 
-    private void startRecording(){
-        disableScreenRotation((Activity) getContext());
+    private void startRecording() {
+        disableScreenRotation((Activity)getContext());
         setCancelable(false);
 
         setupRecorder();
@@ -190,7 +191,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     }
 
     private void setupRecorder() {
-        if(recorder == null){
+        if (recorder == null) {
             recorder = new MediaRecorder();
         }
 
@@ -198,14 +199,14 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setOutputFile(fileName);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        try{
+        try {
             recorder.prepare();
-        }catch(IOException e){
+        } catch (IOException e) {
             Log.d("Recorder", "Failed to prepare media recorder");
         }
     }
 
-    private void stopRecording(){
+    private void stopRecording() {
 
         recordingDuration.stop();
         recordAgain.setVisibility(View.VISIBLE);
@@ -224,8 +225,8 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         instruction.setText(Localization.get("after.recording"));
     }
 
-    private void saveRecording(){
-        if(listener != null){
+    private void saveRecording() {
+        if (listener != null) {
             listener.onRecordingCompletion();
         }
         dismiss();
@@ -237,29 +238,29 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         String getFileExtension();
     }
 
-    public void setListener(RecordingCompletionListener listener){
+    public void setListener(RecordingCompletionListener listener) {
         this.listener = listener;
     }
 
     @Override
-    public void onDismiss(DialogInterface dialog){
+    public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        enableScreenRotation((Activity) getContext());
-        if(recorder != null){
+        enableScreenRotation((Activity)getContext());
+        if (recorder != null) {
             recorder.release();
             this.recorder = null;
         }
 
-        if(player != null){
-            try{
+        if (player != null) {
+            try {
                 player.release();
-            }catch(IllegalStateException e){
+            } catch (IllegalStateException e) {
                 //Do nothing because player wasn't recording
             }
         }
     }
 
-    public String getFileName(){
+    public String getFileName() {
         return fileName;
     }
 
@@ -268,8 +269,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        }
-        else {
+        } else {
             context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
         }
     }
@@ -301,7 +301,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         });
     }
 
-    private void pauseAudioPlayer(){
+    private void pauseAudioPlayer() {
         player.pause();
         recordingDuration.stop();
         currentTimeMillis = recordingDuration.getBase();
@@ -315,7 +315,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         });
     }
 
-    private void resumeAudioPlayer(){
+    private void resumeAudioPlayer() {
         recordingDuration.setBase(currentTimeMillis);
         recordingDuration.start();
         player.start();
@@ -329,7 +329,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         });
     }
 
-    private void resetAudioPlayer(){
+    private void resetAudioPlayer() {
         player.release();
         recordingDuration.stop();
         toggleRecording.setBackgroundResource(R.drawable.play);
