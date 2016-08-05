@@ -597,4 +597,19 @@ public class EncryptionUtils {
 
         return true;
     }
+
+    public static String getMD5HashAsString(String plainText) {
+        try {
+            // Taken from http://stackoverflow.com/questions/11665360/convert-md5-into-string-in-java
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(plainText.getBytes());
+            byte[] hashInBytes = md.digest();
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < hashInBytes.length; i++)
+                sb.append(Integer.toString((hashInBytes[i] & 0xff) + 0x100, 16).substring(1));
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            return "";
+        }
+    }
 }
