@@ -19,11 +19,11 @@ public class GlobalPrivilegesManager {
 
     private static final String GLOBAL_PRIVELEGES_FILENAME = "global-preferences-filename";
 
-    public static final String PRIVILEGE_SUPERUSER = "superuser";
+    public static final String PRIVILEGE_MULTIPLE_APPS = "multiple_apps_unlimited";
 
     public static final ArrayList<String> allGlobalPrivilegesList = new ArrayList<>();
     static {
-        allGlobalPrivilegesList.add(PRIVILEGE_SUPERUSER);
+        allGlobalPrivilegesList.add(PRIVILEGE_MULTIPLE_APPS);
     }
 
     private static SharedPreferences getGlobalPrivilegesRecord() {
@@ -49,13 +49,13 @@ public class GlobalPrivilegesManager {
     }
 
     public static boolean isSuperuserPrivilegeEnabled() {
-        return isPrivilegeEnabled(PRIVILEGE_SUPERUSER);
+        return isPrivilegeEnabled(PRIVILEGE_MULTIPLE_APPS);
     }
 
     public static String getPrivilegeDisplayName(String privilegeName) {
         switch(privilegeName) {
-            case PRIVILEGE_SUPERUSER:
-                return "superuser";
+            case PRIVILEGE_MULTIPLE_APPS:
+                return "multiple apps";
             default:
                 return "";
         }
@@ -63,8 +63,8 @@ public class GlobalPrivilegesManager {
 
     public static int getInstructionsTextId(String privilegeName) {
         switch(privilegeName) {
-            case PRIVILEGE_SUPERUSER:
-                return R.string.superuser_privilege_instructions;
+            case PRIVILEGE_MULTIPLE_APPS:
+                return R.string.multiple_apps_privilege_instructions;
             default:
                 return -1;
         }

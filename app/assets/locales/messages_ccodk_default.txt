@@ -107,7 +107,7 @@ home.developer.options.enabled=Developer Mode Enabled
 
 menu.save.session=Save Your Session
 menu.clear.saved.session=Clear Saved Session
-menu.superusuer.auth=Authenticate as a Superuser
+menu.enable.privilege=Enable a Mobile Privilege
 menu.privilege.claim.disable=Disable Privilege
 
 install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.

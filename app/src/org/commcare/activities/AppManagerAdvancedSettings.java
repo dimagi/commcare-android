@@ -20,12 +20,12 @@ import java.util.Map;
  */
 public class AppManagerAdvancedSettings extends SessionAwarePreferenceActivity {
 
-    private final static String AUTHENTICATE_AS_SUPERUSER = "authenticate-as-superuser";
+    private final static String ENABLE_PRIVILEGE = "enable-mobile-privilege";
 
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
 
     static {
-        keyToTitleMap.put(AUTHENTICATE_AS_SUPERUSER, "menu.superusuer.auth");
+        keyToTitleMap.put(ENABLE_PRIVILEGE, "menu.enable.privilege");
     }
 
     @Override
@@ -44,7 +44,7 @@ public class AppManagerAdvancedSettings extends SessionAwarePreferenceActivity {
     }
 
     private void setupButtons() {
-        Preference superuserAuthButton = findPreference(AUTHENTICATE_AS_SUPERUSER);
+        Preference superuserAuthButton = findPreference(ENABLE_PRIVILEGE);
         superuserAuthButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -58,7 +58,7 @@ public class AppManagerAdvancedSettings extends SessionAwarePreferenceActivity {
     private void launchSuperuserAuth() {
         Intent i = new Intent(this, GlobalPrivilegeClaimingActivity.class);
         i.putExtra(GlobalPrivilegeClaimingActivity.KEY_PRIVILEGE_NAME,
-                GlobalPrivilegesManager.PRIVILEGE_SUPERUSER);
+                GlobalPrivilegesManager.PRIVILEGE_MULTIPLE_APPS);
         startActivity(i);
     }
 
