@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+    <message nature="ota_restore_success">Successfully restored account test!</message>
+    <Sync xmlns="http://commcarehq.org/sync">
+        <restore_id>47fcb4dfdccee58a3a23e15203af6b98</restore_id>
+    </Sync>
+    <Registration xmlns="http://openrosa.org/user/registration">
+        <username>demo_user</username>
+        <password>sha1$RN0a5vk7r0cV$1c977a56109a8d4a573f121a24c6fc923649aec7</password>
+        <uuid>441bdbb17001bade54aa23dcb7ff48f9</uuid>
+        <date>2016-03-03</date>
+        <user_data>
+            <data key="commcare_first_name">demo</data>
+            <data key="commcare_last_name">user</data>
+            <data key="commcare_phone_number"/>
+        </user_data>
+    </Registration>
+    <fixture id="user-groups" user_id="441bdbb17001bade54aa23dcb7ff48f9">
+        <groups/>
+    </fixture>
+    <case case_id="case_one"
+          date_modified="2016-08-03T20:41:58.411000Z" user_id="441bdbb17001bade54aa23dcb7ff48f9"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>case</case_type>
+            <case_name>!!!!!</case_name>
+            <owner_id>441bdbb17001bade54aa23dcb7ff48f9</owner_id>
+        </create>
+        <update>
+            <favorite_color>Burnt umber</favorite_color>
+        </update>
+    </case>
+    <case case_id="case_two"
+          date_modified="2016-08-03T20:41:58.411000Z" user_id="441bdbb17001bade54aa23dcb7ff48f9"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>case</case_type>
+            <case_name>******</case_name>
+            <owner_id>441bdbb17001bade54aa23dcb7ff48f9</owner_id>
+        </create>
+        <update>
+            <favorite_color>Cadmium Yellow</favorite_color>
+        </update>
+    </case>
+</OpenRosaResponse>

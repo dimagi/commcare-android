@@ -41,7 +41,7 @@ configurations {
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    testCompile 'org.robolectric:robolectric:3.1'
+    testCompile 'org.robolectric:robolectric:3.1.2'
     testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
     debugCompile project(':commcare-core')

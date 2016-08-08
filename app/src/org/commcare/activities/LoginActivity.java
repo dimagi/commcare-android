@@ -59,7 +59,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-    private static final int MENU_DEMO = Menu.FIRST;
+    public static final int MENU_DEMO = Menu.FIRST;
     private static final int MENU_ABOUT = Menu.FIRST + 1;
     private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
     private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
