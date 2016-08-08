@@ -72,9 +72,4 @@ public class JavaFileReference implements Reference {
     public String getLocalURI() {
         return new File(localPart + File.separator + uri).getAbsolutePath();
     }
-
-    @Override
-    public Reference[] probeAlternativeReferences() {
-        return new Reference[0];
-    }
 }
