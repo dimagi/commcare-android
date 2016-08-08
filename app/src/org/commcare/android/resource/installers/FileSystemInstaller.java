@@ -169,7 +169,6 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     public boolean upgrade(Resource r) {
         try {
             //TODO: This process is silly! Just put the files somewhere as a resource with a unique GUID and stop shuffling them around!
-            //TODO: Also, there's way too much duplicated code here
 
             //use same filename as before
             String filepart = localLocation.substring(localLocation.lastIndexOf("/"));

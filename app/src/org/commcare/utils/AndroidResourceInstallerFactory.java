@@ -4,6 +4,7 @@ import org.commcare.android.resource.installers.LocaleAndroidInstaller;
 import org.commcare.android.resource.installers.MediaFileAndroidInstaller;
 import org.commcare.android.resource.installers.ProfileAndroidInstaller;
 import org.commcare.android.resource.installers.SuiteAndroidInstaller;
+import org.commcare.android.resource.installers.UserRestoreAndroidInstaller;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.ResourceInstaller;
@@ -19,6 +20,11 @@ public class AndroidResourceInstallerFactory extends InstallerFactory {
     @Override
     public ResourceInstaller getXFormInstaller() {
         return new XFormAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
+    }
+
+    @Override
+    public ResourceInstaller getUserRestoreInstaller() {
+        return new UserRestoreAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
     }
 
     @Override
