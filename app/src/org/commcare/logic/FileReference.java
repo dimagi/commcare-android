@@ -59,9 +59,4 @@ class FileReference implements Reference {
     public String getLocalURI() {
         return getInternalURI();
     }
-
-    @Override
-    public Reference[] probeAlternativeReferences() {
-        return null;
-    }
 }

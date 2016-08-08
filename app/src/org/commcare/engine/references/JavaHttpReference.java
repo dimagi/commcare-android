@@ -61,12 +61,6 @@ public class JavaHttpReference implements Reference {
         return uri;
     }
 
-    @Override
-    public Reference[] probeAlternativeReferences() {
-        return new Reference[0];
-    }
-
-
     //TODO: This should get changed to be set from the root, don't assume this will
     //still be here indefinitely
     public void setHttpRequestor(HttpRequestEndpoints generator) {

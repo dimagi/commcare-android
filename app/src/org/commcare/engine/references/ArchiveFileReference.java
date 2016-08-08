@@ -9,9 +9,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
+ * Associates a GUID and relative path with a corresponding real directory in
+ * the filesystem
+ *
  * @author wspride
- *         this class associates a GUID and relative path with a corresponding
- *         real directory in the filesystem
  */
 class ArchiveFileReference implements Reference {
 
@@ -64,10 +65,5 @@ class ArchiveFileReference implements Reference {
     @Override
     public String getLocalURI() {
         return localroot + "/" + archiveURI;
-    }
-
-    @Override
-    public Reference[] probeAlternativeReferences() {
-        return new Reference[0];
     }
 }
