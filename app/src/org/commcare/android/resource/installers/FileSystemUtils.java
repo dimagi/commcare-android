@@ -9,11 +9,7 @@ import org.javarosa.core.reference.ReferenceManager;
 
 import java.io.File;
 
-/**
- * @author Phillip Mates (pmates@dimagi.com)
- */
 public class FileSystemUtils {
-
     //TODO: Put files into an arbitrary name and keep the reference. This confuses things too much
     protected static Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
         String input = loc.getLocation();
