@@ -35,7 +35,6 @@ import java.io.IOException;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-
 public class AudioWidget extends QuestionWidget {
     private static final String TAG = AudioWidget.class.getSimpleName();
     protected static final String CUSTOM_TAG = "custom";
@@ -48,7 +47,7 @@ public class AudioWidget extends QuestionWidget {
     protected String recordedFileName;
     protected String mBinaryName;
     protected final String mInstanceFolder;
-    protected String customFileTag;
+    private String customFileTag;
 
     public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
@@ -71,11 +70,6 @@ public class AudioWidget extends QuestionWidget {
         } else {
             togglePlayButton(false);
         }
-
-        String acq = prompt.getAppearanceHint();
-        if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
-            mChooseButton.setVisibility(View.GONE);
-        }
     }
 
     protected void reloadFile() {
@@ -89,7 +83,6 @@ public class AudioWidget extends QuestionWidget {
     }
 
     protected void initializeButtons(final FormEntryPrompt prompt){
-
         // setup capture button
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
@@ -137,6 +130,10 @@ public class AudioWidget extends QuestionWidget {
                 }
             }
         });
+
+        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(prompt.getAppearanceHint())) {
+            mChooseButton.setVisibility(View.GONE);
+        }
 
         // on play, launch the appropriate viewer
         mPlayButton.setOnClickListener(new View.OnClickListener() {
@@ -257,9 +254,10 @@ public class AudioWidget extends QuestionWidget {
             values.put(Audio.Media.DATE_ADDED, System.currentTimeMillis());
             values.put(Audio.Media.DATA, newAudio.getAbsolutePath());
 
-            Uri AudioURI =
+            Uri audioUri =
                     getContext().getContentResolver().insert(Audio.Media.EXTERNAL_CONTENT_URI, values);
-            Log.i(TAG, "Inserting AUDIO returned uri = " + AudioURI.toString());
+            String audioUriString = audioUri == null ? "null" : audioUri.toString();
+            Log.i(TAG, "Inserting AUDIO returned uri = " + audioUriString);
         } else {
             Log.e(TAG, "Inserting Audio file FAILED");
         }

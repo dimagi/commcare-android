@@ -314,6 +314,11 @@ public class GoogleAnalyticsUtils {
         reportEvent(GoogleAnalyticsFields.CATEGORY_PRIVILEGE_ENABLED, privilegeName, username);
     }
 
+    public static void reportLanguageAtPointOfFormEntry(String language) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_LANGUAGE_STATS,
+                GoogleAnalyticsFields.ACTION_LANGUAGE_AT_FORM_ENTRY, language);
+    }
+
     /**
      * Report the length of a certain user event/action/concept
      *
