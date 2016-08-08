@@ -1,30 +1,16 @@
 package org.commcare.android.resource.installers;
 
-import android.support.v4.util.Pair;
-
-import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceLocation;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
 import java.io.File;
 
 public class FileSystemUtils {
-    //TODO: Put files into an arbitrary name and keep the reference. This confuses things too much
-    protected static Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
-        String input = loc.getLocation();
-        String extension = "";
-        int lastDot = input.lastIndexOf(".");
-        if (lastDot != -1) {
-            extension = input.substring(lastDot);
-        }
-        return new Pair<>(r.getResourceId(), extension(extension));
-    }
 
     //Hate this
     private static final String validExtChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-    private static String extension(String input) {
+    public static String extension(String input) {
         int invalid = -1;
         //we wanna go from the last "." to the next non-alphanumeric character.
         for (int i = 1; i < input.length(); ++i) {
