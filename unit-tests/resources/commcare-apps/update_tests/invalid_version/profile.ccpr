@@ -91,7 +91,7 @@
 
     <suite><resource id="suite" version="8">
         
-          <location authority="remote">jr://resource/commcare-apps/update_tests/base_app/suite.xml</location>
+          <location authority="remote">./suite.xml</location>
             <location authority="local">./suite.xml</location>
         
     </resource></suite>

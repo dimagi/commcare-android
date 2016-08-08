@@ -90,12 +90,12 @@
     </features>
 
     <suite><resource id="suite" version="9">
-          <location authority="remote">jr://resource/commcare-apps/update_tests/valid_update/suite.xml</location>
+            <location authority="remote">./suite.xml</location>
             <location authority="local">./suite.xml</location>
     </resource></suite>
 
     <suite><resource id="media-suite" version="9">
-          <location authority="remote">jr://resource/commcare-apps/update_tests/valid_update/media_suite.xml</location>
+          <location authority="remote">./media_suite.xml</location>
             <location authority="local">./media_suite.xml</location>
     </resource></suite>
 
