@@ -1,6 +1,6 @@
 package org.commcare.android.resource.installers;
 
-import android.util.Pair;
+import android.support.v4.util.Pair;
 
 import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
@@ -46,7 +46,6 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     //TODO:HAAACKY.
     private static final String STAGING_EXT = "cc_app-staging";
 
-
     String localLocation;
     String localDestination;
     private String upgradeDestination;
@@ -58,10 +57,6 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     FileSystemInstaller(String localDestination, String upgradeDestination) {
         this.localDestination = localDestination;
         this.upgradeDestination = upgradeDestination;
-    }
-
-    @Override
-    public void cleanup() {
     }
 
     @Override
@@ -90,7 +85,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
 
             //Stream to location
             try {
-                Pair<String, String> fileDetails = getResourceName(r, location);
+                Pair<String, String> fileDetails = FileSystemUtils.getResourceName(r, location);
                 //Final destination
                 localReference = getEmptyLocalReference((upgrade ? upgradeDestination : localDestination), fileDetails.first, fileDetails.second);
 
@@ -193,49 +188,17 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             //Get final destination
             String finalLocation = localDestination + "/" + filepart;
 
-            if (!moveFrom(localLocation, finalLocation, false)) {
+            if (!FileSystemUtils.moveFrom(localLocation, finalLocation, false)) {
                 return false;
             }
 
             localLocation = finalLocation;
             return true;
         } catch (InvalidReferenceException e) {
-            //e.printStackTrace();
-            //throw new UnresolvedResourceException(r, "Invalid reference while upgrading local resource. Reference path is: " + e.getReferenceString());
             return false;
         }
     }
 
-
-    private boolean moveFrom(String oldLocation, String newLocation, boolean force) throws InvalidReferenceException {
-        File newFile = new File(ReferenceManager._().DeriveReference(newLocation).getLocalURI());
-        File oldFile = new File(ReferenceManager._().DeriveReference(oldLocation).getLocalURI());
-
-        if (!oldFile.exists()) {
-            //Nothing should be allowed to exist in the new location except for the incoming file
-            //due to the staging rules. If there's a file there, it's this one.
-            return newFile.exists();
-        }
-
-        if (oldFile.exists() && newFile.exists()) {
-            //There's a destination file where this file is 
-            //trying to move to. Something might have failed to unstage
-            if (force) {
-                //If we're recovering or something, wipe out the destination.
-                //we've gotta recover!
-                if (!newFile.delete()) {
-                    return false;
-                } else {
-                    //new file is gone. Let's get ours in there!
-                }
-            } else {
-                //can't copy over an existing file. An unstage might have failed.
-                return false;
-            }
-        }
-
-        return oldFile.renameTo(newFile);
-    }
 
     @Override
     public boolean unstage(Resource r, int newStatus) {
@@ -243,7 +206,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             //Our destination/source are different depending on where we're going
             if (newStatus == Resource.RESOURCE_STATUS_UNSTAGED) {
                 String newLocation = localLocation + STAGING_EXT;
-                if (!moveFrom(localLocation, newLocation, true)) {
+                if (!FileSystemUtils.moveFrom(localLocation, newLocation, true)) {
                     return false;
                 }
                 localLocation = newLocation;
@@ -256,7 +219,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                 String finalLocation = upgradeDestination + "/" + filepart;
 
                 //move back to upgrade folder
-                if (!moveFrom(localLocation, finalLocation, true)) {
+                if (!FileSystemUtils.moveFrom(localLocation, finalLocation, true)) {
                     return false;
                 }
                 localLocation = finalLocation;
@@ -267,11 +230,8 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             }
         } catch (InvalidReferenceException e) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "Very Bad! Couldn't derive a reference to " + e.getReferenceString());
-            //e.printStackTrace();
-            //throw new UnresolvedResourceException(r, "Invalid reference while upgrading local resource. Reference path is: " + e.getReferenceString());
             return false;
         }
-
     }
 
     @Override
@@ -290,7 +250,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             //Get final destination
             finalLocation = localDestination + "/" + filepart;
 
-            if (!moveFrom(localLocation, finalLocation, true)) {
+            if (!FileSystemUtils.moveFrom(localLocation, finalLocation, true)) {
                 return false;
             }
 
@@ -298,15 +258,12 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             return true;
         } catch (InvalidReferenceException e) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "Very Bad! Couldn't restore a resource to destination" + finalLocation + " somehow");
-            //e.printStackTrace();
-            //throw new UnresolvedResourceException(r, "Invalid reference while upgrading local resource. Reference path is: " + e.getReferenceString());
             return false;
         }
     }
 
     @Override
     public int rollback(Resource r) {
-
         //TODO: These filepath ops need to be the same for this all to work,
         //which is not super robust against changes right now.
 
@@ -377,9 +334,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                     return -1;
                 }
             }
-        } catch (InvalidReferenceException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (InvalidReferenceException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -398,35 +353,6 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         ExtUtil.writeString(out, upgradeDestination);
     }
 
-    //TODO: Put files into an arbitrary name and keep the reference. This confuses things too much
-    Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
-        String input = loc.getLocation();
-        String extension = "";
-        int lastDot = input.lastIndexOf(".");
-        if (lastDot != -1) {
-            extension = input.substring(lastDot);
-        }
-        return new Pair<>(r.getResourceId(), extension(extension));
-    }
-
-    //Hate this
-    private static final String validExtChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-    private String extension(String input) {
-        int invalid = -1;
-        //we wanna go from the last "." to the next non-alphanumeric character.
-        for (int i = 1; i < input.length(); ++i) {
-            if (validExtChars.indexOf(input.charAt(i)) == -1) {
-                invalid = i;
-                break;
-            }
-        }
-        if (invalid == -1) {
-            return input;
-        }
-        return input.substring(0, invalid);
-    }
-
     @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> issues) {
         try {
@@ -443,5 +369,9 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void cleanup() {
     }
 }
