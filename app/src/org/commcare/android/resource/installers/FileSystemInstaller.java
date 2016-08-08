@@ -80,7 +80,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             Reference localReference;
             OutputStream outputFileStream;
             try {
-                Pair<String, String> fileNameAndExt = FileSystemUtils.getResourceName(r, location);
+                Pair<String, String> fileNameAndExt = getResourceName(r, location);
                 String referenceRoot = upgrade ? upgradeDestination : localDestination;
                 localReference = getEmptyLocalReference(referenceRoot, fileNameAndExt.first, fileNameAndExt.second);
 
@@ -356,6 +356,17 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             return true;
         }
         return false;
+    }
+
+    //TODO: Put files into an arbitrary name and keep the reference. This confuses things too much
+    protected Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
+        String input = loc.getLocation();
+        String extension = "";
+        int lastDot = input.lastIndexOf(".");
+        if (lastDot != -1) {
+            extension = input.substring(lastDot);
+        }
+        return new Pair<>(r.getResourceId(), FileSystemUtils.extension(extension));
     }
 
     @Override
