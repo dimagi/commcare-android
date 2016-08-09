@@ -2,8 +2,6 @@ package org.commcare.views.widgets;
 
 import android.content.Context;
 
-import org.commcare.utils.AndroidArrayDataSource;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.util.CalendarUtils;
 import org.javarosa.xform.util.UniversalDate;
