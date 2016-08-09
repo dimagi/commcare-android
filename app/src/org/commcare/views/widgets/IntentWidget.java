@@ -11,6 +11,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,7 +31,7 @@ import org.javarosa.form.api.FormEntryPrompt;
  */
 public class IntentWidget extends QuestionWidget {
 
-    private final TextView mStringAnswer;
+    protected final TextView mStringAnswer;
     private final Intent intent;
     private final String getButtonLocalizationKey;
     private final String updateButtonLocalizationKey;
@@ -61,7 +62,11 @@ public class IntentWidget extends QuestionWidget {
         this.updateButtonLocalizationKey = updateButtonLocalizationKey;
         isEditable = ic.getAppearance().contains("editable");
 
-        mStringAnswer = new TextView(getContext());
+        if (isEditable) {
+            mStringAnswer = new EditText(getContext());
+        } else {
+            mStringAnswer = new TextView(getContext());
+        }
         launchIntentButton = new Button(getContext());
         setupTextView();
         setupButton();
@@ -144,6 +149,7 @@ public class IntentWidget extends QuestionWidget {
 
     @Override
     public void clearAnswer() {
+        ic.processBarcodeResponse(mPrompt.getIndex().getReference(), null);
         mStringAnswer.setText(null);
         setButtonLabel();
     }
@@ -151,12 +157,6 @@ public class IntentWidget extends QuestionWidget {
     @Override
     public IAnswerData getAnswer() {
         return mPrompt.getAnswerValue();
-    }
-
-    @Override
-    public void setBinaryData(Object answer) {
-        mStringAnswer.setText((String)answer);
-        setButtonLabel();
     }
 
     @Override

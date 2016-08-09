@@ -6,8 +6,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
@@ -21,7 +19,6 @@ import org.javarosa.form.api.FormEntryPrompt;
  */
 public class BarcodeWidget extends IntentWidget implements TextWatcher {
 
-    private TextView mStringAnswer;
     private boolean hasTextChanged;
 
     public BarcodeWidget(Context context, FormEntryPrompt prompt, Intent i, IntentCallout ic,
@@ -33,7 +30,6 @@ public class BarcodeWidget extends IntentWidget implements TextWatcher {
     @Override
     public void setupTextView() {
         if (isEditable) {
-            mStringAnswer = new EditText(getContext());
             mStringAnswer.addTextChangedListener(this);
             mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
             mStringAnswer.setGravity(Gravity.CENTER);
