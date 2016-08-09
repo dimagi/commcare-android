@@ -6,21 +6,32 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.UserRestore;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.reference.Reference;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UserRestoreAndroidInstaller extends FileSystemInstaller {
+    private String username;
+    private String password;
 
     @SuppressWarnings("unused")
     public UserRestoreAndroidInstaller() {
         // for externalization
     }
 
-    public UserRestoreAndroidInstaller(String localDestination, String upgradeDestination) {
+    public UserRestoreAndroidInstaller(String localDestination, String upgradeDestination,
+                                       String username, String password) {
         super(localDestination, upgradeDestination);
+
+        this.username = username;
+        this.password = password;
     }
 
     @Override
@@ -28,7 +39,7 @@ public class UserRestoreAndroidInstaller extends FileSystemInstaller {
         if (localLocation == null) {
             throw new ResourceInitializationException("The user restore file location is null!");
         }
-        UserRestore userRestore = new UserRestore(localLocation);
+        UserRestore userRestore = new UserRestore(localLocation, username, password);
         instance.registerDemoUserRestore(userRestore);
         return true;
     }
@@ -41,5 +52,22 @@ public class UserRestoreAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean requiresRuntimeInitialization() {
         return true;
+    }
+
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
+        super.readExternal(in, pf);
+
+        this.username = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        this.password = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        super.writeExternal(out);
+
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(username));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(password));
     }
 }

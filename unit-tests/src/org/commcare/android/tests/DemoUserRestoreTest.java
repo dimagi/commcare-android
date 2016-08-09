@@ -2,6 +2,7 @@ package org.commcare.android.tests;
 
 import android.content.Intent;
 
+import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.activities.DispatchActivity;
@@ -39,6 +40,7 @@ public class DemoUserRestoreTest {
     public void loginUsingDemoUserWithoutRestore() {
         TestAppInstaller.installApp(REF_BASE_DIR +
                 "app_without_demo_user_restore/profile.ccpr");
+        CommCareApplication._().getCurrentApp().setMMResourcesValidated();
 
         loginAsDemoUser();
 
@@ -72,13 +74,14 @@ public class DemoUserRestoreTest {
     public void testDemoUserRestoreAndUpdate() {
         TestAppInstaller.installApp(REF_BASE_DIR +
                 "app_with_demo_user_restore/profile.ccpr");
+        CommCareApplication._().getCurrentApp().setMMResourcesValidated();
 
         loginAsDemoUser();
 
         launchHomeActivity();
 
         EntitySelectActivity entitySelectActivity =
-                CaseLoadUtils.launchEntitySelectActivity("m0-f0");
+                CaseLoadUtils.launchEntitySelectActivity("m1-f0");
 
         EntityListAdapter adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(2, adapter.getCount());
@@ -90,7 +93,7 @@ public class DemoUserRestoreTest {
                 AppInstallStatus.Installed);
 
         // make sure there is only 1 case
-        entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m0-f0");
+        entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m1-f0");
 
         adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(1, adapter.getCount());

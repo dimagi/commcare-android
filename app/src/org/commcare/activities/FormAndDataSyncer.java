@@ -12,6 +12,7 @@ import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.suite.model.UserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskReceiver;
@@ -112,7 +113,7 @@ public class FormAndDataSyncer {
             String username, String password,
             DataPullRequester dataPullRequester) {
 
-        DataPullTask<PullTaskReceiver> mDataPullTask = new DataPullTask<PullTaskReceiver>(
+        DataPullTask<PullTaskReceiver> dataPullTask = new DataPullTask<PullTaskReceiver>(
                 username,
                 password,
                 server,
@@ -137,8 +138,8 @@ public class FormAndDataSyncer {
             }
         };
 
-        mDataPullTask.connect(activity);
-        mDataPullTask.executeParallel();
+        dataPullTask.connect(activity);
+        dataPullTask.executeParallel();
     }
 
     public <I extends CommCareActivity & PullTaskReceiver & ConnectorWithResultCallback>
@@ -188,5 +189,13 @@ public class FormAndDataSyncer {
 
         LocalDataPullResponseFactory.setRequestPayloads(new String[]{SingleAppInstallation.LOCAL_RESTORE_REFERENCE});
         syncData(context, false, false, "fake-server-that-is-never-used", username, password, LocalDataPullResponseFactory.INSTANCE);
+    }
+
+    public <I extends CommCareActivity & PullTaskReceiver> void performDemoUserRestore(
+            I context,
+            UserRestore userRestore) {
+
+        LocalDataPullResponseFactory.setRequestPayloads(new String[]{userRestore.getReference()});
+        syncData(context, false, false, "fake-server-that-is-never-used", userRestore.getUsername(), userRestore.getPassword(), LocalDataPullResponseFactory.INSTANCE);
     }
 }

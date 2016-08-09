@@ -30,6 +30,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.suite.model.UserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
@@ -188,7 +189,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public String getActivityTitle() {
-        //TODO: "Login"?
         return null;
     }
 
@@ -367,9 +367,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         boolean otherResult = super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case MENU_DEMO:
-                DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
-                tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
-                        false, LoginMode.PASSWORD);
+                loginDemoUser();
                 return true;
             case MENU_ABOUT:
                 DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog();
@@ -387,6 +385,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return true;
             default:
                 return otherResult;
+        }
+    }
+
+    private void loginDemoUser() {
+        UserRestore userRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
+        if (userRestore != null) {
+            formAndDataSyncer.performDemoUserRestore(this, userRestore);
+        } else {
+            DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
+            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
+                    false, LoginMode.PASSWORD);
         }
     }
 

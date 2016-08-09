@@ -260,10 +260,9 @@ public abstract class DataPullTask<R>
         return new ResultAndError<>(responseError);
     }
 
-    /*
+    /**
      * @return the proper result, or null if we have not yet been able to determine the result to
      * return
-     * @throws IOException
      */
     private ResultAndError<PullTaskResult> makeRequestAndHandleResponse(AndroidTransactionParserFactory factory)
             throws IOException, UnknownSyncError {

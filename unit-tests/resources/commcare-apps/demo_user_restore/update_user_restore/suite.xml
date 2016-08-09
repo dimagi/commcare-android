@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <suite descriptor="Suite File" version="9">
-    <user-restore>
+    <user-restore username="demo_user" password="123">>
         <resource descriptor="demo user restore"
                   id="demo user restore"
                   version="9">

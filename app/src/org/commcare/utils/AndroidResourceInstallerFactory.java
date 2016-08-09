@@ -23,8 +23,9 @@ public class AndroidResourceInstallerFactory extends InstallerFactory {
     }
 
     @Override
-    public ResourceInstaller getUserRestoreInstaller() {
-        return new UserRestoreAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
+    public ResourceInstaller getUserRestoreInstaller(String username, String password) {
+        return new UserRestoreAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF,
+                username, password);
     }
 
     @Override
