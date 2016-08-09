@@ -95,7 +95,7 @@ public class IntentCallout implements Externalizable {
         this.appearance = appearance;
     }
 
-    protected void attachToForm(FormDef form) {
+    public void attachToForm(FormDef form) {
         this.formDef = form;
     }
 

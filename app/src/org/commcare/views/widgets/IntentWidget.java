@@ -39,6 +39,7 @@ public class IntentWidget extends QuestionWidget {
     protected final PendingCalloutInterface pendingCalloutInterface;
     protected final IntentCallout ic;
     protected final String missingCalloutKey;
+    protected final boolean isEditable;
 
     public IntentWidget(Context context, FormEntryPrompt prompt,
                         Intent in, IntentCallout ic, PendingCalloutInterface pendingCalloutInterface) {
@@ -58,6 +59,7 @@ public class IntentWidget extends QuestionWidget {
         this.pendingCalloutInterface = pendingCalloutInterface;
         this.getButtonLocalizationKey = getButtonLocalizationKey;
         this.updateButtonLocalizationKey = updateButtonLocalizationKey;
+        isEditable = ic.getAppearance().contains("editable");
 
         mStringAnswer = new TextView(getContext());
         launchIntentButton = new Button(getContext());
