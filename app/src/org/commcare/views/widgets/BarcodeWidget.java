@@ -22,7 +22,8 @@ public class BarcodeWidget extends IntentWidget implements TextWatcher {
     public BarcodeWidget(Context context, FormEntryPrompt prompt, Intent i, IntentCallout ic,
                          PendingCalloutInterface pendingCalloutInterface) {
         super(context, prompt, i, ic, pendingCalloutInterface,
-                "intent.barcode.get", "intent.barcode.update", "barcode.reader.missing");
+                "intent.barcode.get", "intent.barcode.update", "barcode.reader.missing",
+                ic.getAppearance() != null && ic.getAppearance().contains("editable"));
     }
 
     @Override

@@ -45,13 +45,14 @@ public class IntentWidget extends QuestionWidget {
     public IntentWidget(Context context, FormEntryPrompt prompt,
                         Intent in, IntentCallout ic, PendingCalloutInterface pendingCalloutInterface) {
         this(context, prompt, in, ic, pendingCalloutInterface,
-                "intent.callout.get", "intent.callout.update", "intent.callout.activity.missing");
+                "intent.callout.get", "intent.callout.update", "intent.callout.activity.missing",
+                false);
     }
 
     protected IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
                          PendingCalloutInterface pendingCalloutInterface,
                          String getButtonLocalizationKey, String updateButtonLocalizationKey,
-                         String missingCalloutKey) {
+                         String missingCalloutKey, boolean isEditable) {
         super(context, prompt);
 
         this.missingCalloutKey = missingCalloutKey;
@@ -60,7 +61,7 @@ public class IntentWidget extends QuestionWidget {
         this.pendingCalloutInterface = pendingCalloutInterface;
         this.getButtonLocalizationKey = getButtonLocalizationKey;
         this.updateButtonLocalizationKey = updateButtonLocalizationKey;
-        isEditable = ic.getAppearance() != null && ic.getAppearance().contains("editable");
+        this.isEditable = isEditable;
 
         if (isEditable) {
             mStringAnswer = new EditText(getContext());
