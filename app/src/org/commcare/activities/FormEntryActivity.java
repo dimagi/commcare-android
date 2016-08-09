@@ -600,7 +600,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
         if (pendingIntentWidget != null) {
-
             // get the original intent callout
             IntentCallout ic = pendingIntentWidget.getIntentCallout();
 
@@ -623,7 +622,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
             }
 
-            ic.setCancelled(wasIntentCancelled);
+            if (wasIntentCancelled) {
+                mFormController.setPendingCalloutAsCancelled();
+            }
         }
 
         // auto advance if we got a good result and are in quick mode

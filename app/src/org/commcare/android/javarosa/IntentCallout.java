@@ -57,7 +57,6 @@ public class IntentCallout implements Externalizable {
     private String buttonLabel;
     private String updateButtonLabel;
     private String appearance;
-    private boolean isCancelled;
 
     // Generic Extra from intent callout extensions
     public static final String INTENT_RESULT_VALUE = "odk_intent_data";
@@ -307,13 +306,5 @@ public class IntentCallout implements Externalizable {
 
     public String getAppearance() {
         return appearance;
-    }
-
-    public void setCancelled(boolean cancelled) {
-        this.isCancelled = cancelled;
-    }
-
-    public boolean getCancelled() {
-        return isCancelled;
     }
 }

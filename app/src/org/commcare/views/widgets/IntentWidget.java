@@ -79,11 +79,10 @@ public class IntentWidget extends QuestionWidget {
         addView(mStringAnswer);
 
         //only auto advance if 1) we have no data 2) its quick 3) we weren't just cancelled
-        if (s == null && "quick".equals(ic.getAppearance()) && !ic.getCancelled()) {
+        if (s == null
+                && "quick".equals(ic.getAppearance())
+                && !pendingCalloutInterface.wasCalloutPendingAndCancelled(mPrompt.getIndex())) {
             performCallout();
-        } else if (ic.getCancelled()) {
-            // reset the cancelled flag
-            ic.setCancelled(false);
         }
     }
 
