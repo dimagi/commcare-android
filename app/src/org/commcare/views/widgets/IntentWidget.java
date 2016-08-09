@@ -60,7 +60,7 @@ public class IntentWidget extends QuestionWidget {
         this.pendingCalloutInterface = pendingCalloutInterface;
         this.getButtonLocalizationKey = getButtonLocalizationKey;
         this.updateButtonLocalizationKey = updateButtonLocalizationKey;
-        isEditable = ic.getAppearance().contains("editable");
+        isEditable = ic.getAppearance() != null && ic.getAppearance().contains("editable");
 
         if (isEditable) {
             mStringAnswer = new EditText(getContext());

@@ -14,8 +14,6 @@ import org.javarosa.form.api.FormEntryPrompt;
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
- *
- * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class BarcodeWidget extends IntentWidget implements TextWatcher {
 
