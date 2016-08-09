@@ -19,13 +19,9 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.CompoundIntentList;
-import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
-
-import java.util.ArrayList;
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
@@ -36,38 +32,28 @@ public class IntentWidget extends QuestionWidget {
 
     private final TextView mStringAnswer;
     private final Intent intent;
-    private final int calloutId;
     private final String getButtonLocalizationKey;
     private final String updateButtonLocalizationKey;
 
     protected final Button launchIntentButton;
     protected final PendingCalloutInterface pendingCalloutInterface;
     protected final IntentCallout ic;
+    protected final String missingCalloutKey;
 
     public IntentWidget(Context context, FormEntryPrompt prompt,
-                        Intent in, IntentCallout ic,
-                        PendingCalloutInterface pendingCalloutInterface,
-                        int calloutId) {
+                        Intent in, IntentCallout ic, PendingCalloutInterface pendingCalloutInterface) {
         this(context, prompt, in, ic, pendingCalloutInterface,
-                "intent.barcode.get", "intent.barcode.update", calloutId);
+                "intent.callout.get", "intent.callout.update", "intent.callout.activity.missing");
     }
 
-    public IntentWidget(Context context, FormEntryPrompt prompt,
-                        Intent in, IntentCallout ic,
-                        PendingCalloutInterface pendingCalloutInterface) {
-        this(context, prompt, in, ic, pendingCalloutInterface,
-                "intent.callout.get", "intent.callout.update",
-                FormEntryActivity.INTENT_CALLOUT);
-    }
-
-    private IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
+    protected IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
                          PendingCalloutInterface pendingCalloutInterface,
                          String getButtonLocalizationKey, String updateButtonLocalizationKey,
-                         int calloutId) {
+                         String missingCalloutKey) {
         super(context, prompt);
 
+        this.missingCalloutKey = missingCalloutKey;
         this.intent = in;
-        this.calloutId = calloutId;
         this.ic = ic;
         this.pendingCalloutInterface = pendingCalloutInterface;
         this.getButtonLocalizationKey = getButtonLocalizationKey;
@@ -99,7 +85,7 @@ public class IntentWidget extends QuestionWidget {
         }
     }
 
-    protected void setupButton() {
+    private void setupButton() {
         setOrientation(LinearLayout.VERTICAL);
 
         WidgetUtils.setupButton(launchIntentButton,
@@ -136,16 +122,15 @@ public class IntentWidget extends QuestionWidget {
     private void performCallout() {
         try {
             loadCurrentAnswerToIntent();
-            ((Activity)getContext()).startActivityForResult(intent, calloutId);
+            ((Activity)getContext()).startActivityForResult(intent, FormEntryActivity.INTENT_CALLOUT);
             pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
-                    "Couldn't find intent for callout!", Toast.LENGTH_SHORT).show();
+                    Localization.get(missingCalloutKey), Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void loadCurrentAnswerToIntent() {
-        //Set Data
+    protected void loadCurrentAnswerToIntent() {
         String data = mStringAnswer.getText().toString();
         if (!"".equals(data)) {
             intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
@@ -209,21 +194,19 @@ public class IntentWidget extends QuestionWidget {
         return ic;
     }
 
-
     public CompoundIntentList addToCompoundIntent(CompoundIntentList compoundedCallout) {
-        if(!intent.getBooleanExtra(IntentCallout.INTENT_EXTRA_CAN_AGGREGATE, false)) {
+        if (!intent.getBooleanExtra(IntentCallout.INTENT_EXTRA_CAN_AGGREGATE, false)) {
             return compoundedCallout;
         }
-        if(compoundedCallout == null) {
+        if (compoundedCallout == null) {
             CompoundIntentList list = new CompoundIntentList(intent, this.getFormId().toString());
             list.setTitle(this.getButtonLabel().toString());
             return list;
         }
-        if(!compoundedCallout.addIntentIfCompatible(intent,this.getFormId().toString() )) {
+        if (!compoundedCallout.addIntentIfCompatible(intent, this.getFormId().toString())) {
             return null;
         } else {
             return compoundedCallout;
         }
     }
-
 }

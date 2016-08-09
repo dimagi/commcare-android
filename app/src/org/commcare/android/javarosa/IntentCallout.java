@@ -144,6 +144,10 @@ public class IntentCallout implements Externalizable {
         }
     }
 
+    public void processBarcodeResponse(TreeReference intentQuestionRef, String scanResult) {
+        setNodeValue(formDef, intentQuestionRef, scanResult);
+    }
+
     private static boolean intentInvalid(Intent intent) {
         if (intent == null) {
             return true;
