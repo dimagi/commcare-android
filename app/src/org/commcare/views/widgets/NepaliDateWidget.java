@@ -52,7 +52,7 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
     }
 
     @Override
-    protected long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset) {
-        return CalendarUtils.toMillisFromJavaEpoch(year, month, day, millisOffset);
+    protected long toMillisFromJavaEpoch(int year, int month, int day) {
+        return CalendarUtils.toMillisFromJavaEpoch(year, month, day);
     }
 }
