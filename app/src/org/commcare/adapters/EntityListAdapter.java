@@ -253,13 +253,13 @@ public class EntityListAdapter implements ListAdapter {
 
         if (usesCaseTiles) {
             // if we use a <grid>, setup an AdvancedEntityView
-            return getGridView(entity, (EntityViewTile)convertView);
+            return getTileView(entity, (EntityViewTile)convertView);
         } else {
             return getListEntityView(entity, (EntityView)convertView, position);
         }
     }
 
-    private View getGridView(Entity<TreeReference> entity, EntityViewTile emv) {
+    private View getTileView(Entity<TreeReference> entity, EntityViewTile emv) {
         int[] titleColor = AndroidUtil.getThemeColorIDs(commCareActivity, new int[]{R.attr.entity_select_title_text_color});
         if (emv == null) {
             emv = EntityViewTile.createTileForListDisplay(commCareActivity, detail, entity,

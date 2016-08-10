@@ -23,7 +23,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -243,6 +242,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 setupLandscapeDualPaneView();
             } else {
                 setContentView(R.layout.entity_select_layout);
+
                 restoreExistingSelection(isOrientationChange);
             }
         } else {
@@ -937,19 +937,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
 
+        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+
+        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesEntityTileView());
+
         adapter = new EntityListAdapter(this, detail, references, entities, order, factory, hideActions);
-        ListView listView = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-        GridView gridView = ((GridView)this.findViewById(R.id.screen_entity_select_grid));
-        if (adapter.usesGridLayout()) {
-            listView.setVisibility(View.GONE);
-            gridView.setVisibility(View.VISIBLE);
-        } else {
-            listView.setVisibility(View.VISIBLE);
-            gridView.setVisibility(View.GONE);
-            EntitySelectViewSetup.setupDivider(this, listView, adapter.usesCaseTiles());
-        }
-
-
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
