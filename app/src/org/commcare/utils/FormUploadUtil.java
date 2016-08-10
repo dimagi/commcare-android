@@ -58,7 +58,7 @@ public class FormUploadUtil {
     /**
      * 15 MB size limit
      */
-    private static final long MAX_BYTES = (15 * 1048576) - 1024;
+    public static final long MAX_BYTES = (15 * 1048576) - 1024;
 
     private static final String[] SUPPORTED_FILE_EXTS =
             {".xml", ".jpg", "jpeg", ".3gpp", ".3gp", ".3ga", ".3g2", ".mp3",
