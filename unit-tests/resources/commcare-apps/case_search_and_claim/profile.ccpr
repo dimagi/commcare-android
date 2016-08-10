@@ -14,7 +14,7 @@
     <property key="PostURL" value="https://www.commcarehq.org/a/flipper/receiver/secure/0983304cd2c0760178fed759e3a7dcf9/" force="true"/>
     <property key="PostTestURL" value="https://www.commcarehq.org/a/flipper/receiver/secure/0983304cd2c0760178fed759e3a7dcf9/" force="true"/>
     <property key="key_server" value="https://www.commcarehq.org/a/flipper/phone/keys/"/>
-    <property key="cur_locale" value="en"/>
+    <property key="cur_locale" value="default"/>
     <property key="cc_user_domain" value="flipper.commcarehq.org"/>
     <property key="jr_openrosa_api" value="1.0"/>
 
