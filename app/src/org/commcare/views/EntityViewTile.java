@@ -99,14 +99,6 @@ public class EntityViewTile extends GridLayout {
         return new EntityViewTile(context, detail, entity, searchTerms, loader, fuzzySearchEnabled, 1);
     }
 
-    public static EntityViewTile createTileForGridDisplay(Context context, Detail detail, Entity entity,
-                                                          String[] searchTerms,
-                                                          CachingAsyncImageLoader loader,
-                                                          boolean fuzzySearchEnabled, int numRowsPerGrid) {
-        return new EntityViewTile(context, detail, entity, searchTerms, loader,
-                fuzzySearchEnabled, numRowsPerGrid);
-    }
-
     /**
      * Constructor for an entity tile in a managed context, like a list of entities being displayed
      * all at once for searching.
