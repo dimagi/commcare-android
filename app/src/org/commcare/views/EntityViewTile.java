@@ -154,7 +154,6 @@ public class EntityViewTile extends GridLayout {
     }
 
     private Pair<Double, Double> computeTileWidthAndHeight(Context context) {
-
         double screenWidth, screenHeight;
         Display display = ((Activity) context).getWindowManager().getDefaultDisplay();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
@@ -189,7 +188,7 @@ public class EntityViewTile extends GridLayout {
 
         double tileWidth = screenWidth / numTilesPerRow;
 
-        return new Pair(tileWidth, tileHeight);
+        return new Pair<>(tileWidth, tileHeight);
     }
 
     private double getDensityRowMultiplier() {
