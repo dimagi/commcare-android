@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
-import android.support.annotation.IdRes;
 import android.text.Spannable;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
@@ -643,8 +642,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     /**
      * @return True if file is too big to upload.
      */
-    public boolean checkFileSize(File file){
-        if (FileUtil.isFileToLargeToUploade(file)) {
+    protected boolean checkFileSize(File file){
+        if (FileUtil.isFileToLargeToUpload(file)) {
             String fileSize = FileUtil.getFileSize(file) / 1024 + "";
             showOversizedMediaWarning(fileSize);
             return true;

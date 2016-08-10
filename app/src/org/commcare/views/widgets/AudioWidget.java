@@ -21,10 +21,6 @@ import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.IntegerData;
-import org.javarosa.core.model.data.InvalidData;
-import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -37,7 +33,7 @@ import java.io.IOException;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class AudioWidget extends QuestionWidget {
+public class AudioWidget extends MediaWidget {
     private static final String TAG = AudioWidget.class.getSimpleName();
     protected static final String CUSTOM_TAG = "custom";
 
@@ -47,9 +43,6 @@ public class AudioWidget extends QuestionWidget {
     protected final PendingCalloutInterface pendingCalloutInterface;
 
     protected String recordedFileName;
-    protected String mBinaryName;
-    protected final String mInstanceFolder;
-    private int oversizedMediaSize;
     private String customFileTag;
 
     public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
@@ -59,10 +52,6 @@ public class AudioWidget extends QuestionWidget {
         setupLayout();
 
         this.pendingCalloutInterface = pic;
-
-        mInstanceFolder =
-                FormEntryActivity.mInstancePath.substring(0,
-                        FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
 
         setOrientation(LinearLayout.VERTICAL);
 
@@ -186,53 +175,13 @@ public class AudioWidget extends QuestionWidget {
         }
     }
 
-    private void deleteMedia() {
-        // get the file path and delete the file
-        File f = new File(mInstanceFolder + mBinaryName);
-        if (!f.delete()) {
-            Log.i(TAG, "Failed to delete " + f);
-        }
-
-        // clean up variables
-        mBinaryName = null;
-    }
-
-    @Override
-    public void clearAnswer() {
-        // remove the file
-        deleteMedia();
-
-        // reset buttons
-        togglePlayButton(false);
-    }
-
-    @Override
-    public IAnswerData getAnswer() {
-        if (mBinaryName != null) {
-            return new StringData(mBinaryName);
-        } else if (oversizedMediaSize > 0) {
-            return new InvalidData("", new IntegerData(oversizedMediaSize));
-        }
-        return null;
-    }
-
     @Override
     public void setBinaryData(Object binaryuri) {
-        String binaryPath = createFilePath(binaryuri);
-        File source = new File(binaryPath);
-        boolean isToLargeToUpload = checkFileSize(source);
-
-        // when replacing an answer. remove the current media.
-        if (mBinaryName != null) {
-            deleteMedia();
-        }
-
-        if (isToLargeToUpload) {
-            oversizedMediaSize = (int)source.length() / (1024 * 1024);
+        String binaryPath = checkBinarySize(binaryuri);
+        if (binaryPath == null) {
             return;
-        } else {
-            oversizedMediaSize = -1;
         }
+        File source = new File(binaryPath);
 
         // get the file path and create a copy in the instance folder
         String[] filenameSegments = binaryPath.split("\\.");
@@ -278,7 +227,8 @@ public class AudioWidget extends QuestionWidget {
     //If file is chosen by user, the file selection intent will return an URI
     //If file is auto-selected after recording_fragment, then the recordingfragment will provide a string file path
     //Set value of customFileTag if the file is a recent recording from the RecordingFragment
-    private String createFilePath(Object binaryuri){
+    @Override
+    protected String createFilePath(Object binaryuri){
         String path;
 
         if(binaryuri instanceof Uri){
