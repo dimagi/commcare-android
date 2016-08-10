@@ -128,6 +128,10 @@ public enum PollSensorController implements LocationListener {
     private class ProvidersChangedHandler extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (mLocationManager == null) {
+                mLocationManager =
+                        (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+            }
             Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
             requestLocationUpdates(providers);
         }

@@ -57,10 +57,9 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
-                if(appearance != null){
+                if (appearance != null && appearance.contains("prototype")) {
                     questionWidget = new CommCareAudioWidget(context, fep, pendingCalloutInterface);
-                }
-                else{
+                } else {
                     questionWidget = new AudioWidget(context, fep, pendingCalloutInterface);
                 }
                 break;

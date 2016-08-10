@@ -489,9 +489,8 @@ notification.restore.remote.error.action=Try to sync again immediately, and then
 notification.restore.nonetwork.title=Couldn't Reach Server. Please check your network connection
 notification.restore.nonetwork.detail=Couldn't reach the server due to bad network connectivity.
 
-notification.restore.nonetwork.badpass.title=Couldn't Reach Server. Please check your network connection
-notification.restore.nonetwork.badpass.detail=Couldn't reach the server due to bad network connectivity. However, this user might be able to login offline but the password is incorrect.
-notification.restore.nonetwork.badpass.action=Try re-entering your password. If this doesn't work, you will need a stronger network connection to restore this user.
+notification.restore.nonetwork.badpass.title=Either the password you entered was incorrect, or CommCare couldn't reach the server
+notification.restore.nonetwork.badpass.detail=Try re-entering your password. If this doesn't work, you will need a stronger network connection to log in with this user.
 
 notification.bad.certificate.title=Couldn't securely connect to the server. 
 notification.bad.certificate.detail=CommCare couldn't validate the security information provided by the remote server. 
@@ -770,3 +769,9 @@ fingerprint.match.50=★★★
 fingerprint.match.25=★★
 fingerprint.match.0=★
 fingerprint.match.unknown=?
+
+calendar.empty.fields=Empty fields
+calendar.low.year=Year value below min value of 
+calendar.high.year=Year value above max value of ${0}
+calendar.low.day=Day value below min value of 1
+calendar.high.day=Day value above max value of ${0}

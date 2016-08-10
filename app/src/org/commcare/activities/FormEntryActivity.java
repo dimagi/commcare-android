@@ -283,7 +283,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(
                 getApplicationContext()));
 
-        loadStateFromBundle(savedInstanceState);
+        if (savedInstanceState == null) {
+            GoogleAnalyticsUtils.reportLanguageAtPointOfFormEntry(Localization.getCurrentLocale());
+        } else {
+            loadStateFromBundle(savedInstanceState);
+        }
 
         // Check to see if this is a screen flip or a new form load.
         Object data = this.getLastCustomNonConfigurationInstance();
