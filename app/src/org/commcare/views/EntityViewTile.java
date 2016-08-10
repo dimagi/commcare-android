@@ -75,7 +75,6 @@ public class EntityViewTile extends GridLayout {
     private static final int NUMBER_COLUMNS_PER_GRID = 12;
 
     private final int numRowsPerGrid;
-    private final int numTilesPerRow;
 
     private final double cellWidth;
     private final double cellHeight;
@@ -89,14 +88,14 @@ public class EntityViewTile extends GridLayout {
     public static EntityViewTile createTileForIndividualDisplay(Context context, Detail detail,
                                                                 Entity entity) {
         return new EntityViewTile(context, detail, entity, new String[0],
-                new CachingAsyncImageLoader(context), false, 1);
+                new CachingAsyncImageLoader(context), false);
     }
 
     public static EntityViewTile createTileForListDisplay(Context context, Detail detail, Entity entity,
                                                           String[] searchTerms,
                                                           CachingAsyncImageLoader loader,
                                                           boolean fuzzySearchEnabled) {
-        return new EntityViewTile(context, detail, entity, searchTerms, loader, fuzzySearchEnabled, 1);
+        return new EntityViewTile(context, detail, entity, searchTerms, loader, fuzzySearchEnabled);
     }
 
     /**
@@ -104,14 +103,13 @@ public class EntityViewTile extends GridLayout {
      * all at once for searching.
      */
     private EntityViewTile(Context context, Detail detail, Entity entity, String[] searchTerms,
-                          CachingAsyncImageLoader loader, boolean fuzzySearchEnabled, int numTilesPerRow) {
+                          CachingAsyncImageLoader loader, boolean fuzzySearchEnabled) {
         super(context);
         this.searchTerms = searchTerms;
         this.mIsAsynchronous = entity instanceof AsyncEntity;
         this.mImageLoader = loader;
         this.mFuzzySearchEnabled = fuzzySearchEnabled;
         this.numRowsPerGrid = getMaxRows(detail);
-        this.numTilesPerRow = numTilesPerRow;
 
         setEssentialGridLayoutValues();
 
@@ -179,7 +177,7 @@ public class EntityViewTile extends GridLayout {
             tileHeight = screenHeight / (numTilesPerScreenPortrait * densityRowMultiplier);
         }
 
-        double tileWidth = screenWidth / numTilesPerRow;
+        double tileWidth = screenWidth;
 
         return new Pair(tileWidth, tileHeight);
     }
