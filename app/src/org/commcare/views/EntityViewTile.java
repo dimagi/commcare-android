@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Build;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.Space;
 import android.text.Spannable;
@@ -46,11 +47,14 @@ import java.util.Arrays;
 public class EntityViewTile extends GridLayout {
 
     private String[] searchTerms;
-    private View[] mRowViews;
+
+    // All of the views that are being shown in this tile, one for each field of the entity's detail
+    private View[] mFieldViews;
+
     private boolean mFuzzySearchEnabled = false;
     private boolean mIsAsynchronous = false;
 
-    // load the screen-size dependent font sizes
+    // load the screen-size-dependent font sizes
     private final float SMALL_FONT = getResources().getDimension(R.dimen.font_size_small);
     private final float MEDIUM_FONT = getResources().getDimension(R.dimen.font_size_medium);
     private final float LARGE_FONT = getResources().getDimension(R.dimen.font_size_large);
@@ -62,59 +66,96 @@ public class EntityViewTile extends GridLayout {
     private final int ROW_PADDING_HORIZONTAL = (int) getResources().getDimension(R.dimen.row_padding_horizontal);
     private final int ROW_PADDING_VERTICAL = (int) getResources().getDimension(R.dimen.row_padding_vertical);
 
-    private final int DEFAULT_NUMBER_ROWS_PER_GRID = 6;
-    private final double DEFAULT_NUM_GRIDS_PER_SCREEN_PORTRAIT = 7;
-    private final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
-    private final int NUMBER_COLUMNS_PER_GRID = 12;
+    // constants used to calibrate how many tiles should be shown on a screen
+    private static final int DEFAULT_NUMBER_ROWS_PER_GRID = 6;
+    private static final double DEFAULT_NUM_GRIDS_PER_SCREEN_PORTRAIT = 7;
+    private static final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
 
-    private final int NUMBER_ROWS_PER_GRID;
+    // this is fixed for all tiles
+    private static final int NUMBER_COLUMNS_PER_GRID = 12;
+
+    private final int numRowsPerGrid;
+    private final int numTilesPerRow;
 
     private final double cellWidth;
     private final double cellHeight;
 
-    // image loader used for all asynchronous imageView loading
     private final CachingAsyncImageLoader mImageLoader;
 
     /**
-     * Used to create a entity view tile outside of a managed context (like
+     * Used to create an entity view tile outside of a managed context (like
      * for an individual entity out of a search context).
      */
-    public EntityViewTile(Context context, Detail detail, Entity entity) {
-        this(context, detail, entity, new String[0], new CachingAsyncImageLoader(context), false);
+    public static EntityViewTile createTileForIndividualDisplay(Context context, Detail detail,
+                                                                Entity entity) {
+        return new EntityViewTile(context, detail, entity, new String[0],
+                new CachingAsyncImageLoader(context), false, 1);
+    }
+
+    public static EntityViewTile createTileForListDisplay(Context context, Detail detail, Entity entity,
+                                                          String[] searchTerms,
+                                                          CachingAsyncImageLoader loader,
+                                                          boolean fuzzySearchEnabled) {
+        return new EntityViewTile(context, detail, entity, searchTerms, loader, fuzzySearchEnabled, 1);
+    }
+
+    public static EntityViewTile createTileForGridDisplay(Context context, Detail detail, Entity entity,
+                                                          String[] searchTerms,
+                                                          CachingAsyncImageLoader loader,
+                                                          boolean fuzzySearchEnabled, int numRowsPerGrid) {
+        return new EntityViewTile(context, detail, entity, searchTerms, loader,
+                fuzzySearchEnabled, numRowsPerGrid);
     }
 
     /**
      * Constructor for an entity tile in a managed context, like a list of entities being displayed
      * all at once for searching.
      */
-    public EntityViewTile(Context context, Detail detail, Entity entity, String[] searchTerms,
-                          CachingAsyncImageLoader mLoader, boolean fuzzySearchEnabled) {
+    private EntityViewTile(Context context, Detail detail, Entity entity, String[] searchTerms,
+                          CachingAsyncImageLoader loader, boolean fuzzySearchEnabled, int numTilesPerRow) {
         super(context);
         this.searchTerms = searchTerms;
         this.mIsAsynchronous = entity instanceof AsyncEntity;
+        this.mImageLoader = loader;
+        this.mFuzzySearchEnabled = fuzzySearchEnabled;
+        this.numRowsPerGrid = getMaxRows(detail);
+        this.numTilesPerRow = numTilesPerRow;
 
-        this.NUMBER_ROWS_PER_GRID = this.getMaxRows(detail);
+        setEssentialGridLayoutValues();
 
-        // Calibrate the # of grid views that appear on the screen, based on how many rows will
-        // be in each grid
-        double NUM_GRIDS_PER_SCREEN_PORTRAIT = this.DEFAULT_NUM_GRIDS_PER_SCREEN_PORTRAIT *
-                (this.DEFAULT_NUMBER_ROWS_PER_GRID / (float) NUMBER_ROWS_PER_GRID);
-        double NUM_GRIDS_PER_SCREEN_LANDSCAPE = NUM_GRIDS_PER_SCREEN_PORTRAIT * LANDSCAPE_TO_PORTRAIT_RATIO;
+        Pair<Double, Double> widthAndHeight = computeTileWidthAndHeight(context);
+        cellWidth = widthAndHeight.first / NUMBER_COLUMNS_PER_GRID;
+        cellHeight = widthAndHeight.second / numRowsPerGrid;
 
-        this.setColumnCount(NUMBER_COLUMNS_PER_GRID);
-        this.setRowCount(NUMBER_ROWS_PER_GRID);
-        this.setPadding(ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL, ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL);
+        addFieldViews(context, detail, entity);
+    }
 
-        // Get density metrics
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int densityDpi = metrics.densityDpi;
-        int defaultDensityDpi = DisplayMetrics.DENSITY_MEDIUM;
+    private void setEssentialGridLayoutValues() {
+        setColumnCount(NUMBER_COLUMNS_PER_GRID);
+        setRowCount(numRowsPerGrid);
+        setPadding(ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL, ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL);
+    }
 
-        // For every additional 160dpi, show one more grid view on the screen
-        double extraDensity = (int) ((densityDpi - defaultDensityDpi) / 80) * 0.5;
-        double densityRowMultiplier = 1 + extraDensity;
+    /**
+     * @return the maximum height of the grid view for the given detail
+     */
+    private static int getMaxRows(Detail detail) {
+        GridCoordinate[] coordinates = detail.getGridCoordinates();
+        int currentMaxHeight = 0;
+        for (GridCoordinate coordinate : coordinates) {
+            int yCoordinate = coordinate.getY();
+            int height = coordinate.getHeight();
+            int maxHeight = yCoordinate + height;
+            if (maxHeight > currentMaxHeight) {
+                currentMaxHeight = maxHeight;
+            }
+        }
+        return currentMaxHeight;
+    }
 
-        double screenWidth, screenHeight, viewHeight, viewWidth;
+    private Pair<Double, Double> computeTileWidthAndHeight(Context context) {
+
+        double screenWidth, screenHeight;
         Display display = ((Activity) context).getWindowManager().getDefaultDisplay();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             Point size = new Point();
@@ -128,28 +169,38 @@ public class EntityViewTile extends GridLayout {
         // Subtract the margins since we don't have this space
         screenWidth = screenWidth - ROW_PADDING_HORIZONTAL * 2;
 
-        // If screen is rotated, use width for cell height measurement
+        // Calibrate the number of tiles that appear on the screen, based on how many rows are in
+        // each tile
+        double numTilesPerScreenPortrait = DEFAULT_NUM_GRIDS_PER_SCREEN_PORTRAIT *
+                (DEFAULT_NUMBER_ROWS_PER_GRID / (float) numRowsPerGrid);
+        double numTilesPerScreenLandscape = numTilesPerScreenPortrait * LANDSCAPE_TO_PORTRAIT_RATIO;
+        double densityRowMultiplier = getDensityRowMultiplier();
+
+        double tileHeight;
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            //TODO: call to inAwesomeMode() was not working for me. What's the best method to determine this?
             if (context.getString(R.string.panes).equals("two")) {
                 // if in awesome mode, split available width in half
                 screenWidth = screenWidth / 2;
             }
-
-            // calibrate width and height of this view based on screen density and divisor constant
-            viewHeight = screenHeight / (NUM_GRIDS_PER_SCREEN_LANDSCAPE * densityRowMultiplier);
+            tileHeight = screenHeight / (numTilesPerScreenLandscape * densityRowMultiplier);
         } else {
-            viewHeight = screenHeight / (NUM_GRIDS_PER_SCREEN_PORTRAIT * densityRowMultiplier);
+            tileHeight = screenHeight / (numTilesPerScreenPortrait * densityRowMultiplier);
         }
-        viewWidth = screenWidth;
 
-        cellWidth = viewWidth / NUMBER_COLUMNS_PER_GRID;
-        cellHeight = viewHeight / NUMBER_ROWS_PER_GRID;
+        double tileWidth = screenWidth / numTilesPerRow;
 
-        mImageLoader = mLoader;
-        mFuzzySearchEnabled = fuzzySearchEnabled;
+        return new Pair(tileWidth, tileHeight);
+    }
 
-        setViews(context, detail, entity);
+    private double getDensityRowMultiplier() {
+        // Get density metrics
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int densityDpi = metrics.densityDpi;
+        int defaultDensityDpi = DisplayMetrics.DENSITY_MEDIUM;
+
+        // For every additional 160dpi, show one more grid view on the screen
+        double extraDensity = (int) ((densityDpi - defaultDensityDpi) / 80) * 0.5;
+        return 1 + extraDensity;
     }
 
     /**
@@ -162,7 +213,7 @@ public class EntityViewTile extends GridLayout {
      */
     private void addBuffers(Context context) {
 
-        for (int i = 0; i < NUMBER_ROWS_PER_GRID; i++) {
+        for (int i = 0; i < numRowsPerGrid; i++) {
 
             Spec rowSpec = GridLayout.spec(i);
             Spec colSpec = GridLayout.spec(0);
@@ -192,119 +243,96 @@ public class EntityViewTile extends GridLayout {
 
     }
 
-    // Get the maximum height of this grid view
-    private int getMaxRows(Detail detail) {
-
-        GridCoordinate[] coordinates = detail.getGridCoordinates();
-        int currentMaxHeight = 0;
-
-        for (GridCoordinate coordinate : coordinates) {
-            int yCoordinate = coordinate.getY();
-            int height = coordinate.getHeight();
-            int maxHeight = yCoordinate + height;
-            if (maxHeight > currentMaxHeight) {
-                currentMaxHeight = maxHeight;
-            }
-        }
-
-        return currentMaxHeight;
-    }
-
     /**
-     * Set all the views to be displayed in this pane
+     * Add the view for each field in the detail
      *
      * @param detail  - the Detail describing how to display each entry
      * @param entity  - the Entity describing the actual data of each entry
      */
-    public void setViews(Context context, Detail detail, Entity entity) {
-
-        // clear all previous entries in this grid
+    public void addFieldViews(Context context, Detail detail, Entity entity) {
         this.removeAllViews();
+        addBuffers(context);  // add spacers to enforce regularized column and row size
 
-        // add spacers to enforce regularized column and row size
-        addBuffers(context);
+        GridCoordinate[] coordinatesOfEachField = detail.getGridCoordinates();
+        String[] typesOfEachField = detail.getTemplateForms();
+        GridStyle[] stylesOfEachField = detail.getGridStyles();
 
-        // extract UI information from detail and entity
-        String[] forms = detail.getTemplateForms();
-        GridCoordinate[] coords = detail.getGridCoordinates();
-        GridStyle[] styles = detail.getGridStyles();
-        Object[] rowData = entity.getData();
-        mRowViews = new View[rowData.length];
-
-        Log.v("TempForms", "Template: " + Arrays.toString(forms) + " | RowData: " + Arrays.toString(rowData) + " | Coords: " + Arrays.toString(coords) + " | Styles: " + Arrays.toString(styles));
+        Log.v("TempForms", "Template: " + Arrays.toString(typesOfEachField) +
+                " | Coords: " + Arrays.toString(coordinatesOfEachField) +
+                " | Styles: " + Arrays.toString(stylesOfEachField));
 
         this.setBackgroundDrawable(null);
 
-        this.setPadding(ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL, ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL);
+        this.setPadding(ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL,
+                ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL);
 
-        // iterate through every entity to be inserted in this view
-        for (int i = 0; i < rowData.length; i++) {
-
-            String multimediaType = forms[i];
-            GridStyle mStyle = styles[i];
-            GridCoordinate currentCoordinate = coords[i];
-
-            // if X and Y coordinates haven't been set, skip this row
-            // if span exceeds allotted dimensions, skip this row and log
-            if (currentCoordinate.getX() < 0 || currentCoordinate.getY() < 0) {
-
-                if (currentCoordinate.getX() + currentCoordinate.getWidth() > NUMBER_COLUMNS_PER_GRID ||
-                        currentCoordinate.getY() + currentCoordinate.getHeight() > NUMBER_ROWS_PER_GRID) {
-                    Logger.log("e", "Grid entry dimensions exceed allotted sizes");
-                    throw new XPathUnhandledException("grid coordinates: " + currentCoordinate.getX() + currentCoordinate.getWidth() + ", " +
-                            currentCoordinate.getY() + currentCoordinate.getHeight() + " out of bounds");
-                }
-                continue;
-            }
-
-            View mView;
-
-            // these Specs set our span across rows and columns; first arg is root, second is span
-            Spec columnSpec = GridLayout.spec(currentCoordinate.getX(), currentCoordinate.getWidth());
-            Spec rowSpec = GridLayout.spec(currentCoordinate.getY(), currentCoordinate.getHeight());
-
-            ViewId uniqueId = new ViewId(currentCoordinate.getX(), currentCoordinate.getY(), false);
-
-            // setup our layout parameters
-            GridLayout.LayoutParams mGridParams = new GridLayout.LayoutParams(rowSpec, columnSpec);
-            mGridParams.width = (int) cellWidth * currentCoordinate.getWidth();
-            mGridParams.height = (int) cellHeight * currentCoordinate.getHeight()
-                    // we need to account for any padding that wouldn't be in these rows if the entity didn't overwrite
-                    + (2 * CELL_PADDING_VERTICAL * (currentCoordinate.getHeight() - 1));
-
-            // get style attributes
-            String horzAlign = mStyle.getHorzAlign();
-            String vertAlign = mStyle.getVertAlign();
-            String textsize = mStyle.getFontSize();
-            String CssID = mStyle.getCssID();
-
-            mView = getView(context, multimediaType, horzAlign, vertAlign, textsize,
-                    entity.getFieldString(i), uniqueId, CssID, entity.getSortField(i),
-                    mGridParams.width, mGridParams.height);
-            if (!(mView instanceof ImageView)) {
-                mGridParams.height = LayoutParams.WRAP_CONTENT;
-            }
-
-            mView.setLayoutParams(mGridParams);
-
-            mRowViews[i] = mView;
-
-            this.addView(mView, mGridParams);
+        mFieldViews = new View[coordinatesOfEachField.length];
+        for (int i = 0; i < mFieldViews.length; i++) {
+            addFieldView(context, typesOfEachField[i], stylesOfEachField[i],
+                    coordinatesOfEachField[i], entity.getFieldString(i), entity.getSortField(i), i);
         }
+    }
+
+    private void addFieldView(Context context, String form,
+                              GridStyle style, GridCoordinate coordinateData, String fieldString,
+                              String sortField, int index) {
+        if (coordinatesInvalid(coordinateData)) {
+            return;
+        }
+
+        ViewId uniqueId = new ViewId(coordinateData.getX(), coordinateData.getY(), false);
+        GridLayout.LayoutParams gridParams = getLayoutParamsForField(coordinateData);
+
+        View view = getView(context, style, form, fieldString, uniqueId, sortField,
+                gridParams.width, gridParams.height);
+
+        if (!(view instanceof ImageView)) {
+            gridParams.height = LayoutParams.WRAP_CONTENT;
+        }
+
+        view.setLayoutParams(gridParams);
+        mFieldViews[index] = view;
+        this.addView(view, gridParams);
+    }
+
+    private GridLayout.LayoutParams getLayoutParamsForField(GridCoordinate coordinateData) {
+        Spec columnSpec = GridLayout.spec(coordinateData.getX(), coordinateData.getWidth());
+        Spec rowSpec = GridLayout.spec(coordinateData.getY(), coordinateData.getHeight());
+
+        GridLayout.LayoutParams gridParams = new GridLayout.LayoutParams(rowSpec, columnSpec);
+        gridParams.width = (int) cellWidth * coordinateData.getWidth();
+        gridParams.height = (int) cellHeight * coordinateData.getHeight()
+                // we need to account for any padding that wouldn't be in these rows if the entity didn't overwrite
+                + (2 * CELL_PADDING_VERTICAL * (coordinateData.getHeight() - 1));
+
+        return gridParams;
+    }
+
+    private boolean coordinatesInvalid(GridCoordinate coordinate) {
+        if (coordinate.getX() + coordinate.getWidth() > NUMBER_COLUMNS_PER_GRID ||
+                coordinate.getY() + coordinate.getHeight() > numRowsPerGrid) {
+            Logger.log("e", "Grid entry dimensions exceed allotted sizes");
+            throw new XPathUnhandledException("grid coordinates out of bounds: " +
+                    coordinate.getX() + " " + coordinate.getWidth() + ", " +
+                    coordinate.getY() + " " + coordinate.getHeight());
+        }
+        return (coordinate.getX() < 0 || coordinate.getY() < 0);
     }
 
     /**
      * Get the correct View for this particular activity.
      *
      * @param multimediaType either "image", "audio", or default text. Describes how this XPath result should be displayed.
-     * @param horzAlign      How the text should be aligned horizontally - left, center, or right ONE OF horzAlign or vertAlign
-     * @param vertAlign      How the text should be aligned vertically - top, center, or bottom ONE OF horzAlign or vertAlign
-     * @param textsize       The font size, scaled for screen size. small, medium, large, xlarge accepted.
      * @param rowData        The actual data to display, either an XPath to media or a String to display.
      */
-    private View getView(Context context, String multimediaType, String horzAlign,
-                         String vertAlign, String textsize, String rowData, ViewId uniqueId,
-                         String cssid, String searchField, int maxWidth, int maxHeight) {
+    private View getView(Context context, GridStyle style, String multimediaType, String rowData,
+                         ViewId uniqueId, String searchField, int maxWidth, int maxHeight) {
+
+        // How the text should be aligned horizontally - left, center, or right
+        String horzAlign = style.getHorzAlign();
+        // How the text should be aligned vertically - top, center, or bottom
+        String vertAlign = style.getVertAlign();
+
         View retVal;
         switch (multimediaType) {
             case EntityView.FORM_IMAGE:
@@ -348,6 +376,7 @@ public class EntityViewTile extends GridLayout {
 
                 String htmlIfiedSearchField = searchField == null ? searchField : MarkupUtil.getSpannable(searchField).toString();
 
+                String cssid = style.getCssID();
                 if (cssid != null && !cssid.equals("none")) {
                     // user defined a style we want to use
                     Spannable mSpannable = MarkupUtil.getCustomSpannable(cssid, rowData);
@@ -392,7 +421,7 @@ public class EntityViewTile extends GridLayout {
                 }
 
                 // handle text resizing
-                switch (textsize) {
+                switch (style.getFontSize()) {
                     case "large":
                         ((TextView) retVal).setTextSize(LARGE_FONT / DENSITY);
                         break;
@@ -415,7 +444,7 @@ public class EntityViewTile extends GridLayout {
     }
 
     public void setTextColor(int color) {
-        for (View rowView : mRowViews) {
+        for (View rowView : mFieldViews) {
             if (rowView instanceof TextView) {
                 ((TextView)rowView).setTextColor(color);
             }
@@ -423,7 +452,7 @@ public class EntityViewTile extends GridLayout {
     }
 
     public void setTitleTextColor(int color) {
-        for (View rowView : mRowViews) {
+        for (View rowView : mFieldViews) {
             if (rowView instanceof TextView) {
                 ((TextView)rowView).setTextColor(color);
                 return;
