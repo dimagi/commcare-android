@@ -9,9 +9,7 @@ import android.net.Uri;
 import android.provider.MediaStore.Audio;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -37,70 +35,41 @@ public class AudioWidget extends MediaWidget {
     private static final String TAG = AudioWidget.class.getSimpleName();
     protected static final String CUSTOM_TAG = "custom";
 
-    private Button mCaptureButton;
-    private Button mPlayButton;
-    private Button mChooseButton;
-    protected final PendingCalloutInterface pendingCalloutInterface;
-
     protected String recordedFileName;
     private String customFileTag;
 
     public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
-        super(context, prompt);
-
-        initializeButtons(prompt);
-        setupLayout();
-
-        this.pendingCalloutInterface = pic;
-
-        setOrientation(LinearLayout.VERTICAL);
-
-        // retrieve answer from data model and update ui
-        mBinaryName = prompt.getAnswerText();
-        if (mBinaryName != null) {
-            reloadFile();
-        } else {
-            togglePlayButton(false);
-        }
+        super(context, prompt, pic);
     }
 
-    protected void reloadFile() {
-        togglePlayButton(true);
-        File f = new File(mInstanceFolder + mBinaryName);
-        checkFileSize(f);
-    }
-
-    protected void togglePlayButton(boolean enabled) {
-        mPlayButton.setEnabled(enabled);
-    }
-
-    protected void initializeButtons(final FormEntryPrompt prompt){
+    @Override
+    protected void initializeButtons(){
         // setup capture button
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_audio),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // setup audio filechooser button
         mChooseButton = new Button(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // setup play button
         mPlayButton = new Button(getContext());
         WidgetUtils.setupButton(mPlayButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                captureAudio(prompt);
+                captureAudio(mPrompt);
             }
         });
 
@@ -112,7 +81,7 @@ public class AudioWidget extends MediaWidget {
                 i.setType("audio/*");
                 try {
                     ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -123,7 +92,7 @@ public class AudioWidget extends MediaWidget {
             }
         });
 
-        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(prompt.getAppearanceHint())) {
+        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(mPrompt.getAppearanceHint())) {
             mChooseButton.setVisibility(View.GONE);
         }
 
@@ -134,7 +103,6 @@ public class AudioWidget extends MediaWidget {
                 playAudio();
             }
         });
-
     }
 
     protected void playAudio() {
@@ -150,13 +118,6 @@ public class AudioWidget extends MediaWidget {
                             "play audio"),
                     Toast.LENGTH_SHORT).show();
         }
-    }
-
-    protected void setupLayout() {
-        // finish complex layout
-        addView(mCaptureButton);
-        addView(mChooseButton);
-        addView(mPlayButton);
     }
 
     protected void captureAudio(FormEntryPrompt prompt) {
@@ -241,37 +202,5 @@ public class AudioWidget extends MediaWidget {
         }
 
         return path;
-    }
-
-    @Override
-    public void setFocus(Context context) {
-        // Hide the soft keyboard if it's showing.
-        InputMethodManager inputManager =
-                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-        mCaptureButton.setOnLongClickListener(l);
-        mChooseButton.setOnLongClickListener(l);
-        mPlayButton.setOnLongClickListener(l);
-    }
-
-    @Override
-    public void unsetListeners() {
-        super.unsetListeners();
-
-        mCaptureButton.setOnLongClickListener(null);
-        mChooseButton.setOnLongClickListener(null);
-        mPlayButton.setOnLongClickListener(null);
-    }
-
-    @Override
-    public void cancelLongPress() {
-        super.cancelLongPress();
-        mCaptureButton.cancelLongPress();
-        mChooseButton.cancelLongPress();
-        mPlayButton.cancelLongPress();
     }
 }

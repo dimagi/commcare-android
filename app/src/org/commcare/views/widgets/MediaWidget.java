@@ -2,8 +2,12 @@ package org.commcare.views.widgets;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.logic.PendingCalloutInterface;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.InvalidData;
@@ -17,17 +21,58 @@ import java.io.File;
  */
 public abstract class MediaWidget extends QuestionWidget {
     private static final String TAG = MediaWidget.class.getSimpleName();
+
+    protected Button mCaptureButton;
+    protected Button mPlayButton;
+    protected Button mChooseButton;
+
+    protected final PendingCalloutInterface pendingCalloutInterface;
+
     protected String mBinaryName;
     protected final String mInstanceFolder;
     private int oversizedMediaSize;
 
-    public MediaWidget(Context context, FormEntryPrompt p) {
+    public MediaWidget(Context context, FormEntryPrompt p, PendingCalloutInterface pic) {
         super(context, p);
+
+        this.pendingCalloutInterface = pic;
 
         mInstanceFolder =
                 FormEntryActivity.mInstancePath.substring(0,
                         FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
 
+        setOrientation(LinearLayout.VERTICAL);
+        initializeButtons();
+        setupLayout();
+
+        // retrieve answer from data model and update ui
+        mBinaryName = mPrompt.getAnswerText();
+        if (mBinaryName != null) {
+            mPlayButton.setEnabled(true);
+            File f = new File(mInstanceFolder + "/" + mBinaryName);
+            checkFileSize(f);
+        } else {
+            checkForOversizedMedia(mPrompt.getAnswerValue());
+            togglePlayButton(false);
+        }
+    }
+
+    protected void reloadFile() {
+        togglePlayButton(true);
+        File f = new File(mInstanceFolder + mBinaryName);
+        checkFileSize(f);
+    }
+
+    protected void togglePlayButton(boolean enabled) {
+        mPlayButton.setEnabled(enabled);
+    }
+
+    protected abstract void initializeButtons();
+
+    protected void setupLayout() {
+        addView(mCaptureButton);
+        addView(mChooseButton);
+        addView(mPlayButton);
     }
 
     @Override
@@ -78,4 +123,36 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     protected abstract String createFilePath(Object binaryUri);
+
+    @Override
+    public void setOnLongClickListener(OnLongClickListener l) {
+        mCaptureButton.setOnLongClickListener(l);
+        mChooseButton.setOnLongClickListener(l);
+        mPlayButton.setOnLongClickListener(l);
+    }
+
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mCaptureButton.setOnLongClickListener(null);
+        mChooseButton.setOnLongClickListener(null);
+        mPlayButton.setOnLongClickListener(null);
+    }
+
+    @Override
+    public void cancelLongPress() {
+        super.cancelLongPress();
+        mCaptureButton.cancelLongPress();
+        mChooseButton.cancelLongPress();
+        mPlayButton.cancelLongPress();
+    }
+
+    @Override
+    public void setFocus(Context context) {
+        // Hide the soft keyboard if it's showing.
+        InputMethodManager inputManager =
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
+    }
 }
