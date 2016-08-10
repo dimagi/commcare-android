@@ -31,8 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-// TODO: Add something in FormEntryPrompt that indicates whether this widget
-// has been displayed and cleared. If so, clear the text fields in setAnswer().
+// TODO: Add something in FormEntryPrompt that indicates whether this widget has been displayed and cleared. If so, clear the text fields in setAnswer().
 
 public class GregorianDateWidget extends AbstractUniversalDateWidget
         implements CalendarFragment.CalendarCloseListener {
@@ -124,10 +123,10 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position != EMPTY_MONTH_ENTRY_INDEX) {
-                    validateDayTextOnButtonPress();
+                    validateDayText();
                     int previouslySelectedMonth = monthArrayPointer;
-                    // Need to have a valid monthArrayPointer if they pick the
-                    // empty option, so mod everything by 12
+
+                    // Need to have a valid monthArrayPointer if they pick the empty option, so mod everything by 12
                     monthArrayPointer = position % 12;
                     int monthDifference = monthArrayPointer - previouslySelectedMonth;
                     DateTime dt = new DateTime(calendar.getTimeInMillis()).plusMonths(monthDifference);
@@ -157,6 +156,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         yearText.setText(String.format(YEARFORMAT, dateUniv.year));
         calendar.setTimeInMillis(millisFromJavaEpoch);
         dayOfWeek.setText(calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
+        widgetEntryChanged();
     }
 
     //Used to calculate new time when a button is pressed
@@ -192,7 +192,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     // Checks if all text fields contain valid values, corrects fields with
     // invalid values, updates calendar based on text fields.
     private void validateTextOnButtonPress() {
-        validateDayTextOnButtonPress();
+        validateDayText();
 
         monthArrayPointer = monthSpinner.getSelectedItemPosition();
         calendar.set(Calendar.MONTH, monthArrayPointer);
@@ -201,7 +201,8 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         calendar.set(Calendar.YEAR, Integer.parseInt(yearTextValue));
     }
 
-    private void validateDayTextOnButtonPress() {
+    //Makes sure that value of day text field is valid given values of month and year fields
+    private void validateDayText() {
         String dayTextString = dayText.getText().toString();
         int dayTextValue = Integer.parseInt(dayTextString);
         int maxDayOfMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
@@ -377,7 +378,6 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     @Override
     public void setAnswer() {
         if (mPrompt.getAnswerValue() != null) {
-
             Date date = (Date)mPrompt.getAnswerValue().getValue();
             updateDateDisplay(date.getTime());
             updateGregorianDateHelperDisplay();
