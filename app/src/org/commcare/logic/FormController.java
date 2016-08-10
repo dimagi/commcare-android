@@ -1,5 +1,7 @@
 package org.commcare.logic;
 
+import android.support.annotation.NonNull;
+
 import org.commcare.views.QuestionsView;
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormDef;
@@ -34,7 +36,7 @@ public class FormController implements PendingCalloutInterface {
     private final FormEntryController mFormEntryController;
 
     private FormIndex mPendingCalloutFormIndex = null;
-    private boolean mPendingCalloutIsBulk = false;
+    private boolean wasPendingCalloutCancelled;
 
     private final boolean mReadOnly;
 
@@ -566,7 +568,18 @@ public class FormController implements PendingCalloutInterface {
 
     @Override
     public void setPendingCalloutFormIndex(FormIndex pendingCalloutFormIndex) {
+        wasPendingCalloutCancelled = false;
         mPendingCalloutFormIndex = pendingCalloutFormIndex;
+    }
+
+    @Override
+    public boolean wasCalloutPendingAndCancelled(@NonNull FormIndex calloutFormIndex) {
+        return wasPendingCalloutCancelled && calloutFormIndex.equals(mPendingCalloutFormIndex);
+    }
+
+    @Override
+    public void setPendingCalloutAsCancelled() {
+        wasPendingCalloutCancelled = true;
     }
 
     //CTS: Added this to protect the JR internal classes, although it's not awesome that
