@@ -22,6 +22,8 @@ import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.IntegerData;
+import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -47,6 +49,7 @@ public class AudioWidget extends QuestionWidget {
     protected String recordedFileName;
     protected String mBinaryName;
     protected final String mInstanceFolder;
+    private int oversizedMediaSize;
     private String customFileTag;
 
     public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
@@ -207,19 +210,29 @@ public class AudioWidget extends QuestionWidget {
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {
             return new StringData(mBinaryName);
-        } else {
-            return null;
+        } else if (oversizedMediaSize > 0) {
+            return new InvalidData("", new IntegerData(oversizedMediaSize));
         }
+        return null;
     }
 
     @Override
     public void setBinaryData(Object binaryuri) {
+        String binaryPath = createFilePath(binaryuri);
+        File source = new File(binaryPath);
+        boolean isToLargeToUpload = checkFileSize(source);
+
         // when replacing an answer. remove the current media.
         if (mBinaryName != null) {
             deleteMedia();
         }
 
-        String binaryPath = createFilePath(binaryuri);
+        if (isToLargeToUpload) {
+            oversizedMediaSize = (int)source.length() / (1024 * 1024);
+            return;
+        } else {
+            oversizedMediaSize = -1;
+        }
 
         // get the file path and create a copy in the instance folder
         String[] filenameSegments = binaryPath.split("\\.");
@@ -235,7 +248,6 @@ public class AudioWidget extends QuestionWidget {
 
         String destAudioPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + extension;
 
-        File source = new File(binaryPath);
         File newAudio = new File(destAudioPath);
         try {
             FileUtil.copyFile(source, newAudio);
@@ -243,8 +255,6 @@ public class AudioWidget extends QuestionWidget {
             Log.e(TAG, "IOExeception while copying audio");
             e.printStackTrace();
         }
-
-        checkFileSize(newAudio);
 
         if (newAudio.exists()) {
             // Add the copy to the content provider
