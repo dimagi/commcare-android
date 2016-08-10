@@ -22,10 +22,6 @@ import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.IntegerData;
-import org.javarosa.core.model.data.InvalidData;
-import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -37,7 +33,7 @@ import java.io.IOException;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class VideoWidget extends QuestionWidget {
+public class VideoWidget extends MediaWidget {
     private final static String TAG = VideoWidget.class.getSimpleName();
 
     private final Button mCaptureButton;
@@ -45,7 +41,6 @@ public class VideoWidget extends QuestionWidget {
     private final Button mChooseButton;
 
     private String mBinaryName;
-    private int oversizedMediaSize;
 
     private final String mInstanceFolder;
     private final PendingCalloutInterface pendingCalloutInterface;
@@ -161,58 +156,18 @@ public class VideoWidget extends QuestionWidget {
         addView(mPlayButton);
     }
 
-    private void deleteMedia() {
-        // get the file path and delete the file
-        File f = new File(mInstanceFolder + "/" + mBinaryName);
-        if (!f.delete()) {
-            Log.e(TAG, "Failed to delete " + f);
-        }
-
-        // clean up variables
-        mBinaryName = null;
-    }
-
     @Override
-    public void clearAnswer() {
-        deleteMedia();
-
-        mPlayButton.setEnabled(false);
-    }
-
-    @Override
-    public IAnswerData getAnswer() {
-        if (mBinaryName != null) {
-            return new StringData(mBinaryName);
-        } else if (oversizedMediaSize > 0) {
-            return new InvalidData("", new IntegerData(oversizedMediaSize));
-        }
-        return null;
+    protected String createFilePath(Object binaryUri){
+        return UriToFilePath.getPathFromUri(CommCareApplication._(), (Uri)binaryUri);
     }
 
     @Override
     public void setBinaryData(Object binaryuri) {
-        // get the file path and create a copy in the instance folder
-        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(),
-                (Uri)binaryuri);
-
+        String binaryPath = checkBinarySize(binaryuri);
         if (binaryPath == null) {
-            throw new RuntimeException("Unable to find video at " + binaryuri.toString());
-        }
-
-        File source = new File(binaryPath);
-        boolean isToLargeToUpload = checkFileSize(source);
-
-        // you are replacing an answer. remove the media.
-        if (mBinaryName != null) {
-            deleteMedia();
-        }
-
-        if (isToLargeToUpload) {
-            oversizedMediaSize = (int)source.length() / (1024 * 1024);
             return;
-        } else {
-            oversizedMediaSize = -1;
         }
+        File source = new File(binaryPath);
 
         String extension = binaryPath.substring(binaryPath.lastIndexOf("."));
         String destVideoPath = mInstanceFolder + "/" + System.currentTimeMillis() + extension;
