@@ -469,11 +469,4 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
-    public boolean usesCaseTiles() {
-        return usesCaseTiles;
-    }
-
-    public boolean usesGridLayout() {
-        return false;
-    }
 }

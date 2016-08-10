@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +25,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -242,18 +245,30 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 setupLandscapeDualPaneView();
             } else {
                 setContentView(R.layout.entity_select_layout);
-
                 restoreExistingSelection(isOrientationChange);
             }
         } else {
             setContentView(R.layout.entity_select_layout);
         }
 
-        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-        view.setOnItemClickListener(this);
+        AdapterView visibleView;
+        GridView gridView = (GridView)this.findViewById(R.id.screen_entity_select_grid);
+        ListView listView = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+        if (shortSelect.shouldBeLaidOutInGrid()) {
+            visibleView = gridView;
+            gridView.setVisibility(View.VISIBLE);
+            gridView.setNumColumns(shortSelect.getNumEntitiesToDisplayPerRow());
+            listView.setVisibility(View.GONE);
+        } else {
+            visibleView = listView;
+            listView.setVisibility(View.VISIBLE);
+            gridView.setVisibility(View.GONE);
+            EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
+        }
 
-        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesEntityTileView());
-        setupToolbar(view);
+        visibleView.setOnItemClickListener(this);
+
+        setupToolbar(visibleView);
         setupMapNav();
     }
 
@@ -291,7 +306,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void setupToolbar(ListView view) {
+    private void setupToolbar(AdapterView view) {
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
         //use the old method here because some Android versions don't like Spannables for titles
         searchLabel.setText(Localization.get("select.search.label"));
@@ -352,7 +367,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void persistAdapterState(ListView view) {
+    private void persistAdapterState(AdapterView view) {
         FragmentManager fm = this.getSupportFragmentManager();
 
         containerFragment = (ContainerFragment)fm.findFragmentByTag("entity-adapter");
@@ -371,12 +386,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void setupUIFromAdapter(ListView view) {
+    private void setupUIFromAdapter(AdapterView view) {
         view.setAdapter(adapter);
-        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesEntityTileView());
-
+        if (view instanceof ListView) {
+            EntitySelectViewSetup.setupDivider(this, (ListView)view, shortSelect.usesEntityTileView());
+        }
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
-
         setSearchBannerState();
     }
 
@@ -1155,4 +1170,5 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public String getActivityTitle() {
         return null;
     }
+
 }
