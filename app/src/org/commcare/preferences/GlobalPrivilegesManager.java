@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 
 import org.commcare.CommCareApplication;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.utils.EncryptionUtils;
 
 import java.util.ArrayList;
 
@@ -35,8 +34,7 @@ public class GlobalPrivilegesManager {
      */
     public static void enablePrivilege(String privilegeName, String username) {
         getGlobalPrivilegesRecord().edit().putBoolean(privilegeName, true).commit();
-        GoogleAnalyticsUtils.reportPrivilegeEnabled(privilegeName,
-                EncryptionUtils.getMD5HashAsString(username));
+        GoogleAnalyticsUtils.reportPrivilegeEnabled(privilegeName, username);
     }
 
     public static void disablePrivilege(String privilegeName) {
