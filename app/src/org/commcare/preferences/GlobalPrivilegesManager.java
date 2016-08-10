@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.EncryptionUtils;
 
@@ -44,29 +43,39 @@ public class GlobalPrivilegesManager {
         getGlobalPrivilegesRecord().edit().putBoolean(privilegeName, false).commit();
     }
 
-    public static boolean isPrivilegeEnabled(String privilegeName) {
+    public static ArrayList<String> getEnabledPrivileges() {
+        ArrayList<String> privilegesEnabled = new ArrayList<>();
+        for (String privilege : allGlobalPrivilegesList) {
+            if (isPrivilegeEnabled(privilege)) {
+                privilegesEnabled.add(privilege);
+            }
+        }
+        return privilegesEnabled;
+    }
+
+    public static String getEnabledPrivilegesString() {
+        StringBuilder builder = new StringBuilder();
+        for (String privilege : getEnabledPrivileges()) {
+            builder.append("- " + getPrivilegeDisplayName(privilege) +"\n");
+        }
+        return builder.toString();
+    }
+
+    private static boolean isPrivilegeEnabled(String privilegeName) {
         return getGlobalPrivilegesRecord().getBoolean(privilegeName, false);
     }
 
-    public static boolean isSuperuserPrivilegeEnabled() {
+    public static boolean isMultipleAppsPrivilegeEnabled() {
         return isPrivilegeEnabled(PRIVILEGE_MULTIPLE_APPS);
     }
 
-    public static String getPrivilegeDisplayName(String privilegeName) {
+    private static String getPrivilegeDisplayName(String privilegeName) {
         switch(privilegeName) {
             case PRIVILEGE_MULTIPLE_APPS:
-                return "multiple apps";
+                return "Unlimited Multiple App Install";
             default:
                 return "";
         }
     }
 
-    public static int getInstructionsTextId(String privilegeName) {
-        switch(privilegeName) {
-            case PRIVILEGE_MULTIPLE_APPS:
-                return R.string.multiple_apps_privilege_instructions;
-            default:
-                return -1;
-        }
-    }
 }

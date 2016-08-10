@@ -9,7 +9,6 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.CommCarePreferences;
-import org.commcare.preferences.GlobalPrivilegesManager;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
@@ -49,16 +48,14 @@ public class AppManagerAdvancedSettings extends SessionAwarePreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_SUPERUSER_AUTH);
-                launchSuperuserAuth();
+                launchPrivilegeClaimActivity();
                 return true;
             }
         });
     }
 
-    private void launchSuperuserAuth() {
+    private void launchPrivilegeClaimActivity() {
         Intent i = new Intent(this, GlobalPrivilegeClaimingActivity.class);
-        i.putExtra(GlobalPrivilegeClaimingActivity.KEY_PRIVILEGE_NAME,
-                GlobalPrivilegesManager.PRIVILEGE_MULTIPLE_APPS);
         startActivity(i);
     }
 
