@@ -130,7 +130,7 @@ public class VideoWidget extends MediaWidget {
 
     @Override
     public void setBinaryData(Object binaryuri) {
-        String binaryPath = checkBinarySize(binaryuri);
+        String binaryPath = getBinaryPathWithSizeCheck(binaryuri);
         if (binaryPath == null) {
             return;
         }

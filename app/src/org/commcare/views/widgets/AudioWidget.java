@@ -138,7 +138,7 @@ public class AudioWidget extends MediaWidget {
 
     @Override
     public void setBinaryData(Object binaryuri) {
-        String binaryPath = checkBinarySize(binaryuri);
+        String binaryPath = getBinaryPathWithSizeCheck(binaryuri);
         if (binaryPath == null) {
             return;
         }
@@ -185,9 +185,11 @@ public class AudioWidget extends MediaWidget {
         mBinaryName = newAudio.getName();
     }
 
-    //If file is chosen by user, the file selection intent will return an URI
-    //If file is auto-selected after recording_fragment, then the recordingfragment will provide a string file path
-    //Set value of customFileTag if the file is a recent recording from the RecordingFragment
+    /**
+     * If file is chosen by user, the file selection intent will return an URI
+     * If file is auto-selected after recording_fragment, then the recordingfragment will provide a string file path
+     * Set value of customFileTag if the file is a recent recording from the RecordingFragment
+     */
     @Override
     protected String createFilePath(Object binaryuri){
         String path;

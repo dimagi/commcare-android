@@ -17,6 +17,8 @@ import org.javarosa.form.api.FormEntryPrompt;
 import java.io.File;
 
 /**
+ * Generic logic for capturing or choosing audio/video/image media
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public abstract class MediaWidget extends QuestionWidget {
@@ -25,17 +27,18 @@ public abstract class MediaWidget extends QuestionWidget {
     protected Button mCaptureButton;
     protected Button mPlayButton;
     protected Button mChooseButton;
+    protected String mBinaryName;
 
     protected final PendingCalloutInterface pendingCalloutInterface;
-
-    protected String mBinaryName;
     protected final String mInstanceFolder;
+
     private int oversizedMediaSize;
 
-    public MediaWidget(Context context, FormEntryPrompt p, PendingCalloutInterface pic) {
-        super(context, p);
+    public MediaWidget(Context context, FormEntryPrompt prompt,
+                       PendingCalloutInterface pendingCalloutInterface) {
+        super(context, prompt);
 
-        this.pendingCalloutInterface = pic;
+        this.pendingCalloutInterface = pendingCalloutInterface;
 
         mInstanceFolder =
                 FormEntryActivity.mInstancePath.substring(0,
@@ -45,12 +48,13 @@ public abstract class MediaWidget extends QuestionWidget {
         initializeButtons();
         setupLayout();
 
-        // retrieve answer from data model and update ui
+        loadAnswerFromDataModel();
+    }
+
+    private void loadAnswerFromDataModel() {
         mBinaryName = mPrompt.getAnswerText();
         if (mBinaryName != null) {
-            mPlayButton.setEnabled(true);
-            File f = new File(mInstanceFolder + "/" + mBinaryName);
-            checkFileSize(f);
+            reloadFile();
         } else {
             checkForOversizedMedia(mPrompt.getAnswerValue());
             togglePlayButton(false);
@@ -80,17 +84,21 @@ public abstract class MediaWidget extends QuestionWidget {
         if (mBinaryName != null) {
             return new StringData(mBinaryName);
         } else if (oversizedMediaSize > 0) {
+            // media was too big to upload, set answer as invalid data to
+            // allow showing the user a proper warning message.
             return new InvalidData("", new IntegerData(oversizedMediaSize));
         }
         return null;
     }
 
-    protected String checkBinarySize(Object binaryuri) {
-        String binaryPath = createFilePath(binaryuri);
+    /**
+     * @return resolved filepath or null if the target is too big to upload
+     */
+    protected String getBinaryPathWithSizeCheck(Object binaryURI) {
+        String binaryPath = createFilePath(binaryURI);
         File source = new File(binaryPath);
         boolean isToLargeToUpload = checkFileSize(source);
 
-        // when replacing an answer. remove the current media.
         if (mBinaryName != null) {
             deleteMedia();
         }
@@ -104,22 +112,20 @@ public abstract class MediaWidget extends QuestionWidget {
         }
     }
 
-    private void deleteMedia() {
-        // get the file path and delete the file
-        File f = new File(mInstanceFolder + "/" + mBinaryName);
-        if (!f.delete()) {
-            Log.e(TAG, "Failed to delete " + f);
-        }
-
-        // clean up variables
-        mBinaryName = null;
-    }
-
     @Override
     public void clearAnswer() {
         deleteMedia();
 
-        mPlayButton.setEnabled(false);
+        togglePlayButton(false);
+    }
+
+    private void deleteMedia() {
+        File f = new File(mInstanceFolder + mBinaryName);
+        if (!f.delete()) {
+            Log.e(TAG, "Failed to delete " + f);
+        }
+
+        mBinaryName = null;
     }
 
     protected abstract String createFilePath(Object binaryUri);
@@ -143,6 +149,7 @@ public abstract class MediaWidget extends QuestionWidget {
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
+
         mCaptureButton.cancelLongPress();
         mChooseButton.cancelLongPress();
         mPlayButton.cancelLongPress();
