@@ -262,10 +262,11 @@ public class EntityListAdapter implements ListAdapter {
     private View getGridView(Entity<TreeReference> entity, EntityViewTile emv) {
         int[] titleColor = AndroidUtil.getThemeColorIDs(commCareActivity, new int[]{R.attr.entity_select_title_text_color});
         if (emv == null) {
-            emv = new EntityViewTile(commCareActivity, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
+            emv = EntityViewTile.createTileForListDisplay(commCareActivity, detail, entity,
+                    currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
         } else {
             emv.setSearchTerms(currentSearchTerms);
-            emv.setViews(commCareActivity, detail, entity);
+            emv.addFieldViews(commCareActivity, detail, entity);
         }
         emv.setTitleTextColor(titleColor[0]);
         return emv;
