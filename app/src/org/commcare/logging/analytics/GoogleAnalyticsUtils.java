@@ -12,7 +12,7 @@ import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.CommCarePreferences;
-import org.commcare.utils.Base64;
+import org.commcare.utils.EncryptionUtils;
 
 import java.util.Map;
 
@@ -313,7 +313,7 @@ public class GoogleAnalyticsUtils {
 
     public static void reportPrivilegeEnabled(String privilegeName, String username) {
         reportEvent(GoogleAnalyticsFields.CATEGORY_PRIVILEGE_ENABLED, privilegeName,
-                Base64.encode(username.getBytes()));
+                EncryptionUtils.getMD5HashAsString(username));
     }
 
     public static void reportLanguageAtPointOfFormEntry(String language) {
