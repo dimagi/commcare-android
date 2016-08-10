@@ -9,10 +9,7 @@ import android.net.Uri;
 import android.provider.MediaStore.Video;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -36,33 +33,18 @@ import java.io.IOException;
 public class VideoWidget extends MediaWidget {
     private final static String TAG = VideoWidget.class.getSimpleName();
 
-    private final Button mCaptureButton;
-    private final Button mPlayButton;
-    private final Button mChooseButton;
-
-    private String mBinaryName;
-
-    private final String mInstanceFolder;
-    private final PendingCalloutInterface pendingCalloutInterface;
-
     public VideoWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
-        super(context, prompt);
-        this.pendingCalloutInterface = pic;
+        super(context, prompt, pic);
+    }
 
-        mInstanceFolder =
-                FormEntryActivity.mInstancePath.substring(0,
-                        FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
-
-        setOrientation(LinearLayout.VERTICAL);
-
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
+    @Override
+    protected void initializeButtons() {
         // setup capture button
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_video),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
@@ -74,7 +56,7 @@ public class VideoWidget extends MediaWidget {
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.AUDIO_VIDEO_FETCH);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -89,7 +71,7 @@ public class VideoWidget extends MediaWidget {
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_video),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
@@ -100,7 +82,7 @@ public class VideoWidget extends MediaWidget {
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.AUDIO_VIDEO_FETCH);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -115,7 +97,7 @@ public class VideoWidget extends MediaWidget {
         WidgetUtils.setupButton(mPlayButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.play_video),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // on play, launch the appropriate viewer
         mPlayButton.setOnClickListener(new View.OnClickListener() {
@@ -135,25 +117,10 @@ public class VideoWidget extends MediaWidget {
             }
         });
 
-        // retrieve answer from data model and update ui
-        mBinaryName = prompt.getAnswerText();
-        if (mBinaryName != null) {
-            mPlayButton.setEnabled(true);
-            File f = new File(mInstanceFolder + "/" + mBinaryName);
-            checkFileSize(f);
-        } else {
-            checkForOversizedMedia(prompt.getAnswerValue());
-            mPlayButton.setEnabled(false);
-        }
-
-        // finish complex layout
-        addView(mCaptureButton);
-        addView(mChooseButton);
-        String acq = prompt.getAppearanceHint();
+        String acq = mPrompt.getAppearanceHint();
         if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq)) {
             mChooseButton.setVisibility(View.GONE);
         }
-        addView(mPlayButton);
     }
 
     @Override
@@ -196,37 +163,5 @@ public class VideoWidget extends MediaWidget {
         }
 
         mBinaryName = newVideo.getName();
-    }
-
-    @Override
-    public void setFocus(Context context) {
-        // Hide the soft keyboard if it's showing.
-        InputMethodManager inputManager =
-                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-        mCaptureButton.setOnLongClickListener(l);
-        mChooseButton.setOnLongClickListener(l);
-        mPlayButton.setOnLongClickListener(l);
-    }
-
-    @Override
-    public void unsetListeners() {
-        super.unsetListeners();
-
-        mCaptureButton.setOnLongClickListener(null);
-        mChooseButton.setOnLongClickListener(null);
-        mPlayButton.setOnLongClickListener(null);
-    }
-
-    @Override
-    public void cancelLongPress() {
-        super.cancelLongPress();
-        mCaptureButton.cancelLongPress();
-        mChooseButton.cancelLongPress();
-        mPlayButton.cancelLongPress();
     }
 }
