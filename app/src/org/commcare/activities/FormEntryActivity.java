@@ -1317,7 +1317,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 if (backExitsForm) {
                     FormEntryActivity.this.triggerUserQuitInput();
                 } else {
-                    dismissAlertDialog();
+                    dialog.dismiss();
                     FormEntryActivity.this.refreshCurrentView(false);
                 }
             }
@@ -1334,7 +1334,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         View.OnClickListener addAnotherListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                dismissAlertDialog();
+                dialog.dismiss();
                 try {
                     mFormController.newRepeat();
                 } catch (XPathUnhandledException | XPathTypeMismatchException | XPathArityException e) {
@@ -1351,7 +1351,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         View.OnClickListener skipListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                dismissAlertDialog();
+                dialog.dismiss();
                 if (!nextExitsForm) {
                     showNextView();
                 } else {
