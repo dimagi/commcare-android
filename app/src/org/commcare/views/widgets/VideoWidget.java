@@ -36,7 +36,7 @@ import java.io.IOException;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class VideoWidget extends QuestionWidget {
-    private final static String t = "MediaWidget";
+    private final static String TAG = VideoWidget.class.getSimpleName();
 
     private final Button mCaptureButton;
     private final Button mPlayButton;
@@ -159,28 +159,23 @@ public class VideoWidget extends QuestionWidget {
         addView(mPlayButton);
     }
 
-
     private void deleteMedia() {
         // get the file path and delete the file
         File f = new File(mInstanceFolder + "/" + mBinaryName);
         if (!f.delete()) {
-            Log.e(t, "Failed to delete " + f);
+            Log.e(TAG, "Failed to delete " + f);
         }
 
         // clean up variables
         mBinaryName = null;
     }
 
-
     @Override
     public void clearAnswer() {
-        // remove the file
         deleteMedia();
 
-        // reset buttons
         mPlayButton.setEnabled(false);
     }
-
 
     @Override
     public IAnswerData getAnswer() {
@@ -210,7 +205,7 @@ public class VideoWidget extends QuestionWidget {
         try {
             FileUtil.copyFile(source, newVideo);
         } catch (IOException e) {
-            Log.e(t, "IOExeception while video audio");
+            Log.e(TAG, "IOExeception while video audio");
             e.printStackTrace();
         }
 
@@ -226,9 +221,9 @@ public class VideoWidget extends QuestionWidget {
 
             Uri VideoURI =
                     getContext().getContentResolver().insert(Video.Media.EXTERNAL_CONTENT_URI, values);
-            Log.i(t, "Inserting VIDEO returned uri = " + VideoURI.toString());
+            Log.i(TAG, "Inserting VIDEO returned uri = " + VideoURI.toString());
         } else {
-            Log.e(t, "Inserting Video file FAILED");
+            Log.e(TAG, "Inserting Video file FAILED");
         }
 
         mBinaryName = newVideo.getName();
@@ -265,5 +260,4 @@ public class VideoWidget extends QuestionWidget {
         mChooseButton.cancelLongPress();
         mPlayButton.cancelLongPress();
     }
-
 }
