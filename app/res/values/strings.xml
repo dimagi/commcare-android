@@ -83,10 +83,7 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
 * “Antenna” symbol by Dima \n
 * “Map Marker” symbol by P.J. Onori \n
 * broken screen by Sam Martin from the Noun Project \n\n
-
-_Android MapView Balloons_ project used under the Apache Software License 2.0. \n
-Author: Jeff Gilfelt \n
-Copyright © 2012 readyState Software Ltd.</string>
+</string>
     <string name="notification_message_title">CommCare Notification</string>
 
     <string-array name="frequency_vals">
