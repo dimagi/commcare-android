@@ -30,7 +30,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.DevSessionRestorer;
-import org.commcare.suite.model.UserRestore;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
@@ -389,9 +389,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void loginDemoUser() {
-        UserRestore userRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
-        if (userRestore != null) {
-            formAndDataSyncer.performDemoUserRestore(this, userRestore);
+        OfflineUserRestore offlineUserRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
+        if (offlineUserRestore != null) {
+            formAndDataSyncer.performDemoUserRestore(this, offlineUserRestore);
         } else {
             DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
             tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,

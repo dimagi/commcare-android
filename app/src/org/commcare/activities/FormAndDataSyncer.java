@@ -12,7 +12,7 @@ import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.preferences.CommCareServerPreferences;
-import org.commcare.suite.model.UserRestore;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskReceiver;
@@ -193,9 +193,9 @@ public class FormAndDataSyncer {
 
     public <I extends CommCareActivity & PullTaskReceiver> void performDemoUserRestore(
             I context,
-            UserRestore userRestore) {
+            OfflineUserRestore offlineUserRestore) {
 
-        LocalDataPullResponseFactory.setRequestPayloads(new String[]{userRestore.getReference()});
-        syncData(context, false, false, "fake-server-that-is-never-used", userRestore.getUsername(), userRestore.getPassword(), LocalDataPullResponseFactory.INSTANCE);
+        LocalDataPullResponseFactory.setRequestPayloads(new String[]{offlineUserRestore.getReference()});
+        syncData(context, false, false, "fake-server-that-is-never-used", offlineUserRestore.getUsername(), offlineUserRestore.getPassword(), LocalDataPullResponseFactory.INSTANCE);
     }
 }

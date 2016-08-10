@@ -3,7 +3,7 @@ package org.commcare.android.resource.installers;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.suite.model.UserRestore;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -39,8 +39,8 @@ public class UserRestoreAndroidInstaller extends FileSystemInstaller {
         if (localLocation == null) {
             throw new ResourceInitializationException("The user restore file location is null!");
         }
-        UserRestore userRestore = new UserRestore(localLocation, username, password);
-        instance.registerDemoUserRestore(userRestore);
+        OfflineUserRestore offlineUserRestore = new OfflineUserRestore(localLocation, username, password);
+        instance.registerDemoUserRestore(offlineUserRestore);
         return true;
     }
 
