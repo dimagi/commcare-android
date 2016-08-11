@@ -81,12 +81,12 @@ public abstract class MediaWidget extends QuestionWidget {
 
     @Override
     public IAnswerData getAnswer() {
-        if (mBinaryName != null) {
-            return new StringData(mBinaryName);
-        } else if (oversizedMediaSize > 0) {
+        if (oversizedMediaSize > 0) {
             // media was too big to upload, set answer as invalid data to
             // allow showing the user a proper warning message.
             return new InvalidData("", new IntegerData(oversizedMediaSize));
+        } else if (mBinaryName != null) {
+            return new StringData(mBinaryName);
         }
         return null;
     }
