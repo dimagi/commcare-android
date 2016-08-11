@@ -248,11 +248,10 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     private void showOversizedMediaWarning(String fileSizeString) {
-        String maxAcceptable = (FormUploadUtil.MAX_BYTES / (1024 * 1024)) + "";
+        String maxAcceptable = FileUtil.bytesToMeg(FormUploadUtil.MAX_BYTES) + "";
         String[] args = new String[]{fileSizeString, maxAcceptable};
         notifyInvalid(StringUtils.getStringRobust(getContext(), R.string.attachment_above_size_limit, args), true);
     }
-
 
     /**
      * Use to signal that there's a portion of this view that wants to be 
@@ -644,7 +643,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      */
     protected boolean checkFileSize(File file){
         if (FileUtil.isFileToLargeToUpload(file)) {
-            String fileSize = FileUtil.getFileSize(file) / 1024 + "";
+            String fileSize = FileUtil.getFileSizeInMegs(file) + "";
             showOversizedMediaWarning(fileSize);
             return true;
         } else if (FileUtil.isFileOversized(file)) {
