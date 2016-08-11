@@ -952,13 +952,17 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
 
-        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-
-        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesEntityTileView());
+        AdapterView visibleView;
+        if (shortSelect.shouldBeLaidOutInGrid()) {
+            visibleView = ((GridView) this.findViewById(R.id.screen_entity_select_grid));
+        } else {
+            ListView listView = ((ListView) this.findViewById(R.id.screen_entity_select_list));
+            EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
+            visibleView = listView;
+        }
 
         adapter = new EntityListAdapter(this, detail, references, entities, order, factory, hideActions);
-
-        view.setAdapter(adapter);
+        visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);
 
