@@ -55,6 +55,7 @@ public class EntityView extends LinearLayout {
     public static final String FORM_IMAGE = "image";
     public static final String FORM_GRAPH = "graph";
     public static final String FORM_CALLLOUT = "callout";
+    public static final String FORM_COLOR = "color";
 
     // Flag indicating if onMeasure has already been called for the first time on this view
     private boolean onMeasureCalled = false;

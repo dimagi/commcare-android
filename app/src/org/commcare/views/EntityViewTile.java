@@ -334,19 +334,14 @@ public class EntityViewTile extends GridLayout {
 
         View retVal;
         switch (multimediaType) {
+            case EntityView.FORM_COLOR:
+                retVal = new ImageView(context);
+                retVal.setBackgroundColor(getResources().getColor(R.color.red));
+                setScaleType((ImageView)retVal, horzAlign);
+                break;
             case EntityView.FORM_IMAGE:
                 retVal = new ImageView(context);
-                switch (horzAlign) {
-                    case "center":
-                        ((ImageView) retVal).setScaleType(ScaleType.CENTER_INSIDE);
-                        break;
-                    case "left":
-                        ((ImageView) retVal).setScaleType(ScaleType.FIT_START);
-                        break;
-                    case "right":
-                        ((ImageView) retVal).setScaleType(ScaleType.FIT_END);
-                        break;
-                }
+                setScaleType((ImageView)retVal, horzAlign);
                 retVal.setPadding(CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL, CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL);
                 if (rowData != null && !rowData.equals("")) {
                     if (mImageLoader != null) {
@@ -436,6 +431,20 @@ public class EntityViewTile extends GridLayout {
                 }
         }
         return retVal;
+    }
+
+    private static void setScaleType(ImageView imageView, String horizontalAlignment) {
+        switch (horizontalAlignment) {
+            case "center":
+                imageView.setScaleType(ScaleType.CENTER_INSIDE);
+                break;
+            case "left":
+                imageView.setScaleType(ScaleType.FIT_START);
+                break;
+            case "right":
+                imageView.setScaleType(ScaleType.FIT_END);
+                break;
+        }
     }
 
     public void setSearchTerms(String[] currentSearchTerms) {
