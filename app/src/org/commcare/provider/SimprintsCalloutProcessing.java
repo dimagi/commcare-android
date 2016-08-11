@@ -31,10 +31,6 @@ import java.util.Vector;
  */
 public class SimprintsCalloutProcessing {
     private static final String TAG = SimprintsCalloutProcessing.class.getSimpleName();
-    private static final String RIGHT_INDEX_XPATH_KEY = "rightIndex";
-    private static final String RIGHT_THUMB_XPATH_KEY = "rightThumb";
-    private static final String LEFT_INDEX_XPATH_KEY = "leftIndex";
-    private static final String LEFT_THUMB_XPATH_KEY = "leftThumb";
 
     /**
      * Fingerprint lookup response from Simprints scanner app.
@@ -91,43 +87,25 @@ public class SimprintsCalloutProcessing {
                                                       Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         Registration registration = getRegistrationData(intent);
 
-        Vector<TreeReference> rightIndexRefs = responseToRefMap.get(RIGHT_INDEX_XPATH_KEY);
-        Vector<TreeReference> rightThumbRefs = responseToRefMap.get(RIGHT_THUMB_XPATH_KEY);
-        Vector<TreeReference> leftIndexRefs = responseToRefMap.get(LEFT_INDEX_XPATH_KEY);
-        Vector<TreeReference> leftThumbRefs = responseToRefMap.get(LEFT_THUMB_XPATH_KEY);
-        int numOfFingersScanned = getFingerprintScanCount(registration);
+        int numOfFingersScanned = 0;
+        for (FingerIdentifier fingerIdentifier : FingerIdentifier.values()) {
+            Vector<TreeReference> fingerRefs =  responseToRefMap.get(fingerIdentifier.toString());
+            if (fingerRefs != null && !fingerRefs.isEmpty()) {
+                byte[] template = registration.getTemplate(fingerIdentifier);
+                storeFingerprintTemplate(formDef, fingerRefs, intentQuestionRef, template);
+                numOfFingersScanned += countTemplateScanned(template);
+            }
+        }
 
         String resultMessage =
                 Localization.get("fingerprints.scanned", new String[]{"" + numOfFingersScanned});
         IntentCallout.setNodeValue(formDef, intentQuestionRef, resultMessage);
 
-        if (rightIndexRefs != null && !rightIndexRefs.isEmpty() &&
-                rightThumbRefs != null && !rightThumbRefs.isEmpty() &&
-                leftIndexRefs != null && !leftIndexRefs.isEmpty() &&
-                leftThumbRefs != null && !leftThumbRefs.isEmpty()) {
-            storeFingerprintTemplate(formDef, rightIndexRefs, intentQuestionRef, registration.getTemplate(FingerIdentifier.RIGHT_INDEX_FINGER));
-            storeFingerprintTemplate(formDef, rightThumbRefs, intentQuestionRef, registration.getTemplate(FingerIdentifier.RIGHT_THUMB));
-            storeFingerprintTemplate(formDef, leftIndexRefs, intentQuestionRef, registration.getTemplate(FingerIdentifier.LEFT_INDEX_FINGER));
-            storeFingerprintTemplate(formDef, leftThumbRefs, intentQuestionRef, registration.getTemplate(FingerIdentifier.LEFT_THUMB));
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private static int getFingerprintScanCount(Registration registration) {
-        return countTemplateScanned(registration.getTemplate(FingerIdentifier.LEFT_INDEX_FINGER))
-                + countTemplateScanned(registration.getTemplate(FingerIdentifier.RIGHT_INDEX_FINGER))
-                + countTemplateScanned(registration.getTemplate(FingerIdentifier.LEFT_THUMB))
-                + countTemplateScanned(registration.getTemplate(FingerIdentifier.RIGHT_THUMB));
+        return (numOfFingersScanned > 0);
     }
 
     private static int countTemplateScanned(byte[] template) {
-        if (template == null || template.length == 0) {
-            return 0;
-        } else {
-            return 1;
-        }
+        return (template == null || template.length == 0) ? 0 : 1;
     }
 
     private static void storeFingerprintTemplate(FormDef formDef, Vector<TreeReference> treeRefs,
