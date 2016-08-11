@@ -536,6 +536,10 @@ public class FileUtil {
         return length > WARNING_SIZE;
     }
 
+    public static boolean isFileToBigToUpload(File mf) {
+        return mf.length() > FormUploadUtil.MAX_BYTES;
+    }
+
     public static double getFileSize(File mf) {
         return mf.length() / (1024);
     }
