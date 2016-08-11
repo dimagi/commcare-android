@@ -44,11 +44,11 @@
     <string name="multiple_apps_limit_message">You have reached your limit of installed apps; you may only have up to 2 apps installed at once.\n\nIf you would like to install a new app, you may uninstall an existing app first, which can be done from the app manager.</string>
     <string name="back_to_manager">"Back to App Manager"</string>
     <string name="go_to_manager">Go to App Manager</string>
-    <string name="claim_privilege_button_text">CLAIM PRIVILEGE</string>
-    <string name="privilege_enabled_text">The %s privilege is enabled.</string>
-    <string name="privilege_not_enabled_text">The %s privilege is not enabled.</string>
-    <string name="privilege_claim_failed">Could not claim privilege</string>
-    <string name="superuser_privilege_instructions">If you have a superuser account on HQ, you will be able to enable the superuser privilege on your device by going to the \'Enable Superuser on Mobile\' tab of your \'My Account Settings\' page, and then scanning the barcode that appears there.</string>
+    <string name="claim_privilege_button_text">CLAIM PRIVILEGES</string>
+    <string name="privilege_enabled_text">The following privileges are enabled on your device:\n\n %s</string>
+    <string name="privilege_not_enabled_text">Special privileges are not enabled on your device.</string>
+    <string name="privilege_claim_failed">Could not claim privileges</string>
+    <string name="privilege_instructions">If you have a superuser account on HQ, you can enable certain privileges on your device by going to the \'Enable Privileges on Mobile\' tab of your \'My Account Settings\' page, and then scanning the barcode that appears there.</string>
 
 
     <!-- endregion -->

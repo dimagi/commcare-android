@@ -35,8 +35,6 @@ import static org.javarosa.xform.util.UniversalDate.MILLIS_IN_DAY;
  */
 public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
-    protected long millisOfDayOffset;
-
     private TextView txtMonth;
     private TextView txtDay;
     private TextView txtYear;
@@ -304,7 +302,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      *
      * @return Milliseconds since Java epoch
      */
-    protected abstract long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset);
+    protected abstract long toMillisFromJavaEpoch(int year, int month, int day);
 
     /**
      * Resets date to today
@@ -312,7 +310,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     @Override
     public void clearAnswer() {
         Date date = new Date();
-        millisOfDayOffset = date.getTime() % MILLIS_IN_DAY;
         updateDateDisplay(date.getTime());
         updateGregorianDateHelperDisplay();
     }
@@ -442,7 +439,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         int day = Integer.parseInt(txtDay.getText().toString());
         int month = monthArrayPointer + 1;
         int year = Integer.parseInt(txtYear.getText().toString());
-        return toMillisFromJavaEpoch(year, month, day, millisOfDayOffset);
+        return toMillisFromJavaEpoch(year, month, day);
     }
 
     /**

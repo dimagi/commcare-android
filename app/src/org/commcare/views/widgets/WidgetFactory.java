@@ -111,11 +111,12 @@ public class WidgetFactory {
             case Constants.DATATYPE_GEOPOINT:
                 return new GeoPointWidget(context, fep, pendingCalloutInterface);
             case Constants.DATATYPE_BARCODE:
-                IntentCallout mIntentCallout = new IntentCallout("com.google.zxing.client.android.SCAN", null, null,
+                IntentCallout intentCallout = new IntentCallout("com.google.zxing.client.android.SCAN", null, null,
                         null, null, null, Localization.get("intent.barcode.get"),
                         Localization.get("intent.barcode.update"), appearance);
-                Intent mIntent = mIntentCallout.generate(formDef.getEvaluationContext());
-                return new BarcodeWidget(context, fep, mIntent, mIntentCallout, pendingCalloutInterface);
+                intentCallout.attachToForm(formDef);
+                Intent intent = intentCallout.generate(formDef.getEvaluationContext());
+                return new BarcodeWidget(context, fep, intent, intentCallout, pendingCalloutInterface);
             case Constants.DATATYPE_TEXT:
                 if (appearance != null && (appearance.equalsIgnoreCase("numbers") || appearance.equalsIgnoreCase("numeric"))) {
                     return new StringNumberWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
