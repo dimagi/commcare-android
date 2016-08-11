@@ -17,7 +17,6 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.utils.AndroidInstanceInitializer;
-import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.FormSaveUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.xml.AndroidCaseXmlParser;
@@ -86,6 +85,7 @@ public class TestUtils {
                             CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
                 } else if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
                     return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new CaseIndexTable(db)) {
+                        @Override
                         protected SQLiteDatabase getDbHandle() {
                             return db;
                         }

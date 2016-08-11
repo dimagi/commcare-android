@@ -117,6 +117,7 @@ public class GridMultiWidget extends QuestionWidget {
         ImageAdapter ia = new ImageAdapter(getContext(), choices, imageViews);
         gridview.setAdapter(ia);
         gridview.setOnItemClickListener(new OnItemClickListener() {
+            @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 if (selected[position]) {
                     selected[position] = false;

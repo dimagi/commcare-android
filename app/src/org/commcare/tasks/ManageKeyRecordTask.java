@@ -281,30 +281,29 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 newRecord.setType(UserKeyRecord.TYPE_NORMAL);
                 storage.write(newRecord);
             }
-
-
-            for (UserKeyRecord recordPendingDelete :
-                    storage.getRecordsForValue(UserKeyRecord.META_KEY_STATUS, UserKeyRecord.TYPE_PENDING_DELETE)) {
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Cleaning up sandbox which is pending removal");
-
-                // See if there are more records in this sandbox. (If so, we can just wipe this record and move on)
-                if (storage.getIDsForValue(UserKeyRecord.META_SANDBOX_ID, recordPendingDelete.getUuid()).size() > 2) {
-                    Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Record for sandbox " + recordPendingDelete.getUuid() + " has siblings. Removing record");
-
-                    //TODO: Will this invalidate our iterator?
-                    storage.remove(recordPendingDelete);
-                } else {
-                    // Otherwise, we should see if we can read the data, and if so, wipe it as well as the record.
-                    if (recordPendingDelete.isPasswordValid(password)) {
-                        //TODO AMS: Changed this such that you can only wipe the record if it was a password login -- is that OK?
-                        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Current user has access to purgable sandbox " + recordPendingDelete.getUuid() + ". Wiping that sandbox");
-                        UserSandboxUtils.purgeSandbox(this.getContext(), app, recordPendingDelete, recordPendingDelete.unWrapKey(password));
-                    }
-                    //Do we do anything here if we couldn't open the sandbox?
-                }
-            }
-            //TODO: Specifically we should never have two sandboxes which can be opened by the same password (I think...)
         }
+
+        for (UserKeyRecord recordPendingDelete :
+                storage.getRecordsForValue(UserKeyRecord.META_KEY_STATUS, UserKeyRecord.TYPE_PENDING_DELETE)) {
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Cleaning up sandbox which is pending removal");
+
+            // See if there are more records in this sandbox. (If so, we can just wipe this record and move on)
+            if (storage.getIDsForValue(UserKeyRecord.META_SANDBOX_ID, recordPendingDelete.getUuid()).size() > 2) {
+                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Record for sandbox " + recordPendingDelete.getUuid() + " has siblings. Removing record");
+
+                //TODO: Will this invalidate our iterator?
+                storage.remove(recordPendingDelete);
+            } else {
+                // Otherwise, we should see if we can read the data, and if so, wipe it as well as the record.
+                if (recordPendingDelete.isPasswordValid(password)) {
+                    //TODO AMS: Changed this such that you can only wipe the record if it was a password login -- is that OK?
+                    Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Current user has access to purgable sandbox " + recordPendingDelete.getUuid() + ". Wiping that sandbox");
+                    UserSandboxUtils.purgeSandbox(this.getContext(), app, recordPendingDelete, recordPendingDelete.unWrapKey(password));
+                }
+                //Do we do anything here if we couldn't open the sandbox?
+            }
+        }
+            //TODO: Specifically we should never have two sandboxes which can be opened by the same password (I think...)
     }
 
 
@@ -376,11 +375,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                     //or our password has changed and we need to overwrite the existing key record. Either way, all
                     //we should need to do is merge the records.
 
-                    UserKeyRecord ukr = new UserKeyRecord(
-                            record.getUsername(), record.getPasswordHash(),
-                            record.getEncryptedKey(), record.getWrappedPassword(),
-                            record.getValidFrom(), record.getValidTo(), record.getUuid(),
-                            existing.getType());
+                    UserKeyRecord ukr = UserKeyRecord.buildFrom(record, existing.getType());
                     ukr.setID(existing.getID());
                     storage.write(ukr);
                 } catch (NoSuchElementException nsee) {
@@ -410,6 +405,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         for (UserKeyRecord r : allRecordsWithSameUsername) {
             if (!r.getUuid().equals(uuidOfActiveRecord)) {
                 r.setInactive();
+                storage.write(r);
             }
         }
     }

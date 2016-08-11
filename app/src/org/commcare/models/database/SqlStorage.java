@@ -258,11 +258,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     @Override
-    public void destroy() {
-        //nothing;
-    }
-
-    @Override
     public boolean exists(int id) {
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL}, DatabaseHelper.ID_COL + "= ? ", new String[]{String.valueOf(id)}, null, null, null);
 
@@ -290,18 +285,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         int records = c.getCount();
         c.close();
         return records;
-    }
-
-    @Override
-    public int getRecordSize(int id) {
-        //serialize and test blah blah.
-        return 0;
-    }
-
-    @Override
-    public int getTotalSize() {
-        //serialize and test blah blah.
-        return 0;
     }
 
     @Override
@@ -503,16 +486,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     @Override
-    public void repack() {
-        //Unecessary!
-    }
-
-    @Override
-    public void repair() {
-        //Unecessary!
-    }
-
-    @Override
     public void update(int id, Externalizable e) {
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
@@ -546,11 +519,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         } finally {
             db.endTransaction();
         }
-    }
-
-    @Override
-    public void setReadOnly() {
-        //TODO: Implement (although I doubt there's much useful stuff to do)
     }
 
     @Override

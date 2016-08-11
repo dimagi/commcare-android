@@ -32,6 +32,7 @@ public class LocationNotificationHandler extends Handler {
         final EntitySelectActivity activity = mActivity.get();
         if (activity != null) {
             DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
+                @Override
                 public void onClick(DialogInterface dialog, int i) {
                     switch (i) {
                         case DialogInterface.BUTTON_POSITIVE:

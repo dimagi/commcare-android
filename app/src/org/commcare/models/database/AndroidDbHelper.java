@@ -10,7 +10,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
-import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -74,6 +73,8 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
                 contentValues.put(key, (String)obj);
             } else if (obj instanceof Integer) {
                 contentValues.put(key, (Integer)obj);
+            } else if (obj instanceof Long) {
+                contentValues.put(key, (Long)obj);
             } else if (obj instanceof byte[]) {
                 contentValues.put(key, (byte[])obj);
             } else {

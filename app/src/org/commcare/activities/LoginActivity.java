@@ -186,6 +186,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
+    @Override
     public String getActivityTitle() {
         //TODO: "Login"?
         return null;
@@ -414,7 +415,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     new String[]{toastText});
         }
         uiController.setErrorMessageUI(toastText);
-        Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
     }
 
     /**
@@ -613,7 +613,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
-    public void handlePullTaskError(Exception e) {
+    public void handlePullTaskError() {
         raiseLoginMessage(StockMessages.Restore_Unknown, true);
     }
 }

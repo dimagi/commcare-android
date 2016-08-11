@@ -9,7 +9,6 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
 import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
@@ -102,8 +101,8 @@ public class CommCareTestApplication extends CommCareApplication {
         if (factoryClassNames.isEmpty()) {
             String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
             String baseCC = BuildConfig.PROJECT_DIR + "/../commcare-core/build/classes/main/";
-            addExternalizableClassesFromDir(baseODK, factoryClassNames);
-            addExternalizableClassesFromDir(baseCC, factoryClassNames);
+            addExternalizableClassesFromDir(baseODK.replace("/", File.separator), factoryClassNames);
+            addExternalizableClassesFromDir(baseCC.replace("/", File.separator), factoryClassNames);
         }
     }
 
@@ -116,7 +115,7 @@ public class CommCareTestApplication extends CommCareApplication {
             for (File file : files) {
                 String className = file.getAbsolutePath()
                         .replace(baseClassPath, "")
-                        .replace("/", ".")
+                        .replace(File.separator, ".")
                         .replace(".class", "")
                         .replace(".class", "");
                 AndroidPrototypeFactorySetup.loadClass(className, externClasses);
@@ -153,6 +152,11 @@ public class CommCareTestApplication extends CommCareApplication {
         ccService.createCipherPool();
         ccService.prepareStorage(symetricKey, record);
         User user = getUserFromDb(ccService, record);
+        if (user == null && cachedUserPassword != null) {
+            Log.d(TAG, "No user instance found, creating one");
+            user = new User(record.getUsername(), cachedUserPassword, "some_unique_id");
+            CommCareApplication._().getRawStorage("USER", User.class, ccService.getUserDbHandle()).write(user);
+        }
         if (user != null) {
             user.setCachedPwd(cachedUserPassword);
             user.setWrappedKey(ByteEncrypter.wrapByteArrayWithString(CryptUtil.generateSemiRandomKey().getEncoded(), cachedUserPassword));

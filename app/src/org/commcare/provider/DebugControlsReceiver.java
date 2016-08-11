@@ -51,6 +51,7 @@ public class DebugControlsReceiver extends BroadcastReceiver {
     private static void captureSession() {
         DevSessionRestorer.saveSessionToPrefs();
         DevSessionRestorer.enableAutoLogin();
+        DevSessionRestorer.enableSessionSaving();
     }
 
     private static void uninstallApp(String appId) {

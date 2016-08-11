@@ -22,7 +22,19 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_MODULE_NAVIGATION = "Module Navigation";
     public static final String CATEGORY_FEATURE_USAGE = "Feature Usage";
     public static final String CATEGORY_APP_MANAGER = "App Manager";
+    public static final String CATEGORY_AUDIO_WIDGET = "Audio Widget Prototype";
     public static final String CATEGORY_PRIVILEGE_ENABLED = "Global Privilege Enabled";
+    public static final String CATEGORY_LANGUAGE_STATS = "Language Statistics";
+
+    //Actions for CATEGORY_AUDIO_WIDGET only
+    public static final String ACTION_START_RECORDING_DIALOG = "Click the button to open recording popup";
+    public static final String ACTION_CHOOSE_FILE = "Click the button to choose an audio file";
+    public static final String ACTION_START_RECORD = "Click the button to start recording audio";
+    public static final String ACTION_STOP_RECORD = "Click the button to stop recording audio";
+    public static final String ACTION_SAVE_RECORDING = "Click the button to save an audio recording";
+    public static final String ACTION_PLAY_AUDIO = "Click the button to play audio";
+    public static final String ACTION_PAUSE_AUDIO = "Click the button to pause audio playback";
+    public static final String ACTION_RECORD_AGAIN = "Click the button to Record Again";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
@@ -88,6 +100,9 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_OFFLINE_INSTALL = "Offline Install";
     public static final String ACTION_URL_INSTALL = "URL Install";
     public static final String ACTION_SMS_INSTALL = "SMS Install";
+
+    // Actions for CATEGORY_LANGUAGE_STATS
+    public static final String ACTION_LANGUAGE_AT_FORM_ENTRY = "Language at Time of Form Entry";
 
     // Labels for ACTION_BUTTON
     public static final String LABEL_START_BUTTON = "Start Button";

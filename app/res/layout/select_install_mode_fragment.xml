@@ -120,6 +120,24 @@
                 </LinearLayout>
 
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/standard_spacer"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/install_error_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/red"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

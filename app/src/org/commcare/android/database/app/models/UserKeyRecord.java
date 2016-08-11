@@ -142,44 +142,34 @@ public class UserKeyRecord extends Persisted {
         this.isActive = true;
     }
 
-    /**
-     * @return the username
-     */
+    public static UserKeyRecord buildFrom(UserKeyRecord referenceRecord, int newType) {
+        return new UserKeyRecord(
+                referenceRecord.getUsername(), referenceRecord.getPasswordHash(),
+                referenceRecord.getEncryptedKey(), referenceRecord.getWrappedPassword(),
+                referenceRecord.getValidFrom(), referenceRecord.getValidTo(), referenceRecord.getUuid(),
+                newType);
+    }
+
     public String getUsername() {
         return username;
     }
 
-    /**
-     * @return the passwordHash
-     */
     public String getPasswordHash() {
         return passwordHash;
     }
 
-    /**
-     * @return the encryptedKey
-     */
     public byte[] getEncryptedKey() {
         return encryptedKey;
     }
 
-    /**
-     * @return the validFrom
-     */
     public Date getValidFrom() {
         return validFrom;
     }
 
-    /**
-     * @return the validTo
-     */
     public Date getValidTo() {
         return validTo;
     }
 
-    /**
-     * @return the uuid
-     */
     public String getUuid() {
         return uuid;
     }

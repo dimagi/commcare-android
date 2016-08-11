@@ -546,9 +546,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
-        if (id == EntityListAdapter.SPECIAL_ACTION) {
-            triggerDetailAction(adapter.getActionIndex(position));
-        } else {
+        if (adapter.getItemViewType(position) == EntityListAdapter.ENTITY_TYPE) {
             TreeReference selection = adapter.getItem(position);
             if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
                 Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
@@ -857,24 +855,28 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void triggerDetailAction(int index) {
         Action action = shortSelect.getCustomActions().get(index);
 
+        triggerDetailAction(action, this);
+    }
+
+    public static void triggerDetailAction(Action action, CommCareActivity activity) {
         try {
-            asw.executeStackActions(action.getStackOperations());
+            CommCareApplication._().getCurrentSessionWrapper().executeStackActions(action.getStackOperations());
         } catch (XPathTypeMismatchException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, true);
             return;
         }
 
-        this.setResult(CommCareHomeActivity.RESULT_RESTART);
-        this.finish();
+        activity.setResult(CommCareHomeActivity.RESULT_RESTART);
+        activity.finish();
     }
 
     private void createSortMenu() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.menu.sort"));
-        dialog.setChoiceItems(getSortOptionsList(dialog));
+        dialog.setChoiceItems(getSortOptionsList());
         showAlertDialog(dialog);
     }
 
-    private DialogChoiceItem[] getSortOptionsList(final PaneledChoiceDialog dialog) {
+    private DialogChoiceItem[] getSortOptionsList() {
         DetailField[] fields = session.getDetail(selectDatum.getShortDetail()).getFields();
         List<String> namesList = new ArrayList<>();
 
@@ -907,6 +909,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         for (int i = 0; i < namesList.size(); i++) {
             final int index = i;
             View.OnClickListener listener = new View.OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     adapter.sortEntities(new int[]{keyArray[index]});
                     adapter.filterByString(getSearchText().toString());
@@ -1042,6 +1045,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             //use the old method here because some Android versions don't like Spannables for titles
             next.setText(Localization.get("select.detail.confirm"));
             next.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     performEntitySelect();
                 }

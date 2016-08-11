@@ -12,6 +12,7 @@ import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.utils.EncryptionUtils;
 
 import java.util.Map;
 
@@ -33,6 +34,8 @@ public class GoogleAnalyticsUtils {
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
+                .setCustomDimension(4, "" + CommCareApplication._().isConsumerApp())
+                .setCustomDimension(5, ReportingUtils.getAppId())
                 .setCategory(category)
                 .setAction(action)
                 .build());
@@ -72,6 +75,47 @@ public class GoogleAnalyticsUtils {
                 .setValue(value)
                 .build());
     }
+
+    public static void reportAudioFileChosen(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                    GoogleAnalyticsFields.ACTION_CHOOSE_FILE);
+    }
+
+    public static void reportRecordingPopupOpened(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_START_RECORDING_DIALOG);
+    }
+
+    public static void reportAudioPlayed(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_PLAY_AUDIO);
+    }
+
+    public static void reportAudioPaused(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_PAUSE_AUDIO);
+    }
+
+    public static void reportAudioFileSaved(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_SAVE_RECORDING);
+    }
+
+    public static void reportRecordingStarted(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_START_RECORD);
+    }
+
+    public static void reportRecordingStopped(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                    GoogleAnalyticsFields.ACTION_STOP_RECORD);
+    }
+
+    public static void reportRecordingRecycled(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_RECORD_AGAIN);
+    }
+
 
     /**
      * Report a user event of navigating forward in form entry
@@ -268,7 +312,13 @@ public class GoogleAnalyticsUtils {
     }
 
     public static void reportPrivilegeEnabled(String privilegeName, String username) {
-        reportEvent(GoogleAnalyticsFields.CATEGORY_PRIVILEGE_ENABLED, privilegeName, username);
+        reportEvent(GoogleAnalyticsFields.CATEGORY_PRIVILEGE_ENABLED, privilegeName,
+                EncryptionUtils.getMD5HashAsString(username));
+    }
+
+    public static void reportLanguageAtPointOfFormEntry(String language) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_LANGUAGE_STATS,
+                GoogleAnalyticsFields.ACTION_LANGUAGE_AT_FORM_ENTRY, language);
     }
 
     /**

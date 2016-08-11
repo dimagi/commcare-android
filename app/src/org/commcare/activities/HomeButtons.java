@@ -92,6 +92,7 @@ public class HomeButtons {
 
     private static View.OnClickListener getViewOldFormsListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_SAVED_FORMS_BUTTON);
                 activity.goToFormArchive(false);
@@ -101,6 +102,7 @@ public class HomeButtons {
 
     private static View.OnClickListener getSyncButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_SYNC_BUTTON);
                 activity.syncButtonPressed();
@@ -130,6 +132,7 @@ public class HomeButtons {
 
     private static View.OnClickListener getStartButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_START_BUTTON);
                 activity.enterRootModule();
@@ -139,6 +142,7 @@ public class HomeButtons {
 
     private static View.OnClickListener getIncompleteButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_INCOMPLETE_FORMS_BUTTON);
                 activity.goToFormArchive(true);
@@ -172,6 +176,7 @@ public class HomeButtons {
 
     private static View.OnClickListener getLogoutButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_LOGOUT_BUTTON);
                 CommCareApplication._().closeUserSession();
@@ -198,6 +203,7 @@ public class HomeButtons {
 
     private static View.OnClickListener getReportButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_REPORT_BUTTON);
                 Intent i = new Intent(activity, ReportProblemActivity.class);

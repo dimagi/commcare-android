@@ -139,7 +139,7 @@ public class ImageWidget extends QuestionWidget {
         addView(mChooseButton);
 
         String acq = mPrompt.getAppearanceHint();
-        if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
+        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq)) {
             mChooseButton.setVisibility(View.GONE);
         }
         addView(mErrorTextView);

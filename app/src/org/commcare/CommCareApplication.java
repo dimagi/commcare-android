@@ -103,7 +103,6 @@ import org.commcare.utils.ODKPropertyManager;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.commcare.views.notifications.NotificationClearReceiver;
 import org.commcare.views.notifications.NotificationMessage;
 import org.javarosa.core.model.User;
@@ -381,10 +380,6 @@ public class CommCareApplication extends Application {
             analyticsTracker.set("&uid", null);
         }
         return analyticsTracker;
-    }
-
-    public GoogleAnalytics getAnalyticsInstance() {
-        return analyticsInstance;
     }
 
     public int[] getCommCareVersion() {
@@ -936,6 +931,7 @@ public class CommCareApplication extends Application {
     private void bindUserSessionService(final byte[] key, final UserKeyRecord record,
                                         final boolean restoreSession) {
         mConnection = new ServiceConnection() {
+            @Override
             public void onServiceConnected(ComponentName className, IBinder service) {
                 // This is called when the connection with the service has been
                 // established, giving us the service object we can use to
@@ -1002,6 +998,7 @@ public class CommCareApplication extends Application {
             }
 
 
+            @Override
             public void onServiceDisconnected(ComponentName className) {
                 // This is called when the connection with the service has been
                 // unexpectedly disconnected -- that is, its process crashed.
@@ -1433,9 +1430,11 @@ public class CommCareApplication extends Application {
         mIsBound = true;
         mBoundService = service;
         mConnection = new ServiceConnection() {
+            @Override
             public void onServiceConnected(ComponentName className, IBinder service) {
             }
 
+            @Override
             public void onServiceDisconnected(ComponentName className) {
             }
         };

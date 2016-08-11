@@ -35,20 +35,25 @@ import java.io.IOException;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-
 public class AudioWidget extends QuestionWidget {
     private static final String TAG = AudioWidget.class.getSimpleName();
+    protected static final String CUSTOM_TAG = "custom";
 
-    private final Button mCaptureButton;
-    private final Button mPlayButton;
-    private final Button mChooseButton;
-    private final PendingCalloutInterface pendingCalloutInterface;
+    private Button mCaptureButton;
+    private Button mPlayButton;
+    private Button mChooseButton;
+    protected final PendingCalloutInterface pendingCalloutInterface;
 
-    private String mBinaryName;
-    private final String mInstanceFolder;
+    protected String recordedFileName;
+    protected String mBinaryName;
+    protected final String mInstanceFolder;
+    private String customFileTag;
 
     public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
+
+        initializeButtons(prompt);
+        setupLayout();
 
         this.pendingCalloutInterface = pic;
 
@@ -58,6 +63,26 @@ public class AudioWidget extends QuestionWidget {
 
         setOrientation(LinearLayout.VERTICAL);
 
+        // retrieve answer from data model and update ui
+        mBinaryName = prompt.getAnswerText();
+        if (mBinaryName != null) {
+            reloadFile();
+        } else {
+            togglePlayButton(false);
+        }
+    }
+
+    protected void reloadFile() {
+        togglePlayButton(true);
+        File f = new File(mInstanceFolder + mBinaryName);
+        checkFileSize(f);
+    }
+
+    protected void togglePlayButton(boolean enabled) {
+        mPlayButton.setEnabled(enabled);
+    }
+
+    protected void initializeButtons(final FormEntryPrompt prompt){
         // setup capture button
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
@@ -65,32 +90,27 @@ public class AudioWidget extends QuestionWidget {
                 mAnswerFontsize,
                 !prompt.isReadOnly());
 
-        // launch capture intent on click
-        mCaptureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-                        android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.toString());
-                try {
-                    ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found,
-                                    "audio capture"),
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
         // setup audio filechooser button
         mChooseButton = new Button(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
                 mAnswerFontsize,
                 !prompt.isReadOnly());
+
+        // setup play button
+        mPlayButton = new Button(getContext());
+        WidgetUtils.setupButton(mPlayButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
+
+        // launch capture intent on click
+        mCaptureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                captureAudio(prompt);
+            }
+        });
 
         // launch audio filechooser intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
@@ -111,51 +131,56 @@ public class AudioWidget extends QuestionWidget {
             }
         });
 
-        // setup play button
-        mPlayButton = new Button(getContext());
-        WidgetUtils.setupButton(mPlayButton,
-                StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio),
-                mAnswerFontsize,
-                !prompt.isReadOnly());
+        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(prompt.getAppearanceHint())) {
+            mChooseButton.setVisibility(View.GONE);
+        }
 
         // on play, launch the appropriate viewer
         mPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent("android.intent.action.VIEW");
-                File f = new File(mInstanceFolder + mBinaryName);
-                i.setDataAndType(Uri.fromFile(f), "audio/*");
-                try {
-                    getContext().startActivity(i);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found,
-                                    "play audio"),
-                            Toast.LENGTH_SHORT).show();
-                }
+                playAudio();
             }
         });
 
-        // retrieve answer from data model and update ui
-        mBinaryName = prompt.getAnswerText();
-        if (mBinaryName != null) {
-            mPlayButton.setEnabled(true);
-            File f = new File(mInstanceFolder + mBinaryName);
+    }
 
-            checkFileSize(f);
-        } else {
-            mPlayButton.setEnabled(false);
+    protected void playAudio() {
+        Intent i = new Intent("android.intent.action.VIEW");
+        File f = new File(mInstanceFolder + mBinaryName);
+        i.setDataAndType(Uri.fromFile(f), "audio/*");
+        try {
+            getContext().startActivity(i);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(getContext(),
+                    StringUtils.getStringSpannableRobust(getContext(),
+                            R.string.activity_not_found,
+                            "play audio"),
+                    Toast.LENGTH_SHORT).show();
         }
+    }
 
+    protected void setupLayout() {
         // finish complex layout
         addView(mCaptureButton);
         addView(mChooseButton);
-        String acq = prompt.getAppearanceHint();
-        if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
-            mChooseButton.setVisibility(View.GONE);
-        }
         addView(mPlayButton);
+    }
+
+    protected void captureAudio(FormEntryPrompt prompt) {
+        Intent i = new Intent(Audio.Media.RECORD_SOUND_ACTION);
+        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
+                Audio.Media.EXTERNAL_CONTENT_URI.toString());
+        try {
+            ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
+            pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(getContext(),
+                    StringUtils.getStringSpannableRobust(getContext(),
+                            R.string.activity_not_found,
+                            "audio capture"),
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void deleteMedia() {
@@ -175,7 +200,7 @@ public class AudioWidget extends QuestionWidget {
         deleteMedia();
 
         // reset buttons
-        mPlayButton.setEnabled(false);
+        togglePlayButton(false);
     }
 
     @Override
@@ -194,17 +219,21 @@ public class AudioWidget extends QuestionWidget {
             deleteMedia();
         }
 
-        // get the file path and create a copy in the instance folder
-        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(),
-                (Uri)binaryuri);
+        String binaryPath = createFilePath(binaryuri);
 
+        // get the file path and create a copy in the instance folder
         String[] filenameSegments = binaryPath.split("\\.");
         String extension = "";
         if (filenameSegments.length > 1) {
             extension = "." + filenameSegments[filenameSegments.length - 1];
         }
 
-        String destAudioPath = mInstanceFolder + System.currentTimeMillis() + extension;
+        String[] filePathSegments = binaryPath.split("/");
+        if(filePathSegments.length >1){
+            recordedFileName = filePathSegments[filePathSegments.length-1];
+        }
+
+        String destAudioPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + extension;
 
         File source = new File(binaryPath);
         File newAudio = new File(destAudioPath);
@@ -225,14 +254,33 @@ public class AudioWidget extends QuestionWidget {
             values.put(Audio.Media.DATE_ADDED, System.currentTimeMillis());
             values.put(Audio.Media.DATA, newAudio.getAbsolutePath());
 
-            Uri AudioURI =
+            Uri audioUri =
                     getContext().getContentResolver().insert(Audio.Media.EXTERNAL_CONTENT_URI, values);
-            Log.i(TAG, "Inserting AUDIO returned uri = " + AudioURI.toString());
+            String audioUriString = audioUri == null ? "null" : audioUri.toString();
+            Log.i(TAG, "Inserting AUDIO returned uri = " + audioUriString);
         } else {
             Log.e(TAG, "Inserting Audio file FAILED");
         }
 
         mBinaryName = newAudio.getName();
+    }
+
+    //If file is chosen by user, the file selection intent will return an URI
+    //If file is auto-selected after recording_fragment, then the recordingfragment will provide a string file path
+    //Set value of customFileTag if the file is a recent recording from the RecordingFragment
+    private String createFilePath(Object binaryuri){
+        String path;
+
+        if(binaryuri instanceof Uri){
+            path = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                    (Uri)binaryuri);
+            customFileTag = "";
+        }else{
+            path = (String) binaryuri;
+            customFileTag = CUSTOM_TAG;
+        }
+
+        return path;
     }
 
     @Override

@@ -219,7 +219,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     @Override
-    public void handleTaskCancellation(AppInstallStatus result) {
+    public void handleTaskCancellation() {
         unregisterTask();
 
         uiController.idleUiState();

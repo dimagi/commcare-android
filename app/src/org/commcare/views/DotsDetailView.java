@@ -147,6 +147,7 @@ public class DotsDetailView {
             for(int id : ids) {
                 ToggleButton toggle = (ToggleButton)details.findViewById(id);
                 toggle.setOnClickListener(new View.OnClickListener() {
+                    @Override
                     public void onClick(View v) {
                         for(int id : ids) {
                             if(v.getId() == id) {
@@ -171,6 +172,7 @@ public class DotsDetailView {
             for(int id : typeids) {
                 ToggleButton toggle = (ToggleButton)details.findViewById(id);
                 toggle.setOnClickListener(new View.OnClickListener() {
+                    @Override
                     public void onClick(View v) {
                         for(int id : typeids) {
                             if(v.getId() == id) {
@@ -201,6 +203,7 @@ public class DotsDetailView {
         
         ok.setOnClickListener(new OnClickListener() {
 
+            @Override
             public void onClick(View v) {
                 listener.dayEdited(DotsDetailView.this.index, DotsDetailView.this.getDay());
             }
@@ -209,6 +212,7 @@ public class DotsDetailView {
         
         cancel.setOnClickListener(new OnClickListener() {
 
+            @Override
             public void onClick(View v) {
                 listener.cancelDoseEdit();
             }
