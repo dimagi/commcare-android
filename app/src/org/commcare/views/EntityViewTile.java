@@ -336,7 +336,7 @@ public class EntityViewTile extends GridLayout {
         switch (multimediaType) {
             case EntityView.FORM_COLOR:
                 retVal = new ImageView(context);
-                retVal.setBackgroundColor(getResources().getColor(R.color.red));
+                retVal.setBackgroundColor(getResources().getColor(R.color.black));
                 setScaleType((ImageView)retVal, horzAlign);
                 break;
             case EntityView.FORM_IMAGE:
