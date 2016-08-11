@@ -83,10 +83,7 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
 * “Antenna” symbol by Dima \n
 * “Map Marker” symbol by P.J. Onori \n
 * broken screen by Sam Martin from the Noun Project \n\n
-
-_Android MapView Balloons_ project used under the Apache Software License 2.0. \n
-Author: Jeff Gilfelt \n
-Copyright © 2012 readyState Software Ltd.</string>
+</string>
     <string name="notification_message_title">CommCare Notification</string>
 
     <string-array name="frequency_vals">
@@ -157,6 +154,7 @@ Copyright © 2012 readyState Software Ltd.</string>
     <string name="advance" cc:translatable="true">forward to\nnext\nprompt</string>
     <string name="altitude" cc:translatable="true">Altitude</string>
     <string name="attachment_oversized" cc:translatable="true">Warning: attached large file of size %s kb. This could cause problems with submitting to the server depending on your network conditions.</string>
+    <string name="attachment_above_size_limit" formatted="false" cc:translatable="true">Media attachment too large (%s mb). Max allowed size is %s mb.</string>
     <string name="audio_file_error" cc:translatable="true">No audio file was specified.</string>
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
     <string name="backup" cc:translatable="true">back to\nprevious\nprompt</string>

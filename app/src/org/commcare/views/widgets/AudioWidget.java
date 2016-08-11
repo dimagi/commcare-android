@@ -9,9 +9,7 @@ import android.net.Uri;
 import android.provider.MediaStore.Audio;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -21,8 +19,6 @@ import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -35,80 +31,45 @@ import java.io.IOException;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class AudioWidget extends QuestionWidget {
+public class AudioWidget extends MediaWidget {
     private static final String TAG = AudioWidget.class.getSimpleName();
     protected static final String CUSTOM_TAG = "custom";
 
-    private Button mCaptureButton;
-    private Button mPlayButton;
-    private Button mChooseButton;
-    protected final PendingCalloutInterface pendingCalloutInterface;
-
     protected String recordedFileName;
-    protected String mBinaryName;
-    protected final String mInstanceFolder;
     private String customFileTag;
 
     public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
-        super(context, prompt);
-
-        initializeButtons(prompt);
-        setupLayout();
-
-        this.pendingCalloutInterface = pic;
-
-        mInstanceFolder =
-                FormEntryActivity.mInstancePath.substring(0,
-                        FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
-
-        setOrientation(LinearLayout.VERTICAL);
-
-        // retrieve answer from data model and update ui
-        mBinaryName = prompt.getAnswerText();
-        if (mBinaryName != null) {
-            reloadFile();
-        } else {
-            togglePlayButton(false);
-        }
+        super(context, prompt, pic);
     }
 
-    protected void reloadFile() {
-        togglePlayButton(true);
-        File f = new File(mInstanceFolder + mBinaryName);
-        checkFileSize(f);
-    }
-
-    protected void togglePlayButton(boolean enabled) {
-        mPlayButton.setEnabled(enabled);
-    }
-
-    protected void initializeButtons(final FormEntryPrompt prompt){
+    @Override
+    protected void initializeButtons(){
         // setup capture button
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_audio),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // setup audio filechooser button
         mChooseButton = new Button(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // setup play button
         mPlayButton = new Button(getContext());
         WidgetUtils.setupButton(mPlayButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                captureAudio(prompt);
+                captureAudio(mPrompt);
             }
         });
 
@@ -120,7 +81,7 @@ public class AudioWidget extends QuestionWidget {
                 i.setType("audio/*");
                 try {
                     ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -131,7 +92,7 @@ public class AudioWidget extends QuestionWidget {
             }
         });
 
-        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(prompt.getAppearanceHint())) {
+        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(mPrompt.getAppearanceHint())) {
             mChooseButton.setVisibility(View.GONE);
         }
 
@@ -142,7 +103,6 @@ public class AudioWidget extends QuestionWidget {
                 playAudio();
             }
         });
-
     }
 
     protected void playAudio() {
@@ -158,13 +118,6 @@ public class AudioWidget extends QuestionWidget {
                             "play audio"),
                     Toast.LENGTH_SHORT).show();
         }
-    }
-
-    protected void setupLayout() {
-        // finish complex layout
-        addView(mCaptureButton);
-        addView(mChooseButton);
-        addView(mPlayButton);
     }
 
     protected void captureAudio(FormEntryPrompt prompt) {
@@ -183,43 +136,13 @@ public class AudioWidget extends QuestionWidget {
         }
     }
 
-    private void deleteMedia() {
-        // get the file path and delete the file
-        File f = new File(mInstanceFolder + mBinaryName);
-        if (!f.delete()) {
-            Log.i(TAG, "Failed to delete " + f);
-        }
-
-        // clean up variables
-        mBinaryName = null;
-    }
-
-    @Override
-    public void clearAnswer() {
-        // remove the file
-        deleteMedia();
-
-        // reset buttons
-        togglePlayButton(false);
-    }
-
-    @Override
-    public IAnswerData getAnswer() {
-        if (mBinaryName != null) {
-            return new StringData(mBinaryName);
-        } else {
-            return null;
-        }
-    }
-
     @Override
     public void setBinaryData(Object binaryuri) {
-        // when replacing an answer. remove the current media.
-        if (mBinaryName != null) {
-            deleteMedia();
+        String binaryPath = getBinaryPathWithSizeCheck(binaryuri);
+        if (binaryPath == null) {
+            return;
         }
-
-        String binaryPath = createFilePath(binaryuri);
+        File source = new File(binaryPath);
 
         // get the file path and create a copy in the instance folder
         String[] filenameSegments = binaryPath.split("\\.");
@@ -235,7 +158,6 @@ public class AudioWidget extends QuestionWidget {
 
         String destAudioPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + extension;
 
-        File source = new File(binaryPath);
         File newAudio = new File(destAudioPath);
         try {
             FileUtil.copyFile(source, newAudio);
@@ -243,8 +165,6 @@ public class AudioWidget extends QuestionWidget {
             Log.e(TAG, "IOExeception while copying audio");
             e.printStackTrace();
         }
-
-        checkFileSize(newAudio);
 
         if (newAudio.exists()) {
             // Add the copy to the content provider
@@ -265,10 +185,13 @@ public class AudioWidget extends QuestionWidget {
         mBinaryName = newAudio.getName();
     }
 
-    //If file is chosen by user, the file selection intent will return an URI
-    //If file is auto-selected after recording_fragment, then the recordingfragment will provide a string file path
-    //Set value of customFileTag if the file is a recent recording from the RecordingFragment
-    private String createFilePath(Object binaryuri){
+    /**
+     * If file is chosen by user, the file selection intent will return an URI
+     * If file is auto-selected after recording_fragment, then the recordingfragment will provide a string file path
+     * Set value of customFileTag if the file is a recent recording from the RecordingFragment
+     */
+    @Override
+    protected String createFilePath(Object binaryuri){
         String path;
 
         if(binaryuri instanceof Uri){
@@ -281,37 +204,5 @@ public class AudioWidget extends QuestionWidget {
         }
 
         return path;
-    }
-
-    @Override
-    public void setFocus(Context context) {
-        // Hide the soft keyboard if it's showing.
-        InputMethodManager inputManager =
-                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-        mCaptureButton.setOnLongClickListener(l);
-        mChooseButton.setOnLongClickListener(l);
-        mPlayButton.setOnLongClickListener(l);
-    }
-
-    @Override
-    public void unsetListeners() {
-        super.unsetListeners();
-
-        mCaptureButton.setOnLongClickListener(null);
-        mChooseButton.setOnLongClickListener(null);
-        mPlayButton.setOnLongClickListener(null);
-    }
-
-    @Override
-    public void cancelLongPress() {
-        super.cancelLongPress();
-        mCaptureButton.cancelLongPress();
-        mChooseButton.cancelLongPress();
-        mPlayButton.cancelLongPress();
     }
 }
