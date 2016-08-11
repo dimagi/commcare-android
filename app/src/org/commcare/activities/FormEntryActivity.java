@@ -90,6 +90,7 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.HorizontalPaneledChoiceDialog;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.commcare.views.widgets.BarcodeWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.Constants;
@@ -151,7 +152,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     // Request codes for returning data from specified intent.
     public static final int IMAGE_CAPTURE = 1;
-    public static final int BARCODE_CAPTURE = 2;
     public static final int AUDIO_VIDEO_FETCH = 3;
     public static final int LOCATION_CAPTURE = 5;
     private static final int HIERARCHY_ACTIVITY = 6;
@@ -496,11 +496,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         switch (requestCode) {
-            case BARCODE_CAPTURE:
-                String sb = intent.getStringExtra("SCAN_RESULT");
-                questionsView.setBinaryData(sb, mFormController);
-                saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-                break;
             case INTENT_CALLOUT:
                 if (!processIntentResponse(intent, false)) {
                     Toast.makeText(this, Localization.get("intent.callout.unable.to.process"), Toast.LENGTH_SHORT).show();
@@ -605,9 +600,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
         if (pendingIntentWidget != null) {
-            // Set our instance destination for binary data if needed
-            String destination = mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
-
             // get the original intent callout
             IntentCallout ic = pendingIntentWidget.getIntentCallout();
 
@@ -617,10 +609,22 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 if (mFormController.getPendingCalloutFormIndex() != null) {
                     context = mFormController.getPendingCalloutFormIndex().getReference();
                 }
-                wasAnswerSet = ic.processResponse(response, context, new File(destination));
+                if (pendingIntentWidget instanceof BarcodeWidget) {
+                    String scanResult = response.getStringExtra("SCAN_RESULT");
+                    if (scanResult != null) {
+                        ic.processBarcodeResponse(context, scanResult);
+                        wasAnswerSet = true;
+                    }
+                } else {
+                    // Set our instance destination for binary data if needed
+                    String destination = mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
+                    wasAnswerSet = ic.processResponse(response, context, new File(destination));
+                }
             }
 
-            ic.setCancelled(wasIntentCancelled);
+            if (wasIntentCancelled) {
+                mFormController.setPendingCalloutAsCancelled();
+            }
         }
 
         // auto advance if we got a good result and are in quick mode
@@ -1313,7 +1317,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 if (backExitsForm) {
                     FormEntryActivity.this.triggerUserQuitInput();
                 } else {
-                    dismissAlertDialog();
+                    dialog.dismiss();
                     FormEntryActivity.this.refreshCurrentView(false);
                 }
             }
@@ -1330,7 +1334,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         View.OnClickListener addAnotherListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                dismissAlertDialog();
+                dialog.dismiss();
                 try {
                     mFormController.newRepeat();
                 } catch (XPathUnhandledException | XPathTypeMismatchException | XPathArityException e) {
@@ -1347,7 +1351,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         View.OnClickListener skipListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                dismissAlertDialog();
+                dialog.dismiss();
                 if (!nextExitsForm) {
                     showNextView();
                 } else {
