@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Build;
 import android.support.v4.util.Pair;
@@ -280,7 +281,7 @@ public class EntityViewTile extends GridLayout {
                 " | Coords: " + Arrays.toString(coordinatesOfEachField) +
                 " | Styles: " + Arrays.toString(stylesOfEachField));
 
-        this.setBackgroundDrawable(null);
+        setBackgroundColor(Color.parseColor("#ffffff"));
 
         setPaddingIfNotInGridView();
 

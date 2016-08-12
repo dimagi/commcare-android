@@ -79,7 +79,10 @@
             android:layout_height="match_parent"
             android:dividerHeight="0dp"
             android:listSelector="@drawable/selector"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:background="@color/black"
+            android:horizontalSpacing="1dp"
+            android:verticalSpacing="1dp"/>
 
         <include layout="@layout/component_drop_shadow"/>
     </FrameLayout>
