@@ -874,7 +874,7 @@ public class CommCareHomeActivity
         String command = asw.getSession().getCommand();
         Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
         if (commandEntry instanceof RemoteRequestEntry) {
-            PostRequest postRequest = ((RemoteRequestEntry)commandEntry).getSyncPost();
+            PostRequest postRequest = ((RemoteRequestEntry)commandEntry).getPostRequest();
             Intent i = new Intent(getApplicationContext(), PostRequestActivity.class);
             i.putExtra(PostRequestActivity.URL_KEY, postRequest.getUrl());
             i.putExtra(PostRequestActivity.PARAMS_KEY,
