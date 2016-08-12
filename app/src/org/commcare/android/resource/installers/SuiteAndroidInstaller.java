@@ -118,7 +118,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
                 FileUtil.checkReferenceURI(r, mEntry.getAudioURI(), problems);
                 FileUtil.checkReferenceURI(r, mEntry.getImageURI(), problems);
-
             }
             Vector<Menu> menus = mSuite.getMenus();
             Enumeration e = menus.elements();
@@ -128,7 +127,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
                 FileUtil.checkReferenceURI(r, mMenu.getAudioURI(), problems);
                 FileUtil.checkReferenceURI(r, mMenu.getImageURI(), problems);
-
             }
         } catch (Exception e) {
             Logger.log("e", "suite validation failed with: " + e.getMessage());
