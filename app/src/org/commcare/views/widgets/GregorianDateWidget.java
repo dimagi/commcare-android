@@ -171,7 +171,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         int day = Integer.parseInt(dayText.getText().toString());
         int month = monthArrayPointer + 1;              //monthArray and Java calendar assume january = 0, millis from java epoch assumes january = 1
         int year = Integer.parseInt(yearText.getText().toString());
-        return toMillisFromJavaEpoch(year, month, day, millisOfDayOffset);
+        return toMillisFromJavaEpoch(year, month, day);
     }
 
     //Autofills any empty text fields whenever a button is pressed
@@ -265,12 +265,11 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     }
 
     @Override
-    protected long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset) {
+    protected long toMillisFromJavaEpoch(int year, int month, int day) {
         DateTime dt = new DateTime()
                 .withYear(year)
                 .withMonthOfYear(month)
-                .withDayOfMonth(day)
-                .withMillisOfDay((int)millisOffset);
+                .withDayOfMonth(day);
         return dt.getMillis();
     }
 

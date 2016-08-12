@@ -23,6 +23,7 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_FEATURE_USAGE = "Feature Usage";
     public static final String CATEGORY_APP_MANAGER = "App Manager";
     public static final String CATEGORY_AUDIO_WIDGET = "Audio Widget Prototype";
+    public static final String CATEGORY_PRIVILEGE_ENABLED = "Global Privilege Enabled";
     public static final String CATEGORY_LANGUAGE_STATS = "Language Statistics";
 
     //Actions for CATEGORY_AUDIO_WIDGET only
@@ -34,7 +35,6 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_PLAY_AUDIO = "Click the button to play audio";
     public static final String ACTION_PAUSE_AUDIO = "Click the button to pause audio playback";
     public static final String ACTION_RECORD_AGAIN = "Click the button to Record Again";
-    public static final String CATEGORY_PRIVILEGE_ENABLED = "Global Privilege Enabled";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
