@@ -319,9 +319,9 @@ public class EntityViewTile extends GridLayout {
 
         GridLayout.LayoutParams gridParams = new GridLayout.LayoutParams(rowSpec, columnSpec);
         gridParams.width = (int)Math.ceil(cellWidth * coordinateData.getWidth());
-        gridParams.height = (int)Math.ceil(cellHeight * coordinateData.getHeight()
+        gridParams.height = (int)Math.ceil(cellHeight * coordinateData.getHeight());
                 // we need to account for any padding that wouldn't be in these rows if the entity didn't overwrite
-                + (2 * CELL_PADDING_VERTICAL * (coordinateData.getHeight() - 1)));
+                //+ (2 * CELL_PADDING_VERTICAL * (coordinateData.getHeight() - 1)));
 
         return gridParams;
     }
@@ -361,7 +361,7 @@ public class EntityViewTile extends GridLayout {
             case EntityView.FORM_IMAGE:
                 retVal = new ImageView(context);
                 setScaleType((ImageView)retVal, horzAlign);
-                retVal.setPadding(CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL, CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL);
+                //retVal.setPadding(CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL, CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL);
                 if (rowData != null && !rowData.equals("")) {
                     if (mImageLoader != null) {
                         mImageLoader.display(rowData, ((ImageView) retVal), R.drawable.info_bubble,
