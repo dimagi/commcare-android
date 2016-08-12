@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-// TODO: Add something in FormEntryPrompt that indicates whether this widget has been displayed and cleared. If so, clear the text fields in setAnswer().
-
 public class GregorianDateWidget extends AbstractUniversalDateWidget
         implements CalendarFragment.CalendarCloseListener {
 
@@ -87,6 +85,8 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
                 openCalendar();
             }
         });
+
+        setAnswer();
     }
 
     private void setupCalendarFragment() {
@@ -200,6 +200,9 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     //Makes sure that value of day text field is valid given values of month and year fields
     private void validateDayText() {
         String dayTextString = dayText.getText().toString();
+        if(dayTextString.isEmpty()){
+            return;
+        }
         int dayTextValue = Integer.parseInt(dayTextString);
         int maxDayOfMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
@@ -210,7 +213,6 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
             dayTextValue = calendar.getActualMinimum(Calendar.DAY_OF_MONTH);
             dayText.setText(String.valueOf(dayTextValue));
         }
-
         calendar.set(Calendar.DAY_OF_MONTH, dayTextValue);
     }
 
@@ -374,10 +376,6 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     @Override
     public void setAnswer() {
         if (mPrompt.getAnswerValue() != null) {
-            Date date = (Date)mPrompt.getAnswerValue().getValue();
-            updateDateDisplay(date.getTime());
-            updateGregorianDateHelperDisplay();
-
             if (mPrompt.getAnswerValue() instanceof InvalidDateData) {
                 InvalidDateData previousDate = (InvalidDateData)mPrompt.getAnswerValue();
 
@@ -385,11 +383,13 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
                 String month = previousDate.getMonthText();
                 String year = previousDate.getYearText();
 
+                monthSpinner.setSelection(monthList.indexOf(month)); //Update month first because selecting a month item will call refreshDisplay().
                 dayText.setText(day);
-                monthSpinner.setSelection(monthList.indexOf(month));
                 yearText.setText(year);
+            }else{
+                Date date = (Date)mPrompt.getAnswerValue().getValue();
+                updateDateDisplay(date.getTime());
             }
-
         } else {
             super.clearAnswer();
         }
