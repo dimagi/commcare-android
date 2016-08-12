@@ -4,16 +4,15 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -184,6 +183,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (session.getCommand() != null) {
             selectDatum = (EntityDatum)session.getNeededDatum();
             shortSelect = session.getDetail(selectDatum.getShortDetail());
+            if (shortSelect.forcesLandscape()) {
+                this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            }
+
             mNoDetailMode = selectDatum.getLongDetail() == null;
 
             // Don't show actions (e.g. 'register patient', 'claim patient') when
