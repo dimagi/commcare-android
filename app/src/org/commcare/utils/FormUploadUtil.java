@@ -179,9 +179,13 @@ public class FormUploadUtil {
             return RECORD_FAILURE;
         } catch (ClientProtocolException e) {
             e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
+                    "Client network issues during submission: " + e.getMessage());
             return TRANSPORT_FAILURE;
         } catch (IOException | IllegalStateException e) {
             e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
+                    "Error reading form during submission: " + e.getMessage());
             return TRANSPORT_FAILURE;
         }
 
