@@ -10,7 +10,10 @@ import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 
 /**
- * Created by amstone326 on 4/11/16.
+ * NOTE: routes static operations through class that can be shadowed via
+ * Robolectric to solve JCE encryption compatibility issues
+ *
+ * @author Aliza Stone (astone@dimagi.com)
  */
 public class ByteEncrypter {
 
