@@ -29,7 +29,7 @@ import org.javarosa.core.services.locale.Localization;
  * @author srengesh
  */
 @ManagedUi(R.layout.connection_diagnostic)
-public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<ConnectionDiagnosticActivity> {
+public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDiagnosticActivity> {
     private static final String TAG = ConnectionDiagnosticActivity.class.getSimpleName();
 
     public static final String logUnsetPostURLMessage = "CCHQ ping test: post URL not set.";
