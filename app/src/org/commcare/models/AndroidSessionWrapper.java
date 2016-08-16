@@ -19,6 +19,7 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.CommCareUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.DataInstance;
 
 import java.util.Date;
 import java.util.Hashtable;
@@ -187,6 +188,10 @@ public class AndroidSessionWrapper {
      */
     public EvaluationContext getEvaluationContext(String commandId) {
         return session.getEvaluationContext(getIIF(), commandId);
+    }
+
+    public EvaluationContext getEvaluationContext(Hashtable<String, DataInstance> data){
+        return session.getEvaluationContext(getIIF(), data);
     }
     
     private AndroidInstanceInitializer initializer;

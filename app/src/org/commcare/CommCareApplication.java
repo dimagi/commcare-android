@@ -991,6 +991,8 @@ public class CommCareApplication extends Application {
 
                             PurgeStaleArchivedFormsTask.launchPurgeTask();
                         }
+
+                        mBoundService.startReminderThread();
                     }
 
                     TimedStatsTracker.registerStartSession();
@@ -1159,6 +1161,7 @@ public class CommCareApplication extends Application {
                 }
                 mIsBound = false;
                 // Detach our existing connection.
+                mBoundService.stopReminderThread();
                 unbindService(mConnection);
                 stopService(new Intent(this, CommCareSessionService.class));
             }

@@ -58,6 +58,12 @@
         android:label="@string/application_name"
         android:hardwareAccelerated="true"
         android:theme="@style/AppBaseTheme">
+
+        <service
+            android:name="org.commcare.activities.CommCareReminderService"
+            android:enabled="true">
+        </service>
+
         <activity
             android:name="org.commcare.activities.DispatchActivity"
             android:label="@string/application_name">
