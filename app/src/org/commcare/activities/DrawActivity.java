@@ -26,6 +26,7 @@ import org.commcare.dalvik.R;
 import org.commcare.models.ODKStorage;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 
@@ -185,6 +186,7 @@ public class DrawActivity extends Activity {
         setContentView(v);
 
         Button btnFinished = (Button)findViewById(R.id.btnFinishDraw);
+        btnFinished.setText(StringUtils.getStringRobust(this, R.string.save_and_close));
         btnFinished.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,6 +194,7 @@ public class DrawActivity extends Activity {
                 saveAndClose();
             }
         });
+
         Button btnReset = (Button)findViewById(R.id.btnResetDraw);
         btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -199,6 +202,8 @@ public class DrawActivity extends Activity {
                 reset();
             }
         });
+        btnReset.setText(StringUtils.getStringRobust(this, R.string.reset_image));
+
         Button btnCancel = (Button)findViewById(R.id.btnCancelDraw);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -206,7 +211,7 @@ public class DrawActivity extends Activity {
                 cancelAndClose();
             }
         });
-
+        btnCancel.setText(StringUtils.getStringRobust(this, R.string.cancel));
     }
 
     private void saveAndClose() {
