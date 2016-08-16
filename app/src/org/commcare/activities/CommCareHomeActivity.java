@@ -45,8 +45,8 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.suite.model.SyncEntry;
-import org.commcare.suite.model.SyncPost;
+import org.commcare.suite.model.RemoteRequestEntry;
+import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
@@ -873,12 +873,12 @@ public class CommCareHomeActivity
     private void launchRemoteSync(AndroidSessionWrapper asw) {
         String command = asw.getSession().getCommand();
         Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
-        if (commandEntry instanceof SyncEntry) {
-            SyncPost syncPost = ((SyncEntry)commandEntry).getSyncPost();
+        if (commandEntry instanceof RemoteRequestEntry) {
+            PostRequest postRequest = ((RemoteRequestEntry)commandEntry).getPostRequest();
             Intent i = new Intent(getApplicationContext(), PostRequestActivity.class);
-            i.putExtra(PostRequestActivity.URL_KEY, syncPost.getUrl());
+            i.putExtra(PostRequestActivity.URL_KEY, postRequest.getUrl());
             i.putExtra(PostRequestActivity.PARAMS_KEY,
-                    new HashMap<>(syncPost.getEvaluatedParams(asw.getEvaluationContext())));
+                    new HashMap<>(postRequest.getEvaluatedParams(asw.getEvaluationContext())));
 
             startActivityForResult(i, MAKE_REMOTE_POST);
         } else {

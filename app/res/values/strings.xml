@@ -157,6 +157,7 @@ Copyright © 2012 readyState Software Ltd.</string>
     <string name="advance" cc:translatable="true">forward to\nnext\nprompt</string>
     <string name="altitude" cc:translatable="true">Altitude</string>
     <string name="attachment_oversized" cc:translatable="true">Warning: attached large file of size %s kb. This could cause problems with submitting to the server depending on your network conditions.</string>
+    <string name="attachment_to_big_to_upload" cc:translatable="true">Warning: media attachment is %s kb too large. It won\'t be submitted to the server!</string>
     <string name="audio_file_error" cc:translatable="true">No audio file was specified.</string>
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
     <string name="backup" cc:translatable="true">back to\nprevious\nprompt</string>
