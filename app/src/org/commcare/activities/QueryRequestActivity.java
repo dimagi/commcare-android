@@ -49,7 +49,7 @@ import java.util.Map;
  * Collects 'query datum' in the current session. Prompts user for query
  * params, makes query to server and stores xml 'fixture' response into current
  * session. Allows for 'case search and claim' workflow when used inside a
- * 'sync-request' entry in conjuction with entity select datum and sync
+ * 'remote-request' entry in conjuction with entity select datum and sync
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
