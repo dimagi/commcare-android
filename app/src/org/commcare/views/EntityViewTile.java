@@ -72,7 +72,7 @@ public class EntityViewTile extends GridLayout {
 
     // constants used to calibrate how many tiles should be shown on a screen
     private static final int DEFAULT_NUMBER_ROWS_PER_GRID = 6;
-    private static final double DEFAULT_NUM_GRIDS_PER_SCREEN_PORTRAIT = 7;
+    private static final double DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT = 7;
     private static final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
 
     // this is fixed for all tiles
@@ -190,7 +190,7 @@ public class EntityViewTile extends GridLayout {
 
         // Calibrate the number of tiles that appear on the screen, based on how many rows are in
         // each tile
-        double numTilesPerScreenPortrait = DEFAULT_NUM_GRIDS_PER_SCREEN_PORTRAIT *
+        double numTilesPerScreenPortrait = DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT *
                 (DEFAULT_NUMBER_ROWS_PER_GRID / (float) numRowsPerTile);
         double numTilesPerScreenLandscape = numTilesPerScreenPortrait * LANDSCAPE_TO_PORTRAIT_RATIO;
         double densityRowMultiplier = getDensityRowMultiplier();
@@ -303,7 +303,7 @@ public class EntityViewTile extends GridLayout {
         }
 
         ViewId uniqueId = new ViewId(coordinateData.getX(), coordinateData.getY(), false);
-        GridLayout.LayoutParams gridParams = getLayoutParamsForField(coordinateData, fieldString);
+        GridLayout.LayoutParams gridParams = getLayoutParamsForField(coordinateData, form);
 
         View view = getView(context, style, form, fieldString, uniqueId, sortField,
                 gridParams.width, gridParams.height);
@@ -318,15 +318,20 @@ public class EntityViewTile extends GridLayout {
     }
 
     private GridLayout.LayoutParams getLayoutParamsForField(GridCoordinate coordinateData,
-                                                            String fieldString) {
+                                                            String formString) {
         Spec columnSpec = GridLayout.spec(coordinateData.getX(), coordinateData.getWidth());
         Spec rowSpec = GridLayout.spec(coordinateData.getY(), coordinateData.getHeight());
 
         GridLayout.LayoutParams gridParams = new GridLayout.LayoutParams(rowSpec, columnSpec);
         gridParams.width = (int)Math.ceil(cellWidth * coordinateData.getWidth());
+        if (EntityView.FORM_IMAGE.equals(formString)) {
+            // for images ONLY, assume that the user defined the image dimens with the assumption
+            // that cellWidth and cellHeight were the same
+            gridParams.height = (int)Math.ceil(cellWidth * coordinateData.getHeight());
+        } else {
+            gridParams.height = (int)Math.ceil(cellHeight * coordinateData.getHeight());
+        }
 
-        int additionalHeight = EntityView.FORM_IMAGE.equals(fieldString) ? 2 * (int)cellHeight : 0;
-        gridParams.height = (int)Math.ceil(cellHeight * coordinateData.getHeight() + additionalHeight);
 
         return gridParams;
     }
@@ -366,7 +371,8 @@ public class EntityViewTile extends GridLayout {
             case EntityView.FORM_IMAGE:
                 retVal = new ImageView(context);
                 setScaleType((ImageView)retVal, horzAlign);
-                retVal.setPadding((int)cellWidth, (int)cellHeight, (int)cellWidth, (int)cellHeight);
+                // make the image's padding proportional to its size
+                retVal.setPadding(maxWidth/6, maxHeight/6, maxWidth/6, maxHeight/6);
                 if (rowData != null && !rowData.equals("")) {
                     if (mImageLoader != null) {
                         mImageLoader.display(rowData, ((ImageView) retVal), R.drawable.info_bubble,
