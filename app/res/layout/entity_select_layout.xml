@@ -79,6 +79,7 @@
             android:layout_height="match_parent"
             android:dividerHeight="0dp"
             android:listSelector="@drawable/selector"
+            android:drawSelectorOnTop="true"
             android:visibility="gone"
             android:background="@color/black"
             android:horizontalSpacing="1dp"
