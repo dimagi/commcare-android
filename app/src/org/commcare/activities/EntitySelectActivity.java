@@ -185,7 +185,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
             // Don't show actions (e.g. 'register patient', 'claim patient') when
             // in the middle on workflow triggered by an (sync) action.
-            hideActions = session.isSyncCommand(session.getCommand());
+            hideActions = session.isRemoteRequestCommand(session.getCommand());
 
             boolean isOrientationChange = savedInstanceState != null;
             setupUI(isOrientationChange);

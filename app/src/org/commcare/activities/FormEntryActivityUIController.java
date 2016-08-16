@@ -487,7 +487,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 if (backExitsForm) {
                     activity.triggerUserQuitInput();
                 } else {
-                    activity.dismissAlertDialog();
+                    dialog.dismiss();
                     refreshCurrentView(false);
                 }
             }
@@ -504,7 +504,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         View.OnClickListener addAnotherListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.dismissAlertDialog();
+                dialog.dismiss();
                 try {
                     FormEntryActivity.mFormController.newRepeat();
                 } catch (XPathUnhandledException | XPathTypeMismatchException | XPathArityException e) {
@@ -521,7 +521,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         View.OnClickListener skipListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.dismissAlertDialog();
+                dialog.dismiss();
                 if (!nextExitsForm) {
                     showNextView();
                 } else {
