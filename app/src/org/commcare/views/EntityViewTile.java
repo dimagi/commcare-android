@@ -84,7 +84,6 @@ public class EntityViewTile extends GridLayout {
     private double cellWidth;
     private double cellHeight;
 
-
     private final CachingAsyncImageLoader mImageLoader;
 
     /**
@@ -281,9 +280,13 @@ public class EntityViewTile extends GridLayout {
                 " | Coords: " + Arrays.toString(coordinatesOfEachField) +
                 " | Styles: " + Arrays.toString(stylesOfEachField));
 
-        setBackgroundColor(Color.parseColor("#ffffff"));
-
         setPaddingIfNotInGridView();
+
+        if (tileBeingShownInGridView()) {
+            // We are faking dividers between each square in the grid view by using contrasting
+            // background colors for the grid view as a whole and each element in the grid view
+            setBackgroundColor(Color.parseColor("#ffffff"));
+        }
 
         mFieldViews = new View[coordinatesOfEachField.length];
         for (int i = 0; i < mFieldViews.length; i++) {
