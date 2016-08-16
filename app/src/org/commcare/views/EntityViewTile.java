@@ -303,7 +303,7 @@ public class EntityViewTile extends GridLayout {
         }
 
         ViewId uniqueId = new ViewId(coordinateData.getX(), coordinateData.getY(), false);
-        GridLayout.LayoutParams gridParams = getLayoutParamsForField(coordinateData);
+        GridLayout.LayoutParams gridParams = getLayoutParamsForField(coordinateData, fieldString);
 
         View view = getView(context, style, form, fieldString, uniqueId, sortField,
                 gridParams.width, gridParams.height);
@@ -317,15 +317,16 @@ public class EntityViewTile extends GridLayout {
         this.addView(view, gridParams);
     }
 
-    private GridLayout.LayoutParams getLayoutParamsForField(GridCoordinate coordinateData) {
+    private GridLayout.LayoutParams getLayoutParamsForField(GridCoordinate coordinateData,
+                                                            String fieldString) {
         Spec columnSpec = GridLayout.spec(coordinateData.getX(), coordinateData.getWidth());
         Spec rowSpec = GridLayout.spec(coordinateData.getY(), coordinateData.getHeight());
 
         GridLayout.LayoutParams gridParams = new GridLayout.LayoutParams(rowSpec, columnSpec);
         gridParams.width = (int)Math.ceil(cellWidth * coordinateData.getWidth());
-        gridParams.height = (int)Math.ceil(cellHeight * coordinateData.getHeight());
-                // we need to account for any padding that wouldn't be in these rows if the entity didn't overwrite
-                //+ (2 * CELL_PADDING_VERTICAL * (coordinateData.getHeight() - 1)));
+
+        int additionalHeight = EntityView.FORM_IMAGE.equals(fieldString) ? 2 * (int)cellHeight : 0;
+        gridParams.height = (int)Math.ceil(cellHeight * coordinateData.getHeight() + additionalHeight);
 
         return gridParams;
     }
@@ -344,10 +345,10 @@ public class EntityViewTile extends GridLayout {
     /**
      * Get the correct View for this particular activity.
      *
-     * @param multimediaType either "image", "audio", or default text. Describes how this XPath result should be displayed.
+     * @param fieldForm either "image", "audio", or default text. Describes how this XPath result should be displayed.
      * @param rowData        The actual data to display, either an XPath to media or a String to display.
      */
-    private View getView(Context context, GridStyle style, String multimediaType, String rowData,
+    private View getView(Context context, GridStyle style, String fieldForm, String rowData,
                          ViewId uniqueId, String searchField, int maxWidth, int maxHeight) {
 
         // How the text should be aligned horizontally - left, center, or right
@@ -356,7 +357,7 @@ public class EntityViewTile extends GridLayout {
         String vertAlign = style.getVertAlign();
 
         View retVal;
-        switch (multimediaType) {
+        switch (fieldForm) {
             case EntityView.FORM_BORDER:
                 retVal = new ImageView(context);
                 retVal.setBackgroundColor(getResources().getColor(R.color.black));
@@ -365,7 +366,7 @@ public class EntityViewTile extends GridLayout {
             case EntityView.FORM_IMAGE:
                 retVal = new ImageView(context);
                 setScaleType((ImageView)retVal, horzAlign);
-                //retVal.setPadding(CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL, CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL);
+                retVal.setPadding((int)cellWidth, (int)cellHeight, (int)cellWidth, (int)cellHeight);
                 if (rowData != null && !rowData.equals("")) {
                     if (mImageLoader != null) {
                         mImageLoader.display(rowData, ((ImageView) retVal), R.drawable.info_bubble,
