@@ -67,10 +67,14 @@ public class EntityViewTile extends GridLayout {
     private final int DEFAULT_TILE_PADDING_VERTICAL =
             (int)getResources().getDimension(R.dimen.row_padding_vertical);
 
-    // constants used to calibrate how many tiles should be shown on a screen
-    private static final int DEFAULT_NUMBER_ROWS_PER_GRID = 6;
-    private static final double DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT = 4;
+    // Constants used to calibrate how many tiles should be shown on a screen at once -- This is
+    // saying that we expect a device with a density of 160 dpi and a height of 4 inches to look
+    // good in portrait mode with 4 tiles of 6 rows each being displayed at once.
     private static final double DEFAULT_SCREEN_HEIGHT_IN_INCHES = 4.0;
+    private static final int DEFAULT_SCREEN_DENSITY = DisplayMetrics.DENSITY_MEDIUM;
+    private static final double DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT = 4;
+    private static final int DEFAULT_NUMBER_ROWS_PER_GRID = 6;
+
     private static final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
     
     // this is fixed for all tiles
@@ -194,8 +198,9 @@ public class EntityViewTile extends GridLayout {
     }
 
     /**
-     * @return - the number of tiles that should be displayed on a single screen on this device,
-     * calibrated based upon both the screen density and the screen height in inches
+     * @return - The number of tiles that should be displayed on a single screen on this device,
+     * calibrated against our default values based upon both the screen density and the screen
+     * height in inches
      */
     private double computeNumTilesPerScreen(boolean inPortrait, double screenHeightInPixels) {
         double numTilesPerScreenPortrait = DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT *
@@ -215,7 +220,7 @@ public class EntityViewTile extends GridLayout {
 
     private static double getAdditionalTilesBasedOnScreenDensity(int screenDensity) {
         // For every additional 160dpi from the default density, show one more tile on the screen
-        int defaultDensityDpi = DisplayMetrics.DENSITY_MEDIUM;
+        int defaultDensityDpi = DEFAULT_SCREEN_DENSITY;
         return (screenDensity - defaultDensityDpi) / 160;
     }
 
