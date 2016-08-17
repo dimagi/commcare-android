@@ -84,7 +84,7 @@ public class EntityViewTile extends GridLayout {
 
     private final CachingAsyncImageLoader mImageLoader;
     private final boolean beingDisplayedInAwesomeMode;
-    
+
 
     public static EntityViewTile createTileForIndividualDisplay(Context context, Detail detail,
                                                                 Entity entity) {
@@ -281,7 +281,7 @@ public class EntityViewTile extends GridLayout {
         setPaddingIfNotInGridView();
 
         if (tileBeingShownInGridView()) {
-            // We are faking dividers between each square in the grid view by using contrasting
+            // Fake dividers between each square in the grid view by using contrasting
             // background colors for the grid view as a whole and each element in the grid view
             setBackgroundColor(Color.parseColor("#ffffff"));
         }
@@ -301,7 +301,7 @@ public class EntityViewTile extends GridLayout {
         }
 
         ViewId uniqueId = new ViewId(coordinateData.getX(), coordinateData.getY(), false);
-        GridLayout.LayoutParams gridParams = getLayoutParamsForField(coordinateData, form);
+        GridLayout.LayoutParams gridParams = getLayoutParamsForField(coordinateData);
 
         View view = getView(context, style, form, fieldString, uniqueId, sortField,
                 gridParams.width, gridParams.height);
@@ -315,8 +315,7 @@ public class EntityViewTile extends GridLayout {
         this.addView(view, gridParams);
     }
 
-    private GridLayout.LayoutParams getLayoutParamsForField(GridCoordinate coordinateData,
-                                                            String formString) {
+    private GridLayout.LayoutParams getLayoutParamsForField(GridCoordinate coordinateData) {
         Spec columnSpec = GridLayout.spec(coordinateData.getX(), coordinateData.getWidth());
         Spec rowSpec = GridLayout.spec(coordinateData.getY(), coordinateData.getHeight());
 
