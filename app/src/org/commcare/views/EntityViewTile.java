@@ -62,9 +62,6 @@ public class EntityViewTile extends GridLayout {
     private final float XLARGE_FONT = getResources().getDimension(R.dimen.font_size_xlarge);
     private final float DENSITY = getResources().getDisplayMetrics().density;
 
-    private final int CELL_PADDING_HORIZONTAL = (int)getResources().getDimension(R.dimen.cell_padding_horizontal);
-    private final int CELL_PADDING_VERTICAL = (int)getResources().getDimension(R.dimen.cell_padding_vertical);
-
     private final int DEFAULT_TILE_PADDING_HORIZONTAL =
             (int)getResources().getDimension(R.dimen.row_padding_horizontal);
     private final int DEFAULT_TILE_PADDING_VERTICAL =
@@ -72,9 +69,10 @@ public class EntityViewTile extends GridLayout {
 
     // constants used to calibrate how many tiles should be shown on a screen
     private static final int DEFAULT_NUMBER_ROWS_PER_GRID = 6;
-    private static final double DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT = 7;
+    private static final double DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT = 4;
+    private static final double DEFAULT_SCREEN_HEIGHT_IN_INCHES = 4.0;
     private static final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
-
+    
     // this is fixed for all tiles
     private static final int NUMBER_COLUMNS_PER_GRID = 12;
 
@@ -188,23 +186,15 @@ public class EntityViewTile extends GridLayout {
             screenWidth = screenWidth - DEFAULT_TILE_PADDING_HORIZONTAL * 2;
         }
 
-        // Calibrate the number of tiles that appear on the screen, based on how many rows are in
-        // each tile
-        double numTilesPerScreenPortrait = DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT *
-                (DEFAULT_NUMBER_ROWS_PER_GRID / (float) numRowsPerTile);
-        double numTilesPerScreenLandscape = numTilesPerScreenPortrait * LANDSCAPE_TO_PORTRAIT_RATIO;
-
         int tileHeight;
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             if (context.getString(R.string.panes).equals("two")) {
                 // if in awesome mode, split available width in half
                 screenWidth = screenWidth / 2;
             }
-            tileHeight = (int)Math.ceil(
-                    screenHeight / (numTilesPerScreenLandscape + getAdditionalTilesBasedOnScreenDensity()));
+            tileHeight = (int)Math.ceil(screenHeight / computeNumTilesPerScreen(false, screenHeight));
         } else {
-            tileHeight = (int)Math.ceil(
-                    screenHeight / (numTilesPerScreenPortrait + getAdditionalTilesBasedOnScreenDensity()));
+            tileHeight = (int)Math.ceil(screenHeight / computeNumTilesPerScreen(true, screenHeight));
         }
 
         int tileWidth = (int)Math.ceil(screenWidth / numTilesPerRow);
@@ -212,14 +202,31 @@ public class EntityViewTile extends GridLayout {
         return new Pair<>(tileWidth, tileHeight);
     }
 
-    private double getAdditionalTilesBasedOnScreenDensity() {
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int densityDpi = metrics.densityDpi;
-        int defaultDensityDpi = DisplayMetrics.DENSITY_MEDIUM;
+    private double computeNumTilesPerScreen(boolean inPortrait, double screenHeightInPixels) {
+        double numTilesPerScreenPortrait = DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT *
+                (DEFAULT_NUMBER_ROWS_PER_GRID / (float) numRowsPerTile);
 
-        // For every additional 160dpi, show one more tile on the screen
-        double extraDensity = (densityDpi - defaultDensityDpi) / 80 * 0.5;
-        return 1 + extraDensity;
+        double baseNumberOfTiles;
+        if (inPortrait) {
+            baseNumberOfTiles = numTilesPerScreenPortrait;
+        } else {
+            baseNumberOfTiles = numTilesPerScreenPortrait * LANDSCAPE_TO_PORTRAIT_RATIO;
+        }
+
+        int screenDensity = getResources().getDisplayMetrics().densityDpi;
+        return (baseNumberOfTiles + getAdditionalTilesBasedOnScreenDensity(screenDensity))
+                * getScreenHeightMultiplier(screenDensity, screenHeightInPixels);
+    }
+
+    private static double getAdditionalTilesBasedOnScreenDensity(int screenDensity) {
+        // For every additional 160dpi from the default density, show one more tile on the screen
+        int defaultDensityDpi = DisplayMetrics.DENSITY_MEDIUM;
+        return (screenDensity - defaultDensityDpi) / 160;
+    }
+
+    private static double getScreenHeightMultiplier(int screenDensity, double screenHeightInPixels) {
+        double screenHeightInInches = screenHeightInPixels / screenDensity;
+        return screenHeightInInches / DEFAULT_SCREEN_HEIGHT_IN_INCHES;
     }
 
     /**
