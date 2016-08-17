@@ -964,7 +964,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             visibleView = listView;
         }
 
-        adapter = new EntityListAdapter(this, detail, references, entities, order, factory, hideActions);
+        adapter = new EntityListAdapter(this, detail, references, entities, order, factory, hideActions, inAwesomeMode);
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);

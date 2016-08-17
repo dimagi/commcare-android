@@ -84,6 +84,8 @@ public class EntityViewTile extends GridLayout {
 
     private final CachingAsyncImageLoader mImageLoader;
 
+    private final boolean beingDisplayedInAwesomeMode;
+
     /**
      * Used to create an entity view tile outside of a managed context (like
      * for an individual entity out of a search context).
@@ -91,22 +93,26 @@ public class EntityViewTile extends GridLayout {
     public static EntityViewTile createTileForIndividualDisplay(Context context, Detail detail,
                                                                 Entity entity) {
         return new EntityViewTile(context, detail, entity, new String[0],
-                new CachingAsyncImageLoader(context), false, 1);
+                new CachingAsyncImageLoader(context), false, 1, false);
     }
 
     public static EntityViewTile createTileForListDisplay(Context context, Detail detail, Entity entity,
                                                           String[] searchTerms,
                                                           CachingAsyncImageLoader loader,
-                                                          boolean fuzzySearchEnabled) {
-        return new EntityViewTile(context, detail, entity, searchTerms, loader, fuzzySearchEnabled, 1);
+                                                          boolean fuzzySearchEnabled,
+                                                          boolean inAwesomeMode) {
+        return new EntityViewTile(context, detail, entity, searchTerms, loader, fuzzySearchEnabled,
+                1, inAwesomeMode);
     }
 
     public static EntityViewTile createTileForGridDisplay(Context context, Detail detail, Entity entity,
                                                           String[] searchTerms,
                                                           CachingAsyncImageLoader loader,
-                                                          boolean fuzzySearchEnabled, int numRowsPerGrid) {
-        return new EntityViewTile(context, detail, entity, searchTerms, loader,
-                fuzzySearchEnabled, numRowsPerGrid);
+                                                          boolean fuzzySearchEnabled,
+                                                          int numRowsPerGrid,
+                                                          boolean inAwesomeMode) {
+        return new EntityViewTile(context, detail, entity, searchTerms, loader, fuzzySearchEnabled,
+                numRowsPerGrid, inAwesomeMode);
     }
 
     /**
@@ -114,7 +120,8 @@ public class EntityViewTile extends GridLayout {
      * all at once for searching.
      */
     private EntityViewTile(Context context, Detail detail, Entity entity, String[] searchTerms,
-                          CachingAsyncImageLoader loader, boolean fuzzySearchEnabled, int numTilesPerRow) {
+                          CachingAsyncImageLoader loader, boolean fuzzySearchEnabled,
+                           int numTilesPerRow, boolean inAwesomeMode) {
         super(context);
         this.searchTerms = searchTerms;
         this.mIsAsynchronous = entity instanceof AsyncEntity;
@@ -122,6 +129,7 @@ public class EntityViewTile extends GridLayout {
         this.mFuzzySearchEnabled = fuzzySearchEnabled;
         this.numRowsPerTile = getMaxRows(detail);
         this.numTilesPerRow = numTilesPerRow;
+        this.beingDisplayedInAwesomeMode = inAwesomeMode;
 
         setEssentialGridLayoutValues();
         setCellWidthAndHeight(context, detail);
@@ -188,7 +196,7 @@ public class EntityViewTile extends GridLayout {
 
         int tileHeight;
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if (context.getString(R.string.panes).equals("two")) {
+            if (beingDisplayedInAwesomeMode) {
                 // if in awesome mode, split available width in half
                 screenWidth = screenWidth / 2;
             }

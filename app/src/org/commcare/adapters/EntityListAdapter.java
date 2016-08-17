@@ -85,12 +85,15 @@ public class EntityListAdapter implements ListAdapter {
     // key to data mapping used to attach callout results to individual entities
     private OrderedHashtable<String, String> calloutResponseData = new OrderedHashtable<>();
 
+    private final boolean selectActivityInAwesomeMode;
+
     public EntityListAdapter(CommCareActivity activity, Detail detail,
                              List<TreeReference> references,
                              List<Entity<TreeReference>> full,
                              int[] sort, NodeEntityFactory factory,
-                             boolean hideActions) {
+                             boolean hideActions, boolean inAwesomeMode) {
         this.detail = detail;
+        this.selectActivityInAwesomeMode = inAwesomeMode;
         if (detail.getCustomActions() == null || detail.getCustomActions().isEmpty() || hideActions) {
             actionsCount = 0;
             dividerCount = 0;
@@ -264,10 +267,11 @@ public class EntityListAdapter implements ListAdapter {
         if (emv == null) {
             if (detail.shouldBeLaidOutInGrid()) {
                 emv = EntityViewTile.createTileForGridDisplay(commCareActivity, detail, entity,
-                        currentSearchTerms, mImageLoader, mFuzzySearchEnabled, detail.getNumEntitiesToDisplayPerRow());
+                        currentSearchTerms, mImageLoader, mFuzzySearchEnabled,
+                        detail.getNumEntitiesToDisplayPerRow(), selectActivityInAwesomeMode);
             } else {
                 emv = EntityViewTile.createTileForListDisplay(commCareActivity, detail, entity,
-                        currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
+                        currentSearchTerms, mImageLoader, mFuzzySearchEnabled, selectActivityInAwesomeMode);
             }
         } else {
             emv.setSearchTerms(currentSearchTerms);
