@@ -193,6 +193,10 @@ public class EntityViewTile extends GridLayout {
         return new Pair<>(tileWidth, tileHeight);
     }
 
+    /**
+     * @return - the number of tiles that should be displayed on a single screen on this device,
+     * calibrated based upon both the screen density and the screen height in inches
+     */
     private double computeNumTilesPerScreen(boolean inPortrait, double screenHeightInPixels) {
         double numTilesPerScreenPortrait = DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT *
                 (DEFAULT_NUMBER_ROWS_PER_GRID / (float) numRowsPerTile);
