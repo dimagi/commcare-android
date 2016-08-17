@@ -83,52 +83,35 @@ public class EntityViewTile extends GridLayout {
     private double cellHeight;
 
     private final CachingAsyncImageLoader mImageLoader;
-
     private final boolean beingDisplayedInAwesomeMode;
+    
 
-    /**
-     * Used to create an entity view tile outside of a managed context (like
-     * for an individual entity out of a search context).
-     */
     public static EntityViewTile createTileForIndividualDisplay(Context context, Detail detail,
                                                                 Entity entity) {
         return new EntityViewTile(context, detail, entity, new String[0],
-                new CachingAsyncImageLoader(context), false, 1, false);
+                new CachingAsyncImageLoader(context), false, false);
     }
 
-    public static EntityViewTile createTileForListDisplay(Context context, Detail detail, Entity entity,
-                                                          String[] searchTerms,
-                                                          CachingAsyncImageLoader loader,
-                                                          boolean fuzzySearchEnabled,
-                                                          boolean inAwesomeMode) {
-        return new EntityViewTile(context, detail, entity, searchTerms, loader, fuzzySearchEnabled,
-                1, inAwesomeMode);
+    public static EntityViewTile createTileForEntitySelectDisplay(Context context, Detail detail,
+                                                                  Entity entity,
+                                                                  String[] searchTerms,
+                                                                  CachingAsyncImageLoader loader,
+                                                                  boolean fuzzySearchEnabled,
+                                                                  boolean inAwesomeMode) {
+        return new EntityViewTile(context, detail, entity, searchTerms, loader,
+                fuzzySearchEnabled, inAwesomeMode);
     }
 
-    public static EntityViewTile createTileForGridDisplay(Context context, Detail detail, Entity entity,
-                                                          String[] searchTerms,
-                                                          CachingAsyncImageLoader loader,
-                                                          boolean fuzzySearchEnabled,
-                                                          int numRowsPerGrid,
-                                                          boolean inAwesomeMode) {
-        return new EntityViewTile(context, detail, entity, searchTerms, loader, fuzzySearchEnabled,
-                numRowsPerGrid, inAwesomeMode);
-    }
-
-    /**
-     * Constructor for an entity tile in a managed context, like a list of entities being displayed
-     * all at once for searching.
-     */
     private EntityViewTile(Context context, Detail detail, Entity entity, String[] searchTerms,
                           CachingAsyncImageLoader loader, boolean fuzzySearchEnabled,
-                           int numTilesPerRow, boolean inAwesomeMode) {
+                           boolean inAwesomeMode) {
         super(context);
         this.searchTerms = searchTerms;
         this.mIsAsynchronous = entity instanceof AsyncEntity;
         this.mImageLoader = loader;
         this.mFuzzySearchEnabled = fuzzySearchEnabled;
         this.numRowsPerTile = getMaxRows(detail);
-        this.numTilesPerRow = numTilesPerRow;
+        this.numTilesPerRow = detail.getNumEntitiesToDisplayPerRow();
         this.beingDisplayedInAwesomeMode = inAwesomeMode;
 
         setEssentialGridLayoutValues();
