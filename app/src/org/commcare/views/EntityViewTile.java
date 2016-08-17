@@ -193,7 +193,6 @@ public class EntityViewTile extends GridLayout {
         double numTilesPerScreenPortrait = DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT *
                 (DEFAULT_NUMBER_ROWS_PER_GRID / (float) numRowsPerTile);
         double numTilesPerScreenLandscape = numTilesPerScreenPortrait * LANDSCAPE_TO_PORTRAIT_RATIO;
-        double densityRowMultiplier = getDensityRowMultiplier();
 
         int tileHeight;
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -201,9 +200,11 @@ public class EntityViewTile extends GridLayout {
                 // if in awesome mode, split available width in half
                 screenWidth = screenWidth / 2;
             }
-            tileHeight = (int)Math.ceil(screenHeight / (numTilesPerScreenLandscape * densityRowMultiplier));
+            tileHeight = (int)Math.ceil(
+                    screenHeight / (numTilesPerScreenLandscape + getAdditionalTilesBasedOnScreenDensity()));
         } else {
-            tileHeight = (int)Math.ceil(screenHeight / (numTilesPerScreenPortrait * densityRowMultiplier));
+            tileHeight = (int)Math.ceil(
+                    screenHeight / (numTilesPerScreenPortrait + getAdditionalTilesBasedOnScreenDensity()));
         }
 
         int tileWidth = (int)Math.ceil(screenWidth / numTilesPerRow);
@@ -211,14 +212,13 @@ public class EntityViewTile extends GridLayout {
         return new Pair<>(tileWidth, tileHeight);
     }
 
-    private double getDensityRowMultiplier() {
-        // Get density metrics
+    private double getAdditionalTilesBasedOnScreenDensity() {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int densityDpi = metrics.densityDpi;
         int defaultDensityDpi = DisplayMetrics.DENSITY_MEDIUM;
 
-        // For every additional 160dpi, show one more grid view on the screen
-        double extraDensity = (int) ((densityDpi - defaultDensityDpi) / 80) * 0.5;
+        // For every additional 160dpi, show one more tile on the screen
+        double extraDensity = (densityDpi - defaultDensityDpi) / 80 * 0.5;
         return 1 + extraDensity;
     }
 
@@ -324,14 +324,7 @@ public class EntityViewTile extends GridLayout {
 
         GridLayout.LayoutParams gridParams = new GridLayout.LayoutParams(rowSpec, columnSpec);
         gridParams.width = (int)Math.ceil(cellWidth * coordinateData.getWidth());
-        if (EntityView.FORM_IMAGE.equals(formString)) {
-            // for images ONLY, assume that the user defined the image dimens with the assumption
-            // that cellWidth and cellHeight were the same
-            gridParams.height = (int)Math.ceil(cellWidth * coordinateData.getHeight());
-        } else {
-            gridParams.height = (int)Math.ceil(cellHeight * coordinateData.getHeight());
-        }
-
+        gridParams.height = (int)Math.ceil(cellHeight * coordinateData.getHeight());
 
         return gridParams;
     }
