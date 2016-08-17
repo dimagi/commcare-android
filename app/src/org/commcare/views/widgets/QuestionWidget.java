@@ -32,6 +32,7 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ShrinkingTextView;
@@ -624,7 +625,10 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     public void checkFileSize(File file){
-        if (FileUtil.isFileOversized(file)) {
+        if (FileUtil.isFileTooBigToUpload(file)) {
+            long overByAmount = (file.length() - FormUploadUtil.MAX_BYTES) / 1024;
+            notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_to_big_to_upload, overByAmount + ""));
+        } else if (FileUtil.isFileOversized(file)) {
             notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtil.getFileSize(file) + ""));
         }
     }
