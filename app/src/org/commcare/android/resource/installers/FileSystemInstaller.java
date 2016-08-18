@@ -366,11 +366,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         if (lastDot != -1) {
             extension = input.substring(lastDot);
         }
-<<<<<<< HEAD
         return new Pair<>(r.getResourceId(), FilesystemUtils.extension(extension));
-=======
-        return new Pair<>(r.getResourceId(), FileSystemUtils.extension(extension));
->>>>>>> master
     }
 
     @Override
