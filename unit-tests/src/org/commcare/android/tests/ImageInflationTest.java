@@ -37,7 +37,7 @@ public class ImageInflationTest {
 
     private void testCorrectInflationWithoutDensity(int[] boundingDimens, int expectedNewDimen) {
         Bitmap b = MediaUtil.getBitmapScaledToContainer(imageFilepath, boundingDimens[0],
-                boundingDimens[1]);
+                boundingDimens[1], true);
         Assert.assertNotNull(b);
         Assert.assertEquals(expectedNewDimen, b.getWidth());
         Assert.assertEquals(expectedNewDimen, b.getHeight());

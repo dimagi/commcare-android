@@ -345,7 +345,7 @@ public class EntityViewTile extends GridLayout {
                                 maxWidth, maxHeight);
                     } else {
                         Bitmap b = MediaUtil.inflateDisplayImage(getContext(), rowData,
-                                maxWidth, maxHeight);
+                                maxWidth, maxHeight, true);
                         ((ImageView) retVal).setImageBitmap(b);
                     }
                 }
