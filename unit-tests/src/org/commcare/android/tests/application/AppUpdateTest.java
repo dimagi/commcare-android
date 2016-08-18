@@ -6,13 +6,12 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
+import org.commcare.android.util.UpdateUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.InstallStagedUpdateTask;
-import org.commcare.tasks.TaskListener;
-import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -20,13 +19,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 
 import java.io.File;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
@@ -41,23 +38,20 @@ public class AppUpdateTest {
     @Before
     public void setup() {
         TestAppInstaller.installAppAndLogin(
-                buildResourceRef("base_app", "profile.ccpr"),
+                UpdateUtils.buildResourceRef(REF_BASE_DIR, "base_app", "profile.ccpr"),
                 "test", "123");
 
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 6);
     }
 
-    private String buildResourceRef(String app, String resource) {
-        return REF_BASE_DIR + app + "/" + resource;
-    }
-
     @Test
     public void testAppUpdate() {
         Log.d(TAG, "Applying a valid app update");
 
-        installUpdate("valid_update",
-                taskListenerFactory(AppInstallStatus.UpdateStaged),
+        String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "valid_update", "profile.ccpr");
+        UpdateUtils.installUpdate(profileRef,
+                AppInstallStatus.UpdateStaged,
                 AppInstallStatus.Installed);
 
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
@@ -68,8 +62,9 @@ public class AppUpdateTest {
     public void testAppIsUpToDate() {
         Log.d(TAG, "Try updating to the same app.");
 
-        installUpdate("base_app",
-                taskListenerFactory(AppInstallStatus.UpToDate),
+        String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "base_app", "profile.ccpr");
+        UpdateUtils.installUpdate(profileRef,
+                AppInstallStatus.UpToDate,
                 AppInstallStatus.UnknownFailure);
 
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
@@ -84,8 +79,9 @@ public class AppUpdateTest {
         File dir = new File(CommCareApplication._().getAndroidFsTemp());
         Assert.assertTrue(dir.delete());
 
-        installUpdate("valid_update",
-                taskListenerFactory(AppInstallStatus.NoLocalStorage),
+        String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "valid_update", "profile.ccpr");
+        UpdateUtils.installUpdate(profileRef,
+                AppInstallStatus.NoLocalStorage,
                 AppInstallStatus.UnknownFailure);
 
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
@@ -96,8 +92,9 @@ public class AppUpdateTest {
     public void testUpdateToBrokenApp() {
         Log.d(TAG, "Applying a broken app update");
 
-        installUpdate("invalid_update",
-                taskListenerFactory(AppInstallStatus.MissingResourcesWithMessage),
+        String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "invalid_update", "profile.ccpr");
+        UpdateUtils.installUpdate(profileRef,
+                AppInstallStatus.MissingResourcesWithMessage,
                 AppInstallStatus.UnknownFailure);
 
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
@@ -108,8 +105,9 @@ public class AppUpdateTest {
     public void testUpdateToAppWithMultimedia() {
         Log.d(TAG, "updating to an app that has multimedia present");
 
-        installUpdate("valid_update_with_multimedia_present",
-                taskListenerFactory(AppInstallStatus.UpdateStaged),
+        String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "valid_update_with_multimedia_present", "profile.ccpr");
+        UpdateUtils.installUpdate(profileRef,
+                AppInstallStatus.UpdateStaged,
                 AppInstallStatus.Installed);
 
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
@@ -120,8 +118,9 @@ public class AppUpdateTest {
     public void testUpdateToAppMissingMultimedia() {
         Log.d(TAG, "updating to an app that has missing multimedia");
 
-        installUpdate("valid_update_without_multimedia_present",
-                taskListenerFactory(AppInstallStatus.MissingResources),
+        String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "valid_update_without_multimedia_present", "profile.ccpr");
+        UpdateUtils.installUpdate(profileRef,
+                AppInstallStatus.MissingResources,
                 AppInstallStatus.UnknownFailure);
 
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
@@ -132,54 +131,13 @@ public class AppUpdateTest {
     public void testUpdateToAppWithIncompatibleVersion() {
         Log.d(TAG, "updating to an app that requires an newer CommCare version");
 
-        installUpdate("invalid_version",
-                taskListenerFactory(AppInstallStatus.IncompatibleReqs),
+        String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "invalid_version", "profile.ccpr");
+        UpdateUtils.installUpdate(profileRef,
+                AppInstallStatus.IncompatibleReqs,
                 AppInstallStatus.UnknownFailure);
 
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 6);
-    }
-
-    private void installUpdate(String appFolder,
-                               TaskListener<Integer, AppInstallStatus> listener,
-                               AppInstallStatus expectedInstallStatus) {
-        UpdateTask updateTask = stageUpdate(appFolder, listener);
-
-        assertEquals(expectedInstallStatus,
-                InstallStagedUpdateTask.installStagedUpdate());
-        updateTask.clearTaskInstance();
-    }
-
-    private UpdateTask stageUpdate(String appFolder,
-                                   TaskListener<Integer, AppInstallStatus> listener) {
-        UpdateTask updateTask = UpdateTask.getNewInstance();
-        try {
-            updateTask.registerTaskListener(listener);
-        } catch (TaskListenerRegistrationException e) {
-            fail("failed to register listener for update task");
-        }
-        updateTask.execute(buildResourceRef(appFolder, "profile.ccpr"));
-
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
-        return updateTask;
-    }
-
-    private TaskListener<Integer, AppInstallStatus> taskListenerFactory(final AppInstallStatus expectedResult) {
-        return new TaskListener<Integer, AppInstallStatus>() {
-            @Override
-            public void handleTaskUpdate(Integer... updateVals) {
-            }
-
-            @Override
-            public void handleTaskCompletion(AppInstallStatus result) {
-                Assert.assertTrue(result == expectedResult);
-            }
-
-            @Override
-            public void handleTaskCancellation() {
-            }
-        };
     }
 
     @Test
@@ -191,8 +149,8 @@ public class AppUpdateTest {
         assertEquals(1, appFixtureStorage.getNumRecords());
         assertEquals(1, appFixtureStorage.read(1).getRoot().getNumChildren());
 
-        UpdateTask updateTask = stageUpdate("update_with_suite_fixture",
-                taskListenerFactory(AppInstallStatus.UpdateStaged));
+        String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "update_with_suite_fixture", "profile.ccpr");
+        UpdateTask updateTask = UpdateUtils.stageUpdate(profileRef, AppInstallStatus.UpdateStaged);
 
         // ensure suite fixture didn't change if you only staged an update but haven't applied it
         assertEquals(1, appFixtureStorage.getNumRecords());

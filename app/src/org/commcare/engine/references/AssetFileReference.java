@@ -64,11 +64,4 @@ class AssetFileReference implements Reference {
         //IOException? Do we use this for certain forms of installers? Probably not.
         throw new IOException("Cannot remove Asset files from the Package");
     }
-
-    @Override
-    public Reference[] probeAlternativeReferences() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }
