@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Build;
 import android.support.v4.util.Pair;
@@ -61,69 +62,65 @@ public class EntityViewTile extends GridLayout {
     private final float XLARGE_FONT = getResources().getDimension(R.dimen.font_size_xlarge);
     private final float DENSITY = getResources().getDisplayMetrics().density;
 
-    private final int CELL_PADDING_HORIZONTAL = (int) getResources().getDimension(R.dimen.cell_padding_horizontal);
-    private final int CELL_PADDING_VERTICAL = (int) getResources().getDimension(R.dimen.cell_padding_vertical);
-    private final int ROW_PADDING_HORIZONTAL = (int) getResources().getDimension(R.dimen.row_padding_horizontal);
-    private final int ROW_PADDING_VERTICAL = (int) getResources().getDimension(R.dimen.row_padding_vertical);
+    private final int DEFAULT_TILE_PADDING_HORIZONTAL =
+            (int)getResources().getDimension(R.dimen.row_padding_horizontal);
+    private final int DEFAULT_TILE_PADDING_VERTICAL =
+            (int)getResources().getDimension(R.dimen.row_padding_vertical);
 
-    // constants used to calibrate how many tiles should be shown on a screen
+    // Constants used to calibrate how many tiles should be shown on a screen at once -- This is
+    // saying that we expect a device with a density of 160 dpi and a height of 4 inches to look
+    // good in portrait mode with 4 tiles of 6 rows each being displayed at once.
+    private static final double DEFAULT_SCREEN_HEIGHT_IN_INCHES = 4.0;
+    private static final int DEFAULT_SCREEN_DENSITY = DisplayMetrics.DENSITY_MEDIUM;
+    private static final double DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT = 4;
     private static final int DEFAULT_NUMBER_ROWS_PER_GRID = 6;
-    private static final double DEFAULT_NUM_GRIDS_PER_SCREEN_PORTRAIT = 7;
-    private static final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
 
+    private static final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
+    
     // this is fixed for all tiles
     private static final int NUMBER_COLUMNS_PER_GRID = 12;
 
-    private final int numRowsPerGrid;
+    private final int numRowsPerTile;
+    private final int numTilesPerRow;
 
-    private final double cellWidth;
-    private final double cellHeight;
+    private double cellWidth;
+    private double cellHeight;
 
     private final CachingAsyncImageLoader mImageLoader;
+    private final boolean beingDisplayedInAwesomeMode;
 
-    /**
-     * Used to create an entity view tile outside of a managed context (like
-     * for an individual entity out of a search context).
-     */
+
     public static EntityViewTile createTileForIndividualDisplay(Context context, Detail detail,
                                                                 Entity entity) {
         return new EntityViewTile(context, detail, entity, new String[0],
-                new CachingAsyncImageLoader(context), false);
+                new CachingAsyncImageLoader(context), false, false);
     }
 
-    public static EntityViewTile createTileForListDisplay(Context context, Detail detail, Entity entity,
-                                                          String[] searchTerms,
-                                                          CachingAsyncImageLoader loader,
-                                                          boolean fuzzySearchEnabled) {
-        return new EntityViewTile(context, detail, entity, searchTerms, loader, fuzzySearchEnabled);
+    public static EntityViewTile createTileForEntitySelectDisplay(Context context, Detail detail,
+                                                                  Entity entity,
+                                                                  String[] searchTerms,
+                                                                  CachingAsyncImageLoader loader,
+                                                                  boolean fuzzySearchEnabled,
+                                                                  boolean inAwesomeMode) {
+        return new EntityViewTile(context, detail, entity, searchTerms, loader,
+                fuzzySearchEnabled, inAwesomeMode);
     }
 
-    /**
-     * Constructor for an entity tile in a managed context, like a list of entities being displayed
-     * all at once for searching.
-     */
     private EntityViewTile(Context context, Detail detail, Entity entity, String[] searchTerms,
-                          CachingAsyncImageLoader loader, boolean fuzzySearchEnabled) {
+                          CachingAsyncImageLoader loader, boolean fuzzySearchEnabled,
+                           boolean inAwesomeMode) {
         super(context);
         this.searchTerms = searchTerms;
         this.mIsAsynchronous = entity instanceof AsyncEntity;
         this.mImageLoader = loader;
         this.mFuzzySearchEnabled = fuzzySearchEnabled;
-        this.numRowsPerGrid = getMaxRows(detail);
+        this.numRowsPerTile = getMaxRows(detail);
+        this.numTilesPerRow = detail.getNumEntitiesToDisplayPerRow();
+        this.beingDisplayedInAwesomeMode = inAwesomeMode;
 
         setEssentialGridLayoutValues();
-
-        Pair<Double, Double> widthAndHeight = computeTileWidthAndHeight(context);
-        cellWidth = widthAndHeight.first / NUMBER_COLUMNS_PER_GRID;
-        cellHeight = widthAndHeight.second / numRowsPerGrid;
-
+        setCellWidthAndHeight(context, detail);
         addFieldViews(context, detail, entity);
-    }
-
-    private void setEssentialGridLayoutValues() {
-        setColumnCount(NUMBER_COLUMNS_PER_GRID);
-        setRowCount(numRowsPerGrid);
-        setPadding(ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL, ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL);
     }
 
     /**
@@ -143,8 +140,30 @@ public class EntityViewTile extends GridLayout {
         return currentMaxHeight;
     }
 
-    private Pair<Double, Double> computeTileWidthAndHeight(Context context) {
+    private void setEssentialGridLayoutValues() {
+        setColumnCount(NUMBER_COLUMNS_PER_GRID);
+        setRowCount(numRowsPerTile);
+        setPaddingIfNotInGridView();
+    }
 
+    private void setCellWidthAndHeight(Context context, Detail detail) {
+        Pair<Integer, Integer> tileWidthAndHeight = computeTileWidthAndHeight(context);
+        cellWidth = tileWidthAndHeight.first / (double)NUMBER_COLUMNS_PER_GRID;
+        if (detail.useUniformUnitsInCaseTile()) {
+            cellHeight = cellWidth;
+        } else {
+            cellHeight = tileWidthAndHeight.second / (double)numRowsPerTile;
+        }
+    }
+
+    /**
+     * Compute what the width and height of a single tile should be, based upon the available
+     * screen space, how many columns there should be, and how many rows we want to show at a time.
+     * Round up to the nearest integer since the GridView's width and height will ultimately be
+     * computed indirectly from these values, and those values need to be integers, and we don't
+     * want to end up cutting things off
+     */
+    private Pair<Integer, Integer> computeTileWidthAndHeight(Context context) {
         double screenWidth, screenHeight;
         Display display = ((Activity) context).getWindowManager().getDefaultDisplay();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
@@ -156,41 +175,58 @@ public class EntityViewTile extends GridLayout {
             screenWidth = display.getWidth();
             screenHeight = display.getHeight();
         }
-        // Subtract the margins since we don't have this space
-        screenWidth = screenWidth - ROW_PADDING_HORIZONTAL * 2;
 
-        // Calibrate the number of tiles that appear on the screen, based on how many rows are in
-        // each tile
-        double numTilesPerScreenPortrait = DEFAULT_NUM_GRIDS_PER_SCREEN_PORTRAIT *
-                (DEFAULT_NUMBER_ROWS_PER_GRID / (float) numRowsPerGrid);
-        double numTilesPerScreenLandscape = numTilesPerScreenPortrait * LANDSCAPE_TO_PORTRAIT_RATIO;
-        double densityRowMultiplier = getDensityRowMultiplier();
+        if (!tileBeingShownInGridView()) {
+            // If we added padding, subtract that space since we can't use it
+            screenWidth = screenWidth - DEFAULT_TILE_PADDING_HORIZONTAL * 2;
+        }
 
-        double tileHeight;
+        int tileHeight;
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if (context.getString(R.string.panes).equals("two")) {
+            if (beingDisplayedInAwesomeMode) {
                 // if in awesome mode, split available width in half
                 screenWidth = screenWidth / 2;
             }
-            tileHeight = screenHeight / (numTilesPerScreenLandscape * densityRowMultiplier);
+            tileHeight = (int)Math.ceil(screenHeight / computeNumTilesPerScreen(false, screenHeight));
         } else {
-            tileHeight = screenHeight / (numTilesPerScreenPortrait * densityRowMultiplier);
+            tileHeight = (int)Math.ceil(screenHeight / computeNumTilesPerScreen(true, screenHeight));
         }
 
-        double tileWidth = screenWidth;
+        int tileWidth = (int)Math.ceil(screenWidth / numTilesPerRow);
 
-        return new Pair(tileWidth, tileHeight);
+        return new Pair<>(tileWidth, tileHeight);
     }
 
-    private double getDensityRowMultiplier() {
-        // Get density metrics
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int densityDpi = metrics.densityDpi;
-        int defaultDensityDpi = DisplayMetrics.DENSITY_MEDIUM;
+    /**
+     * @return - The number of tiles that should be displayed on a single screen on this device,
+     * calibrated against our default values based upon both the screen density and the screen
+     * height in inches
+     */
+    private double computeNumTilesPerScreen(boolean inPortrait, double screenHeightInPixels) {
+        double numTilesPerScreenPortrait = DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT *
+                (DEFAULT_NUMBER_ROWS_PER_GRID / (float) numRowsPerTile);
 
-        // For every additional 160dpi, show one more grid view on the screen
-        double extraDensity = (int) ((densityDpi - defaultDensityDpi) / 80) * 0.5;
-        return 1 + extraDensity;
+        double baseNumberOfTiles;
+        if (inPortrait) {
+            baseNumberOfTiles = numTilesPerScreenPortrait;
+        } else {
+            baseNumberOfTiles = numTilesPerScreenPortrait * LANDSCAPE_TO_PORTRAIT_RATIO;
+        }
+
+        int screenDensity = getResources().getDisplayMetrics().densityDpi;
+        return (baseNumberOfTiles + getAdditionalTilesBasedOnScreenDensity(screenDensity))
+                * getScreenHeightMultiplier(screenDensity, screenHeightInPixels);
+    }
+
+    private static double getAdditionalTilesBasedOnScreenDensity(int screenDensity) {
+        // For every additional 160dpi from the default density, show one more tile on the screen
+        int defaultDensityDpi = DEFAULT_SCREEN_DENSITY;
+        return (screenDensity - defaultDensityDpi) / 160;
+    }
+
+    private static double getScreenHeightMultiplier(int screenDensity, double screenHeightInPixels) {
+        double screenHeightInInches = screenHeightInPixels / screenDensity;
+        return screenHeightInInches / DEFAULT_SCREEN_HEIGHT_IN_INCHES;
     }
 
     /**
@@ -203,7 +239,7 @@ public class EntityViewTile extends GridLayout {
      */
     private void addBuffers(Context context) {
 
-        for (int i = 0; i < numRowsPerGrid; i++) {
+        for (int i = 0; i < numRowsPerTile; i++) {
 
             Spec rowSpec = GridLayout.spec(i);
             Spec colSpec = GridLayout.spec(0);
@@ -251,10 +287,13 @@ public class EntityViewTile extends GridLayout {
                 " | Coords: " + Arrays.toString(coordinatesOfEachField) +
                 " | Styles: " + Arrays.toString(stylesOfEachField));
 
-        this.setBackgroundDrawable(null);
+        setPaddingIfNotInGridView();
 
-        this.setPadding(ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL,
-                ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL);
+        if (tileBeingShownInGridView()) {
+            // Fake dividers between each square in the grid view by using contrasting
+            // background colors for the grid view as a whole and each element in the grid view
+            setBackgroundColor(Color.WHITE);
+        }
 
         mFieldViews = new View[coordinatesOfEachField.length];
         for (int i = 0; i < mFieldViews.length; i++) {
@@ -290,17 +329,15 @@ public class EntityViewTile extends GridLayout {
         Spec rowSpec = GridLayout.spec(coordinateData.getY(), coordinateData.getHeight());
 
         GridLayout.LayoutParams gridParams = new GridLayout.LayoutParams(rowSpec, columnSpec);
-        gridParams.width = (int) cellWidth * coordinateData.getWidth();
-        gridParams.height = (int) cellHeight * coordinateData.getHeight()
-                // we need to account for any padding that wouldn't be in these rows if the entity didn't overwrite
-                + (2 * CELL_PADDING_VERTICAL * (coordinateData.getHeight() - 1));
+        gridParams.width = (int)Math.ceil(cellWidth * coordinateData.getWidth());
+        gridParams.height = (int)Math.ceil(cellHeight * coordinateData.getHeight());
 
         return gridParams;
     }
 
     private boolean coordinatesInvalid(GridCoordinate coordinate) {
         if (coordinate.getX() + coordinate.getWidth() > NUMBER_COLUMNS_PER_GRID ||
-                coordinate.getY() + coordinate.getHeight() > numRowsPerGrid) {
+                coordinate.getY() + coordinate.getHeight() > numRowsPerTile) {
             Logger.log("e", "Grid entry dimensions exceed allotted sizes");
             throw new XPathUnhandledException("grid coordinates out of bounds: " +
                     coordinate.getX() + " " + coordinate.getWidth() + ", " +
@@ -312,10 +349,10 @@ public class EntityViewTile extends GridLayout {
     /**
      * Get the correct View for this particular activity.
      *
-     * @param multimediaType either "image", "audio", or default text. Describes how this XPath result should be displayed.
+     * @param fieldForm either "image", "audio", or default text. Describes how this XPath result should be displayed.
      * @param rowData        The actual data to display, either an XPath to media or a String to display.
      */
-    private View getView(Context context, GridStyle style, String multimediaType, String rowData,
+    private View getView(Context context, GridStyle style, String fieldForm, String rowData,
                          ViewId uniqueId, String searchField, int maxWidth, int maxHeight) {
 
         // How the text should be aligned horizontally - left, center, or right
@@ -324,21 +361,12 @@ public class EntityViewTile extends GridLayout {
         String vertAlign = style.getVertAlign();
 
         View retVal;
-        switch (multimediaType) {
+        switch (fieldForm) {
             case EntityView.FORM_IMAGE:
                 retVal = new ImageView(context);
-                switch (horzAlign) {
-                    case "center":
-                        ((ImageView) retVal).setScaleType(ScaleType.CENTER_INSIDE);
-                        break;
-                    case "left":
-                        ((ImageView) retVal).setScaleType(ScaleType.FIT_START);
-                        break;
-                    case "right":
-                        ((ImageView) retVal).setScaleType(ScaleType.FIT_END);
-                        break;
-                }
-                retVal.setPadding(CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL, CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL);
+                setScaleType((ImageView)retVal, horzAlign);
+                // make the image's padding proportional to its size
+                retVal.setPadding(maxWidth/6, maxHeight/6, maxWidth/6, maxHeight/6);
                 if (rowData != null && !rowData.equals("")) {
                     if (mImageLoader != null) {
                         mImageLoader.display(rowData, ((ImageView) retVal), R.drawable.info_bubble,
@@ -429,6 +457,20 @@ public class EntityViewTile extends GridLayout {
         return retVal;
     }
 
+    private static void setScaleType(ImageView imageView, String horizontalAlignment) {
+        switch (horizontalAlignment) {
+            case "center":
+                imageView.setScaleType(ScaleType.CENTER_INSIDE);
+                break;
+            case "left":
+                imageView.setScaleType(ScaleType.FIT_START);
+                break;
+            case "right":
+                imageView.setScaleType(ScaleType.FIT_END);
+                break;
+        }
+    }
+
     public void setSearchTerms(String[] currentSearchTerms) {
         this.searchTerms = currentSearchTerms;
     }
@@ -447,6 +489,17 @@ public class EntityViewTile extends GridLayout {
                 ((TextView)rowView).setTextColor(color);
                 return;
             }
+        }
+    }
+
+    private boolean tileBeingShownInGridView() {
+        return numTilesPerRow > 1;
+    }
+
+    private void setPaddingIfNotInGridView() {
+        if (!tileBeingShownInGridView()) {
+            setPadding(DEFAULT_TILE_PADDING_HORIZONTAL, DEFAULT_TILE_PADDING_VERTICAL,
+                    DEFAULT_TILE_PADDING_HORIZONTAL, DEFAULT_TILE_PADDING_VERTICAL);
         }
     }
 }
