@@ -30,6 +30,7 @@ public class MediaUtil {
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
 
+
     /**
      * Attempts to inflate an image from a CommCare UI definition source.
      *
@@ -96,6 +97,11 @@ public class MediaUtil {
         return null;
     }
 
+    public static Bitmap inflateDisplayImage(Context context, String jrUri,
+                                             int boundingWidth, int boundingHeight) {
+        return inflateDisplayImage(context, jrUri, boundingWidth, boundingHeight, false);
+    }
+
     public static Bitmap inflateDisplayImage(Context context, String jrUri) {
         return inflateDisplayImage(context, jrUri, -1, -1, false);
     }
@@ -130,7 +136,7 @@ public class MediaUtil {
                     containerHeight, containerWidth);
         } else  {
             return scaleDownToTargetOrContainer(imageFilepath, imageHeight, imageWidth,
-                    calculatedHeight, calculatedWidth, containerHeight, containerWidth, false);
+                    calculatedHeight, calculatedWidth, containerHeight, containerWidth, false, true);
         }
     }
 
@@ -189,10 +195,9 @@ public class MediaUtil {
     }
 
     public static Bitmap getBitmapScaledToContainer(File imageFile, int containerHeight,
-                                                    int containerWidth,
-                                                    boolean respectBoundsExactly) {
+                                                    int containerWidth) {
         return getBitmapScaledToContainer(imageFile.getAbsolutePath(), containerHeight,
-                containerWidth, respectBoundsExactly);
+                containerWidth, false);
     }
 
     /**
