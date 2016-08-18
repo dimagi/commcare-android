@@ -270,9 +270,10 @@ public class MenuAdapter implements ListAdapter {
     }
 
     public void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable) {
-        String imageURI = menuDisplayable.getImageURI();
-        Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
         if (mIconView != null) {
+            int iconDimension = (int)context.getResources().getDimension(R.dimen.menu_icon_size);
+            Bitmap image = MediaUtil.inflateDisplayImage(context, menuDisplayable.getImageURI(),
+                    iconDimension, iconDimension);
             if (image != null) {
                 mIconView.setImageBitmap(image);
                 mIconView.setAdjustViewBounds(true);
