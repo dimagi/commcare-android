@@ -17,17 +17,17 @@ import java.io.IOException;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class UserRestoreAndroidInstaller extends FileSystemInstaller {
+public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
     private String username;
     private String password;
 
     @SuppressWarnings("unused")
-    public UserRestoreAndroidInstaller() {
+    public OfflineUserRestoreAndroidInstaller() {
         // for externalization
     }
 
-    public UserRestoreAndroidInstaller(String localDestination, String upgradeDestination,
-                                       String username, String password) {
+    public OfflineUserRestoreAndroidInstaller(String localDestination, String upgradeDestination,
+                                              String username, String password) {
         super(localDestination, upgradeDestination);
 
         this.username = username;
