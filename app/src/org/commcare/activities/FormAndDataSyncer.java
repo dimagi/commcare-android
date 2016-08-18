@@ -194,8 +194,8 @@ public class FormAndDataSyncer {
     public <I extends CommCareActivity & PullTaskReceiver> void performDemoUserRestore(
             I context,
             OfflineUserRestore offlineUserRestore) {
-
-        LocalDataPullResponseFactory.setRequestPayloads(new String[]{offlineUserRestore.getReference()});
+        String[] demoUserRestores = new String[]{offlineUserRestore.getReference()};
+        LocalDataPullResponseFactory.setRequestPayloads(demoUserRestores);
         syncData(context, false, false, "fake-server-that-is-never-used", offlineUserRestore.getUsername(), offlineUserRestore.getPassword(), LocalDataPullResponseFactory.INSTANCE);
     }
 }

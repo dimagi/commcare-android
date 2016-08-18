@@ -391,6 +391,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private void loginDemoUser() {
         OfflineUserRestore offlineUserRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
         if (offlineUserRestore != null) {
+            uiController.setUsername(offlineUserRestore.getUsername());
+            uiController.setPasswordOrPin(offlineUserRestore.getPassword());
             formAndDataSyncer.performDemoUserRestore(this, offlineUserRestore);
         } else {
             DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
