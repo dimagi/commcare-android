@@ -248,7 +248,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      */
     private boolean checkForMultipleAppsViolation() {
         if (CommCareApplication._().getInstalledAppRecords().size() >= 2
-                && !GlobalPrivilegesManager.isMultipleAppsPrivilegeEnabled()) {
+                && !GlobalPrivilegesManager.isMultipleAppsPrivilegeEnabled()
+                && !BuildConfig.DEBUG) {
             Intent i = new Intent(this, MultipleAppsLimitWarningActivity.class);
             i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, fromManager);
             startActivityForResult(i, MULTIPLE_APPS_LIMIT);
