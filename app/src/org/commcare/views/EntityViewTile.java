@@ -292,7 +292,7 @@ public class EntityViewTile extends GridLayout {
         if (tileBeingShownInGridView()) {
             // Fake dividers between each square in the grid view by using contrasting
             // background colors for the grid view as a whole and each element in the grid view
-            setBackgroundColor(Color.parseColor("#ffffff"));
+            setBackgroundColor(Color.WHITE);
         }
 
         mFieldViews = new View[coordinatesOfEachField.length];
