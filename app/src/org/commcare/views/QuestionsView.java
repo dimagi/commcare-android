@@ -325,7 +325,7 @@ public class QuestionsView extends ScrollView
 
     public void setFocus(Context context, int indexOfLastChangedWidget) {
         QuestionWidget widgetToFocus = null;
-        if (indexOfLastChangedWidget != -1) {
+        if (indexOfLastChangedWidget != -1 && indexOfLastChangedWidget < widgets.size()) {
             widgetToFocus = widgets.get(indexOfLastChangedWidget);
         } else if (widgets.size() > 0) {
             widgetToFocus = widgets.get(0);
