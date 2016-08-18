@@ -81,19 +81,21 @@ public class DemoUserRestoreTest {
         launchHomeActivity();
 
         EntitySelectActivity entitySelectActivity =
-                CaseLoadUtils.launchEntitySelectActivity("m1-f0");
+                CaseLoadUtils.launchEntitySelectActivity("m0-f0");
 
+        // check that the demo user has 2 entries in the case list
         EntityListAdapter adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(2, adapter.getCount());
 
+        // update the app to a version with a new demo user restore
         String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR,
                 "update_user_restore", "profile.ccpr");
         UpdateUtils.installUpdate(profileRef,
                 AppInstallStatus.UpdateStaged,
                 AppInstallStatus.Installed);
 
-        // make sure there is only 1 case
-        entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m1-f0");
+        // make sure there is only 1 case after updating the demo user restore
+        entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m0-f0");
 
         adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(1, adapter.getCount());
