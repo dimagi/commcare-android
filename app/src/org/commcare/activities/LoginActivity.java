@@ -295,6 +295,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   final boolean warnMultipleAccounts, final boolean restoreSession,
                                   LoginMode loginMode) {
         try {
+            ViewUtil.hideVirtualKeyboard(LoginActivity.this);
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
 
