@@ -88,7 +88,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                         "registered task.");
                 uiController.errorUiState();
             }
-        } else if (!isRotation && !taskIsCancelling) {
+        } else if (!isRotation && !taskIsCancelling
+                && ConnectivityStatus.isNetworkAvailable(this)
+                && !ConnectivityStatus.isAirplaneModeOn(this)) {
             startUpdateCheck();
         }
     }
