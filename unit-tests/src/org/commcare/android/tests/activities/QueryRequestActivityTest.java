@@ -87,10 +87,10 @@ public class QueryRequestActivityTest {
 
         LinearLayout promptsLayout =
                 (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
-        EditText patientId = (EditText)promptsLayout.getChildAt(1);
-        patientId.setText("123");
-        EditText patientName = (EditText)promptsLayout.getChildAt(3);
+        EditText patientName = (EditText)promptsLayout.getChildAt(1);
         patientName.setText("francisco");
+        EditText patientId = (EditText)promptsLayout.getChildAt(3);
+        patientId.setText("123");
 
         Button queryButton = (Button)queryRequestActivity.findViewById(R.id.request_button);
         queryButton.performClick();
@@ -124,10 +124,10 @@ public class QueryRequestActivityTest {
 
         LinearLayout promptsLayout =
                 (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
-        EditText patientId = (EditText)promptsLayout.getChildAt(1);
-        patientId.setText("123");
-        EditText patientName = (EditText)promptsLayout.getChildAt(3);
+        EditText patientName = (EditText)promptsLayout.getChildAt(1);
         patientName.setText("francisco");
+        EditText patientId = (EditText)promptsLayout.getChildAt(3);
+        patientId.setText("123");
 
         Button queryButton =
                 (Button)queryRequestActivity.findViewById(R.id.request_button);
@@ -215,7 +215,7 @@ public class QueryRequestActivityTest {
 
         LinearLayout promptsLayout =
                 (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
-        EditText patientName = (EditText)promptsLayout.getChildAt(3);
+        EditText patientName = (EditText)promptsLayout.getChildAt(1);
         patientName.setText("francisco");
 
         Button queryButton =
