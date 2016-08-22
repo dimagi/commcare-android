@@ -18,14 +18,20 @@ import java.io.IOException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
+    private String username;
+    private String password;
 
     @SuppressWarnings("unused")
     public OfflineUserRestoreAndroidInstaller() {
         // for externalization
     }
 
-    public OfflineUserRestoreAndroidInstaller(String localDestination, String upgradeDestination) {
+    public OfflineUserRestoreAndroidInstaller(String localDestination, String upgradeDestination,
+                                              String username, String password) {
         super(localDestination, upgradeDestination);
+
+        this.username = username;
+        this.password = password;
     }
 
     @Override
@@ -33,7 +39,7 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
         if (localLocation == null) {
             throw new ResourceInitializationException("The user restore file location is null!");
         }
-        OfflineUserRestore offlineUserRestore = new OfflineUserRestore(localLocation);
+        OfflineUserRestore offlineUserRestore = new OfflineUserRestore(localLocation, username, password);
         instance.registerDemoUserRestore(offlineUserRestore);
         return true;
     }
@@ -52,10 +58,16 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
+
+        this.username = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        this.password = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
+
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(username));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(password));
     }
 }
