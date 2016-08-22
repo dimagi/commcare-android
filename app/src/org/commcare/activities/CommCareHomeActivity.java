@@ -218,7 +218,7 @@ public class CommCareHomeActivity
                 checkAndStartUnsentFormsTask(false, false);
             }
 
-            if (CommCareHomeActivity.isDemoUser()) {
+            if (isDemoUser()) {
                 showDemoModeWarning();
             }
 
@@ -1171,7 +1171,7 @@ public class CommCareHomeActivity
         uiController.displayMessage(message, bad, suppressToast);
     }
 
-    public static boolean isDemoUser() {
+    protected static boolean isDemoUser() {
         try {
             User u = CommCareApplication._().getSession().getLoggedInUser();
             return (User.TYPE_DEMO.equals(u.getUserType()));
@@ -1180,6 +1180,15 @@ public class CommCareHomeActivity
             // expires and hasn't redirected to login.
             return false;
         }
+    }
+
+    /**
+     * @return If we are logged in as the demo user that is natively build on mobile (as opposed
+     * to an actual HQ user tha thas user_type set to demo)
+     */
+    private static boolean isNativeDemoUser() {
+        return isDemoUser()
+                && CommCareApplication._().getCommCarePlatform().getDemoUserRestore() == null;
     }
 
     @Override
@@ -1208,7 +1217,7 @@ public class CommCareHomeActivity
         super.onPrepareOptionsMenu(menu);
         GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN);
         //In Holo theme this gets called on startup
-        boolean enableMenus = !isDemoUser();
+        boolean enableMenus = !isNativeDemoUser();
         menu.findItem(MENU_UPDATE).setVisible(enableMenus);
         menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
         menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(enableMenus);
