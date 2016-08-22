@@ -21,7 +21,7 @@ public class ManageKeyRecordTaskFake extends ManageKeyRecordTask<DataPullControl
                                    LoginMode loginMode, CommCareApp app,
                                    boolean restoreSession, boolean triggerMultipleUserWarning,
                                    String resourcePath) {
-        super(c, taskId, username, passwordOrPin, loginMode, app, restoreSession, triggerMultipleUserWarning);
+        super(c, taskId, username, passwordOrPin, loginMode, app, restoreSession, triggerMultipleUserWarning, false);
         this.resourcePath = resourcePath;
     }
 
