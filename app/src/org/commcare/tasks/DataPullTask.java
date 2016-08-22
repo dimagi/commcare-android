@@ -82,13 +82,15 @@ public abstract class DataPullTask<R>
 
     private DataPullRequester dataPullRequester;
     private final AsyncRestoreHelper asyncRestoreHelper;
+    private final boolean blockRemoteKeyManagement;
 
     private boolean loginNeeded;
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
 
     public DataPullTask(String username, String password,
-                         String server, Context context, DataPullRequester dataPullRequester) {
+                        String server, Context context, DataPullRequester dataPullRequester,
+                        boolean blockRemoteKeyManagement) {
         this.server = server;
         this.username = username;
         this.password = password;
@@ -97,13 +99,15 @@ public abstract class DataPullTask<R>
         this.dataPullRequester = dataPullRequester;
         this.requestor = dataPullRequester.getHttpGenerator(username, password);
         this.asyncRestoreHelper = new AsyncRestoreHelper(this);
+        this.blockRemoteKeyManagement = blockRemoteKeyManagement;
 
         TAG = DataPullTask.class.getSimpleName();
     }
 
     public DataPullTask(String username, String password,
                         String server, Context context) {
-        this(username, password, server, context, CommCareApplication._().getDataPullRequester());
+        this(username, password, server, context, CommCareApplication._().getDataPullRequester(),
+                false);
     }
 
     // TODO PLM: once this task is refactored into manageable components, it should use the
@@ -191,7 +195,7 @@ public abstract class DataPullTask<R>
     }
 
     private void initUKRForLogin() {
-        if (shouldGenerateFirstKey()) {
+        if (blockRemoteKeyManagement || shouldGenerateFirstKey()) {
             SecretKey newKey = CryptUtil.generateSemiRandomKey();
             if (newKey == null) {
                 return;

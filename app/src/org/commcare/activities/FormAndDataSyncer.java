@@ -104,21 +104,18 @@ public class FormAndDataSyncer {
             final boolean userTriggeredSync, String server,
             String username, String password) {
 
-        syncData(activity, formsToSend, userTriggeredSync, server, username, password, CommCareApplication._().getDataPullRequester());
+        syncData(activity, formsToSend, userTriggeredSync, server, username, password,
+                CommCareApplication._().getDataPullRequester(), false);
     }
 
     private <I extends CommCareActivity & PullTaskReceiver> void syncData(
             final I activity, final boolean formsToSend,
             final boolean userTriggeredSync, String server,
             String username, String password,
-            DataPullRequester dataPullRequester) {
+            DataPullRequester dataPullRequester, boolean blockRemoteKeyManagement) {
 
         DataPullTask<PullTaskReceiver> dataPullTask = new DataPullTask<PullTaskReceiver>(
-                username,
-                password,
-                server,
-                activity,
-                dataPullRequester) {
+                username, password, server, activity, dataPullRequester, blockRemoteKeyManagement) {
 
             @Override
             protected void deliverResult(PullTaskReceiver receiver,
@@ -188,7 +185,8 @@ public class FormAndDataSyncer {
         }
 
         LocalDataPullResponseFactory.setRequestPayloads(new String[]{SingleAppInstallation.LOCAL_RESTORE_REFERENCE});
-        syncData(context, false, false, "fake-server-that-is-never-used", username, password, LocalDataPullResponseFactory.INSTANCE);
+        syncData(context, false, false, "fake-server-that-is-never-used", username, password,
+                LocalDataPullResponseFactory.INSTANCE, true);
     }
 
     public <I extends CommCareActivity & PullTaskReceiver> void performDemoUserRestore(
@@ -196,6 +194,8 @@ public class FormAndDataSyncer {
             OfflineUserRestore offlineUserRestore) {
         String[] demoUserRestores = new String[]{offlineUserRestore.getReference()};
         LocalDataPullResponseFactory.setRequestPayloads(demoUserRestores);
-        syncData(context, false, false, "fake-server-that-is-never-used", offlineUserRestore.getUsername(), offlineUserRestore.getPassword(), LocalDataPullResponseFactory.INSTANCE);
+        syncData(context, false, false, "fake-server-that-is-never-used",
+                offlineUserRestore.getUsername(), offlineUserRestore.getPassword(),
+                LocalDataPullResponseFactory.INSTANCE, true);
     }
 }
