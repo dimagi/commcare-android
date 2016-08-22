@@ -87,6 +87,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private LoginActivityUIController uiController;
     private FormAndDataSyncer formAndDataSyncer;
+    private boolean performingDemoUserLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,9 +196,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void startDataPull() {
         if (CommCareApplication._().isConsumerApp()) {
-            formAndDataSyncer.performLocalRestore(this, getUniformUsername(), uiController.getEnteredPasswordOrPin());
+            formAndDataSyncer.performLocalRestore(this, getUniformUsername(),
+                    uiController.getEnteredPasswordOrPin());
+        } else if (performingDemoUserLogin) {
+            performingDemoUserLogin = false;
+            OfflineUserRestore offlineUserRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
+            uiController.setUsername(offlineUserRestore.getUsername());
+            uiController.setPasswordOrPin(offlineUserRestore.getPassword());
+            formAndDataSyncer.performDemoUserRestore(this,offlineUserRestore);
         } else {
-            formAndDataSyncer.performOtaRestore(this, getUniformUsername(), uiController.getEnteredPasswordOrPin());
+            formAndDataSyncer.performOtaRestore(this, getUniformUsername(),
+                    uiController.getEnteredPasswordOrPin());
         }
     }
 
@@ -288,12 +297,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession) {
         //TODO: check username/password for emptiness
         return tryLocalLogin(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
-                warnMultipleAccounts, restoreSession, uiController.getLoginMode());
+                warnMultipleAccounts, restoreSession, uiController.getLoginMode(), false);
     }
 
     private boolean tryLocalLogin(final String username, String passwordOrPin,
                                   final boolean warnMultipleAccounts, final boolean restoreSession,
-                                  LoginMode loginMode) {
+                                  LoginMode loginMode, boolean blockRemoteKeyManagement) {
         try {
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
@@ -302,7 +311,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username,
                             passwordOrPin, loginMode,
                             CommCareApplication._().getCurrentApp(), restoreSession,
-                            triggerMultipleUsersWarning) {
+                            triggerMultipleUsersWarning, blockRemoteKeyManagement) {
 
                         @Override
                         protected void deliverUpdate(LoginActivity receiver, String... update) {
@@ -391,13 +400,22 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private void loginDemoUser() {
         OfflineUserRestore offlineUserRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
         if (offlineUserRestore != null) {
-            uiController.setUsername(offlineUserRestore.getUsername());
-            uiController.setPasswordOrPin(offlineUserRestore.getPassword());
-            formAndDataSyncer.performDemoUserRestore(this, offlineUserRestore);
+            loginCustomDemoUser(offlineUserRestore);
         } else {
             DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
             tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
-                    false, LoginMode.PASSWORD);
+                    false, LoginMode.PASSWORD, true);
+        }
+    }
+
+    private void loginCustomDemoUser(OfflineUserRestore offlineUserRestore) {
+        String username = offlineUserRestore.getUsername();
+        String password = offlineUserRestore.getPassword();
+        performingDemoUserLogin = true;
+        if (!tryLocalLogin(username, password, false, false, LoginMode.PASSWORD, true)) {
+            uiController.setUsername(offlineUserRestore.getUsername());
+            uiController.setPasswordOrPin(offlineUserRestore.getPassword());
+            formAndDataSyncer.performDemoUserRestore(this, offlineUserRestore);
         }
     }
 

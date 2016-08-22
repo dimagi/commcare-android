@@ -1184,7 +1184,7 @@ public class CommCareHomeActivity
 
     /**
      * @return If we are logged in as the demo user that is natively build on mobile (as opposed
-     * to an actual HQ user tha thas user_type set to demo)
+     * to an actual HQ user that has user_type set to demo)
      */
     private static boolean isNativeDemoUser() {
         return isDemoUser()

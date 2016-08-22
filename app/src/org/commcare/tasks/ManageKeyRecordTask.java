@@ -74,7 +74,8 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     public ManageKeyRecordTask(Context c, int taskId, String username, String passwordOrPin,
                                LoginMode loginMode, CommCareApp app,
-                               boolean restoreSession, boolean triggerMultipleUserWarning) {
+                               boolean restoreSession, boolean triggerMultipleUserWarning,
+                               boolean blockRemoteKeyManagement) {
         super(c);
         this.username = username;
         this.loginMode = loginMode;
@@ -90,9 +91,13 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         this.app = app;
         this.restoreSession = restoreSession;
 
-        keyServerUrl = CommCarePreferences.getKeyServer();
-        //long story
-        keyServerUrl = "".equals(keyServerUrl) ? null : keyServerUrl;
+        if (blockRemoteKeyManagement) {
+            keyServerUrl = null;
+        } else {
+            keyServerUrl = CommCarePreferences.getKeyServer();
+            //long story
+            keyServerUrl = "".equals(keyServerUrl) ? null : keyServerUrl;
+        }
 
         this.triggerMultipleUserWarning = triggerMultipleUserWarning;
         this.taskId = taskId;
@@ -429,7 +434,6 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
         // Log into our local sandbox.
         CommCareApplication._().startUserSession(current.unWrapKey(password), current, restoreSession);
-
         setupLoggedInUser();
 
         return HttpCalloutTask.HttpCalloutOutcomes.Success;
