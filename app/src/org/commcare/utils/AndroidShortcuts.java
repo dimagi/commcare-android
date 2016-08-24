@@ -12,6 +12,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
@@ -65,7 +66,7 @@ public class AndroidShortcuts extends Activity {
         ArrayList<String> names = new ArrayList<>();
         ArrayList<String> commands = new ArrayList<>();
         for (Suite s : CommCareApplication._().getCommCarePlatform().getInstalledSuites()) {
-            for (org.commcare.suite.model.Menu m : s.getMenus()) {
+            for (Menu m : s.getMenus()) {
                 if ("root".equals(m.getRoot())) {
                     String name = m.getName().evaluate();
                     names.add(name);
