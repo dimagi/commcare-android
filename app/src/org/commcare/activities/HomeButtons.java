@@ -11,6 +11,7 @@ import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.services.locale.Localization;
@@ -157,7 +158,14 @@ public class HomeButtons {
                                SquareButtonViewHolder squareButtonViewHolder,
                                Context context,
                                String notificationText) {
-                int numIncompleteForms = StorageUtils.getNumIncompleteForms();
+                int numIncompleteForms;
+                try {
+                    numIncompleteForms = StorageUtils.getNumIncompleteForms();
+                } catch (SessionUnavailableException e) {
+                    // stop button setup, since redirection to login is imminent
+                    return;
+                }
+
                 if (numIncompleteForms > 0) {
                     Spannable incompleteIndicator =
                             (activity.localize("home.forms.incomplete.indicator",
