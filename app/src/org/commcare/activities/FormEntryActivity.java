@@ -1004,7 +1004,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         if (mLocationServiceIssueReceiver != null) {
-            unregisterReceiver(mLocationServiceIssueReceiver);
+            try {
+                unregisterReceiver(mLocationServiceIssueReceiver);
+            } catch (IllegalArgumentException e) {
+                // Thrown when given receiver isn't registered.
+                // This shouldn't ever happen, but seems to come up in production
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, e.getMessage());
+            }
         }
 
         saveInlineVideoState();
