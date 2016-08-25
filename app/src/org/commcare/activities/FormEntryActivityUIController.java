@@ -270,6 +270,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
      * appropriate view. Also saves answers to the data model without checking constraints.
      */
     protected void showPreviousView(boolean showSwipeAnimation) {
+        if (shouldIgnoreNavigationAction()) {
+            return;
+        }
+
         // The answer is saved on a back swipe, but question constraints are ignored.
         if (activity.currentPromptIsQuestion()) {
             activity.saveAnswersForCurrentScreen(FormEntryActivity.DO_NOT_EVALUATE_CONSTRAINTS);
@@ -375,6 +379,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     private void showNextView(boolean resuming) {
+        if (shouldIgnoreNavigationAction()) {
+            return;
+        }
+
         if (activity.currentPromptIsQuestion()) {
             if (!activity.saveAnswersForCurrentScreen(FormEntryActivity.EVALUATE_CONSTRAINTS)) {
                 // A constraint was violated so a dialog should be showing.
@@ -559,14 +567,18 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     protected void next() {
-        if (!shouldIgnoreNavigationAction()) {
+        if (!shouldIgnoreSwipingAction()) {
             isAnimatingSwipe = true;
             showNextView();
         }
     }
 
     protected boolean shouldIgnoreNavigationAction() {
-        return isAnimatingSwipe || isDialogShowing || blockingActionsManager.actionsInProgress();
+        return blockingActionsManager.actionsInProgress();
+    }
+
+    protected boolean shouldIgnoreSwipingAction() {
+        return isAnimatingSwipe || isDialogShowing;
     }
 
     /**

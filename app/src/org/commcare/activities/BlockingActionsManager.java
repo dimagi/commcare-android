@@ -7,21 +7,22 @@ import java.util.ArrayList;
  */
 public class BlockingActionsManager {
 
-    private ArrayList<BlockingAction> liveActions = new ArrayList<>();
+    private ArrayList<BlockingActionIdentifier> liveActions = new ArrayList<>();
 
-    public void registerActionStart(BlockingAction action) {
-        liveActions.add(action);
+    public void registerActionStart(BlockingActionIdentifier actionIdentifier) {
+        liveActions.add(actionIdentifier);
     }
 
-    public void registerActionCompletion(BlockingAction action) {
-        liveActions.remove(0);
+    public void registerActionCompletion(BlockingActionIdentifier actionIdentifier) {
+        liveActions.remove(actionIdentifier);
     }
 
     public boolean actionsInProgress() {
         return liveActions.size() > 0;
     }
 
-    class BlockingAction {
-
+    public enum BlockingActionIdentifier {
+        OnDateChanged
     }
+
 }
