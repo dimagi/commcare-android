@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import org.commcare.activities.BlockingActionsManager;
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
@@ -35,7 +36,8 @@ public class WidgetFactory {
      * @param fep     prompt element to be rendered
      * @param context Android context
      */
-    public QuestionWidget createWidgetFromPrompt(FormEntryPrompt fep, Context context) {
+    public QuestionWidget createWidgetFromPrompt(FormEntryPrompt fep, Context context,
+                                                 BlockingActionsManager blockingActionsManager) {
         QuestionWidget questionWidget;
         String appearance = fep.getAppearanceHint();
         switch (fep.getControlType()) {
@@ -45,7 +47,7 @@ public class WidgetFactory {
                     break;
                 }
             case Constants.CONTROL_SECRET:
-                questionWidget = buildBasicWidget(appearance, fep, context);
+                questionWidget = buildBasicWidget(appearance, fep, context, blockingActionsManager);
                 break;
             case Constants.CONTROL_IMAGE_CHOOSE:
                 if (appearance != null && appearance.equals("signature")) {
@@ -86,7 +88,8 @@ public class WidgetFactory {
         return questionWidget;
     }
 
-    private QuestionWidget buildBasicWidget(String appearance, FormEntryPrompt fep, Context context) {
+    private QuestionWidget buildBasicWidget(String appearance, FormEntryPrompt fep,
+                                            Context context, BlockingActionsManager blockingActionsManager) {
         switch (fep.getDataType()) {
             case Constants.DATATYPE_DATE_TIME:
                 return new DateTimeWidget(context, fep);
@@ -98,7 +101,7 @@ public class WidgetFactory {
                 } else if(appearance != null && appearance.toLowerCase().contains("gregorian")){
                     return new DatePrototypeFactory().getWidget(context, fep, appearance.toLowerCase());
                 } else {
-                    return new DateWidget(context, fep);
+                    return new DateWidget(context, fep, blockingActionsManager);
                 }
             case Constants.DATATYPE_TIME:
                 return new TimeWidget(context, fep);

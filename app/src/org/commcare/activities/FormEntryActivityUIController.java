@@ -73,6 +73,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     protected QuestionsView questionsView;
     private boolean hasGroupLabel = false;
     private int indexOfLastChangedWidget = -1;
+    private BlockingActionsManager blockingActionsManager;
 
     private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
 
@@ -87,6 +88,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     @Override
     public void setupUI() {
         activity.setContentView(R.layout.screen_form_entry);
+        blockingActionsManager = new BlockingActionsManager();
 
         ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
         ImageButton prevButton = (ImageButton)activity.findViewById(R.id.nav_btn_prev);
@@ -335,7 +337,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             odkv =
                     new QuestionsView(activity, FormEntryActivity.mFormController.getQuestionPrompts(),
                             FormEntryActivity.mFormController.getGroupsForCurrentIndex(),
-                            FormEntryActivity.mFormController.getWidgetFactory(), activity);
+                            FormEntryActivity.mFormController.getWidgetFactory(), activity,
+                            blockingActionsManager);
             Log.i(TAG, "created view for group");
         } catch (RuntimeException e) {
             Logger.exception(e);
@@ -343,7 +346,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             // this is badness to avoid a crash.
             // really a next view should increment the formcontroller, create the view
             // if the view is null, then keep the current view and pop an error.
-            return new QuestionsView(activity);
+            return new QuestionsView(activity, blockingActionsManager);
         }
 
         // Makes a "clear answer" menu pop up on long-click of
@@ -556,14 +559,14 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     protected void next() {
-        if (!shouldIgnoreSwipeAction()) {
+        if (!shouldIgnoreNavigationAction()) {
             isAnimatingSwipe = true;
             showNextView();
         }
     }
 
-    protected boolean shouldIgnoreSwipeAction() {
-        return isAnimatingSwipe || isDialogShowing;
+    protected boolean shouldIgnoreNavigationAction() {
+        return isAnimatingSwipe || isDialogShowing || blockingActionsManager.actionsInProgress();
     }
 
     /**

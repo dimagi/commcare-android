@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.activities.BlockingActionsManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
@@ -65,12 +66,14 @@ public class QuestionsView extends ScrollView
 
     private SpannableStringBuilder mGroupLabel;
 
+    private BlockingActionsManager blockingActionsManager;
+
     /**
      * If enabled, we use dividers between question prompts
      */
     private static final boolean SEPERATORS_ENABLED = false;
 
-    public QuestionsView(Context context) {
+    public QuestionsView(Context context, BlockingActionsManager blockingActionsManager) {
         super(context);
 
         SharedPreferences settings =
@@ -90,12 +93,13 @@ public class QuestionsView extends ScrollView
                         LinearLayout.LayoutParams.WRAP_CONTENT);
 
         mGroupLabel = null;
+        this.blockingActionsManager = blockingActionsManager;
     }
 
     public QuestionsView(Context context, FormEntryPrompt[] questionPrompts,
                          FormEntryCaption[] groups, WidgetFactory factory,
-                         WidgetChangedListener wcl) {
-        this(context);
+                         WidgetChangedListener wcl, BlockingActionsManager blockingActionsManager) {
+        this(context, blockingActionsManager);
 
         if(wcl !=null){
             hasListener = true;
@@ -126,7 +130,7 @@ public class QuestionsView extends ScrollView
             }
             QuestionWidget qw;
             // if question or answer type is not supported, use text widget
-            qw = factory.createWidgetFromPrompt(p, getContext());
+            qw = factory.createWidgetFromPrompt(p, getContext(), blockingActionsManager);
             qw.setLongClickable(true);
             qw.setOnLongClickListener(this);
             qw.setId(VIEW_ID + widgetIdCount++);
@@ -188,7 +192,7 @@ public class QuestionsView extends ScrollView
         mView.addView(divider, getViewIndex(dividerIndex));
         dividers.add(Math.max(0, i - 1), divider);
         
-        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());
+        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext(), blockingActionsManager);
         qw.setLongClickable(true);
         qw.setOnLongClickListener(this);
         qw.setId(VIEW_ID + widgetIdCount++);

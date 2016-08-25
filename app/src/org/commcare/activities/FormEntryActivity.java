@@ -1286,14 +1286,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 triggerUserQuitInput();
                 return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
-                if (event.isAltPressed() && !uiController.shouldIgnoreSwipeAction()) {
+                if (event.isAltPressed() && !uiController.shouldIgnoreNavigationAction()) {
                     uiController.setIsAnimatingSwipe();
                     uiController.showNextView();
                     return true;
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                if (event.isAltPressed() && !uiController.shouldIgnoreSwipeAction()) {
+                if (event.isAltPressed() && !uiController.shouldIgnoreNavigationAction()) {
                     uiController.setIsAnimatingSwipe();
                     uiController.showPreviousView(true);
                     return true;

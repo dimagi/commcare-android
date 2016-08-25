@@ -8,6 +8,7 @@ import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
 
+import org.commcare.activities.BlockingActionsManager;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -35,10 +36,12 @@ public class DateWidget extends QuestionWidget {
     private final DatePicker mDatePicker;
     private final DatePicker.OnDateChangedListener mDateListener;
     private boolean isRelevancyUpdateScheduled = false;
+    private BlockingActionsManager blockingActionsManager;
 
     @SuppressLint("NewApi")
-    public DateWidget(Context context, FormEntryPrompt prompt) {
+    public DateWidget(Context context, FormEntryPrompt prompt, BlockingActionsManager blockingActionsManager) {
         super(context, prompt);
+        this.blockingActionsManager = blockingActionsManager;
 
         mDatePicker = buildDatePicker(!prompt.isReadOnly());
         mDateListener = buildDateListener();
