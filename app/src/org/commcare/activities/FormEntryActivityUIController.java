@@ -26,6 +26,7 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.QuestionsView;
@@ -88,7 +89,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     @Override
     public void setupUI() {
         activity.setContentView(R.layout.screen_form_entry);
-        blockingActionsManager = new BlockingActionsManager();
+        blockingActionsManager = new BlockingActionsManager(this.activity);
 
         ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
         ImageButton prevButton = (ImageButton)activity.findViewById(R.id.nav_btn_prev);
@@ -380,6 +381,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
     private void showNextView(boolean resuming) {
         if (shouldIgnoreNavigationAction()) {
+            isAnimatingSwipe = false;
             return;
         }
 
@@ -574,7 +576,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     protected boolean shouldIgnoreNavigationAction() {
-        return blockingActionsManager.actionsInProgress();
+        return blockingActionsManager.isBlocked();
     }
 
     protected boolean shouldIgnoreSwipeAction() {

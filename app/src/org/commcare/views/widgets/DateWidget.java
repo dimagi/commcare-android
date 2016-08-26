@@ -8,7 +8,8 @@ import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
 
-import org.commcare.activities.BlockingActionsManager;
+import org.commcare.utils.BlockingActionsManager;
+import org.commcare.utils.DelayedBlockingAction;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -35,13 +36,10 @@ public class DateWidget extends QuestionWidget {
 
     private final DatePicker mDatePicker;
     private final DatePicker.OnDateChangedListener mDateListener;
-    private boolean isRelevancyUpdateScheduled = false;
-    private BlockingActionsManager blockingActionsManager;
 
     @SuppressLint("NewApi")
-    public DateWidget(Context context, FormEntryPrompt prompt, BlockingActionsManager blockingActionsManager) {
+    public DateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
-        this.blockingActionsManager = blockingActionsManager;
 
         mDatePicker = buildDatePicker(!prompt.isReadOnly());
         mDateListener = buildDateListener();
@@ -63,17 +61,6 @@ public class DateWidget extends QuestionWidget {
     }
 
     private DatePicker.OnDateChangedListener buildDateListener() {
-        final Handler mainHandler = new Handler(getContext().getMainLooper());
-        final Runnable updateFormRelevancyRunnable = new Runnable() {
-            @Override
-            public void run() {
-                widgetEntryChanged();
-                isRelevancyUpdateScheduled = false;
-                blockingActionsManager.registerActionCompletion(
-                        BlockingActionsManager.BlockingActionIdentifier.OnDateChanged);
-            }
-        };
-
         return new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker view, int year, int month, int day) {
@@ -96,12 +83,8 @@ public class DateWidget extends QuestionWidget {
                         }
                     }
                 }
-                if (!isRelevancyUpdateScheduled) {
-                    blockingActionsManager.registerActionStart(
-                            BlockingActionsManager.BlockingActionIdentifier.OnDateChanged);
-                    isRelevancyUpdateScheduled = true;
-                    mainHandler.postDelayed(updateFormRelevancyRunnable, 750);
-                }
+
+                widgetEntryChangedDelayed();
             }
         };
     }

@@ -15,7 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import org.commcare.activities.BlockingActionsManager;
+import org.commcare.utils.BlockingActionsManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
@@ -130,7 +130,7 @@ public class QuestionsView extends ScrollView
             }
             QuestionWidget qw;
             // if question or answer type is not supported, use text widget
-            qw = factory.createWidgetFromPrompt(p, getContext(), blockingActionsManager);
+            qw = factory.createWidgetFromPrompt(p, getContext());
             qw.setLongClickable(true);
             qw.setOnLongClickListener(this);
             qw.setId(VIEW_ID + widgetIdCount++);
@@ -143,7 +143,7 @@ public class QuestionsView extends ScrollView
             widgets.add(qw);
             mView.addView(qw, mLayout);
             
-            qw.setChangedListener(this);
+            qw.setChangedListeners(this, blockingActionsManager);
         }
         
         markLastStringWidget();
@@ -192,7 +192,7 @@ public class QuestionsView extends ScrollView
         mView.addView(divider, getViewIndex(dividerIndex));
         dividers.add(Math.max(0, i - 1), divider);
         
-        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext(), blockingActionsManager);
+        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());
         qw.setLongClickable(true);
         qw.setOnLongClickListener(this);
         qw.setId(VIEW_ID + widgetIdCount++);
@@ -205,7 +205,7 @@ public class QuestionsView extends ScrollView
         widgets.add(i, qw);
         mView.addView(qw, getViewIndex(2 * i + mViewBannerCount), mLayout);
         
-        qw.setChangedListener(this);
+        qw.setChangedListeners(this, blockingActionsManager);
     }
 
 
