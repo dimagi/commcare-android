@@ -3,7 +3,10 @@ package org.commcare.activities;
 import java.util.ArrayList;
 
 /**
- * Created by amstone326 on 8/25/16.
+ * Can be used to keep track of actions that should block certain other actions from being
+ * processed until they have completed
+ *
+ * @author Aliza Stone
  */
 public class BlockingActionsManager {
 
