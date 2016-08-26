@@ -567,7 +567,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     protected void next() {
-        if (!shouldIgnoreSwipingAction()) {
+        if (!shouldIgnoreSwipeAction()) {
             isAnimatingSwipe = true;
             showNextView();
         }
@@ -577,7 +577,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         return blockingActionsManager.actionsInProgress();
     }
 
-    protected boolean shouldIgnoreSwipingAction() {
+    protected boolean shouldIgnoreSwipeAction() {
         return isAnimatingSwipe || isDialogShowing;
     }
 
