@@ -77,8 +77,6 @@ public class DateWidget extends QuestionWidget {
         return new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker view, int year, int month, int day) {
-                blockingActionsManager.registerActionStart(
-                        BlockingActionsManager.BlockingActionIdentifier.OnDateChanged);
                 if (mPrompt.isReadOnly()) {
                     setAnswer();
                 } else {
@@ -99,6 +97,8 @@ public class DateWidget extends QuestionWidget {
                     }
                 }
                 if (!isRelevancyUpdateScheduled) {
+                    blockingActionsManager.registerActionStart(
+                            BlockingActionsManager.BlockingActionIdentifier.OnDateChanged);
                     isRelevancyUpdateScheduled = true;
                     mainHandler.postDelayed(updateFormRelevancyRunnable, 750);
                 }
