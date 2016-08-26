@@ -999,7 +999,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     protected void onPause() {
         super.onPause();
 
-        if (uiController.questionsView != null && currentPromptIsQuestion()) {
+
+        if (!isFinishing() && uiController.questionsView != null && currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
 
