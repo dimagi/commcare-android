@@ -11,8 +11,6 @@ import android.widget.ListAdapter;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
@@ -82,16 +80,20 @@ public class EntityListAdapter implements ListAdapter {
     private final CachingAsyncImageLoader mImageLoader;
 
     // false until we determine the Detail has at least one <grid> block
-    private boolean usesGridView = false;
+    private boolean usesCaseTiles = false;
+
     // key to data mapping used to attach callout results to individual entities
     private OrderedHashtable<String, String> calloutResponseData = new OrderedHashtable<>();
+
+    private final boolean selectActivityInAwesomeMode;
 
     public EntityListAdapter(CommCareActivity activity, Detail detail,
                              List<TreeReference> references,
                              List<Entity<TreeReference>> full,
                              int[] sort, NodeEntityFactory factory,
-                             boolean hideActions) {
+                             boolean hideActions, boolean inAwesomeMode) {
         this.detail = detail;
+        this.selectActivityInAwesomeMode = inAwesomeMode;
         if (detail.getCustomActions() == null || detail.getCustomActions().isEmpty() || hideActions) {
             actionsCount = 0;
             dividerCount = 0;
@@ -123,10 +125,7 @@ public class EntityListAdapter implements ListAdapter {
             mImageLoader = null;
         }
 
-        this.usesGridView = detail.usesGridView();
-        if (usesGridView) {
-            GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_USING_GRIDVIEW);
-        }
+        this.usesCaseTiles = detail.usesEntityTileView();
         this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
 
         setCurrent(new ArrayList<>(full));
@@ -255,19 +254,19 @@ public class EntityListAdapter implements ListAdapter {
     private View getEntityView(int position, View convertView) {
         Entity<TreeReference> entity = current.get(position);
 
-        if (usesGridView) {
+        if (usesCaseTiles) {
             // if we use a <grid>, setup an AdvancedEntityView
-            return getGridView(entity, (EntityViewTile)convertView);
+            return getTileView(entity, (EntityViewTile)convertView);
         } else {
             return getListEntityView(entity, (EntityView)convertView, position);
         }
     }
 
-    private View getGridView(Entity<TreeReference> entity, EntityViewTile emv) {
+    private View getTileView(Entity<TreeReference> entity, EntityViewTile emv) {
         int[] titleColor = AndroidUtil.getThemeColorIDs(commCareActivity, new int[]{R.attr.entity_select_title_text_color});
         if (emv == null) {
-            emv = EntityViewTile.createTileForListDisplay(commCareActivity, detail, entity,
-                    currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
+            emv = EntityViewTile.createTileForEntitySelectDisplay(commCareActivity, detail, entity,
+                        currentSearchTerms, mImageLoader, mFuzzySearchEnabled, selectActivityInAwesomeMode);
         } else {
             emv.setSearchTerms(currentSearchTerms);
             emv.addFieldViews(commCareActivity, detail, entity);
@@ -472,4 +471,5 @@ public class EntityListAdapter implements ListAdapter {
             CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
         }
     }
+
 }
