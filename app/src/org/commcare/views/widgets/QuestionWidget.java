@@ -31,6 +31,8 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.utils.BlockingActionsManager;
+import org.commcare.utils.DelayedBlockingAction;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.MarkupUtil;
@@ -78,6 +80,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     private boolean focusPending = false;
 
     protected WidgetChangedListener widgetChangedListener;
+    protected BlockingActionsManager blockingActionsManager;
 
     public QuestionWidget(Context context, FormEntryPrompt p) {
         super(context);
@@ -601,13 +604,31 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         return mPrompt.getIndex();
     }
 
-    public void setChangedListener(WidgetChangedListener wcl){
+    public void setChangedListeners(WidgetChangedListener wcl,
+                                    BlockingActionsManager blockingActionsManager){
         widgetChangedListener = wcl;
+        this.blockingActionsManager = blockingActionsManager;
     }
+
+    protected void fireDelayed(DelayedBlockingAction delayedBlockingAction) {
+        if (this.blockingActionsManager != null) {
+            blockingActionsManager.queue(delayedBlockingAction);
+        }
+    }
+
+    protected void widgetEntryChangedDelayed() {
+        fireDelayed(new DelayedBlockingAction(System.identityHashCode(this), 400) {
+            @Override
+            protected void runAction() {
+                widgetEntryChanged();
+            }
+        });
+    }
+
 
     public void unsetListeners() {
         setOnLongClickListener(null);
-        setChangedListener(null);
+        setChangedListeners(null, null);
     }
 
     public void widgetEntryChanged() {

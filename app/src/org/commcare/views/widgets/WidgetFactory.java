@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import org.commcare.utils.BlockingActionsManager;
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
@@ -31,8 +32,7 @@ public class WidgetFactory {
 
     /**
      * Returns the appropriate QuestionWidget for the given FormEntryPrompt.
-     *
-     * @param fep     prompt element to be rendered
+     *  @param fep     prompt element to be rendered
      * @param context Android context
      */
     public QuestionWidget createWidgetFromPrompt(FormEntryPrompt fep, Context context) {
@@ -86,7 +86,8 @@ public class WidgetFactory {
         return questionWidget;
     }
 
-    private QuestionWidget buildBasicWidget(String appearance, FormEntryPrompt fep, Context context) {
+    private QuestionWidget buildBasicWidget(String appearance, FormEntryPrompt fep,
+                                            Context context) {
         switch (fep.getDataType()) {
             case Constants.DATATYPE_DATE_TIME:
                 return new DateTimeWidget(context, fep);
