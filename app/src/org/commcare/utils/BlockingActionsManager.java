@@ -16,7 +16,6 @@ public class BlockingActionsManager {
 
     private final Handler mainHandler;
     private final ArrayList<DelayedBlockingAction> actions = new ArrayList<>();
-    private final ArrayList<DelayedBlockingAction> toClear = new ArrayList<>();
 
     private final Object lock = new Object();
 
@@ -36,9 +35,9 @@ public class BlockingActionsManager {
                 }
             }
 
-            //Only queue the new action if there isn't a pending action, or if we were able to
-            //prevent it from firing
-            if(pendingAction == null || pendingAction.invaldate()) {
+            // Only queue the new action if there isn't a pending action, or if we were able to
+            // prevent it from firing
+            if (pendingAction == null || pendingAction.invalidate()) {
                 actions.add(action);
                 mainHandler.postDelayed(action, action.getDelay());
             }
@@ -47,9 +46,9 @@ public class BlockingActionsManager {
 
     private void cleanQueue() {
         synchronized (lock) {
-            toClear.clear();
+            final ArrayList<DelayedBlockingAction> toClear = new ArrayList<>();
             for (DelayedBlockingAction action : actions) {
-                if(!action.isPending()) {
+                if (!action.isPending()) {
                     toClear.add(action);
                 }
             }

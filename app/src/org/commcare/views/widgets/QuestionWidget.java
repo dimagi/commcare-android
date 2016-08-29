@@ -611,7 +611,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     protected void fireDelayed(DelayedBlockingAction delayedBlockingAction) {
-        if(this.blockingActionsManager != null) {
+        if (this.blockingActionsManager != null) {
             blockingActionsManager.queue(delayedBlockingAction);
         }
     }

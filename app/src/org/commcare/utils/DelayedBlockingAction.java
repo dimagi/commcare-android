@@ -52,7 +52,7 @@ public abstract class DelayedBlockingAction implements Runnable {
     @Override
     public final void run() {
         synchronized (lock){
-            if(invalidated || fired) {
+            if (invalidated || fired) {
                 return;
             }
             fired = true;
@@ -67,10 +67,7 @@ public abstract class DelayedBlockingAction implements Runnable {
 
 
     public boolean isSameType(DelayedBlockingAction action) {
-        if(this.tag.equals(action.tag)) {
-            return true;
-        }
-        return false;
+        return this.tag.equals(action.tag);
     }
 
     /**
@@ -78,14 +75,11 @@ public abstract class DelayedBlockingAction implements Runnable {
      * this is done because a different action has taken its place, or the context is no longer
      * available to receive the action.
      *
-     * This method will return false if the action could not be prevented due to having already
-     * triggered.
-     *
-     * @return
+     * @return false if the action could not be prevented due to having already triggered.
      */
-    public boolean invaldate() {
+    public boolean invalidate() {
         synchronized (lock) {
-            if(this.fired) {
+            if (this.fired) {
                 return false;
             } else {
                 this.invalidated = true;
@@ -96,14 +90,10 @@ public abstract class DelayedBlockingAction implements Runnable {
 
     public boolean isPending() {
         synchronized (lock) {
-            if(!this.fired && hasTimedOut()) {
+            if (!this.fired && hasTimedOut()) {
                 this.invalidated = true;
             }
-            if(this.fired || this.invalidated) {
-                return false;
-            } else {
-                return true;
-            }
+            return !(this.fired || this.invalidated);
         }
     }
 
