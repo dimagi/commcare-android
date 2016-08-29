@@ -51,7 +51,7 @@ public class CommCareAudioWidget extends AudioWidget
     }
 
     @Override
-    protected void initializeButtons(final FormEntryPrompt prompt) {
+    protected void initializeButtons() {
         LayoutInflater vi = LayoutInflater.from(getContext());
         layout = (LinearLayout)vi.inflate(R.layout.audio_prototype, null);
 
@@ -63,7 +63,7 @@ public class CommCareAudioWidget extends AudioWidget
             @Override
             public void onClick(View v) {
                 GoogleAnalyticsUtils.reportRecordingPopupOpened();
-                captureAudio(prompt);
+                captureAudio(mPrompt);
             }
         });
 
@@ -77,7 +77,7 @@ public class CommCareAudioWidget extends AudioWidget
                 try {
                     ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
                     recordingNameText.setTextColor(getResources().getColor(R.color.black));
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
