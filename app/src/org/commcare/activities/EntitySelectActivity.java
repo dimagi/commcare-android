@@ -794,7 +794,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void setupActionOptionsMenu(Menu menu) {
         if (shortSelect != null && !hideActions) {
             int actionIndex = MENU_ACTION;
-            for (Action action : shortSelect.getCustomActions()) {
+            for (Action action : shortSelect.getCustomActions(asw.getEvaluationContext())) {
                 if (action != null) {
                     ViewUtil.addDisplayToMenu(this, menu, actionIndex, MENU_ACTION_GROUP,
                             action.getDisplay().evaluate());
@@ -871,7 +871,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void triggerDetailAction(int index) {
-        Action action = shortSelect.getCustomActions().get(index);
+        Action action = shortSelect.getCustomActions(asw.getEvaluationContext()).get(index);
 
         triggerDetailAction(action, this);
     }
@@ -964,7 +964,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             visibleView = listView;
         }
 
-        adapter = new EntityListAdapter(this, detail, references, entities, order, factory, hideActions, inAwesomeMode);
+        adapter = new EntityListAdapter(this, detail, references, entities,
+                order, factory, hideActions,
+                detail.getCustomActions(asw.getEvaluationContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);
