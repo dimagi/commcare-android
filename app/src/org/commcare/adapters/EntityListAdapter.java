@@ -62,6 +62,7 @@ public class EntityListAdapter implements ListAdapter {
     private final List<Entity<TreeReference>> full;
     private List<Entity<TreeReference>> current;
     private final List<TreeReference> references;
+    private final List<Action> actions;
 
     private TreeReference selected;
 
@@ -91,14 +92,15 @@ public class EntityListAdapter implements ListAdapter {
                              List<TreeReference> references,
                              List<Entity<TreeReference>> full,
                              int[] sort, NodeEntityFactory factory,
-                             boolean hideActions, boolean inAwesomeMode) {
+                             boolean hideActions, List<Action> actions, boolean inAwesomeMode) {
         this.detail = detail;
         this.selectActivityInAwesomeMode = inAwesomeMode;
-        if (detail.getCustomActions() == null || detail.getCustomActions().isEmpty() || hideActions) {
+        this.actions = actions;
+        if (actions == null || actions.isEmpty() || hideActions) {
             actionsCount = 0;
             dividerCount = 0;
         } else {
-            actionsCount = detail.getCustomActions().size();
+            actionsCount = actions.size();
             dividerCount = 2;
         }
 
@@ -207,7 +209,7 @@ public class EntityListAdapter implements ListAdapter {
             case ENTITY_TYPE:
                 return references.indexOf(current.get(position).getElement());
             case ACTION_TYPE:
-                return dividerPosition + detail.getCustomActions().indexOf(getAction(position));
+                return dividerPosition + actions.indexOf(getAction(position));
             case DIVIDER_TYPE:
                 return -2;
             default:
@@ -217,7 +219,7 @@ public class EntityListAdapter implements ListAdapter {
 
     private Action getAction(int position) {
         int baseActionPosition = dividerPosition + 1;
-        return detail.getCustomActions().get(position - baseActionPosition);
+        return actions.get(position - baseActionPosition);
     }
 
     @Override
