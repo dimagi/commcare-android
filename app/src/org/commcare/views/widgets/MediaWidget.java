@@ -97,13 +97,13 @@ public abstract class MediaWidget extends QuestionWidget {
     protected String getBinaryPathWithSizeCheck(Object binaryURI) {
         String binaryPath = createFilePath(binaryURI);
         File source = new File(binaryPath);
-        boolean isToLargeToUpload = checkFileSize(source);
+        boolean isTooLargeToUpload = checkFileSize(source);
 
         if (mBinaryName != null) {
             deleteMedia();
         }
 
-        if (isToLargeToUpload) {
+        if (isTooLargeToUpload) {
             oversizedMediaSize = (int)source.length() / (1024 * 1024);
             return null;
         } else {
