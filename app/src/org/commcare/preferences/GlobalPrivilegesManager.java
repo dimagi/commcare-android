@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 
 import java.util.ArrayList;
@@ -18,11 +17,11 @@ public class GlobalPrivilegesManager {
 
     private static final String GLOBAL_PRIVELEGES_FILENAME = "global-preferences-filename";
 
-    public static final String PRIVILEGE_SUPERUSER = "superuser";
+    public static final String PRIVILEGE_MULTIPLE_APPS = "multiple_apps_unlimited";
 
     public static final ArrayList<String> allGlobalPrivilegesList = new ArrayList<>();
     static {
-        allGlobalPrivilegesList.add(PRIVILEGE_SUPERUSER);
+        allGlobalPrivilegesList.add(PRIVILEGE_MULTIPLE_APPS);
     }
 
     private static SharedPreferences getGlobalPrivilegesRecord() {
@@ -42,29 +41,39 @@ public class GlobalPrivilegesManager {
         getGlobalPrivilegesRecord().edit().putBoolean(privilegeName, false).commit();
     }
 
-    public static boolean isPrivilegeEnabled(String privilegeName) {
+    public static ArrayList<String> getEnabledPrivileges() {
+        ArrayList<String> privilegesEnabled = new ArrayList<>();
+        for (String privilege : allGlobalPrivilegesList) {
+            if (isPrivilegeEnabled(privilege)) {
+                privilegesEnabled.add(privilege);
+            }
+        }
+        return privilegesEnabled;
+    }
+
+    public static String getEnabledPrivilegesString() {
+        StringBuilder builder = new StringBuilder();
+        for (String privilege : getEnabledPrivileges()) {
+            builder.append("- " + getPrivilegeDisplayName(privilege) +"\n");
+        }
+        return builder.toString();
+    }
+
+    private static boolean isPrivilegeEnabled(String privilegeName) {
         return getGlobalPrivilegesRecord().getBoolean(privilegeName, false);
     }
 
-    public static boolean isSuperuserPrivilegeEnabled() {
-        return isPrivilegeEnabled(PRIVILEGE_SUPERUSER);
+    public static boolean isMultipleAppsPrivilegeEnabled() {
+        return isPrivilegeEnabled(PRIVILEGE_MULTIPLE_APPS);
     }
 
-    public static String getPrivilegeDisplayName(String privilegeName) {
+    private static String getPrivilegeDisplayName(String privilegeName) {
         switch(privilegeName) {
-            case PRIVILEGE_SUPERUSER:
-                return "superuser";
+            case PRIVILEGE_MULTIPLE_APPS:
+                return "Unlimited Multiple App Install";
             default:
                 return "";
         }
     }
 
-    public static int getInstructionsTextId(String privilegeName) {
-        switch(privilegeName) {
-            case PRIVILEGE_SUPERUSER:
-                return R.string.superuser_privilege_instructions;
-            default:
-                return -1;
-        }
-    }
 }

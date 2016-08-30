@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <Preference android:key="authenticate-as-superuser"/>
+    <Preference android:key="enable-mobile-privilege"/>
 </PreferenceScreen>

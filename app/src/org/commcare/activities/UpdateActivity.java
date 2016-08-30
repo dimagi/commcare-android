@@ -88,7 +88,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                         "registered task.");
                 uiController.errorUiState();
             }
-        } else if (!isRotation && !taskIsCancelling) {
+        } else if (!isRotation && !taskIsCancelling
+                && ConnectivityStatus.isNetworkAvailable(this)) {
             startUpdateCheck();
         }
     }
@@ -97,8 +98,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     protected void onResume() {
         super.onResume();
 
-        if (!ConnectivityStatus.isNetworkAvailable(this) &&
-                ConnectivityStatus.isAirplaneModeOn(this)) {
+        if (!ConnectivityStatus.isNetworkAvailable(this)) {
             uiController.noConnectivityUiState();
             return;
         }

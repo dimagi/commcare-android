@@ -256,6 +256,13 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
+    public static void enableNewestAppVersion() {
+        CommCareApplication._().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(DeveloperPreferences.NEWEST_APP_VERSION_ENABLED, CommCarePreferences.YES)
+                .apply();
+    }
+
     public static boolean shouldFireTriggersOnSave() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(FIRE_TRIGGERS_ON_SAVE, CommCarePreferences.NO).equals(CommCarePreferences.YES);

@@ -12,6 +12,7 @@ import os
 
 HELP_MSG = """'capture' saves the current session for restoring later.
 'install some_app.ccz' pushes and installs the ccz to device.
+'update' updates to latest unstarred build
 'uninstall app_id' uninstalls an installed app.
 'login username password' logs into the currently seated app
 'invalidate' forces recovery on next sync by providing fake case db hash.
@@ -49,6 +50,18 @@ def login(username, password):
     extras = {"username": username, "password": password}
     cmd = receiver_command("org.commcare.dalvik.api.action" +
                            ".LoginWithCreds", extras)
+    print(cmd)
+    subprocess.call(cmd, shell=True)
+
+
+# None -> None
+def update():
+    """
+    Update logged in app to latest unstarred build
+    """
+    extras = {"useLatestBuild": True}
+    cmd = receiver_command("org.commcare.dalvik.api.action." +
+                           "RefreshToLatestBuildAction", extras)
     print(cmd)
     subprocess.call(cmd, shell=True)
 
@@ -209,6 +222,8 @@ def main():
             lambda: download(*sys.argv[2:5], with_media=True),
         'login':
             lambda: login(sys.argv[2], sys.argv[3]),
+        'update':
+            lambda: update(),
         'help':
             lambda: print(HELP_MSG),
         'clear_restore_cache':

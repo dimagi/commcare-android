@@ -53,7 +53,7 @@ public class EntityActionViewUtils {
         if (imageURI != null) {
             ImageView icon = (ImageView)actionCardView.findViewById(R.id.icon);
             int iconDimension = (int)context.getResources().getDimension(R.dimen.menu_icon_size);
-            Bitmap b = MediaUtil.inflateDisplayImage(context, imageURI, iconDimension, iconDimension);
+            Bitmap b = MediaUtil.inflateDisplayImage(context, imageURI, iconDimension, iconDimension, true);
             if (b != null) {
                 icon.setVisibility(View.VISIBLE);
                 icon.setImageBitmap(b);

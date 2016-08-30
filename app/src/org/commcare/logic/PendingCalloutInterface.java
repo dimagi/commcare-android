@@ -17,4 +17,8 @@ public interface PendingCalloutInterface {
     FormIndex getPendingCalloutFormIndex();
 
     void setPendingCalloutFormIndex(FormIndex pendingCalloutFormIndex);
+
+    boolean wasCalloutPendingAndCancelled(FormIndex calloutFormIndex);
+
+    void setPendingCalloutAsCancelled();
 }

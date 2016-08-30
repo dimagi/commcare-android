@@ -107,8 +107,8 @@ home.developer.options.enabled=Developer Mode Enabled
 
 menu.save.session=Save Your Session
 menu.clear.saved.session=Clear Saved Session
-menu.superusuer.auth=Authenticate as a Superuser
-menu.privilege.claim.disable=Disable Privilege
+menu.enable.privilege=Enable Mobile Privileges
+menu.privilege.claim.disable=Disable Privileges
 
 install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
 install.major.mismatch=Please uninstall your CommCare Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
@@ -737,6 +737,7 @@ intent.callout.get=Get Data
 intent.callout.update=Update Data
 intent.callout.cancelled=Question callout cancelled
 intent.callout.unable.to.process=Unable to process callout result
+intent.callout.activity.missing=Couldn't find intent for callout!
 fingerprints.scanned=Fingerprints scanned: ${0}
 
 settings.server.listing=Server Settings

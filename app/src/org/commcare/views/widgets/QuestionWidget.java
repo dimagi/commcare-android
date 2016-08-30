@@ -31,7 +31,10 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.utils.BlockingActionsManager;
+import org.commcare.utils.DelayedBlockingAction;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ShrinkingTextView;
@@ -43,6 +46,7 @@ import org.javarosa.core.model.QuestionExtensionReceiver;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -77,6 +81,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     private boolean focusPending = false;
 
     protected WidgetChangedListener widgetChangedListener;
+    protected BlockingActionsManager blockingActionsManager;
 
     public QuestionWidget(Context context, FormEntryPrompt p) {
         super(context);
@@ -236,6 +241,19 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     public void notifyInvalid(String text, boolean requestFocus) {
         notifyOnScreen(text, true, requestFocus);
+    }
+
+    protected void checkForOversizedMedia(IAnswerData widgetAnswer) {
+        if (widgetAnswer instanceof InvalidData) {
+            String fileSizeString = widgetAnswer.getValue() + "";
+            showOversizedMediaWarning(fileSizeString);
+        }
+    }
+
+    private void showOversizedMediaWarning(String fileSizeString) {
+        String maxAcceptable = FileUtil.bytesToMeg(FormUploadUtil.MAX_BYTES) + "";
+        String[] args = new String[]{fileSizeString, maxAcceptable};
+        notifyInvalid(StringUtils.getStringRobust(getContext(), R.string.attachment_above_size_limit, args), true);
     }
 
     /**
@@ -600,13 +618,31 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         return mPrompt.getIndex();
     }
 
-    public void setChangedListener(WidgetChangedListener wcl){
+    public void setChangedListeners(WidgetChangedListener wcl,
+                                    BlockingActionsManager blockingActionsManager){
         widgetChangedListener = wcl;
+        this.blockingActionsManager = blockingActionsManager;
     }
+
+    protected void fireDelayed(DelayedBlockingAction delayedBlockingAction) {
+        if (this.blockingActionsManager != null) {
+            blockingActionsManager.queue(delayedBlockingAction);
+        }
+    }
+
+    protected void widgetEntryChangedDelayed() {
+        fireDelayed(new DelayedBlockingAction(System.identityHashCode(this), 400) {
+            @Override
+            protected void runAction() {
+                widgetEntryChanged();
+            }
+        });
+    }
+
 
     public void unsetListeners() {
         setOnLongClickListener(null);
-        setChangedListener(null);
+        setChangedListeners(null, null);
     }
 
     public void widgetEntryChanged() {
@@ -623,10 +659,18 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         return widgetChangedListener != null;
     }
 
-    public void checkFileSize(File file){
-        if (FileUtil.isFileOversized(file)) {
+    /**
+     * @return True if file is too big to upload.
+     */
+    protected boolean checkFileSize(File file){
+        if (FileUtil.isFileToLargeToUpload(file)) {
+            String fileSize = FileUtil.getFileSizeInMegs(file) + "";
+            showOversizedMediaWarning(fileSize);
+            return true;
+        } else if (FileUtil.isFileOversized(file)) {
             notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtil.getFileSize(file) + ""));
         }
+        return false;
     }
 
     /*

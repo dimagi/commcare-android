@@ -2,8 +2,6 @@ package org.commcare.views.widgets;
 
 import android.content.Context;
 
-import org.commcare.utils.AndroidArrayDataSource;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.util.CalendarUtils;
 import org.javarosa.xform.util.UniversalDate;
@@ -54,7 +52,7 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
     }
 
     @Override
-    protected long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset) {
-        return CalendarUtils.toMillisFromJavaEpoch(year, month, day, millisOffset);
+    protected long toMillisFromJavaEpoch(int year, int month, int day) {
+        return CalendarUtils.toMillisFromJavaEpoch(year, month, day);
     }
 }

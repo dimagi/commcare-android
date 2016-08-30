@@ -40,30 +40,19 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     // menu item IDs
     private static final int DISABLE = 1;
 
-    // the name of the privilege that this activity is set up to claim/revoke
-    private String privilegeName;
-
-    private String privilegeDisplayName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        privilegeName = getIntent().getStringExtra(KEY_PRIVILEGE_NAME);
-        if (!GlobalPrivilegesManager.allGlobalPrivilegesList.contains(privilegeName)) {
-            setResult(RESULT_CANCELED);
-            finish();
-        }
-        privilegeDisplayName = GlobalPrivilegesManager.getPrivilegeDisplayName(privilegeName);
-
         setContentView(R.layout.privilege_claiming_view);
+
         findViewById(R.id.claim_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 callOutToBarcodeScanner();
             }
         });
-        ((TextView)findViewById(R.id.instructions)).setText(GlobalPrivilegesManager.getInstructionsTextId(this.privilegeName));
 
         CommCarePreferences.addBackButtonToActionBar(this);
     }
@@ -80,7 +69,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
         Button claimButton = (Button)findViewById(R.id.claim_button);
         TextView instructions = (TextView)findViewById(R.id.instructions);
 
-        if (GlobalPrivilegesManager.isPrivilegeEnabled(this.privilegeName)) {
+        if (GlobalPrivilegesManager.getEnabledPrivileges().size() > 0) {
             notEnabledTextView.setVisibility(View.GONE);
             claimButton.setVisibility(View.GONE);
             instructions.setVisibility(View.GONE);
@@ -91,17 +80,13 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
             claimButton.setVisibility(View.VISIBLE);
             instructions.setVisibility(View.VISIBLE);
             notEnabledTextView.setVisibility(View.VISIBLE);
-            notEnabledTextView.setText(getNotEnabledText());
         }
         ActivityCompat.invalidateOptionsMenu(this);
     }
 
     private String getEnabledText() {
-        return StringUtils.getStringRobust(this, R.string.privilege_enabled_text, privilegeDisplayName);
-    }
-
-    private String getNotEnabledText() {
-        return StringUtils.getStringRobust(this, R.string.privilege_not_enabled_text, privilegeDisplayName);
+        return StringUtils.getStringRobust(this, R.string.privilege_enabled_text,
+                GlobalPrivilegesManager.getEnabledPrivilegesString());
     }
 
     private void callOutToBarcodeScanner() {
@@ -124,7 +109,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
                         String username = fields[1];
                         String signature = fields[2];
                         if (checkProperFormAndAuthenticity(flag, username, signature)) {
-                            GlobalPrivilegesManager.enablePrivilege(this.privilegeName, username);
+                            GlobalPrivilegesManager.enablePrivilege(flag, username);
                             refreshUI();
                         } else {
                             privilegeClaimFailed();
@@ -154,9 +139,8 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     }
 
     private boolean checkProperFormAndAuthenticity(String flag, String username, String signature) {
-        if (!this.privilegeName.equals(flag)) {
-            Log.d(TAG, "Privilege claim failed because the user scanned a barcode for privilege "
-                    + flag + ", but this activity is intended to claim privilege " + privilegeName);
+        if (!GlobalPrivilegesManager.allGlobalPrivilegesList.contains(flag)) {
+            Log.d(TAG, "Privilege claim failed because the user scanned a barcode for an unknown privilege");
             return false;
         }
         if (!username.endsWith("@dimagi.com")) {
@@ -200,7 +184,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(DISABLE).setVisible(GlobalPrivilegesManager.isPrivilegeEnabled(privilegeName));
+        menu.findItem(DISABLE).setVisible(GlobalPrivilegesManager.getEnabledPrivileges().size() > 0);
         return true;
     }
 
@@ -209,7 +193,9 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case DISABLE:
-                GlobalPrivilegesManager.disablePrivilege(this.privilegeName);
+                for (String privilege : GlobalPrivilegesManager.getEnabledPrivileges()) {
+                    GlobalPrivilegesManager.disablePrivilege(privilege);
+                }
                 refreshUI();
                 return true;
             // Respond to the action bar's Up/Home button

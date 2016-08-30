@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import org.commcare.utils.BlockingActionsManager;
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
@@ -33,8 +34,7 @@ public class WidgetFactory {
 
     /**
      * Returns the appropriate QuestionWidget for the given FormEntryPrompt.
-     *
-     * @param fep     prompt element to be rendered
+     *  @param fep     prompt element to be rendered
      * @param context Android context
      */
     public QuestionWidget createWidgetFromPrompt(FormEntryPrompt fep, Context context) {
@@ -88,7 +88,8 @@ public class WidgetFactory {
         return questionWidget;
     }
 
-    private QuestionWidget buildBasicWidget(String appearance, FormEntryPrompt fep, Context context) {
+    private QuestionWidget buildBasicWidget(String appearance, FormEntryPrompt fep,
+                                            Context context) {
         switch (fep.getDataType()) {
             case Constants.DATATYPE_DATE_TIME:
                 return new DateTimeWidget(context, fep);
@@ -115,11 +116,12 @@ public class WidgetFactory {
             case Constants.DATATYPE_GEOPOINT:
                 return new GeoPointWidget(context, fep, pendingCalloutInterface);
             case Constants.DATATYPE_BARCODE:
-                IntentCallout mIntentCallout = new IntentCallout("com.google.zxing.client.android.SCAN", null, null,
+                IntentCallout intentCallout = new IntentCallout("com.google.zxing.client.android.SCAN", null, null,
                         null, null, null, Localization.get("intent.barcode.get"),
                         Localization.get("intent.barcode.update"), appearance);
-                Intent mIntent = mIntentCallout.generate(formDef.getEvaluationContext());
-                return new BarcodeWidget(context, fep, mIntent, mIntentCallout, pendingCalloutInterface);
+                intentCallout.attachToForm(formDef);
+                Intent intent = intentCallout.generate(formDef.getEvaluationContext());
+                return new BarcodeWidget(context, fep, intent, intentCallout, pendingCalloutInterface);
             case Constants.DATATYPE_TEXT:
                 if (appearance != null && (appearance.equalsIgnoreCase("numbers") || appearance.equalsIgnoreCase("numeric"))) {
                     return new StringNumberWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);

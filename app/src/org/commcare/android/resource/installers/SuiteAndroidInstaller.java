@@ -110,25 +110,19 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-            Suite mSuite = AndroidSuiteParser.buildVerifyParser(local.getStream(), new DummyResourceTable()).parse();
-            Hashtable<String, Entry> mHashtable = mSuite.getEntries();
+            Suite suite = AndroidSuiteParser.buildVerifyParser(local.getStream(), new DummyResourceTable()).parse();
+            Hashtable<String, Entry> mHashtable = suite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
                 Entry mEntry = mHashtable.get(key);
 
                 FileUtil.checkReferenceURI(r, mEntry.getAudioURI(), problems);
                 FileUtil.checkReferenceURI(r, mEntry.getImageURI(), problems);
-
             }
-            Vector<Menu> menus = mSuite.getMenus();
-            Enumeration e = menus.elements();
 
-            while (e.hasMoreElements()) {
-                Menu mMenu = (Menu)e.nextElement();
-
-                FileUtil.checkReferenceURI(r, mMenu.getAudioURI(), problems);
-                FileUtil.checkReferenceURI(r, mMenu.getImageURI(), problems);
-
+            for (Menu menu : suite.getMenus()) {
+                FileUtil.checkReferenceURI(r, menu.getAudioURI(), problems);
+                FileUtil.checkReferenceURI(r, menu.getImageURI(), problems);
             }
         } catch (Exception e) {
             Logger.log("e", "suite validation failed with: " + e.getMessage());
