@@ -1217,7 +1217,7 @@ public class CommCareHomeActivity
         super.onPrepareOptionsMenu(menu);
         GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN);
         //In Holo theme this gets called on startup
-        boolean enableMenus = !isNativeDemoUser();
+        boolean enableMenus = !isDemoUser();
         menu.findItem(MENU_UPDATE).setVisible(enableMenus);
         menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
         menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(enableMenus);
