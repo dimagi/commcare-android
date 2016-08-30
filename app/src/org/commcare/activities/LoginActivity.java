@@ -412,11 +412,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         String username = offlineUserRestore.getUsername();
         String password = offlineUserRestore.getPassword();
         performingCczDemoUserLogin = true;
-        if (!tryLocalLogin(username, password, false, false, LoginMode.PASSWORD, true)) {
-            uiController.setUsername(offlineUserRestore.getUsername());
-            uiController.setPasswordOrPin(offlineUserRestore.getPassword());
-            formAndDataSyncer.performDemoUserRestore(this, offlineUserRestore);
-        }
+        tryLocalLogin(username, password, false, false, LoginMode.PASSWORD, true);
     }
 
     @Override
