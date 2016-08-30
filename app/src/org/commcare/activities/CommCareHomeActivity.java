@@ -1182,15 +1182,6 @@ public class CommCareHomeActivity
         }
     }
 
-    /**
-     * @return If we are logged in as the demo user that is natively build on mobile (as opposed
-     * to an actual HQ user that has user_type set to demo)
-     */
-    private static boolean isNativeDemoUser() {
-        return isDemoUser()
-                && CommCareApplication._().getCommCarePlatform().getDemoUserRestore() == null;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
