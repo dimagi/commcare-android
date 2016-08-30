@@ -87,7 +87,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private LoginActivityUIController uiController;
     private FormAndDataSyncer formAndDataSyncer;
-    private boolean performingDemoUserLogin;
+    private boolean performingCczDemoUserLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,8 +198,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (CommCareApplication._().isConsumerApp()) {
             formAndDataSyncer.performLocalRestore(this, getUniformUsername(),
                     uiController.getEnteredPasswordOrPin());
-        } else if (performingDemoUserLogin) {
-            performingDemoUserLogin = false;
+        } else if (performingCczDemoUserLogin) {
+            performingCczDemoUserLogin = false;
             OfflineUserRestore offlineUserRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
             uiController.setUsername(offlineUserRestore.getUsername());
             uiController.setPasswordOrPin(offlineUserRestore.getPassword());
@@ -400,7 +400,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private void loginDemoUser() {
         OfflineUserRestore offlineUserRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
         if (offlineUserRestore != null) {
-            loginCustomDemoUser(offlineUserRestore);
+            loginCczDemoUser(offlineUserRestore);
         } else {
             DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
             tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
@@ -408,10 +408,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
-    private void loginCustomDemoUser(OfflineUserRestore offlineUserRestore) {
+    private void loginCczDemoUser(OfflineUserRestore offlineUserRestore) {
         String username = offlineUserRestore.getUsername();
         String password = offlineUserRestore.getPassword();
-        performingDemoUserLogin = true;
+        performingCczDemoUserLogin = true;
         if (!tryLocalLogin(username, password, false, false, LoginMode.PASSWORD, true)) {
             uiController.setUsername(offlineUserRestore.getUsername());
             uiController.setPasswordOrPin(offlineUserRestore.getPassword());
