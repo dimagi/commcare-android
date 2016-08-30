@@ -865,7 +865,7 @@ public class CommCareApplication extends Application {
             //(Eventually)
             this.getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
         }
-        CommCareApplication._().closeUserSession();
+        CommCareApplication._().expireUserSession();
     }
 
     public String getCurrentUserId() {
