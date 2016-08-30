@@ -44,7 +44,7 @@ public class DemoUserRestoreTest {
 
         loginAsDemoUser();
 
-        launchHomeActivity();
+        launchHomeActivityForDemoUser();
     }
 
     private static void loginAsDemoUser() {
@@ -58,7 +58,7 @@ public class DemoUserRestoreTest {
         shadowActivity.clickMenuItem(LoginActivity.MENU_DEMO);
     }
 
-    private static void launchHomeActivity() {
+    private static void launchHomeActivityForDemoUser() {
         Intent homeActivityIntent =
                 new Intent(RuntimeEnvironment.application, CommCareHomeActivity.class);
         homeActivityIntent.putExtra(DispatchActivity.START_FROM_LOGIN, true);
@@ -66,7 +66,8 @@ public class DemoUserRestoreTest {
                 Robolectric.buildActivity(CommCareHomeActivity.class)
                         .withIntent(homeActivityIntent).setup().get();
         ShadowActivity shadowActivity = Shadows.shadowOf(homeActivity);
-        // demo users don't have a '...' menu
+
+        // Demo users shouldn't have an options menu
         assertFalse(shadowActivity.getOptionsMenu().hasVisibleItems());
     }
 
@@ -77,8 +78,7 @@ public class DemoUserRestoreTest {
         CommCareApplication._().getCurrentApp().setMMResourcesValidated();
 
         loginAsDemoUser();
-
-        launchHomeActivity();
+        launchHomeActivityForDemoUser();
 
         EntitySelectActivity entitySelectActivity =
                 CaseLoadUtils.launchEntitySelectActivity("m0-f0");
@@ -93,6 +93,9 @@ public class DemoUserRestoreTest {
         UpdateUtils.installUpdate(profileRef,
                 AppInstallStatus.UpdateStaged,
                 AppInstallStatus.Installed);
+
+        loginAsDemoUser();
+        launchHomeActivityForDemoUser();
 
         // make sure there is only 1 case after updating the demo user restore
         entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m0-f0");

@@ -1,5 +1,6 @@
 package org.commcare.android.resource.installers;
 
+import org.commcare.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -32,6 +33,10 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
     public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException {
         if (localLocation == null) {
             throw new ResourceInitializationException("The user restore file location is null!");
+        }
+        if (isUpgrade) {
+            //OfflineUserRestore currentOfflineUserRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
+            //CommCareApplication._().clearUserData(currentOfflineUserRestore.getUsername());
         }
         OfflineUserRestore offlineUserRestore = new OfflineUserRestore(localLocation);
         instance.registerDemoUserRestore(offlineUserRestore);

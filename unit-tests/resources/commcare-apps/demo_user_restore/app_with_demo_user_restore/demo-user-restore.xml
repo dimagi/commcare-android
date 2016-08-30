@@ -13,6 +13,7 @@
             <data key="commcare_first_name">demo</data>
             <data key="commcare_last_name">user</data>
             <data key="commcare_phone_number"/>
+            <data key="user_type">demo</data>
         </user_data>
     </Registration>
     <fixture id="user-groups" user_id="441bdbb17001bade54aa23dcb7ff48f9">
