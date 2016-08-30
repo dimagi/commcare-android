@@ -26,6 +26,7 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.GeoUtils;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.commcare.utils.UriToFilePath;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -93,6 +94,7 @@ public class CommCarePreferences
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
     public final static String LOGIN_DURATION = "cc-login-duration-seconds";
+    public final static String GPS_AUTO_CAPTURE_ACCURACY = "cc-gps-auto-capture-accuracy";
     public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
@@ -394,6 +396,20 @@ public class CommCarePreferences
                     Integer.toString(oneDayInSecs)));
         } catch (NumberFormatException e) {
             return oneDayInSecs;
+        }
+    }
+
+    /**
+     * @return Accuracy needed for GPS auto-capture to stop polling during form entry
+     */
+    public static double getGpsCaptureAccuracy() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+
+        try {
+            return Double.parseDouble(properties.getString(GPS_AUTO_CAPTURE_ACCURACY,
+                    Double.toString(GeoUtils.GOOD_ACCURACY)));
+        } catch (NumberFormatException e) {
+            return GeoUtils.GOOD_ACCURACY;
         }
     }
 

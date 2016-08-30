@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.utils.BlockingActionsManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
@@ -65,12 +66,14 @@ public class QuestionsView extends ScrollView
 
     private SpannableStringBuilder mGroupLabel;
 
+    private BlockingActionsManager blockingActionsManager;
+
     /**
      * If enabled, we use dividers between question prompts
      */
     private static final boolean SEPERATORS_ENABLED = false;
 
-    public QuestionsView(Context context) {
+    public QuestionsView(Context context, BlockingActionsManager blockingActionsManager) {
         super(context);
 
         SharedPreferences settings =
@@ -90,12 +93,13 @@ public class QuestionsView extends ScrollView
                         LinearLayout.LayoutParams.WRAP_CONTENT);
 
         mGroupLabel = null;
+        this.blockingActionsManager = blockingActionsManager;
     }
 
     public QuestionsView(Context context, FormEntryPrompt[] questionPrompts,
                          FormEntryCaption[] groups, WidgetFactory factory,
-                         WidgetChangedListener wcl) {
-        this(context);
+                         WidgetChangedListener wcl, BlockingActionsManager blockingActionsManager) {
+        this(context, blockingActionsManager);
 
         if(wcl !=null){
             hasListener = true;
@@ -139,7 +143,7 @@ public class QuestionsView extends ScrollView
             widgets.add(qw);
             mView.addView(qw, mLayout);
             
-            qw.setChangedListener(this);
+            qw.setChangedListeners(this, blockingActionsManager);
         }
         
         markLastStringWidget();
@@ -201,7 +205,7 @@ public class QuestionsView extends ScrollView
         widgets.add(i, qw);
         mView.addView(qw, getViewIndex(2 * i + mViewBannerCount), mLayout);
         
-        qw.setChangedListener(this);
+        qw.setChangedListeners(this, blockingActionsManager);
     }
 
 

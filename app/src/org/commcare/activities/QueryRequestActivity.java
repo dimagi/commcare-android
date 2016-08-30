@@ -31,6 +31,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
+import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.TreeElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -41,6 +42,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -113,13 +115,15 @@ public class QueryRequestActivity
 
     private void buildPromptUI() {
         LinearLayout promptsLayout = (LinearLayout)findViewById(R.id.query_prompts);
-        Hashtable<String, DisplayUnit> userInputDisplays =
+        OrderedHashtable<String, DisplayUnit> userInputDisplays =
                 remoteQuerySessionManager.getNeededUserInputDisplays();
         int promptCount = 1;
-        for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
+
+        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+            String promptId = (String)en.nextElement();
             boolean isLastPrompt = promptCount++ == userInputDisplays.size();
-            buildPromptEntry(promptsLayout, displayEntry.getKey(),
-                    displayEntry.getValue(), isLastPrompt);
+            buildPromptEntry(promptsLayout, promptId,
+                    userInputDisplays.get(promptId), isLastPrompt);
         }
     }
 

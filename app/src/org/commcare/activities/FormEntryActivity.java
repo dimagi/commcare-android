@@ -999,12 +999,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     protected void onPause() {
         super.onPause();
 
-        if (uiController.questionsView != null && currentPromptIsQuestion()) {
+
+        if (!isFinishing() && uiController.questionsView != null && currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
 
         if (mLocationServiceIssueReceiver != null) {
-            unregisterReceiver(mLocationServiceIssueReceiver);
+            try {
+                unregisterReceiver(mLocationServiceIssueReceiver);
+            } catch (IllegalArgumentException e) {
+                // Thrown when given receiver isn't registered.
+                // This shouldn't ever happen, but seems to come up in production
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, e.getMessage());
+            }
         }
 
         saveInlineVideoState();

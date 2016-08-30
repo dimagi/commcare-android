@@ -15,6 +15,7 @@ import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 
 import org.commcare.CommCareApplication;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.utils.GeoUtils;
 
 import java.util.ArrayList;
@@ -106,7 +107,7 @@ public enum PollSensorController implements LocationListener {
                     action.updateReference(location);
                 }
 
-                if (location.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
+                if (location.getAccuracy() <= CommCarePreferences.getGpsCaptureAccuracy()) {
                     stopLocationPolling();
                 }
             }
