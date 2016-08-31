@@ -1,16 +1,21 @@
 package org.commcare.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
@@ -33,6 +38,12 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     public static final String KEY_FROM_LATEST_BUILD_ACTIVITY = "from-test-latest-build-util";
 
+    // Options menu codes
+    private static final int MENU_UPDATE_FROM_CCZ = 0;
+
+    // Activity request codes
+    private static final int OFFLINE_UPDATE = 0;
+
     private static final String TAG = UpdateActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
     private static final String IS_APPLYING_UPDATE_KEY = "applying_update_task_running";
@@ -47,6 +58,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     private boolean proceedAutomatically;
     private boolean isLocalUpdate;
+    private String offlineUpdateRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -242,8 +254,14 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             return;
         }
 
-        String ref = ResourceInstallUtils.getDefaultProfileRef();
-        updateTask.executeParallel(ref);
+        String profileRef;
+        if (offlineUpdateRef != null) {
+            profileRef = offlineUpdateRef;
+            offlineUpdateRef = null;
+        } else {
+            profileRef = ResourceInstallUtils.getDefaultProfileRef();
+        }
+        updateTask.executeParallel(profileRef);
         uiController.downloadingUiState();
     }
 
@@ -380,4 +398,43 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         return this.uiController;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_UPDATE_FROM_CCZ, 0, Localization.get("menu.update.from.ccz"));
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(MENU_UPDATE_FROM_CCZ).setVisible(DeveloperPreferences.isOfflineUpdateEnabled());
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case MENU_UPDATE_FROM_CCZ:
+                Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
+                i.putExtra(InstallArchiveActivity.FROM_UPDATE, true);
+                startActivityForResult(i, OFFLINE_UPDATE);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        switch(requestCode) {
+            case OFFLINE_UPDATE:
+                if (resultCode == Activity.RESULT_OK) {
+                    offlineUpdateRef = intent.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
+                    if (offlineUpdateRef != null) {
+                        setupUpdateTask(false);
+                    }
+                }
+                break;
+        }
+    }
 }

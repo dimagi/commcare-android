@@ -54,12 +54,19 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     public static final String ARCHIVE_FILEPATH = "archive-filepath";
     public static final String ARCHIVE_JR_REFERENCE = "archive-jr-ref";
+    public static final String FROM_UPDATE = "from-update-activity";
 
     private String targetDirectory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        boolean fromUpdateActivity = getIntent().getBooleanExtra(FROM_UPDATE, false);
+        if (fromUpdateActivity) {
+            txtDisplayPrompt.setText(Localization.get("archive.update.prompt"));
+            btnInstallArchive.setText(Localization.get("archive.update.button"));
+        }
 
         btnFetchFiles.setOnClickListener(new OnClickListener() {
             @Override
