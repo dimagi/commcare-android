@@ -227,6 +227,19 @@ public class TestUtils {
         return new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
     }
 
+    public static EvaluationContext getProductFixtureEvaluationContext() {
+        AndroidInstanceInitializer iif = new AndroidInstanceInitializer(CommCareApplication._().getCurrentSession());
+        ExternalDataInstance edi = new ExternalDataInstance("jr://fixture/commtrack:products", "products");
+        DataInstance specializedDataInstance = edi.initialize(iif, "products");
+
+        Hashtable<String, DataInstance> formInstances = new Hashtable<>();
+        formInstances.put("products", specializedDataInstance);
+
+        TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
+        return new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
+    }
+
+
     public static RuntimeException wrapError(Exception e, String prefix) {
         e.printStackTrace();
         RuntimeException re = new RuntimeException(prefix + ": " + e.getMessage());
