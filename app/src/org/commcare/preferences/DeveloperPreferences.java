@@ -30,7 +30,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String AUTO_PURGE_ENABLED = "cc-auto-purge";
     public final static String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
     public final static String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
-    public final static String OFFLINE_UPDATE_ENABLED = "cc-offline-update";
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -104,7 +103,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
         prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
         prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
-        prefKeyToAnalyticsEvent.put(OFFLINE_UPDATE_ENABLED, GoogleAnalyticsFields.LABEL_OFFLINE_UPDATE);
     }
 
     private void setSessionEditText() {
@@ -316,9 +314,5 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      */
     public static boolean isDetailTabSwipeActionEnabled() {
         return doesPropertyMatch(DETAIL_TAB_SWIPE_ACTION_ENABLED, CommCarePreferences.YES, CommCarePreferences.YES);
-    }
-
-    public static boolean isOfflineUpdateEnabled() {
-        return doesPropertyMatch(OFFLINE_UPDATE_ENABLED, CommCarePreferences.YES, CommCarePreferences.YES);
     }
 }
