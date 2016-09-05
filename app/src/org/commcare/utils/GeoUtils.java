@@ -27,7 +27,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class GeoUtils {
     // Good enough accuracy to stop pinging the GPS altogether
-    public static final double GOOD_ACCURACY = 10;
+    public static final double GOOD_ACCURACY = 5;
+    public static final double AUTO_CAPTURE_GOOD_ACCURACY = 10;
 
     // Good enough accuracy to ask user if they want to record
     public static final double ACCEPTABLE_ACCURACY = 1600;
