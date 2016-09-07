@@ -33,7 +33,7 @@
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-newest-version-from-hq"
-        android:title="Use Newest App Version From HQ"/>
+        android:title="Enable Updating to Un-Starred Builds"/>
     <Preference
         android:key="disable-analytics"/>
     <Preference
