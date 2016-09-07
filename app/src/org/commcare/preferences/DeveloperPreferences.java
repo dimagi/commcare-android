@@ -279,6 +279,13 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 equals(CommCarePreferences.YES);
     }
 
+    public static void enableSessionSaving() {
+        CommCareApplication._().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, CommCarePreferences.YES)
+                .apply();
+    }
+
     public static boolean isMarkdownEnabled() {
         return doesPropertyMatch(MARKDOWN_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
     }
