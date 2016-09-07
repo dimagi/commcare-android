@@ -408,7 +408,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(MENU_UPDATE_FROM_CCZ).setVisible(DeveloperPreferences.isOfflineUpdateEnabled());
+        menu.findItem(MENU_UPDATE_FROM_CCZ).setVisible(BuildConfig.DEBUG ||
+                !getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false));
         return true;
     }
 

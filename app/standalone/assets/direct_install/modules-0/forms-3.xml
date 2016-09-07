@@ -1,0 +1,144 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>&#2348;&#2330;&#2340; &#2325;&#2352;&#2344;&#2366; &#2358;&#2369;&#2352;&#2370;!</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/E70DE6E8-C81B-42A4-B511-5B1DFB006FF9" uiVersion="1" version="70" name="&#2348;&#2330;&#2340; &#2325;&#2352;&#2344;&#2366; &#2358;&#2369;&#2352;&#2370;!">
+					<label_form_calculator/>
+					<total_money_to_save/>
+					<month_or_year/>
+					<month_reach/>
+					<year_reach/>
+					<monthly_result_label/>
+					<yearly_result_label/>
+					<monthly_saving/>
+					<monthy_weekly_saving/>
+					<yearly_saving/>
+					<year_monthly_saving/>
+					<year_weekly_saving/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/label_form_calculator"/>
+			<bind nodeset="/data/total_money_to_save" type="xsd:int" required="true()"/>
+			<bind nodeset="/data/month_or_year" required="true()"/>
+			<bind nodeset="/data/month_reach" type="xsd:int" relevant="/data/month_or_year = 'month'" required="true()"/>
+			<bind nodeset="/data/year_reach" type="xsd:int" relevant="/data/month_or_year = 'years'" required="true()"/>
+			<bind nodeset="/data/monthly_result_label" relevant="/data/month_or_year = 'month'"/>
+			<bind nodeset="/data/yearly_result_label" relevant="/data/month_or_year = 'years'"/>
+			<bind nodeset="/data/monthly_saving" calculate="int(/data/total_money_to_save div /data/month_reach)"/>
+			<bind nodeset="/data/monthy_weekly_saving" calculate="int(/data/monthly_saving div 4)"/>
+			<bind nodeset="/data/yearly_saving" calculate="int(/data/total_money_to_save div /data/year_reach)"/>
+			<bind nodeset="/data/year_monthly_saving" calculate="int(/data/yearly_saving div 12)"/>
+			<bind nodeset="/data/year_weekly_saving" calculate="int(/data/year_monthly_saving div 4)"/>
+			<itext>
+				<translation lang="en">
+					<text id="label_form_calculator-label">
+						<value>In this form, we have a calculator which will help you set and reach your savings goal!</value>
+						<value form="audio">jr://file/commcare/audio/data/label_form_calculator.mp3</value>
+					</text>
+					<text id="total_money_to_save-label">
+						<value>How much money do you want to save?</value>
+						<value form="audio">jr://file/commcare/audio/data/total_money_to_save.mp3</value>
+					</text>
+					<text id="month_or_year-label">
+						<value>Do you want to save in months or years?</value>
+						<value form="audio">jr://file/commcare/audio/data/month_or_year.mp3</value>
+					</text>
+					<text id="month_or_year-month-label">
+						<value>1. Month</value>
+						<value form="audio">jr://file/commcare/audio/data/month_or_year-month.mp3</value>
+					</text>
+					<text id="month_or_year-years-label">
+						<value>2. Years</value>
+						<value form="audio">jr://file/commcare/audio/data/month_or_year-years.mp3</value>
+					</text>
+					<text id="month_reach-label">
+						<value>In how many months do you want to reach this saving?</value>
+						<value form="audio">jr://file/commcare/audio/data/month_reach.mp3</value>
+					</text>
+					<text id="year_reach-label">
+						<value>In how many years do you want to reach this saving?</value>
+						<value form="audio">jr://file/commcare/audio/data/year_reach.mp3</value>
+					</text>
+					<text id="monthly_result_label-label">
+						<value>You have to save <output value="/data/monthly_saving"/> rupees every month and <output value="/data/monthy_weekly_saving"/> rupees every week.</value>
+						<value form="audio">jr://file/commcare/audio/data/monthly_result_label.mp3</value>
+					</text>
+					<text id="yearly_result_label-label">
+						<value>You have to save rupees  <output value="/data/yearly_saving"/> every year, <output value="/data/year_monthly_saving"/> rupees every month and <output value="/data/year_weekly_saving"/> rupees every week.</value>
+						<value form="audio">jr://file/commcare/audio/data/yearly_result_label.mp3</value>
+					</text>
+				</translation>
+				<translation lang="hin" default="">
+					<text id="label_form_calculator-label">
+						<value>&#2311;&#2360; &#2347;&#2377;&#2352;&#2381;&#2350; &#2350;&#2375;&#2306; &#2325;&#2376;&#2354;&#2325;&#2369;&#2354;&#2375;&#2335;&#2352; &#2361;&#2376; &#2332;&#2367;&#2360;&#2360;&#2375; &#2361;&#2350; &#2309;&#2346;&#2344;&#2375; &#2348;&#2330;&#2340; &#2354;&#2325;&#2381;&#2359;&#2381;&#2351; &#2348;&#2344;&#2366; &#2346;&#2366;&#2319;&#2306;&#2327;&#2375;!</value>
+						<value form="audio">jr://file/commcare/audio/data/label_form_calculator.mp3</value>
+					</text>
+					<text id="total_money_to_save-label">
+						<value>&#2310;&#2346; &#2325;&#2367;&#2340;&#2344;&#2375; &#2352;&#2369;&#2346;&#2351;&#2375; &#2348;&#2330;&#2366;&#2344;&#2366; &#2330;&#2366;&#2361;&#2340;&#2375; &#2361;&#2376;&#2306;?</value>
+						<value form="audio">jr://file/commcare/audio/data/total_money_to_save.mp3</value>
+					</text>
+					<text id="month_or_year-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346; &#2350;&#2361;&#2368;&#2344;&#2379;&#2306; &#2350;&#2376;&#2306; &#2348;&#2330;&#2340; &#2325;&#2352;&#2344;&#2366; &#2330;&#2366;&#2361;&#2340;&#2375; &#2361;&#2376;&#2306; &#2351;&#2366; &#2360;&#2366;&#2354;&#2379;&#2306; &#2350;&#2376;&#2306;?</value>
+						<value form="audio">jr://file/commcare/audio/data/month_or_year.mp3</value>
+					</text>
+					<text id="month_or_year-month-label">
+						<value>1. &#2350;&#2361;&#2368;&#2344;&#2379;&#2306; &#2350;&#2376;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/data/month_or_year-month.mp3</value>
+					</text>
+					<text id="month_or_year-years-label">
+						<value>2. &#2360;&#2366;&#2354;&#2379;&#2306; &#2350;&#2376;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/data/month_or_year-years.mp3</value>
+					</text>
+					<text id="month_reach-label">
+						<value>&#2310;&#2346; &#2325;&#2367;&#2340;&#2344;&#2375; &#2350;&#2361;&#2368;&#2344;&#2379;&#2306; &#2350;&#2376;&#2306; &#2311;&#2360; &#2348;&#2330;&#2340; &#2340;&#2325; &#2346;&#2361;&#2369;&#2330;&#2344;&#2366; &#2330;&#2366;&#2361;&#2340;&#2375; &#2361;&#2376;&#2306;?</value>
+						<value form="audio">jr://file/commcare/audio/data/month_reach.mp3</value>
+					</text>
+					<text id="year_reach-label">
+						<value>&#2310;&#2346; &#2325;&#2367;&#2340;&#2344;&#2375; &#2360;&#2366;&#2354;&#2379;&#2306; &#2350;&#2376;&#2306; &#2311;&#2360; &#2348;&#2330;&#2340; &#2340;&#2325; &#2346;&#2361;&#2369;&#2330;&#2344;&#2366; &#2330;&#2366;&#2361;&#2340;&#2375; &#2361;&#2376;&#2306;?</value>
+						<value form="audio">jr://file/commcare/audio/data/year_reach.mp3</value>
+					</text>
+					<text id="monthly_result_label-label">
+						<value>&#2310;&#2346;&#2325;&#2379; &#2361;&#2352; &#2350;&#2361;&#2368;&#2344;&#2375; <output value="/data/monthly_saving"/> &#2352;&#2369;&#2346;&#2351;&#2375; &#2325;&#2366; &#2348;&#2330;&#2340; &#2325;&#2352;&#2344;&#2366; &#2361;&#2376; &#2324;&#2352; &#2361;&#2352; &#2361;&#2347;&#2381;&#2340;&#2375; <output value="/data/monthy_weekly_saving"/> &#2352;&#2369;&#2346;&#2351;&#2375; &#2325;&#2366; &#2348;&#2330;&#2340; &#2325;&#2352;&#2344;&#2366; &#2361;&#2376;|</value>
+						<value form="audio">jr://file/commcare/audio/data/monthly_result_label.mp3</value>
+					</text>
+					<text id="yearly_result_label-label">
+						<value>&#2310;&#2346;&#2325;&#2379; &#2361;&#2352; &#2360;&#2366;&#2354;  <output value="/data/yearly_saving"/>  &#2352;&#2369;&#2346;&#2351;&#2375; &#2325;&#2366; &#2348;&#2330;&#2340; &#2325;&#2352;&#2344;&#2366; &#2361;&#2376;, &#2361;&#2352; &#2350;&#2361;&#2368;&#2344;&#2375; <output value="/data/year_monthly_saving"/> &#2352;&#2369;&#2346;&#2351;&#2375; &#2325;&#2366; &#2348;&#2330;&#2340; &#2325;&#2352;&#2344;&#2366; &#2361;&#2376; &#2324;&#2352; &#2361;&#2352; &#2361;&#2347;&#2381;&#2340;&#2375; <output value="/data/year_weekly_saving"/> &#2352;&#2369;&#2346;&#2351;&#2375; &#2325;&#2366; &#2348;&#2330;&#2340; &#2325;&#2352;&#2344;&#2366; &#2361;&#2376;| </value>
+						<value form="audio">jr://file/commcare/audio/data/yearly_result_label.mp3</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/label_form_calculator" appearance="minimal">
+			<label ref="jr:itext('label_form_calculator-label')"/>
+		</trigger>
+		<input ref="/data/total_money_to_save">
+			<label ref="jr:itext('total_money_to_save-label')"/>
+		</input>
+		<select1 ref="/data/month_or_year">
+			<label ref="jr:itext('month_or_year-label')"/>
+			<item>
+				<label ref="jr:itext('month_or_year-month-label')"/>
+				<value>month</value>
+			</item>
+			<item>
+				<label ref="jr:itext('month_or_year-years-label')"/>
+				<value>years</value>
+			</item>
+		</select1>
+		<input ref="/data/month_reach">
+			<label ref="jr:itext('month_reach-label')"/>
+		</input>
+		<input ref="/data/year_reach">
+			<label ref="jr:itext('year_reach-label')"/>
+		</input>
+		<trigger ref="/data/monthly_result_label" appearance="minimal">
+			<label ref="jr:itext('monthly_result_label-label')"/>
+		</trigger>
+		<trigger ref="/data/yearly_result_label" appearance="minimal">
+			<label ref="jr:itext('yearly_result_label-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

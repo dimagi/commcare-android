@@ -101,7 +101,7 @@ def assemble_apk(domain, build_number, username, password, build_type):
         "-Prun_download_scripts=false",
         "-PversionCode={}".format(build_number),
         "-Pusername={}".format(username),
-        "-Ppassword={}".format(password)])
+        "-Ppassword={}".format(password), "--stacktrace"])
 
 
 def get_app_name_from_profile():

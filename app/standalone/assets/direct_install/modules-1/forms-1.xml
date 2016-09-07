@@ -1,0 +1,220 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>2. Shameem Pathan</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/B07D6DA3-6521-47CF-A3DF-8CFFFE6FBF9C" uiVersion="1" version="157" name="2. Shameem Pathan">
+					<question1/>
+					<question2/>
+					<question3/>
+					<question4/>
+					<question22/>
+					<question17/>
+					<question28/>
+					<deployment_date/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""/><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/question1"/>
+			<bind nodeset="/data/question2"/>
+			<bind nodeset="/data/question3"/>
+			<bind nodeset="/data/question4"/>
+			<bind nodeset="/data/question22"/>
+			<bind nodeset="/data/question17"/>
+			<bind nodeset="/data/question28"/>
+			<bind nodeset="/data/deployment_date"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="question1-label">
+						<value>Shameem Pathan is from Ahmedabad, Gujarat. She entered into a love marriage, but after the wedding, her husband started to beat her.</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question1.mp3</value>
+					</text>
+					<text id="question2-label">
+						<value>The abuse continued and she realized she couldn't live in her marital home anymore. One day, she took her young daughter, left her marital home, and never returned.</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question2.mp3</value>
+					</text>
+					<text id="question3-label">
+						<value>Her parents didn't accept her back into their home because she had  had a love marriage.</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question3.mp3</value>
+					</text>
+					<text id="question4-label">
+						<value>Left to fend for herself in a country where women have very limited opportunities, she became a truck driver to support herself and her daughter.</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question4.mp3</value>
+					</text>
+					<text id="question22-label">
+						<value>Is it acceptable for a woman to leave her marital home if she faces abuse and violence?</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question22.mp3</value>
+					</text>
+					<text id="question22-item23-label">
+						<value>1. Yes</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question22-item23.mp3</value>
+					</text>
+					<text id="question22-item24-label">
+						<value>2. No</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question22-item24.mp3</value>
+					</text>
+					<text id="question22-item25-label">
+						<value>3. Don't know</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question22-item25.mp3</value>
+					</text>
+					<text id="question17-label">
+						<value>Do you think there are enough opportunities for women in India who have left their home?</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question17.mp3</value>
+					</text>
+					<text id="question17-item19-label">
+						<value>1. Yes</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question17-item19.mp3</value>
+					</text>
+					<text id="question17-item20-label">
+						<value>2. No</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question17-item20.mp3</value>
+					</text>
+					<text id="question17-item26-label">
+						<value>3. Don't know</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question17-item26.mp3</value>
+					</text>
+					<text id="question28-label">
+						<value>Will you share this story with anyone?</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question28.mp3</value>
+					</text>
+					<text id="question28-item31-label">
+						<value>1. Yes</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question28-item31.mp3</value>
+					</text>
+					<text id="question28-item32-label">
+						<value>2. No</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question28-item32.mp3</value>
+					</text>
+					<text id="question28-item33-label">
+						<value>3. Don't know</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question28-item33.mp3</value>
+					</text>
+				</translation>
+				<translation lang="hin">
+					<text id="question1-label">
+						<value>&#2358;&#2350;&#2368;&#2350; &#2346;&#2336;&#2366;&#2344; &#2309;&#2361;&#2350;&#2342;&#2366;&#2348;&#2366;&#2342;, &#2327;&#2369;&#2332;&#2352;&#2366;&#2340; &#2360;&#2375; &#2361;&#2376;&#2306; | &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2346;&#2381;&#2352;&#2375;&#2350; &#2357;&#2367;&#2357;&#2366;&#2361; &#2325;&#2367;&#2351;&#2366; &#2354;&#2375;&#2325;&#2367;&#2344; &#2358;&#2366;&#2342;&#2368; &#2325;&#2375; &#2348;&#2366;&#2342; &#2313;&#2344;&#2325;&#2375; &#2346;&#2340;&#2367; &#2344;&#2375; &#2313;&#2344;&#2381;&#2361;&#2375;&#2306; &#2350;&#2366;&#2352;&#2344;&#2366; &#2346;&#2368;&#2335;&#2344;&#2366; &#2358;&#2352;&#2370; &#2325;&#2352; &#2342;&#2367;&#2351;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question1.mp3</value>
+					</text>
+					<text id="question2-label">
+						<value>&#2360;&#2366;&#2341; &#2350;&#2366;&#2352;&#2346;&#2368;&#2335; &#2361;&#2379;&#2340;&#2368; &#2352;&#2361;&#2368; &#2324;&#2352; &#2347;&#2367;&#2352; &#2313;&#2344;&#2381;&#2361;&#2375;&#2306; &#2351;&#2361; &#2354;&#2327;&#2366; &#2325;&#2367; &#2357;&#2379; &#2309;&#2346;&#2344;&#2375; &#2358;&#2366;&#2342;&#2368; &#2357;&#2366;&#2354;&#2375; &#2328;&#2352; &#2350;&#2375;&#2306; &#2324;&#2352; &#2309;&#2343;&#2367;&#2325; &#2344;&#2361;&#2368;&#2306; &#2352;&#2361; &#2360;&#2325;&#2340;&#2368;&#2306; | &#2319;&#2325; &#2342;&#2367;&#2344; &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2309;&#2346;&#2344;&#2368; &#2331;&#2379;&#2335;&#2368; &#2354;&#2396;&#2325;&#2368; &#2325;&#2379; &#2354;&#2375;&#2325;&#2352; &#2328;&#2352; &#2325;&#2379; &#2331;&#2379;&#2396; &#2342;&#2367;&#2351;&#2366; &#2324;&#2352; &#2347;&#2367;&#2352; &#2325;&#2349;&#2368; &#2344;&#2361;&#2368;&#2306; &#2354;&#2380;&#2335;&#2368;&#2306; |</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question2.mp3</value>
+					</text>
+					<text id="question3-label">
+						<value>&#2313;&#2344;&#2325;&#2375; &#2350;&#2366;&#2340;&#2366; &#2346;&#2367;&#2340;&#2366; &#2344;&#2375; &#2313;&#2344;&#2381;&#2361;&#2375;&#2306; &#2357;&#2366;&#2346;&#2360; &#2309;&#2346;&#2344;&#2375; &#2328;&#2352; &#2350;&#2375;&#2306; &#2344;&#2361;&#2368;&#2306; &#2352;&#2326;&#2366; &#2325;&#2381;&#2351;&#2379;&#2306;&#2325;&#2367; &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2346;&#2381;&#2352;&#2375;&#2350; &#2357;&#2367;&#2357;&#2366;&#2361; &#2325;&#2367;&#2351;&#2366; &#2341;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question3.mp3</value>
+					</text>
+					<text id="question4-label">
+						<value>&#2319;&#2325; &#2342;&#2375;&#2358; &#2350;&#2375;&#2306; &#2309;&#2346;&#2344;&#2375; &#2310;&#2346; &#2325;&#2379; &#2348;&#2330;&#2366;&#2344;&#2375; &#2325;&#2375; &#2354;&#2367;&#2319; &#2332;&#2361;&#2366;&#2305; &#2350;&#2361;&#2367;&#2354;&#2366;&#2323;&#2306; &#2325;&#2375; &#2354;&#2367;&#2319; &#2348;&#2361;&#2369;&#2340; &#2360;&#2368;&#2350;&#2367;&#2340; &#2309;&#2357;&#2360;&#2352; &#2361;&#2379;&#2340;&#2375; &#2361;&#2376;&#2306; &#2357;&#2379; &#2309;&#2346;&#2344;&#2375; &#2324;&#2352; &#2309;&#2346;&#2344;&#2368; &#2348;&#2330;&#2381;&#2330;&#2368; &#2325;&#2375; &#2354;&#2367;&#2319; &#2319;&#2325; &#2335;&#2381;&#2352;&#2325; &#2337;&#2381;&#2352;&#2366;&#2311;&#2357;&#2352; &#2348;&#2344; &#2327;&#2312;&#2306; |</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question4.mp3</value>
+					</text>
+					<text id="question22-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2319;&#2325; &#2350;&#2361;&#2367;&#2354;&#2366; &#2325;&#2379; &#2309;&#2346;&#2344;&#2375; &#2358;&#2366;&#2342;&#2368; &#2357;&#2366;&#2354;&#2375; &#2328;&#2352; &#2325;&#2379; &#2331;&#2379;&#2396;&#2344;&#2366; &#2336;&#2368;&#2325; &#2361;&#2376; &#2332;&#2361;&#2366;&#2305; &#2313;&#2360;&#2375; &#2342;&#2369;&#2352;&#2381;&#2357;&#2381;&#2351;&#2357;&#2361;&#2366;&#2352; &#2324;&#2352; &#2361;&#2367;&#2306;&#2360;&#2366; &#2325;&#2366; &#2360;&#2366;&#2350;&#2344;&#2366; &#2325;&#2352;&#2344;&#2366; &#2346;&#2396;&#2340;&#2366; &#2361;&#2376; ?</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question22.mp3</value>
+					</text>
+					<text id="question22-item23-label">
+						<value>1. &#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question22-item23.mp3</value>
+					</text>
+					<text id="question22-item24-label">
+						<value>2. &#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question22-item24.mp3</value>
+					</text>
+					<text id="question22-item25-label">
+						<value>3. &#2344;&#2361;&#2368;&#2306; &#2350;&#2366;&#2354;&#2370;&#2350;</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question22-item25.mp3</value>
+					</text>
+					<text id="question17-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346;&#2325;&#2379; &#2354;&#2327;&#2340;&#2366; &#2361;&#2376; &#2325;&#2367; &#2313;&#2344; &#2350;&#2361;&#2367;&#2354;&#2366;&#2323;&#2306; &#2325;&#2375; &#2354;&#2367;&#2319; &#2349;&#2366;&#2352;&#2340; &#2350;&#2375;&#2306; &#2346;&#2352;&#2381;&#2351;&#2366;&#2346;&#2381;&#2340; &#2309;&#2357;&#2360;&#2352; &#2361;&#2376;&#2306; &#2332;&#2367;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2309;&#2346;&#2344;&#2375; &#2328;&#2352; &#2325;&#2379; &#2331;&#2379;&#2396; &#2342;&#2367;&#2351;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question17.mp3</value>
+					</text>
+					<text id="question17-item19-label">
+						<value>1. &#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question17-item19.mp3</value>
+					</text>
+					<text id="question17-item20-label">
+						<value>2. &#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question17-item20.mp3</value>
+					</text>
+					<text id="question17-item26-label">
+						<value>3. &#2344;&#2361;&#2368;&#2306; &#2350;&#2366;&#2354;&#2370;&#2350;</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question17-item26.mp3</value>
+					</text>
+					<text id="question28-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346; &#2311;&#2360; &#2347;&#2367;&#2354;&#2381;&#2350; &#2324;&#2352; &#2325;&#2361;&#2366;&#2344;&#2368; &#2325;&#2379; &#2325;&#2367;&#2360;&#2368; &#2324;&#2352; &#2325;&#2379; &#2348;&#2340;&#2366;&#2319;&#2305;&#2327;&#2368; ?</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question28.mp3</value>
+					</text>
+					<text id="question28-item31-label">
+						<value>1. &#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question28-item31.mp3</value>
+					</text>
+					<text id="question28-item32-label">
+						<value>2. &#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question28-item32.mp3</value>
+					</text>
+					<text id="question28-item33-label">
+						<value>3. &#2344;&#2361;&#2368;&#2306; &#2350;&#2366;&#2354;&#2370;&#2350;</value>
+						<value form="audio">jr://file/commcare/audio/shamim/data/question28-item33.mp3</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><setvalue event="xforms-ready" ref="/data/deployment_date" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/deployment_date"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/question1" appearance="minimal">
+			<label ref="jr:itext('question1-label')"/>
+		</trigger>
+		<trigger ref="/data/question2" appearance="minimal">
+			<label ref="jr:itext('question2-label')"/>
+		</trigger>
+		<trigger ref="/data/question3" appearance="minimal">
+			<label ref="jr:itext('question3-label')"/>
+		</trigger>
+		<trigger ref="/data/question4" appearance="minimal">
+			<label ref="jr:itext('question4-label')"/>
+		</trigger>
+		<select1 ref="/data/question22">
+			<label ref="jr:itext('question22-label')"/>
+			<item>
+				<label ref="jr:itext('question22-item23-label')"/>
+				<value>item23</value>
+			</item>
+			<item>
+				<label ref="jr:itext('question22-item24-label')"/>
+				<value>item24</value>
+			</item>
+			<item>
+				<label ref="jr:itext('question22-item25-label')"/>
+				<value>item25</value>
+			</item>
+		</select1>
+		<select1 ref="/data/question17">
+			<label ref="jr:itext('question17-label')"/>
+			<item>
+				<label ref="jr:itext('question17-item19-label')"/>
+				<value>item19</value>
+			</item>
+			<item>
+				<label ref="jr:itext('question17-item20-label')"/>
+				<value>item20</value>
+			</item>
+			<item>
+				<label ref="jr:itext('question17-item26-label')"/>
+				<value>item26</value>
+			</item>
+		</select1>
+		<select1 ref="/data/question28">
+			<label ref="jr:itext('question28-label')"/>
+			<item>
+				<label ref="jr:itext('question28-item31-label')"/>
+				<value>item31</value>
+			</item>
+			<item>
+				<label ref="jr:itext('question28-item32-label')"/>
+				<value>item32</value>
+			</item>
+			<item>
+				<label ref="jr:itext('question28-item33-label')"/>
+				<value>item33</value>
+			</item>
+		</select1>
+	</h:body>
+</h:html>

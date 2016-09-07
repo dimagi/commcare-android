@@ -887,7 +887,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void createClearDialog(final QuestionWidget qw) {
         String title = StringUtils.getStringRobust(this, R.string.clear_answer_ask);
         String question = qw.getPrompt().getLongText();
-        if (question.length() > 50) {
+        if (question == null) {
+            question = "";
+        } else if (question.length() > 50) {
             question = question.substring(0, 50) + "...";
         }
         String msg = StringUtils.getStringSpannableRobust(this, R.string.clearanswer_confirm, question).toString();

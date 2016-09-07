@@ -26,6 +26,7 @@ public class RefreshToLatestBuildReceiver extends BroadcastReceiver {
 
         if (intent.getBooleanExtra("useLatestBuild", false)) {
             DeveloperPreferences.enableNewestAppVersion();
+            DeveloperPreferences.enableSessionSaving();
         }
 
         Intent i = new Intent(context, RefreshToLatestBuildActivity.class);

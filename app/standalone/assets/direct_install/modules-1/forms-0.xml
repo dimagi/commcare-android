@@ -1,0 +1,288 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>1. Kalpana Saroj</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/869C90AC-001C-4579-929F-5AD85A651D24" uiVersion="1" version="101" name="1. Kalpana Saroj">
+					<question1/>
+					<question6/>
+					<question2/>
+					<question3/>
+					<question4/>
+					<question5/>
+					<question7/>
+					<question9/>
+					<question10/>
+					<question11/>
+					<question12/>
+					<question13/>
+					<question18/>
+					<question20/>
+					<question24/>
+					<deployment_date/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""/><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/question1"/>
+			<bind nodeset="/data/question6"/>
+			<bind nodeset="/data/question2"/>
+			<bind nodeset="/data/question3"/>
+			<bind nodeset="/data/question4"/>
+			<bind nodeset="/data/question5"/>
+			<bind nodeset="/data/question7"/>
+			<bind nodeset="/data/question9"/>
+			<bind nodeset="/data/question10"/>
+			<bind nodeset="/data/question11"/>
+			<bind nodeset="/data/question12"/>
+			<bind nodeset="/data/question13"/>
+			<bind nodeset="/data/question18" relevant="/data/question13 = 'item17'"/>
+			<bind nodeset="/data/question20"/>
+			<bind nodeset="/data/question24" type="xsd:string"/>
+			<bind nodeset="/data/deployment_date"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="question1-label">
+						<value>Kalpana Saroj is a Dalit from a small village in Maharashtra. She was married at the age of 12 and lived in the slums of Mumbai. She was a victim of domestic abuse by her husband and his family.</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question1.mp3</value>
+					</text>
+					<text id="question6-label">
+						<value>At the age of 14, she ran back to her parents' home. Her parents accepted her back  into their home.</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question6.mp3</value>
+					</text>
+					<text id="question2-label">
+						<value>After being harassed by villagers, Kalpana Saroj attempted suicide by drinking pesticide. </value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question2.mp3</value>
+					</text>
+					<text id="question3-label">
+						<value>At the age of 16, Kalpana Saroj returned to Mumbai and started working in a garment factory. Utilizing government loans for lower-caste people, she successfully opened a tailoring shop and then a furniture store.</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question3.mp3</value>
+					</text>
+					<text id="question4-label">
+						<value>From the money Kalpana saved from her stores and a piece of land she bought and then later sold, she bought a better piece of land and set up a business complex called Kohinoor, with the hope that one day she would buy herself the most valuable diamond in the world.</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question4.mp3</value>
+					</text>
+					<text id="question5-label">
+						<value>In 2005 Dalit workers asked her to take over a failing company, now called Kamani. She worked hard and put her money into this company, which had a lot of debt.</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question5.mp3</value>
+					</text>
+					<text id="question7-label">
+						<value>Now Kamani is a highly successful company, and does business all over the world.</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question7.mp3</value>
+					</text>
+					<text id="question9-label">
+						<value>Currently, Kalpana Saroj's personal wealth is about Rs. 5,00,00,00,000.</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question9.mp3</value>
+					</text>
+					<text id="question10-label">
+						<value>Kalpana Saroj has re-married, and her husband currently works for her.</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question10.mp3</value>
+					</text>
+					<text id="question11-label">
+						<value>Kalpana Saroj holds a very prestigious and senior position at Bharatiya Mahila Bank, which is a bank primarily for women. She was awarded the Padma Shri in 2013.</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question11.mp3</value>
+					</text>
+					<text id="question12-label">
+						<value>Would you like to know more about the Bharatiya Mahila Bank?</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question12.mp3</value>
+					</text>
+					<text id="question12-item15-label">
+						<value>1. Yes</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question12-item15.mp3</value>
+					</text>
+					<text id="question12-item14-label">
+						<value>2. No</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question12-item14.mp3</value>
+					</text>
+					<text id="question13-label">
+						<value>Do you know what the Padma Shri award is?</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question13.mp3</value>
+					</text>
+					<text id="question13-item16-label">
+						<value>1. Yes</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question13-item16.mp3</value>
+					</text>
+					<text id="question13-item17-label">
+						<value>2. No</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question13-item17.mp3</value>
+					</text>
+					<text id="question18-label">
+						<value>Padma Shri (also Padmashree) is the fourth highest civilian award in the Republic of India.</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question18.mp3</value>
+					</text>
+					<text id="question20-label">
+						<value>Would you like more information on government loans for lower caste people?</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question20.mp3</value>
+					</text>
+					<text id="question20-item22-label">
+						<value>1. Yes</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question20-item22.mp3</value>
+					</text>
+					<text id="question20-item23-label">
+						<value>2. No</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question20-item23.mp3</value>
+					</text>
+					<text id="question24-label">
+						<value>If you could get a government loan, what would you use the money for?</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question24.mp3</value>
+					</text>
+				</translation>
+				<translation lang="hin">
+					<text id="question1-label">
+						<value>&#2325;&#2354;&#2381;&#2346;&#2344;&#2366; &#2360;&#2352;&#2379;&#2332; &#2350;&#2361;&#2366;&#2352;&#2366;&#2359;&#2381;&#2335;&#2381;&#2352; &#2325;&#2375; &#2319;&#2325; &#2331;&#2379;&#2335;&#2375; &#2360;&#2375; &#2327;&#2366;&#2305;&#2357; &#2325;&#2368; &#2319;&#2325; &#2342;&#2354;&#2367;&#2340; &#2361;&#2376;&#2306; | &#2357;&#2379; &#2350;&#2369;&#2306;&#2348;&#2312; &#2325;&#2368; &#2319;&#2325; &#2350;&#2354;&#2367;&#2344; &#2348;&#2360;&#2381;&#2340;&#2368; &#2350;&#2375;&#2306; &#2352;&#2361;&#2340;&#2368; &#2341;&#2368;&#2306; &#2324;&#2352; &#2313;&#2344;&#2325;&#2368; &#2358;&#2366;&#2342;&#2368; 12 &#2357;&#2352;&#2381;&#2359; &#2325;&#2368; &#2313;&#2350;&#2381;&#2352; &#2350;&#2375;&#2306; &#2361;&#2379; &#2327;&#2312; &#2341;&#2368; | &#2313;&#2344;&#2325;&#2375; &#2360;&#2366;&#2341; &#2313;&#2344;&#2325;&#2375; &#2346;&#2340;&#2367; &#2324;&#2352; &#2313;&#2360;&#2325;&#2375; &#2346;&#2352;&#2367;&#2357;&#2366;&#2352; &#2344;&#2375; &#2328;&#2352;&#2375;&#2354;&#2370; &#2361;&#2367;&#2306;&#2360;&#2366; &#2325;&#2368; &#2341;&#2368; |</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question1.mp3</value>
+					</text>
+					<text id="question6-label">
+						<value>14 &#2357;&#2352;&#2381;&#2359; &#2325;&#2368; &#2313;&#2350;&#2381;&#2352; &#2350;&#2375;&#2306; &#2357;&#2379; &#2309;&#2346;&#2344;&#2375; &#2350;&#2366;&#2340;&#2366; &#2346;&#2367;&#2340;&#2366; &#2325;&#2375; &#2328;&#2352; &#2357;&#2366;&#2346;&#2360; &#2330;&#2354;&#2368; &#2327;&#2312;&#2306; | &#2313;&#2344;&#2325;&#2375; &#2350;&#2366;&#2340;&#2366; &#2346;&#2367;&#2340;&#2366; &#2344;&#2375; &#2313;&#2344;&#2381;&#2361;&#2375;&#2306; &#2357;&#2366;&#2346;&#2360; &#2309;&#2346;&#2344;&#2375; &#2328;&#2352; &#2350;&#2375;&#2306; &#2352;&#2326; &#2354;&#2367;&#2351;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question6.mp3</value>
+					</text>
+					<text id="question2-label">
+						<value>&#2325;&#2354;&#2381;&#2346;&#2344;&#2366; &#2360;&#2352;&#2379;&#2332; &#2344;&#2375; &#2327;&#2366;&#2305;&#2357; &#2357;&#2366;&#2354;&#2379;&#2306; &#2325;&#2375; &#2346;&#2352;&#2375;&#2358;&#2366;&#2344; &#2325;&#2352;&#2344;&#2375; &#2346;&#2352; &#2325;&#2368;&#2335;&#2344;&#2366;&#2358;&#2325; &#2346;&#2368; &#2325;&#2352; &#2310;&#2340;&#2381;&#2350;&#2361;&#2340;&#2381;&#2351;&#2366; &#2325;&#2352;&#2344;&#2375; &#2325;&#2368; &#2325;&#2379;&#2358;&#2367;&#2358; &#2325;&#2368; |</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question2.mp3</value>
+					</text>
+					<text id="question3-label">
+						<value>16 &#2357;&#2352;&#2381;&#2359; &#2325;&#2368; &#2313;&#2350;&#2381;&#2352; &#2350;&#2375;&#2306; &#2325;&#2354;&#2381;&#2346;&#2344;&#2366; &#2360;&#2352;&#2379;&#2332; &#2357;&#2366;&#2346;&#2360; &#2350;&#2369;&#2306;&#2348;&#2312; &#2310;&#2312;&#2306; &#2324;&#2352; &#2319;&#2325; &#2325;&#2346;&#2396;&#2375; &#2325;&#2368; &#2347;&#2376;&#2325;&#2381;&#2335;&#2352;&#2368; &#2350;&#2375;&#2306; &#2325;&#2366;&#2350; &#2325;&#2352;&#2344;&#2366; &#2358;&#2369;&#2352;&#2370; &#2325;&#2367;&#2351;&#2366; | &#2344;&#2367;&#2350;&#2381;&#2344; &#2332;&#2366;&#2340;&#2367; &#2325;&#2375; &#2354;&#2379;&#2327;&#2379;&#2306; &#2325;&#2379; &#2350;&#2367;&#2354;&#2344;&#2375; &#2357;&#2366;&#2354;&#2375; &#2360;&#2352;&#2325;&#2366;&#2352;&#2368; &#2354;&#2379;&#2344; &#2360;&#2375; &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2319;&#2325; &#2325;&#2346;&#2396;&#2375; &#2360;&#2367;&#2354;&#2344;&#2375; &#2325;&#2368; &#2342;&#2369;&#2325;&#2366;&#2344; &#2326;&#2379;&#2354;&#2368; &#2324;&#2352; &#2313;&#2360;&#2325;&#2375; &#2348;&#2366;&#2342; &#2319;&#2325; &#2347;&#2352;&#2381;&#2344;&#2368;&#2330;&#2352; &#2360;&#2381;&#2335;&#2379;&#2352; &#2326;&#2379;&#2354;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question3.mp3</value>
+					</text>
+					<text id="question4-label">
+						<value>&#2309;&#2346;&#2344;&#2375; &#2360;&#2381;&#2335;&#2379;&#2352; &#2360;&#2375; &#2348;&#2330;&#2366;&#2319; &#2361;&#2369;&#2319; &#2352;&#2369;&#2346;&#2351;&#2379;&#2306; &#2360;&#2375; &#2325;&#2354;&#2381;&#2346;&#2344;&#2366; &#2344;&#2375; &#2319;&#2325; &#2332;&#2350;&#2368;&#2344; &#2325;&#2366; &#2335;&#2369;&#2325;&#2396;&#2366; &#2326;&#2352;&#2368;&#2342;&#2366; &#2324;&#2352; &#2313;&#2360;&#2375; &#2348;&#2366;&#2342; &#2350;&#2375;&#2306; &#2348;&#2375;&#2306;&#2330; &#2342;&#2367;&#2351;&#2366;| &#2313;&#2360;&#2344;&#2375; &#2319;&#2325; &#2324;&#2352; &#2309;&#2330;&#2381;&#2331;&#2368; &#2332;&#2350;&#2368;&#2344; &#2326;&#2352;&#2368;&#2342;&#2368; &#2357; &#2313;&#2360; &#2346;&#2352; &#2325;&#2379;&#2361;&#2367;&#2344;&#2370;&#2352; &#2344;&#2366;&#2350; &#2325;&#2366; &#2319;&#2325; &#2357;&#2381;&#2351;&#2357;&#2360;&#2366;&#2351;&#2367;&#2325; &#2325;&#2377;&#2350;&#2381;&#2346;&#2381;&#2354;&#2375;&#2325;&#2381;&#2360; &#2348;&#2344;&#2366;&#2351;&#2366;, &#2311;&#2360; &#2313;&#2350;&#2381;&#2350;&#2368;&#2342; &#2325;&#2375; &#2360;&#2366;&#2341; &#2325;&#2367; &#2319;&#2325; &#2342;&#2367;&#2344; &#2357;&#2379; &#2342;&#2369;&#2344;&#2367;&#2351;&#2366; &#2325;&#2366; &#2360;&#2348;&#2360;&#2375; &#2325;&#2368;&#2350;&#2340;&#2368; &#2361;&#2368;&#2352;&#2366; &#2326;&#2352;&#2368;&#2342;&#2375;&#2327;&#2368; |</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question4.mp3</value>
+					</text>
+					<text id="question5-label">
+						<value>2005 &#2350;&#2375;&#2306; &#2342;&#2354;&#2367;&#2340; &#2325;&#2366;&#2350;&#2327;&#2366;&#2352;&#2379;&#2306; &#2344;&#2375; &#2313;&#2360;&#2360;&#2375; &#2348;&#2306;&#2342; &#2346;&#2396;&#2368; &#2325;&#2306;&#2346;&#2344;&#2368; &#2325;&#2379; &#2354;&#2375;&#2344;&#2375; &#2325;&#2375; &#2354;&#2367;&#2319; &#2325;&#2361;&#2366;, &#2332;&#2367;&#2360;&#2375; &#2309;&#2348; &#2325;&#2366;&#2350;&#2344;&#2368; &#2325;&#2361;&#2340;&#2375; &#2361;&#2376;&#2306; | &#2313;&#2360;&#2344;&#2375; &#2325;&#2336;&#2367;&#2344; &#2346;&#2352;&#2367;&#2358;&#2381;&#2352;&#2350; &#2325;&#2367;&#2351;&#2366; &#2324;&#2352; &#2309;&#2346;&#2344;&#2368; &#2346;&#2370;&#2306;&#2332;&#2368; &#2325;&#2379; &#2311;&#2360; &#2325;&#2306;&#2346;&#2344;&#2368; &#2350;&#2375;&#2306; &#2354;&#2327;&#2366; &#2342;&#2367;&#2351;&#2366; &#2332;&#2367;&#2360;&#2325;&#2375; &#2314;&#2346;&#2352; &#2348;&#2361;&#2369;&#2340; &#2325;&#2352;&#2381;&#2332; &#2341;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question5.mp3</value>
+					</text>
+					<text id="question7-label">
+						<value>&#2309;&#2348; &#2325;&#2366;&#2350;&#2344;&#2368; &#2319;&#2325; &#2348;&#2361;&#2369;&#2340; &#2360;&#2347;&#2354; &#2325;&#2306;&#2346;&#2344;&#2368; &#2361;&#2376; &#2324;&#2352; &#2346;&#2370;&#2352;&#2375; &#2357;&#2367;&#2358;&#2381;&#2357; &#2350;&#2375;&#2306; &#2357;&#2381;&#2351;&#2357;&#2360;&#2366;&#2351; &#2325;&#2352;&#2340;&#2368; &#2361;&#2376; |</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question7.mp3</value>
+					</text>
+					<text id="question9-label">
+						<value>&#2309;&#2349;&#2368; &#2325;&#2354;&#2381;&#2346;&#2344;&#2366; &#2360;&#2352;&#2379;&#2332; &#2325;&#2368; &#2326;&#2369;&#2342; &#2325;&#2368; &#2325;&#2352;&#2368;&#2348; 500 &#2325;&#2352;&#2379;&#2396; &#2325;&#2368; &#2360;&#2306;&#2346;&#2340;&#2381;&#2340;&#2367; &#2361;&#2376; |</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question9.mp3</value>
+					</text>
+					<text id="question10-label">
+						<value>&#2325;&#2354;&#2381;&#2346;&#2344;&#2366; &#2360;&#2352;&#2379;&#2332; &#2325;&#2368; &#2342;&#2379;&#2348;&#2366;&#2352;&#2366; &#2358;&#2366;&#2342;&#2368; &#2361;&#2369;&#2312; &#2324;&#2352; &#2309;&#2348; &#2357;&#2379; &#2326;&#2369;&#2342; &#2325;&#2375; &#2354;&#2367;&#2319; &#2325;&#2366;&#2350; &#2325;&#2352;&#2340;&#2368; &#2361;&#2376;</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question10.mp3</value>
+					</text>
+					<text id="question11-label">
+						<value>&#2325;&#2354;&#2381;&#2346;&#2344;&#2366; &#2360;&#2352;&#2379;&#2332; &#2349;&#2366;&#2352;&#2340;&#2368;&#2351; &#2350;&#2361;&#2367;&#2354;&#2366; &#2348;&#2376;&#2306;&#2325; &#2350;&#2375;&#2306; &#2350;&#2375;&#2306; &#2319;&#2325; &#2314;&#2306;&#2330;&#2375; &#2324;&#2352; &#2357;&#2352;&#2367;&#2359;&#2381;&#2336; &#2346;&#2342; &#2346;&#2352; &#2361;&#2376;&#2306; &#2332;&#2379; &#2325;&#2367; &#2351;&#2375; &#2348;&#2376;&#2306;&#2325; &#2350;&#2369;&#2326;&#2381;&#2351; &#2352;&#2370;&#2346; &#2360;&#2375; &#2350;&#2361;&#2367;&#2354;&#2366;&#2323;&#2306; &#2325;&#2375; &#2354;&#2367;&#2319; &#2361;&#2376; | 2013 &#2350;&#2375;&#2306; &#2313;&#2344;&#2325;&#2379; &#2346;&#2342;&#2381;&#2350; &#2358;&#2381;&#2352;&#2368; &#2346;&#2369;&#2352;&#2360;&#2381;&#2325;&#2366;&#2352; &#2360;&#2375; &#2360;&#2350;&#2381;&#2350;&#2366;&#2344;&#2367;&#2340; &#2325;&#2367;&#2351;&#2366; &#2327;&#2351;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question11.mp3</value>
+					</text>
+					<text id="question12-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346; &#2349;&#2366;&#2352;&#2340;&#2368;&#2351; &#2350;&#2361;&#2367;&#2354;&#2366; &#2348;&#2376;&#2306;&#2325; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375; &#2350;&#2375;&#2306; &#2324;&#2352; &#2309;&#2343;&#2367;&#2325; &#2332;&#2366;&#2344;&#2344;&#2366; &#2330;&#2366;&#2361;&#2375;&#2306;&#2327;&#2375; ?</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question12.mp3</value>
+					</text>
+					<text id="question12-item15-label">
+						<value>1. &#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question12-item15.mp3</value>
+					</text>
+					<text id="question12-item14-label">
+						<value>2. &#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question12-item14.mp3</value>
+					</text>
+					<text id="question13-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346; &#2332;&#2366;&#2344;&#2340;&#2375; &#2361;&#2376;&#2306; &#2325;&#2367; &#2346;&#2342;&#2381;&#2350; &#2358;&#2381;&#2352;&#2368; &#2346;&#2369;&#2352;&#2360;&#2381;&#2325;&#2366;&#2352; &#2325;&#2381;&#2351;&#2366; &#2361;&#2379;&#2340;&#2366; &#2361;&#2376; ?</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question13.mp3</value>
+					</text>
+					<text id="question13-item16-label">
+						<value>1. &#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question13-item16.mp3</value>
+					</text>
+					<text id="question13-item17-label">
+						<value>2. &#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question13-item17.mp3</value>
+					</text>
+					<text id="question18-label">
+						<value>&#2346;&#2342;&#2381;&#2350; &#2358;&#2381;&#2352;&#2368; (&#2346;&#2342;&#2381;&#2350;&#2358;&#2381;&#2352;&#2368;) &#2349;&#2366;&#2352;&#2340;&#2368;&#2351; &#2327;&#2339;&#2340;&#2306;&#2340;&#2381;&#2352; &#2350;&#2375;&#2306; &#2330;&#2380;&#2341;&#2366; &#2360;&#2348;&#2360;&#2375; &#2348;&#2396;&#2366; &#2344;&#2366;&#2327;&#2352;&#2367;&#2325; &#2346;&#2369;&#2352;&#2360;&#2381;&#2325;&#2366;&#2352; &#2361;&#2376;</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question18.mp3</value>
+					</text>
+					<text id="question20-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346; &#2344;&#2367;&#2350;&#2381;&#2344; &#2332;&#2366;&#2340;&#2367; &#2325;&#2375; &#2354;&#2379;&#2327;&#2379;&#2306; &#2325;&#2379; &#2350;&#2367;&#2354;&#2344;&#2375; &#2357;&#2366;&#2354;&#2375; &#2360;&#2352;&#2325;&#2366;&#2352;&#2368; &#2354;&#2379;&#2344; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375; &#2350;&#2375;&#2306; &#2324;&#2352; &#2309;&#2343;&#2367;&#2325; &#2332;&#2366;&#2344;&#2325;&#2366;&#2352;&#2368; &#2330;&#2366;&#2361;&#2375;&#2306;&#2327;&#2375; ?</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question20.mp3</value>
+					</text>
+					<text id="question20-item22-label">
+						<value>1. &#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question20-item22.mp3</value>
+					</text>
+					<text id="question20-item23-label">
+						<value>2. &#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question20-item23.mp3</value>
+					</text>
+					<text id="question24-label">
+						<value>&#2351;&#2342;&#2367; &#2310;&#2346; &#2325;&#2379; &#2325;&#2379;&#2312; &#2360;&#2352;&#2325;&#2366;&#2352;&#2368; &#2354;&#2379;&#2344; &#2350;&#2367;&#2354; &#2332;&#2366;&#2319; &#2340;&#2379; &#2310;&#2346; &#2313;&#2344; &#2352;&#2369;&#2346;&#2351;&#2379;&#2306; &#2325;&#2366; &#2325;&#2381;&#2351;&#2366; &#2325;&#2352;&#2375;&#2306;&#2327;&#2375; ?</value>
+						<value form="audio">jr://file/commcare/audio/kalpana/data/question24.mp3</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><setvalue event="xforms-ready" ref="/data/deployment_date" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/deployment_date"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/question1">
+			<label ref="jr:itext('question1-label')"/>
+		</trigger>
+		<trigger ref="/data/question6" appearance="minimal">
+			<label ref="jr:itext('question6-label')"/>
+		</trigger>
+		<trigger ref="/data/question2" appearance="minimal">
+			<label ref="jr:itext('question2-label')"/>
+		</trigger>
+		<trigger ref="/data/question3" appearance="minimal">
+			<label ref="jr:itext('question3-label')"/>
+		</trigger>
+		<trigger ref="/data/question4" appearance="minimal">
+			<label ref="jr:itext('question4-label')"/>
+		</trigger>
+		<trigger ref="/data/question5" appearance="minimal">
+			<label ref="jr:itext('question5-label')"/>
+		</trigger>
+		<trigger ref="/data/question7" appearance="minimal">
+			<label ref="jr:itext('question7-label')"/>
+		</trigger>
+		<trigger ref="/data/question9" appearance="minimal">
+			<label ref="jr:itext('question9-label')"/>
+		</trigger>
+		<trigger ref="/data/question10" appearance="minimal">
+			<label ref="jr:itext('question10-label')"/>
+		</trigger>
+		<trigger ref="/data/question11" appearance="minimal">
+			<label ref="jr:itext('question11-label')"/>
+		</trigger>
+		<select1 ref="/data/question12">
+			<label ref="jr:itext('question12-label')"/>
+			<item>
+				<label ref="jr:itext('question12-item15-label')"/>
+				<value>item15</value>
+			</item>
+			<item>
+				<label ref="jr:itext('question12-item14-label')"/>
+				<value>item14</value>
+			</item>
+		</select1>
+		<select1 ref="/data/question13">
+			<label ref="jr:itext('question13-label')"/>
+			<item>
+				<label ref="jr:itext('question13-item16-label')"/>
+				<value>item16</value>
+			</item>
+			<item>
+				<label ref="jr:itext('question13-item17-label')"/>
+				<value>item17</value>
+			</item>
+		</select1>
+		<trigger ref="/data/question18" appearance="minimal">
+			<label ref="jr:itext('question18-label')"/>
+		</trigger>
+		<select1 ref="/data/question20">
+			<label ref="jr:itext('question20-label')"/>
+			<item>
+				<label ref="jr:itext('question20-item22-label')"/>
+				<value>item22</value>
+			</item>
+			<item>
+				<label ref="jr:itext('question20-item23-label')"/>
+				<value>item23</value>
+			</item>
+		</select1>
+		<input ref="/data/question24">
+			<label ref="jr:itext('question24-label')"/>
+		</input>
+	</h:body>
+</h:html>

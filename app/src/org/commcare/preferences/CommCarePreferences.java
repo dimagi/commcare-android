@@ -407,9 +407,9 @@ public class CommCarePreferences
 
         try {
             return Double.parseDouble(properties.getString(GPS_AUTO_CAPTURE_ACCURACY,
-                    Double.toString(GeoUtils.GOOD_ACCURACY)));
+                    Double.toString(GeoUtils.AUTO_CAPTURE_GOOD_ACCURACY)));
         } catch (NumberFormatException e) {
-            return GeoUtils.GOOD_ACCURACY;
+            return GeoUtils.AUTO_CAPTURE_GOOD_ACCURACY;
         }
     }
 

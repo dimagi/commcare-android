@@ -1,0 +1,351 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>4. MLA Jyoti</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/D166A3A0-9B27-484F-B0FA-38A9A7567E1A" uiVersion="1" version="134" name="4. MLA Jyoti">
+					<question1/>
+					<question4/>
+					<question5/>
+					<question6/>
+					<question7/>
+					<question8/>
+					<question9/>
+					<question10/>
+					<question12/>
+					<question13/>
+					<question2/>
+					<question3/>
+					<question11/>
+					<shg_knowledge/>
+					<shg_info/>
+					<question16/>
+					<shg_howstart_village/>
+					<sri/>
+					<deployment_date/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""/><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/question1"/>
+			<bind nodeset="/data/question4"/>
+			<bind nodeset="/data/question5"/>
+			<bind nodeset="/data/question6"/>
+			<bind nodeset="/data/question7"/>
+			<bind nodeset="/data/question8"/>
+			<bind nodeset="/data/question9"/>
+			<bind nodeset="/data/question10"/>
+			<bind nodeset="/data/question12"/>
+			<bind nodeset="/data/question13"/>
+			<bind nodeset="/data/question2"/>
+			<bind nodeset="/data/question3"/>
+			<bind nodeset="/data/question11"/>
+			<bind nodeset="/data/shg_knowledge"/>
+			<bind nodeset="/data/shg_info"/>
+			<bind nodeset="/data/question16" relevant="/data/shg_info = 'yes_shg_info'"/>
+			<bind nodeset="/data/shg_howstart_village"/>
+			<bind nodeset="/data/sri"/>
+			<bind nodeset="/data/deployment_date"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="question1-label">
+						<value>Jyoti Devi is an MLA in the Bihar State Assembly. She is from the Musahar community - known for being so marginalised that they are sometimes forced to eat rats as food.  But thanks to her, things are changing.</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question1.mp3</value>
+					</text>
+					<text id="question4-label">
+						<value>Jyoti Devi was left by her parents in a residential school for poor children at the age of 5.  She knew that the school was her best chance for a better future. Even though it was difficult, she stayed on and worked hard at the school.</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question4.mp3</value>
+					</text>
+					<text id="question5-label">
+						<value>From a young age, she protested against injustice. The quality of the food and clothing at the children's home dropped, even though the home had money. She talked to the girls and they went as a group to ask for better services. It worked!</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question5.mp3</value>
+					</text>
+					<text id="question6-label">
+						<value>When Jyoti grew older, she married Baleshwar, who was also a student at the Home. After they graduated, they taught in the  Bapu Gram branch of the Children's Home and even though their salary was low, they were happy because were giving back to their community.</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question6.mp3</value>
+					</text>
+					<text id="question7-label">
+						<value>When their son was born, the couple needed more money. Luckily Jyothi had learnt how to sew at the Home. She started sewing clothes for the villagers, with the sewing machine that was a wedding gift from the Home. She even taught her husband how to sew! Together their business grew.</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question7.mp3</value>
+					</text>
+					<text id="question8-label">
+						<value>The growing family then moved to Fatehpur, a village in the same district as the Home. They found that Fatehpur had no schools. Together they decided to open one so that the Musahar community could be educated.</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question8.mp3</value>
+					</text>
+					<text id="question9-label">
+						<value>Classes were held under a tree until the village gifted land to the school. The community also donated labour for the construction of the school building. Thanks to Jyoti Devi''s initiative, all children in Fatehpur go to school. In fact, 10 neighboring villages were so inspired by Jyoti's  community effort, they also organised their own schools.</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question9.mp3</value>
+					</text>
+					<text id="question10-label">
+						<value>When the government opened a primary school and an Anganwadi in Fatehpur, Jyothi was the natural choice to become an Anganwadi worker. She worked hard to improve maternal and child healthcare in her village. She convinced the village women that immunization of their children was nothing to be afraid of.</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question10.mp3</value>
+					</text>
+					<text id="question12-label">
+						<value>Jyoti Devi realized that women's empowerment was key to improving maternal and child health. She helped introduce the women in the village to the concept of self-help groups (SHGs). From starting with only 10 groups in 1997, there are now 350 groups nearly 10 years later!</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question12.mp3</value>
+					</text>
+					<text id="question13-label">
+						<value>After stepping outside their homes to discuss their SHG activities, the women felt empowered and their self-worth and confidence increased. So much so that when a member of their group was beaten by their husband, all the groups got together and demonstrated in front of his house until he apologized.</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question13.mp3</value>
+					</text>
+					<text id="question2-label">
+						<value>Apart from improving maternal and child health in the village, Jyoti Devi also helped achieve better farming outcomes. She learned about a new farming technique called system of rice intensification (SRI) from a local NGO and introduced it to the Musahar community. Families found that the rice yield on one katha of land increased from 30 to 50 kilograms through SRI.</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question2.mp3</value>
+					</text>
+					<text id="question3-label">
+						<value>It was Jyoti Devi's success in turning vast barren lands into green belts with the SRI technique and other indigenous methods that caught the attention of the Chief Minister of Bihar.  He offered her the Barachatti party seat for the Assembly elections and she defeated her opponent by over 24,000 votes in the 2010 Assembly elections!</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question3.mp3</value>
+					</text>
+					<text id="question11-label">
+						<value>Jyoti says, &#8220;My life is an open book. I have always wanted to work for the people and I have done that in the past 25 years. The only difference now is that, as an MLA, I have more power and authority to help people.&#8221;</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question11.mp3</value>
+					</text>
+					<text id="shg_knowledge-label">
+						<value>Have you heard about self-help groups (SHGs) before?</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_knowledge.mp3</value>
+					</text>
+					<text id="shg_knowledge-shg_knowledge_yes-label">
+						<value>1. No</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_knowledge-shg_knowledge_yes.mp3</value>
+					</text>
+					<text id="shg_knowledge-shg_knowledge_no-label">
+						<value>2. No</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_knowledge-shg_knowledge_no.mp3</value>
+					</text>
+					<text id="shg_info-label">
+						<value>Would you like to know more about self-help groups (SHGs)?</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_info.mp3</value>
+					</text>
+					<text id="shg_info-yes_shg_info-label">
+						<value>1. Yes</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_info-yes_shg_info.mp3</value>
+					</text>
+					<text id="shg_info-no_shg_info-label">
+						<value>2. No</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_info-no_shg_info.mp3</value>
+					</text>
+					<text id="question16-label">
+						<value>A self-help group is a village-based lending committee of usually 10-20 local women. Members make small regular financial contributions until there is enough money to start lending. Funds may be lent back to the members or to others in the village for any purpose. This way women can make sure they don't get caught in a cycle of debt with unscrupulous money-lenders! The ultimate goal is to make everybody in the group financially stable and self-employed.</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question16.mp3</value>
+					</text>
+					<text id="shg_howstart_village-label">
+						<value>Would you like more information about how to start your own self-help group (SHG) in your village?</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_howstart_village.mp3</value>
+					</text>
+					<text id="shg_howstart_village-shg_howstart_village_yes-label">
+						<value>1. Yes</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_howstart_village-shg_howstart_village_yes.mp3</value>
+					</text>
+					<text id="question17-item1-label2">
+						<value>2. No</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_howstart_village-shg_howstart_village_no.mp3</value>
+					</text>
+					<text id="sri-label">
+						<value>Would you like more information about the system of rice intensification (SRI) or other types of indigenous farming methods?</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/sri.mp3</value>
+					</text>
+					<text id="sri-sri_yes-label">
+						<value>1. Yes</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/sri-sri_yes.mp3</value>
+					</text>
+					<text id="sri-sri_no-label">
+						<value>2. No</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/sri-sri_no.mp3</value>
+					</text>
+				</translation>
+				<translation lang="hin">
+					<text id="question1-label">
+						<value>&#2332;&#2381;&#2351;&#2379;&#2340;&#2367; &#2342;&#2375;&#2357;&#2368; &#2348;&#2367;&#2361;&#2366;&#2352; &#2352;&#2366;&#2332;&#2381;&#2351; &#2325;&#2368; &#2357;&#2367;&#2343;&#2366;&#2344; &#2360;&#2349;&#2366; &#2360;&#2342;&#2360;&#2381;&#2351;&#2366; &#2361;&#2376;&#2306; | &#2357;&#2361; &#2350;&#2369;&#2360;&#2361;&#2352; &#2360;&#2350;&#2369;&#2342;&#2366;&#2351; &#2360;&#2375; &#2361;&#2376;&#2306; &#2332;&#2361;&#2366;&#2305; &#2325;&#2349;&#2368; &#2354;&#2379;&#2327;&#2379;&#2306; &#2325;&#2379; &#2330;&#2370;&#2361;&#2375; &#2325;&#2379; &#2326;&#2366;&#2344;&#2375; &#2325;&#2375; &#2354;&#2367;&#2319; &#2350;&#2332;&#2348;&#2370;&#2352; &#2325;&#2367;&#2351;&#2366; &#2332;&#2366;&#2340;&#2366; &#2341;&#2366;| &#2354;&#2375;&#2325;&#2367;&#2344; &#2311;&#2344;&#2325;&#2375; &#2346;&#2381;&#2352;&#2351;&#2366;&#2360; &#2360;&#2375; &#2360;&#2348; &#2325;&#2369;&#2331; &#2348;&#2342;&#2354; &#2352;&#2361;&#2366; &#2361;&#2376; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question1.mp3</value>
+					</text>
+					<text id="question4-label">
+						<value>&#2332;&#2381;&#2351;&#2379;&#2340;&#2367; &#2342;&#2375;&#2357;&#2368; &#2325;&#2379; &#2313;&#2344;&#2325;&#2375; &#2346;&#2367;&#2340;&#2366; &#2344;&#2375; &#2346;&#2366;&#2306;&#2330; &#2360;&#2366;&#2354; &#2325;&#2368; &#2313;&#2350;&#2381;&#2352; &#2350;&#2375;&#2306; &#2327;&#2352;&#2368;&#2348; &#2348;&#2330;&#2381;&#2330;&#2379; &#2325;&#2379; &#2346;&#2397;&#2366;&#2344;&#2375; &#2357;&#2366;&#2354;&#2375; &#2319;&#2325; &#2309;&#2357;&#2366;&#2358;&#2368;&#2351; &#2360;&#2381;&#2325;&#2370;&#2354; &#2350;&#2375;&#2306; &#2331;&#2379;&#2396; &#2342;&#2367;&#2351;&#2366; | &#2357;&#2361; &#2332;&#2366;&#2344;&#2340;&#2368; &#2341;&#2368; &#2325;&#2367; &#2351;&#2361; &#2360;&#2381;&#2325;&#2370;&#2354; &#2313;&#2344;&#2325;&#2375; &#2348;&#2375;&#2361;&#2340;&#2352; &#2349;&#2357;&#2367;&#2359;&#2381;&#2351; &#2325;&#2375; &#2354;&#2367;&#2319; &#2309;&#2330;&#2381;&#2331;&#2366; &#2350;&#2380;&#2325;&#2366; &#2341;&#2366; | &#2347;&#2367;&#2352; &#2351;&#2361; &#2350;&#2369;&#2358;&#2381;&#2325;&#2367;&#2354; &#2341;&#2366; &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2357;&#2361;&#2366;&#2306; &#2352;&#2361;&#2325;&#2352; &#2325;&#2396;&#2368; &#2350;&#2375;&#2361;&#2344;&#2340; &#2325;&#2368; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question4.mp3</value>
+					</text>
+					<text id="question5-label">
+						<value>&#2351;&#2369;&#2357;&#2366;&#2357;&#2360;&#2381;&#2341;&#2366; &#2360;&#2375; &#2361;&#2368; &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2309;&#2344;&#2381;&#2351;&#2366;&#2351; &#2325;&#2366; &#2357;&#2367;&#2352;&#2379;&#2343; &#2325;&#2367;&#2351;&#2366; |&#2348;&#2330;&#2381;&#2330;&#2379;&#2306; &#2325;&#2379; &#2328;&#2352; ,&#2309;&#2330;&#2381;&#2331;&#2375; &#2325;&#2346;&#2337;&#2375; &#2324;&#2352; &#2349;&#2379;&#2332;&#2344; &#2342;&#2367;&#2319; &#2324;&#2352; &#2360;&#2366;&#2341; &#2360;&#2366;&#2341; &#2346;&#2376;&#2360;&#2366; &#2349;&#2368; | &#2313;&#2344;&#2381;&#2361;&#2379;&#2344;&#2375; &#2354;&#2396;&#2325;&#2367;&#2323;&#2306; &#2360;&#2375; &#2360;&#2350;&#2370;&#2361; &#2348;&#2344;&#2366;&#2325;&#2352; &#2348;&#2366;&#2340; &#2325;&#2368; &#2324;&#2352;  &#2313;&#2344;&#2325;&#2368; &#2360;&#2350;&#2360;&#2381;&#2351;&#2366; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306; &#2346;&#2370;&#2331;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question5.mp3</value>
+					</text>
+					<text id="question6-label">
+						<value>&#2332;&#2381;&#2351;&#2379;&#2340;&#2368; &#2342;&#2375;&#2357;&#2368; &#2344;&#2375; &#2348;&#2366;&#2354;&#2375;&#2358;&#2381;&#2357;&#2352; &#2360;&#2375; &#2358;&#2366;&#2342;&#2368; &#2325;&#2368;| &#2357;&#2375; &#2342;&#2379;&#2344;&#2379;&#2306; &#2348;&#2366;&#2346;&#2370; &#2327;&#2381;&#2352;&#2366;&#2350; &#2358;&#2366;&#2326;&#2366; &#2325;&#2375; &#2309;&#2344;&#2381;&#2340;&#2352;&#2381;&#2327;&#2340; &#2348;&#2361;&#2369;&#2340; &#2325;&#2350; &#2357;&#2375;&#2340;&#2344; &#2346;&#2352; &#2348;&#2330;&#2381;&#2330;&#2379; &#2325;&#2379; &#2328;&#2352; &#2328;&#2352; &#2332;&#2366;&#2325;&#2352; &#2346;&#2338;&#2366;&#2351;&#2366; | &#2357;&#2375; &#2348;&#2361;&#2369;&#2340; &#2326;&#2369;&#2358; &#2341;&#2375; | &#2347;&#2367;&#2352; &#2357;&#2375; &#2309;&#2346;&#2344;&#2375; &#2327;&#2366;&#2305;&#2357; &#2350;&#2375;&#2306; &#2357;&#2366;&#2346;&#2360; &#2310; &#2327;&#2319; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question6.mp3</value>
+					</text>
+					<text id="question7-label">
+						<value>&#2354;&#2396;&#2325;&#2366; &#2346;&#2376;&#2342;&#2366; &#2361;&#2379; &#2332;&#2366;&#2344;&#2375; &#2346;&#2352; &#2313;&#2344;&#2381;&#2361;&#2375;&#2306; &#2346;&#2376;&#2360;&#2375; &#2325;&#2368; &#2309;&#2343;&#2367;&#2325; &#2310;&#2357;&#2358;&#2381;&#2351;&#2325;&#2340;&#2366; &#2346;&#2396;&#2344;&#2375; &#2354;&#2327;&#2368; | &#2332;&#2381;&#2351;&#2379;&#2340;&#2367; &#2344;&#2375; &#2328;&#2352; &#2346;&#2352; &#2352;&#2361;&#2325;&#2352; &#2360;&#2367;&#2354;&#2366;&#2312; &#2325;&#2352;&#2344;&#2366; &#2360;&#2367;&#2326;&#2366; | &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2327;&#2366;&#2305;&#2357; &#2346;&#2352; &#2361;&#2368; &#2354;&#2379;&#2327;&#2379;&#2306; &#2325;&#2375; &#2325;&#2346;&#2337;&#2375; &#2360;&#2367;&#2354;&#2344;&#2366; &#2358;&#2369;&#2352;&#2370; &#2325;&#2367;&#2351;&#2366; | &#2360;&#2367;&#2354;&#2366;&#2312; &#2350;&#2358;&#2368;&#2344; &#2313;&#2344;&#2325;&#2368; &#2358;&#2366;&#2342;&#2368; &#2350;&#2375;&#2306; &#2342;&#2361;&#2375;&#2395; &#2325;&#2375; &#2352;&#2370;&#2346; &#2350;&#2375;&#2306; &#2350;&#2367;&#2354;&#2366; &#2341;&#2368; | &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2309;&#2346;&#2344;&#2375; &#2346;&#2340;&#2367; &#2325;&#2379; &#2349;&#2368; &#2325;&#2346;&#2337;&#2375; &#2360;&#2367;&#2354;&#2344;&#2366; &#2360;&#2367;&#2326;&#2366;&#2351;&#2366; &#2324;&#2352; &#2342;&#2379;&#2344;&#2379;&#2306; &#2350;&#2367;&#2354;&#2325;&#2352; &#2309;&#2346;&#2344;&#2366; &#2357;&#2381;&#2351;&#2357;&#2360;&#2366;&#2351; &#2358;&#2369;&#2352;&#2370; &#2325;&#2352; &#2342;&#2367;&#2351;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question7.mp3</value>
+					</text>
+					<text id="question8-label">
+						<value>&#2346;&#2352;&#2367;&#2357;&#2366;&#2352; &#2348;&#2397;&#2344;&#2375; &#2346;&#2352; &#2357;&#2375; &#2347;&#2340;&#2375;&#2361;&#2346;&#2369;&#2352; &#2332;&#2367;&#2354;&#2375; &#2350;&#2375;&#2306; &#2310; &#2327;&#2319; | &#2347;&#2340;&#2375;&#2361;&#2346;&#2369;&#2352; &#2350;&#2375;&#2306; &#2325;&#2379;&#2312; &#2309;&#2330;&#2381;&#2331;&#2366; &#2360;&#2381;&#2325;&#2370;&#2354; &#2344;&#2361;&#2368;&#2306; &#2341;&#2366; &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2350;&#2369;&#2360;&#2361;&#2352; &#2360;&#2350;&#2369;&#2342;&#2366;&#2351; &#2325;&#2379; &#2358;&#2367;&#2325;&#2381;&#2359;&#2367;&#2340; &#2325;&#2352;&#2344;&#2375; &#2325;&#2375; &#2354;&#2367;&#2319; &#2360;&#2381;&#2325;&#2370;&#2354; &#2326;&#2379;&#2354;&#2344;&#2375; &#2325;&#2366; &#2344;&#2367;&#2358;&#2381;&#2330;&#2351; &#2325;&#2367;&#2351;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question8.mp3</value>
+					</text>
+					<text id="question9-label">
+						<value>&#2360;&#2381;&#2325;&#2370;&#2354; &#2346;&#2375;&#2396; &#2325;&#2375; &#2344;&#2368;&#2330;&#2375; &#2330;&#2354; &#2352;&#2361;&#2366; &#2341;&#2366; &#2340;&#2379; &#2327;&#2366;&#2305;&#2357; &#2357;&#2366;&#2354;&#2379;&#2306; &#2344;&#2375; &#2332;&#2350;&#2368;&#2344; &#2342;&#2368; | &#2360;&#2350;&#2369;&#2342;&#2366;&#2351; &#2325;&#2375; &#2354;&#2379;&#2327;&#2379;&#2306; &#2344;&#2375; &#2349;&#2368; &#2360;&#2381;&#2325;&#2370;&#2354; &#2325;&#2375; &#2349;&#2357;&#2344; &#2344;&#2367;&#2352;&#2381;&#2350;&#2366;&#2339; &#2350;&#2375;&#2306; &#2358;&#2381;&#2352;&#2350;&#2342;&#2366;&#2344; &#2342;&#2367;&#2351;&#2366; | &#2332;&#2381;&#2351;&#2379;&#2340;&#2367; &#2342;&#2375;&#2357;&#2368; &#2325;&#2375; &#2311;&#2360; &#2346;&#2361;&#2354; &#2360;&#2375; &#2347;&#2340;&#2375;&#2361;&#2346;&#2369;&#2352; &#2325;&#2375; &#2360;&#2349;&#2368; &#2348;&#2330;&#2381;&#2330;&#2375; &#2360;&#2381;&#2325;&#2370;&#2354; &#2350;&#2375;&#2306; &#2332;&#2366;&#2344;&#2375; &#2354;&#2327;&#2375; | &#2357;&#2366;&#2360;&#2381;&#2340;&#2357; &#2350;&#2375;&#2306; &#2332;&#2381;&#2351;&#2379;&#2340;&#2367; &#2342;&#2375;&#2357;&#2368; &#2360;&#2375; &#2346;&#2381;&#2352;&#2375;&#2352;&#2367;&#2340; &#2361;&#2379;&#2325;&#2352; &#2310;&#2360; &#2346;&#2366;&#2360; &#2325;&#2375; &#2342;&#2360; &#2327;&#2366;&#2305;&#2357; &#2325;&#2375; &#2354;&#2379;&#2327;&#2379;&#2306; &#2344;&#2375; &#2349;&#2368; &#2309;&#2346;&#2344;&#2375; &#2360;&#2350;&#2370;&#2342;&#2366;&#2351; &#2350;&#2375;&#2306; &#2360;&#2381;&#2325;&#2370;&#2354; &#2326;&#2379;&#2354;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question9.mp3</value>
+					</text>
+					<text id="question10-label">
+						<value>&#2360;&#2352;&#2325;&#2366;&#2352; &#2344;&#2375; &#2347;&#2340;&#2375;&#2361;&#2346;&#2369;&#2352; &#2350;&#2375;&#2306; &#2319;&#2325; &#2346;&#2381;&#2352;&#2366;&#2341;&#2350;&#2367;&#2325; &#2357;&#2367;&#2342;&#2381;&#2351;&#2366;&#2354;&#2351; &#2324;&#2352; &#2310;&#2306;&#2327;&#2344;&#2357;&#2366;&#2337;&#2368; &#2325;&#2375;&#2306;&#2342;&#2381;&#2352; &#2326;&#2379;&#2354;&#2366; , &#2332;&#2381;&#2351;&#2379;&#2340;&#2367; &#2310;&#2306;&#2327;&#2344;&#2357;&#2366;&#2337;&#2368; &#2325;&#2366;&#2352;&#2381;&#2351;&#2325;&#2352;&#2381;&#2340;&#2381;&#2352;&#2368; &#2348;&#2344;&#2366;&#2344;&#2366; &#2330;&#2366;&#2361;&#2340;&#2368; &#2341;&#2368; , &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2309;&#2346;&#2344;&#2375; &#2327;&#2366;&#2305;&#2357; &#2350;&#2375;&#2306; &#2350;&#2366;&#2340;&#2371; &#2319;&#2357;&#2306; &#2358;&#2367;&#2358;&#2369; &#2360;&#2381;&#2357;&#2366;&#2360;&#2381;&#2341;&#2381;&#2351; &#2325;&#2379; &#2348;&#2375;&#2361;&#2340;&#2352; &#2348;&#2344;&#2366;&#2344;&#2375; &#2325;&#2375; &#2354;&#2367;&#2319; &#2325;&#2396;&#2368; &#2350;&#2375;&#2361;&#2344;&#2340; &#2325;&#2368; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question10.mp3</value>
+					</text>
+					<text id="question12-label">
+						<value>&#2332;&#2381;&#2351;&#2379;&#2340;&#2367; &#2342;&#2375;&#2357;&#2368; &#2344;&#2375; &#2350;&#2361;&#2367;&#2354;&#2366;&#2323;&#2306; &#2325;&#2375; &#2360;&#2358;&#2325;&#2381;&#2340;&#2367;&#2325;&#2352;&#2339; &#2324;&#2352; &#2350;&#2366;&#2340;&#2371; &#2319;&#2357;&#2306; &#2358;&#2367;&#2358;&#2369; &#2360;&#2369;&#2343;&#2366;&#2352; &#2325;&#2375; &#2354;&#2367;&#2319; &#2350;&#2361;&#2340;&#2381;&#2357;&#2346;&#2370;&#2352;&#2381;&#2339; &#2325;&#2342;&#2350; &#2313;&#2336;&#2366;&#2351;&#2366; |&#2327;&#2366;&#2305;&#2357; &#2325;&#2368; &#2350;&#2361;&#2367;&#2354;&#2366;&#2323;&#2306; &#2325;&#2379; &#2360;&#2381;&#2357;&#2351;&#2306; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2360;&#2350;&#2370;&#2361; &#2325;&#2368; &#2309;&#2357;&#2343;&#2366;&#2352;&#2339;&#2366; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306; &#2348;&#2340;&#2366;&#2351;&#2366; &#2324;&#2352; &#2313;&#2344;&#2325;&#2368; &#2350;&#2342;&#2342; &#2325;&#2368; | 1997  &#2350;&#2375;&#2306; &#2325;&#2369;&#2354; &#2342;&#2360; &#2360;&#2350;&#2370;&#2361; &#2341;&#2375; &#2324;&#2352; &#2309;&#2348; &#2342;&#2360; &#2360;&#2366;&#2354; &#2350;&#2375;&#2306; &#2325;&#2369;&#2354; 350 &#2360;&#2350;&#2370;&#2361; &#2330;&#2354; &#2352;&#2361;&#2375; &#2361;&#2376; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question12.mp3</value>
+					</text>
+					<text id="question13-label">
+						<value>&#2360;&#2381;&#2357;&#2351;&#2306; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2360;&#2350;&#2370;&#2361; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306; &#2354;&#2379;&#2327;&#2379;&#2306; &#2360;&#2375; &#2330;&#2352;&#2381;&#2330;&#2366; &#2325;&#2368; , &#2350;&#2361;&#2367;&#2354;&#2366;&#2323;&#2306; &#2325;&#2379; &#2360;&#2358;&#2325;&#2381;&#2340; &#2361;&#2379;&#2344;&#2375; &#2324;&#2352; &#2313;&#2344;&#2325;&#2375; &#2310;&#2340;&#2381;&#2350;&#2357;&#2367;&#2358;&#2381;&#2357;&#2366;&#2360; &#2325;&#2379; &#2348;&#2397;&#2366;&#2357;&#2366; &#2342;&#2367;&#2351;&#2366; | &#2311;&#2360; &#2360;&#2350;&#2370;&#2361; &#2325;&#2375; &#2319;&#2325; &#2360;&#2342;&#2360;&#2381;&#2351;&#2366; &#2325;&#2379; &#2313;&#2360;&#2325;&#2375; &#2346;&#2340;&#2367; &#2342;&#2381;&#2357;&#2366;&#2352;&#2366; &#2350;&#2366;&#2352;&#2344;&#2375; &#2346;&#2352; &#2311;&#2344; &#2354;&#2379;&#2327;&#2379;&#2306; &#2344;&#2375; &#2311;&#2325;&#2336;&#2381;&#2336;&#2366; &#2361;&#2379;&#2325;&#2352; &#2313;&#2360;&#2325;&#2375; &#2328;&#2352; &#2325;&#2375; &#2360;&#2366;&#2350;&#2344;&#2375; &#2346;&#2381;&#2352;&#2342;&#2352;&#2381;&#2358;&#2344; &#2325;&#2367;&#2351;&#2366; &#2340;&#2348; &#2332;&#2366;&#2325;&#2352; &#2313;&#2360;&#2344;&#2375; &#2350;&#2366;&#2398;&#2368; &#2350;&#2366;&#2306;&#2327;&#2368; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question13.mp3</value>
+					</text>
+					<text id="question2-label">
+						<value>&#2311;&#2360;&#2325;&#2375; &#2309;&#2354;&#2366;&#2357;&#2366; &#2332;&#2381;&#2351;&#2379;&#2340;&#2367; &#2342;&#2375;&#2357;&#2368; &#2344;&#2375; &#2309;&#2346;&#2344;&#2375; &#2327;&#2366;&#2305;&#2357; &#2350;&#2375;&#2306; &#2350;&#2366;&#2340;&#2371; &#2319;&#2357;&#2306; &#2358;&#2367;&#2358;&#2369; &#2360;&#2381;&#2357;&#2366;&#2360;&#2381;&#2341;&#2381;&#2351; &#2360;&#2369;&#2343;&#2366;&#2352; &#2325;&#2375; &#2354;&#2367;&#2319; &#2325;&#2366;&#2350; &#2325;&#2367;&#2351;&#2366; |&#2324;&#2352; &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2326;&#2375;&#2340;&#2368; &#2325;&#2368; &#2309;&#2330;&#2381;&#2331;&#2368; &#2346;&#2376;&#2342;&#2366;&#2357;&#2366;&#2352; &#2325;&#2375; &#2354;&#2367;&#2319; &#2349;&#2368; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2325;&#2368; | &#2360;&#2381;&#2341;&#2366;&#2344;&#2368;&#2351; &#2327;&#2376;&#2352; &#2360;&#2352;&#2325;&#2366;&#2352;&#2368; &#2360;&#2306;&#2360;&#2381;&#2341;&#2366; &#2325;&#2368; &#2350;&#2342;&#2342; &#2360;&#2375; &#2330;&#2366;&#2357;&#2354; &#2325;&#2368; &#2346;&#2376;&#2342;&#2366;&#2357;&#2366;&#2352; &#2348;&#2338;&#2366;&#2344;&#2375; (&#2319;&#2360;. &#2310;&#2352;. &#2310;&#2312;. ) &#2325;&#2368;  &#2344;&#2351;&#2368; &#2340;&#2325;&#2344;&#2368;&#2325;&#2368; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306; &#2360;&#2367;&#2326;&#2366; &#2324;&#2352; &#2350;&#2369;&#2360;&#2361;&#2352; &#2360;&#2350;&#2369;&#2342;&#2366;&#2351; &#2325;&#2375; &#2354;&#2379;&#2327;&#2379;&#2306; &#2325;&#2379; &#2349;&#2368; &#2348;&#2340;&#2366;&#2351;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question2.mp3</value>
+					</text>
+					<text id="question3-label">
+						<value>&#2319;&#2360;. &#2310;&#2352;. &#2310;&#2312;. &#2340;&#2325;&#2344;&#2368;&#2325;&#2368; &#2324;&#2352; &#2309;&#2344;&#2381;&#2351; &#2360;&#2381;&#2357;&#2342;&#2375;&#2358;&#2368; &#2340;&#2352;&#2368;&#2325;&#2375; &#2360;&#2375; &#2348;&#2306;&#2332;&#2352; &#2332;&#2350;&#2368;&#2344; &#2350;&#2375;&#2306; &#2354;&#2361;&#2354;&#2361;&#2366;&#2340;&#2368; &#2347;&#2360;&#2354; &#2346;&#2376;&#2342;&#2366; &#2325;&#2352; &#2350;&#2369;&#2326;&#2381;&#2351;&#2350;&#2306;&#2340;&#2381;&#2352;&#2368; &#2325;&#2366; &#2343;&#2381;&#2351;&#2366;&#2344; &#2309;&#2346;&#2344;&#2368; &#2323;&#2352; &#2310;&#2325;&#2352;&#2381;&#2359;&#2367;&#2340; &#2325;&#2367;&#2351;&#2366; | &#2313;&#2344;&#2325;&#2368; &#2311;&#2360; &#2360;&#2347;&#2354;&#2340;&#2366; &#2325;&#2379; &#2342;&#2375;&#2326; &#2325;&#2352; &#2348;&#2352;&#2381;&#2325;&#2340;&#2368; &#2360;&#2368;&#2335; &#2360;&#2375; &#2357;&#2367;&#2343;&#2366;&#2344;&#2360;&#2349;&#2366; &#2330;&#2369;&#2344;&#2366;&#2357; &#2325;&#2375; &#2354;&#2367;&#2319; &#2335;&#2367;&#2325;&#2335; &#2342;&#2367;&#2351;&#2366; | &#2324;&#2352; 2010 &#2325;&#2375; &#2357;&#2367;&#2343;&#2366;&#2344;&#2360;&#2349;&#2366; &#2350;&#2375;&#2306; 26000 &#2360;&#2375; &#2309;&#2343;&#2367;&#2325; &#2350;&#2340;&#2379;&#2306; &#2360;&#2375; &#2309;&#2346;&#2344;&#2375; &#2346;&#2381;&#2352;&#2340;&#2367;&#2342;&#2381;&#2357;&#2306;&#2342;&#2368; &#2325;&#2379; &#2361;&#2352;&#2366;&#2351;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question3.mp3</value>
+					</text>
+					<text id="question11-label">
+						<value>&#2332;&#2381;&#2351;&#2379;&#2340;&#2367; &#2325;&#2366; &#2325;&#2361;&#2344;&#2366; &#2361;&#2376; ," &#2350;&#2375;&#2352;&#2366; &#2332;&#2368;&#2357;&#2344; &#2319;&#2325; &#2326;&#2369;&#2354;&#2368; &#2325;&#2367;&#2340;&#2366;&#2348; &#2361;&#2376; | &#2350;&#2376;&#2306; &#2361;&#2350;&#2375;&#2358;&#2366; &#2354;&#2379;&#2327;&#2379;&#2306; &#2325;&#2375; &#2354;&#2367;&#2319; &#2325;&#2366;&#2350; &#2325;&#2352;&#2344;&#2366; &#2330;&#2366;&#2361;&#2340;&#2368; &#2361;&#2370;&#2305; &#2324;&#2352; &#2350;&#2376;&#2306;&#2344;&#2375; &#2346;&#2367;&#2331;&#2354;&#2375; &#2346;&#2330;&#2368;&#2360; &#2357;&#2352;&#2381;&#2359;&#2379;&#2306; &#2360;&#2375; &#2332;&#2379; &#2325;&#2369;&#2331; &#2349;&#2368; &#2325;&#2367;&#2351;&#2366; &#2361;&#2376; &#2357;&#2361; &#2319;&#2325; &#2319;&#2350;. &#2319;&#2354;. &#2319;. &#2325;&#2375; &#2325;&#2366;&#2352;&#2381;&#2351; &#2360;&#2375; &#2309;&#2354;&#2327; &#2361;&#2376;&#2306; | &#2350;&#2375;&#2352;&#2375; &#2346;&#2366;&#2360; &#2354;&#2379;&#2327;&#2379;&#2306; &#2325;&#2368; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2325;&#2352;&#2344;&#2375; &#2325;&#2366; &#2358;&#2325;&#2381;&#2340;&#2367; &#2324;&#2352; &#2309;&#2343;&#2367;&#2325;&#2366;&#2352; &#2361;&#2376; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question11.mp3</value>
+					</text>
+					<text id="shg_knowledge-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346;&#2344;&#2375; &#2311;&#2360;&#2360;&#2375; &#2346;&#2361;&#2354;&#2375; &#2360;&#2381;&#2357;&#2351;&#2306; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2360;&#2350;&#2370;&#2361; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306; &#2360;&#2369;&#2344;&#2366; &#2341;&#2366; ?</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_knowledge.mp3</value>
+					</text>
+					<text id="shg_knowledge-shg_knowledge_yes-label">
+						<value>1. &#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_knowledge-shg_knowledge_yes.mp3</value>
+					</text>
+					<text id="shg_knowledge-shg_knowledge_no-label">
+						<value>2. &#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_knowledge-shg_knowledge_no.mp3</value>
+					</text>
+					<text id="shg_info-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346; &#2360;&#2381;&#2357;&#2351;&#2306; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2360;&#2350;&#2370;&#2361; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306; &#2324;&#2352; &#2309;&#2343;&#2367;&#2325; &#2332;&#2366;&#2344;&#2344;&#2366; &#2330;&#2366;&#2361;&#2375;&#2306;&#2327;&#2375; ?</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_info.mp3</value>
+					</text>
+					<text id="shg_info-yes_shg_info-label">
+						<value>1. &#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_info-yes_shg_info.mp3</value>
+					</text>
+					<text id="shg_info-no_shg_info-label">
+						<value>2. &#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_info-no_shg_info.mp3</value>
+					</text>
+					<text id="question16-label">
+						<value>&#2360;&#2381;&#2357;&#2351;&#2306; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2360;&#2350;&#2370;&#2361; &#2319;&#2325; &#2327;&#2381;&#2352;&#2366;&#2350;&#2368;&#2339; &#2360;&#2350;&#2367;&#2340;&#2367; &#2361;&#2376; &#2332;&#2367;&#2360;&#2350;&#2375;&#2306; &#2354;&#2327;&#2349;&#2327; 10 -20  &#2360;&#2381;&#2341;&#2366;&#2344;&#2368;&#2351; &#2350;&#2361;&#2367;&#2354;&#2366;&#2319;&#2306; &#2360;&#2342;&#2360;&#2381;&#2351; &#2361;&#2379;&#2340;&#2368; &#2361;&#2376;&#2306; | &#2360;&#2349;&#2368; &#2360;&#2342;&#2360;&#2381;&#2351; &#2344;&#2367;&#2351;&#2350;&#2367;&#2340; &#2352;&#2370;&#2346; &#2360;&#2375; &#2341;&#2379;&#2396;&#2375; &#2341;&#2379;&#2396;&#2375; &#2346;&#2376;&#2360;&#2375; &#2332;&#2350;&#2366; &#2325;&#2352;&#2340;&#2368; &#2361;&#2376; &#2324;&#2352; &#2325;&#2366;&#2347;&#2368; &#2346;&#2376;&#2360;&#2375; &#2361;&#2379; &#2332;&#2366;&#2344;&#2375; &#2346;&#2352; &#2313;&#2360;&#2375; &#2313;&#2343;&#2366;&#2352; &#2342;&#2375;&#2344;&#2366; &#2358;&#2369;&#2352;&#2370; &#2325;&#2352; &#2342;&#2375;&#2340;&#2368; &#2361;&#2376; | &#2351;&#2375; &#2346;&#2376;&#2360;&#2366; &#2360;&#2350;&#2367;&#2340;&#2367; &#2325;&#2375;  &#2325;&#2367;&#2360;&#2368; &#2360;&#2342;&#2360;&#2381;&#2351; &#2325;&#2379; &#2310;&#2357;&#2358;&#2381;&#2351;&#2325;&#2340;&#2366; &#2346;&#2396;&#2344;&#2375; &#2346;&#2352; &#2342;&#2367;&#2351;&#2366; &#2332;&#2366; &#2360;&#2325;&#2340;&#2366; &#2361;&#2376; |&#2311;&#2360; &#2340;&#2352;&#2361; &#2350;&#2361;&#2367;&#2354;&#2366;&#2323;&#2306; &#2325;&#2379; &#2348;&#2375;&#2312;&#2350;&#2366;&#2344; &#2360;&#2366;&#2361;&#2370;&#2325;&#2366;&#2352; &#2325;&#2375;  &#2325;&#2352;&#2381;&#2332; &#2325;&#2375; &#2330;&#2369;&#2306;&#2327;&#2354; &#2350;&#2375;&#2306; &#2346;&#2396;&#2344;&#2375; &#2360;&#2375; &#2348;&#2330;&#2366;&#2351;&#2366; &#2332;&#2366; &#2360;&#2325;&#2340;&#2366; &#2361;&#2376;&#2306;| &#2350;&#2369;&#2326;&#2381;&#2351; &#2352;&#2370;&#2346; &#2360;&#2375; &#2311;&#2360; &#2360;&#2350;&#2367;&#2340;&#2367; &#2325;&#2366; &#2313;&#2342;&#2381;&#2342;&#2375;&#2358;&#2381;&#2351; &#2360;&#2350;&#2370;&#2361; &#2325;&#2375; &#2360;&#2348; &#2354;&#2379;&#2327; &#2325;&#2379; &#2310;&#2352;&#2381;&#2341;&#2367;&#2325; &#2352;&#2370;&#2346; &#2360;&#2375; &#2350;&#2332;&#2348;&#2370;&#2340; &#2325;&#2352;&#2344;&#2366; &#2324;&#2352; &#2313;&#2344;&#2381;&#2361;&#2375;&#2306; &#2360;&#2381;&#2357;&#2352;&#2379;&#2332;&#2327;&#2366;&#2352; &#2342;&#2375;&#2344;&#2366; &#2361;&#2376; |</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/question16.mp3</value>
+					</text>
+					<text id="shg_howstart_village-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346; &#2309;&#2346;&#2344;&#2375; &#2327;&#2366;&#2305;&#2357; &#2350;&#2375;&#2306; &#2360;&#2381;&#2357;&#2351;&#2306; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2360;&#2350;&#2370;&#2361; (SHG) &#2325;&#2379; &#2358;&#2369;&#2352;&#2369; &#2325;&#2352;&#2344;&#2375; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2324;&#2352; &#2332;&#2381;&#2351;&#2366;&#2342;&#2366; &#2332;&#2366;&#2344;&#2325;&#2366;&#2352;&#2368; &#2330;&#2366;&#2361;&#2375;&#2306;&#2327;&#2375; ?</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_howstart_village.mp3</value>
+					</text>
+					<text id="shg_howstart_village-shg_howstart_village_yes-label">
+						<value>1. &#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_howstart_village-shg_howstart_village_yes.mp3</value>
+					</text>
+					<text id="question17-item1-label2">
+						<value>2. &#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/shg_howstart_village-shg_howstart_village_no.mp3</value>
+					</text>
+					<text id="sri-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346; &#2330;&#2366;&#2357;&#2354; &#2325;&#2368; &#2346;&#2376;&#2342;&#2366;&#2357;&#2366;&#2352; &#2348;&#2338;&#2366;&#2344;&#2375; &#2325;&#2368; &#2340;&#2325;&#2344;&#2368;&#2325;&#2368; &#2319;&#2360;. &#2310;&#2352;. &#2310;&#2312;. &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2351;&#2366; &#2309;&#2344;&#2381;&#2351; &#2360;&#2381;&#2357;&#2342;&#2375;&#2358;&#2368; &#2340;&#2352;&#2368;&#2325;&#2379;&#2306; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306; &#2332;&#2366;&#2344;&#2344;&#2366; &#2330;&#2366;&#2361;&#2340;&#2375; &#2361;&#2376;&#2306; ?</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/sri.mp3</value>
+					</text>
+					<text id="sri-sri_yes-label">
+						<value>1. &#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/sri-sri_yes.mp3</value>
+					</text>
+					<text id="sri-sri_no-label">
+						<value>2. &#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/jyoti/data/sri-sri_no.mp3</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><setvalue event="xforms-ready" ref="/data/deployment_date" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/deployment_date"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/question1" appearance="minimal">
+			<label ref="jr:itext('question1-label')"/>
+		</trigger>
+		<trigger ref="/data/question4" appearance="minimal">
+			<label ref="jr:itext('question4-label')"/>
+		</trigger>
+		<trigger ref="/data/question5" appearance="minimal">
+			<label ref="jr:itext('question5-label')"/>
+		</trigger>
+		<trigger ref="/data/question6" appearance="minimal">
+			<label ref="jr:itext('question6-label')"/>
+		</trigger>
+		<trigger ref="/data/question7" appearance="minimal">
+			<label ref="jr:itext('question7-label')"/>
+		</trigger>
+		<trigger ref="/data/question8" appearance="minimal">
+			<label ref="jr:itext('question8-label')"/>
+		</trigger>
+		<trigger ref="/data/question9" appearance="minimal">
+			<label ref="jr:itext('question9-label')"/>
+		</trigger>
+		<trigger ref="/data/question10" appearance="minimal">
+			<label ref="jr:itext('question10-label')"/>
+		</trigger>
+		<trigger ref="/data/question12" appearance="minimal">
+			<label ref="jr:itext('question12-label')"/>
+		</trigger>
+		<trigger ref="/data/question13" appearance="minimal">
+			<label ref="jr:itext('question13-label')"/>
+		</trigger>
+		<trigger ref="/data/question2" appearance="minimal">
+			<label ref="jr:itext('question2-label')"/>
+		</trigger>
+		<trigger ref="/data/question3" appearance="minimal">
+			<label ref="jr:itext('question3-label')"/>
+		</trigger>
+		<trigger ref="/data/question11" appearance="minimal">
+			<label ref="jr:itext('question11-label')"/>
+		</trigger>
+		<select1 ref="/data/shg_knowledge">
+			<label ref="jr:itext('shg_knowledge-label')"/>
+			<item>
+				<label ref="jr:itext('shg_knowledge-shg_knowledge_yes-label')"/>
+				<value>shg_knowledge_yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('shg_knowledge-shg_knowledge_no-label')"/>
+				<value>shg_knowledge_no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/shg_info">
+			<label ref="jr:itext('shg_info-label')"/>
+			<item>
+				<label ref="jr:itext('shg_info-yes_shg_info-label')"/>
+				<value>yes_shg_info</value>
+			</item>
+			<item>
+				<label ref="jr:itext('shg_info-no_shg_info-label')"/>
+				<value>no_shg_info</value>
+			</item>
+		</select1>
+		<trigger ref="/data/question16" appearance="minimal">
+			<label ref="jr:itext('question16-label')"/>
+		</trigger>
+		<select1 ref="/data/shg_howstart_village">
+			<label ref="jr:itext('shg_howstart_village-label')"/>
+			<item>
+				<label ref="jr:itext('shg_howstart_village-shg_howstart_village_yes-label')"/>
+				<value>shg_howstart_village_yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('question17-item1-label2')"/>
+				<value>shg_howstart_village_no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/sri">
+			<label ref="jr:itext('sri-label')"/>
+			<item>
+				<label ref="jr:itext('sri-sri_yes-label')"/>
+				<value>sri_yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sri-sri_no-label')"/>
+				<value>sri_no</value>
+			</item>
+		</select1>
+	</h:body>
+</h:html>
