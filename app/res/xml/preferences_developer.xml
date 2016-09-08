@@ -29,12 +29,6 @@
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-newest-version-from-hq"
-        android:title="Use Newest App Version From HQ"/>
-    <ListPreference
-        android:enabled="true"
-        android:entries="@array/pref_enabled_labels"
-        android:entryValues="@array/pref_enabled_vals"
         android:key="cc-enable-auto-login"
         android:title="Auto-login While Debugging"/>
     <ListPreference

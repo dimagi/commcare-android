@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import org.commcare.activities.RefreshToLatestBuildActivity;
-import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.CommCarePreferences;
 
 /**
  * Receiver for the RefreshToLatestBuildAction broadcast. Trigger from command line with:
@@ -25,7 +25,7 @@ public class RefreshToLatestBuildReceiver extends BroadcastReceiver {
         Log.d(TAG, "Processing test latest build broadcast");
 
         if (intent.getBooleanExtra("useLatestBuild", false)) {
-            DeveloperPreferences.enableNewestAppVersion();
+            CommCarePreferences.enableNewestAppVersion();
         }
 
         Intent i = new Intent(context, RefreshToLatestBuildActivity.class);
