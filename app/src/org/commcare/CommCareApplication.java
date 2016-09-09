@@ -774,9 +774,15 @@ public class CommCareApplication extends Application {
         return new SqlStorage<>(storage, c, buildUserDbHandle());
     }
 
-    public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
+    public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedUserStorage(
+            String storage, Class<T> c) {
+        return getFileBackedUserStorage(storage, c, getUserKeyRecordId());
+    }
+
+    public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedUserStorage(
+            String storage, Class<T> c, String userKeyRecordId) {
         return new HybridFileBackedSqlStorage<>(storage, c, buildUserDbHandle(),
-                getUserKeyRecordId(), CommCareApplication._().getCurrentApp());
+               userKeyRecordId, CommCareApplication._().getCurrentApp());
     }
 
     public String getUserKeyRecordId() {

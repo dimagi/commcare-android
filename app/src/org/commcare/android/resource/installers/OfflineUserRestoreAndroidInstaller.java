@@ -2,20 +2,22 @@ package org.commcare.android.resource.installers;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.logging.ReportingUtils;
-import org.commcare.models.encryption.ByteEncrypter;
+import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.reference.Reference;
+import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -37,30 +39,42 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
             throw new ResourceInitializationException("The user restore file location is null!");
         }
         if (isUpgrade) {
-            clearDataForCurrentDemoUser(instance);
+            wipeSandboxForCurrentDemoUser(instance);
         }
         OfflineUserRestore offlineUserRestore = new OfflineUserRestore(localLocation);
         instance.registerDemoUserRestore(offlineUserRestore);
         return true;
     }
 
-    private void clearDataForCurrentDemoUser(AndroidCommCarePlatform instance) {
-        OfflineUserRestore current = instance.getDemoUserRestore();
+    private void wipeSandboxForCurrentDemoUser(AndroidCommCarePlatform instance) {
+        final OfflineUserRestore current = instance.getDemoUserRestore();
 
-        if (!current.getUsername().equals(ReportingUtils.getUser())) {
-            UserKeyRecord ukr = UserKeyRecord.getCurrentValidRecordByPassword(
-                    CommCareApplication._().getCurrentApp(), current.getUsername(),
-                    current.getPassword(), true);
-            if (ukr == null) {
-                // means we never logged in with the old restore
-                return;
-            }
-            CommCareApplication._().startUserSession(
-                    ByteEncrypter.unwrapByteArrayWithString(ukr.getEncryptedKey(), current.getPassword()),
-                    ukr, false);
+        UserKeyRecord ukr = UserKeyRecord.getCurrentValidRecordByPassword(
+                CommCareApplication._().getCurrentApp(), current.getUsername(),
+                current.getPassword(), true);
+        if (ukr == null) {
+            // means we never logged in with the old demo user
+            return;
         }
 
-        CommCareApplication._().clearUserData();
+        final Set<String> dbIdsToRemove = new HashSet<>();
+        CommCareApplication._().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
+            @Override
+            public boolean matches(UserKeyRecord ukr) {
+                if (ukr.getUsername().equalsIgnoreCase(current.getUsername().toLowerCase())) {
+                    dbIdsToRemove.add(ukr.getUuid());
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        // manually clear file-backed fixture storage to ensure files are removed
+        //CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class, ukr.getUuid()).removeAll();
+
+        for (String id : dbIdsToRemove) {
+            CommCareApplication._().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
+        }
     }
 
     @Override
