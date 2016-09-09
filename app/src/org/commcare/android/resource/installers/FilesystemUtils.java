@@ -5,7 +5,7 @@ import org.javarosa.core.reference.ReferenceManager;
 
 import java.io.File;
 
-public class FilesystemUtils {
+public class FileSystemUtils {
 
     //Hate this
     private static final String validExtChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

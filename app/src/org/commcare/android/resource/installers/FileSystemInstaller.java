@@ -176,7 +176,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             //Get final destination
             String finalLocation = localDestination + "/" + filepart;
 
-            if (!FilesystemUtils.moveFrom(localLocation, finalLocation, false)) {
+            if (!FileSystemUtils.moveFrom(localLocation, finalLocation, false)) {
                 return false;
             }
 
@@ -193,7 +193,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             //Our destination/source are different depending on where we're going
             if (newStatus == Resource.RESOURCE_STATUS_UNSTAGED) {
                 String newLocation = localLocation + STAGING_EXT;
-                if (!FilesystemUtils.moveFrom(localLocation, newLocation, true)) {
+                if (!FileSystemUtils.moveFrom(localLocation, newLocation, true)) {
                     return false;
                 }
                 localLocation = newLocation;
@@ -206,7 +206,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                 String finalLocation = upgradeDestination + "/" + filepart;
 
                 //move back to upgrade folder
-                if (!FilesystemUtils.moveFrom(localLocation, finalLocation, true)) {
+                if (!FileSystemUtils.moveFrom(localLocation, finalLocation, true)) {
                     return false;
                 }
                 localLocation = finalLocation;
@@ -237,7 +237,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             //Get final destination
             finalLocation = localDestination + "/" + filepart;
 
-            if (!FilesystemUtils.moveFrom(localLocation, finalLocation, true)) {
+            if (!FileSystemUtils.moveFrom(localLocation, finalLocation, true)) {
                 return false;
             }
 
@@ -366,7 +366,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         if (lastDot != -1) {
             extension = input.substring(lastDot);
         }
-        return new Pair<>(r.getResourceId(), FilesystemUtils.extension(extension));
+        return new Pair<>(r.getResourceId(), FileSystemUtils.extension(extension));
     }
 
     @Override
