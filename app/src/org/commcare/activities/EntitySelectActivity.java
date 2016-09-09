@@ -995,6 +995,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         //In landscape we want to select something now. Either the top item, or the most recently selected one
         if (inAwesomeMode) {
             updateSelectedItem(true);
+        } else {
+            visibleView.setSelection(visibleView.getAdapter().getCount()-1);
         }
 
         refreshTimer.start(this);
