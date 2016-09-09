@@ -13,6 +13,8 @@ import org.commcare.activities.HomeButtons;
 import org.commcare.dalvik.R;
 import org.commcare.views.CustomBanner;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -29,6 +31,7 @@ public class HomeScreenAdapter
     private static final int TYPE_HEADER = 1;
     private final int screenHeight, screenWidth;
     private final int syncButtonPosition;
+    private final HashMap<Integer, String> messagePayload = new HashMap<>();
 
     public HomeScreenAdapter(CommCareHomeActivity activity,
                              Vector<String> buttonsToHide,
@@ -67,20 +70,27 @@ public class HomeScreenAdapter
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int i) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int i, List<Object> payload) {
         if (holder instanceof HeaderViewHolder) {
             bindHeader((HeaderViewHolder)holder);
         } else {
-            super.onBindViewHolder(holder, i);
+            if (payload == null || payload.isEmpty()) {
+                payload = new ArrayList<>();
+                payload.add(messagePayload.remove(i));
+            }
+
+            super.onBindViewHolder(holder, i, payload);
         }
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder,
-                                 int i, List<Object> payload) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int i) {
         if (holder instanceof HeaderViewHolder) {
             bindHeader((HeaderViewHolder)holder);
         } else {
+            ArrayList<Object> payload = new ArrayList<>();
+            payload.add(messagePayload.remove(i));
+
             super.onBindViewHolder(holder, i, payload);
         }
     }
@@ -124,6 +134,10 @@ public class HomeScreenAdapter
 
     public int getSyncButtonPosition() {
         return syncButtonPosition;
+    }
+
+    public void setMessagePayload(int position, String message) {
+        messagePayload.put(position, message);
     }
 
     private static class HeaderViewHolder extends RecyclerView.ViewHolder {
