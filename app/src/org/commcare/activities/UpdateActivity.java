@@ -15,7 +15,6 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
@@ -101,7 +100,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 uiController.errorUiState();
             }
         } else if (!isRotation && !taskIsCancelling
-                && ConnectivityStatus.isNetworkAvailable(this)) {
+                && (ConnectivityStatus.isNetworkAvailable(this) || offlineUpdateRef != null)) {
             startUpdateCheck();
         }
     }
@@ -110,7 +109,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     protected void onResume() {
         super.onResume();
 
-        if (!ConnectivityStatus.isNetworkAvailable(this)) {
+        if (!ConnectivityStatus.isNetworkAvailable(this) && offlineUpdateRef == null) {
             uiController.noConnectivityUiState();
             return;
         }
@@ -432,6 +431,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 if (resultCode == Activity.RESULT_OK) {
                     offlineUpdateRef = intent.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
                     if (offlineUpdateRef != null) {
+                        isLocalUpdate = true;
                         setupUpdateTask(false);
                     }
                 }
