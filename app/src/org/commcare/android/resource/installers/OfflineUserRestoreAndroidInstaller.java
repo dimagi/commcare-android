@@ -51,6 +51,10 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
             UserKeyRecord ukr = UserKeyRecord.getCurrentValidRecordByPassword(
                     CommCareApplication._().getCurrentApp(), current.getUsername(),
                     current.getPassword(), true);
+            if (ukr == null) {
+                // means we never logged in with the old restore
+                return;
+            }
             CommCareApplication._().startUserSession(
                     ByteEncrypter.unwrapByteArrayWithString(ukr.getEncryptedKey(), current.getPassword()),
                     ukr, false);
