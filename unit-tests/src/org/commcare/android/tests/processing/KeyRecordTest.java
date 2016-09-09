@@ -12,6 +12,7 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tests.activities.FormRecordListActivityTest;
+import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
@@ -137,7 +138,7 @@ public class KeyRecordTest {
 
     private static void testOpeningMigratedForm() {
         TestAppInstaller.login("test", "old_pass");
-        FormRecordListActivityTest.openASavedForm(2, 1);
+        ActivityLaunchUtils.openASavedForm(2, 1);
     }
 
     private static void assertActiveKeyRecordCount(int expectedCount,

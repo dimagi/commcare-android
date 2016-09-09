@@ -110,9 +110,7 @@ public class PurgeFormThatUpdatesClosedCase {
 
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
-        AlertDialog alert = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog salert = Shadows.shadowOf(alert);
-        /*
+
         ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
         ActivityLaunchUtils.waitForActivityFinish(shadowFormEntryActivity);
 
@@ -121,7 +119,6 @@ public class PurgeFormThatUpdatesClosedCase {
         shadowHomeActivity.receiveResult(formEntryIntent,
                 shadowFormEntryActivity.getResultCode(),
                 shadowFormEntryActivity.getResultIntent());
-        */
     }
 
     private ShadowActivity startFormEntryAndSaveIncomplete() {
