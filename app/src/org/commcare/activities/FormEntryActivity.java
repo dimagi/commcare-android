@@ -40,7 +40,6 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.utils.AndroidArrayDataSource;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.views.media.MediaLayout;
 import org.commcare.android.javarosa.IntentCallout;
@@ -1568,7 +1567,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     /**
      * Has form loading (via FormLoaderTask) completed?
      */
-    private boolean formHasLoaded() {
+    public boolean formHasLoaded() {
         return mFormController != null;
     }
 
