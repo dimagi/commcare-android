@@ -46,6 +46,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private static final String TAG = UpdateActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
     private static final String IS_APPLYING_UPDATE_KEY = "applying_update_task_running";
+    private static final String IS_LOCAL_UPDATE = "is-local-update";
+    private static final String OFFLINE_UPDATE_REF = "offline-update-ref";
 
     private static final int DIALOG_UPGRADE_INSTALL = 6;
     private static final int DIALOG_CONSUMER_APP_UPGRADE = 7;
@@ -80,10 +82,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     private void loadSavedInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            taskIsCancelling =
-                    savedInstanceState.getBoolean(TASK_CANCELLING_KEY, false);
-            isApplyingUpdate =
-                    savedInstanceState.getBoolean(IS_APPLYING_UPDATE_KEY, false);
+            taskIsCancelling = savedInstanceState.getBoolean(TASK_CANCELLING_KEY, false);
+            isApplyingUpdate = savedInstanceState.getBoolean(IS_APPLYING_UPDATE_KEY, false);
+            isLocalUpdate = savedInstanceState.getBoolean(IS_LOCAL_UPDATE, false);
+            offlineUpdateRef = savedInstanceState.getString(OFFLINE_UPDATE_REF);
             uiController.loadSavedUIState(savedInstanceState);
         }
     }
@@ -180,6 +182,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         outState.putBoolean(TASK_CANCELLING_KEY, taskIsCancelling);
         outState.putBoolean(IS_APPLYING_UPDATE_KEY, isApplyingUpdate);
+        outState.putString(OFFLINE_UPDATE_REF, offlineUpdateRef);
+        outState.putBoolean(IS_LOCAL_UPDATE, isLocalUpdate);
         uiController.saveCurrentUIState(outState);
     }
 
