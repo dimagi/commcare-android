@@ -815,10 +815,6 @@ public class CommCareApplication extends Application {
         return app;
     }
 
-    public void clearUserData() {
-        clearUserData(this.getSession().getLoggedInUser().getUsername());
-    }
-
     /**
      * This method wipes out all local user data (users, referrals, etc) but leaves
      * application resources in place.
@@ -826,7 +822,7 @@ public class CommCareApplication extends Application {
      * It makes no attempt to make sure this is a safe operation when called, so
      * it shouldn't be used lightly.
      */
-    public void clearUserData(final String username) {
+    public void clearUserData() {
 //        //First clear anything that will require the user's key, since we're going to wipe it out!
 //        getStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
 //
@@ -844,8 +840,8 @@ public class CommCareApplication extends Application {
 //
 //        getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 
+        final String username = this.getSession().getLoggedInUser().getUsername();
         final Set<String> dbIdsToRemove = new HashSet<>();
-
         this.getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
 
             @Override
