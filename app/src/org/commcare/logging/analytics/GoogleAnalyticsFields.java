@@ -199,6 +199,7 @@ public final class GoogleAnalyticsFields {
     public static final int VALUE_UNKNOWN_FAILURE = 6;
     public static final int VALUE_STORAGE_FULL = 7;
     public static final int VALUE_BAD_DATA_REQUIRES_INTERVENTION = 8;
+    public static final int VALUE_ACTIONABLE_FAILURE = 9;
 
     // Values for LABEL_AUTO_UPDATE
     public static final int VALUE_NEVER = 0;

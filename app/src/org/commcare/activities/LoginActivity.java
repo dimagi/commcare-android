@@ -601,6 +601,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case UNKNOWN_FAILURE:
                 raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
                 break;
+            case ACTIONABLE_FAILURE:
+                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
+                break;
         }
     }
 
