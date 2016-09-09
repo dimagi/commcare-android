@@ -1,6 +1,9 @@
 package org.commcare.android.resource.installers;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.logging.ReportingUtils;
+import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -8,7 +11,6 @@ import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
@@ -34,9 +36,27 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
         if (localLocation == null) {
             throw new ResourceInitializationException("The user restore file location is null!");
         }
+        if (isUpgrade) {
+            clearDataForCurrentDemoUser(instance);
+        }
         OfflineUserRestore offlineUserRestore = new OfflineUserRestore(localLocation);
         instance.registerDemoUserRestore(offlineUserRestore);
         return true;
+    }
+
+    private void clearDataForCurrentDemoUser(AndroidCommCarePlatform instance) {
+        OfflineUserRestore current = instance.getDemoUserRestore();
+
+        if (!current.getUsername().equals(ReportingUtils.getUser())) {
+            UserKeyRecord ukr = UserKeyRecord.getCurrentValidRecordByPassword(
+                    CommCareApplication._().getCurrentApp(), current.getUsername(),
+                    current.getPassword(), true);
+            CommCareApplication._().startUserSession(
+                    ByteEncrypter.unwrapByteArrayWithString(ukr.getEncryptedKey(), current.getPassword()),
+                    ukr, false);
+        }
+
+        CommCareApplication._().clearUserData();
     }
 
     @Override
