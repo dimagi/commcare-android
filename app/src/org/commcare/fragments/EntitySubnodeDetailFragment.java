@@ -77,7 +77,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     @Override
     public void deliverLoadResult(List<Entity<TreeReference>> entities,
                                   List<TreeReference> references,
-                                  NodeEntityFactory factory) {
+                                  NodeEntityFactory factory, int focusTargetIndex) {
         Bundle args = getArguments();
         Detail childDetail = asw.getSession().getDetail(args.getString(DETAIL_ID));
         final int thisIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
@@ -89,6 +89,9 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         this.loader = null;
         this.adapter = new EntitySubnodeDetailAdapter(getActivity(), childDetail, references, entities, modifier);
         this.listView.setAdapter((ListAdapter)this.adapter);
+        if (focusTargetIndex != -1) {
+            listView.setSelection(focusTargetIndex);
+        }
     }
 
     @Override
