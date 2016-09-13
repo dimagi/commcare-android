@@ -7,6 +7,7 @@ import android.util.Log;
 
 import org.commcare.activities.RefreshToLatestBuildActivity;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.DeveloperPreferences;
 
 /**
  * Receiver for the RefreshToLatestBuildAction broadcast. Trigger from command line with:

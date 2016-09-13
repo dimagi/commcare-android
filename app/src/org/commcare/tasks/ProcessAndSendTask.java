@@ -15,7 +15,6 @@ import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
-import org.javarosa.xml.util.InvalidStorageStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -195,13 +194,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         //Otherwise, the SD card just got removed, and we need to bail anyway.
                         throw e;
                     }
-                } catch(InvalidStorageStructureException e) {
-                    // Thrown when updating a case that isn't present
-                    // Do same behavior as InvalidStructureException (wipe record)
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to case transaction data|" + getExceptionText(e));
-                    FormRecordCleanupTask.wipeRecord(c, record);
-                    needToSendLogs = true;
                 } catch (IOException e) {
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. Tentatively not removing in case they are resolvable|" + getExceptionText(e));
                 }
