@@ -942,7 +942,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public void deliverLoadResult(List<Entity<TreeReference>> entities,
                                   List<TreeReference> references,
-                                  NodeEntityFactory factory) {
+                                  NodeEntityFactory factory, int focusTargetIndex) {
         loader = null;
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         int[] order = detail.getSortOrder();
@@ -991,11 +991,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             restoreAdapterStateFromSession();
         }
 
-        //In landscape we want to select something now. Either the top item, or the most recently selected one
         if (inAwesomeMode) {
             updateSelectedItem(true);
-        } else if (shortSelect.shouldFocusToBottomOfEntityList()) {
-            visibleView.setSelection(visibleView.getAdapter().getCount()-1);
+        } else if (focusTargetIndex != -1) {
+            visibleView.setSelection(focusTargetIndex);
         }
 
         refreshTimer.start(this);

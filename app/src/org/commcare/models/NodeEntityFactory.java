@@ -60,7 +60,8 @@ public class NodeEntityFactory {
             count++;
         }
 
-        return new Entity<>(details, sortDetails, relevancyDetails, data, extraKey);
+        return new Entity<>(details, sortDetails, relevancyDetails, data, extraKey,
+                detail.evaluateFocusFunction(nodeContext));
     }
 
     /**
