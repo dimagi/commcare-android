@@ -190,8 +190,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             mNoDetailMode = selectDatum.getLongDetail() == null;
 
             // Don't show actions (e.g. 'register patient', 'claim patient') when
-            // in the middle on workflow triggered by an (sync) action.
-            hideActions = session.isRemoteRequestCommand(session.getCommand());
+            // in the middle on workflow triggered by a (sync) action, or if our entity list is
+            // being shown in a grid
+            hideActions = session.isRemoteRequestCommand(session.getCommand()) ||
+                    shortSelect.shouldBeLaidOutInGrid();
 
             boolean isOrientationChange = savedInstanceState != null;
             setupUI(isOrientationChange);
