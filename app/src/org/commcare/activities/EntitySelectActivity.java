@@ -243,7 +243,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void setupUI(boolean isOrientationChange) {
         if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
-            //See if we're on a big 'ol screen.
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 setupLandscapeDualPaneView();
             } else {
@@ -995,6 +994,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         //In landscape we want to select something now. Either the top item, or the most recently selected one
         if (inAwesomeMode) {
             updateSelectedItem(true);
+        } else if (shortSelect.shouldFocusToBottomOfEntityList()) {
+            visibleView.setSelection(visibleView.getAdapter().getCount()-1);
         }
 
         refreshTimer.start(this);
