@@ -751,7 +751,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     android.R.drawable.ic_menu_mapmode);
         }
 
-        tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
+        tryToAddSearchActionToAppBar(this, menu, new ActionBarInstantiator() {
             // again, this should be unnecessary...
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
@@ -795,12 +795,16 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void setupActionOptionsMenu(Menu menu) {
         if (shortSelect != null && !hideActions) {
-            int actionIndex = MENU_ACTION;
+            int indexToAddActionAt = MENU_ACTION;
             for (Action action : shortSelect.getCustomActions(asw.getEvaluationContext())) {
                 if (action != null) {
-                    ViewUtil.addDisplayToMenu(this, menu, actionIndex, MENU_ACTION_GROUP,
-                            action.getDisplay().evaluate());
-                    actionIndex += 1;
+                    if (action.hasActionBarIcon()) {
+                        //TODO: start here
+                    } else {
+                        ViewUtil.addDisplayToMenu(this, menu, indexToAddActionAt, MENU_ACTION_GROUP,
+                                action.getDisplay().evaluate());
+                        indexToAddActionAt += 1;
+                    }
                 }
             }
             if (shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null) {
@@ -949,11 +953,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                                   List<TreeReference> references,
                                   NodeEntityFactory factory, int focusTargetIndex) {
         loader = null;
-        Detail detail = session.getDetail(selectDatum.getShortDetail());
-        int[] order = detail.getSortOrder();
 
-        for (int i = 0; i < detail.getFields().length; ++i) {
-            String header = detail.getFields()[i].getHeader().evaluate();
+        int[] order = shortSelect.getSortOrder();
+        for (int i = 0; i < shortSelect.getFields().length; ++i) {
+            String header = shortSelect.getFields()[i].getHeader().evaluate();
             if (order.length == 0 && !"".equals(header)) {
                 order = new int[]{i};
             }
@@ -968,9 +971,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             visibleView = listView;
         }
 
-        adapter = new EntityListAdapter(this, detail, references, entities,
+        adapter = new EntityListAdapter(this, shortSelect, references, entities,
                 order, factory, hideActions,
-                detail.getCustomActions(asw.getEvaluationContext()), inAwesomeMode);
+                shortSelect.getCustomActions(asw.getEvaluationContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);
