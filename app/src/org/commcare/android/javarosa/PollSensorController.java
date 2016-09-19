@@ -76,7 +76,7 @@ public enum PollSensorController implements LocationListener {
 
     /**
      * Start polling for location, based on whatever providers are given, and
-     * set up a timeout after MAXIMUM_WAIT is exceeded.
+     * set up a timeout after AUTO_CAPTURE_MAXIMUM_WAIT is exceeded.
      *
      * @param providers Set of String objects that may contain
      *                  LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
@@ -92,7 +92,8 @@ public enum PollSensorController implements LocationListener {
             }
 
             // Cancel polling after maximum time is exceeded
-            timeoutTimer.schedule(new PollingTimeoutTask(), GeoUtils.MAXIMUM_WAIT);
+            timeoutTimer.schedule(new PollingTimeoutTask(),
+                    CommCarePreferences.getGpsAutoCaptureTimeout());
         }
     }
 
