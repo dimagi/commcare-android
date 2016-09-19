@@ -159,7 +159,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
     private boolean containsHereFunction = false;
     private boolean locationChangedWhileLoading = false;
-    private boolean hideActions;
+
+    private boolean hideActionsFromOptionsMenu;
+    private boolean hideActionsFromEntityList;
 
     // Handler for displaying alert dialog when no location providers are found
     private final LocationNotificationHandler locationNotificationHandler =
@@ -191,11 +193,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             mNoDetailMode = selectDatum.getLongDetail() == null;
             mViewMode = session.isViewCommand(session.getCommand());
 
-            // Don't show actions (e.g. 'register patient', 'claim patient') when
-            // in the middle on workflow triggered by a (sync) action, or if our entity list is
-            // being shown in a grid
-            hideActions = session.isRemoteRequestCommand(session.getCommand()) ||
+            // Don't show actions at all (e.g. 'register patient', 'claim patient') when in the
+            // middle of workflow triggered by a (sync) action. Also hide them from the entity
+            // list (but not the options menu) when we are showing the entity list in grid mode
+            hideActionsFromEntityList = session.isRemoteRequestCommand(session.getCommand()) ||
                     shortSelect.shouldBeLaidOutInGrid();
+            hideActionsFromOptionsMenu = session.isRemoteRequestCommand(session.getCommand());
 
             boolean isOrientationChange = savedInstanceState != null;
             setupUI(isOrientationChange);
@@ -794,7 +797,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void setupActionOptionsMenu(Menu menu) {
-        if (shortSelect != null && !hideActions) {
+        if (shortSelect != null && !hideActionsFromOptionsMenu) {
             int indexToAddActionAt = MENU_ACTION;
             for (Action action : shortSelect.getCustomActions(asw.getEvaluationContext())) {
                 if (action != null) {
@@ -968,7 +971,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         adapter = new EntityListAdapter(this, shortSelect, references, entities,
-                order, factory, hideActions,
+                order, factory, hideActionsFromEntityList,
                 shortSelect.getCustomActions(asw.getEvaluationContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
