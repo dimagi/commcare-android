@@ -269,9 +269,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
         visibleView.setOnItemClickListener(this);
 
-        persistAdapterState(visibleView);
-        restoreLastQueryString();
         initUIComponents();
+        restoreLastQueryString();
+        persistAdapterState(visibleView);
         setupPreHoneycombFooter(attemptInitCallout());
         setupMapNav();
     }
