@@ -112,8 +112,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private EntityListAdapter adapter;
     private LinearLayout header;
     private SearchView searchView;
-    private MenuItem searchItem;
-    private MenuItem barcodeItem;
+    private MenuItem searchMenuItem;
+    private MenuItem barcodeMenuItem;
 
     private EntityDatum selectDatum;
 
@@ -140,7 +140,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private Detail shortSelect;
 
     private DataSetObserver mListStateObserver;
-    private OnClickListener barcodeScanOnClickListener;
+    public OnClickListener barcodeScanOnClickListener;
     private boolean isCalloutAutoLaunching;
 
     private boolean resuming = false;
@@ -756,9 +756,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
             public void onActionBarFound(MenuItem searchItem, SearchView searchView, MenuItem barcodeItem) {
-                EntitySelectActivity.this.searchItem = searchItem;
+                EntitySelectActivity.this.searchMenuItem = searchItem;
                 EntitySelectActivity.this.searchView = searchView;
-                EntitySelectActivity.this.barcodeItem = barcodeItem;
+                EntitySelectActivity.this.barcodeMenuItem = barcodeItem;
                 // restore last query string in the searchView if there is one
                 if (lastQueryString != null && lastQueryString.length() > 0) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -803,7 +803,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 }
             }
             if (shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null) {
-                EntitySelectCalloutSetup.setupImageLayout(this, barcodeItem, shortSelect.getCallout().getImage());
+                // Replace the barcode scan callout with our custom callout
+                EntitySelectCalloutSetup.setupImageLayout(this, barcodeMenuItem, shortSelect.getCallout().getImage());
             }
         }
     }
@@ -828,7 +829,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void setSearchText(CharSequence text) {
         if (isUsingActionBar()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                searchItem.expandActionView();
+                searchMenuItem.expandActionView();
             }
             searchView.setQuery(text, false);
         } else {
