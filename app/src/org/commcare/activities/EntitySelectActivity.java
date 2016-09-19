@@ -798,13 +798,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             int indexToAddActionAt = MENU_ACTION;
             for (Action action : shortSelect.getCustomActions(asw.getEvaluationContext())) {
                 if (action != null) {
-                    if (action.hasActionBarIcon()) {
-                        //TODO: start here
-                    } else {
-                        ViewUtil.addDisplayToMenu(this, menu, indexToAddActionAt, MENU_ACTION_GROUP,
-                                action.getDisplay().evaluate());
-                        indexToAddActionAt += 1;
-                    }
+                    ViewUtil.addActionToMenu(this, action, menu, indexToAddActionAt, MENU_ACTION_GROUP);
+                    indexToAddActionAt += 1;
                 }
             }
             if (shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null) {
