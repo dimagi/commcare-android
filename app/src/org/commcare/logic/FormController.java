@@ -347,7 +347,7 @@ public class FormController implements PendingCalloutInterface {
      * getQuestionPrompts for the current index
      */
     public FormEntryPrompt[] getQuestionPrompts() throws RuntimeException {
-        return getQuestionPrompts(mFormEntryController.getModel().getFormIndex());
+        return mFormEntryController.getQuestionPrompts();
     }
 
     /**
@@ -356,45 +356,7 @@ public class FormController implements PendingCalloutInterface {
      * given index is a field list (and _only_ when it is a field list)
      */
     public FormEntryPrompt[] getQuestionPrompts(FormIndex currentIndex) throws RuntimeException {
-
-        IFormElement element = mFormEntryController.getModel().getForm().getChild(currentIndex);
-
-        //If we're in a group, we will collect of the questions in this group
-        if (element instanceof GroupDef) {
-            //Assert that this is a valid condition (only field lists return prompts)
-            if (!this.isFieldListHost(currentIndex)) {
-                throw new RuntimeException("Cannot get question prompts from a non-field-list group");
-            }
-
-            // Questions to collect
-            ArrayList<FormEntryPrompt> questionList = new ArrayList<>();
-
-            //Step over all events in this field list and collect them
-            FormIndex walker = currentIndex;
-
-            int event = this.getEvent(currentIndex);
-            while (FormIndex.isSubElement(currentIndex, walker)) {
-                if (event == FormEntryController.EVENT_QUESTION) {
-                    questionList.add(mFormEntryController.getModel().getQuestionPrompt(walker));
-                }
-
-                if (event == FormEntryController.EVENT_PROMPT_NEW_REPEAT) {
-                    //TODO: What if there is a non-deterministic repeat up in the field list?
-                }
-
-                //this handles relevance for us
-                walker = this.mFormEntryController.getNextIndex(walker);
-                event = this.getEvent(walker);
-            }
-
-            FormEntryPrompt[] questions = new FormEntryPrompt[questionList.size()];
-            //Populate the array with the collected questions
-            questionList.toArray(questions);
-            return questions;
-        } else {
-            // We have a question, so just get the one prompt
-            return new FormEntryPrompt[]{mFormEntryController.getModel().getQuestionPrompt(currentIndex)};
-        }
+        return mFormEntryController.getQuestionPrompts(currentIndex);
     }
 
     public FormEntryPrompt getQuestionPrompt(FormIndex index) {
