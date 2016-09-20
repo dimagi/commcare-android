@@ -35,6 +35,7 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class CommCarePreferences
         extends SessionAwarePreferenceActivity
@@ -420,13 +421,14 @@ public class CommCarePreferences
         }
     }
 
-    public static int getGpsAutoCaptureTimeout() {
+    public static int getGpsAutoCaptureTimeoutInMilliseconds() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         try {
-            return Integer.parseInt(properties.getString(GPS_AUTO_CAPTURE_TIMEOUT,
-                    Integer.toString(GeoUtils.AUTO_CAPTURE_MAXIMUM_WAIT)));
+            return (int)TimeUnit.MINUTES.toMillis(Long.parseLong(
+                    properties.getString(GPS_AUTO_CAPTURE_TIMEOUT,
+                            Integer.toString(GeoUtils.AUTO_CAPTURE_MAX_WAIT_IN_MINUTES))));
         } catch (NumberFormatException e) {
-            return GeoUtils.AUTO_CAPTURE_MAXIMUM_WAIT;
+            return (int)TimeUnit.MINUTES.toMillis(GeoUtils.AUTO_CAPTURE_MAX_WAIT_IN_MINUTES);
         }
     }
 
