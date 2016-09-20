@@ -43,7 +43,6 @@ public class DemoUserRestoreTest {
         CommCareApplication._().getCurrentApp().setMMResourcesValidated();
 
         loginAsDemoUser();
-
         launchHomeActivityForDemoUser();
     }
 
@@ -54,7 +53,6 @@ public class DemoUserRestoreTest {
                 Robolectric.buildActivity(LoginActivity.class)
                         .withIntent(loginActivityIntent).setup().get();
         ShadowActivity shadowActivity = Shadows.shadowOf(loginActivity);
-
         shadowActivity.clickMenuItem(LoginActivity.MENU_DEMO);
     }
 
