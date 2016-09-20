@@ -82,6 +82,12 @@ public class CommCarePreferences
     private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
 
+    /**
+     * Does the user want to download the latest app version deployed (built),
+     * not just the latest app version released (starred)?
+     */
+    public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
+
     // Preferences that are set incidentally/automatically by CommCare, based upon a user's workflow
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
@@ -120,6 +126,7 @@ public class CommCarePreferences
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
         prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
+        prefKeyToAnalyticsEvent.put(NEWEST_APP_VERSION_ENABLED, GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION);
     }
 
     @Override
@@ -481,5 +488,22 @@ public class CommCarePreferences
 
     public static String getKeyServer() {
         return CommCareApplication._().getCurrentApp().getAppPreferences().getString("key_server", null);
+    }
+
+    /**
+     * @return true if developer option to download the latest app version
+     * deployed (built) is enabled.  Otherwise the latest released (starred)
+     * app version will be downloaded on upgrade.
+     */
+    public static boolean isNewestAppVersionEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
+    public static void enableNewestAppVersion() {
+        CommCareApplication._().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.YES)
+                .apply();
     }
 }

@@ -8,7 +8,6 @@ import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -218,7 +217,7 @@ public class ResourceInstallUtils {
         // If we want to be using/updating to the latest build of the
         // app (instead of latest release), add it to the query tags of
         // the profile reference
-        if (DeveloperPreferences.isNewestAppVersionEnabled()) {
+        if (CommCarePreferences.isNewestAppVersionEnabled()) {
             if (profileUrl.getQuery() != null) {
                 // url already has query strings, so add a new one to the end
                 return profileRef + "&target=build";

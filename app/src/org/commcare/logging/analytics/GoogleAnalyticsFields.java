@@ -121,6 +121,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_FUZZY_SEARCH = "Fuzzy Search Matches";
     public static final String LABEL_PRINT_TEMPLATE = "Set Print Template";
     public static final String LABEL_DEVELOPER_OPTIONS = "Developer Options";
+    public static final String LABEL_NEWEST_APP_VERSION = "Use Newest App Version From HQ";
 
     // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_FORM_PREFS
     public static final String LABEL_FONT_SIZE = "Font Size";
@@ -132,7 +133,6 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_GRID_MENUS = "Grid Menus Enabled";
     public static final String LABEL_NAV_UI = "Navigation UI";
     public static final String LABEL_ENTITY_LIST_REFRESH = "Entity List Screen Auto-Refresh";
-    public static final String LABEL_NEWEST_APP_VERSION = "Use Newest App Version From HQ";
     public static final String LABEL_AUTO_LOGIN = "Auto-login While Debugging";
     public static final String LABEL_SESSION_SAVING = "Enable Session Saving";
     public static final String LABEL_EDIT_SAVED_SESSION = "Edit Saved Session";
