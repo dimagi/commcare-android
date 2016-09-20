@@ -21,6 +21,7 @@ import java.util.Set;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
+ * @author Aliza Stone (astone@dimagi.com)
  */
 public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
 
