@@ -648,8 +648,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     /**
-     * Tries to add a SearchView action to the app bar of the current Activity,
-     * hides the current search widget, and runs ActionBarInstantiator if it exists.
+     * Tries to add a SearchView action to the app bar of the current Activity. If it is added,
+     * the alternative search widget is removed, and ActionBarInstantiator is run, if it exists.
      * Used in EntitySelectActivity and FormRecordListActivity.
      *
      * @param activity          Current activity

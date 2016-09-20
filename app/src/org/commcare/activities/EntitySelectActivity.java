@@ -193,7 +193,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             mNoDetailMode = selectDatum.getLongDetail() == null;
             mViewMode = session.isViewCommand(session.getCommand());
 
-            // Don't show actions at all (e.g. 'register patient', 'claim patient') when in the
+            // Don't show actions (e.g. 'register patient', 'claim patient') at all  when in the
             // middle of workflow triggered by a (sync) action. Also hide them from the entity
             // list (but not the options menu) when we are showing the entity list in grid mode
             hideActionsFromEntityList = session.isRemoteRequestCommand(session.getCommand()) ||
