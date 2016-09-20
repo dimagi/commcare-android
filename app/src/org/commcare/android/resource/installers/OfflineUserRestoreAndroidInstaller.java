@@ -68,10 +68,6 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
                 return false;
             }
         });
-
-        // manually clear file-backed fixture storage to ensure files are removed
-        //CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class, ukr.getUuid()).removeAll();
-
         for (String id : dbIdsToRemove) {
             CommCareApplication._().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
         }
