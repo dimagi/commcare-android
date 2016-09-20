@@ -774,15 +774,9 @@ public class CommCareApplication extends Application {
         return new SqlStorage<>(storage, c, buildUserDbHandle());
     }
 
-    public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedUserStorage(
-            String storage, Class<T> c) {
-        return getFileBackedUserStorage(storage, c, getUserKeyRecordId());
-    }
-
-    public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedUserStorage(
-            String storage, Class<T> c, String userKeyRecordId) {
+    public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
         return new HybridFileBackedSqlStorage<>(storage, c, buildUserDbHandle(),
-               userKeyRecordId, CommCareApplication._().getCurrentApp());
+                getUserKeyRecordId(), CommCareApplication._().getCurrentApp());
     }
 
     public String getUserKeyRecordId() {
@@ -841,7 +835,9 @@ public class CommCareApplication extends Application {
 //        getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 
         final String username = this.getSession().getLoggedInUser().getUsername();
+
         final Set<String> dbIdsToRemove = new HashSet<>();
+
         this.getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
 
             @Override
@@ -867,8 +863,7 @@ public class CommCareApplication extends Application {
             //(Eventually)
             this.getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
         }
-
-        CommCareApplication._().expireUserSession();
+        CommCareApplication._().closeUserSession();
     }
 
     public String getCurrentUserId() {
