@@ -138,25 +138,6 @@ public class FormController implements PendingCalloutInterface {
     }
 
     /**
-     * A convenience method for determining if the current FormIndex is a group that is/should be
-     * displayed as a multi-question view of all of its descendants. This is useful for returning
-     * from the formhierarchy view to a selected index.
-     */
-    private boolean isFieldListHost(FormIndex index) {
-        // if this isn't a group, return right away
-        if (!(mFormEntryController.getModel().getForm().getChild(index) instanceof GroupDef)) {
-            return false;
-        }
-
-        //TODO: Is it possible we need to make sure this group isn't inside of another group which 
-        //is itself a field list? That would make the top group the field list host, not the 
-        //descendant group
-
-        GroupDef gd = (GroupDef)mFormEntryController.getModel().getForm().getChild(index); // exceptions?
-        return (QuestionsView.FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
-    }
-
-    /**
      * Tests if the FormIndex 'index' is located inside a group that is marked as a "field-list"
      *
      * @return true if index is in a "field-list". False otherwise.
@@ -294,11 +275,11 @@ public class FormController implements PendingCalloutInterface {
             // caption[len-2] == the groups containing this group
             FormEntryCaption[] captions = mFormEntryController.getModel().getCaptionHierarchy();
 
-            //This starts at the beginning of the heirarchy, so it'll catch the top-level 
+            //This starts at the beginning of the heirarchy, so it'll catch the top-level
             //host index.
             for (FormEntryCaption caption : captions) {
                 FormIndex parentIndex = caption.getIndex();
-                if (isFieldListHost(parentIndex)) {
+                if (mFormEntryController.isFieldListHost(parentIndex)) {
                     return parentIndex;
                 }
             }
