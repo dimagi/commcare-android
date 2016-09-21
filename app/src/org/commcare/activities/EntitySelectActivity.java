@@ -290,7 +290,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 searchBanner.setVisibility(View.GONE);
                 if (isUsingActionBar()) {
                     searchView.setQuery("", false);
-                } else {
+                } else if (preHoneycombSearchBox != null) {
                     preHoneycombSearchBox.setText("");
                 }
                 ViewUtil.hideVirtualKeyboard(EntitySelectActivity.this);
