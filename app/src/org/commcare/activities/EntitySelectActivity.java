@@ -217,9 +217,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void setSearchBannerState() {
-        if (!"".equals(adapter.getSearchQuery())) {
-            showSearchBanner();
-        } else if (adapter.isFilteringByCalloutResult()) {
+        if (!"".equals(adapter.getSearchQuery()) || adapter.isFilteringByCalloutResult()) {
             showSearchBanner();
             clearSearchButton.setVisibility(View.VISIBLE);
         } else {
@@ -279,6 +277,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         setupMapNav();
     }
 
+    @SuppressWarnings("NewApi")
     private void initUIComponents() {
         searchBanner = findViewById(R.id.search_result_banner);
         searchResultStatus = (TextView) findViewById(R.id.search_results_status);
@@ -288,6 +287,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             @Override
             public void onClick(View v) {
                 adapter.clearCalloutResponseData();
+                searchBanner.setVisibility(View.GONE);
+                if (isUsingActionBar()) {
+                    searchView.setQuery("", false);
+                } else {
+                    preHoneycombSearchBox.setText("");
+                }
+                ViewUtil.hideVirtualKeyboard(EntitySelectActivity.this);
                 refreshView();
             }
         });
@@ -358,7 +364,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 }
             });
 
-            preHoneycombSearchBox = (EditText) findViewById(R.id.searchbox);
+            preHoneycombSearchBox = (EditText)findViewById(R.id.searchbox);
             preHoneycombSearchBox.setMaxLines(3);
             preHoneycombSearchBox.setHorizontallyScrolling(false);
             preHoneycombSearchBox.addTextChangedListener(this);
@@ -722,7 +728,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void afterTextChanged(Editable incomingEditable) {
         final String incomingString = incomingEditable.toString();
         final String currentSearchText = getSearchText().toString();
-        if (!"".equals(currentSearchText) && incomingString.equals(currentSearchText)) {
+        if (incomingString.equals(currentSearchText)) {
             filterString = currentSearchText;
             if (adapter != null) {
                 adapter.filterByString(filterString);
