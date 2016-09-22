@@ -217,7 +217,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void setSearchBannerState() {
-        if (!"".equals(adapter.getSearchQuery()) || adapter.isFilteringByCalloutResult()) {
+        if (!"".equals(adapter.getSearchQuery())) {
+            showSearchBanner();
+            // Android's native SearchView has its own clear search button, so need to add our own
+            clearSearchButton.setVisibility(View.GONE);
+        } else if (adapter.isFilteringByCalloutResult()) {
             showSearchBanner();
             clearSearchButton.setVisibility(View.VISIBLE);
         } else {
@@ -278,7 +282,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         setupMapNav();
     }
 
-    @SuppressWarnings("NewApi")
     private void initUIComponents() {
         searchBanner = findViewById(R.id.search_result_banner);
         searchResultStatus = (TextView) findViewById(R.id.search_results_status);
@@ -288,13 +291,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             @Override
             public void onClick(View v) {
                 adapter.clearCalloutResponseData();
-                searchBanner.setVisibility(View.GONE);
-                if (isUsingActionBar()) {
-                    searchView.setQuery("", false);
-                } else if (preHoneycombSearchBox != null) {
-                    preHoneycombSearchBox.setText("");
-                }
-                ViewUtil.hideVirtualKeyboard(EntitySelectActivity.this);
                 refreshView();
             }
         });
