@@ -35,6 +35,7 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class CommCarePreferences
         extends SessionAwarePreferenceActivity
@@ -82,6 +83,12 @@ public class CommCarePreferences
     private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
 
+    /**
+     * Does the user want to download the latest app version deployed (built),
+     * not just the latest app version released (starred)?
+     */
+    public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
+
     // Preferences that are set incidentally/automatically by CommCare, based upon a user's workflow
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
@@ -95,6 +102,7 @@ public class CommCarePreferences
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
     public final static String LOGIN_DURATION = "cc-login-duration-seconds";
     public final static String GPS_AUTO_CAPTURE_ACCURACY = "cc-gps-auto-capture-accuracy";
+    public final static String GPS_AUTO_CAPTURE_TIMEOUT = "cc-gps-auto-capture-timeout";
     public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
@@ -120,6 +128,7 @@ public class CommCarePreferences
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
         prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
+        prefKeyToAnalyticsEvent.put(NEWEST_APP_VERSION_ENABLED, GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION);
     }
 
     @Override
@@ -404,12 +413,22 @@ public class CommCarePreferences
      */
     public static double getGpsCaptureAccuracy() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-
         try {
             return Double.parseDouble(properties.getString(GPS_AUTO_CAPTURE_ACCURACY,
                     Double.toString(GeoUtils.AUTO_CAPTURE_GOOD_ACCURACY)));
         } catch (NumberFormatException e) {
             return GeoUtils.AUTO_CAPTURE_GOOD_ACCURACY;
+        }
+    }
+
+    public static int getGpsAutoCaptureTimeoutInMilliseconds() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        try {
+            return (int)TimeUnit.MINUTES.toMillis(Long.parseLong(
+                    properties.getString(GPS_AUTO_CAPTURE_TIMEOUT,
+                            Integer.toString(GeoUtils.AUTO_CAPTURE_MAX_WAIT_IN_MINUTES))));
+        } catch (NumberFormatException e) {
+            return (int)TimeUnit.MINUTES.toMillis(GeoUtils.AUTO_CAPTURE_MAX_WAIT_IN_MINUTES);
         }
     }
 
@@ -486,5 +505,22 @@ public class CommCarePreferences
         } else {
             return CommCareApplication._().getCurrentApp().getAppPreferences().getString("key_server", null);
         }
+    }
+
+    /**
+     * @return true if developer option to download the latest app version
+     * deployed (built) is enabled.  Otherwise the latest released (starred)
+     * app version will be downloaded on upgrade.
+     */
+    public static boolean isNewestAppVersionEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
+    public static void enableNewestAppVersion() {
+        CommCareApplication._().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.YES)
+                .apply();
     }
 }

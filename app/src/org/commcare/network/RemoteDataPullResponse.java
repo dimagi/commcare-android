@@ -114,6 +114,10 @@ public class RemoteDataPullResponse {
         return AndroidHttpClient.getUngzippedContent(response.getEntity());
     }
 
+    public String getShortBody() throws IOException {
+        return new String(StreamsUtil.inputStreamToByteArray(AndroidHttpClient.getUngzippedContent(response.getEntity())));
+    }
+
     /**
      * Get an estimation of how large the provided response is.
      *

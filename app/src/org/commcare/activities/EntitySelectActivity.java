@@ -243,7 +243,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void setupUI(boolean isOrientationChange) {
         if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
-            //See if we're on a big 'ol screen.
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 setupLandscapeDualPaneView();
             } else {
@@ -943,7 +942,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public void deliverLoadResult(List<Entity<TreeReference>> entities,
                                   List<TreeReference> references,
-                                  NodeEntityFactory factory) {
+                                  NodeEntityFactory factory, int focusTargetIndex) {
         loader = null;
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         int[] order = detail.getSortOrder();
@@ -992,9 +991,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             restoreAdapterStateFromSession();
         }
 
-        //In landscape we want to select something now. Either the top item, or the most recently selected one
         if (inAwesomeMode) {
             updateSelectedItem(true);
+        } else if (focusTargetIndex != -1) {
+            visibleView.setSelection(focusTargetIndex);
         }
 
         refreshTimer.start(this);
