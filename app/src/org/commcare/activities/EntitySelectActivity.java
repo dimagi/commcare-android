@@ -273,7 +273,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         initUIComponents();
         restoreLastQueryString();
         persistAdapterState(visibleView);
-        setupPreHoneycombFooter(attemptInitCallout());
+        attemptInitCallout();
+        setupPreHoneycombFooter();
         setupMapNav();
     }
 
@@ -300,7 +301,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         clearSearchButton.setVisibility(View.GONE);
     }
 
-    private Callout attemptInitCallout() {
+    private void attemptInitCallout() {
         Callout callout = shortSelect.getCallout();
         if (callout == null) {
             barcodeScanOnClickListener = EntitySelectCalloutSetup.makeBarcodeClickListener(this);
@@ -308,7 +309,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             isCalloutAutoLaunching = callout.isAutoLaunching();
             barcodeScanOnClickListener = EntitySelectCalloutSetup.makeCalloutClickListener(this, callout);
         }
-        return callout;
     }
 
     private void setupLandscapeDualPaneView() {
@@ -345,7 +345,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void setupPreHoneycombFooter(Callout callout) {
+    private void setupPreHoneycombFooter() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             TextView preHoneycombSearchLabel =
                     (TextView)findViewById(R.id.screen_entity_select_search_label);
@@ -373,6 +373,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
             ImageButton preHoneycombBarcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
             preHoneycombBarcodeButton.setOnClickListener(barcodeScanOnClickListener);
+            Callout callout = shortSelect.getCallout();
             if (callout != null && callout.getImage() != null) {
                 EntitySelectCalloutSetup.setupImageLayout(this, preHoneycombBarcodeButton,
                         callout.getImage());

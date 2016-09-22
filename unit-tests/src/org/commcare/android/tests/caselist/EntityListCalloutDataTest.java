@@ -2,8 +2,6 @@ package org.commcare.android.tests.caselist;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
-import android.view.MenuItem;
 import android.widget.ImageButton;
 
 import com.simprints.libsimprints.Identification;
@@ -29,7 +27,6 @@ import org.commcare.views.EntityView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
