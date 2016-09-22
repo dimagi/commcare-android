@@ -15,6 +15,7 @@ import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 
 import org.commcare.CommCareApplication;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.utils.GeoUtils;
 
 import java.util.ArrayList;
@@ -74,8 +75,7 @@ public enum PollSensorController implements LocationListener {
     }
 
     /**
-     * Start polling for location, based on whatever providers are given, and
-     * set up a timeout after MAXIMUM_WAIT is exceeded.
+     * Start polling for location, based on whatever providers are given, and set up a timeout
      *
      * @param providers Set of String objects that may contain
      *                  LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
@@ -91,7 +91,8 @@ public enum PollSensorController implements LocationListener {
             }
 
             // Cancel polling after maximum time is exceeded
-            timeoutTimer.schedule(new PollingTimeoutTask(), GeoUtils.MAXIMUM_WAIT);
+            timeoutTimer.schedule(new PollingTimeoutTask(),
+                    CommCarePreferences.getGpsAutoCaptureTimeoutInMilliseconds());
         }
     }
 
@@ -106,7 +107,7 @@ public enum PollSensorController implements LocationListener {
                     action.updateReference(location);
                 }
 
-                if (location.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
+                if (location.getAccuracy() <= CommCarePreferences.getGpsCaptureAccuracy()) {
                     stopLocationPolling();
                 }
             }

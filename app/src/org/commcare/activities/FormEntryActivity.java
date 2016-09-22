@@ -252,9 +252,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             loadStateFromBundle(savedInstanceState);
         }
 
-        // Need to override CalendarUtil's month localizer
-        CalendarUtils.setArrayDataSource(new AndroidArrayDataSource(this));
-
         // Check to see if this is a screen flip or a new form load.
         Object data = this.getLastCustomNonConfigurationInstance();
         if (data instanceof FormLoaderTask) {
@@ -890,7 +887,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void createClearDialog(final QuestionWidget qw) {
         String title = StringUtils.getStringRobust(this, R.string.clear_answer_ask);
         String question = qw.getPrompt().getLongText();
-        if (question.length() > 50) {
+        if (question == null) {
+            question = "";
+        } else if (question.length() > 50) {
             question = question.substring(0, 50) + "...";
         }
         String msg = StringUtils.getStringSpannableRobust(this, R.string.clearanswer_confirm, question).toString();
@@ -999,12 +998,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     protected void onPause() {
         super.onPause();
 
-        if (uiController.questionsView != null && currentPromptIsQuestion()) {
+
+        if (!isFinishing() && uiController.questionsView != null && currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
 
         if (mLocationServiceIssueReceiver != null) {
-            unregisterReceiver(mLocationServiceIssueReceiver);
+            try {
+                unregisterReceiver(mLocationServiceIssueReceiver);
+            } catch (IllegalArgumentException e) {
+                // Thrown when given receiver isn't registered.
+                // This shouldn't ever happen, but seems to come up in production
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, e.getMessage());
+            }
         }
 
         saveInlineVideoState();

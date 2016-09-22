@@ -352,7 +352,7 @@ public class EntityView extends LinearLayout {
         }
         if (onMeasureCalled) {
             int columnWidthInPixels = layout.getLayoutParams().width;
-            Bitmap b = MediaUtil.inflateDisplayImage(getContext(), source, columnWidthInPixels, -1);
+            Bitmap b = MediaUtil.inflateDisplayImage(getContext(), source, columnWidthInPixels, columnWidthInPixels, true);
             if (b == null) {
                 // Means the input stream could not be used to derive the bitmap, so showing
                 // error-indicating image

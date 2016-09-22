@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.os.Build;
@@ -23,6 +24,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -181,11 +183,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (session.getCommand() != null) {
             selectDatum = (EntityDatum)session.getNeededDatum();
             shortSelect = session.getDetail(selectDatum.getShortDetail());
+            if (shortSelect.forcesLandscape()) {
+                this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            }
+
             mNoDetailMode = selectDatum.getLongDetail() == null;
 
             // Don't show actions (e.g. 'register patient', 'claim patient') when
             // in the middle on workflow triggered by an (sync) action.
-            hideActions = session.isSyncCommand(session.getCommand());
+            hideActions = session.isRemoteRequestCommand(session.getCommand());
 
             boolean isOrientationChange = savedInstanceState != null;
             setupUI(isOrientationChange);
@@ -237,23 +243,34 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void setupUI(boolean isOrientationChange) {
         if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
-            //See if we're on a big 'ol screen.
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 setupLandscapeDualPaneView();
             } else {
                 setContentView(R.layout.entity_select_layout);
-
                 restoreExistingSelection(isOrientationChange);
             }
         } else {
             setContentView(R.layout.entity_select_layout);
         }
 
-        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-        view.setOnItemClickListener(this);
+        AdapterView visibleView;
+        GridView gridView = (GridView)this.findViewById(R.id.screen_entity_select_grid);
+        ListView listView = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+        if (shortSelect.shouldBeLaidOutInGrid()) {
+            visibleView = gridView;
+            gridView.setVisibility(View.VISIBLE);
+            gridView.setNumColumns(shortSelect.getNumEntitiesToDisplayPerRow());
+            listView.setVisibility(View.GONE);
+        } else {
+            visibleView = listView;
+            listView.setVisibility(View.VISIBLE);
+            gridView.setVisibility(View.GONE);
+            EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
+        }
 
-        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
-        setupToolbar(view);
+        visibleView.setOnItemClickListener(this);
+
+        setupToolbar(visibleView);
         setupMapNav();
     }
 
@@ -291,7 +308,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void setupToolbar(ListView view) {
+    private void setupToolbar(AdapterView view) {
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
         //use the old method here because some Android versions don't like Spannables for titles
         searchLabel.setText(Localization.get("select.search.label"));
@@ -352,7 +369,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void persistAdapterState(ListView view) {
+    private void persistAdapterState(AdapterView view) {
         FragmentManager fm = this.getSupportFragmentManager();
 
         containerFragment = (ContainerFragment)fm.findFragmentByTag("entity-adapter");
@@ -371,12 +388,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void setupUIFromAdapter(ListView view) {
+    private void setupUIFromAdapter(AdapterView view) {
         view.setAdapter(adapter);
-        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
-
+        if (view instanceof ListView) {
+            EntitySelectViewSetup.setupDivider(this, (ListView)view, shortSelect.usesEntityTileView());
+        }
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
-
         setSearchBannerState();
     }
 
@@ -471,7 +488,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         header.removeAllViews();
 
         // only add headers if we're not using grid mode
-        if (!shortSelect.usesGridView()) {
+        if (!shortSelect.usesEntityTileView()) {
             boolean hasCalloutResponseData = (adapter != null && adapter.hasCalloutResponseData());
             //Hm, sadly we possibly need to rebuild this each time.
             EntityView v =
@@ -776,7 +793,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void setupActionOptionsMenu(Menu menu) {
         if (shortSelect != null && !hideActions) {
             int actionIndex = MENU_ACTION;
-            for (Action action : shortSelect.getCustomActions()) {
+            for (Action action : shortSelect.getCustomActions(asw.getEvaluationContext())) {
                 if (action != null) {
                     ViewUtil.addDisplayToMenu(this, menu, actionIndex, MENU_ACTION_GROUP,
                             action.getDisplay().evaluate());
@@ -853,7 +870,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void triggerDetailAction(int index) {
-        Action action = shortSelect.getCustomActions().get(index);
+        Action action = shortSelect.getCustomActions(asw.getEvaluationContext()).get(index);
 
         triggerDetailAction(action, this);
     }
@@ -925,7 +942,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public void deliverLoadResult(List<Entity<TreeReference>> entities,
                                   List<TreeReference> references,
-                                  NodeEntityFactory factory) {
+                                  NodeEntityFactory factory, int focusTargetIndex) {
         loader = null;
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         int[] order = detail.getSortOrder();
@@ -937,13 +954,19 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
 
-        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+        AdapterView visibleView;
+        if (shortSelect.shouldBeLaidOutInGrid()) {
+            visibleView = ((GridView) this.findViewById(R.id.screen_entity_select_grid));
+        } else {
+            ListView listView = ((ListView) this.findViewById(R.id.screen_entity_select_list));
+            EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
+            visibleView = listView;
+        }
 
-        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
-
-        adapter = new EntityListAdapter(this, detail, references, entities, order, factory, hideActions);
-
-        view.setAdapter(adapter);
+        adapter = new EntityListAdapter(this, detail, references, entities,
+                order, factory, hideActions,
+                detail.getCustomActions(asw.getEvaluationContext()), inAwesomeMode);
+        visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);
 
@@ -968,9 +991,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             restoreAdapterStateFromSession();
         }
 
-        //In landscape we want to select something now. Either the top item, or the most recently selected one
         if (inAwesomeMode) {
             updateSelectedItem(true);
+        } else if (focusTargetIndex != -1) {
+            visibleView.setSelection(focusTargetIndex);
         }
 
         refreshTimer.start(this);
@@ -1155,4 +1179,5 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public String getActivityTitle() {
         return null;
     }
+
 }

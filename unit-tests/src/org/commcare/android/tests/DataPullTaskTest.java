@@ -85,6 +85,15 @@ public class DataPullTaskTest {
     }
 
     @Test
+    public void dataPullFailWithMessage() {
+        installLoginAndUseLocalKeys();
+        HttpRequestEndpointsMock.setErrorResponseBody("{\"error\": \"some.fake.locale.key\", \"default_response\": \"hello world\"}");
+        runDataPull(406, GOOD_RESTORE);
+        Assert.assertEquals(DataPullTask.PullTaskResult.ACTIONABLE_FAILURE, dataPullResult.data);
+        Assert.assertEquals("hello world", dataPullResult.errorMessage);
+    }
+
+    @Test
     public void dataPullRecoverFailLoginNeededTest() {
         installWithUserAndUseLocalKeys();
         runDataPull(new Integer[]{412, 500}, new String[]{GOOD_RESTORE, GOOD_RESTORE});

@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.PreferenceActivity;
 import android.view.MenuItem;
 
 import org.commcare.dalvik.R;
@@ -17,7 +18,7 @@ import java.util.Map;
 /**
  * @author Aliza Stone (astone@dimagi.com), created 6/9/16.
  */
-public class AppManagerAdvancedSettings extends SessionAwarePreferenceActivity {
+public class AppManagerAdvancedSettings extends PreferenceActivity {
 
     private final static String ENABLE_PRIVILEGE = "enable-mobile-privilege";
 

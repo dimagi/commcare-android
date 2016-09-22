@@ -27,13 +27,14 @@ import java.util.concurrent.TimeUnit;
  */
 public class GeoUtils {
     // Good enough accuracy to stop pinging the GPS altogether
-    public static final double GOOD_ACCURACY = 10;
+    public static final double GOOD_ACCURACY = 5;
+    public static final double AUTO_CAPTURE_GOOD_ACCURACY = 10;
 
     // Good enough accuracy to ask user if they want to record
     public static final double ACCEPTABLE_ACCURACY = 1600;
 
     // For passive collection, milliseconds to wait for GPS before giving up
-    public static final int MAXIMUM_WAIT = (int)TimeUnit.MINUTES.toMillis(2);
+    public static final int AUTO_CAPTURE_MAX_WAIT_IN_MINUTES = 2;
 
     public static final String ACTION_CHECK_GPS_ENABLED = "org.commcare.utils.GeoUtils.check";
 

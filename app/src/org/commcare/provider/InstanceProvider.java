@@ -26,7 +26,6 @@ import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.xml.util.InvalidStorageStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -535,7 +534,7 @@ public class InstanceProvider extends ContentProvider {
             if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
                 try {
                     new FormRecordProcessor(getContext()).process(current);
-                } catch (InvalidStructureException | InvalidStorageStructureException e) {
+                } catch (InvalidStructureException e) {
                     // record should be wiped when form entry is exited
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
                     throw new IllegalStateException(e.getMessage());
