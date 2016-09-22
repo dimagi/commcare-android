@@ -145,7 +145,7 @@ public class EntityView extends LinearLayout {
                 new String[columnTitles.length + 1];
         System.arraycopy(columnTitles, 0,
                 headerTextWithCalloutResponse, 0, columnTitles.length);
-        headerTextWithCalloutResponse[columnTitles.length - 1] =
+        headerTextWithCalloutResponse[columnTitles.length] =
                 calloutResponseDetailField.getHeader().evaluate();
         return headerTextWithCalloutResponse;
     }
@@ -352,7 +352,7 @@ public class EntityView extends LinearLayout {
         }
         if (onMeasureCalled) {
             int columnWidthInPixels = layout.getLayoutParams().width;
-            Bitmap b = MediaUtil.inflateDisplayImage(getContext(), source, columnWidthInPixels, -1);
+            Bitmap b = MediaUtil.inflateDisplayImage(getContext(), source, columnWidthInPixels, columnWidthInPixels, true);
             if (b == null) {
                 // Means the input stream could not be used to derive the bitmap, so showing
                 // error-indicating image

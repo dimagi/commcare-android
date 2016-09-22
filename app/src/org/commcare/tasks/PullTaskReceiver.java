@@ -10,6 +10,6 @@ public interface PullTaskReceiver {
 
     void handlePullTaskUpdate(Integer... update);
 
-    void handlePullTaskError(Exception e);
+    void handlePullTaskError();
 
 }

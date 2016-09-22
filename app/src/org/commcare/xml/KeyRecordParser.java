@@ -78,6 +78,7 @@ public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKe
         return keyRecords;
     }
 
+    @Override
     protected Date parseDateTime(String dateValue) {
         return ISODateTimeFormat.dateTimeNoMillis().parseDateTime(dateValue).toDate();
     }

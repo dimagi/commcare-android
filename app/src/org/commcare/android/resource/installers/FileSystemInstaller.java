@@ -1,6 +1,6 @@
 package org.commcare.android.resource.installers;
 
-import android.util.Pair;
+import android.support.v4.util.Pair;
 
 import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
@@ -46,7 +46,6 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     //TODO:HAAACKY.
     private static final String STAGING_EXT = "cc_app-staging";
 
-
     String localLocation;
     String localDestination;
     private String upgradeDestination;
@@ -61,13 +60,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     }
 
     @Override
-    public void cleanup() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public abstract boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException;
+    public abstract boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException;
 
     @Override
     public boolean install(Resource r, ResourceLocation location,
@@ -75,32 +68,23 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                            AndroidCommCarePlatform instance, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
-            OutputStream os;
-            Reference localReference;
-
-            //Moved this up before the local stuff, in case the local reference fails, we don't want to start dealing with it
-            InputStream input;
+            InputStream inputFileStream;
             try {
-                input = ref.getStream();
+                inputFileStream = ref.getStream();
             } catch (FileNotFoundException e) {
-                //This simply means that the reference wasn't actually valid like it thought it was (sometimes you can't tell until you try)
-                //so let it keep iterating through options.
+                // Means the reference wasn't valid so let it keep iterating through options.
                 return false;
             }
 
-            File tempFile;
-
-            //Stream to location
+            File tempFile = new File(CommCareApplication._().getTempFilePath());
+            Reference localReference;
+            OutputStream outputFileStream;
             try {
-                Pair<String, String> fileDetails = getResourceName(r, location);
-                //Final destination
-                localReference = getEmptyLocalReference((upgrade ? upgradeDestination : localDestination), fileDetails.first, fileDetails.second);
+                Pair<String, String> fileNameAndExt = getResourceName(r, location);
+                String referenceRoot = upgrade ? upgradeDestination : localDestination;
+                localReference = getEmptyLocalReference(referenceRoot, fileNameAndExt.first, fileNameAndExt.second);
 
-                //Create a temporary place to store these bits
-                tempFile = new File(CommCareApplication._().getTempFilePath());
-
-                //Make sure the stream is valid
-                os = new FileOutputStream(tempFile);
+                outputFileStream = new FileOutputStream(tempFile);
 
                 //Get the actual local file we'll be putting the data into
                 localLocation = localReference.getURI();
@@ -110,20 +94,9 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                 throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
             }
 
-            //Write the full file to the temporary location
-            StreamsUtil.writeFromInputToOutputNew(input, os);
+            StreamsUtil.writeFromInputToOutputNew(inputFileStream, outputFileStream);
 
-            //Get a cannonical path
-            String localUri = localReference.getLocalURI();
-            File destination = new File(localUri);
-
-            //Make sure there's a seat for the new file
-            FileUtil.ensureFilePathExists(destination);
-
-            //File written, it must be valid now, so move it into our intended location
-            if (!tempFile.renameTo(destination)) {
-                throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " to location " + localUri + " for file system installation", localLocation);
-            }
+            renameFile(localReference.getLocalURI(), tempFile);
 
             //TODO: Sketch - if this fails, we'll still have the file at that location.
             int status = customInstall(r, localReference, upgrade);
@@ -156,7 +129,16 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         }
     }
 
-    private Reference getEmptyLocalReference(String root, String fileName, String extension) throws InvalidReferenceException, IOException {
+    private void renameFile(String newFilename, File currentFile) throws LocalStorageUnavailableException {
+        File destination = new File(newFilename);
+        FileUtil.ensureFilePathExists(destination);
+        if (!currentFile.renameTo(destination)) {
+            throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " to location " + newFilename + " for file system installation", localLocation);
+        }
+    }
+
+    private Reference getEmptyLocalReference(String root, String fileName, String extension)
+            throws InvalidReferenceException, IOException {
         Reference r = ReferenceManager._().DeriveReference(root + "/" + fileName + extension);
         int count = 0;
         while (r.doesBinaryExist()) {
@@ -195,48 +177,15 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             //Get final destination
             String finalLocation = localDestination + "/" + filepart;
 
-            if (!moveFrom(localLocation, finalLocation, false)) {
+            if (!FileSystemUtils.moveFrom(localLocation, finalLocation, false)) {
                 return false;
             }
 
             localLocation = finalLocation;
             return true;
         } catch (InvalidReferenceException e) {
-            //e.printStackTrace();
-            //throw new UnresolvedResourceException(r, "Invalid reference while upgrading local resource. Reference path is: " + e.getReferenceString());
             return false;
         }
-    }
-
-
-    private boolean moveFrom(String oldLocation, String newLocation, boolean force) throws InvalidReferenceException {
-        File newFile = new File(ReferenceManager._().DeriveReference(newLocation).getLocalURI());
-        File oldFile = new File(ReferenceManager._().DeriveReference(oldLocation).getLocalURI());
-
-        if (!oldFile.exists()) {
-            //Nothing should be allowed to exist in the new location except for the incoming file
-            //due to the staging rules. If there's a file there, it's this one.
-            return newFile.exists();
-        }
-
-        if (oldFile.exists() && newFile.exists()) {
-            //There's a destination file where this file is 
-            //trying to move to. Something might have failed to unstage
-            if (force) {
-                //If we're recovering or something, wipe out the destination.
-                //we've gotta recover!
-                if (!newFile.delete()) {
-                    return false;
-                } else {
-                    //new file is gone. Let's get ours in there!
-                }
-            } else {
-                //can't copy over an existing file. An unstage might have failed.
-                return false;
-            }
-        }
-
-        return oldFile.renameTo(newFile);
     }
 
     @Override
@@ -245,7 +194,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             //Our destination/source are different depending on where we're going
             if (newStatus == Resource.RESOURCE_STATUS_UNSTAGED) {
                 String newLocation = localLocation + STAGING_EXT;
-                if (!moveFrom(localLocation, newLocation, true)) {
+                if (!FileSystemUtils.moveFrom(localLocation, newLocation, true)) {
                     return false;
                 }
                 localLocation = newLocation;
@@ -258,7 +207,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                 String finalLocation = upgradeDestination + "/" + filepart;
 
                 //move back to upgrade folder
-                if (!moveFrom(localLocation, finalLocation, true)) {
+                if (!FileSystemUtils.moveFrom(localLocation, finalLocation, true)) {
                     return false;
                 }
                 localLocation = finalLocation;
@@ -269,11 +218,8 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             }
         } catch (InvalidReferenceException e) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "Very Bad! Couldn't derive a reference to " + e.getReferenceString());
-            //e.printStackTrace();
-            //throw new UnresolvedResourceException(r, "Invalid reference while upgrading local resource. Reference path is: " + e.getReferenceString());
             return false;
         }
-
     }
 
     @Override
@@ -292,7 +238,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             //Get final destination
             finalLocation = localDestination + "/" + filepart;
 
-            if (!moveFrom(localLocation, finalLocation, true)) {
+            if (!FileSystemUtils.moveFrom(localLocation, finalLocation, true)) {
                 return false;
             }
 
@@ -300,14 +246,12 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             return true;
         } catch (InvalidReferenceException e) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "Very Bad! Couldn't restore a resource to destination" + finalLocation + " somehow");
-            //e.printStackTrace();
-            //throw new UnresolvedResourceException(r, "Invalid reference while upgrading local resource. Reference path is: " + e.getReferenceString());
             return false;
         }
     }
 
+    @Override
     public int rollback(Resource r) {
-
         //TODO: These filepath ops need to be the same for this all to work,
         //which is not super robust against changes right now.
 
@@ -378,9 +322,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                     return -1;
                 }
             }
-        } catch (InvalidReferenceException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (InvalidReferenceException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -399,35 +341,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         ExtUtil.writeString(out, upgradeDestination);
     }
 
-    //TODO: Put files into an arbitrary name and keep the reference. This confuses things too much
-    Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
-        String input = loc.getLocation();
-        String extension = "";
-        int lastDot = input.lastIndexOf(".");
-        if (lastDot != -1) {
-            extension = input.substring(lastDot);
-        }
-        return new Pair<>(r.getResourceId(), extension(extension));
-    }
-
-    //Hate this
-    private static final String validExtChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-    private String extension(String input) {
-        int invalid = -1;
-        //we wanna go from the last "." to the next non-alphanumeric character.
-        for (int i = 1; i < input.length(); ++i) {
-            if (validExtChars.indexOf(input.charAt(i)) == -1) {
-                invalid = i;
-                break;
-            }
-        }
-        if (invalid == -1) {
-            return input;
-        }
-        return input.substring(0, invalid);
-    }
-
+    @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> issues) {
         try {
             Reference ref = ReferenceManager._().DeriveReference(localLocation);
@@ -443,5 +357,20 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             return true;
         }
         return false;
+    }
+
+    //TODO: Put files into an arbitrary name and keep the reference. This confuses things too much
+    protected Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
+        String input = loc.getLocation();
+        String extension = "";
+        int lastDot = input.lastIndexOf(".");
+        if (lastDot != -1) {
+            extension = input.substring(lastDot);
+        }
+        return new Pair<>(r.getResourceId(), FileSystemUtils.extension(extension));
+    }
+
+    @Override
+    public void cleanup() {
     }
 }

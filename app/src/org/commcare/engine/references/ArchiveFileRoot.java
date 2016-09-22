@@ -23,10 +23,12 @@ public class ArchiveFileRoot implements ReferenceFactory {
     public ArchiveFileRoot() {
     }
 
+    @Override
     public Reference derive(String guidPath) throws InvalidReferenceException {
         return new ArchiveFileReference(guidToFolderMap.get(getGUID(guidPath)), getGUID(guidPath), getPath(guidPath));
     }
 
+    @Override
     public Reference derive(String URI, String context) throws InvalidReferenceException {
         if (context.lastIndexOf('/') != -1) {
             context = context.substring(0, context.lastIndexOf('/') + 1);
@@ -34,6 +36,7 @@ public class ArchiveFileRoot implements ReferenceFactory {
         return ReferenceManager._().DeriveReference(context + URI);
     }
 
+    @Override
     public boolean derives(String URI) {
         return URI.toLowerCase().startsWith("jr://archive/");
     }

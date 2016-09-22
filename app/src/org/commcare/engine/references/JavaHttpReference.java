@@ -56,14 +56,10 @@ public class JavaHttpReference implements Reference {
     }
 
 
+    @Override
     public String getLocalURI() {
         return uri;
     }
-
-    public Reference[] probeAlternativeReferences() {
-        return new Reference[0];
-    }
-
 
     //TODO: This should get changed to be set from the root, don't assume this will
     //still be here indefinitely

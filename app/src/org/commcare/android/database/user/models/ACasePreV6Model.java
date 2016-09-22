@@ -51,6 +51,7 @@ public class ACasePreV6Model extends ACase {
         data = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, typeId);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));

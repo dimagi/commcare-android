@@ -6,7 +6,6 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.LogSubmissionTask;
 import org.javarosa.core.model.instance.FormInstance;

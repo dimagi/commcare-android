@@ -383,19 +383,23 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     }
 
     //Wrappers for the internal stuff
+    @Override
     public void beginSubmissionProcess(int totalItems) {
         this.publishProgress(SUBMISSION_BEGIN, (long)totalItems);
     }
 
+    @Override
     public void startSubmission(int itemNumber, long length) {
         // TODO Auto-generated method stub
         this.publishProgress(SUBMISSION_START, (long)itemNumber, length);
     }
 
+    @Override
     public void notifyProgress(int itemNumber, long progress) {
         this.publishProgress(SUBMISSION_NOTIFY, (long)itemNumber, progress);
     }
 
+    @Override
     public void endSubmissionProcess() {
         this.publishProgress(SUBMISSION_DONE);
     }

@@ -41,10 +41,7 @@ public class BubbleSeries extends XYSeries {
         mRadiusParse = null;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.suite.model.graph.XYSeries#parse()
-     */
+    @Override
     protected void parse() throws XPathSyntaxException {
         super.parse();
         if (mRadiusParse == null) {
@@ -60,20 +57,14 @@ public class BubbleSeries extends XYSeries {
         return evaluateExpression(mRadiusParse, context);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.suite.model.graph.XYSeries#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
         mRadius = ExtUtil.readString(in);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.suite.model.graph.XYSeries#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeString(out, mRadius);

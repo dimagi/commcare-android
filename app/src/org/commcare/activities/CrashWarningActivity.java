@@ -53,6 +53,7 @@ public class CrashWarningActivity extends Activity {
         Button closeButton = (Button)findViewById(R.id.RestartCommCare);
         closeButton.setText(Localization.get("crash.warning.button"));
         closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 CommCareApplication.restartCommCare(CrashWarningActivity.this, true);
             }
@@ -60,6 +61,7 @@ public class CrashWarningActivity extends Activity {
 
         infoButton = (ImageButton)findViewById(R.id.InfoButton);
         infoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 toggleErrorMessageVisibility();
             }

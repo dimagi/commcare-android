@@ -9,9 +9,7 @@ import android.net.Uri;
 import android.provider.MediaStore.Audio;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -21,8 +19,6 @@ import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -35,62 +31,47 @@ import java.io.IOException;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-
-public class AudioWidget extends QuestionWidget {
+public class AudioWidget extends MediaWidget {
     private static final String TAG = AudioWidget.class.getSimpleName();
+    protected static final String CUSTOM_TAG = "custom";
 
-    private final Button mCaptureButton;
-    private final Button mPlayButton;
-    private final Button mChooseButton;
-    private final PendingCalloutInterface pendingCalloutInterface;
-
-    private String mBinaryName;
-    private final String mInstanceFolder;
+    protected String recordedFileName;
+    private String customFileTag;
 
     public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
-        super(context, prompt);
+        super(context, prompt, pic);
+    }
 
-        this.pendingCalloutInterface = pic;
-
-        mInstanceFolder =
-                FormEntryActivity.mInstancePath.substring(0,
-                        FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
-
-        setOrientation(LinearLayout.VERTICAL);
-
+    @Override
+    protected void initializeButtons(){
         // setup capture button
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_audio),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
-
-        // launch capture intent on click
-        mCaptureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-                        android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.toString());
-                try {
-                    ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found,
-                                    "audio capture"),
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+                !mPrompt.isReadOnly());
 
         // setup audio filechooser button
         mChooseButton = new Button(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
+
+        // setup play button
+        mPlayButton = new Button(getContext());
+        WidgetUtils.setupButton(mPlayButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio),
+                mAnswerFontsize,
+                !mPrompt.isReadOnly());
+
+        // launch capture intent on click
+        mCaptureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                captureAudio(mPrompt);
+            }
+        });
 
         // launch audio filechooser intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
@@ -100,7 +81,7 @@ public class AudioWidget extends QuestionWidget {
                 i.setType("audio/*");
                 try {
                     ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -111,102 +92,72 @@ public class AudioWidget extends QuestionWidget {
             }
         });
 
-        // setup play button
-        mPlayButton = new Button(getContext());
-        WidgetUtils.setupButton(mPlayButton,
-                StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio),
-                mAnswerFontsize,
-                !prompt.isReadOnly());
+        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(mPrompt.getAppearanceHint())) {
+            mChooseButton.setVisibility(View.GONE);
+        }
 
         // on play, launch the appropriate viewer
         mPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent("android.intent.action.VIEW");
-                File f = new File(mInstanceFolder + mBinaryName);
-                i.setDataAndType(Uri.fromFile(f), "audio/*");
-                try {
-                    getContext().startActivity(i);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found,
-                                    "play audio"),
-                            Toast.LENGTH_SHORT).show();
-                }
+                playAudio();
             }
         });
-
-        // retrieve answer from data model and update ui
-        mBinaryName = prompt.getAnswerText();
-        if (mBinaryName != null) {
-            mPlayButton.setEnabled(true);
-            File f = new File(mInstanceFolder + mBinaryName);
-
-            checkFileSize(f);
-        } else {
-            mPlayButton.setEnabled(false);
-        }
-
-        // finish complex layout
-        addView(mCaptureButton);
-        addView(mChooseButton);
-        String acq = prompt.getAppearanceHint();
-        if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
-            mChooseButton.setVisibility(View.GONE);
-        }
-        addView(mPlayButton);
     }
 
-    private void deleteMedia() {
-        // get the file path and delete the file
+    protected void playAudio() {
+        Intent i = new Intent("android.intent.action.VIEW");
         File f = new File(mInstanceFolder + mBinaryName);
-        if (!f.delete()) {
-            Log.i(TAG, "Failed to delete " + f);
+        i.setDataAndType(Uri.fromFile(f), "audio/*");
+        try {
+            getContext().startActivity(i);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(getContext(),
+                    StringUtils.getStringSpannableRobust(getContext(),
+                            R.string.activity_not_found,
+                            "play audio"),
+                    Toast.LENGTH_SHORT).show();
         }
-
-        // clean up variables
-        mBinaryName = null;
     }
 
-    @Override
-    public void clearAnswer() {
-        // remove the file
-        deleteMedia();
-
-        // reset buttons
-        mPlayButton.setEnabled(false);
-    }
-
-    @Override
-    public IAnswerData getAnswer() {
-        if (mBinaryName != null) {
-            return new StringData(mBinaryName);
-        } else {
-            return null;
+    protected void captureAudio(FormEntryPrompt prompt) {
+        Intent i = new Intent(Audio.Media.RECORD_SOUND_ACTION);
+        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
+                Audio.Media.EXTERNAL_CONTENT_URI.toString());
+        try {
+            ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
+            pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(getContext(),
+                    StringUtils.getStringSpannableRobust(getContext(),
+                            R.string.activity_not_found,
+                            "audio capture"),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void setBinaryData(Object binaryuri) {
-        // when replacing an answer. remove the current media.
-        if (mBinaryName != null) {
-            deleteMedia();
+        String binaryPath = getBinaryPathWithSizeCheck(binaryuri);
+        if (binaryPath == null) {
+            return;
         }
+        File source = new File(binaryPath);
 
         // get the file path and create a copy in the instance folder
-        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(),
-                (Uri)binaryuri);
-
         String[] filenameSegments = binaryPath.split("\\.");
         String extension = "";
         if (filenameSegments.length > 1) {
             extension = "." + filenameSegments[filenameSegments.length - 1];
         }
 
-        String destAudioPath = mInstanceFolder + System.currentTimeMillis() + extension;
+        String[] filePathSegments = binaryPath.split("/");
+        if(filePathSegments.length >1){
+            recordedFileName = filePathSegments[filePathSegments.length-1];
+        }
 
-        File source = new File(binaryPath);
+        String destAudioPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + extension;
+
         File newAudio = new File(destAudioPath);
         try {
             FileUtil.copyFile(source, newAudio);
@@ -214,8 +165,6 @@ public class AudioWidget extends QuestionWidget {
             Log.e(TAG, "IOExeception while copying audio");
             e.printStackTrace();
         }
-
-        checkFileSize(newAudio);
 
         if (newAudio.exists()) {
             // Add the copy to the content provider
@@ -225,9 +174,10 @@ public class AudioWidget extends QuestionWidget {
             values.put(Audio.Media.DATE_ADDED, System.currentTimeMillis());
             values.put(Audio.Media.DATA, newAudio.getAbsolutePath());
 
-            Uri AudioURI =
+            Uri audioUri =
                     getContext().getContentResolver().insert(Audio.Media.EXTERNAL_CONTENT_URI, values);
-            Log.i(TAG, "Inserting AUDIO returned uri = " + AudioURI.toString());
+            String audioUriString = audioUri == null ? "null" : audioUri.toString();
+            Log.i(TAG, "Inserting AUDIO returned uri = " + audioUriString);
         } else {
             Log.e(TAG, "Inserting Audio file FAILED");
         }
@@ -235,35 +185,24 @@ public class AudioWidget extends QuestionWidget {
         mBinaryName = newAudio.getName();
     }
 
+    /**
+     * If file is chosen by user, the file selection intent will return an URI
+     * If file is auto-selected after recording_fragment, then the recordingfragment will provide a string file path
+     * Set value of customFileTag if the file is a recent recording from the RecordingFragment
+     */
     @Override
-    public void setFocus(Context context) {
-        // Hide the soft keyboard if it's showing.
-        InputMethodManager inputManager =
-                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
+    protected String createFilePath(Object binaryuri){
+        String path;
 
-    @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-        mCaptureButton.setOnLongClickListener(l);
-        mChooseButton.setOnLongClickListener(l);
-        mPlayButton.setOnLongClickListener(l);
-    }
+        if(binaryuri instanceof Uri){
+            path = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                    (Uri)binaryuri);
+            customFileTag = "";
+        }else{
+            path = (String) binaryuri;
+            customFileTag = CUSTOM_TAG;
+        }
 
-    @Override
-    public void unsetListeners() {
-        super.unsetListeners();
-
-        mCaptureButton.setOnLongClickListener(null);
-        mChooseButton.setOnLongClickListener(null);
-        mPlayButton.setOnLongClickListener(null);
-    }
-
-    @Override
-    public void cancelLongPress() {
-        super.cancelLongPress();
-        mCaptureButton.cancelLongPress();
-        mChooseButton.cancelLongPress();
-        mPlayButton.cancelLongPress();
+        return path;
     }
 }

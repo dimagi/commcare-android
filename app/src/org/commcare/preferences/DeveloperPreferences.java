@@ -45,12 +45,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      * Spacer to distinguish between the saved navigation session and form entry session
      */
     private static final String NAV_AND_FORM_SESSION_SPACER = "@@@@@";
-
-    /**
-     * Does the user want to download the latest app version deployed (built),
-     * not just the latest app version released (starred)?
-     */
-    public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
     /**
      * The current default for constraint checking during form saving (as of
      * CommCare 2.24) is to re-answer all the questions, causing a lot of
@@ -91,7 +85,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);
         prefKeyToAnalyticsEvent.put(NAV_UI_ENABLED, GoogleAnalyticsFields.LABEL_NAV_UI);
         prefKeyToAnalyticsEvent.put(LIST_REFRESH_ENABLED, GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH);
-        prefKeyToAnalyticsEvent.put(NEWEST_APP_VERSION_ENABLED, GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION);
         prefKeyToAnalyticsEvent.put(ENABLE_AUTO_LOGIN, GoogleAnalyticsFields.LABEL_AUTO_LOGIN);
         prefKeyToAnalyticsEvent.put(ENABLE_SAVE_SESSION, GoogleAnalyticsFields.LABEL_SESSION_SAVING);
         prefKeyToAnalyticsEvent.put(EDIT_SAVE_SESSION, GoogleAnalyticsFields.LABEL_EDIT_SAVED_SESSION);
@@ -246,16 +239,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
-    /**
-     * @return true if developer option to download the latest app version
-     * deployed (built) is enabled.  Otherwise the latest released (starred)
-     * app version will be downloaded on upgrade.
-     */
-    public static boolean isNewestAppVersionEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
-    }
-
     public static boolean shouldFireTriggersOnSave() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(FIRE_TRIGGERS_ON_SAVE, CommCarePreferences.NO).equals(CommCarePreferences.YES);
@@ -270,6 +253,13 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(ENABLE_SAVE_SESSION, CommCarePreferences.NO).
                 equals(CommCarePreferences.YES);
+    }
+
+    public static void enableSessionSaving() {
+        CommCareApplication._().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, CommCarePreferences.YES)
+                .apply();
     }
 
     public static boolean isMarkdownEnabled() {

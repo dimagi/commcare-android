@@ -25,6 +25,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
@@ -168,6 +169,14 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         //Add items count to fetch request
         serverUri = serverUri.buildUpon().appendQueryParameter("items", "true").build();
 
+        if (CommCareApplication._().shouldInvalidateCacheOnRestore()) {
+            // Currently used for testing purposes only, in order to ensure that a full sync will
+            // occur when we want to test one
+            serverUri = serverUri.buildUpon().appendQueryParameter("overwrite_cache", "true").build();
+            // Always wipe this flag after we have used it once
+            CommCareApplication._().setInvalidateCacheFlag(false);
+        }
+
         String uri = serverUri.toString();
         Log.d(TAG, "Fetching from: " + uri);
         currentRequest = new HttpGet(uri);
@@ -196,7 +205,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
     private void addHeaders(HttpRequestBase base, String lastToken) {
         //base.addHeader("Accept-Language", lang)
-        base.addHeader("X-OpenRosa-Version", "1.0");
+        base.addHeader("X-OpenRosa-Version", "2.0");
         if (lastToken != null) {
             base.addHeader("X-CommCareHQ-LastSyncToken", lastToken);
         }

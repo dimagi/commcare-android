@@ -11,7 +11,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
-import org.commcare.engine.extensions.CalendaredDateFormatHandler;
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.logging.XPathErrorLogger;
 import org.javarosa.xpath.XPathException;
@@ -184,7 +184,6 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     }
 
     private FormEntryController initFormDef(FormDef formDef) {
-        formDef.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
         // create FormEntryController from formdef
         FormEntryModel fem = new FormEntryModel(formDef);
         FormEntryController fec;
@@ -206,6 +205,8 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             formDef.initialize(isNewFormInstance, iif, getSystemLocale());
         } catch (XPathException e) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
+            throw new UserCausedRuntimeException(e.getMessage(), e);
+        } catch (CommCareInstanceInitializer.FixtureInitializationException e) {
             throw new UserCausedRuntimeException(e.getMessage(), e);
         }
 
@@ -276,15 +277,6 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
             // populated model to current form
             fec.getModel().getForm().getInstance().setRoot(templateRoot);
-
-            // fix any language issues
-            // : http://bitbucket.org/javarosa/main/issue/5/itext-n-appearing-in-restored-instances
-            if (fec.getModel().getLanguages() != null) {
-                fec.getModel()
-                        .getForm()
-                        .localeChanged(fec.getModel().getLanguage(),
-                                fec.getModel().getForm().getLocalizer());
-            }
             return true;
         }
     }

@@ -63,6 +63,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     }
 
     // The EntitySelectActivity must subscribe before this method is called if a fresh location is desired.
+    @Override
     public Object eval(Object[] args, EvaluationContext ec) {
         if (entitySelectActivity != null) {
             entitySelectActivity.onHereFunctionEvaluated();

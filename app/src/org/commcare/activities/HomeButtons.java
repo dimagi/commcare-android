@@ -11,6 +11,7 @@ import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.services.locale.Localization;
@@ -92,6 +93,7 @@ public class HomeButtons {
 
     private static View.OnClickListener getViewOldFormsListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_SAVED_FORMS_BUTTON);
                 activity.goToFormArchive(false);
@@ -101,6 +103,7 @@ public class HomeButtons {
 
     private static View.OnClickListener getSyncButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_SYNC_BUTTON);
                 activity.syncButtonPressed();
@@ -130,6 +133,7 @@ public class HomeButtons {
 
     private static View.OnClickListener getStartButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_START_BUTTON);
                 activity.enterRootModule();
@@ -139,6 +143,7 @@ public class HomeButtons {
 
     private static View.OnClickListener getIncompleteButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_INCOMPLETE_FORMS_BUTTON);
                 activity.goToFormArchive(true);
@@ -153,7 +158,14 @@ public class HomeButtons {
                                SquareButtonViewHolder squareButtonViewHolder,
                                Context context,
                                String notificationText) {
-                int numIncompleteForms = StorageUtils.getNumIncompleteForms();
+                int numIncompleteForms;
+                try {
+                    numIncompleteForms = StorageUtils.getNumIncompleteForms();
+                } catch (SessionUnavailableException e) {
+                    // stop button setup, since redirection to login is imminent
+                    return;
+                }
+
                 if (numIncompleteForms > 0) {
                     Spannable incompleteIndicator =
                             (activity.localize("home.forms.incomplete.indicator",
@@ -172,6 +184,7 @@ public class HomeButtons {
 
     private static View.OnClickListener getLogoutButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_LOGOUT_BUTTON);
                 CommCareApplication._().closeUserSession();
@@ -198,6 +211,7 @@ public class HomeButtons {
 
     private static View.OnClickListener getReportButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_REPORT_BUTTON);
                 Intent i = new Intent(activity, ReportProblemActivity.class);

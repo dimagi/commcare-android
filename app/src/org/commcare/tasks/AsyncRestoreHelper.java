@@ -85,7 +85,8 @@ public class AsyncRestoreHelper {
         long millisUntilNextAttempt = retryAtTime - System.currentTimeMillis();
         int amountOfProgressToCoverThisCycle =
                 serverProgressCompletedSoFar - lastReportedServerProgressValue;
-        if (amountOfProgressToCoverThisCycle == 0) {
+        if (amountOfProgressToCoverThisCycle <= 0) {
+            syncTask.reportServerProgress(lastReportedServerProgressValue, serverProgressTotal);
             return;
         }
         long intervalAllottedPerProgressUnit =

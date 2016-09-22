@@ -23,8 +23,8 @@ public class MenuList extends MenuBase {
     private TextView header;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         if (header == null) {
             header = (TextView)getLayoutInflater().inflate(R.layout.menu_list_header, null);

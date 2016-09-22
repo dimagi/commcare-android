@@ -3,11 +3,9 @@ package org.commcare.android.tests.caselist;
 import android.app.Activity;
 import android.content.Intent;
 import android.widget.ImageButton;
-import android.widget.ListView;
 
 import com.simprints.libsimprints.Identification;
-
-import junit.framework.Assert;
+import com.simprints.libsimprints.Tier;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
@@ -15,7 +13,7 @@ import org.commcare.activities.EntitySelectActivity;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.adapters.EntityListAdapter;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.util.ActivityLaunchUtils;
+import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
@@ -29,11 +27,9 @@ import org.commcare.views.EntityView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowListView;
 
 import java.util.ArrayList;
 
@@ -63,10 +59,10 @@ public class EntityListCalloutDataTest {
 
     @Test
     public void testAttachCalloutResultToListTest() {
-        launchEntitySelectActivity("m1-f0");
+        entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m1-f0");
 
-        loadList();
-        Assert.assertEquals(8, adapter.getCount());
+        adapter = CaseLoadUtils.loadList(entitySelectActivity);
+        assertEquals(8, adapter.getCount());
 
         EntityView entityView = (EntityView)adapter.getView(0, null, null);
         int entityColumnCount = entityView.getChildCount();
@@ -75,7 +71,7 @@ public class EntityListCalloutDataTest {
 
         // ensure that the entity list is filtered by the received callout
         // result data (fingerprint identification list with confidence score)
-        loadList();
+        adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(5, adapter.getCurrentCount());
         assertTrue(adapter.isFilteringByCalloutResult());
         assertTrue(adapter.hasCalloutResponseData());
@@ -92,10 +88,10 @@ public class EntityListCalloutDataTest {
 
     @Test
     public void testCalloutResultWithNoColumnTest() {
-        launchEntitySelectActivity("m1-f1");
+        entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m1-f1");
 
-        loadList();
-        Assert.assertEquals(8, adapter.getCount());
+        adapter = CaseLoadUtils.loadList(entitySelectActivity);
+        assertEquals(8, adapter.getCount());
 
         EntityView entityView = (EntityView)adapter.getView(0, null, null);
         int entityColumnCount = entityView.getChildCount();
@@ -104,7 +100,7 @@ public class EntityListCalloutDataTest {
 
         // ensure that the entity list is filtered by the received callout
         // result data (fingerprint identification list with confidence score)
-        loadList();
+        adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(5, adapter.getCurrentCount());
         assertTrue(adapter.isFilteringByCalloutResult());
         assertTrue(adapter.hasCalloutResponseData());
@@ -112,34 +108,6 @@ public class EntityListCalloutDataTest {
         // Ensure response data isn't shown to the user, since the width is set to 0
         entityView = (EntityView)adapter.getView(0, null, null);
         assertEquals(entityColumnCount, entityView.getChildCount());
-    }
-
-    private void launchEntitySelectActivity(String command) {
-        ShadowActivity shadowHomeActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch(command);
-
-        Intent entitySelectIntent = shadowHomeActivity.getNextStartedActivity();
-
-        // make sure the form entry activity should be launched
-        String intentActivityName = entitySelectIntent.getComponent().getClassName();
-        assertTrue(intentActivityName.equals(EntitySelectActivity.class.getName()));
-
-        // start the entity select activity
-        entitySelectActivity = Robolectric.buildActivity(EntitySelectActivity.class)
-                .withIntent(entitySelectIntent).create().start().resume().get();
-    }
-
-    private void loadList() {
-        // wait for entities to load
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
-
-        ListView entityList =
-                (ListView)entitySelectActivity.findViewById(R.id.screen_entity_select_list);
-        adapter = (EntityListAdapter)entityList.getAdapter();
-
-        ShadowListView shadowListView = Shadows.shadowOf(entityList);
-        shadowListView.populateItems();
     }
 
     private void performFingerprintCallout() {
@@ -159,11 +127,11 @@ public class EntityListCalloutDataTest {
     private static Intent buildIdentificationResultIntent() {
         Intent i = new Intent();
         ArrayList<Identification> matchingList = new ArrayList<>();
-        matchingList.add(new Identification("b319e951-03f1-4172-b662-4fb3964a0be7", 0.99f)); // stan
-        matchingList.add(new Identification("8e011880-602f-4017-b9d6-ed9dcbba7516", 0.55f)); // ellen
-        matchingList.add(new Identification("c44c7ade-0cec-4401-b422-4c475f0043ae", 0.25f)); // pat
-        matchingList.add(new Identification("6b09e558-604c-4735-ac34-efbb2783b784", 0.22f)); // aria
-        matchingList.add(new Identification("16d31048-e8f8-40d5-a3e9-b35e9cde20da", 0.10f)); // gilbert
+        matchingList.add(new Identification("b319e951-03f1-4172-b662-4fb3964a0be7", 99, Tier.TIER_1)); // stan
+        matchingList.add(new Identification("8e011880-602f-4017-b9d6-ed9dcbba7516", 55, Tier.TIER_3)); // ellen
+        matchingList.add(new Identification("c44c7ade-0cec-4401-b422-4c475f0043ae", 25, Tier.TIER_4)); // pat
+        matchingList.add(new Identification("6b09e558-604c-4735-ac34-efbb2783b784", 22, Tier.TIER_4)); // aria
+        matchingList.add(new Identification("16d31048-e8f8-40d5-a3e9-b35e9cde20da", 10, Tier.TIER_5)); // gilbert
         return i.putExtra("identification", matchingList);
     }
 

@@ -73,10 +73,12 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
         private final String root;
 
+        @Override
         public String getLocaleKeyBase() {
             return root;
         }
 
+        @Override
         public String getCategory() {
             return "log_submission";
         }

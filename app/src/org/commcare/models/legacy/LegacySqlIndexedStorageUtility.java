@@ -57,6 +57,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         return getIDsForValues(new String[]{fieldName}, new Object[]{value});
     }
 
+    @Override
     public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL}, whereClause.first, whereClause.second, null, null, null);
@@ -77,6 +78,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         }
     }
 
+    @Override
     public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
@@ -97,6 +99,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         }
     }
 
+    @Override
     public String getMetaDataFieldForRecord(int recordId, String rawFieldName) {
         String rid = String.valueOf(recordId);
         String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
@@ -204,11 +207,6 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     }
 
     @Override
-    public void destroy() {
-        //nothing;
-    }
-
-    @Override
     public boolean exists(int id) {
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL}, DatabaseHelper.ID_COL + "= ? ", new String[]{String.valueOf(id)}, null, null, null);
         if (c.getCount() == 0) {
@@ -238,18 +236,6 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     }
 
     @Override
-    public int getRecordSize(int id) {
-        //serialize and test blah blah.
-        return 0;
-    }
-
-    @Override
-    public int getTotalSize() {
-        //serialize and test blah blah.
-        return 0;
-    }
-
-    @Override
     public boolean isEmpty() {
         return getNumRecords() == 0;
     }
@@ -260,6 +246,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         return new SqlStorageIterator<>(c, this);
     }
 
+    @Override
     public Iterator<T> iterator() {
         return iterate();
     }
@@ -365,16 +352,6 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     }
 
     @Override
-    public void repack() {
-        //Unecessary!
-    }
-
-    @Override
-    public void repair() {
-        //Unecessary!
-    }
-
-    @Override
     public void update(int id, Externalizable e) {
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
@@ -412,11 +389,6 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         } finally {
             db.endTransaction();
         }
-    }
-
-    @Override
-    public void setReadOnly() {
-        //TODO: Implement (although I doubt there's much useful stuff to do)
     }
 
     @Override

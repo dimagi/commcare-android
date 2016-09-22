@@ -19,10 +19,12 @@ public class JavaFileRoot implements ReferenceFactory {
         this.localRoot = localRoot;
     }
 
+    @Override
     public Reference derive(String URI) throws InvalidReferenceException {
         return new JavaFileReference(localRoot, URI.substring("jr://file/".length()));
     }
 
+    @Override
     public Reference derive(String URI, String context) throws InvalidReferenceException {
         if (context.lastIndexOf('/') != -1) {
             context = context.substring(0, context.lastIndexOf('/') + 1);
@@ -30,6 +32,7 @@ public class JavaFileRoot implements ReferenceFactory {
         return ReferenceManager._().DeriveReference(context + URI);
     }
 
+    @Override
     public boolean derives(String URI) {
         return URI.toLowerCase().startsWith("jr://file/");
     }

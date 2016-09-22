@@ -12,6 +12,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
@@ -51,6 +52,7 @@ public class AndroidShortcuts extends Activity {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Select CommCare Shortcut");
         dialog.setChoiceItems(getChoiceItemList(dialog));
         dialog.setOnCancelListener(new OnCancelListener() {
+            @Override
             public void onCancel(DialogInterface dialog) {
                 AndroidShortcuts sc = AndroidShortcuts.this;
                 sc.setResult(RESULT_CANCELED);
@@ -64,7 +66,7 @@ public class AndroidShortcuts extends Activity {
         ArrayList<String> names = new ArrayList<>();
         ArrayList<String> commands = new ArrayList<>();
         for (Suite s : CommCareApplication._().getCommCarePlatform().getInstalledSuites()) {
-            for (org.commcare.suite.model.Menu m : s.getMenus()) {
+            for (Menu m : s.getMenus()) {
                 if ("root".equals(m.getRoot())) {
                     String name = m.getName().evaluate();
                     names.add(name);
@@ -79,6 +81,7 @@ public class AndroidShortcuts extends Activity {
         for (int i = 0; i < names.size(); i++) {
             final int index = i;
             View.OnClickListener listener = new View.OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     returnShortcut(AndroidShortcuts.this.names[index],
                             AndroidShortcuts.this.commands[index]);

@@ -18,8 +18,8 @@ public abstract class MenuBase
     protected String menuId;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
 
@@ -67,6 +67,7 @@ public abstract class MenuBase
         return true;
     }
 
+    @Override
     protected boolean onBackwardSwipe() {
         onBackPressed();
         return true;

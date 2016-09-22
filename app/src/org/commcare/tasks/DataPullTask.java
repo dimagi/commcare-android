@@ -33,11 +33,14 @@ import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -218,7 +221,7 @@ public abstract class DataPullTask<R>
     private ResultAndError<PullTaskResult> getRequestResultOrRetry(AndroidTransactionParserFactory factory) {
         while (asyncRestoreHelper.retryWaitPeriodInProgress()) {
             if (isCancelled()) {
-                return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
+                return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE);
             }
         }
 
@@ -260,10 +263,9 @@ public abstract class DataPullTask<R>
         return new ResultAndError<>(responseError);
     }
 
-    /*
+    /**
      * @return the proper result, or null if we have not yet been able to determine the result to
      * return
-     * @throws IOException
      */
     private ResultAndError<PullTaskResult> makeRequestAndHandleResponse(AndroidTransactionParserFactory factory)
             throws IOException, UnknownSyncError {
@@ -284,11 +286,26 @@ public abstract class DataPullTask<R>
             }
         } else if (responseCode == 412) {
             return handleBadLocalState(factory);
+        } else if (responseCode == 406) {
+            return processErrorResponseWithMessage(pullResponse);
         } else if (responseCode == 500) {
             return handleServerError();
         } else {
             throw new UnknownSyncError();
         }
+    }
+
+    private ResultAndError<PullTaskResult> processErrorResponseWithMessage(RemoteDataPullResponse pullResponse) throws IOException {
+        String message;
+        try {
+            JSONObject errorKeyAndDefault = new JSONObject(pullResponse.getShortBody());
+            message = Localization.getWithDefault(
+                    errorKeyAndDefault.getString("error"),
+                    errorKeyAndDefault.getString("default_response"));
+        } catch (JSONException e) {
+            message = "Unknown issue";
+        }
+        return new ResultAndError<>(PullTaskResult.ACTIONABLE_FAILURE, message);
     }
 
     private ResultAndError<PullTaskResult> handleAuthFailed() {
@@ -312,7 +329,7 @@ public abstract class DataPullTask<R>
 
         if (isCancelled()) {
             // About to enter data commit phase; last chance to finish early if cancelled.
-            return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
+            return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE);
         }
 
         this.publishProgress(PROGRESS_DOWNLOADING_COMPLETE, 0);
@@ -415,7 +432,7 @@ public abstract class DataPullTask<R>
     private ResultAndError<PullTaskResult> handleServerError() {
         wipeLoginIfItOccurred();
         Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
-        return new ResultAndError<>(PullTaskResult.SERVER_ERROR, "");
+        return new ResultAndError<>(PullTaskResult.SERVER_ERROR);
     }
 
     private void wipeLoginIfItOccurred() {
@@ -576,27 +593,7 @@ public abstract class DataPullTask<R>
     }
 
     @Override
-    public void statusUpdate(int statusNumber) {
-    }
-
-    @Override
     public void refreshView() {
-    }
-
-    @Override
-    public void getCredentials() {
-    }
-
-    @Override
-    public void promptRetry(String msg) {
-    }
-
-    @Override
-    public void onSuccess() {
-    }
-
-    @Override
-    public void onFailure(String failMessage) {
     }
 
     protected void reportServerProgress(int completedSoFar, int total) {
@@ -618,6 +615,7 @@ public abstract class DataPullTask<R>
         BAD_DATA(GoogleAnalyticsFields.VALUE_BAD_DATA),
         BAD_DATA_REQUIRES_INTERVENTION(GoogleAnalyticsFields.VALUE_BAD_DATA_REQUIRES_INTERVENTION),
         UNKNOWN_FAILURE(GoogleAnalyticsFields.VALUE_UNKNOWN_FAILURE),
+        ACTIONABLE_FAILURE(GoogleAnalyticsFields.VALUE_ACTIONABLE_FAILURE),
         UNREACHABLE_HOST(GoogleAnalyticsFields.VALUE_UNREACHABLE_HOST),
         CONNECTION_TIMEOUT(GoogleAnalyticsFields.VALUE_CONNECTION_TIMEOUT),
         SERVER_ERROR(GoogleAnalyticsFields.VALUE_SERVER_ERROR),

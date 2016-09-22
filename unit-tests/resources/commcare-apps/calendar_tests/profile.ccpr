@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<profile version="12"
+         update="https://www.commcarehq.org/a/chadbrochill/apps/download/246d72483d509afd3d9354cff2de14ec/media_profile.ccpr?latest=true&amp;profile=None"
+         requiredMajor="2"
+         requiredMinor="27"
+         uniqueid="eff5a26c5b6c70a39306d30445c68a16"
+         name="Date Widgets"
+         descriptor="Profile File">
+    <property key="BackupMode" value="file_mode" force="true"/>
+    <property key="backup-url" value="file:///E:/CommCare.Backup" force="true"/>
+    <property key="restore-url" value="file:///E:/CommCare.Backup" force="true"/>
+    <property key="ota-restore-url" value="https://www.commcarehq.org/a/chadbrochill/phone/restore/246d72483d509afd3d9354cff2de14ec/" force="true"/>
+    <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/chadbrochill/phone/restore/246d72483d509afd3d9354cff2de14ec/" force="true"/>
+    <property key="PostURL" value="https://www.commcarehq.org/a/chadbrochill/receiver/secure/246d72483d509afd3d9354cff2de14ec/" force="true"/>
+    <property key="PostTestURL" value="https://www.commcarehq.org/a/chadbrochill/receiver/secure/246d72483d509afd3d9354cff2de14ec/" force="true"/>
+    <property key="key_server" value="https://www.commcarehq.org/a/chadbrochill/phone/keys/" force="true"/>
+    <property key="cur_locale" value="en" force="false"/>
+    <property key="cc_user_domain" value="chadbrochill.commcarehq.org" force="true"/>
+    <property key="jr_openrosa_api" value="1.0" force="true"/>
+
+    <!-- Properties configured on CommCare HQ 1.0 -->
+    
+        <property key="log_prop_weekly" value="log_short" force="true"/>
+    
+        <property key="cc-show-saved" value="no" force="true"/>
+    
+        <property key="cc-send-unsent" value="cc-su-auto" force="true"/>
+    
+        <property key="cc-show-incomplete" value="no" force="true"/>
+    
+        <property key="cc-user-mode" value="cc-u-normal" force="true"/>
+    
+        <property key="extra_key_action" value="audio" force="true"/>
+    
+
+    <!-- end -->
+
+    
+
+    <features>
+        <checkoff active="true"/>
+        <reminders active="false">
+            <time>0</time>
+        </reminders>
+        <package active="false"/>
+        
+        <users active="true">
+        </users>
+    </features>
+
+    <suite><resource id="suite" version="12">
+        
+            <location authority="local">./suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/chadbrochill/apps/download/246d72483d509afd3d9354cff2de14ec/suite.xml</location>
+    </resource></suite>
+    
+    <suite><resource id="media-suite" version="12">
+        
+            <location authority="local">./media_suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/chadbrochill/apps/download/246d72483d509afd3d9354cff2de14ec/media_suite.xml</location>
+    </resource></suite>
+    
+</profile>

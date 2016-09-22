@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
@@ -16,14 +15,17 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.utils.BlockingActionsManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.views.widgets.DateTimeWidget;
+import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
 import org.commcare.views.widgets.StringWidget;
 import org.commcare.views.widgets.TimeWidget;
@@ -64,12 +66,14 @@ public class QuestionsView extends ScrollView
 
     private SpannableStringBuilder mGroupLabel;
 
+    private BlockingActionsManager blockingActionsManager;
+
     /**
      * If enabled, we use dividers between question prompts
      */
     private static final boolean SEPERATORS_ENABLED = false;
 
-    public QuestionsView(Context context) {
+    public QuestionsView(Context context, BlockingActionsManager blockingActionsManager) {
         super(context);
 
         SharedPreferences settings =
@@ -89,12 +93,13 @@ public class QuestionsView extends ScrollView
                         LinearLayout.LayoutParams.WRAP_CONTENT);
 
         mGroupLabel = null;
+        this.blockingActionsManager = blockingActionsManager;
     }
 
     public QuestionsView(Context context, FormEntryPrompt[] questionPrompts,
                          FormEntryCaption[] groups, WidgetFactory factory,
-                         WidgetChangedListener wcl) {
-        this(context);
+                         WidgetChangedListener wcl, BlockingActionsManager blockingActionsManager) {
+        this(context, blockingActionsManager);
 
         if(wcl !=null){
             hasListener = true;
@@ -138,7 +143,7 @@ public class QuestionsView extends ScrollView
             widgets.add(qw);
             mView.addView(qw, mLayout);
             
-            qw.setChangedListener(this);
+            qw.setChangedListeners(this, blockingActionsManager);
         }
         
         markLastStringWidget();
@@ -200,7 +205,7 @@ public class QuestionsView extends ScrollView
         widgets.add(i, qw);
         mView.addView(qw, getViewIndex(2 * i + mViewBannerCount), mLayout);
         
-        qw.setChangedListener(this);
+        qw.setChangedListeners(this, blockingActionsManager);
     }
 
 
@@ -324,7 +329,7 @@ public class QuestionsView extends ScrollView
 
     public void setFocus(Context context, int indexOfLastChangedWidget) {
         QuestionWidget widgetToFocus = null;
-        if (indexOfLastChangedWidget != -1) {
+        if (indexOfLastChangedWidget != -1 && indexOfLastChangedWidget < widgets.size()) {
             widgetToFocus = widgets.get(indexOfLastChangedWidget);
         } else if (widgets.size() > 0) {
             widgetToFocus = widgets.get(0);
@@ -500,4 +505,20 @@ public class QuestionsView extends ScrollView
         }
     }
 
+    public CompoundIntentList getAggregateIntentCallout() {
+        CompoundIntentList compoundedCallout = null;
+        for (QuestionWidget widget : this.getWidgets()) {
+            if(widget instanceof IntentWidget) {
+                boolean expectResult = compoundedCallout != null;
+                compoundedCallout = ((IntentWidget)widget).addToCompoundIntent(compoundedCallout);
+                if(compoundedCallout == null && expectResult) {
+                    return null;
+                }
+            }
+        }
+        if(compoundedCallout == null || compoundedCallout.getNumberOfCallouts() <= 1) {
+            return null;
+        }
+        return compoundedCallout;
+    }
 }

@@ -57,13 +57,18 @@ public class IntentCallout implements Externalizable {
     private String buttonLabel;
     private String updateButtonLabel;
     private String appearance;
-    private boolean isCancelled;
 
     // Generic Extra from intent callout extensions
     public static final String INTENT_RESULT_VALUE = "odk_intent_data";
 
     // Bundle of extra values
     public static final String INTENT_RESULT_BUNDLE = "odk_intent_bundle";
+
+    /**
+     * Intent flag to identify whether this callout should be included in attempts to compound
+     * similar intents
+     */
+    public static final String INTENT_EXTRA_CAN_AGGREGATE = "cc:compound_include";
 
     public IntentCallout() {
         // for serialization
@@ -89,7 +94,7 @@ public class IntentCallout implements Externalizable {
         this.appearance = appearance;
     }
 
-    protected void attachToForm(FormDef form) {
+    public void attachToForm(FormDef form) {
         this.formDef = form;
     }
 
@@ -98,11 +103,18 @@ public class IntentCallout implements Externalizable {
         if (className != null) {
             i.setAction(className);
         }
-        if (type != null) {
-            i.setType(type);
-        }
-        if (data != null) {
-            i.setData(Uri.parse(data));
+
+        if(data != null && type != null){
+            // Weird hack but this call seems specifically to be needed to play video
+            // http://stackoverflow.com/questions/1572107/android-intent-for-playing-video
+            i.setDataAndType(Uri.parse(data), type);
+        } else {
+            if (type != null) {
+                i.setType(type);
+            }
+            if (data != null) {
+                i.setData(Uri.parse(data));
+            }
         }
         if (component != null) {
             i.setComponent(new ComponentName(component, className));
@@ -110,10 +122,17 @@ public class IntentCallout implements Externalizable {
         if (refs != null) {
             for (Enumeration<String> en = refs.keys(); en.hasMoreElements(); ) {
                 String key = en.nextElement();
+                Object xpathResult = refs.get(key).eval(ec);
 
-                String extraVal = XPathFuncExpr.toString(refs.get(key).eval(ec));
-                if (extraVal != null && !"".equals(extraVal)) {
-                    i.putExtra(key, extraVal);
+                if (INTENT_EXTRA_CAN_AGGREGATE.equals(key)) {
+                    if(key != null && !"".equals(key)) {
+                        i.putExtra(INTENT_EXTRA_CAN_AGGREGATE, XPathFuncExpr.toBoolean(xpathResult));
+                    }
+                } else{
+                    String extraVal = XPathFuncExpr.toString(xpathResult);
+                    if (extraVal != null && !"".equals(extraVal)) {
+                        i.putExtra(key, extraVal);
+                    }
                 }
             }
         }
@@ -129,6 +148,10 @@ public class IntentCallout implements Externalizable {
         } else {
             return processOdkResponse(intent, intentQuestionRef, destination);
         }
+    }
+
+    public void processBarcodeResponse(TreeReference intentQuestionRef, String scanResult) {
+        setNodeValue(formDef, intentQuestionRef, scanResult);
     }
 
     private static boolean intentInvalid(Intent intent) {
@@ -290,13 +313,5 @@ public class IntentCallout implements Externalizable {
 
     public String getAppearance() {
         return appearance;
-    }
-
-    public void setCancelled(boolean cancelled) {
-        this.isCancelled = cancelled;
-    }
-
-    public boolean getCancelled() {
-        return isCancelled;
     }
 }

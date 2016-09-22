@@ -10,4 +10,6 @@
     <dimen name="row_padding_vertical">8sp</dimen>
     <dimen name="row_padding_horizontal">8sp</dimen>
 
+    <dimen name="widget_button_padding">25dp</dimen>
+
 </resources>

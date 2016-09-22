@@ -42,7 +42,10 @@ public class HomeActivityUIController implements CommCareActivityUIController {
 
     @Override
     public void refreshView() {
-        adapter.notifyDataSetChanged();
+        if (adapter != null) {
+            // adapter can be null if backstack was cleared for memory reasons
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private static Vector<String> getHiddenButtons() {
@@ -97,6 +100,8 @@ public class HomeActivityUIController implements CommCareActivityUIController {
             Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
         }
 
-        adapter.notifyItemChanged(adapter.getSyncButtonPosition(), message);
+        // Manually route message payloads since RecyclerView payloads are a pain in the ass
+        adapter.setMessagePayload(adapter.getSyncButtonPosition(), message);
+        adapter.notifyItemChanged(adapter.getSyncButtonPosition());
     }
 }

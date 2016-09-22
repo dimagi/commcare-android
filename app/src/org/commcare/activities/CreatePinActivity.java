@@ -18,7 +18,6 @@ import org.commcare.dalvik.R;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.StandardAlertDialog;

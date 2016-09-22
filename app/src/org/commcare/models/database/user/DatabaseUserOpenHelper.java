@@ -46,9 +46,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.11 - Add table for storing xpath errors for specific cc app versions
      * V.12 - Drop old GeocodeCacheModel table
      * V.13 - Add tables for storing normal device logs and force close logs in user storage
+     * V.14 - Change format of last modified date in form record to canonical SQLite form
      */
 
-    private static final int USER_DB_VERSION = 13;
+    private static final int USER_DB_VERSION = 14;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 

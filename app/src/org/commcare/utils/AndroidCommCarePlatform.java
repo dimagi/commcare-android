@@ -76,10 +76,12 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
         return recovery;
     }
 
+    @Override
     public Profile getCurrentProfile() {
         return profile;
     }
 
+    @Override
     public Vector<Suite> getInstalledSuites() {
         return installedSuites;
     }
@@ -95,14 +97,14 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     }
 
     @Override
-    public void initialize(ResourceTable global) {
+    public void initialize(ResourceTable global, boolean isUpgrade) {
         this.profile = null;
         this.installedSuites.clear();
         // We also need to clear any _resource table_ linked localization files which may have
         // been registered from another app, or from a pre-install location.
         CommCareApplication._().intializeDefaultLocalizerData();
 
-        super.initialize(global);
+        super.initialize(global, isUpgrade);
     }
 
     public IStorageUtilityIndexed<FormInstance> getFixtureStorage() {

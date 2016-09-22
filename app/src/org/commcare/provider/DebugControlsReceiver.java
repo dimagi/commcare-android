@@ -16,6 +16,7 @@ import org.commcare.preferences.DevSessionRestorer;
  * - save the current commcare user session.
  * - log into the currently seated app
  * - invalidate sync token to force recovery on sync
+ * - set a flag that will include a param to clear the cache on the next restore request
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -33,12 +34,15 @@ public class DebugControlsReceiver extends BroadcastReceiver {
             login(context, intent.getStringExtra("username"), intent.getStringExtra("password"));
         } else if (action.endsWith("TriggerSyncRecover")) {
             storeFakeCaseDbHash();
+        } else if (action.endsWith("ClearCacheOnRestore")) {
+            CommCareApplication._().setInvalidateCacheFlag(true);
         }
     }
 
     private static void captureSession() {
         DevSessionRestorer.saveSessionToPrefs();
         DevSessionRestorer.enableAutoLogin();
+        DevSessionRestorer.enableSessionSaving();
     }
 
     private static void uninstallApp(String appId) {

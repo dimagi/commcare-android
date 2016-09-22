@@ -147,6 +147,7 @@ public abstract class TemplatePrinterUtils {
     public static void showAlertDialog(final Activity activity, String title, String msg,
                                        final boolean finishActivity) {
         StandardAlertDialog.getBasicAlertDialog(activity, title, msg, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 if (finishActivity) {

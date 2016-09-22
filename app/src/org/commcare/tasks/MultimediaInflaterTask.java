@@ -16,6 +16,7 @@ import java.util.zip.ZipFile;
 
 public abstract class MultimediaInflaterTask<R> extends CommCareTask<String, String, Boolean, R> {
 
+    @Override
     protected Boolean doTaskBackground(String... params) {
         File archive = new File(params[0]);
         File destination = new File(params[1]);

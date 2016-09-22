@@ -246,7 +246,7 @@ public class PostRequestActivity
     }
 
     @Override
-    public void handlePullTaskError(Exception e) {
+    public void handlePullTaskError() {
         reportFailure(Localization.get("sync.fail.unknown"), true);
     }
 }

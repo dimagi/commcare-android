@@ -3,8 +3,6 @@ package org.commcare.activities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.os.Build;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
@@ -19,7 +17,6 @@ import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadUtil;
-import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -136,7 +133,7 @@ public class FormAndDataSyncer {
             @Override
             protected void deliverError(PullTaskReceiver receiver,
                                         Exception e) {
-                receiver.handlePullTaskError(e);
+                receiver.handlePullTaskError();
             }
         };
 

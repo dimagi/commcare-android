@@ -36,6 +36,7 @@ import java.util.Vector;
 public class SuiteAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = SuiteAndroidInstaller.class.getSimpleName();
 
+    @SuppressWarnings("unused")
     public SuiteAndroidInstaller() {
         // for externalization
     }
@@ -45,16 +46,19 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(final AndroidCommCarePlatform instance) throws ResourceInitializationException {
+    public boolean initialize(final AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException {
         try {
             if (localLocation == null) {
                 throw new ResourceInitializationException("The suite file's location is null!");
             }
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            SuiteParser parser = new AndroidSuiteParser(local.getStream(),
-                    instance.getGlobalResourceTable(), null, instance.getFixtureStorage());
-            parser.setSkipResources(true);
+            SuiteParser parser;
+            if (isUpgrade) {
+                parser = AndroidSuiteParser.buildUpgradeParser(local.getStream(), instance.getGlobalResourceTable(), instance.getFixtureStorage());
+            } else {
+                parser = AndroidSuiteParser.buildInitParser(local.getStream(), instance.getGlobalResourceTable(), instance.getFixtureStorage());
+            }
 
             Suite s = parser.parse();
 
@@ -70,16 +74,15 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
+    @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, final AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, instance, upgrade);
+
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            SuiteParser parser = new AndroidSuiteParser(local.getStream(), table,
-                    r.getRecordGuid(), instance.getFixtureStorage());
-
-            Suite s = parser.parse();
+            AndroidSuiteParser.buildInstallParser(local.getStream(), table, r.getRecordGuid(), instance.getFixtureStorage()).parse();
 
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
@@ -93,6 +96,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
+    @Override
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         return Resource.RESOURCE_STATUS_LOCAL;
     }
@@ -102,33 +106,23 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         return true;
     }
 
+    @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-            Suite mSuite = (new AndroidSuiteParser(local.getStream(), new DummyResourceTable(), null, null) {
-                @Override
-                protected boolean inValidationMode() {
-                    return true;
-                }
-            }).parse();
-            Hashtable<String, Entry> mHashtable = mSuite.getEntries();
+            Suite suite = AndroidSuiteParser.buildVerifyParser(local.getStream(), new DummyResourceTable()).parse();
+            Hashtable<String, Entry> mHashtable = suite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
                 Entry mEntry = mHashtable.get(key);
 
                 FileUtil.checkReferenceURI(r, mEntry.getAudioURI(), problems);
                 FileUtil.checkReferenceURI(r, mEntry.getImageURI(), problems);
-
             }
-            Vector<Menu> menus = mSuite.getMenus();
-            Enumeration e = menus.elements();
 
-            while (e.hasMoreElements()) {
-                Menu mMenu = (Menu)e.nextElement();
-
-                FileUtil.checkReferenceURI(r, mMenu.getAudioURI(), problems);
-                FileUtil.checkReferenceURI(r, mMenu.getImageURI(), problems);
-
+            for (Menu menu : suite.getMenus()) {
+                FileUtil.checkReferenceURI(r, menu.getAudioURI(), problems);
+                FileUtil.checkReferenceURI(r, menu.getImageURI(), problems);
             }
         } catch (Exception e) {
             Logger.log("e", "suite validation failed with: " + e.getMessage());

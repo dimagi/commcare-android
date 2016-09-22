@@ -97,7 +97,7 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
 
                 int pathPartsLength = pathParts.length;
 
-                String filePath = pathParts[pathPartsLength -1] + "/" + pathParts[pathPartsLength - 2];
+                String filePath = pathParts[pathPartsLength -2] + "/" + pathParts[pathPartsLength - 1];
                 Log.d(TAG, "Zipping instance folder with path: " + filePath);
 
                 ZipEntry entry = new ZipEntry(filePath);

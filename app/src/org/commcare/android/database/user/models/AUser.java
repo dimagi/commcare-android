@@ -81,6 +81,7 @@ public class AUser implements Persistable, IMetaData {
     }
 
     ///fetch the value for the default user and password from the RMS
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.username = ExtUtil.readString(in);
         this.password = ExtUtil.readString(in);
@@ -92,6 +93,7 @@ public class AUser implements Persistable, IMetaData {
         this.properties = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, username);
         ExtUtil.writeString(out, password);
@@ -111,11 +113,13 @@ public class AUser implements Persistable, IMetaData {
         return password;
     }
 
+    @Override
     public void setID(int recordId) {
 
         this.recordId = recordId;
     }
 
+    @Override
     public int getID() {
         return recordId;
     }
@@ -180,6 +184,7 @@ public class AUser implements Persistable, IMetaData {
         return syncToken;
     }
 
+    @Override
     public Object getMetaData(String fieldName) {
         if (META_UID.equals(fieldName)) {
             return uniqueId;
@@ -195,6 +200,7 @@ public class AUser implements Persistable, IMetaData {
         throw new IllegalArgumentException("No metadata field " + fieldName + " for User Models");
     }
 
+    @Override
     public String[] getMetaDataFields() {
         return new String[]{META_UID, META_USERNAME, META_ID, META_WRAPPED_KEY, META_SYNC_TOKEN};
     }

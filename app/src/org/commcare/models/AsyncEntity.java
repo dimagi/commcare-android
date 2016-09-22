@@ -219,6 +219,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         return data;
     }
 
+    @Override
     public String[] getSortFieldPieces(int i) {
         if (getSortField(i) == null) {
             return new String[0];

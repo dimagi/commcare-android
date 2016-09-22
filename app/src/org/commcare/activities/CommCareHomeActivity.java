@@ -25,7 +25,6 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.interfaces.WithUIController;
@@ -46,8 +45,8 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.suite.model.SyncEntry;
-import org.commcare.suite.model.SyncPost;
+import org.commcare.suite.model.RemoteRequestEntry;
+import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
@@ -60,7 +59,6 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.ConnectivityStatus;
-import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
@@ -111,7 +109,7 @@ public class CommCareHomeActivity
      */
     private static final int MODEL_RESULT = 4;
 
-    private static final int GET_INCOMPLETE_FORM = 16;
+    public static final int GET_INCOMPLETE_FORM = 16;
     public static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     private static final int PREFERENCES_ACTIVITY=512;
@@ -875,12 +873,12 @@ public class CommCareHomeActivity
     private void launchRemoteSync(AndroidSessionWrapper asw) {
         String command = asw.getSession().getCommand();
         Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
-        if (commandEntry instanceof SyncEntry) {
-            SyncPost syncPost = ((SyncEntry)commandEntry).getSyncPost();
+        if (commandEntry instanceof RemoteRequestEntry) {
+            PostRequest postRequest = ((RemoteRequestEntry)commandEntry).getPostRequest();
             Intent i = new Intent(getApplicationContext(), PostRequestActivity.class);
-            i.putExtra(PostRequestActivity.URL_KEY, syncPost.getUrl());
+            i.putExtra(PostRequestActivity.URL_KEY, postRequest.getUrl());
             i.putExtra(PostRequestActivity.PARAMS_KEY,
-                    new HashMap<>(syncPost.getEvaluatedParams(asw.getEvaluationContext())));
+                    new HashMap<>(postRequest.getEvaluatedParams(asw.getEvaluationContext())));
 
             startActivityForResult(i, MAKE_REMOTE_POST);
         } else {
@@ -1133,6 +1131,7 @@ public class CommCareHomeActivity
         String msg = Localization.get("app.workflow.incomplete.continue");
         StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE:
@@ -1173,8 +1172,14 @@ public class CommCareHomeActivity
     }
 
     public static boolean isDemoUser() {
-        User u = CommCareApplication._().getSession().getLoggedInUser();
-        return (User.TYPE_DEMO.equals(u.getUserType()));
+        try {
+            User u = CommCareApplication._().getSession().getLoggedInUser();
+            return (User.TYPE_DEMO.equals(u.getUserType()));
+        } catch (SessionUnavailableException e) {
+            // Default to a normal user: this should only happen if session
+            // expires and hasn't redirected to login.
+            return false;
+        }
     }
 
     @Override
@@ -1203,22 +1208,33 @@ public class CommCareHomeActivity
         super.onPrepareOptionsMenu(menu);
         GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN);
         //In Holo theme this gets called on startup
-        User u = CommCareApplication._().getSession().getLoggedInUser();
-        boolean enableMenus = !User.TYPE_DEMO.equals(u.getUserType());
+        boolean enableMenus = !isDemoUser();
         menu.findItem(MENU_UPDATE).setVisible(enableMenus);
         menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
         menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(enableMenus);
         menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
         menu.findItem(MENU_ADVANCED).setVisible(enableMenus);
         menu.findItem(MENU_ABOUT).setVisible(enableMenus);
-        if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
+        preparePinMenu(menu, enableMenus);
+        return true;
+    }
+
+    private static void preparePinMenu(Menu menu, boolean enableMenus) {
+        boolean pinEnabled = enableMenus && DeveloperPreferences.shouldOfferPinForLogin();
+        menu.findItem(MENU_PIN).setVisible(pinEnabled);
+        boolean hasPinSet = false;
+
+        try {
+            hasPinSet = CommCareApplication._().getRecordForCurrentUser().hasPinSet();
+        } catch (SessionUnavailableException e) {
+            Log.d(TAG, "Session expired and menu is being created before redirect to login screen");
+        }
+
+        if (hasPinSet) {
             menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
         } else {
             menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.set"));
         }
-        menu.findItem(MENU_PIN).setVisible(enableMenus
-                && DeveloperPreferences.shouldOfferPinForLogin());
-        return true;
     }
 
     @Override
@@ -1391,7 +1407,7 @@ public class CommCareHomeActivity
     }
 
     @Override
-    public void handlePullTaskError(Exception e) {
+    public void handlePullTaskError() {
         reportFailure(Localization.get("sync.fail.unknown"), true);
     }
 }

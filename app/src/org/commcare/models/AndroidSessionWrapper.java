@@ -7,6 +7,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionDescriptorUtil;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.EntityDatum;
@@ -51,7 +52,7 @@ public class AndroidSessionWrapper {
         this.reset();
         this.sessionStateRecordId = descriptor.getID();
         this.formRecordId = descriptor.getFormRecordId();
-        descriptor.loadSessionFromDescriptor(session);
+        SessionDescriptorUtil.loadSessionFromDescriptor(descriptor.getSessionDescriptor(), session);
     }
 
     /**
@@ -204,7 +205,7 @@ public class AndroidSessionWrapper {
         Hashtable<String, Entry> menuMap = platform.getMenuMap();
         for (String key : menuMap.keySet()) {
             Entry e = menuMap.get(key);
-            if (!(e.isView() || e.isSync()) && formNamespace.equals(((FormEntry)e).getXFormNamespace())) {
+            if (!(e.isView() || e.isRemoteRequest()) && formNamespace.equals(((FormEntry)e).getXFormNamespace())) {
                 //We have an entry. Don't worry too much about how we're supposed to get there for now.
 
                 //The ideal is that we only need one piece of data

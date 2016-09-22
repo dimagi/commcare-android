@@ -117,6 +117,7 @@ public class ExtendedTestCursor extends RoboCursor {
    * in an atomic operation.
    * @param columnNames list of column names
    */
+  @Override
   @Deprecated
   public void setColumnNames(List<String> columnNames) {
     this.columnNames = columnNames;
@@ -127,6 +128,7 @@ public class ExtendedTestCursor extends RoboCursor {
    * in an atomic operation.
    * @param results matrix of results
    */
+  @Override
   @Deprecated
   public void setResults(Object[][] results) {
     this.results = results;
@@ -148,6 +150,7 @@ public class ExtendedTestCursor extends RoboCursor {
     this.results = results;
   }
 
+  @Override
   public boolean getCloseWasCalled() {
     return closeWasCalled;
   }

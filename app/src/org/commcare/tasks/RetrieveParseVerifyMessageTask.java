@@ -18,7 +18,7 @@ public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<Str
     }
 
     @Override
-    protected String doTaskBackground(String[] params) {
+    protected String doTaskBackground(String... params) {
         try {
             String url = SigningUtil.trimMessagePayload(params[0]);
             String messagePayload = SigningUtil.convertUrlToPayload(url);
@@ -31,7 +31,9 @@ public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<Str
         }
     }
 
+    @Override
     protected void onPostExecute(String url) {
+        super.onPostExecute(url);
         if (exception != null) {
             listener.exceptionReceived(exception);
         }

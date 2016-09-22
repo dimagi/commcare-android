@@ -25,10 +25,12 @@ public class AndroidLogPurger<T extends AndroidLogEntry> implements StreamLogSer
     @Override
     public void purge(final SortedIntSet IDs) {
         logStorage.removeAll(new EntityFilter<LogEntry>() {
+            @Override
             public int preFilter(int id, Hashtable<String, Object> metaData) {
                 return IDs.contains(id) ? PREFILTER_INCLUDE : PREFILTER_EXCLUDE;
             }
 
+            @Override
             public boolean matches(LogEntry e) {
                 throw new RuntimeException("can't happen");
             }

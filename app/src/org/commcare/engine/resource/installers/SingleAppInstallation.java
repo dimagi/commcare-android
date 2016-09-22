@@ -1,7 +1,6 @@
 package org.commcare.engine.resource.installers;
 
 import org.commcare.CommCareApp;
-import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.android.database.global.models.ApplicationRecord;

@@ -79,6 +79,13 @@ public class DevSessionRestorer {
                 .apply();
     }
 
+    public static void enableSessionSaving() {
+        CommCareApplication._().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, CommCarePreferences.YES)
+                .apply();
+    }
+
     public static void clearPassword(SharedPreferences prefs) {
         prefs.edit().remove(CommCarePreferences.LAST_PASSWORD).commit();
     }

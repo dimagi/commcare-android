@@ -55,14 +55,17 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         this.lastQueried = queried;
     }
 
+    @Override
     public boolean isEncrypted(String data) {
         return !(data.equals(META_LAST_QUERY) || data.equals(META_HIT));
     }
 
+    @Override
     public boolean isBlobEncrypted() {
         return true;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         lastQueried = ExtUtil.readDate(in);
         hit = ExtUtil.readBool(in);
@@ -73,6 +76,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         }
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeDate(out, lastQueried);
         ExtUtil.writeBool(out, hit);
@@ -83,18 +87,22 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         }
     }
 
+    @Override
     public void setID(int ID) {
         recordId = ID;
     }
 
+    @Override
     public int getID() {
         return recordId;
     }
 
+    @Override
     public String[] getMetaDataFields() {
         return new String[]{META_LAST_QUERY, META_LOCATION, META_HIT};
     }
 
+    @Override
     public Object getMetaData(String fieldName) {
         if (META_LAST_QUERY.equals(fieldName)) {
             return DateUtils.formatDate(lastQueried, DateUtils.FORMAT_ISO8601);

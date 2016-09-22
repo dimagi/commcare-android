@@ -109,7 +109,7 @@ public class AutoUpdateTest {
             }
 
             @Override
-            public void handleTaskCancellation(AppInstallStatus result) {
+            public void handleTaskCancellation() {
             }
         };
     }

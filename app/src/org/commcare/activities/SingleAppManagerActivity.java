@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -17,6 +16,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.UpdateTask;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.StandardAlertDialog;
 
@@ -87,7 +87,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * activity, based upon the position
      */
     private static ApplicationRecord getAppForPosition(int position) {
-        ApplicationRecord[] currentApps = CommCareApplication._().appRecordArray();
+        ApplicationRecord[] currentApps = MultipleAppsUtil.appRecordArray();
         if (position < 0 || position >= currentApps.length) {
             return null;
         } else {

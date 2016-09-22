@@ -30,18 +30,20 @@ public class MediaUtil {
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
 
+
     /**
      * Attempts to inflate an image from a CommCare UI definition source.
      *
      * @param jrUri          The image to inflate
      * @param boundingWidth  the width of the container this image is being inflated into, to serve
      *                       as a max width. If passed in as -1, gets set to screen width
-     * @param boundingHeight the height fo the container this image is being inflated into, to
+     * @param boundingHeight the height of the container this image is being inflated into, to
      *                       serve as a max height. If passed in as -1, gets set to screen height
      * @return A bitmap if one could be created. Null if error occurs or the image is unavailable.
      */
     public static Bitmap inflateDisplayImage(Context context, String jrUri,
-                                             int boundingWidth, int boundingHeight) {
+                                             int boundingWidth, int boundingHeight,
+                                             boolean respectBoundsExactly) {
         if (jrUri == null || jrUri.equals("")) {
             return null;
         }
@@ -86,7 +88,7 @@ public class MediaUtil {
             } else {
                 // just scale down if the original image is way too big for its container
                 return getBitmapScaledToContainer(imageFile.getAbsolutePath(), boundingHeight,
-                        boundingWidth);
+                        boundingWidth, respectBoundsExactly);
             }
         } catch (InvalidReferenceException e) {
             Log.e("ImageInflater", "image invalid reference exception for " + e.getReferenceString());
@@ -95,8 +97,13 @@ public class MediaUtil {
         return null;
     }
 
+    public static Bitmap inflateDisplayImage(Context context, String jrUri,
+                                             int boundingWidth, int boundingHeight) {
+        return inflateDisplayImage(context, jrUri, boundingWidth, boundingHeight, false);
+    }
+
     public static Bitmap inflateDisplayImage(Context context, String jrUri) {
-        return inflateDisplayImage(context, jrUri, -1, -1);
+        return inflateDisplayImage(context, jrUri, -1, -1, false);
     }
 
     /**
@@ -129,7 +136,7 @@ public class MediaUtil {
                     containerHeight, containerWidth);
         } else  {
             return scaleDownToTargetOrContainer(imageFilepath, imageHeight, imageWidth,
-                    calculatedHeight, calculatedWidth, containerHeight, containerWidth, false);
+                    calculatedHeight, calculatedWidth, containerHeight, containerWidth, false, true);
         }
     }
 
@@ -175,7 +182,7 @@ public class MediaUtil {
      * down proportionally with the width)
      */
     public static Bitmap getBitmapScaledToContainer(String imageFilepath, int containerHeight,
-                                                     int containerWidth) {
+                                                     int containerWidth, boolean respectBoundsExactly) {
         // Determine dimensions of original image
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
@@ -184,13 +191,13 @@ public class MediaUtil {
         int imageWidth = o.outWidth;
 
         return scaleDownToTargetOrContainer(imageFilepath, imageHeight, imageWidth, -1, -1,
-                containerHeight, containerWidth, true);
+                containerHeight, containerWidth, true, respectBoundsExactly);
     }
 
     public static Bitmap getBitmapScaledToContainer(File imageFile, int containerHeight,
                                                     int containerWidth) {
         return getBitmapScaledToContainer(imageFile.getAbsolutePath(), containerHeight,
-                containerWidth);
+                containerWidth, false);
     }
 
     /**
@@ -211,7 +218,8 @@ public class MediaUtil {
                                                        int originalHeight, int originalWidth,
                                                        int targetHeight, int targetWidth,
                                                        int boundingHeight, int boundingWidth,
-                                                       boolean scaleByContainerOnly) {
+                                                       boolean scaleByContainerOnly,
+                                                       boolean respectBoundsExactly) {
         Pair<Integer, Integer> dimensImposedByContainer = getRoughDimensImposedByContainer(
                 originalHeight, originalWidth, boundingHeight, boundingWidth);
 
@@ -227,11 +235,12 @@ public class MediaUtil {
         int approximateScaleDownFactor = getApproxScaleDownFactor(newWidth, originalWidth);
         Bitmap b = inflateImageSafe(imageFilepath, approximateScaleDownFactor).first;
 
-        if (scaleByContainerOnly) {
+        if (scaleByContainerOnly && !respectBoundsExactly) {
             // Not worth performance loss of creating an exact scaled bitmap in this case
             return b;
         } else {
-            // Here we want to be more precise because we had a target width and height
+            // Here we want to be more precise because we have a target width and height, or
+            // specified that respecting the bounding container precisely is important
             return Bitmap.createScaledBitmap(b, newWidth, newHeight, false);
         }
 

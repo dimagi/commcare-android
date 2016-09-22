@@ -1,27 +1,29 @@
 package org.commcare.adapters;
 
-import android.app.Activity;
 import android.database.DataSetObserver;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.CachingAsyncImageLoader;
 import org.commcare.utils.StringUtils;
+import org.commcare.views.EntityActionViewUtils;
 import org.commcare.views.EntityView;
-import org.commcare.views.GridEntityView;
-import org.commcare.views.HorizontalMediaView;
+import org.commcare.views.EntityViewTile;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
@@ -40,17 +42,19 @@ import java.util.List;
  * @author wspride
  */
 public class EntityListAdapter implements ListAdapter {
-    private static final String KEY_ENTITY_LIST_EXTRA_DATA = "entity-list-data";
+    public static final int ENTITY_TYPE = 0;
+    public static final int ACTION_TYPE = 1;
+    public static final int DIVIDER_TYPE = 2;
+    public static final int DIVIDER_ID = -2;
 
-    public static final int SPECIAL_ACTION = -2;
-
-    private int actionsStartPosition = 0;
+    private int dividerPosition = 0;
     private final int actionsCount;
+    private final int dividerCount;
 
     private boolean mFuzzySearchEnabled = true;
     private boolean isFilteringByCalloutResult = false;
 
-    private final Activity context;
+    private final CommCareActivity commCareActivity;
     private final Detail detail;
 
     private final List<DataSetObserver> observers;
@@ -58,6 +62,7 @@ public class EntityListAdapter implements ListAdapter {
     private final List<Entity<TreeReference>> full;
     private List<Entity<TreeReference>> current;
     private final List<TreeReference> references;
+    private final List<Action> actions;
 
     private TreeReference selected;
 
@@ -76,25 +81,32 @@ public class EntityListAdapter implements ListAdapter {
     private final CachingAsyncImageLoader mImageLoader;
 
     // false until we determine the Detail has at least one <grid> block
-    private boolean usesGridView = false;
+    private boolean usesCaseTiles = false;
+
     // key to data mapping used to attach callout results to individual entities
     private OrderedHashtable<String, String> calloutResponseData = new OrderedHashtable<>();
 
-    public EntityListAdapter(Activity activity, Detail detail,
+    private final boolean selectActivityInAwesomeMode;
+
+    public EntityListAdapter(CommCareActivity activity, Detail detail,
                              List<TreeReference> references,
                              List<Entity<TreeReference>> full,
                              int[] sort, NodeEntityFactory factory,
-                             boolean hideActions) {
+                             boolean hideActions, List<Action> actions, boolean inAwesomeMode) {
         this.detail = detail;
-        if (detail.getCustomActions() == null || hideActions) {
+        this.selectActivityInAwesomeMode = inAwesomeMode;
+        this.actions = actions;
+        if (actions == null || actions.isEmpty() || hideActions) {
             actionsCount = 0;
+            dividerCount = 0;
         } else {
-            actionsCount = detail.getCustomActions().size();
+            actionsCount = actions.size();
+            dividerCount = 2;
         }
 
         this.full = full;
         this.references = references;
-        this.context = activity;
+        this.commCareActivity = activity;
         this.observers = new ArrayList<>();
         this.mNodeFactory = factory;
 
@@ -110,15 +122,12 @@ public class EntityListAdapter implements ListAdapter {
         }
 
         if (android.os.Build.VERSION.SDK_INT >= 14) {
-            mImageLoader = new CachingAsyncImageLoader(context);
+            mImageLoader = new CachingAsyncImageLoader(commCareActivity);
         } else {
             mImageLoader = null;
         }
 
-        this.usesGridView = detail.usesGridView();
-        if (usesGridView) {
-            GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_USING_GRIDVIEW);
-        }
+        this.usesCaseTiles = detail.usesEntityTileView();
         this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
 
         setCurrent(new ArrayList<>(full));
@@ -130,7 +139,7 @@ public class EntityListAdapter implements ListAdapter {
     void setCurrent(List<Entity<TreeReference>> arrayList) {
         current = arrayList;
         if (actionsCount > 0) {
-            actionsStartPosition = current.size();
+            dividerPosition = current.size();
         }
         update();
     }
@@ -184,12 +193,8 @@ public class EntityListAdapter implements ListAdapter {
         return current.size();
     }
 
-    public int getFullCountWithActions() {
-        return full.size() + actionsCount;
-    }
-
     public int getCurrentCountWithActions() {
-        return current.size() + actionsCount;
+        return current.size() + actionsCount + dividerCount;
     }
 
     @Override
@@ -199,18 +204,34 @@ public class EntityListAdapter implements ListAdapter {
 
     @Override
     public long getItemId(int position) {
-        if (actionsCount > 0 && position >= actionsStartPosition) {
-            return SPECIAL_ACTION;
+        int type = getItemViewType(position);
+        switch (type) {
+            case ENTITY_TYPE:
+                return references.indexOf(current.get(position).getElement());
+            case ACTION_TYPE:
+                return dividerPosition + actions.indexOf(getAction(position));
+            case DIVIDER_TYPE:
+                return -2;
+            default:
+                throw new RuntimeException("Invalid view type");
         }
-        return references.indexOf(current.get(position).getElement());
+    }
+
+    private Action getAction(int position) {
+        int baseActionPosition = dividerPosition + 1;
+        return actions.get(position - baseActionPosition);
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (actionsCount > 0 && position >= actionsStartPosition) {
-            return 1;
+        if (actionsCount > 0) {
+            if (position > dividerPosition && position != getCount() - 1) {
+                return ACTION_TYPE;
+            } else if (position == dividerPosition || position == getCount() - 1) {
+                return DIVIDER_TYPE;
+            }
         }
-        return 0;
+        return ENTITY_TYPE;
     }
 
     /**
@@ -219,49 +240,47 @@ public class EntityListAdapter implements ListAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (actionsCount > 0 && position >= actionsStartPosition) {
-            return getActionView(position, (HorizontalMediaView)convertView);
+        int type = getItemViewType(position);
+        switch (type) {
+            case ENTITY_TYPE:
+                return getEntityView(position, convertView);
+            case ACTION_TYPE:
+                return getActionView(position, (FrameLayout)convertView, parent);
+            case DIVIDER_TYPE:
+                return getDividerView((LinearLayout)convertView, parent);
+            default:
+                throw new RuntimeException("Invalid view type");
         }
+    }
 
+    private View getEntityView(int position, View convertView) {
         Entity<TreeReference> entity = current.get(position);
-        // if we use a <grid>, setup an AdvancedEntityView
-        if (usesGridView) {
-            return getGridView(entity, (GridEntityView)convertView);
+
+        if (usesCaseTiles) {
+            // if we use a <grid>, setup an AdvancedEntityView
+            return getTileView(entity, (EntityViewTile)convertView);
         } else {
-            return getEntityView(entity, (EntityView)convertView, position);
+            return getListEntityView(entity, (EntityView)convertView, position);
         }
     }
 
-    private View getActionView(int position, HorizontalMediaView tiav) {
-        if (tiav == null) {
-            tiav = new HorizontalMediaView(context);
-        }
-        Action currentAction = detail.getCustomActions().get(position - actionsStartPosition);
-        tiav.setDisplay(currentAction.getDisplay());
-        tiav.setBackgroundResource(R.drawable.list_bottom_tab);
-        //We're gonna double pad this because we want to give it some visual distinction
-        //and keep the icon more centered
-        int padding = (int)context.getResources().getDimension(R.dimen.entity_padding);
-        tiav.setPadding(padding, padding, padding, padding);
-        return tiav;
-    }
-
-    private View getGridView(Entity<TreeReference> entity, GridEntityView emv) {
-        int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
+    private View getTileView(Entity<TreeReference> entity, EntityViewTile emv) {
+        int[] titleColor = AndroidUtil.getThemeColorIDs(commCareActivity, new int[]{R.attr.entity_select_title_text_color});
         if (emv == null) {
-            emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
+            emv = EntityViewTile.createTileForEntitySelectDisplay(commCareActivity, detail, entity,
+                        currentSearchTerms, mImageLoader, mFuzzySearchEnabled, selectActivityInAwesomeMode);
         } else {
             emv.setSearchTerms(currentSearchTerms);
-            emv.setViews(context, detail, entity);
+            emv.addFieldViews(commCareActivity, detail, entity);
         }
         emv.setTitleTextColor(titleColor[0]);
         return emv;
     }
 
-    private View getEntityView(Entity<TreeReference> entity, EntityView emv, int position) {
+    private View getListEntityView(Entity<TreeReference> entity, EntityView emv, int position) {
         if (emv == null) {
             emv = EntityView.buildEntryEntityView(
-                    context, detail, entity,
+                    commCareActivity, detail, entity,
                     currentSearchTerms, position, mFuzzySearchEnabled,
                     getCalloutDataForEntity(entity));
         } else {
@@ -282,9 +301,31 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
+    private View getActionView(int position, FrameLayout actionCardView, ViewGroup parent) {
+        if (actionCardView == null) {
+            actionCardView = (FrameLayout)LayoutInflater.from(parent.getContext()).inflate(R.layout.action_card, parent, false);
+        }
+
+        EntityActionViewUtils.buildActionView(actionCardView,
+                getAction(position),
+                commCareActivity);
+
+        return actionCardView;
+    }
+
+    private LinearLayout getDividerView(LinearLayout convertView, ViewGroup parent) {
+        if (convertView == null) {
+            return (LinearLayout)LayoutInflater.from(parent.getContext()).inflate(R.layout.line_separator, parent, false);
+        }
+        convertView.setOnClickListener(null);
+        convertView.setEnabled(false);
+        convertView.setFocusable(false);
+        return convertView;
+    }
+
     @Override
     public int getViewTypeCount() {
-        return (actionsCount > 0) ? 2 : 1;
+        return (actionsCount > 0) ? 3 : 1;
     }
 
     @Override
@@ -310,7 +351,7 @@ public class EntityListAdapter implements ListAdapter {
         searchQuery = filterRaw;
         entityFilterer =
                 new EntityStringFilterer(this, searchTerms, mAsyncMode,
-                        mFuzzySearchEnabled, mNodeFactory, full, context);
+                        mFuzzySearchEnabled, mNodeFactory, full, commCareActivity);
         entityFilterer.start();
     }
 
@@ -333,7 +374,7 @@ public class EntityListAdapter implements ListAdapter {
 
         isFilteringByCalloutResult = true;
         entityFilterer =
-                new EntityKeyFilterer(this, mNodeFactory, full, context, keysToFilterBy);
+                new EntityKeyFilterer(this, mNodeFactory, full, commCareActivity, keysToFilterBy);
         entityFilterer.start();
     }
 
@@ -392,13 +433,6 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
-    /**
-     * Get action's index in detail's list of actions given position in adapter
-     */
-    public int getActionIndex(int positionInAdapter) {
-        return positionInAdapter - getCurrentCount();
-    }
-
     public String getSearchNotificationText() {
         if (isFilteringByCalloutResult) {
             return Localization.get("select.callout.search.status", new String[]{
@@ -428,7 +462,7 @@ public class EntityListAdapter implements ListAdapter {
         OrderedHashtable<String, String> externalData =
                 (OrderedHashtable<String, String>)CommCareApplication._()
                         .getCurrentSession()
-                        .getCurrentFrameStepExtra(KEY_ENTITY_LIST_EXTRA_DATA);
+                        .getCurrentFrameStepExtra(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA);
         if (externalData != null) {
             filterByKeyedCalloutData(externalData);
         }
@@ -436,7 +470,8 @@ public class EntityListAdapter implements ListAdapter {
 
     public void saveCalloutDataToSession() {
         if (isFilteringByCalloutResult) {
-            CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
+            CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
         }
     }
+
 }

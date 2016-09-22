@@ -103,10 +103,14 @@ home.menu.disable.analytics=Opt Out of Analytics
 home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN
 
+menu.update.from.ccz=Offline Update
+
 home.developer.options.enabled=Developer Mode Enabled
 
 menu.save.session=Save Your Session
 menu.clear.saved.session=Clear Saved Session
+menu.enable.privilege=Enable Mobile Privileges
+menu.privilege.claim.disable=Disable Privileges
 
 install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
 install.major.mismatch=Please uninstall your CommCare Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
@@ -128,6 +132,7 @@ sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync a
 
 sync.communicating.title=Communicating with Server
 sync.waiting.title=Waiting for Server Progress
+sync.downloading.title=Downloading Data from Server
 sync.processing.title=Processing Data from Server
 
 sync.progress.starting=Requesting Data...
@@ -309,6 +314,7 @@ login.menu.demo=Enter as Demo User
 login.menu.password.mode=Forgot PIN?
 
 main.sync.demo=You cannot sync data down from the server when logged in in demo mode
+login.menu.app.manager=Go To App Manager
 
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in Demo mode.
 main.sync.demo.no.forms=You have no forms to submit and you cannot retrieve forms from the server in Demo mode. 
@@ -402,6 +408,16 @@ template.malformed.chevron=The template file set for your print job has improper
 cannot.set.template=Could not set your print template
 no.file.browser=Your device does not have a file browser installed. Please download one from the playstore and then try again.
 
+start.recording=Start Recording
+stop.recording=Stop Recording
+recording.header=Record a sound
+before.recording=Tap to start recording...
+during.recording=Tap to stop recording...
+after.recording=Recording complete.
+save=Save
+recording.prompt=Record or choose sound below...
+recording.custom=Recorded Sound
+
 #Add new localization strings here
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
@@ -475,9 +491,8 @@ notification.restore.remote.error.action=Try to sync again immediately, and then
 notification.restore.nonetwork.title=Couldn't Reach Server. Please check your network connection
 notification.restore.nonetwork.detail=Couldn't reach the server due to bad network connectivity.
 
-notification.restore.nonetwork.badpass.title=Couldn't Reach Server. Please check your network connection
-notification.restore.nonetwork.badpass.detail=Couldn't reach the server due to bad network connectivity. However, this user might be able to login offline but the password is incorrect.
-notification.restore.nonetwork.badpass.action=Try re-entering your password. If this doesn't work, you will need a stronger network connection to restore this user.
+notification.restore.nonetwork.badpass.title=Either the password you entered was incorrect, or CommCare couldn't reach the server
+notification.restore.nonetwork.badpass.detail=Try re-entering your password. If this doesn't work, you will need a stronger network connection to log in with this user.
 
 notification.bad.certificate.title=Couldn't securely connect to the server. 
 notification.bad.certificate.detail=CommCare couldn't validate the security information provided by the remote server. 
@@ -541,9 +556,10 @@ notification.install.uptodate.detail=A newer version of the app is not available
 
 notification.install.updatestaged.title=App update ready to install
 notification.install.updatestaged.detail=A newer version of the app is ready to install on next login
+
 notification.install.no.connection.title=No internet connection
 notification.install.no.connection.detail=Install failed because your device is not connected to Wi-Fi currently
-notification.install.duplicate.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.
+notification.install.no.connection.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.
 
 notification.logger.submitted.title=Device Logs Submitted
 notification.logger.submitted.detail=Your devices logs have been successfully submitted
@@ -629,6 +645,8 @@ archive.install.no.browser=You need a file manager to access the files on this d
 
 archive.install.prompt=Install your CommCare application from a .ccz file
 archive.install.button=Install App
+archive.update.prompt=Update your CommCare application from a .ccz file
+archive.update.button=Update App
 
 wifi.direct.transfer.forms=Transfer
 wifi.direct.receive.forms=Receive
@@ -724,6 +742,7 @@ intent.callout.get=Get Data
 intent.callout.update=Update Data
 intent.callout.cancelled=Question callout cancelled
 intent.callout.unable.to.process=Unable to process callout result
+intent.callout.activity.missing=Couldn't find intent for callout!
 fingerprints.scanned=Fingerprints scanned: ${0}
 
 settings.server.listing=Server Settings
@@ -731,6 +750,8 @@ settings.server.title=CommCare > Server Settings
 settings.developer.options=Developer Options
 settings.main.title=CommCare > Application Preferences
 settings.advanced.title=CommCare > Advanced
+app.manager.advanced.settings.title=App Manager > Advanced Settings
+app.manager.advanced.settings.option=Advanced
 clear.user.data=Clear User Data
 clear.user.data.warning.title=Clear User Data
 clear.user.data.warning.message=Are you sure you want to clear all mobile user data? All unsynced data will be lost!
@@ -743,3 +764,20 @@ repeat.dialog.exit=Do Not Add. I'm Finished.
 repeat.dialog.add=Add Group
 repeat.dialog.add.another=Add another "${0}" group?
 repeat.dialog.add.new=Add a new "${0}" group?
+lookup.table.missing.error=Unable to find lookup table "${0}". Make sure it exists and this user has access to it.
+
+ethiopian_months=Meskerem,Tikimt,Hidar,Tahsas,Tir,Yekatit,Megabit,Miazia,Ginbot,Senie,Hamlie,Nehasie,Pagumien
+nepali_months=Baishakh,Jestha,Ashadh,Shrawan,Bhadra,Ashwin,Kartik,Mangsir,Poush,Magh,Falgun,Chaitra
+
+fingerprint.match.100=★★★★★
+fingerprint.match.75=★★★★
+fingerprint.match.50=★★★
+fingerprint.match.25=★★
+fingerprint.match.0=★
+fingerprint.match.unknown=?
+
+calendar.empty.fields=Empty fields
+calendar.low.year=Year value below min value of 
+calendar.high.year=Year value above max value of ${0}
+calendar.low.day=Day value below min value of 1
+calendar.high.day=Day value above max value of ${0}

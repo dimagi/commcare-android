@@ -23,7 +23,6 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logic.FormController;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.views.ClippingFrame;
 import org.commcare.views.QuestionsView;

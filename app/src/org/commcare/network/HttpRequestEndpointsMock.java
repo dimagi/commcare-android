@@ -5,9 +5,12 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.commcare.interfaces.HttpRequestEndpoints;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -20,6 +23,7 @@ import java.util.List;
  */
 public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
     private final static List<Integer> caseFetchResponseCodeStack = new ArrayList<>();
+    private static String errorMessagePayload;
 
     /**
      * Set the response code for the next N requests
@@ -27,6 +31,13 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
     public static void setCaseFetchResponseCodes(Integer[] responseCodes) {
         caseFetchResponseCodeStack.clear();
         Collections.addAll(caseFetchResponseCodeStack, responseCodes);
+    }
+
+    /**
+     * Set the response body for the next 406 request
+     */
+    public static void setErrorResponseBody(String body) {
+        errorMessagePayload = body;
     }
 
     @Override
@@ -40,8 +51,10 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
         }
         if (responseCode == 202) {
             return HttpResponseMock.buildHttpResponseMockForAsyncRestore();
+        } else if (responseCode == 406) {
+            return HttpResponseMock.buildHttpResponseMock(responseCode, new ByteArrayInputStream(errorMessagePayload.getBytes("UTF-8")));
         } else {
-            return HttpResponseMock.buildHttpResponseMock(responseCode);
+            return HttpResponseMock.buildHttpResponseMock(responseCode, null);
         }
     }
 
