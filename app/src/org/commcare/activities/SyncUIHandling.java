@@ -48,6 +48,9 @@ public class SyncUIHandling {
             case UNKNOWN_FAILURE:
                 activity.reportFailure(Localization.get("sync.fail.unknown"), true);
                 break;
+            case ACTIONABLE_FAILURE:
+                activity.reportFailure(resultAndErrorMessage.errorMessage, true);
+                break;
         }
 
         if (userTriggeredSync) {

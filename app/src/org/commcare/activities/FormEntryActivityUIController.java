@@ -26,6 +26,7 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.QuestionsView;
@@ -73,6 +74,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     protected QuestionsView questionsView;
     private boolean hasGroupLabel = false;
     private int indexOfLastChangedWidget = -1;
+    private BlockingActionsManager blockingActionsManager;
 
     private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
 
@@ -87,6 +89,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     @Override
     public void setupUI() {
         activity.setContentView(R.layout.screen_form_entry);
+        blockingActionsManager = new BlockingActionsManager(this.activity);
 
         ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
         ImageButton prevButton = (ImageButton)activity.findViewById(R.id.nav_btn_prev);
@@ -268,6 +271,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
      * appropriate view. Also saves answers to the data model without checking constraints.
      */
     protected void showPreviousView(boolean showSwipeAnimation) {
+        if (shouldIgnoreNavigationAction()) {
+            return;
+        }
+
         // The answer is saved on a back swipe, but question constraints are ignored.
         if (activity.currentPromptIsQuestion()) {
             activity.saveAnswersForCurrentScreen(FormEntryActivity.DO_NOT_EVALUATE_CONSTRAINTS);
@@ -335,7 +342,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             odkv =
                     new QuestionsView(activity, FormEntryActivity.mFormController.getQuestionPrompts(),
                             FormEntryActivity.mFormController.getGroupsForCurrentIndex(),
-                            FormEntryActivity.mFormController.getWidgetFactory(), activity);
+                            FormEntryActivity.mFormController.getWidgetFactory(), activity,
+                            blockingActionsManager);
             Log.i(TAG, "created view for group");
         } catch (RuntimeException e) {
             Logger.exception(e);
@@ -343,7 +351,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             // this is badness to avoid a crash.
             // really a next view should increment the formcontroller, create the view
             // if the view is null, then keep the current view and pop an error.
-            return new QuestionsView(activity);
+            return new QuestionsView(activity, blockingActionsManager);
         }
 
         // Makes a "clear answer" menu pop up on long-click of
@@ -372,6 +380,11 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     private void showNextView(boolean resuming) {
+        if (shouldIgnoreNavigationAction()) {
+            isAnimatingSwipe = false;
+            return;
+        }
+
         if (activity.currentPromptIsQuestion()) {
             if (!activity.saveAnswersForCurrentScreen(FormEntryActivity.EVALUATE_CONSTRAINTS)) {
                 // A constraint was violated so a dialog should be showing.
@@ -560,6 +573,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             isAnimatingSwipe = true;
             showNextView();
         }
+    }
+
+    protected boolean shouldIgnoreNavigationAction() {
+        return blockingActionsManager.isBlocked();
     }
 
     protected boolean shouldIgnoreSwipeAction() {

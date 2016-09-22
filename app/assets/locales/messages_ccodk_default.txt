@@ -103,6 +103,8 @@ home.menu.disable.analytics=Opt Out of Analytics
 home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN
 
+menu.update.from.ccz=Offline Update
+
 home.developer.options.enabled=Developer Mode Enabled
 
 menu.save.session=Save Your Session
@@ -554,9 +556,10 @@ notification.install.uptodate.detail=A newer version of the app is not available
 
 notification.install.updatestaged.title=App update ready to install
 notification.install.updatestaged.detail=A newer version of the app is ready to install on next login
+
 notification.install.no.connection.title=No internet connection
 notification.install.no.connection.detail=Install failed because your device is not connected to Wi-Fi currently
-notification.install.duplicate.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.
+notification.install.no.connection.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.
 
 notification.logger.submitted.title=Device Logs Submitted
 notification.logger.submitted.detail=Your devices logs have been successfully submitted
@@ -642,6 +645,8 @@ archive.install.no.browser=You need a file manager to access the files on this d
 
 archive.install.prompt=Install your CommCare application from a .ccz file
 archive.install.button=Install App
+archive.update.prompt=Update your CommCare application from a .ccz file
+archive.update.button=Update App
 
 wifi.direct.transfer.forms=Transfer
 wifi.direct.receive.forms=Receive

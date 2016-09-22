@@ -9,10 +9,7 @@ import android.net.Uri;
 import android.provider.MediaStore.Video;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -22,8 +19,6 @@ import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -35,36 +30,21 @@ import java.io.IOException;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class VideoWidget extends QuestionWidget {
-    private final static String t = "MediaWidget";
-
-    private final Button mCaptureButton;
-    private final Button mPlayButton;
-    private final Button mChooseButton;
-
-    private String mBinaryName;
-
-    private final String mInstanceFolder;
-    private final PendingCalloutInterface pendingCalloutInterface;
+public class VideoWidget extends MediaWidget {
+    private final static String TAG = VideoWidget.class.getSimpleName();
 
     public VideoWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
-        super(context, prompt);
-        this.pendingCalloutInterface = pic;
+        super(context, prompt, pic);
+    }
 
-        mInstanceFolder =
-                FormEntryActivity.mInstancePath.substring(0,
-                        FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
-
-        setOrientation(LinearLayout.VERTICAL);
-
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
+    @Override
+    protected void initializeButtons() {
         // setup capture button
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_video),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
@@ -76,7 +56,7 @@ public class VideoWidget extends QuestionWidget {
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.AUDIO_VIDEO_FETCH);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -91,7 +71,7 @@ public class VideoWidget extends QuestionWidget {
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_video),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
@@ -102,7 +82,7 @@ public class VideoWidget extends QuestionWidget {
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.AUDIO_VIDEO_FETCH);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -117,7 +97,7 @@ public class VideoWidget extends QuestionWidget {
         WidgetUtils.setupButton(mPlayButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.play_video),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // on play, launch the appropriate viewer
         mPlayButton.setOnClickListener(new View.OnClickListener() {
@@ -137,84 +117,35 @@ public class VideoWidget extends QuestionWidget {
             }
         });
 
-        // retrieve answer from data model and update ui
-        mBinaryName = prompt.getAnswerText();
-        if (mBinaryName != null) {
-            mPlayButton.setEnabled(true);
-
-            File f = new File(mInstanceFolder + "/" + mBinaryName);
-
-            checkFileSize(f);
-        } else {
-            mPlayButton.setEnabled(false);
-        }
-
-        // finish complex layout
-        addView(mCaptureButton);
-        addView(mChooseButton);
-        String acq = prompt.getAppearanceHint();
+        String acq = mPrompt.getAppearanceHint();
         if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq)) {
             mChooseButton.setVisibility(View.GONE);
         }
-        addView(mPlayButton);
     }
-
-
-    private void deleteMedia() {
-        // get the file path and delete the file
-        File f = new File(mInstanceFolder + "/" + mBinaryName);
-        if (!f.delete()) {
-            Log.e(t, "Failed to delete " + f);
-        }
-
-        // clean up variables
-        mBinaryName = null;
-    }
-
 
     @Override
-    public void clearAnswer() {
-        // remove the file
-        deleteMedia();
-
-        // reset buttons
-        mPlayButton.setEnabled(false);
-    }
-
-
-    @Override
-    public IAnswerData getAnswer() {
-        if (mBinaryName != null) {
-            return new StringData(mBinaryName);
-        } else {
-            return null;
-        }
+    protected String createFilePath(Object binaryUri){
+        return UriToFilePath.getPathFromUri(CommCareApplication._(), (Uri)binaryUri);
     }
 
     @Override
     public void setBinaryData(Object binaryuri) {
-        // you are replacing an answer. remove the media.
-        if (mBinaryName != null) {
-            deleteMedia();
+        String binaryPath = getBinaryPathWithSizeCheck(binaryuri);
+        if (binaryPath == null) {
+            return;
         }
-
-        // get the file path and create a copy in the instance folder
-        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(),
-                (Uri)binaryuri);
+        File source = new File(binaryPath);
 
         String extension = binaryPath.substring(binaryPath.lastIndexOf("."));
         String destVideoPath = mInstanceFolder + "/" + System.currentTimeMillis() + extension;
 
-        File source = new File(binaryPath);
         File newVideo = new File(destVideoPath);
         try {
             FileUtil.copyFile(source, newVideo);
         } catch (IOException e) {
-            Log.e(t, "IOExeception while video audio");
+            Log.e(TAG, "IOExeception while video audio");
             e.printStackTrace();
         }
-
-        checkFileSize(newVideo);
 
         if (newVideo.exists()) {
             // Add the copy to the content provier
@@ -226,44 +157,11 @@ public class VideoWidget extends QuestionWidget {
 
             Uri VideoURI =
                     getContext().getContentResolver().insert(Video.Media.EXTERNAL_CONTENT_URI, values);
-            Log.i(t, "Inserting VIDEO returned uri = " + VideoURI.toString());
+            Log.i(TAG, "Inserting VIDEO returned uri = " + VideoURI.toString());
         } else {
-            Log.e(t, "Inserting Video file FAILED");
+            Log.e(TAG, "Inserting Video file FAILED");
         }
 
         mBinaryName = newVideo.getName();
     }
-
-    @Override
-    public void setFocus(Context context) {
-        // Hide the soft keyboard if it's showing.
-        InputMethodManager inputManager =
-                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-        mCaptureButton.setOnLongClickListener(l);
-        mChooseButton.setOnLongClickListener(l);
-        mPlayButton.setOnLongClickListener(l);
-    }
-
-    @Override
-    public void unsetListeners() {
-        super.unsetListeners();
-
-        mCaptureButton.setOnLongClickListener(null);
-        mChooseButton.setOnLongClickListener(null);
-        mPlayButton.setOnLongClickListener(null);
-    }
-
-    @Override
-    public void cancelLongPress() {
-        super.cancelLongPress();
-        mCaptureButton.cancelLongPress();
-        mChooseButton.cancelLongPress();
-        mPlayButton.cancelLongPress();
-    }
-
 }

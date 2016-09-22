@@ -15,6 +15,8 @@ public class Entity<T> {
      * Key used to attach external data (i.e. from case list callout) to an entity
      */
     public final String extraKey;
+    private boolean shouldReceiveFocus;
+
 
     protected Entity(T t, String extraKey) {
         this.t = t;
@@ -22,12 +24,13 @@ public class Entity<T> {
     }
 
     public Entity(Object[] data, String[] sortData, boolean[] relevancyData, T t,
-                  String extraKey) {
+                  String extraKey, boolean shouldReceiveFocus) {
         this.t = t;
         this.sortData = sortData;
         this.data = data;
         this.relevancyData = relevancyData;
         this.extraKey = extraKey;
+        this.shouldReceiveFocus = shouldReceiveFocus;
     }
 
     public Object getField(int i) {
@@ -90,6 +93,10 @@ public class Entity<T> {
             sortField = StringUtils.normalize(sortField);
             return sortField.split("\\s+");
         }
+    }
+
+    public boolean shouldReceiveFocus() {
+        return shouldReceiveFocus;
     }
 
     @Override

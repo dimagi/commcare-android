@@ -122,6 +122,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_FUZZY_SEARCH = "Fuzzy Search Matches";
     public static final String LABEL_PRINT_TEMPLATE = "Set Print Template";
     public static final String LABEL_DEVELOPER_OPTIONS = "Developer Options";
+    public static final String LABEL_NEWEST_APP_VERSION = "Use Newest App Version From HQ";
 
     // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_FORM_PREFS
     public static final String LABEL_FONT_SIZE = "Font Size";
@@ -133,7 +134,6 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_GRID_MENUS = "Grid Menus Enabled";
     public static final String LABEL_NAV_UI = "Navigation UI";
     public static final String LABEL_ENTITY_LIST_REFRESH = "Entity List Screen Auto-Refresh";
-    public static final String LABEL_NEWEST_APP_VERSION = "Use Newest App Version From HQ";
     public static final String LABEL_AUTO_LOGIN = "Auto-login While Debugging";
     public static final String LABEL_SESSION_SAVING = "Enable Session Saving";
     public static final String LABEL_EDIT_SAVED_SESSION = "Edit Saved Session";
@@ -141,11 +141,11 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_MARKDOWN = "Markdown Enabled";
     public static final String LABEL_IMAGE_ABOVE_TEXT = "Image Above Question Text Enabled";
     public static final String LABEL_TRIGGERS_ON_SAVE = "Fire triggers on form save";
-    public static final String LABEL_ANIMATE_FORM_SUBMIT_BUTTON = "Animate form submit button";
     public static final String LABEL_REPORT_BUTTON_ENABLED = "Home Report Button enabled";
     public static final String LABEL_AUTO_PURGE = "Auto Purge on Save Enabled";
     public static final String LABEL_LOAD_FORM_PAYLOAD_AS = "Load form payload as";
     public static final String LABEL_DETAIL_TAB_SWIPE_ACTION = "Detail tab final swipe action enabled";
+    public static final String LABEL_OFFLINE_UPDATE = "Offline Updates enabled";
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
     public static final String LABEL_SETTINGS = "Settings";
@@ -199,6 +199,7 @@ public final class GoogleAnalyticsFields {
     public static final int VALUE_UNKNOWN_FAILURE = 6;
     public static final int VALUE_STORAGE_FULL = 7;
     public static final int VALUE_BAD_DATA_REQUIRES_INTERVENTION = 8;
+    public static final int VALUE_ACTIONABLE_FAILURE = 9;
 
     // Values for LABEL_AUTO_UPDATE
     public static final int VALUE_NEVER = 0;

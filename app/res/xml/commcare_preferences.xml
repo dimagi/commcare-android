@@ -27,6 +27,13 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-fuzzy-search-enabled"
         android:title="Fuzzy Search Matches"/>
+    <ListPreference
+        android:enabled="true"
+        android:defaultValue="no"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-newest-version-from-hq"
+        android:title="Enable Updating to Un-Starred Builds"/>
     <Preference
         android:key="disable-analytics"/>
     <Preference
