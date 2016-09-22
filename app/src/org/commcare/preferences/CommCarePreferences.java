@@ -35,6 +35,7 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class CommCarePreferences
         extends SessionAwarePreferenceActivity
@@ -101,6 +102,7 @@ public class CommCarePreferences
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
     public final static String LOGIN_DURATION = "cc-login-duration-seconds";
     public final static String GPS_AUTO_CAPTURE_ACCURACY = "cc-gps-auto-capture-accuracy";
+    public final static String GPS_AUTO_CAPTURE_TIMEOUT = "cc-gps-auto-capture-timeout";
     public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
@@ -411,12 +413,22 @@ public class CommCarePreferences
      */
     public static double getGpsCaptureAccuracy() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-
         try {
             return Double.parseDouble(properties.getString(GPS_AUTO_CAPTURE_ACCURACY,
                     Double.toString(GeoUtils.AUTO_CAPTURE_GOOD_ACCURACY)));
         } catch (NumberFormatException e) {
             return GeoUtils.AUTO_CAPTURE_GOOD_ACCURACY;
+        }
+    }
+
+    public static int getGpsAutoCaptureTimeoutInMilliseconds() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        try {
+            return (int)TimeUnit.MINUTES.toMillis(Long.parseLong(
+                    properties.getString(GPS_AUTO_CAPTURE_TIMEOUT,
+                            Integer.toString(GeoUtils.AUTO_CAPTURE_MAX_WAIT_IN_MINUTES))));
+        } catch (NumberFormatException e) {
+            return (int)TimeUnit.MINUTES.toMillis(GeoUtils.AUTO_CAPTURE_MAX_WAIT_IN_MINUTES);
         }
     }
 
