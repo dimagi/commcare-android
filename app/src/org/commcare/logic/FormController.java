@@ -138,25 +138,6 @@ public class FormController implements PendingCalloutInterface {
     }
 
     /**
-     * A convenience method for determining if the current FormIndex is a group that is/should be
-     * displayed as a multi-question view of all of its descendants. This is useful for returning
-     * from the formhierarchy view to a selected index.
-     */
-    private boolean isFieldListHost(FormIndex index) {
-        // if this isn't a group, return right away
-        if (!(mFormEntryController.getModel().getForm().getChild(index) instanceof GroupDef)) {
-            return false;
-        }
-
-        //TODO: Is it possible we need to make sure this group isn't inside of another group which 
-        //is itself a field list? That would make the top group the field list host, not the 
-        //descendant group
-
-        GroupDef gd = (GroupDef)mFormEntryController.getModel().getForm().getChild(index); // exceptions?
-        return (QuestionsView.FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
-    }
-
-    /**
      * Tests if the FormIndex 'index' is located inside a group that is marked as a "field-list"
      *
      * @return true if index is in a "field-list". False otherwise.
@@ -294,11 +275,11 @@ public class FormController implements PendingCalloutInterface {
             // caption[len-2] == the groups containing this group
             FormEntryCaption[] captions = mFormEntryController.getModel().getCaptionHierarchy();
 
-            //This starts at the beginning of the heirarchy, so it'll catch the top-level 
+            //This starts at the beginning of the heirarchy, so it'll catch the top-level
             //host index.
             for (FormEntryCaption caption : captions) {
                 FormIndex parentIndex = caption.getIndex();
-                if (isFieldListHost(parentIndex)) {
+                if (mFormEntryController.isFieldListHost(parentIndex)) {
                     return parentIndex;
                 }
             }
@@ -347,7 +328,7 @@ public class FormController implements PendingCalloutInterface {
      * getQuestionPrompts for the current index
      */
     public FormEntryPrompt[] getQuestionPrompts() throws RuntimeException {
-        return getQuestionPrompts(mFormEntryController.getModel().getFormIndex());
+        return mFormEntryController.getQuestionPrompts();
     }
 
     /**
@@ -356,45 +337,7 @@ public class FormController implements PendingCalloutInterface {
      * given index is a field list (and _only_ when it is a field list)
      */
     public FormEntryPrompt[] getQuestionPrompts(FormIndex currentIndex) throws RuntimeException {
-
-        IFormElement element = mFormEntryController.getModel().getForm().getChild(currentIndex);
-
-        //If we're in a group, we will collect of the questions in this group
-        if (element instanceof GroupDef) {
-            //Assert that this is a valid condition (only field lists return prompts)
-            if (!this.isFieldListHost(currentIndex)) {
-                throw new RuntimeException("Cannot get question prompts from a non-field-list group");
-            }
-
-            // Questions to collect
-            ArrayList<FormEntryPrompt> questionList = new ArrayList<>();
-
-            //Step over all events in this field list and collect them
-            FormIndex walker = currentIndex;
-
-            int event = this.getEvent(currentIndex);
-            while (FormIndex.isSubElement(currentIndex, walker)) {
-                if (event == FormEntryController.EVENT_QUESTION) {
-                    questionList.add(mFormEntryController.getModel().getQuestionPrompt(walker));
-                }
-
-                if (event == FormEntryController.EVENT_PROMPT_NEW_REPEAT) {
-                    //TODO: What if there is a non-deterministic repeat up in the field list?
-                }
-
-                //this handles relevance for us
-                walker = this.mFormEntryController.getNextIndex(walker);
-                event = this.getEvent(walker);
-            }
-
-            FormEntryPrompt[] questions = new FormEntryPrompt[questionList.size()];
-            //Populate the array with the collected questions
-            questionList.toArray(questions);
-            return questions;
-        } else {
-            // We have a question, so just get the one prompt
-            return new FormEntryPrompt[]{mFormEntryController.getModel().getQuestionPrompt(currentIndex)};
-        }
+        return mFormEntryController.getQuestionPrompts(currentIndex);
     }
 
     public FormEntryPrompt getQuestionPrompt(FormIndex index) {
