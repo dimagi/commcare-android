@@ -343,11 +343,6 @@ public class CommCarePreferences
         return super.onOptionsItemSelected(item);
     }
 
-    public static boolean isInSenseMode() {
-        return (CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null &&
-                CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense"));
-    }
-
     public static boolean isIncompleteFormsEnabled() {
         if (CommCareApplication._().isConsumerApp()) {
             return false;
@@ -359,8 +354,7 @@ public class CommCarePreferences
             return properties.getString(ENABLE_INCOMPLETE_FORMS, YES).equals(YES);
         }
 
-        //otherwise, see if we're in sense mode
-        return !isInSenseMode();
+        return true;
     }
 
     public static boolean isSavedFormsEnabled() {
@@ -370,8 +364,7 @@ public class CommCarePreferences
             return properties.getString(ENABLE_SAVED_FORMS, YES).equals(YES);
         }
 
-        //otherwise, see if we're in sense mode
-        return !isInSenseMode();
+        return true;
     }
 
     public static boolean isGridMenuEnabled() {
