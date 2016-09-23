@@ -40,38 +40,14 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
             throw new ResourceInitializationException("The user restore file location is null!");
         }
         if (isUpgrade) {
-            wipeSandboxForCurrentDemoUser(instance);
+            OfflineUserRestore currentOfflineUserRestore = instance.getDemoUserRestore();
+            if (currentOfflineUserRestore != null) {
+                CommCareApplication._().wipeSandboxForUser(currentOfflineUserRestore.getUsername());
+            }
         }
         OfflineUserRestore offlineUserRestore = new OfflineUserRestore(localLocation);
         instance.registerDemoUserRestore(offlineUserRestore);
         return true;
-    }
-
-    private void wipeSandboxForCurrentDemoUser(AndroidCommCarePlatform instance) {
-        final OfflineUserRestore current = instance.getDemoUserRestore();
-
-        UserKeyRecord ukr = UserKeyRecord.getCurrentValidRecordByPassword(
-                CommCareApplication._().getCurrentApp(), current.getUsername(),
-                current.getPassword(), true);
-        if (ukr == null) {
-            // means we never logged in with the old demo user
-            return;
-        }
-
-        final Set<String> dbIdsToRemove = new HashSet<>();
-        CommCareApplication._().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
-            @Override
-            public boolean matches(UserKeyRecord ukr) {
-                if (ukr.getUsername().equalsIgnoreCase(current.getUsername().toLowerCase())) {
-                    dbIdsToRemove.add(ukr.getUuid());
-                    return true;
-                }
-                return false;
-            }
-        });
-        for (String id : dbIdsToRemove) {
-            CommCareApplication._().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
-        }
     }
 
     @Override
