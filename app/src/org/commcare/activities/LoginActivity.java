@@ -192,10 +192,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         return null;
     }
 
-    public enum DataPullMode {
-        NORMAL, CONSUMER_APP, CCZ_DEMO
-    }
-
     @Override
     public void startDataPull(DataPullMode mode) {
         switch(mode) {

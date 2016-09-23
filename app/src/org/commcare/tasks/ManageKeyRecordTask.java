@@ -145,7 +145,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     protected void keysReadyForSync(R receiver) {
         // TODO: we only wanna do this on the _first_ try. Not subsequent ones (IE: On return from startDataPull)
         receiver.startDataPull(forCustomDemoUser ?
-                LoginActivity.DataPullMode.CCZ_DEMO : LoginActivity.DataPullMode.NORMAL);
+                DataPullController.DataPullMode.CCZ_DEMO : DataPullController.DataPullMode.NORMAL);
     }
 
     protected void keysLoginComplete(R receiver) {
