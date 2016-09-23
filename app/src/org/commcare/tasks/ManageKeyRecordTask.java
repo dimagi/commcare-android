@@ -7,6 +7,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DataPullController;
+import org.commcare.activities.LoginActivity;
 import org.commcare.activities.LoginMode;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.data.xml.TransactionParser;
@@ -67,6 +68,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     private boolean calloutNeeded = false;
     private final boolean restoreSession;
+    private boolean forCustomDemoUser;
 
     private boolean calloutSuccessRequired;
 
@@ -75,7 +77,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     public ManageKeyRecordTask(Context c, int taskId, String username, String passwordOrPin,
                                LoginMode loginMode, CommCareApp app,
                                boolean restoreSession, boolean triggerMultipleUserWarning,
-                               boolean blockRemoteKeyManagement) {
+                               boolean forCustomDemoUser) {
         super(c);
         this.username = username;
         this.loginMode = loginMode;
@@ -90,8 +92,10 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
         this.app = app;
         this.restoreSession = restoreSession;
+        this.forCustomDemoUser = forCustomDemoUser;
 
-        if (blockRemoteKeyManagement) {
+        if (forCustomDemoUser) {
+            // block remote key management if we're logging in a custom demo user
             keyServerUrl = null;
         } else {
             keyServerUrl = CommCarePreferences.getKeyServer();
@@ -139,9 +143,9 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     }
 
     protected void keysReadyForSync(R receiver) {
-        // TODO: we only wanna do this on the _first_ try. Not
-        // subsequent ones (IE: On return from startDataPull)
-        receiver.startDataPull();
+        // TODO: we only wanna do this on the _first_ try. Not subsequent ones (IE: On return from startDataPull)
+        receiver.startDataPull(forCustomDemoUser ?
+                LoginActivity.DataPullMode.CCZ_DEMO : LoginActivity.DataPullMode.NORMAL);
     }
 
     protected void keysLoginComplete(R receiver) {
