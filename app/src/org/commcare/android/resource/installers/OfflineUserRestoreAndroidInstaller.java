@@ -36,9 +36,6 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException {
-        if (localLocation == null) {
-            throw new ResourceInitializationException("The user restore file location is null!");
-        }
         if (isUpgrade) {
             OfflineUserRestore currentOfflineUserRestore = instance.getDemoUserRestore();
             if (currentOfflineUserRestore != null) {
