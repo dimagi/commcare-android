@@ -55,8 +55,6 @@ public class QuestionsView extends ScrollView
     private final ArrayList<View> dividers;
 
     private final int mQuestionFontsize;
-
-    public final static String FIELD_LIST = "field-list";
     
     private WidgetChangedListener wcListener;
     private boolean hasListener = false;
