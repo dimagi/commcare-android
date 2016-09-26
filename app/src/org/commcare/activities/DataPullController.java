@@ -8,7 +8,7 @@ import org.commcare.views.notifications.NotificationMessage;
  */
 public interface DataPullController {
 
-    public enum DataPullMode {
+    enum DataPullMode {
         NORMAL, CONSUMER_APP, CCZ_DEMO
     }
 
