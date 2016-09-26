@@ -8,6 +8,7 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -54,6 +55,9 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
         } catch (IOException | InvalidStructureException | XmlPullParserException e) {
             throw new ResourceInitializationException("Demo user restore file was malformed, " +
                     "the following error occurred during parsing: " + e.getMessage());
+        } catch (InvalidReferenceException e) {
+            throw new ResourceInitializationException(
+                    "Reference to demo user restore file was invalid: " + e.getMessage());
         }
     }
 
