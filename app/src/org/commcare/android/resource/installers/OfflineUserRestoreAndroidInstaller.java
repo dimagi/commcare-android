@@ -12,6 +12,9 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -42,9 +45,16 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
                 CommCareApplication._().wipeSandboxForUser(currentOfflineUserRestore.getUsername());
             }
         }
-        OfflineUserRestore offlineUserRestore = new OfflineUserRestore(localLocation);
-        instance.registerDemoUserRestore(offlineUserRestore);
-        return true;
+        try {
+            OfflineUserRestore offlineUserRestore = new OfflineUserRestore(localLocation);
+            instance.registerDemoUserRestore(offlineUserRestore);
+            return true;
+        } catch (UnfullfilledRequirementsException e) {
+            throw new ResourceInitializationException(e.getMessage());
+        } catch (IOException | InvalidStructureException | XmlPullParserException e) {
+            throw new ResourceInitializationException("Demo user restore file was malformed, " +
+                    "the following error occurred during parsing: " + e.getMessage());
+        }
     }
 
     @Override
