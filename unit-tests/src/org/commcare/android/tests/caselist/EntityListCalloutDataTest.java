@@ -112,9 +112,7 @@ public class EntityListCalloutDataTest {
 
     private void performFingerprintCallout() {
         // make entity list callout to 'fingerprint identification'
-        ImageButton calloutButton =
-                (ImageButton)entitySelectActivity.findViewById(R.id.barcodeButton);
-        calloutButton.performClick();
+        entitySelectActivity.barcodeScanOnClickListener.onClick(null);
 
         // receive the (faked) callout result
         Callout identificationScanCallout = getEntitySelectCallout();
