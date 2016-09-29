@@ -806,6 +806,10 @@ public class CommCareHomeActivity
             case SessionNavigator.START_SYNC_REQUEST:
                 launchRemoteSync(asw);
                 break;
+            case SessionNavigator.SKIP:
+                CommCareApplication._().getCurrentSessionWrapper().terminateSession();
+                startNextSessionStepSafe();
+                break;
             case SessionNavigator.XPATH_EXCEPTION_THROWN:
                 UserfacingErrorHandling
                         .logErrorAndShowDialog(this, sessionNavigator.getCurrentException(), false);
