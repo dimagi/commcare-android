@@ -7,8 +7,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 // This build script assumes the following directory structure:
 // - somewhere/your/code/directory/is
-// -- commcare-odk (github: https://github.com/dimagi/commcare-odk/)
-// -- commcare (github: https://github.com/dimagi/commcare/)
+// -- commcare-android (github: https://github.com/dimagi/commcare-android/)
+// -- commcare-core (github: https://github.com/dimagi/commcare-core/)
 // these directories MUST be named like this, or it won't work
 
 buildscript {
