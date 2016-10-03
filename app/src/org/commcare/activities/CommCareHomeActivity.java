@@ -788,6 +788,10 @@ public class CommCareHomeActivity
             case SessionNavigator.NO_CURRENT_FORM:
                 handleNoFormFromSessionNav(asw);
                 break;
+            case SessionNavigator.COMPLETE_SESSION:
+                // execute the entry's stack and continue
+                handleNoFormFromSessionNav(asw);
+                break;
             case SessionNavigator.START_FORM_ENTRY:
                 startFormEntry(asw);
                 break;
@@ -805,10 +809,6 @@ public class CommCareHomeActivity
                 break;
             case SessionNavigator.START_SYNC_REQUEST:
                 launchRemoteSync(asw);
-                break;
-            case SessionNavigator.SKIP:
-                CommCareApplication._().getCurrentSessionWrapper().terminateSession();
-                startNextSessionStepSafe();
                 break;
             case SessionNavigator.XPATH_EXCEPTION_THROWN:
                 UserfacingErrorHandling
