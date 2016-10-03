@@ -42,6 +42,7 @@ configurations {
 dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.1.2'
+
     testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
     debugCompile project(':commcare-core')
@@ -121,8 +122,8 @@ def getDate() {
 }
 
 android {
-    compileSdkVersion "Google Inc.:Google APIs:23"
-    buildToolsVersion "23.0.3"
+    compileSdkVersion "Google Inc.:Google APIs:24"
+    buildToolsVersion "24.0.3"
 
     useLibrary 'org.apache.http.legacy'
 
@@ -145,7 +146,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 24
         applicationId "org.commcare.dalvik"
         project.ext.COMMCARE_APP_ID = applicationId
         resValue "string", "application_name", "CommCare"
@@ -311,7 +312,6 @@ android {
             // used in test suite to build the prototype factory; otherwise unneeded
             buildConfigField "String", "BUILD_DIR", fixEscaping("\"${buildDir}\"")
             buildConfigField "String", "PROJECT_DIR", fixEscaping("\"${projectDir}\"")
-
         }
 
         release {
@@ -447,8 +447,6 @@ downloadRestoreFile << {
         throw new InvalidUserDataException("Please provide password for restore to be packaged with apk")
     }
 }
-
-
 
 // dynamically inject commcare app download into standalone build process
 tasks.whenTaskAdded { task ->
