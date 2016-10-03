@@ -7,8 +7,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 // This build script assumes the following directory structure:
 // - somewhere/your/code/directory/is
-// -- commcare-odk (github: https://github.com/dimagi/commcare-odk/)
-// -- commcare (github: https://github.com/dimagi/commcare/)
+// -- commcare-android (github: https://github.com/dimagi/commcare-android/)
+// -- commcare-core (github: https://github.com/dimagi/commcare-core/)
 // these directories MUST be named like this, or it won't work
 
 buildscript {
@@ -18,7 +18,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.3'
+        classpath 'com.android.tools.build:gradle:2.2.0'
         classpath 'com.google.gms:google-services:3.0.0'
     }
 }
@@ -42,6 +42,7 @@ configurations {
 dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.1.2'
+
     testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
     debugCompile project(':commcare-core')
@@ -50,19 +51,19 @@ dependencies {
     compile(name: 'htmlspanner-custom', ext: 'aar')
     compile(name: 'android-zebra-interface-1.0', ext: 'aar')
     compile(name: 'simprints-lib', ext: 'aar')
-    compile 'com.android.support:cardview-v7:24.1.1'
-    compile 'com.android.support:recyclerview-v7:24.1.1'
-    compile 'com.android.support:support-v4:24.1.1'
-    compile 'com.android.support:gridlayout-v7:24.1.1'
+    compile 'com.android.support:cardview-v7:24.2.1'
+    compile 'com.android.support:recyclerview-v7:24.2.1'
+    compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.android.support:gridlayout-v7:24.2.1'
     compile 'com.madgag.spongycastle:core:1.54.0.0'
     compile 'com.madgag.spongycastle:prov:1.54.0.0'
-    compile 'com.google.android.gms:play-services-maps:9.4.0'
-    compile 'com.google.android.gms:play-services-analytics:9.4.0'
-    compile 'com.google.zxing:core:3.2.1'
+    compile 'com.google.android.gms:play-services-maps:9.6.1'
+    compile 'com.google.android.gms:play-services-analytics:9.6.1'
+    compile 'com.google.zxing:core:3.3.0'
     compile 'ch.acra:acra:4.9.0@aar'
     compile 'joda-time:joda-time:2.9.4'
     compile 'net.sf.kxml:kxml2:2.3.0'
-    compile 'net.zetetic:android-database-sqlcipher:3.5.3@aar'
+    compile 'net.zetetic:android-database-sqlcipher:3.5.4@aar'
     compile 'org.apache.james:apache-mime4j:0.7.2'
     compile('org.apache.httpcomponents:httpmime:4.3.6') {
         exclude module: 'httpclient'
@@ -121,8 +122,8 @@ def getDate() {
 }
 
 android {
-    compileSdkVersion "Google Inc.:Google APIs:23"
-    buildToolsVersion "23.0.3"
+    compileSdkVersion "Google Inc.:Google APIs:24"
+    buildToolsVersion "24.0.3"
 
     useLibrary 'org.apache.http.legacy'
 
@@ -141,12 +142,11 @@ android {
     dexOptions {
         preDexLibraries = true
         jumboMode = true
-        incremental = true
     }
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 24
         applicationId "org.commcare.dalvik"
         project.ext.COMMCARE_APP_ID = applicationId
         resValue "string", "application_name", "CommCare"
@@ -262,8 +262,8 @@ android {
             // next to play store version
 
             // grab commcare version from manifest
-            def manifestParser = new DefaultManifestParser()
-            def ccVersion = manifestParser.getVersionName(android.sourceSets.main.manifest.srcFile)
+            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile)
+            def ccVersion = manifestParser.getVersionName()
             // convert numbers to words to use in app id
             def ccVersionSafe = numbersToLetters(ccVersion)
 
@@ -312,7 +312,6 @@ android {
             // used in test suite to build the prototype factory; otherwise unneeded
             buildConfigField "String", "BUILD_DIR", fixEscaping("\"${buildDir}\"")
             buildConfigField "String", "PROJECT_DIR", fixEscaping("\"${projectDir}\"")
-
         }
 
         release {
@@ -360,12 +359,6 @@ task switchGoogleServicesCommcare(type: Copy) {
     description = 'Makes build use normal google-services.json file'
     println project.ext.COMMCARE_APP_ID
 
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    outputs.files.setFrom(file("$projectDir/google-services.json"))
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.COMMCARE_APP_ID])
     into projectDir
@@ -374,12 +367,6 @@ task switchGoogleServicesCommcare(type: Copy) {
 task switchGoogleServicesLts(type: Copy) {
     description = 'Switches package name in google-services.json to match Lts package name'
 
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    outputs.files.setFrom(file("$projectDir/google-services.json"))
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.LTS_APP_ID])
     into projectDir
@@ -389,12 +376,6 @@ task switchGoogleServicesStandalone(type: Copy) {
     description = 'Switches package name in google-services.json to match Standalone package name'
     outputs.upToDateWhen { false }
 
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    outputs.files.setFrom(file("$projectDir/google-services.json"))
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.STANDALONE_APP_ID])
     into projectDir
@@ -403,12 +384,6 @@ task switchGoogleServicesStandalone(type: Copy) {
 task switchGoogleServicesQabeta(type: Copy) {
     description = 'Switches package name in google-services.json to match Qabeta package name'
 
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    outputs.files.setFrom(file("$projectDir/google-services.json"))
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.QA_BETA_APP_ID])
     into projectDir
@@ -472,8 +447,6 @@ downloadRestoreFile << {
         throw new InvalidUserDataException("Please provide password for restore to be packaged with apk")
     }
 }
-
-
 
 // dynamically inject commcare app download into standalone build process
 tasks.whenTaskAdded { task ->
