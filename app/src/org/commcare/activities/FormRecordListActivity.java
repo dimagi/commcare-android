@@ -470,7 +470,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
-        tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
+        tryToAddSearchActionToAppBar(this, menu, new ActionBarInstantiator() {
             // this should be unnecessary...
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
