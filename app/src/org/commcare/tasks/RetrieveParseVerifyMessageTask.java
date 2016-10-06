@@ -35,7 +35,7 @@ public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<Str
     protected void onPostExecute(String url) {
         super.onPostExecute(url);
         if (exception != null) {
-            listener.exceptionReceived(exception);
+            listener.exceptionReceived(exception, installTriggeredManually);
         }
         if (installTriggeredManually) {
             listener.downloadLinkReceivedAutoInstall(url);

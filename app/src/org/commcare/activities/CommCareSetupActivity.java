@@ -853,16 +853,20 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void exceptionReceived(Exception e) {
+    public void exceptionReceived(Exception e, boolean notify) {
+        String errorMsg;
         if (e instanceof SignatureException) {
             e.printStackTrace();
-            displayError(Localization.get("menu.sms.not.verified"));
+            errorMsg = Localization.get("menu.sms.not.verified");
         } else if (e instanceof IOException) {
             e.printStackTrace();
-            displayError(Localization.get("menu.sms.not.retrieved"));
+            errorMsg = Localization.get("menu.sms.not.retrieved");
         } else {
             e.printStackTrace();
-            displayError(Localization.get("notification.install.unknown.title"));
+            errorMsg = Localization.get("notification.install.unknown.title");
+        }
+        if (notify && errorMsg != null) {
+            displayError(errorMsg);
         }
     }
 
