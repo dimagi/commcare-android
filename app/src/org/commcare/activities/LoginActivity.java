@@ -172,7 +172,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         uiController.clearErrorMessage();
-        ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
         if (loginMode == LoginMode.PASSWORD) {
             DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin(), false);
@@ -295,7 +294,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   final boolean warnMultipleAccounts, final boolean restoreSession,
                                   LoginMode loginMode) {
         try {
-            ViewUtil.hideVirtualKeyboard(LoginActivity.this);
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
 
@@ -335,6 +333,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void dataPullCompleted() {
         ACRAUtil.registerUserData();
+        ViewUtil.hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
         Intent i = new Intent();
