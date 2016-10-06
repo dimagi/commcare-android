@@ -334,6 +334,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void dataPullCompleted() {
         ACRAUtil.registerUserData();
+        ViewUtil.hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
         Intent i = new Intent();
