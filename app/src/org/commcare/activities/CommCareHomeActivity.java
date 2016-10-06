@@ -788,6 +788,10 @@ public class CommCareHomeActivity
             case SessionNavigator.NO_CURRENT_FORM:
                 handleNoFormFromSessionNav(asw);
                 break;
+            case SessionNavigator.COMPLETE_SESSION:
+                // execute the entry's stack and continue
+                handleNoFormFromSessionNav(asw);
+                break;
             case SessionNavigator.START_FORM_ENTRY:
                 startFormEntry(asw);
                 break;
