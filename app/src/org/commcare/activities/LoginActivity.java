@@ -172,6 +172,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         uiController.clearErrorMessage();
+        ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
         if (loginMode == LoginMode.PASSWORD) {
             DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin(), false);
