@@ -550,7 +550,7 @@ public class FileUtil {
         return bytes / MEGABYTE_IN_BYTES;
     }
 
-    public static boolean isFileToLargeToUpload(File mf) {
+    public static boolean isFileTooLargeToUpload(File mf) {
         return mf.length() > FormUploadUtil.MAX_BYTES;
     }
 
