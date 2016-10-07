@@ -8,6 +8,7 @@ import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.ResourceManager;
+import org.commcare.resources.model.InvalidResourceStructureException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -37,6 +38,7 @@ public abstract class ResourceEngineTask<R>
     private int totalResourceCount = -1;
 
     protected UnresolvedResourceException missingResourceException = null;
+    protected InvalidResourceStructureException invalidResourceException = null;
     protected int badReqCode = -1;
     private int phase = -1;
     // This boolean is set from CommCareSetupActivity -- If we are in keep
@@ -104,6 +106,9 @@ public abstract class ResourceEngineTask<R>
                     missingResourceException = e;
                 }
                 return outcome;
+            } catch (InvalidResourceStructureException e) {
+                invalidResourceException = e;
+                return AppInstallStatus.InvalidResource;
             }
 
             ResourceInstallUtils.initAndCommitApp(app, profileRef);

@@ -37,6 +37,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.GlobalPrivilegesManager;
+import org.commcare.resources.model.InvalidResourceStructureException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
@@ -463,6 +464,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                 case MissingResources:
                                     receiver.failMissingResource(this.missingResourceException, result);
                                     break;
+                                case InvalidResource:
+                                    receiver.failInvalidResource(this.invalidResourceException, result);
+                                    break;
                                 case IncompatibleReqs:
                                     receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
                                     break;
@@ -653,9 +657,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
 
-    private void fail(NotificationMessage notificationMessage, boolean reportNotification) {
+    private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {
         String message;
-        if (reportNotification) {
+        if (showAsPinnedNotifcation) {
             CommCareApplication._().reportNotificationMessage(notificationMessage);
             message = Localization.get("notification.for.details.wrapper",
                     new String[]{notificationMessage.getTitle()});
@@ -728,6 +732,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusMissing) {
         fail(NotificationMessageFactory.message(statusMissing, new String[]{null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
+    }
+
+    @Override
+    public void failInvalidResource(InvalidResourceStructureException e, AppInstallStatus statusMissing) {
+        fail(NotificationMessageFactory.message(statusMissing, new String[]{null, e.resourceName, e.getMessage()}), true);
     }
 
     @Override

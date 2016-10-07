@@ -2,6 +2,7 @@ package org.commcare.android.resource.installers;
 
 import android.util.Log;
 
+import org.commcare.resources.model.InvalidResourceStructureException;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -87,10 +88,11 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
-        } catch (XmlPullParserException | InvalidStructureException
-                | InvalidReferenceException | IOException
-                | XPathException e) {
-            // TODO Auto-generated catch block
+        } catch (InvalidStructureException e) {
+            // push up suite config issues so user can act on them
+            throw new InvalidResourceStructureException(r.getDescriptor(), e.getMessage());
+        } catch (XmlPullParserException  | InvalidReferenceException
+                | IOException | XPathException e) {
             e.printStackTrace();
         }
 

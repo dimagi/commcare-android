@@ -1206,7 +1206,7 @@ public class CommCareApplication extends Application {
         reportNotificationMessage(message, false);
     }
 
-    public void reportNotificationMessage(final NotificationMessage message, boolean notifyUser) {
+    public void reportNotificationMessage(final NotificationMessage message, boolean showToast) {
         synchronized (pendingMessages) {
             //make sure there is no matching message pending
             for (NotificationMessage msg : pendingMessages) {
@@ -1215,7 +1215,7 @@ public class CommCareApplication extends Application {
                     return;
                 }
             }
-            if (notifyUser) {
+            if (showToast) {
                 Bundle b = new Bundle();
                 b.putParcelable("message", message);
                 Message m = Message.obtain(toaster);

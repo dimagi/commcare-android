@@ -520,6 +520,10 @@ notification.install.missing.title=Couldn't find your application.  Please check
 notification.install.missing.detail=A serious problem occurred while CommCare was trying to download an update (or install your app). CommCare couldn't find the resource with id: ${0}. This is often due to a bad internet connection.
 notification.install.missing.action=This failure is generally due to a bad or inconsistent network connection, but may be a sign of a problem with the application if it persists. Try again with a better connection and report to a supervisor if the install still fails.
 
+notification.install.invalid.title=A part of your application is invalid.
+notification.install.invalid.detail=CommCare found an issue with the '${0}' resource:
+notification.install.invalid.action=${0}
+
 notification.install.missing.withmessage.title=Part of your app is not valid
 notification.install.missing.withmessage.detail=One of your app's resources (${0}) is not valid and must be fixed before it can be installed.
 notification.install.missing.withmessage.action=Installation error: ${0}
