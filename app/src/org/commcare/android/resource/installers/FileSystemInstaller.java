@@ -7,7 +7,6 @@ import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -60,7 +59,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     }
 
     @Override
-    public abstract boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException;
+    public abstract boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade);
 
     @Override
     public boolean install(Resource r, ResourceLocation location,

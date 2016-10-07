@@ -18,7 +18,6 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -64,7 +63,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException {
+    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
         instance.registerXmlns(namespace, contentUri);
         return true;
     }

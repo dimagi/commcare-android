@@ -4,7 +4,6 @@ import android.util.Log;
 
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -46,10 +45,10 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(final AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException {
+    public boolean initialize(final AndroidCommCarePlatform instance, boolean isUpgrade) {
         try {
             if (localLocation == null) {
-                throw new ResourceInitializationException("The suite file's location is null!");
+                throw new RuntimeException("Error initializing the suite, its file location is null!");
             }
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
@@ -75,7 +74,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, final AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+    public boolean install(Resource r, ResourceLocation location, Reference ref,
+                           ResourceTable table, final AndroidCommCarePlatform instance,
+                           boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, instance, upgrade);
 
