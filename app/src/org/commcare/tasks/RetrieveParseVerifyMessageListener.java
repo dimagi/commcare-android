@@ -8,5 +8,5 @@ public interface RetrieveParseVerifyMessageListener {
 
     void downloadLinkReceivedAutoInstall(String url);
 
-    void exceptionReceived(Exception e);
+    void exceptionReceived(Exception e, boolean notify);
 }
