@@ -157,14 +157,16 @@ public class ImageWidget extends QuestionWidget {
             int screenWidth = display.getWidth();
             int screenHeight = display.getHeight();
 
-            // Check if we have a raw folder, and if so pull the image to display from there
+            File imageBeingSubmitted = new File(mInstanceFolder + "/" + mBinaryName);
+
+            // If there is an image in the raw folder, use that as the display image, since it is
+            // better quality
             File toDisplay = new File(mInstanceFolder + "/raw/" + mBinaryName);
             if (!toDisplay.exists()) {
-                // Otherwise, just use the image in the instance folder
-                toDisplay = new File(mInstanceFolder + "/" + mBinaryName);
+                toDisplay = imageBeingSubmitted;
             }
 
-            checkFileSize(toDisplay);
+            checkFileSize(imageBeingSubmitted);
 
             if (toDisplay.exists()) {
                 Bitmap bmp = MediaUtil.getBitmapScaledToContainer(toDisplay,
