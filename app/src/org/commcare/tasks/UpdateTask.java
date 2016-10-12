@@ -10,12 +10,14 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.InstallCancelled;
+import org.commcare.resources.model.InvalidResourceStructureException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.services.Logger;
+import org.javarosa.xml.util.InvalidStructureException;
 
 import java.util.Vector;
 
@@ -103,6 +105,11 @@ public class UpdateTask
 
         try {
             return new ResultAndError<>(stageUpdate());
+        } catch (InvalidResourceStructureException e) {
+            ResourceInstallUtils.logInstallError(e,
+                    "Structure error ocurred during install|");
+            String structureError = "CommCare found an issue with the '" + e.resourceName + "' resource:\n" + e.getMessage();
+            return new ResultAndError<>(AppInstallStatus.UnknownFailure, structureError);
         } catch (Exception e) {
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
