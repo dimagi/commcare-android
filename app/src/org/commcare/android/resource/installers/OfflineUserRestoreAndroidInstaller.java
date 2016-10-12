@@ -67,7 +67,7 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
         try {
             initDemoUserRestore();
         } catch (ResourceInitializationException e) {
-            throw new UnresolvedResourceException(r, e.getMessage());
+            throw new UnresolvedResourceException(r, e, e.getMessage(), true);
         }
 
         if (upgrade) {
