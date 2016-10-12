@@ -68,4 +68,37 @@ public class DemoUserRestoreTest {
         // Demo users shouldn't have an options menu
         assertFalse(shadowActivity.getOptionsMenu().hasVisibleItems());
     }
+
+    @Test
+    public void testDemoUserRestoreAndUpdate() {
+        TestAppInstaller.installApp(REF_BASE_DIR +
+                "app_with_demo_user_restore/profile.ccpr");
+        CommCareApplication._().getCurrentApp().setMMResourcesValidated();
+
+        loginAsDemoUser();
+        launchHomeActivityForDemoUser();
+
+        EntitySelectActivity entitySelectActivity =
+                CaseLoadUtils.launchEntitySelectActivity("m0-f0");
+
+        // check that the demo user has 2 entries in the case list
+        EntityListAdapter adapter = CaseLoadUtils.loadList(entitySelectActivity);
+        assertEquals(2, adapter.getCount());
+
+        // update the app to a version with a new demo user restore
+        String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR,
+                "update_user_restore", "profile.ccpr");
+        UpdateUtils.installUpdate(profileRef,
+                AppInstallStatus.UpdateStaged,
+                AppInstallStatus.Installed);
+
+        loginAsDemoUser();
+        launchHomeActivityForDemoUser();
+
+        // make sure there is only 1 case after updating the demo user restore
+        entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m0-f0");
+
+        adapter = CaseLoadUtils.loadList(entitySelectActivity);
+        assertEquals(1, adapter.getCount());
+    }
 }
