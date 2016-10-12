@@ -33,8 +33,7 @@ import static org.junit.Assert.fail;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class AutoUpdateTest {
     private final static String REF_BASE_DIR = "jr://resource/commcare-apps/update_tests/";
