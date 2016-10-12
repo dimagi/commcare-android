@@ -32,7 +32,7 @@ public class BlankUpdateUIController extends UpdateUIController {
     }
 
     @Override
-    protected void checkFailedUiState() {
+    protected void checkFailedUiState(String errorMsg) {
     }
 
     @Override

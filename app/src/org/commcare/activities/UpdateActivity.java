@@ -16,6 +16,7 @@ import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.tasks.InstallStagedUpdateTask;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
@@ -33,7 +34,7 @@ import org.javarosa.core.services.locale.Localization;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateActivity extends CommCareActivity<UpdateActivity>
-        implements TaskListener<Integer, AppInstallStatus>, WithUIController {
+        implements TaskListener<Integer, ResultAndError<AppInstallStatus>>, WithUIController {
 
     public static final String KEY_FROM_LATEST_BUILD_ACTIVITY = "from-test-latest-build-util";
 
@@ -198,17 +199,17 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     @Override
-    public void handleTaskCompletion(AppInstallStatus result) {
+    public void handleTaskCompletion(ResultAndError<AppInstallStatus> result) {
         if (CommCareApplication._().isConsumerApp()) {
             dismissProgressDialog();
         }
 
-        if (result == AppInstallStatus.UpdateStaged) {
+        if (result.data == AppInstallStatus.UpdateStaged) {
             uiController.unappliedUpdateAvailableUiState();
             if (proceedAutomatically) {
                 launchUpdateInstallTask();
             }
-        } else if (result == AppInstallStatus.UpToDate) {
+        } else if (result.data == AppInstallStatus.UpToDate) {
             uiController.upToDateUiState();
             if (proceedAutomatically) {
                 finishWithResult(RefreshToLatestBuildActivity.ALREADY_UP_TO_DATE);
@@ -216,7 +217,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } else {
             // Gives user generic failure warning; even if update staging
             // failed for a specific reason like xml syntax
-            uiController.checkFailedUiState();
+            uiController.checkFailedUiState(result.errorMessage);
             if (proceedAutomatically) {
                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
             }

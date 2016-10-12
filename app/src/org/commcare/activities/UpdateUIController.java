@@ -19,6 +19,7 @@ import org.javarosa.core.services.locale.Localization;
  */
 class UpdateUIController implements CommCareActivityUIController {
     private static final String UPDATE_UI_STATE_KEY = "update_activity_ui_state";
+    private static final String ERROR_MESSAGE_STATE_KEY = "error_message_state";
     private SquareButtonWithText checkUpdateButton;
     private SquareButtonWithText stopUpdateButton;
     private SquareButtonWithText installUpdateButton;
@@ -36,6 +37,7 @@ class UpdateUIController implements CommCareActivityUIController {
     }
 
     private UIState currentUIState;
+    private String errorMsg;
 
     public UpdateUIController(UpdateActivity updateActivity, boolean startedByAppManager) {
         if (startedByAppManager) {
@@ -97,7 +99,7 @@ class UpdateUIController implements CommCareActivityUIController {
             }
         });
         String updateVersionPlaceholderMsg =
-            Localization.getWithDefault(applyUpdateButtonTextKey, new String[]{"-1"}, "");
+                Localization.getWithDefault(applyUpdateButtonTextKey, new String[]{"-1"}, "");
         installUpdateButton.setText(updateVersionPlaceholderMsg);
     }
 
@@ -120,10 +122,13 @@ class UpdateUIController implements CommCareActivityUIController {
         updateProgressBar(0, 100);
     }
 
-    protected void checkFailedUiState() {
+    protected void checkFailedUiState(String errorMsg) {
         idleUiState();
+        this.errorMsg = errorMsg;
         currentUIState = UIState.FailedCheck;
-        updateProgressText(Localization.get("updates.check.failed"));
+        String failureMessage = Localization.get("updates.check.failed");
+        String errorMessage = Localization.get("updates.check.failed.detail", new String[]{errorMsg});
+        updateProgressText(failureMessage + "\n" + errorMessage);
     }
 
     protected void downloadingUiState() {
@@ -183,6 +188,7 @@ class UpdateUIController implements CommCareActivityUIController {
 
         updateProgressText(Localization.get("updates.check.network_unavailable"));
     }
+
     protected void applyingUpdateUiState() {
         currentUIState = UIState.ApplyingUpdate;
 
@@ -212,10 +218,12 @@ class UpdateUIController implements CommCareActivityUIController {
 
     public void saveCurrentUIState(Bundle outState) {
         outState.putSerializable(UPDATE_UI_STATE_KEY, currentUIState);
+        outState.putString(ERROR_MESSAGE_STATE_KEY, errorMsg);
     }
 
     public void loadSavedUIState(Bundle savedInstanceState) {
         currentUIState = (UIState)savedInstanceState.getSerializable(UPDATE_UI_STATE_KEY);
+        errorMsg = (String)savedInstanceState.getSerializable(ERROR_MESSAGE_STATE_KEY);
         setUIFromState();
     }
 
@@ -228,7 +236,7 @@ class UpdateUIController implements CommCareActivityUIController {
                 upToDateUiState();
                 break;
             case FailedCheck:
-                checkFailedUiState();
+                checkFailedUiState(errorMsg);
                 break;
             case Downloading:
                 downloadingUiState();
