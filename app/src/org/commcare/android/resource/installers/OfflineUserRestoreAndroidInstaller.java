@@ -48,13 +48,13 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
         try {
             return new OfflineUserRestore(localLocation);
         } catch (UnfullfilledRequirementsException e) {
-            throw new ResourceInitializationException(e.getMessage());
+            throw new ResourceInitializationException(e.getMessage(), e);
         } catch (IOException | InvalidStructureException | XmlPullParserException e) {
             throw new ResourceInitializationException("Demo user restore file was malformed, " +
-                    "the following error occurred during parsing: " + e.getMessage());
+                    "the following error occurred during parsing: " + e.getMessage(), e);
         } catch (InvalidReferenceException e) {
             throw new ResourceInitializationException(
-                    "Reference to demo user restore file was invalid: " + e.getMessage());
+                    "Reference to demo user restore file was invalid: " + e.getMessage(), e);
         }
     }
 
