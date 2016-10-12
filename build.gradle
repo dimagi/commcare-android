@@ -448,7 +448,7 @@ downloadRestoreFile << {
 // dynamically inject commcare app download into standalone build process
 tasks.whenTaskAdded { task ->
     if (task.name == 'preCommcareDebugUnitTestBuild') {
-      // Hack to get assets to show up in robolectric tests; try to eventually remove this
+        // Hack to get assets to show up in robolectric tests; try to eventually remove this
         task.dependsOn mergeCommcareDebugAssets
     }
     if ((task.name == 'processStandaloneDebugResources' ||
