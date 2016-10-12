@@ -36,8 +36,7 @@ import static org.junit.Assert.fail;
  *
  * @author ctsims
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class FormStorageTest {
     private boolean noSerializiationExceptions;
