@@ -18,7 +18,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.android.tools.build:gradle:2.2.1'
         classpath 'com.google.gms:google-services:3.0.0'
     }
 }
@@ -42,6 +42,8 @@ configurations {
 dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.1.2'
+    testCompile 'org.robolectric:shadows-play-services:3.1.2'
+    testCompile 'org.robolectric:shadows-maps:3.1.2'
 
     testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
