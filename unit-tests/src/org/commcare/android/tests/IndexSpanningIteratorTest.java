@@ -14,8 +14,7 @@ import java.util.Vector;
 
 import static junit.framework.Assert.assertEquals;
 
-@Config(application = CommCareApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class IndexSpanningIteratorTest {
 

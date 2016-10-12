@@ -13,8 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
-@Config(application = CommCareApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class ImageInflationTest {
 

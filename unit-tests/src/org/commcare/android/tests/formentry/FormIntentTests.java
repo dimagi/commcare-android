@@ -30,8 +30,7 @@ import static junit.framework.Assert.assertNull;
 /**
  * @author Clayton Sims
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class FormIntentTests {
 
