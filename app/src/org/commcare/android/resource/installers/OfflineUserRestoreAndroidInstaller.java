@@ -40,10 +40,13 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException {
+        instance.registerDemoUserRestore(initDemoUserRestore());
+        return true;
+    }
+
+    private OfflineUserRestore initDemoUserRestore() throws ResourceInitializationException {
         try {
-            OfflineUserRestore offlineUserRestore = new OfflineUserRestore(localLocation);
-            instance.registerDemoUserRestore(offlineUserRestore);
-            return true;
+            return new OfflineUserRestore(localLocation);
         } catch (UnfullfilledRequirementsException e) {
             throw new ResourceInitializationException(e.getMessage());
         } catch (IOException | InvalidStructureException | XmlPullParserException e) {
@@ -56,7 +59,17 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
+    protected int customInstall(Resource r, Reference local, boolean upgrade)
+            throws IOException, UnresolvedResourceException {
+
+        // To make sure that we won't fail on this later, after we have already committed to
+        // the upgrade being good to go
+        try {
+            initDemoUserRestore();
+        } catch (ResourceInitializationException e) {
+            throw new UnresolvedResourceException(r, e.getMessage());
+        }
+
         if (upgrade) {
             OfflineUserRestore currentOfflineUserRestore =
                     CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
