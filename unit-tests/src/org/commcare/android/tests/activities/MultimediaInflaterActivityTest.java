@@ -24,8 +24,7 @@ import org.robolectric.shadows.ShadowToast;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class MultimediaInflaterActivityTest {
 
