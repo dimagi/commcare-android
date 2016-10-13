@@ -6,6 +6,7 @@ import android.widget.ListView;
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.adapters.EntityListAdapter;
 import org.commcare.dalvik.R;
+import org.junit.Assert;
 import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowActivity;
@@ -38,9 +39,8 @@ public class CaseLoadUtils {
 
         Intent entitySelectIntent = shadowHomeActivity.getNextStartedActivity();
 
-        // make sure the form entry activity should be launched
         String intentActivityName = entitySelectIntent.getComponent().getClassName();
-        assertTrue(intentActivityName.equals(EntitySelectActivity.class.getName()));
+        Assert.assertEquals(EntitySelectActivity.class.getName(), intentActivityName);
 
         // start the entity select activity
         return Robolectric.buildActivity(EntitySelectActivity.class)

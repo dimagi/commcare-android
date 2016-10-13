@@ -40,8 +40,7 @@ import static org.junit.Assert.fail;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class KeyRecordTest {
     private CommCareApp app;

@@ -642,34 +642,29 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     /**
      * Interface to perform additional setup code when adding an ActionBar
-     * using the {@link #tryToAddActionSearchBar(android.app.Activity,
-     * android.view.Menu,
-     * CommCareActivity.ActionBarInstantiator)}
-     * tryToAddActionSearchBar} method.
      */
     public interface ActionBarInstantiator {
         void onActionBarFound(MenuItem searchItem, SearchView searchView, MenuItem barcodeItem);
     }
 
     /**
-     * Tries to add actionBar to current Activity and hides the current search
-     * widget and runs ActionBarInstantiator if it exists. Used in
-     * EntitySelectActivity and FormRecordListActivity.
+     * Tries to add a SearchView action to the app bar of the current Activity. If it is added,
+     * the alternative search widget is removed, and ActionBarInstantiator is run, if it exists.
+     * Used in EntitySelectActivity and FormRecordListActivity.
      *
-     * @param act          Current activity
+     * @param activity          Current activity
      * @param menu         Menu passed through onCreateOptionsMenu
-     * @param instantiator Optional ActionBarInstantiator for additional setup
-     *                     code.
+     * @param instantiator Optional ActionBarInstantiator for additional setup code.
      */
-    protected void tryToAddActionSearchBar(Activity act, Menu menu,
-                                           ActionBarInstantiator instantiator) {
+    protected void tryToAddSearchActionToAppBar(Activity activity, Menu menu,
+                                                ActionBarInstantiator instantiator) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            MenuInflater inflater = act.getMenuInflater();
+            MenuInflater inflater = activity.getMenuInflater();
             inflater.inflate(org.commcare.dalvik.R.menu.action_bar_search_view, menu);
 
-            MenuItem searchItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
+            MenuItem searchMenuItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
             SearchView searchView =
-                    (SearchView) searchItem.getActionView();
+                    (SearchView) searchMenuItem.getActionView();
             MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.barcode_scan_action_bar);
             if (searchView != null) {
                 int[] searchViewStyle =
@@ -681,11 +676,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 TextView textView = (TextView) searchView.findViewById(id);
                 textView.setTextColor(searchViewStyle[0]);
                 if (instantiator != null) {
-                    instantiator.onActionBarFound(searchItem, searchView, barcodeItem);
+                    instantiator.onActionBarFound(searchMenuItem, searchView, barcodeItem);
                 }
             }
 
-            View bottomSearchWidget = act.findViewById(org.commcare.dalvik.R.id.searchfooter);
+            View bottomSearchWidget = activity.findViewById(org.commcare.dalvik.R.id.searchfooter);
             if (bottomSearchWidget != null) {
                 bottomSearchWidget.setVisibility(View.GONE);
             }

@@ -36,8 +36,7 @@ import static org.junit.Assert.fail;
  *
  * @author ctsims
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class FormStorageTest {
     private boolean noSerializiationExceptions;
@@ -70,6 +69,7 @@ public class FormStorageTest {
             , "org.commcare.android.logging.ForceCloseLogEntry"
             , "org.commcare.android.resource.installers.LocaleAndroidInstaller"
             , "org.commcare.android.resource.installers.MediaFileAndroidInstaller"
+            , "org.commcare.android.resource.installers.OfflineUserRestoreAndroidInstaller"
             , "org.commcare.android.resource.installers.ProfileAndroidInstaller"
             , "org.commcare.android.resource.installers.SuiteAndroidInstaller"
             , "org.commcare.android.resource.installers.XFormAndroidInstaller"
@@ -86,6 +86,7 @@ public class FormStorageTest {
             , "org.commcare.resources.model.installers.LocaleFileInstaller"
             , "org.commcare.resources.model.installers.LoginImageInstaller"
             , "org.commcare.resources.model.installers.MediaInstaller"
+            , "org.commcare.resources.model.installers.OfflineUserRestoreInstaller"
             , "org.commcare.resources.model.installers.ProfileInstaller"
             , "org.commcare.resources.model.installers.SuiteInstaller"
             , "org.commcare.resources.model.installers.XFormInstaller"
@@ -102,6 +103,7 @@ public class FormStorageTest {
             , "org.commcare.suite.model.FormEntry"
             , "org.commcare.suite.model.FormIdDatum"
             , "org.commcare.suite.model.Menu"
+            , "org.commcare.suite.model.OfflineUserRestore"
             , "org.commcare.suite.model.Profile"
             , "org.commcare.suite.model.PropertySetter"
             , "org.commcare.suite.model.RemoteQueryDatum"

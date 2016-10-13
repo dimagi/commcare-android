@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import org.commcare.suite.model.Action;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.utils.MediaUtil;
 import org.javarosa.core.services.locale.Localizer;
@@ -22,20 +23,22 @@ import org.javarosa.core.services.locale.Localizer;
 import java.util.ArrayList;
 
 /**
- * Utilities for converting CommCare UI diplsay details into Android objects
+ * Utilities for converting CommCare UI display details into Android objects
  *
  * @author ctsims
  */
 public final class ViewUtil {
 
-    // This is silly and isn't really what we want here, but it's a start.
-    // (We'd like to be able to add a displayunit to a menu in a super
-    // easy/straightforward way.
-    public static void addDisplayToMenu(Context context, Menu menu,
-                                        int menuId, int menuGroupId, DisplayData display) {
+    public static void addActionToMenu(Context context, Action action, Menu menu, int menuId,
+                                       int menuGroupId) {
+        DisplayData display = action.getDisplay().evaluate();
         MenuItem item = menu.add(menuGroupId, menuId, menuId,
                 Localizer.clearArguments(display.getName()).trim());
-        if (display.getImageURI() != null) {
+        if (action.hasActionBarIcon() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            Bitmap b = MediaUtil.inflateDisplayImage(context, action.getActionBarIconReference());
+            item.setIcon(new BitmapDrawable(context.getResources(), b));
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        } else if (display.getImageURI() != null) {
             Bitmap b = MediaUtil.inflateDisplayImage(context, display.getImageURI());
             if (b != null) {
                 item.setIcon(new BitmapDrawable(context.getResources(), b));

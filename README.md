@@ -9,7 +9,7 @@ This repository represents the Android version of CommCare. It depends on the [C
 To set up an Android dev environmnet for commcare-android, do the following:
 
 - Install [Android Studio](https://developer.android.com/sdk/index.html).
-- Install Java 7 if you don't have it yet. For ease of test suite setup ([see below](#tests)) OpenJDK is preferred over Oracle's version of Java.
+- Install Java 8 if you don't have it yet. For ease of test suite setup ([see below](#tests)) OpenJDK is preferred over Oracle's version of Java.
 
 Go ahead and open Android Studio if this is your first time using it;
 it may take you through some sort of setup wizard, and it's nice to get that out of the way.

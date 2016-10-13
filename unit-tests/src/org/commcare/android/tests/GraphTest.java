@@ -22,8 +22,7 @@ import org.robolectric.annotation.Config;
 import java.util.Vector;
 
 
-@Config(application = CommCareApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class GraphTest extends XPathEvalTest {
 

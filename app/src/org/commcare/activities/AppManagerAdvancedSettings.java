@@ -6,6 +6,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.view.MenuItem;
 
+import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
@@ -21,11 +22,13 @@ import java.util.Map;
 public class AppManagerAdvancedSettings extends PreferenceActivity {
 
     private final static String ENABLE_PRIVILEGE = "enable-mobile-privilege";
+    private final static String CLEAR_USER_DATA = "clear-user-data";
 
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
 
     static {
         keyToTitleMap.put(ENABLE_PRIVILEGE, "menu.enable.privilege");
+        keyToTitleMap.put(CLEAR_USER_DATA, "clear.user.data");
     }
 
     @Override
@@ -44,12 +47,23 @@ public class AppManagerAdvancedSettings extends PreferenceActivity {
     }
 
     private void setupButtons() {
-        Preference superuserAuthButton = findPreference(ENABLE_PRIVILEGE);
-        superuserAuthButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        Preference enablePrivilegesButton = findPreference(ENABLE_PRIVILEGE);
+        enablePrivilegesButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_SUPERUSER_AUTH);
+                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_ENABLE_PRIVILEGES);
                 launchPrivilegeClaimActivity();
+                return true;
+            }
+        });
+
+        Preference clearUserDataButton = findPreference(CLEAR_USER_DATA);
+        clearUserDataButton.setEnabled(!"".equals(CommCareApplication._().getCurrentUserId()));
+        clearUserDataButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_CLEAR_USER_DATA);
+                AdvancedActionsActivity.clearUserData(AppManagerAdvancedSettings.this);
                 return true;
             }
         });

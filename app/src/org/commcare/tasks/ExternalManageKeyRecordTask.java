@@ -15,7 +15,7 @@ import org.commcare.activities.LoginMode;
 public class ExternalManageKeyRecordTask extends ManageKeyRecordTask<DataPullController> {
     public ExternalManageKeyRecordTask(Context c, int taskId, String username, String password,
                                        LoginMode loginMode, CommCareApp app, boolean restoreSession) {
-        super(c, taskId, username, password, loginMode, app, restoreSession, false);
+        super(c, taskId, username, password, loginMode, app, restoreSession, false, false);
     }
 
     @Override

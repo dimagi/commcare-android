@@ -84,6 +84,7 @@ public class AxisConfiguration extends Configuration {
         String labelString = mData.getConfiguration(key);
         JSONObject tick = new JSONObject();
         boolean usingCustomText = false;
+        boolean isX = key.startsWith("x");
 
         mVariables.put(varName, "{}");
         if (labelString != null) {
@@ -92,11 +93,11 @@ public class AxisConfiguration extends Configuration {
                 JSONArray labels = new JSONArray(labelString);
                 JSONArray values = new JSONArray();
                 for (int i = 0; i < labels.length(); i++) {
-                    String xValue = labels.getString(i);
-                    if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
-                        values.put(parseTime(xValue, key));
+                    String value = labels.getString(i);
+                    if (isX && mData.getType().equals(GraphUtil.TYPE_TIME)) {
+                        values.put(parseTime(value, key));
                     } else {
-                        values.put(parseDouble(xValue, key));
+                        values.put(parseDouble(value, key));
                     }
                 }
                 tick.put("values", values);
@@ -111,7 +112,7 @@ public class AxisConfiguration extends Configuration {
                     Iterator i = labels.keys();
                     while (i.hasNext()) {
                         String location = (String)i.next();
-                        if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
+                        if (isX && mData.getType().equals(GraphUtil.TYPE_TIME)) {
                             values.put(parseTime(location, key));
                         } else {
                             values.put(parseDouble(location, key));
@@ -128,7 +129,7 @@ public class AxisConfiguration extends Configuration {
             }
         }
 
-        if (key.startsWith("x") && !usingCustomText && mData.getType().equals(GraphUtil.TYPE_TIME)) {
+        if (isX && !usingCustomText && mData.getType().equals(GraphUtil.TYPE_TIME)) {
             tick.put("format", mData.getConfiguration("x-labels-time-format", "%Y-%m-%d"));
         }
 

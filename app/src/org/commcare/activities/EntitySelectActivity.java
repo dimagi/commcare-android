@@ -104,15 +104,16 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private static final int MENU_ACTION_GROUP = Menu.FIRST + 1;
 
-    private EditText searchbox;
+    private EditText preHoneycombSearchBox;
+
     private TextView searchResultStatus;
     private ImageButton clearSearchButton;
     private View searchBanner;
     private EntityListAdapter adapter;
     private LinearLayout header;
     private SearchView searchView;
-    private MenuItem searchItem;
-    private MenuItem barcodeItem;
+    private MenuItem searchMenuItem;
+    private MenuItem barcodeMenuItem;
 
     private EntityDatum selectDatum;
 
@@ -139,7 +140,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private Detail shortSelect;
 
     private DataSetObserver mListStateObserver;
-    private OnClickListener barcodeScanOnClickListener;
+    public OnClickListener barcodeScanOnClickListener;
     private boolean isCalloutAutoLaunching;
 
     private boolean resuming = false;
@@ -158,7 +159,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
     private boolean containsHereFunction = false;
     private boolean locationChangedWhileLoading = false;
-    private boolean hideActions;
+
+    private boolean hideActionsFromOptionsMenu;
+    private boolean hideActionsFromEntityList;
 
     // Handler for displaying alert dialog when no location providers are found
     private final LocationNotificationHandler locationNotificationHandler =
@@ -188,10 +191,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
 
             mNoDetailMode = selectDatum.getLongDetail() == null;
+            mViewMode = session.isViewCommand(session.getCommand());
 
-            // Don't show actions (e.g. 'register patient', 'claim patient') when
-            // in the middle on workflow triggered by an (sync) action.
-            hideActions = session.isRemoteRequestCommand(session.getCommand());
+            // Don't show actions (e.g. 'register patient', 'claim patient') at all  when in the
+            // middle of workflow triggered by a (sync) action. Also hide them from the entity
+            // list (but not the options menu) when we are showing the entity list in grid mode
+            hideActionsFromEntityList = session.isRemoteRequestCommand(session.getCommand()) ||
+                    shortSelect.shouldBeLaidOutInGrid();
+            hideActionsFromOptionsMenu = session.isRemoteRequestCommand(session.getCommand());
 
             boolean isOrientationChange = savedInstanceState != null;
             setupUI(isOrientationChange);
@@ -212,17 +219,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void setSearchBannerState() {
         if (!"".equals(adapter.getSearchQuery())) {
             showSearchBanner();
+            // Android's native SearchView has its own clear search button, so need to add our own
+            clearSearchButton.setVisibility(View.GONE);
         } else if (adapter.isFilteringByCalloutResult()) {
-            showSearchBannerWithClearButton();
+            showSearchBanner();
+            clearSearchButton.setVisibility(View.VISIBLE);
         } else {
             searchBanner.setVisibility(View.GONE);
             clearSearchButton.setVisibility(View.GONE);
         }
-    }
-
-    private void showSearchBannerWithClearButton() {
-        showSearchBanner();
-        clearSearchButton.setVisibility(View.VISIBLE);
     }
 
     private void showSearchBanner() {
@@ -267,11 +272,39 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             gridView.setVisibility(View.GONE);
             EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
         }
-
         visibleView.setOnItemClickListener(this);
 
-        setupToolbar(visibleView);
+        initUIComponents();
+        restoreLastQueryString();
+        persistAdapterState(visibleView);
+        attemptInitCallout();
+        setupPreHoneycombFooter();
         setupMapNav();
+    }
+
+    private void initUIComponents() {
+        searchBanner = findViewById(R.id.search_result_banner);
+        searchResultStatus = (TextView) findViewById(R.id.search_results_status);
+        header = (LinearLayout) findViewById(R.id.entity_select_header);
+        clearSearchButton = (ImageButton)findViewById(R.id.clear_search_button);
+        clearSearchButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adapter.clearCalloutResponseData();
+                refreshView();
+            }
+        });
+        clearSearchButton.setVisibility(View.GONE);
+    }
+
+    private void attemptInitCallout() {
+        Callout callout = shortSelect.getCallout();
+        if (callout == null) {
+            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeBarcodeClickListener(this);
+        } else {
+            isCalloutAutoLaunching = callout.isAutoLaunching();
+            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeCalloutClickListener(this, callout);
+        }
     }
 
     private void setupLandscapeDualPaneView() {
@@ -308,64 +341,40 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void setupToolbar(AdapterView view) {
-        TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
-        //use the old method here because some Android versions don't like Spannables for titles
-        searchLabel.setText(Localization.get("select.search.label"));
-        searchLabel.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // get the focus on the edittext by performing click
-                searchbox.performClick();
-                // then force the keyboard up since performClick() apparently isn't enough on some devices
-                InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                // only will trigger it if no physical keyboard is open
-                inputMethodManager.showSoftInput(searchbox, InputMethodManager.SHOW_IMPLICIT);
+    private void setupPreHoneycombFooter() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            TextView preHoneycombSearchLabel =
+                    (TextView)findViewById(R.id.screen_entity_select_search_label);
+            //use the old method here because some Android versions don't like Spannables for titles
+            preHoneycombSearchLabel.setText(Localization.get("select.search.label"));
+            preHoneycombSearchLabel.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // get the focus on the edittext by performing click
+                    preHoneycombSearchBox.performClick();
+                    // then force the keyboard up since performClick() apparently isn't enough on some devices
+                    InputMethodManager inputMethodManager =
+                            (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    // only will trigger it if no physical keyboard is open
+                    inputMethodManager.showSoftInput(preHoneycombSearchBox, InputMethodManager.SHOW_IMPLICIT);
+                }
+            });
+
+            preHoneycombSearchBox = (EditText)findViewById(R.id.searchbox);
+            preHoneycombSearchBox.setMaxLines(3);
+            preHoneycombSearchBox.setHorizontallyScrolling(false);
+            preHoneycombSearchBox.addTextChangedListener(this);
+            preHoneycombSearchBox.requestFocus();
+            preHoneycombSearchBox.setText(lastQueryString);
+
+            ImageButton preHoneycombBarcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+            preHoneycombBarcodeButton.setOnClickListener(barcodeScanOnClickListener);
+            Callout callout = shortSelect.getCallout();
+            if (callout != null && callout.getImage() != null) {
+                EntitySelectCalloutSetup.setupImageLayout(this, preHoneycombBarcodeButton,
+                        callout.getImage());
             }
-        });
 
-        searchbox = (EditText)findViewById(R.id.searchbox);
-        searchbox.setMaxLines(3);
-        searchbox.setHorizontallyScrolling(false);
-        searchBanner = findViewById(R.id.search_result_banner);
-        searchResultStatus = (TextView)findViewById(R.id.search_results_status);
-        clearSearchButton = (ImageButton)findViewById(R.id.clear_search_button);
-        clearSearchButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adapter.clearCalloutResponseData();
-                refreshView();
-            }
-        });
-        clearSearchButton.setVisibility(View.GONE);
-        header = (LinearLayout)findViewById(R.id.entity_select_header);
-
-        mViewMode = session.isViewCommand(session.getCommand());
-
-        ImageButton barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
-
-        Callout callout = shortSelect.getCallout();
-        if (callout == null) {
-            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeBarcodeClickListener(this);
-        } else {
-            isCalloutAutoLaunching = callout.isAutoLaunching();
-            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeCalloutClickListener(this, callout);
-            if (callout.getImage() != null) {
-                EntitySelectCalloutSetup.setupImageLayout(this, barcodeButton, callout.getImage());
-            }
-        }
-
-        barcodeButton.setOnClickListener(barcodeScanOnClickListener);
-
-        searchbox.addTextChangedListener(this);
-        searchbox.requestFocus();
-
-        persistAdapterState(view);
-
-        restoreLastQueryString();
-
-        if (!isUsingActionBar()) {
-            searchbox.setText(lastQueryString);
         }
     }
 
@@ -487,7 +496,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         header.removeAllViews();
 
-        // only add headers if we're not using grid mode
+        // only add headers if we're not using case tiles
         if (!shortSelect.usesEntityTileView()) {
             boolean hasCalloutResponseData = (adapter != null && adapter.hasCalloutResponseData());
             //Hm, sadly we possibly need to rebuild this each time.
@@ -716,7 +725,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void afterTextChanged(Editable incomingEditable) {
         final String incomingString = incomingEditable.toString();
         final String currentSearchText = getSearchText().toString();
-        if (!"".equals(currentSearchText) && incomingString.equals(currentSearchText)) {
+        if (incomingString.equals(currentSearchText)) {
             filterString = currentSearchText;
             if (adapter != null) {
                 adapter.filterByString(filterString);
@@ -748,14 +757,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     android.R.drawable.ic_menu_mapmode);
         }
 
-        tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
+        tryToAddSearchActionToAppBar(this, menu, new ActionBarInstantiator() {
             // again, this should be unnecessary...
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
             public void onActionBarFound(MenuItem searchItem, SearchView searchView, MenuItem barcodeItem) {
-                EntitySelectActivity.this.searchItem = searchItem;
+                EntitySelectActivity.this.searchMenuItem = searchItem;
                 EntitySelectActivity.this.searchView = searchView;
-                EntitySelectActivity.this.barcodeItem = barcodeItem;
+                EntitySelectActivity.this.barcodeMenuItem = barcodeItem;
                 // restore last query string in the searchView if there is one
                 if (lastQueryString != null && lastQueryString.length() > 0) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -791,17 +800,17 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void setupActionOptionsMenu(Menu menu) {
-        if (shortSelect != null && !hideActions) {
-            int actionIndex = MENU_ACTION;
+        if (shortSelect != null && !hideActionsFromOptionsMenu) {
+            int indexToAddActionAt = MENU_ACTION;
             for (Action action : shortSelect.getCustomActions(asw.getEvaluationContext())) {
                 if (action != null) {
-                    ViewUtil.addDisplayToMenu(this, menu, actionIndex, MENU_ACTION_GROUP,
-                            action.getDisplay().evaluate());
-                    actionIndex += 1;
+                    ViewUtil.addActionToMenu(this, action, menu, indexToAddActionAt, MENU_ACTION_GROUP);
+                    indexToAddActionAt += 1;
                 }
             }
             if (shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null) {
-                EntitySelectCalloutSetup.setupImageLayout(this, barcodeItem, shortSelect.getCallout().getImage());
+                // Replace the barcode scan callout with our custom callout
+                EntitySelectCalloutSetup.setupImageLayout(this, barcodeMenuItem, shortSelect.getCallout().getImage());
             }
         }
     }
@@ -817,19 +826,21 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private CharSequence getSearchText() {
         if (isUsingActionBar()) {
             return searchView.getQuery();
+        } else {
+            return preHoneycombSearchBox.getText();
         }
-        return searchbox.getText();
     }
 
     @SuppressWarnings("NewApi")
     private void setSearchText(CharSequence text) {
         if (isUsingActionBar()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                searchItem.expandActionView();
+                searchMenuItem.expandActionView();
             }
             searchView.setQuery(text, false);
+        } else {
+            preHoneycombSearchBox.setText(text);
         }
-        searchbox.setText(text);
     }
 
     @Override
@@ -944,11 +955,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                                   List<TreeReference> references,
                                   NodeEntityFactory factory, int focusTargetIndex) {
         loader = null;
-        Detail detail = session.getDetail(selectDatum.getShortDetail());
-        int[] order = detail.getSortOrder();
 
-        for (int i = 0; i < detail.getFields().length; ++i) {
-            String header = detail.getFields()[i].getHeader().evaluate();
+        int[] order = shortSelect.getSortOrder();
+        for (int i = 0; i < shortSelect.getFields().length; ++i) {
+            String header = shortSelect.getFields()[i].getHeader().evaluate();
             if (order.length == 0 && !"".equals(header)) {
                 order = new int[]{i};
             }
@@ -963,9 +973,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             visibleView = listView;
         }
 
-        adapter = new EntityListAdapter(this, detail, references, entities,
-                order, factory, hideActions,
-                detail.getCustomActions(asw.getEvaluationContext()), inAwesomeMode);
+        adapter = new EntityListAdapter(this, shortSelect, references, entities,
+                order, factory, hideActionsFromEntityList,
+                shortSelect.getCustomActions(asw.getEvaluationContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);

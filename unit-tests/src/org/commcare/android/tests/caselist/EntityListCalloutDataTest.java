@@ -41,8 +41,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class EntityListCalloutDataTest {
     private EntitySelectActivity entitySelectActivity;
@@ -112,9 +111,7 @@ public class EntityListCalloutDataTest {
 
     private void performFingerprintCallout() {
         // make entity list callout to 'fingerprint identification'
-        ImageButton calloutButton =
-                (ImageButton)entitySelectActivity.findViewById(R.id.barcodeButton);
-        calloutButton.performClick();
+        entitySelectActivity.barcodeScanOnClickListener.onClick(null);
 
         // receive the (faked) callout result
         Callout identificationScanCallout = getEntitySelectCallout();

@@ -663,12 +663,13 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * @return True if file is too big to upload.
      */
     protected boolean checkFileSize(File file){
-        if (FileUtil.isFileToLargeToUpload(file)) {
+        if (FileUtil.isFileTooLargeToUpload(file)) {
             String fileSize = FileUtil.getFileSizeInMegs(file) + "";
             showOversizedMediaWarning(fileSize);
             return true;
         } else if (FileUtil.isFileOversized(file)) {
-            notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtil.getFileSize(file) + ""));
+            notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized,
+                    FileUtil.getFileSize(file) + ""));
         }
         return false;
     }
