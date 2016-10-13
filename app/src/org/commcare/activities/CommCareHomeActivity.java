@@ -218,7 +218,7 @@ public class CommCareHomeActivity
                 checkAndStartUnsentFormsTask(false, false);
             }
 
-            if (CommCareHomeActivity.isDemoUser()) {
+            if (isDemoUser()) {
                 showDemoModeWarning();
             }
 
@@ -1171,7 +1171,7 @@ public class CommCareHomeActivity
         uiController.displayMessage(message, bad, suppressToast);
     }
 
-    public static boolean isDemoUser() {
+    protected static boolean isDemoUser() {
         try {
             User u = CommCareApplication._().getSession().getLoggedInUser();
             return (User.TYPE_DEMO.equals(u.getUserType()));
