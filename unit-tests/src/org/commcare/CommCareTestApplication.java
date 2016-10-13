@@ -162,7 +162,6 @@ public class CommCareTestApplication extends CommCareApplication {
             user.setWrappedKey(ByteEncrypter.wrapByteArrayWithString(CryptUtil.generateSemiRandomKey().getEncoded(), cachedUserPassword));
         }
         ccService.startSession(user, record);
-
         CommCareApplication._().setTestingService(ccService);
     }
 

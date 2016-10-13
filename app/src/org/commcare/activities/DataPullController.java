@@ -7,7 +7,12 @@ import org.commcare.views.notifications.NotificationMessage;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public interface DataPullController {
-    void startDataPull();
+
+    enum DataPullMode {
+        NORMAL, CONSUMER_APP, CCZ_DEMO
+    }
+
+    void startDataPull(DataPullMode mode);
 
     void dataPullCompleted();
 
