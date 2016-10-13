@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -123,7 +124,7 @@ class UpdateUIController implements CommCareActivityUIController {
     protected void checkFailedUiState() {
         idleUiState();
         currentUIState = UIState.FailedCheck;
-        updateProgressText(Localization.get("updates.check.failed"));
+        updateErrorText(Localization.get("updates.check.failed"));
     }
 
     protected void downloadingUiState() {
@@ -171,7 +172,7 @@ class UpdateUIController implements CommCareActivityUIController {
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
 
-        updateProgressText(Localization.get("updates.error"));
+        updateErrorText(Localization.get("updates.error"));
     }
 
     protected void noConnectivityUiState() {
@@ -195,6 +196,12 @@ class UpdateUIController implements CommCareActivityUIController {
 
     protected void updateProgressText(String msg) {
         progressText.setText(msg);
+        progressText.setTextColor(Color.BLACK);
+    }
+
+    protected void updateErrorText(String msg) {
+        progressText.setText(msg);
+        progressText.setTextColor(Color.RED);
     }
 
     protected void updateProgressBar(int currentProgress, int max) {

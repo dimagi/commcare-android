@@ -108,8 +108,7 @@ public class UpdateTask
         } catch (InvalidResourceStructureException e) {
             ResourceInstallUtils.logInstallError(e,
                     "Structure error ocurred during install|");
-            String structureError = "CommCare found an issue with the '" + e.resourceName + "' resource:\n" + e.getMessage();
-            return new ResultAndError<>(AppInstallStatus.UnknownFailure, structureError);
+            return new ResultAndError<>(AppInstallStatus.UnknownFailure, e.resourceName + "==" + e.getMessage());
         } catch (Exception e) {
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
@@ -166,7 +165,7 @@ public class UpdateTask
         }
 
         if (pinnedNotificationProgress != null) {
-            pinnedNotificationProgress.handleTaskCompletion(resultAndError.data);
+            pinnedNotificationProgress.handleTaskCompletion(resultAndError);
         }
     }
 

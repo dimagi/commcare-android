@@ -23,6 +23,7 @@ import org.commcare.tasks.UpdateTask;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -217,7 +218,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } else {
             // Gives user generic failure warning; even if update staging
             // failed for a specific reason like xml syntax
-            String errorMessage = Localization.get("updates.check.failed.detail", new String[]{result.errorMessage});
+            String[] resouceAndMessage = result.errorMessage.split("==", 2);
+            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(AppInstallStatus.InvalidResource, new String[]{null, resouceAndMessage[0], resouceAndMessage[1]}), true);
             uiController.checkFailedUiState();
             if (proceedAutomatically) {
                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
