@@ -53,7 +53,7 @@ public class UpdateUtils {
 
             @Override
             public void handleTaskCompletion(ResultAndError<AppInstallStatus> result) {
-                Assert.assertTrue(result == expectedResult);
+                assertEquals(expectedResult.data, result.data);
             }
 
             @Override

@@ -25,6 +25,7 @@ import org.robolectric.annotation.Config;
 
 import java.util.Calendar;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -104,7 +105,7 @@ public class AutoUpdateTest {
 
             @Override
             public void handleTaskCompletion(ResultAndError<AppInstallStatus> result) {
-                Assert.assertTrue(result == expectedResult);
+                assertEquals(expectedResult.data, result.data);
                 logoutAndIntoApp();
             }
 
