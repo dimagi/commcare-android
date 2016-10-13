@@ -37,7 +37,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.GlobalPrivilegesManager;
-import org.commcare.resources.model.InvalidResourceStructureException;
+import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
@@ -737,7 +737,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void failInvalidResource(InvalidResourceStructureException e, AppInstallStatus statusMissing) {
+    public void failInvalidResource(InvalidResourceException e, AppInstallStatus statusMissing) {
         fail(NotificationMessageFactory.message(statusMissing, new String[]{null, e.resourceName, e.getMessage()}), true);
     }
 

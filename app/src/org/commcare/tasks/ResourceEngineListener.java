@@ -1,7 +1,7 @@
 package org.commcare.tasks;
 
 import org.commcare.engine.resource.AppInstallStatus;
-import org.commcare.resources.model.InvalidResourceStructureException;
+import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 
 public interface ResourceEngineListener {
@@ -9,7 +9,7 @@ public interface ResourceEngineListener {
 
     void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusmissing);
 
-    void failInvalidResource(InvalidResourceStructureException e, AppInstallStatus statusmissing);
+    void failInvalidResource(InvalidResourceException e, AppInstallStatus statusmissing);
 
     void failBadReqs(int code, String vReq, String vAvail, boolean majorIsProblem);
 
