@@ -158,24 +158,26 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         fromManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
-        if (!checkForMultipleAppsViolation()) {
-            loadIntentAndInstanceState(savedInstanceState);
-            persistCommCareAppState();
+        if (checkForMultipleAppsViolation()) {
+            return;
+        }
 
+        loadIntentAndInstanceState(savedInstanceState);
+        persistCommCareAppState();
+
+        if (isSingleAppBuild()) {
+            uiState = UiState.BLANK;
+        }
+
+        boolean askingForPerms =
+                Permissions.acquireAllAppPermissions(this, this,
+                        Permissions.ALL_PERMISSIONS_REQUEST);
+        if (!askingForPerms) {
             if (isSingleAppBuild()) {
-                uiState = UiState.BLANK;
-            }
-
-            boolean askingForPerms =
-                    Permissions.acquireAllAppPermissions(this, this,
-                            Permissions.ALL_PERMISSIONS_REQUEST);
-            if (!askingForPerms) {
-                if (isSingleAppBuild()) {
-                    SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
-                } else {
-                    // With basic perms satisfied, ask user to allow SMS reading for sms app install code
-                    performSMSInstall(false);
-                }
+                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
+            } else {
+                // With basic perms satisfied, ask user to allow SMS reading for sms app install code
+                performSMSInstall(false);
             }
         }
     }
