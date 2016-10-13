@@ -217,7 +217,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } else {
             // Gives user generic failure warning; even if update staging
             // failed for a specific reason like xml syntax
-            uiController.checkFailedUiState(result.errorMessage);
+            String errorMessage = Localization.get("updates.check.failed.detail", new String[]{result.errorMessage});
+            uiController.checkFailedUiState();
             if (proceedAutomatically) {
                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
             }
