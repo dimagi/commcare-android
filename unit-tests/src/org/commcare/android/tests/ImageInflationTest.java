@@ -5,7 +5,6 @@ import android.util.DisplayMetrics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.utils.MediaUtil;
 import org.junit.Assert;
 import org.junit.Before;

@@ -24,6 +24,7 @@ public enum AppInstallStatus implements MessageTag {
     // Error states shared by both app installation and updating:
     MissingResources("notification.install.missing"),
     MissingResourcesWithMessage("notification.install.missing.withmessage"),
+    InvalidResource("notification.install.invalid"),
     IncompatibleReqs("notification.install.badreqs"),
     UnknownFailure("notification.install.unknown"),
     NoLocalStorage("notification.install.nolocal"),

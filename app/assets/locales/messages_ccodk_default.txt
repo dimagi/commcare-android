@@ -9,7 +9,7 @@ install.keep.trying=Keep trying if connection is interrupted
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
 updates.success=App is up to date
 updates.check.begin=Checking for updates...
-updates.check.failed=Failed to download updates
+updates.check.failed=Failed to download updates. This usually means your app has a configuration issue (See notification for details)
 updates.check.start=Recheck
 updates.check.cancel=Stop checking
 updates.check.cancelling=Cancelling check for updates
@@ -519,6 +519,10 @@ notification.install.installed.detail=Your app install is up to date.
 notification.install.missing.title=Couldn't find your application.  Please check and retype your code, or verify your internet connection. 
 notification.install.missing.detail=A serious problem occurred while CommCare was trying to download an update (or install your app). CommCare couldn't find the resource with id: ${0}. This is often due to a bad internet connection.
 notification.install.missing.action=This failure is generally due to a bad or inconsistent network connection, but may be a sign of a problem with the application if it persists. Try again with a better connection and report to a supervisor if the install still fails.
+
+notification.install.invalid.title=A part of your application is invalid.
+notification.install.invalid.detail=CommCare found an issue with the '${0}' resource:
+notification.install.invalid.action=${0}
 
 notification.install.missing.withmessage.title=Part of your app is not valid
 notification.install.missing.withmessage.detail=One of your app's resources (${0}) is not valid and must be fixed before it can be installed.

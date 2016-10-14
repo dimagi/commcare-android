@@ -15,7 +15,6 @@ import org.commcare.android.tests.activities.FormRecordListActivityTest;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.tasks.templates.CommCareTaskConnector;

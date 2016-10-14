@@ -2,6 +2,7 @@ package org.commcare.activities;
 
 import android.app.ListActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +51,7 @@ public class MessageActivity extends ListActivity {
         this.setListAdapter(new ArrayAdapter<NotificationMessage>(this, R.layout.layout_note_msg, messages) {
 
             @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
+            public View getView(int position, View convertView, @NonNull ViewGroup parent) {
                 View messageView = convertView;
                 if (convertView == null) {
                     messageView = LayoutInflater.from(MessageActivity.this).inflate(R.layout.layout_note_msg, parent, false);

@@ -5,7 +5,6 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.util.TestUtils;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.javarosa.core.model.FormDef;
