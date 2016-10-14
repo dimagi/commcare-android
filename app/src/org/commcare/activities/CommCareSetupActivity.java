@@ -109,12 +109,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
     private String errorMessageToDisplay;
 
-    private static final int MODE_ARCHIVE = Menu.FIRST;
+    public static final int MODE_ARCHIVE = Menu.FIRST;
     private static final int MODE_SMS = Menu.FIRST + 2;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
-    private static final int OFFLINE_INSTALL = 3;
+    public static final int OFFLINE_INSTALL = 3;
     private static final int MULTIPLE_APPS_LIMIT = 4;
 
     // dialog ID

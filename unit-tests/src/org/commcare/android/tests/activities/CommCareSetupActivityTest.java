@@ -5,17 +5,13 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
+import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.activities.InstallArchiveActivity;
-import org.commcare.activities.UpdateActivity;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.util.TestAppInstaller;
-import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -24,44 +20,39 @@ import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Test performing updates through the update activity
+ * Test performing app installs through the setup activity
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
-public class UpdateActivityTest {
-    @Before
-    public void setup() {
-        TestAppInstaller.installAppAndLogin(
-                "jr://resource/commcare-apps/update_tests/base_app/profile.ccpr",
-                "test", "123");
-    }
+public class CommCareSetupActivityTest {
 
     /**
-     * Use the update activity to update to a ccz with an invalid suite file.
-     * Assert that an error is shown and pinned notification is created w/ more details
+     * Test that trying to install an app with an invalid suite file results in
+     * the appropriate error message and a pinned notification with more
+     * details
      */
     @Test
-    public void invalidUpdateTest() {
+    public void invalidAppInstall() {
         String invalidUpdateReference = "jr://resource/commcare-apps/update_tests/invalid_suite_update/profile.ccpr";
 
-        // start the update activity
-        Intent updateActivityIntent =
-                new Intent(RuntimeEnvironment.application, UpdateActivity.class);
+        // start the setup activity
+        Intent setupIntent =
+                new Intent(RuntimeEnvironment.application, CommCareSetupActivity.class);
 
-        UpdateActivity updateActivity =
-                Robolectric.buildActivity(UpdateActivity.class)
-                        .withIntent(updateActivityIntent).setup().get();
+        CommCareSetupActivity setupActivity =
+                Robolectric.buildActivity(CommCareSetupActivity.class)
+                        .withIntent(setupIntent).setup().get();
 
         // click the 'offline install' menu item
-        ShadowActivity shadowActivity = Shadows.shadowOf(updateActivity);
-        shadowActivity.clickMenuItem(UpdateActivity.MENU_UPDATE_FROM_CCZ);
+        ShadowActivity shadowActivity = Shadows.shadowOf(setupActivity);
+        shadowActivity.clickMenuItem(CommCareSetupActivity.MODE_ARCHIVE);
 
         // make sure there are no pinned notifications
         NotificationManager notificationManager =
@@ -69,7 +60,7 @@ public class UpdateActivityTest {
         Notification notification = Shadows.shadowOf(notificationManager).getNotification(CommCareApplication.MESSAGE_NOTIFICATION);
         assertNull(notification);
 
-        // mock receiving the offline app reference and start the update
+        // mock receiving the offline app reference and start the install
         Intent referenceIntent = new Intent();
         referenceIntent.putExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE, invalidUpdateReference);
         shadowActivity.receiveResult(shadowActivity.getNextStartedActivity(), Activity.RESULT_OK, referenceIntent);
@@ -78,8 +69,7 @@ public class UpdateActivityTest {
         Robolectric.flushForegroundThreadScheduler();
 
         // assert that we get the right error message
-        String errorMessage = (String)((TextView)updateActivity.findViewById(R.id.update_progress_text)).getText();
-        assertEquals(Localization.get("updates.check.failed"), errorMessage);
+        assertTrue(setupActivity.getErrorMessageToDisplay().contains(Localization.get("notification.install.invalid.title")));
 
         // check that a pinned notification was created for invalid update
         // NOTE: it is way more work to assert the notification body is correct, so skip over that

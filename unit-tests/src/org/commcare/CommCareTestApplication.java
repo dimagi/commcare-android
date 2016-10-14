@@ -22,6 +22,8 @@ import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.model.User;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Assert;
@@ -50,6 +52,9 @@ public class CommCareTestApplication extends CommCareApplication {
     public void onCreate() {
         super.onCreate();
 
+        // allow "jr://resource" references
+        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
+
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable ex) {
@@ -70,7 +75,12 @@ public class CommCareTestApplication extends CommCareApplication {
 
     @Override
     public CommCareApp getCurrentApp() {
-        return new CommCareTestApp(super.getCurrentApp());
+        CommCareApp superApp = super.getCurrentApp();
+        if (superApp == null) {
+            return null;
+        } else {
+            return new CommCareTestApp(superApp);
+        }
     }
 
     @Override
