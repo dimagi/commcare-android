@@ -107,7 +107,12 @@ public class UpdateTask
         } catch (InvalidResourceException e) {
             ResourceInstallUtils.logInstallError(e,
                     "Structure error ocurred during install|");
-            return new ResultAndError<>(AppInstallStatus.UnknownFailure, e.resourceName + "==" + e.getMessage());
+            // cram resource in question and detailed error message into one
+            // string for ease of transport split out later and formatted into
+            // a user readable pinned notification
+            String combinedMessage = e.resourceName + "==" + e.getMessage();
+
+            return new ResultAndError<>(AppInstallStatus.UnknownFailure, combinedMessage);
         } catch (Exception e) {
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
