@@ -14,7 +14,6 @@ import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.android.tests.queries.CaseDbQueryTest;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;

@@ -40,7 +40,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public static final String KEY_FROM_LATEST_BUILD_ACTIVITY = "from-test-latest-build-util";
 
     // Options menu codes
-    private static final int MENU_UPDATE_FROM_CCZ = 0;
+    public static final int MENU_UPDATE_FROM_CCZ = 0;
 
     // Activity request codes
     private static final int OFFLINE_UPDATE = 0;
@@ -49,7 +49,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
     private static final String IS_APPLYING_UPDATE_KEY = "applying_update_task_running";
     private static final String IS_LOCAL_UPDATE = "is-local-update";
-    private static final String OFFLINE_UPDATE_REF = "offline-update-ref";
+    public static final String OFFLINE_UPDATE_REF = "offline-update-ref";
 
     private static final int DIALOG_UPGRADE_INSTALL = 6;
     private static final int DIALOG_CONSUMER_APP_UPGRADE = 7;
@@ -218,8 +218,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } else {
             // Gives user generic failure warning; even if update staging
             // failed for a specific reason like xml syntax
-            String[] resouceAndMessage = result.errorMessage.split("==", 2);
-            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(AppInstallStatus.InvalidResource, new String[]{null, resouceAndMessage[0], resouceAndMessage[1]}), true);
+            if (!"".equals(result.errorMessage)) {
+                String[] resouceAndMessage = result.errorMessage.split("==", 2);
+                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(AppInstallStatus.InvalidResource, new String[]{null, resouceAndMessage[0], resouceAndMessage[1]}), true);
+            }
             uiController.checkFailedUiState();
             if (proceedAutomatically) {
                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
@@ -268,8 +270,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } else {
             profileRef = ResourceInstallUtils.getDefaultProfileRef();
         }
-        updateTask.executeParallel(profileRef);
         uiController.downloadingUiState();
+        updateTask.executeParallel(profileRef);
     }
 
     /**
