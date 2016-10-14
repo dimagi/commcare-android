@@ -5,7 +5,6 @@ import junit.framework.Assert;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.StoreFixturesOnFilesystemTests;
 import org.javarosa.core.model.instance.FormInstance;

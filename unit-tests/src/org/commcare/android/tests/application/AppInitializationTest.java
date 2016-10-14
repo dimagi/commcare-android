@@ -4,7 +4,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.suite.model.Profile;
 import org.junit.Assert;
 import org.junit.Before;

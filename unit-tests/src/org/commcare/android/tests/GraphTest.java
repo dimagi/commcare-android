@@ -13,7 +13,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.dalvik.BuildConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

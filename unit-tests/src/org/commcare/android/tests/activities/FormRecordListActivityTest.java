@@ -13,7 +13,6 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.junit.Before;
 import org.junit.Test;
