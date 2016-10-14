@@ -107,9 +107,9 @@ public class UpdateTask
         } catch (InvalidResourceException e) {
             ResourceInstallUtils.logInstallError(e,
                     "Structure error ocurred during install|");
-            // cram resource in question and detailed error message into one
-            // string for ease of transport split out later and formatted into
-            // a user readable pinned notification
+            // Put both the resource in question and a detailed error message into one string for
+            // ease of transport, which will be split out later and formatted into a user-readable
+            // pinned notification
             String combinedMessage = e.resourceName + "==" + e.getMessage();
 
             return new ResultAndError<>(AppInstallStatus.UnknownFailure, combinedMessage);
