@@ -49,7 +49,7 @@ public class UpdateActivityTest {
      */
     @Test
     public void invalideUpdateTest() {
-        String invalidUpdateReference = "jr://resource/commcare-apps/update_tests/invalid_update/profile.ccpr";
+        String invalidUpdateReference = "jr://resource/commcare-apps/update_tests/invalid_suite_update/profile.ccpr";
 
         // start the update activity
         Intent updateActivityIntent =
