@@ -6,7 +6,6 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.network.HttpRequestEndpointsMock;
 import org.commcare.android.util.TestAppInstaller;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;

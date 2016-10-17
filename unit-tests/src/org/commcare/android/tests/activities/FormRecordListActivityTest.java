@@ -6,7 +6,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
-import org.commcare.dalvik.BuildConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

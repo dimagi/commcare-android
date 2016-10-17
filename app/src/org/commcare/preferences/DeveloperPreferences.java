@@ -250,9 +250,14 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
     public static boolean isSessionSavingEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(ENABLE_SAVE_SESSION, CommCarePreferences.NO).
-                equals(CommCarePreferences.YES);
+        if (CommCareApplication._().getCurrentApp() == null) {
+            // null check needed for corner case in robolectric tests
+            return false;
+        } else {
+            SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+            return properties.getString(ENABLE_SAVE_SESSION, CommCarePreferences.NO).
+                    equals(CommCarePreferences.YES);
+        }
     }
 
     public static void enableSessionSaving() {

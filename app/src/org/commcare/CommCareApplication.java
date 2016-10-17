@@ -1194,7 +1194,7 @@ public class CommCareApplication extends Application {
 
     // Start - Error message Hooks
 
-    private final int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;
+    public static final int MESSAGE_NOTIFICATION = R.string.notification_message_title;
 
     private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<>();
 
@@ -1202,7 +1202,7 @@ public class CommCareApplication extends Application {
         reportNotificationMessage(message, false);
     }
 
-    public void reportNotificationMessage(final NotificationMessage message, boolean notifyUser) {
+    public void reportNotificationMessage(final NotificationMessage message, boolean showToast) {
         synchronized (pendingMessages) {
             //make sure there is no matching message pending
             for (NotificationMessage msg : pendingMessages) {
@@ -1211,7 +1211,7 @@ public class CommCareApplication extends Application {
                     return;
                 }
             }
-            if (notifyUser) {
+            if (showToast) {
                 Bundle b = new Bundle();
                 b.putParcelable("message", message);
                 Message m = Message.obtain(toaster);
@@ -1235,20 +1235,17 @@ public class CommCareApplication extends Application {
 
             String title = pendingMessages.get(0).getTitle();
 
-            Notification messageNotification = new Notification(org.commcare.dalvik.R.drawable.notification, title, System.currentTimeMillis());
-            messageNotification.number = pendingMessages.size();
-
             // The PendingIntent to launch our activity if the user selects this notification
             Intent i = new Intent(this, MessageActivity.class);
 
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
 
             String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
-            
-            messageNotification = new NotificationCompat.Builder(this)
+
+            Notification messageNotification = new NotificationCompat.Builder(this)
                     .setContentTitle(title)
                     .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
-                    .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                    .setSmallIcon(R.drawable.notification)
                     .setNumber(pendingMessages.size())
                     .setContentIntent(contentIntent)
                     .setDeleteIntent(PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0))
@@ -1256,10 +1253,8 @@ public class CommCareApplication extends Application {
                     .setWhen(System.currentTimeMillis())
                     .build();
 
-            //Send the notification.
             mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
         }
-
     }
 
     public ArrayList<NotificationMessage> purgeNotifications() {

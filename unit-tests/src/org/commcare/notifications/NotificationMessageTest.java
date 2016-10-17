@@ -4,7 +4,6 @@ import android.os.Parcel;
 
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.views.notifications.NotificationMessage;
 import org.junit.Assert;
 import org.junit.Test;

@@ -3,7 +3,6 @@ package org.commcare.android.tests.queries;
 import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestUtils;
-import org.commcare.dalvik.BuildConfig;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
