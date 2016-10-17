@@ -10,6 +10,7 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.InstallCancelled;
+import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -30,7 +31,7 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateTask
-        extends SingletonTask<String, Integer, AppInstallStatus>
+        extends SingletonTask<String, Integer, ResultAndError<AppInstallStatus>>
         implements TableStateListener, InstallCancelled {
 
     private static UpdateTask singletonRunningInstance = null;
@@ -96,17 +97,26 @@ public class UpdateTask
     }
 
     @Override
-    protected final AppInstallStatus doInBackground(String... params) {
+    protected final ResultAndError<AppInstallStatus> doInBackground(String... params) {
         profileRef = params[0];
 
         setupUpdate();
 
         try {
-            return stageUpdate();
+            return new ResultAndError<>(stageUpdate());
+        } catch (InvalidResourceException e) {
+            ResourceInstallUtils.logInstallError(e,
+                    "Structure error ocurred during install|");
+            // Put both the resource in question and a detailed error message into one string for
+            // ease of transport, which will be split out later and formatted into a user-readable
+            // pinned notification
+            String combinedMessage = e.resourceName + "==" + e.getMessage();
+
+            return new ResultAndError<>(AppInstallStatus.UnknownFailure, combinedMessage);
         } catch (Exception e) {
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
-            return AppInstallStatus.UnknownFailure;
+            return new ResultAndError<>(AppInstallStatus.UnknownFailure, e.getMessage());
         }
     }
 
@@ -148,24 +158,24 @@ public class UpdateTask
     }
 
     @Override
-    protected void onPostExecute(AppInstallStatus result) {
-        super.onPostExecute(result);
+    protected void onPostExecute(ResultAndError<AppInstallStatus> resultAndError) {
+        super.onPostExecute(resultAndError);
 
-        if (!result.isUpdateInCompletedState()) {
-            resourceManager.processUpdateFailure(result, ctx, wasTriggeredByAutoUpdate);
+        if (!resultAndError.data.isUpdateInCompletedState()) {
+            resourceManager.processUpdateFailure(resultAndError.data, ctx, wasTriggeredByAutoUpdate);
         } else if (wasTriggeredByAutoUpdate) {
             // auto-update was successful or app was up-to-date.
             ResourceInstallUtils.recordAutoUpdateCompletion(app);
         }
 
         if (pinnedNotificationProgress != null) {
-            pinnedNotificationProgress.handleTaskCompletion(result);
+            pinnedNotificationProgress.handleTaskCompletion(resultAndError);
         }
     }
 
     @Override
-    protected void onCancelled(AppInstallStatus result) {
-        super.onCancelled(result);
+    protected void onCancelled(ResultAndError<AppInstallStatus> resultAndError) {
+        super.onCancelled(resultAndError);
 
         if (taskWasCancelledByUser && wasTriggeredByAutoUpdate) {
             // task may have been cancelled by logout, in which case we want

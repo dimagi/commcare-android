@@ -2,7 +2,6 @@ package org.commcare.utils;
 
 import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -81,8 +80,7 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     @Override
-                    public boolean initialize(CommCareInstance instance, boolean isUpgrade)
-                            throws ResourceInitializationException {
+                    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
                         return true;
                     }
 
@@ -209,8 +207,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void initializeResources(CommCareInstance instance, boolean isUpgrade)
-            throws ResourceInitializationException {
+    public void initializeResources(CommCareInstance instance, boolean isUpgrade) {
     }
 
 }

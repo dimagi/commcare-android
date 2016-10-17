@@ -1,27 +1,17 @@
 package org.commcare.android.resource.installers;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.services.storage.EntityFilter;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -39,21 +29,21 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException {
+    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
         instance.registerDemoUserRestore(initDemoUserRestore());
         return true;
     }
 
-    private OfflineUserRestore initDemoUserRestore() throws ResourceInitializationException {
+    private OfflineUserRestore initDemoUserRestore() {
         try {
             return new OfflineUserRestore(localLocation);
         } catch (UnfullfilledRequirementsException e) {
-            throw new ResourceInitializationException(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         } catch (IOException | InvalidStructureException | XmlPullParserException e) {
-            throw new ResourceInitializationException("Demo user restore file was malformed, " +
+            throw new RuntimeException("Demo user restore file was malformed, " +
                     "the following error occurred during parsing: " + e.getMessage(), e);
         } catch (InvalidReferenceException e) {
-            throw new ResourceInitializationException(
+            throw new RuntimeException(
                     "Reference to demo user restore file was invalid: " + e.getMessage(), e);
         }
     }
@@ -66,7 +56,7 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
         // the upgrade being good to go
         try {
             initDemoUserRestore();
-        } catch (ResourceInitializationException e) {
+        } catch (RuntimeException e) {
             throw new UnresolvedResourceException(r, e, e.getMessage(), true);
         }
 

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<profile version="6"
-         update=""
+<profile version="7"
+         update="https://www.commcarehq.org/a/flipper/apps/download/f8aa9cfbdb39d5979628d9225f358a4d/profile.ccpr?latest=true"
          requiredMajor="2"
          requiredMinor="23"
          uniqueid="ac46998a182d2e1d1fd8e75684d23903"
@@ -30,7 +30,7 @@
     
         <property key="cc-fuzzy-search-enabled" value="yes"/>
     
-        <property key="cc-autoup-freq" value="freq-daily"/>
+        <property key="cc-autoup-freq" value="freq-never"/>
     
         <property key="purge-freq" value="0"/>
     
@@ -89,7 +89,7 @@
         </users>
     </features>
 
-    <suite><resource id="suite" version="6">
+    <suite><resource id="suite" version="7">
         
           <location authority="remote">./suite.xml</location>
             <location authority="local">./suite.xml</location>

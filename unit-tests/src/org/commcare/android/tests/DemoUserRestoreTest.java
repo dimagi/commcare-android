@@ -13,7 +13,6 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.UpdateUtils;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,8 +28,7 @@ import static org.junit.Assert.assertFalse;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class DemoUserRestoreTest {
     private final static String REF_BASE_DIR =

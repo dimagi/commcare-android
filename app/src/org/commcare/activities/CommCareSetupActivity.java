@@ -37,6 +37,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.GlobalPrivilegesManager;
+import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
@@ -108,12 +109,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
     private String errorMessageToDisplay;
 
-    private static final int MODE_ARCHIVE = Menu.FIRST;
+    public static final int MODE_ARCHIVE = Menu.FIRST;
     private static final int MODE_SMS = Menu.FIRST + 2;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
-    private static final int OFFLINE_INSTALL = 3;
+    public static final int OFFLINE_INSTALL = 3;
     private static final int MULTIPLE_APPS_LIMIT = 4;
 
     // dialog ID
@@ -155,16 +156,34 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.fromManager = this.getIntent().
-                getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+        fromManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
         if (checkForMultipleAppsViolation()) {
             return;
         }
 
-        //Retrieve instance state
+        loadIntentAndInstanceState(savedInstanceState);
+        persistCommCareAppState();
+
+        if (isSingleAppBuild()) {
+            uiState = UiState.BLANK;
+        }
+
+        boolean askingForPerms =
+                Permissions.acquireAllAppPermissions(this, this,
+                        Permissions.ALL_PERMISSIONS_REQUEST);
+        if (!askingForPerms) {
+            if (isSingleAppBuild()) {
+                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
+            } else {
+                // With basic perms satisfied, ask user to allow SMS reading for sms app install code
+                performSMSInstall(false);
+            }
+        }
+    }
+
+    private void loadIntentAndInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
-            Log.v("UiState", "SavedInstanceState is null, not getting anything from it =/");
             if (Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
                 //We got called from an outside application, it's gonna be a wild ride!
                 fromExternal = true;
@@ -184,35 +203,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     }
                 } else {
                     this.uiState = UiState.READY_TO_INSTALL;
-                    //Now just start up normally.
                 }
             }
         } else {
             loadStateFromInstance(savedInstanceState);
-        }
-
-        persistCommCareAppState();
-
-        if (isSingleAppBuild()) {
-            uiState = UiState.BLANK;
-        }
-
-        Log.v("UiState", "Current vars: " +
-                "UIState is: " + this.uiState + " " +
-                "incomingRef is: " + incomingRef + " " +
-                "startAllowed is: " + startAllowed + " "
-        );
-
-        boolean askingForPerms =
-                Permissions.acquireAllAppPermissions(this, this,
-                        Permissions.ALL_PERMISSIONS_REQUEST);
-        if (!askingForPerms) {
-            if (isSingleAppBuild()) {
-                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
-            } else {
-                // With basic perms satisfied, ask user to allow SMS reading for sms app install code
-                performSMSInstall(false);
-            }
         }
     }
 
@@ -243,7 +237,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     /**
-     *
      * @return if installation is not allowed due to multiple apps limitations
      */
     private boolean checkForMultipleAppsViolation() {
@@ -362,6 +355,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
         outState.putSerializable(KEY_UI_STATE, uiState);
         outState.putString("profileref", incomingRef);
         outState.putBoolean("startAllowed", startAllowed);
@@ -472,6 +466,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                 case MissingResources:
                                     receiver.failMissingResource(this.missingResourceException, result);
                                     break;
+                                case InvalidResource:
+                                    receiver.failInvalidResource(this.invalidResourceException, result);
+                                    break;
                                 case IncompatibleReqs:
                                     receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
                                     break;
@@ -534,9 +531,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_SMS)) {
                 DialogCreationHelpers.buildPermissionRequestDialog(this, this,
-                                SMS_PERMISSIONS_REQUEST,
-                                Localization.get("permission.sms.install.title"),
-                                Localization.get("permission.sms.install.message")).showNonPersistentDialog();
+                        SMS_PERMISSIONS_REQUEST,
+                        Localization.get("permission.sms.install.title"),
+                        Localization.get("permission.sms.install.message")).showNonPersistentDialog();
             } else {
                 requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }
@@ -662,9 +659,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
 
-    private void fail(NotificationMessage notificationMessage, boolean reportNotification) {
+    private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {
         String message;
-        if (reportNotification) {
+        if (showAsPinnedNotifcation) {
             CommCareApplication._().reportNotificationMessage(notificationMessage);
             message = Localization.get("notification.for.details.wrapper",
                     new String[]{notificationMessage.getTitle()});
@@ -737,6 +734,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusMissing) {
         fail(NotificationMessageFactory.message(statusMissing, new String[]{null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
+    }
+
+    @Override
+    public void failInvalidResource(InvalidResourceException e, AppInstallStatus statusMissing) {
+        fail(NotificationMessageFactory.message(statusMissing, new String[]{null, e.resourceName, e.getMessage()}), true);
     }
 
     @Override
@@ -930,7 +932,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     public static String getAnalyticsActionFromInstallMode(int installModeCode) {
-        switch(installModeCode) {
+        switch (installModeCode) {
             case INSTALL_MODE_BARCODE:
                 return GoogleAnalyticsFields.ACTION_BARCODE_INSTALL;
             case INSTALL_MODE_OFFLINE:

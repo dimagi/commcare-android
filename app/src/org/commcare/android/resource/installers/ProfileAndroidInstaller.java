@@ -8,7 +8,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -45,7 +44,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException {
+    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
         try {
 
             Reference local = ReferenceManager._().DeriveReference(localLocation);

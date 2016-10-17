@@ -3,7 +3,6 @@ package org.commcare.android.resource.installers;
 import android.support.v4.util.Pair;
 
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -56,7 +55,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException {
+    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
         return false;
     }
 

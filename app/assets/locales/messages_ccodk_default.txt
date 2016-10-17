@@ -9,7 +9,7 @@ install.keep.trying=Keep trying if connection is interrupted
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
 updates.success=App is up to date
 updates.check.begin=Checking for updates...
-updates.check.failed=Failed to download updates
+updates.check.failed=Failed to download updates. This usually means your app has a configuration issue (See notification for details)
 updates.check.start=Recheck
 updates.check.cancel=Stop checking
 updates.check.cancelling=Cancelling check for updates
@@ -313,21 +313,21 @@ mult.install.error=Unexpected Error installing the multimedia! Please try again.
 login.menu.demo=Enter Practice Mode
 login.menu.password.mode=Forgot PIN?
 
-main.sync.demo=You cannot sync data down from the server when logged in in demo mode
+main.sync.demo=You cannot sync data down from the server when using practice mode
 login.menu.app.manager=Go To App Manager
 
-main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in Demo mode.
-main.sync.demo.no.forms=You have no forms to submit and you cannot retrieve forms from the server in Demo mode. 
+main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in practice mode.
+main.sync.demo.no.forms=You have no forms to submit and you cannot retrieve forms from the server in practice mode.
 
-home.start.demo=Explore CommCare Demo
-home.sync.demo=Submit Demo Data to Server
-home.logout.demo=Log out of Demo Mode
-home.sync.message.last.demo=You are using CommCare in demo mode
+home.start.demo=Explore CommCare Practice Mode
+home.sync.demo=Submit Practice Data to Server
+home.logout.demo=Log out of Practice Mode
+home.sync.message.last.demo=You are using CommCare in practice mode
 
-demo.mode.warning.title=Starting Demo Mode
-demo.mode.warning=You are logging into CommCare in Demo mode. Demo mode is for testing and practice only!
+demo.mode.warning.title=Starting Practice Mode
+demo.mode.warning=You are logging into CommCare in Practice mode. Practice mode is for testing and practice only!
 
-demo.mode.feature.unavailable=Sorry, this app uses a feature that is not available in Demo mode. Please log in as a named user.
+demo.mode.feature.unavailable=Sorry, this app uses a feature that is not available in Practice mode. Please log in as a named user.
 
 select.search.label=Search:
 select.search.status=${0} of ${1} results for your search: "${2}"
@@ -519,6 +519,10 @@ notification.install.installed.detail=Your app install is up to date.
 notification.install.missing.title=Couldn't find your application.  Please check and retype your code, or verify your internet connection. 
 notification.install.missing.detail=A serious problem occurred while CommCare was trying to download an update (or install your app). CommCare couldn't find the resource with id: ${0}. This is often due to a bad internet connection.
 notification.install.missing.action=This failure is generally due to a bad or inconsistent network connection, but may be a sign of a problem with the application if it persists. Try again with a better connection and report to a supervisor if the install still fails.
+
+notification.install.invalid.title=A part of your application is invalid.
+notification.install.invalid.detail=CommCare found an issue with the '${0}' resource:
+notification.install.invalid.action=${0}
 
 notification.install.missing.withmessage.title=Part of your app is not valid
 notification.install.missing.withmessage.detail=One of your app's resources (${0}) is not valid and must be fixed before it can be installed.
