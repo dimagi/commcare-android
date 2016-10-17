@@ -10,6 +10,7 @@ import org.commcare.activities.EntitySelectActivity;
 import org.commcare.activities.LoginActivity;
 import org.commcare.adapters.EntityListAdapter;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.UpdateUtils;
@@ -29,6 +30,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
+ * Tests logging in as demo user with and without an app-level demo user
+ * restore files
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
@@ -70,8 +74,13 @@ public class DemoUserRestoreTest {
         assertFalse(shadowActivity.getOptionsMenu().hasVisibleItems());
     }
 
+    /**
+     * Install app w/ demo user restore file, login as demo user. Perform app
+     * update that changes the user restore (including the username), assert
+     * that associated fixture and case data is correctly updated
+     */
     @Test
-    public void testDemoUserRestoreAndUpdate() {
+    public void demoUserRestoreAndUpdateTest() {
         TestAppInstaller.installApp(REF_BASE_DIR +
                 "app_with_demo_user_restore/profile.ccpr");
         CommCareApplication._().getCurrentApp().setMMResourcesValidated();
@@ -82,6 +91,8 @@ public class DemoUserRestoreTest {
         AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication._());
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = sandbox.getUserFixtureStorage();
         assertEquals(1, userFixtureStorage.getNumRecords());
+
+        assertEquals(1, CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).getNumRecords());
 
         EntitySelectActivity entitySelectActivity =
                 CaseLoadUtils.launchEntitySelectActivity("m0-f0");
@@ -103,6 +114,8 @@ public class DemoUserRestoreTest {
         // check that the user fixtures were updated
         userFixtureStorage = sandbox.getUserFixtureStorage();
         assertEquals(0, userFixtureStorage.getNumRecords());
+
+        assertEquals(1, CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).getNumRecords());
 
         // make sure there is only 1 case after updating the demo user restore
         entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m0-f0");
