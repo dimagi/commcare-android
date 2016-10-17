@@ -14,6 +14,9 @@ import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.UpdateUtils;
 import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.models.database.AndroidSandbox;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -76,6 +79,10 @@ public class DemoUserRestoreTest {
         loginAsDemoUser();
         launchHomeActivityForDemoUser();
 
+        AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication._());
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage = sandbox.getUserFixtureStorage();
+        assertEquals(1, userFixtureStorage.getNumRecords());
+
         EntitySelectActivity entitySelectActivity =
                 CaseLoadUtils.launchEntitySelectActivity("m0-f0");
 
@@ -92,6 +99,10 @@ public class DemoUserRestoreTest {
 
         loginAsDemoUser();
         launchHomeActivityForDemoUser();
+
+        // check that the user fixtures were updated
+        userFixtureStorage = sandbox.getUserFixtureStorage();
+        assertEquals(0, userFixtureStorage.getNumRecords());
 
         // make sure there is only 1 case after updating the demo user restore
         entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m0-f0");
