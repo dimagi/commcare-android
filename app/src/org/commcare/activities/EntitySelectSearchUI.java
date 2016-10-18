@@ -19,6 +19,8 @@ import org.commcare.suite.model.Callout;
 import org.javarosa.core.services.locale.Localization;
 
 /**
+ * Manages case list activity's search state and UI
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 class EntitySelectSearchUI implements TextWatcher {
