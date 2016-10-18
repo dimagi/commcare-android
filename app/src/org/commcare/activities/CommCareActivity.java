@@ -846,4 +846,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public void setStateHolder(TaskConnectorFragment<R> stateHolder) {
         this.stateHolder = stateHolder;
     }
+
+    protected String getLastQueryString() {
+        return lastQueryString;
+    }
+
+    protected  void setLastQueryString(String lastQueryString) {
+        this.lastQueryString = lastQueryString;
+    }
 }
