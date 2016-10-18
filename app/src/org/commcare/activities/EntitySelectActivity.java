@@ -236,10 +236,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         visibleView.setOnItemClickListener(this);
 
         header = (LinearLayout)findViewById(R.id.entity_select_header);
+        entitySelectSearchUI = new EntitySelectSearchUI(this);
         restoreLastQueryString();
         persistAdapterState(visibleView);
         attemptInitCallout();
-        entitySelectSearchUI = new EntitySelectSearchUI(adapter, this);
         entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, shortSelect.getCallout());
         setupMapNav();
     }
@@ -1001,5 +1001,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public String getActivityTitle() {
         return null;
+    }
+
+    protected EntityListAdapter getAdapter() {
+        return adapter;
     }
 }

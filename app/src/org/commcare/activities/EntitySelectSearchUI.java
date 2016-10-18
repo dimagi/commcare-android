@@ -14,7 +14,6 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.activities.components.EntitySelectCalloutSetup;
-import org.commcare.adapters.EntityListAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Callout;
 import org.javarosa.core.services.locale.Localization;
@@ -31,13 +30,11 @@ class EntitySelectSearchUI implements TextWatcher {
     private ImageButton clearSearchButton;
     private View searchBanner;
 
-    private final EntityListAdapter adapter;
     private final EntitySelectActivity activity;
 
     private String filterString = "";
 
-    EntitySelectSearchUI(EntityListAdapter adapter, EntitySelectActivity activity) {
-        this.adapter = adapter;
+    EntitySelectSearchUI(EntitySelectActivity activity) {
         this.activity = activity;
         initUIComponents();
     }
@@ -49,7 +46,7 @@ class EntitySelectSearchUI implements TextWatcher {
         clearSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                adapter.clearCalloutResponseData();
+                activity.getAdapter().clearCalloutResponseData();
                 activity.refreshView();
             }
         });
@@ -76,10 +73,10 @@ class EntitySelectSearchUI implements TextWatcher {
 
                     @Override
                     public boolean onQueryTextChange(String newText) {
-                        activity.setLastQueryString(filterString);
+                        activity.setLastQueryString(newText);
                         filterString = newText;
-                        if (adapter != null) {
-                            adapter.filterByString(newText);
+                        if (activity.getAdapter() != null) {
+                            activity.getAdapter().filterByString(newText);
                         }
                         return false;
                     }
@@ -103,8 +100,8 @@ class EntitySelectSearchUI implements TextWatcher {
                 searchMenuItem.expandActionView();
             }
             searchView.setQuery(lastQueryString, false);
-            if (adapter != null) {
-                adapter.filterByString(lastQueryString);
+            if (activity.getAdapter() != null) {
+                activity.getAdapter().filterByString(lastQueryString);
             }
         }
     }
@@ -170,8 +167,8 @@ class EntitySelectSearchUI implements TextWatcher {
         final String currentSearchText = getSearchText().toString();
         if (incomingString.equals(currentSearchText)) {
             filterString = currentSearchText;
-            if (adapter != null) {
-                adapter.filterByString(filterString);
+            if (activity.getAdapter() != null) {
+                activity.getAdapter().filterByString(filterString);
             }
         }
         if (!isUsingActionBar()) {
@@ -197,16 +194,16 @@ class EntitySelectSearchUI implements TextWatcher {
 
     protected void restoreSearchString() {
         if (filterString != null && !"".equals(filterString)) {
-            adapter.filterByString(filterString);
+            activity.getAdapter().filterByString(filterString);
         }
     }
 
     protected void setSearchBannerState() {
-        if (!"".equals(adapter.getSearchQuery())) {
+        if (!"".equals(activity.getAdapter().getSearchQuery())) {
             showSearchBanner();
             // Android's native SearchView has its own clear search button, so need to add our own
             clearSearchButton.setVisibility(View.GONE);
-        } else if (adapter.isFilteringByCalloutResult()) {
+        } else if (activity.getAdapter().isFilteringByCalloutResult()) {
             showSearchBanner();
             clearSearchButton.setVisibility(View.VISIBLE);
         } else {
@@ -216,7 +213,7 @@ class EntitySelectSearchUI implements TextWatcher {
     }
 
     private void showSearchBanner() {
-        searchResultStatus.setText(adapter.getSearchNotificationText());
+        searchResultStatus.setText(activity.getAdapter().getSearchNotificationText());
         searchResultStatus.setVisibility(View.VISIBLE);
         searchBanner.setVisibility(View.VISIBLE);
     }
