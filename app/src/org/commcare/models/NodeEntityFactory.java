@@ -16,7 +16,6 @@ import java.util.List;
  */
 public class NodeEntityFactory {
     private boolean mEntitySetInitialized = false;
-    private static final Object mPreparationLock = new Object();
 
     protected final EvaluationContext ec;
     protected final Detail detail;
@@ -99,7 +98,7 @@ public class NodeEntityFactory {
      * (see prepareEntities()). Separated out to enforce timing
      * related to preparing and utilizing results
      */
-    protected void prepareEntitiesInternal() {
+    protected synchronized void prepareEntitiesInternal() {
         //No implementation in normal factory
     }
 
@@ -109,11 +108,9 @@ public class NodeEntityFactory {
      * usage. This preparation occurs asynchronously, and the returned entity
      * set should not be manipulated until it has completed.
      */
-    public final void prepareEntities() {
-        synchronized (mPreparationLock) {
-            prepareEntitiesInternal();
-            mEntitySetInitialized = true;
-        }
+    public synchronized final void prepareEntities() {
+        prepareEntitiesInternal();
+        mEntitySetInitialized = true;
     }
 
     /**
@@ -121,7 +118,7 @@ public class NodeEntityFactory {
      * (see isEntitySetReady()). Separated out to enforce timing
      * related to preparing and utilizing results
      */
-    protected boolean isEntitySetReadyInternal() {
+    protected synchronized boolean isEntitySetReadyInternal() {
         return true;
     }
 
@@ -132,12 +129,10 @@ public class NodeEntityFactory {
      * @return True if entities returned from the factory are again ready
      * for use. False otherwise.
      */
-    public final boolean isEntitySetReady() {
-        synchronized (mPreparationLock) {
-            if (!mEntitySetInitialized) {
-                throw new RuntimeException("A Node Entity Factory was not prepared before usage. prepareEntities() must be called before a call to isEntitySetReady()");
-            }
-            return isEntitySetReadyInternal();
+    public synchronized final boolean isEntitySetReady() {
+        if (!mEntitySetInitialized) {
+            throw new RuntimeException("A Node Entity Factory was not prepared before usage. prepareEntities() must be called before a call to isEntitySetReady()");
         }
+        return isEntitySetReadyInternal();
     }
 }
