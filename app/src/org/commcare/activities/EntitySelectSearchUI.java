@@ -27,15 +27,33 @@ class EntitySelectSearchUI implements TextWatcher {
     private MenuItem searchMenuItem;
     private MenuItem barcodeMenuItem;
     private EditText preHoneycombSearchBox;
+    private TextView searchResultStatus;
+    private ImageButton clearSearchButton;
+    private View searchBanner;
 
     private final EntityListAdapter adapter;
-    private final CommCareActivity activity;
+    private final EntitySelectActivity activity;
 
     private String filterString = "";
 
-    EntitySelectSearchUI(EntityListAdapter adapter, CommCareActivity activity) {
+    EntitySelectSearchUI(EntityListAdapter adapter, EntitySelectActivity activity) {
         this.adapter = adapter;
         this.activity = activity;
+        initUIComponents();
+    }
+
+    private void initUIComponents() {
+        searchBanner = activity.findViewById(R.id.search_result_banner);
+        searchResultStatus = (TextView)activity.findViewById(R.id.search_results_status);
+        clearSearchButton = (ImageButton)activity.findViewById(R.id.clear_search_button);
+        clearSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adapter.clearCalloutResponseData();
+                activity.refreshView();
+            }
+        });
+        clearSearchButton.setVisibility(View.GONE);
     }
 
     protected CommCareActivity.ActionBarInstantiator getActionBarInstantiator() {
@@ -182,4 +200,25 @@ class EntitySelectSearchUI implements TextWatcher {
             adapter.filterByString(filterString);
         }
     }
+
+    protected void setSearchBannerState() {
+        if (!"".equals(adapter.getSearchQuery())) {
+            showSearchBanner();
+            // Android's native SearchView has its own clear search button, so need to add our own
+            clearSearchButton.setVisibility(View.GONE);
+        } else if (adapter.isFilteringByCalloutResult()) {
+            showSearchBanner();
+            clearSearchButton.setVisibility(View.VISIBLE);
+        } else {
+            searchBanner.setVisibility(View.GONE);
+            clearSearchButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void showSearchBanner() {
+        searchResultStatus.setText(adapter.getSearchNotificationText());
+        searchResultStatus.setVisibility(View.VISIBLE);
+        searchBanner.setVisibility(View.VISIBLE);
+    }
+
 }

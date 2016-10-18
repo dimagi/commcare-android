@@ -18,7 +18,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -95,9 +94,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private static final int MENU_ACTION_GROUP = Menu.FIRST + 1;
 
-    private TextView searchResultStatus;
-    private ImageButton clearSearchButton;
-    private View searchBanner;
     private EntityListAdapter adapter;
     private LinearLayout header;
 
@@ -121,6 +117,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private Intent selectedIntent = null;
     private boolean hideActionsFromOptionsMenu;
+    private boolean hideActionsFromEntityList;
+
+    private EntitySelectSearchUI entitySelectSearchUI;
 
     private Detail shortSelect;
 
@@ -144,9 +143,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
     private boolean containsHereFunction = false;
     private boolean locationChangedWhileLoading = false;
-    private EntitySelectSearchUI entitySelectSearchUI;
-
-    private boolean hideActionsFromEntityList;
 
     // Handler for displaying alert dialog when no location providers are found
     private final LocationNotificationHandler locationNotificationHandler =
@@ -196,29 +192,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             public void onChanged() {
                 super.onChanged();
 
-                setSearchBannerState();
+                entitySelectSearchUI.setSearchBannerState();
             }
         };
-    }
-
-    private void setSearchBannerState() {
-        if (!"".equals(adapter.getSearchQuery())) {
-            showSearchBanner();
-            // Android's native SearchView has its own clear search button, so need to add our own
-            clearSearchButton.setVisibility(View.GONE);
-        } else if (adapter.isFilteringByCalloutResult()) {
-            showSearchBanner();
-            clearSearchButton.setVisibility(View.VISIBLE);
-        } else {
-            searchBanner.setVisibility(View.GONE);
-            clearSearchButton.setVisibility(View.GONE);
-        }
-    }
-
-    private void showSearchBanner() {
-        searchResultStatus.setText(adapter.getSearchNotificationText());
-        searchResultStatus.setVisibility(View.VISIBLE);
-        searchBanner.setVisibility(View.VISIBLE);
     }
 
     private void restoreSavedState(Bundle savedInstanceState) {
@@ -259,28 +235,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
         visibleView.setOnItemClickListener(this);
 
-        initUIComponents();
+        header = (LinearLayout)findViewById(R.id.entity_select_header);
         restoreLastQueryString();
         persistAdapterState(visibleView);
         attemptInitCallout();
         entitySelectSearchUI = new EntitySelectSearchUI(adapter, this);
         entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, shortSelect.getCallout());
         setupMapNav();
-    }
-
-    private void initUIComponents() {
-        searchBanner = findViewById(R.id.search_result_banner);
-        searchResultStatus = (TextView)findViewById(R.id.search_results_status);
-        header = (LinearLayout)findViewById(R.id.entity_select_header);
-        clearSearchButton = (ImageButton)findViewById(R.id.clear_search_button);
-        clearSearchButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adapter.clearCalloutResponseData();
-                refreshView();
-            }
-        });
-        clearSearchButton.setVisibility(View.GONE);
     }
 
     private void attemptInitCallout() {
@@ -352,7 +313,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             EntitySelectViewSetup.setupDivider(this, (ListView)view, shortSelect.usesEntityTileView());
         }
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
-        setSearchBannerState();
+        entitySelectSearchUI.setSearchBannerState();
     }
 
     private void setupMapNav() {
@@ -421,7 +382,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     /**
      * Get form list from database and insert into view.
      */
-    private void refreshView() {
+    protected void refreshView() {
         try {
             rebuildHeaders();
 
@@ -668,7 +629,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         finish();
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -681,9 +641,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         tryToAddSearchActionToAppBar(this, menu, entitySelectSearchUI.getActionBarInstantiator());
-
         setupActionOptionsMenu(menu);
-
         return true;
     }
 
