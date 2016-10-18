@@ -33,6 +33,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
     private CacheHost mCacheHost = null;
     private Boolean mTemplateIsCachable = null;
+    private static final Object mAsyncLock = new Object();
     private Thread mAsyncPrimingThread;
 
     public AsyncNodeEntityFactory(Detail d, EvaluationContext ec) {
@@ -166,22 +167,26 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     @Override
-    protected synchronized void prepareEntitiesInternal() {
-        if (mAsyncPrimingThread == null) {
-            mAsyncPrimingThread = new Thread(new Runnable() {
+    protected void prepareEntitiesInternal() {
+        synchronized (mAsyncLock) {
+            if (mAsyncPrimingThread == null) {
+                mAsyncPrimingThread = new Thread(new Runnable() {
 
-                @Override
-                public void run() {
-                    primeCache();
-                }
+                    @Override
+                    public void run() {
+                        primeCache();
+                    }
 
-            });
-            mAsyncPrimingThread.start();
+                });
+                mAsyncPrimingThread.start();
+            }
         }
     }
 
     @Override
-    protected synchronized boolean isEntitySetReadyInternal() {
-        return mAsyncPrimingThread == null || !mAsyncPrimingThread.isAlive();
+    protected boolean isEntitySetReadyInternal() {
+        synchronized (mAsyncLock) {
+            return mAsyncPrimingThread == null || !mAsyncPrimingThread.isAlive();
+        }
     }
 }
