@@ -1101,8 +1101,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             detailView = (TabbedDetailView)rightFrame.findViewById(R.id.entity_detail_tabs);
             detailView.setRoot(detailView);
 
-            factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
-            Detail detail = factory.getDetail();
+            Detail detail = session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID));
+            factory = new NodeEntityFactory(detail, session.getEvaluationContext(new AndroidInstanceInitializer(session)));
             detailView.showMenu();
 
             if (detail.isCompound()) {
