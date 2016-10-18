@@ -568,8 +568,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-
-
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (adapter.getItemViewType(position) == EntityListAdapter.ENTITY_TYPE) {
@@ -765,16 +763,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 EntitySelectActivity.this.searchMenuItem = searchItem;
                 EntitySelectActivity.this.searchView = searchView;
                 EntitySelectActivity.this.barcodeMenuItem = barcodeItem;
-                // restore last query string in the searchView if there is one
-                if (lastQueryString != null && lastQueryString.length() > 0) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                        searchItem.expandActionView();
-                    }
-                    searchView.setQuery(lastQueryString, false);
-                    if (adapter != null) {
-                        adapter.filterByString(lastQueryString == null ? "" : lastQueryString);
-                    }
-                }
+
+                restoreLastQuery();
+
                 EntitySelectActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String query) {
@@ -797,6 +788,19 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         setupActionOptionsMenu(menu);
 
         return true;
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void restoreLastQuery() {
+        if (lastQueryString != null && lastQueryString.length() > 0) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                searchMenuItem.expandActionView();
+            }
+            searchView.setQuery(lastQueryString, false);
+            if (adapter != null) {
+                adapter.filterByString(lastQueryString == null ? "" : lastQueryString);
+            }
+        }
     }
 
     private void setupActionOptionsMenu(Menu menu) {
