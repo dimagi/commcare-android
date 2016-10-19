@@ -236,30 +236,26 @@ public class EntityViewTile extends GridLayout {
      * cellHeight and width 1 to every row of the first column. These are then written on top of if need be.
      */
     private void addBuffers(Context context) {
-        for (int i = 0; i < numRowsPerTile; i++) {
-            Spec rowSpec = GridLayout.spec(i);
-            Spec colSpec = GridLayout.spec(0);
+        addBufferView(context, numRowsPerTile, true);
+        addBufferView(context, NUMBER_COLUMNS_PER_GRID, false);
+    }
 
-            GridLayout.LayoutParams mGridParams = new GridLayout.LayoutParams(rowSpec, colSpec);
-            mGridParams.width = 1;
-            mGridParams.height = (int)cellHeight;
+    private void addBufferView(Context context, int count, boolean isRow) {
+        for (int i = 0; i < count; i++) {
+            GridLayout.LayoutParams gridParams;
+            if (isRow) {
+                gridParams = new GridLayout.LayoutParams(GridLayout.spec(i), GridLayout.spec(0));
+                gridParams.width = 1;
+                gridParams.height = (int)cellHeight;
+            } else {
+                gridParams = new GridLayout.LayoutParams(GridLayout.spec(0), GridLayout.spec(i));
+                gridParams.width = (int)cellWidth;
+                gridParams.height = 1;
+            }
 
-            Space mSpace = new Space(context);
-            mSpace.setLayoutParams(mGridParams);
-            this.addView(mSpace, mGridParams);
-        }
-
-        for (int i = 0; i < NUMBER_COLUMNS_PER_GRID; i++) {
-            Spec rowSpec = GridLayout.spec(0);
-            Spec colSpec = GridLayout.spec(i);
-
-            GridLayout.LayoutParams mGridParams = new GridLayout.LayoutParams(rowSpec, colSpec);
-            mGridParams.width = (int)cellWidth;
-            mGridParams.height = 1;
-
-            Space mSpace = new Space(context);
-            mSpace.setLayoutParams(mGridParams);
-            this.addView(mSpace, mGridParams);
+            Space space = new Space(context);
+            space.setLayoutParams(gridParams);
+            this.addView(space, gridParams);
         }
     }
 
