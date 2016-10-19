@@ -397,33 +397,7 @@ public class EntityViewTile extends GridLayout {
                     ((TextView)retVal).setText(mSpannable);
                 }
 
-                int gravity = 0;
-
-                // handle horizontal alignments
-                switch (horzAlign) {
-                    case "center":
-                        gravity |= Gravity.CENTER_HORIZONTAL;
-                        break;
-                    case "left":
-                        gravity |= Gravity.LEFT;
-                        break;
-                    case "right":
-                        gravity |= Gravity.RIGHT;
-                        break;
-                }
-                // handle vertical alignment
-                switch (vertAlign) {
-                    case "center":
-                        gravity |= Gravity.CENTER_VERTICAL;
-                        break;
-                    case "top":
-                        gravity |= Gravity.TOP;
-                        break;
-                    case "bottom":
-                        gravity |= Gravity.BOTTOM;
-                        break;
-                }
-
+                int gravity = computeGravity(horzAlign, vertAlign);
                 if (gravity != 0) {
                     ((TextView)retVal).setGravity(gravity);
                 }
@@ -445,6 +419,36 @@ public class EntityViewTile extends GridLayout {
                 }
         }
         return retVal;
+    }
+
+    private static int computeGravity(String horzAlign, String vertAlign) {
+        int gravity = 0;
+
+        // handle horizontal alignments
+        switch (horzAlign) {
+            case "center":
+                gravity |= Gravity.CENTER_HORIZONTAL;
+                break;
+            case "left":
+                gravity |= Gravity.LEFT;
+                break;
+            case "right":
+                gravity |= Gravity.RIGHT;
+                break;
+        }
+        // handle vertical alignment
+        switch (vertAlign) {
+            case "center":
+                gravity |= Gravity.CENTER_VERTICAL;
+                break;
+            case "top":
+                gravity |= Gravity.TOP;
+                break;
+            case "bottom":
+                gravity |= Gravity.BOTTOM;
+                break;
+        }
+        return gravity;
     }
 
     private static void setScaleType(ImageView imageView, String horizontalAlignment) {
