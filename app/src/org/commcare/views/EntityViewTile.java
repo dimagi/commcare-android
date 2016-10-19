@@ -379,7 +379,7 @@ public class EntityViewTile extends GridLayout {
                 }
                 break;
             case EntityView.FORM_AUDIO:
-                if (rowData != null & rowData.length() > 0) {
+                if (rowData != null && rowData.length() > 0) {
                     retVal = new AudioButton(context, rowData, uniqueId, true);
                 } else {
                     retVal = new AudioButton(context, rowData, uniqueId, false);
@@ -392,7 +392,7 @@ public class EntityViewTile extends GridLayout {
                 //so we've gotta mirror that for the search text. Booooo. I dunno if there's any
                 //other other side effects (newlines? nbsp?)
 
-                String htmlIfiedSearchField = searchField == null ? searchField : MarkupUtil.getSpannable(searchField).toString();
+                String htmlIfiedSearchField = searchField == null ? null : MarkupUtil.getSpannable(searchField).toString();
 
                 String cssid = style.getCssID();
                 if (cssid != null && !cssid.equals("none")) {
