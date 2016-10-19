@@ -236,11 +236,11 @@ public class EntityViewTile extends GridLayout {
      * cellHeight and width 1 to every row of the first column. These are then written on top of if need be.
      */
     private void addBuffers(Context context) {
-        addBufferView(context, numRowsPerTile, true);
-        addBufferView(context, NUMBER_COLUMNS_PER_GRID, false);
+        addBuffersToView(context, numRowsPerTile, true);
+        addBuffersToView(context, NUMBER_COLUMNS_PER_GRID, false);
     }
 
-    private void addBufferView(Context context, int count, boolean isRow) {
+    private void addBuffersToView(Context context, int count, boolean isRow) {
         for (int i = 0; i < count; i++) {
             GridLayout.LayoutParams gridParams;
             if (isRow) {
