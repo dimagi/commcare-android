@@ -139,6 +139,7 @@ public class AsyncEntity extends Entity<TreeReference> {
             //get our second lock.
             synchronized (mAsyncLock) {
                 if (sortData[i] == null) {
+                    // sort data not in search field cache; load and store it
                     Text sortText = fields[i].getSort();
                     if (sortText == null) {
                         db.setTransactionSuccessful();
