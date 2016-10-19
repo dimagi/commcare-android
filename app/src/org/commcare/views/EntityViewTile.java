@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.views;
 
 import android.app.Activity;
@@ -40,10 +37,11 @@ import org.javarosa.xpath.XPathUnhandledException;
 import java.util.Arrays;
 
 /**
+ * This class defines an individual panel within an advanced case list.
+ * Each panel is defined by a Detail and an Entity
+ * Significant axis of configuration are NUMBER_ROWS, NUMBER_COLUMNS, AND CELL_HEIGHT_DIVISOR defined below
+ *
  * @author wspride
- *         This class defines an individual panel within an advanced case list.
- *         Each panel is defined by a Detail and an Entity
- *         Significant axis of configuration are NUMBER_ROWS, NUMBER_COLUMNS, AND CELL_HEIGHT_DIVISOR defined below
  */
 public class EntityViewTile extends GridLayout {
 
@@ -76,7 +74,7 @@ public class EntityViewTile extends GridLayout {
     private static final int DEFAULT_NUMBER_ROWS_PER_GRID = 6;
 
     private static final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
-    
+
     // this is fixed for all tiles
     private static final int NUMBER_COLUMNS_PER_GRID = 12;
 
@@ -107,7 +105,7 @@ public class EntityViewTile extends GridLayout {
     }
 
     private EntityViewTile(Context context, Detail detail, Entity entity, String[] searchTerms,
-                          CachingAsyncImageLoader loader, boolean fuzzySearchEnabled,
+                           CachingAsyncImageLoader loader, boolean fuzzySearchEnabled,
                            boolean inAwesomeMode) {
         super(context);
         this.searchTerms = searchTerms;
@@ -165,7 +163,7 @@ public class EntityViewTile extends GridLayout {
      */
     private Pair<Integer, Integer> computeTileWidthAndHeight(Context context) {
         double screenWidth, screenHeight;
-        Display display = ((Activity) context).getWindowManager().getDefaultDisplay();
+        Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             Point size = new Point();
             display.getSize(size);
@@ -204,7 +202,7 @@ public class EntityViewTile extends GridLayout {
      */
     private double computeNumTilesPerScreen(boolean inPortrait, double screenHeightInPixels) {
         double numTilesPerScreenPortrait = DEFAULT_NUM_TILES_PER_SCREEN_PORTRAIT *
-                (DEFAULT_NUMBER_ROWS_PER_GRID / (float) numRowsPerTile);
+                (DEFAULT_NUMBER_ROWS_PER_GRID / (float)numRowsPerTile);
 
         double baseNumberOfTiles;
         if (inPortrait) {
@@ -238,15 +236,13 @@ public class EntityViewTile extends GridLayout {
      * cellHeight and width 1 to every row of the first column. These are then written on top of if need be.
      */
     private void addBuffers(Context context) {
-
         for (int i = 0; i < numRowsPerTile; i++) {
-
             Spec rowSpec = GridLayout.spec(i);
             Spec colSpec = GridLayout.spec(0);
 
             GridLayout.LayoutParams mGridParams = new GridLayout.LayoutParams(rowSpec, colSpec);
             mGridParams.width = 1;
-            mGridParams.height = (int) cellHeight;
+            mGridParams.height = (int)cellHeight;
 
             Space mSpace = new Space(context);
             mSpace.setLayoutParams(mGridParams);
@@ -254,26 +250,24 @@ public class EntityViewTile extends GridLayout {
         }
 
         for (int i = 0; i < NUMBER_COLUMNS_PER_GRID; i++) {
-
             Spec rowSpec = GridLayout.spec(0);
             Spec colSpec = GridLayout.spec(i);
 
             GridLayout.LayoutParams mGridParams = new GridLayout.LayoutParams(rowSpec, colSpec);
-            mGridParams.width = (int) cellWidth;
+            mGridParams.width = (int)cellWidth;
             mGridParams.height = 1;
 
             Space mSpace = new Space(context);
             mSpace.setLayoutParams(mGridParams);
             this.addView(mSpace, mGridParams);
         }
-
     }
 
     /**
      * Add the view for each field in the detail
      *
-     * @param detail  - the Detail describing how to display each entry
-     * @param entity  - the Entity describing the actual data of each entry
+     * @param detail - the Detail describing how to display each entry
+     * @param entity - the Entity describing the actual data of each entry
      */
     public void addFieldViews(Context context, Detail detail, Entity entity) {
         this.removeAllViews();
@@ -350,7 +344,7 @@ public class EntityViewTile extends GridLayout {
      * Get the correct View for this particular activity.
      *
      * @param fieldForm either "image", "audio", or default text. Describes how this XPath result should be displayed.
-     * @param rowData        The actual data to display, either an XPath to media or a String to display.
+     * @param rowData   The actual data to display, either an XPath to media or a String to display.
      */
     private View getView(Context context, GridStyle style, String fieldForm, String rowData,
                          ViewId uniqueId, String searchField, int maxWidth, int maxHeight) {
@@ -366,15 +360,15 @@ public class EntityViewTile extends GridLayout {
                 retVal = new ImageView(context);
                 setScaleType((ImageView)retVal, horzAlign);
                 // make the image's padding proportional to its size
-                retVal.setPadding(maxWidth/6, maxHeight/6, maxWidth/6, maxHeight/6);
+                retVal.setPadding(maxWidth / 6, maxHeight / 6, maxWidth / 6, maxHeight / 6);
                 if (rowData != null && !rowData.equals("")) {
                     if (mImageLoader != null) {
-                        mImageLoader.display(rowData, ((ImageView) retVal), R.drawable.info_bubble,
+                        mImageLoader.display(rowData, ((ImageView)retVal), R.drawable.info_bubble,
                                 maxWidth, maxHeight);
                     } else {
                         Bitmap b = MediaUtil.inflateDisplayImage(getContext(), rowData,
                                 maxWidth, maxHeight, true);
-                        ((ImageView) retVal).setImageBitmap(b);
+                        ((ImageView)retVal).setImageBitmap(b);
                     }
                 }
                 break;
@@ -399,12 +393,12 @@ public class EntityViewTile extends GridLayout {
                     // user defined a style we want to use
                     Spannable mSpannable = MarkupUtil.getCustomSpannable(cssid, rowData);
                     EntityView.highlightSearches(searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
-                    ((TextView) retVal).setText(mSpannable);
+                    ((TextView)retVal).setText(mSpannable);
                 } else {
                     // just process inline markup
                     Spannable mSpannable = MarkupUtil.returnCSS(rowData);
                     EntityView.highlightSearches(searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
-                    ((TextView) retVal).setText(mSpannable);
+                    ((TextView)retVal).setText(mSpannable);
                 }
 
                 int gravity = 0;
@@ -434,23 +428,23 @@ public class EntityViewTile extends GridLayout {
                         break;
                 }
 
-                if(gravity != 0) {
-                    ((TextView) retVal).setGravity(gravity);
+                if (gravity != 0) {
+                    ((TextView)retVal).setGravity(gravity);
                 }
 
                 // handle text resizing
                 switch (style.getFontSize()) {
                     case "large":
-                        ((TextView) retVal).setTextSize(LARGE_FONT / DENSITY);
+                        ((TextView)retVal).setTextSize(LARGE_FONT / DENSITY);
                         break;
                     case "small":
-                        ((TextView) retVal).setTextSize(SMALL_FONT / DENSITY);
+                        ((TextView)retVal).setTextSize(SMALL_FONT / DENSITY);
                         break;
                     case "medium":
-                        ((TextView) retVal).setTextSize(MEDIUM_FONT / DENSITY);
+                        ((TextView)retVal).setTextSize(MEDIUM_FONT / DENSITY);
                         break;
                     case "xlarge":
-                        ((TextView) retVal).setTextSize(XLARGE_FONT / DENSITY);
+                        ((TextView)retVal).setTextSize(XLARGE_FONT / DENSITY);
                         break;
                 }
         }
