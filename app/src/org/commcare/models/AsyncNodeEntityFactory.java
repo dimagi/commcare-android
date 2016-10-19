@@ -72,6 +72,10 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         return entity;
     }
 
+    /**
+     * Bulk loads search field cache from db.
+     * Note that the cache is lazily built upon first case list search.
+     */
     private void primeCache() {
         if (mTemplateIsCachable == null || !mTemplateIsCachable || mCacheHost == null) {
             return;
