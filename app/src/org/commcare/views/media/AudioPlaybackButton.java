@@ -19,13 +19,10 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @author ctsims
- * @author carlhartung
- * @author amstone326
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class AudioButton extends ImageButton implements OnClickListener, AudioPlaybackReset {
-    private final static String TAG = AudioController.class.getSimpleName();
+public class AudioPlaybackButton extends ImageButton implements OnClickListener, AudioPlaybackReset {
+    private final static String TAG = AudioPlaybackButton.class.getSimpleName();
 
     /**
      * Audio to load when play button pressed.
@@ -47,7 +44,7 @@ public class AudioButton extends ImageButton implements OnClickListener, AudioPl
     /**
      * Used by media inflater.
      */
-    public AudioButton(Context context, AttributeSet attrs) {
+    public AudioPlaybackButton(Context context, AttributeSet attrs) {
         super(context, attrs);
         setOnClickListener(this);
     }
@@ -55,7 +52,7 @@ public class AudioButton extends ImageButton implements OnClickListener, AudioPl
     /**
      * @param URI audio to load when play button pressed
      */
-    public AudioButton(Context context, final String URI, boolean visible) {
+    public AudioPlaybackButton(Context context, final String URI, boolean visible) {
         this(context, URI, null, visible);
     }
 
@@ -64,7 +61,7 @@ public class AudioButton extends ImageButton implements OnClickListener, AudioPl
      * @param viewId  Id for the ListAdapter view that contains this button
      * @param visible Should the button be visible?
      */
-    public AudioButton(Context context, String URI,
+    public AudioPlaybackButton(Context context, String URI,
                        ViewId viewId, boolean visible) {
         super(context);
         setOnClickListener(this);
