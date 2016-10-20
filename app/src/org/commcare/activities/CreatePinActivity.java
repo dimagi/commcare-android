@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,8 +11,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -163,7 +164,8 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         enterPinBox.requestFocus();
 
         // open up the keyboard if it was dismissed
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
 
         setTextEntryKeyboardAction(enterPinBox, EditorInfo.IME_ACTION_DONE);
 
