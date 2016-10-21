@@ -32,7 +32,7 @@ import org.commcare.util.GridStyle;
 import org.commcare.utils.CachingAsyncImageLoader;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MediaUtil;
-import org.commcare.views.media.AudioButton;
+import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathUnhandledException;
@@ -379,11 +379,8 @@ public class EntityViewTile extends GridLayout {
                 }
                 break;
             case EntityView.FORM_AUDIO:
-                if (rowData != null & rowData.length() > 0) {
-                    retVal = new AudioButton(context, rowData, uniqueId, true);
-                } else {
-                    retVal = new AudioButton(context, rowData, uniqueId, false);
-                }
+                boolean isButtonVisible = rowData != null & rowData.length() > 0;
+                retVal = new AudioPlaybackButton(context, rowData, uniqueId, isButtonVisible);
                 break;
             default:
                 retVal = new TextView(context);

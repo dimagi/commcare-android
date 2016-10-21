@@ -19,7 +19,7 @@
         android:ellipsize="end"
         android:maxLines="2"/>
 
-    <org.commcare.views.media.AudioButton
+    <org.commcare.views.media.AudioPlaybackButton
         android:id="@+id/row_soundicon"
         android:layout_width="wrap_content"
         android:background="@color/transparent_background"

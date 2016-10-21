@@ -29,7 +29,7 @@ import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.media.AudioButton;
+import org.commcare.views.media.AudioPlaybackButton;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -221,8 +221,8 @@ public class MenuAdapter implements ListAdapter {
         TextView rowText = (TextView)menuListItem.findViewById(R.id.row_txt);
         setupTextView(rowText, menuDisplayable);
 
-        AudioButton mAudioButton = (AudioButton)menuListItem.findViewById(R.id.row_soundicon);
-        setupAudioButton(mAudioButton, menuDisplayable);
+        AudioPlaybackButton audioPlaybackButton = (AudioPlaybackButton)menuListItem.findViewById(R.id.row_soundicon);
+        setupAudioButton(audioPlaybackButton, menuDisplayable);
 
         // set up the image, if available
         ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
@@ -230,7 +230,7 @@ public class MenuAdapter implements ListAdapter {
         return menuListItem;
     }
 
-    private void setupAudioButton(AudioButton mAudioButton, MenuDisplayable menuDisplayable) {
+    private void setupAudioButton(AudioPlaybackButton audioPlaybackButton, MenuDisplayable menuDisplayable) {
         final String audioURI = menuDisplayable.getAudioURI();
         String audioFilename = "";
         if (audioURI != null && !audioURI.equals("")) {
@@ -246,14 +246,14 @@ public class MenuAdapter implements ListAdapter {
         // First set up the audio button
         if (!"".equals(audioFilename) && audioFile.exists()) {
             // Set not focusable so that list onclick will work
-            mAudioButton.setFocusable(false);
-            mAudioButton.setFocusableInTouchMode(false);
+            audioPlaybackButton.setFocusable(false);
+            audioPlaybackButton.setFocusableInTouchMode(false);
 
-            mAudioButton.resetButton(audioURI, true);
+            audioPlaybackButton.resetButton(audioURI, true);
         } else {
-            if (mAudioButton != null) {
-                mAudioButton.resetButton(audioURI, false);
-                ((LinearLayout)mAudioButton.getParent()).removeView(mAudioButton);
+            if (audioPlaybackButton != null) {
+                audioPlaybackButton.resetButton(audioURI, false);
+                ((LinearLayout)audioPlaybackButton.getParent()).removeView(audioPlaybackButton);
             }
         }
     }

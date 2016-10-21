@@ -40,7 +40,7 @@
                 android:paddingLeft="@dimen/entity_item_image_margins"
                 android:textSize="@dimen/font_size_large"/>
 
-            <org.commcare.views.media.AudioButton
+            <org.commcare.views.media.AudioPlaybackButton
                 android:id="@+id/audio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

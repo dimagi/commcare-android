@@ -15,7 +15,7 @@ import org.commcare.suite.model.Action;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
-import org.commcare.views.media.AudioButton;
+import org.commcare.views.media.AudioPlaybackButton;
 
 /**
  * Setup view for entity list action ('register', 'claim case', etc)
@@ -40,7 +40,7 @@ public class EntityActionViewUtils {
     private static void setupActionAudio(String audioURI, FrameLayout actionCardView) {
 
         if (audioURI != null) {
-            AudioButton audioButton = (AudioButton)actionCardView.findViewById(R.id.audio);
+            AudioPlaybackButton audioButton = (AudioPlaybackButton)actionCardView.findViewById(R.id.audio);
             if (FileUtil.referenceFileExists(audioURI)) {
                 audioButton.setVisibility(View.VISIBLE);
                 audioButton.resetButton(audioURI, true);
