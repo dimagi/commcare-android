@@ -82,6 +82,11 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
         View view = vi.inflate(R.layout.small_audio_playback, null);
         addView(view);
         playButton = (ImageButton)findViewById(R.id.play_button);
+
+        // Set not focusable so that list onclick will work
+        playButton.setFocusable(false);
+        playButton.setFocusableInTouchMode(false);
+
         playButton.setOnClickListener(buildOnClickListener());
     }
 
@@ -152,6 +157,7 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
      * Set button appearance and playback state to 'ready'. Used when another
      * button is pressed and this one is reset.
      */
+    @Override
     public void setStateToReady() {
         currentState = MediaState.Ready;
         refreshAppearance();
@@ -163,8 +169,7 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
     private void refreshAppearance() {
         switch (currentState) {
             case Ready:
-                ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
-                progressBar.clearAnimation();
+                clearProgressBar();
                 playButton.setImageResource(R.drawable.play_question_audio);
                 break;
             case Playing:
@@ -264,12 +269,13 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
 
     private void startPlaying() {
         Pair<Integer, Integer> posAndduration = AudioController.INSTANCE.playCurrentMediaEntity();
-        if (posAndduration != null) {
-            animateProgress(posAndduration.first, posAndduration.second);
-        }
 
         currentState = MediaState.Playing;
         refreshAppearance();
+
+        if (posAndduration != null) {
+            animateProgress(posAndduration.first, posAndduration.second);
+        }
     }
 
     public void endPlaying() {
@@ -293,5 +299,16 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
         animation.setCurrentPlayTime(milliPosition);
         animation.setInterpolator(new DecelerateInterpolator());
         animation.start();
+    }
+
+    private void clearProgressBar() {
+        ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
+        if (animation != null) {
+            animation.removeAllListeners();
+            animation.end();
+            animation.cancel();
+        }
+        progressBar.clearAnimation();
+        progressBar.setProgress(0);
     }
 }

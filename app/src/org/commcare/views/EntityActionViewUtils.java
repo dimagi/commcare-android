@@ -38,7 +38,6 @@ public class EntityActionViewUtils {
     }
 
     private static void setupActionAudio(String audioURI, FrameLayout actionCardView) {
-
         if (audioURI != null) {
             AudioPlaybackButton audioButton = (AudioPlaybackButton)actionCardView.findViewById(R.id.audio);
             if (FileUtil.referenceFileExists(audioURI)) {
