@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.os.Build;
 import android.support.v4.util.Pair;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -54,7 +55,7 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
      */
     public AudioPlaybackButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setupButton(context);
+        setupView(context);
     }
 
     /**
@@ -72,15 +73,19 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
     public AudioPlaybackButton(Context context, String URI,
                                ViewId viewId, boolean visible) {
         super(context);
-        setupButton(context);
+        setupView(context);
 
         resetButton(URI, viewId, visible);
     }
 
-    private void setupButton(Context context) {
+    private void setupView(Context context) {
         LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = vi.inflate(R.layout.small_audio_playback, null);
         addView(view);
+        setupButton();
+    }
+
+    private void setupButton() {
         playButton = (ImageButton)findViewById(R.id.play_button);
 
         // Set not focusable so that list onclick will work
@@ -158,7 +163,7 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
      * button is pressed and this one is reset.
      */
     @Override
-    public void setStateToReady() {
+    public void resetPlaybackState() {
         currentState = MediaState.Ready;
         refreshAppearance();
     }
@@ -177,7 +182,7 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
                 break;
             case Paused:
             case PausedForRenewal:
-                animation.pause();
+                pauseProgressBar();
                 playButton.setImageResource(R.drawable.play_question_audio);
         }
     }
@@ -293,22 +298,32 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
     }
 
     private void animateProgress(int milliPosition, int milliDuration) {
-        ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
-        animation = ObjectAnimator.ofInt(progressBar, "progress", 0, 500); // see this max value coming back here, we animale towards that value
-        animation.setDuration(milliDuration);
-        animation.setCurrentPlayTime(milliPosition);
-        animation.setInterpolator(new DecelerateInterpolator());
-        animation.start();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
+            animation = ObjectAnimator.ofInt(progressBar, "progress", 0, 500);
+            animation.setDuration(milliDuration);
+            animation.setCurrentPlayTime(milliPosition);
+            animation.setInterpolator(new DecelerateInterpolator());
+            animation.start();
+        }
     }
 
     private void clearProgressBar() {
-        ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
-        if (animation != null) {
-            animation.removeAllListeners();
-            animation.end();
-            animation.cancel();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
+            if (animation != null) {
+                animation.removeAllListeners();
+                animation.end();
+                animation.cancel();
+            }
+            progressBar.clearAnimation();
+            progressBar.setProgress(0);
         }
-        progressBar.clearAnimation();
-        progressBar.setProgress(0);
+    }
+
+    private void pauseProgressBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            animation.pause();
+        }
     }
 }

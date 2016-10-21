@@ -46,7 +46,7 @@ public enum AudioController {
                                          AudioPlaybackReset newAudioReset) {
         if (currentAudioReset != null && currentAudioReset != newAudioReset) {
             // reset the old button to not be playing
-            currentAudioReset.setStateToReady();
+            currentAudioReset.resetPlaybackState();
         }
         currentAudioReset = newAudioReset;
 
@@ -83,6 +83,8 @@ public enum AudioController {
 
     /**
      * Start audio playback of current media resource.
+     *
+     * @return the current playback position and total playback duration
      */
     public Pair<Integer, Integer> playCurrentMediaEntity() {
         if (currentEntity != null) {
