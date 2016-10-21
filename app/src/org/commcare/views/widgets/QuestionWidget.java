@@ -384,27 +384,17 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * TextView to fit the rest of the space, then the image if applicable.
      */
     protected void addQuestionText() {
-        String imageURI = mPrompt.getImageText();
-        String audioURI = mPrompt.getAudioText();
-        String videoURI = mPrompt.getSpecialFormQuestionText("video");
-        String inlineVideoUri = mPrompt.getSpecialFormQuestionText("video-inline");
-        String qrCodeContent = mPrompt.getSpecialFormQuestionText("qrcode");
-
-        // shown when image is clicked
-        String bigImageURI = mPrompt.getSpecialFormQuestionText("big-image");
-
         mQuestionText = (TextView)LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, this, false);
         mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         mQuestionText.setId(38475483); // assign random id
 
         setQuestionText(mQuestionText, mPrompt);
 
-        if(mPrompt.getLongText()!= null){
-            if(mPrompt.getLongText().contains("\u260E")){
-                if(Linkify.addLinks(mQuestionText,Linkify.PHONE_NUMBERS)){
+        if (mPrompt.getLongText() != null) {
+            if (mPrompt.getLongText().contains("\u260E")) {
+                if (Linkify.addLinks(mQuestionText, Linkify.PHONE_NUMBERS)) {
                     stripUnderlines(mQuestionText);
-                }
-                else{
+                } else {
                     Log.d(TAG, "this should be an error I'm thinking?");
                 }
             }
@@ -415,7 +405,16 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
 
         // Create the layout for audio, image, text
-        MediaLayout mediaLayout = MediaLayout.build(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri);
+        String imageURI = mPrompt.getImageText();
+        String audioURI = mPrompt.getAudioText();
+        String expandedAudioURI = mPrompt.getSpecialFormQuestionText("expanded-audio");
+        String videoURI = mPrompt.getSpecialFormQuestionText("video");
+        String inlineVideoUri = mPrompt.getSpecialFormQuestionText("video-inline");
+        String qrCodeContent = mPrompt.getSpecialFormQuestionText("qrcode");
+        // shown when image is clicked
+        String bigImageURI = mPrompt.getSpecialFormQuestionText("big-image");
+
+        MediaLayout mediaLayout = MediaLayout.build(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri, expandedAudioURI);
         addView(mediaLayout, mLayout);
     }
 
