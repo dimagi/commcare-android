@@ -245,7 +245,6 @@ public class MenuAdapter implements ListAdapter {
         File audioFile = new File(audioFilename);
         // First set up the audio button
         if (!"".equals(audioFilename) && audioFile.exists()) {
-
             audioPlaybackButton.resetButton(audioURI, true);
         } else {
             if (audioPlaybackButton != null) {
