@@ -415,11 +415,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
 
         // Create the layout for audio, image, text
-        MediaLayout mediaLayout = new MediaLayout(getContext());
-
-        mediaLayout.setAVT(mQuestionText, audioURI, imageURI, videoURI,
-                bigImageURI, qrCodeContent, inlineVideoUri, false);
-
+        MediaLayout mediaLayout = MediaLayout.build(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri);
         addView(mediaLayout, mLayout);
     }
 
@@ -487,15 +483,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
         text.setPadding(0, 0, 0, 7);
         text.setId(38475483); // assign random id
-        
-        MediaLayout helpLayout = new MediaLayout(getContext());
-        helpLayout.setAVT(
-                text,
+
+        MediaLayout helpLayout = MediaLayout.build(getContext(), text,
                 mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_AUDIO),
                 mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_IMAGE),
                 mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_VIDEO),
-                null
-        );
+                null);
         helpLayout.setPadding(padding, padding, padding, padding);
 
         return helpLayout;

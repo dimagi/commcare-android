@@ -66,7 +66,7 @@ public class MediaLayout extends RelativeLayout {
     private ImageButton videoButton;
     private TextView missingImageText;
 
-    public MediaLayout(Context c) {
+    private MediaLayout(Context c) {
         super(c);
 
         viewText = null;
@@ -75,20 +75,33 @@ public class MediaLayout extends RelativeLayout {
         videoButton = null;
     }
 
-    public void setAVT(TextView text, String audioURI, String imageURI,
-                       boolean showImageAboveText) {
-        setAVT(text, audioURI, imageURI, null, null, null, null, showImageAboveText);
+    public static MediaLayout build(Context context, TextView text, String audioURI, String imageURI) {
+        MediaLayout mediaLayout = new MediaLayout(context);
+        mediaLayout.setAVT(text, audioURI, imageURI, null, null, null, null, true);
+        return mediaLayout;
     }
 
-    public void setAVT(TextView text, String audioURI, String imageURI,
-                       final String videoURI, final String bigImageURI) {
-        setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null, null, false);
+    public static MediaLayout build(Context context,
+                                    TextView text, String audioURI, String imageURI,
+                                    final String videoURI, final String bigImageURI) {
+        MediaLayout mediaLayout = new MediaLayout(context);
+        mediaLayout.setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null, null, false);
+        return mediaLayout;
     }
 
-    public void setAVT(TextView text, String audioURI, String imageURI,
-                       final String videoURI, final String bigImageURI,
-                       final String qrCodeContent, String inlineVideoURI,
-                       boolean showImageAboveText) {
+    public static MediaLayout build(Context context,
+                                    TextView text, String audioURI, String imageURI,
+                                    final String videoURI, final String bigImageURI,
+                                    final String qrCodeContent, String inlineVideoURI) {
+        MediaLayout mediaLayout = new MediaLayout(context);
+        mediaLayout.setAVT(text, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoURI, false);
+        return mediaLayout;
+    }
+
+    private void setAVT(TextView text, String audioURI, String imageURI,
+                        final String videoURI, final String bigImageURI,
+                        final String qrCodeContent, String inlineVideoURI,
+                        boolean showImageAboveText) {
         viewText = text;
 
         RelativeLayout.LayoutParams mediaPaneParams =

@@ -105,8 +105,7 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
                 String bigImageURI = null;
                 bigImageURI = prompt.getSpecialFormSelectChoiceText(mItems.get(i), "big-image");
 
-                MediaLayout mediaLayout = new MediaLayout(getContext());
-                mediaLayout.setAVT(r, audioURI, imageURI, videoURI, bigImageURI);
+                MediaLayout mediaLayout = MediaLayout.build(getContext(), r, audioURI, imageURI, videoURI, bigImageURI);
                 questionLayout.addView(mediaLayout);
 
                 // Last, add the dividing line (except for the last element)

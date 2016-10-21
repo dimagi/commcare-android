@@ -108,8 +108,7 @@ public class SelectMultiWidget extends QuestionWidget {
 
                 String bigImageURI = mPrompt.getSpecialFormSelectChoiceText(mItems.get(i), "big-image");
 
-                MediaLayout mediaLayout = new MediaLayout(getContext());
-                mediaLayout.setAVT(c, audioURI, imageURI, videoURI, bigImageURI);
+                MediaLayout mediaLayout = MediaLayout.build(getContext(), c, audioURI, imageURI, videoURI, bigImageURI);
                 addView(mediaLayout);
 
                 mediaLayout.setPadding(0, padding, 0, padding);
