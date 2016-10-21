@@ -1,15 +1,18 @@
 package org.commcare.views.media;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.support.v4.util.Pair;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
@@ -23,7 +26,7 @@ import java.io.IOException;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class AudioPlaybackButton extends LinearLayout implements  AudioPlaybackReset {
+public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackReset {
     private final static String TAG = AudioPlaybackButton.class.getSimpleName();
 
     /**
@@ -44,6 +47,7 @@ public class AudioPlaybackButton extends LinearLayout implements  AudioPlaybackR
     private ViewId residingViewId;
 
     private ImageButton playButton;
+    private ObjectAnimator animation;
 
     /**
      * Used by media inflater.
@@ -159,6 +163,8 @@ public class AudioPlaybackButton extends LinearLayout implements  AudioPlaybackR
     private void refreshAppearance() {
         switch (currentState) {
             case Ready:
+                ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
+                progressBar.clearAnimation();
                 playButton.setImageResource(R.drawable.play_question_audio);
                 break;
             case Playing:
@@ -166,6 +172,7 @@ public class AudioPlaybackButton extends LinearLayout implements  AudioPlaybackR
                 break;
             case Paused:
             case PausedForRenewal:
+                animation.pause();
                 playButton.setImageResource(R.drawable.play_question_audio);
         }
     }
@@ -256,7 +263,10 @@ public class AudioPlaybackButton extends LinearLayout implements  AudioPlaybackR
     }
 
     private void startPlaying() {
-        AudioController.INSTANCE.playCurrentMediaEntity();
+        Pair<Integer, Integer> posAndduration = AudioController.INSTANCE.playCurrentMediaEntity();
+        if (posAndduration != null) {
+            animateProgress(posAndduration.first, posAndduration.second);
+        }
 
         currentState = MediaState.Playing;
         refreshAppearance();
@@ -274,5 +284,14 @@ public class AudioPlaybackButton extends LinearLayout implements  AudioPlaybackR
 
         currentState = MediaState.Paused;
         refreshAppearance();
+    }
+
+    private void animateProgress(int milliPosition, int milliDuration) {
+        ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
+        animation = ObjectAnimator.ofInt(progressBar, "progress", 0, 500); // see this max value coming back here, we animale towards that value
+        animation.setDuration(milliDuration);
+        animation.setCurrentPlayTime(milliPosition);
+        animation.setInterpolator(new DecelerateInterpolator());
+        animation.start();
     }
 }

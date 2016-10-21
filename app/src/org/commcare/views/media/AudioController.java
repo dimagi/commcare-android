@@ -1,6 +1,7 @@
 package org.commcare.views.media;
 
 import android.media.MediaPlayer;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.interfaces.AudioPlaybackReset;
@@ -83,11 +84,14 @@ public enum AudioController {
     /**
      * Start audio playback of current media resource.
      */
-    public void playCurrentMediaEntity() {
+    public Pair<Integer, Integer> playCurrentMediaEntity() {
         if (currentEntity != null) {
-            currentEntity.getPlayer().start();
+            MediaPlayer player = currentEntity.getPlayer();
+            player.start();
             currentEntity.setState(MediaState.Playing);
+            return new Pair<>(player.getCurrentPosition(), player.getDuration());
         }
+        return null;
     }
 
     /**
