@@ -5,9 +5,11 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
@@ -21,7 +23,7 @@ import java.io.IOException;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class AudioPlaybackButton extends ImageButton implements OnClickListener, AudioPlaybackReset {
+public class AudioPlaybackButton extends LinearLayout implements  AudioPlaybackReset {
     private final static String TAG = AudioPlaybackButton.class.getSimpleName();
 
     /**
@@ -41,12 +43,14 @@ public class AudioPlaybackButton extends ImageButton implements OnClickListener,
      */
     private ViewId residingViewId;
 
+    private ImageButton playButton;
+
     /**
      * Used by media inflater.
      */
     public AudioPlaybackButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setOnClickListener(this);
+        setupButton(context);
     }
 
     /**
@@ -62,11 +66,19 @@ public class AudioPlaybackButton extends ImageButton implements OnClickListener,
      * @param visible Should the button be visible?
      */
     public AudioPlaybackButton(Context context, String URI,
-                       ViewId viewId, boolean visible) {
+                               ViewId viewId, boolean visible) {
         super(context);
-        setOnClickListener(this);
+        setupButton(context);
 
         resetButton(URI, viewId, visible);
+    }
+
+    private void setupButton(Context context) {
+        LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = vi.inflate(R.layout.small_audio_playback, null);
+        addView(view);
+        playButton = (ImageButton)findViewById(R.id.play_button);
+        playButton.setOnClickListener(buildOnClickListener());
     }
 
     /**
@@ -147,14 +159,14 @@ public class AudioPlaybackButton extends ImageButton implements OnClickListener,
     private void refreshAppearance() {
         switch (currentState) {
             case Ready:
-                this.setImageResource(R.drawable.play);
+                playButton.setImageResource(R.drawable.play_question_audio);
                 break;
             case Playing:
-                this.setImageResource(R.drawable.pause);
+                playButton.setImageResource(R.drawable.pause_question_audio);
                 break;
             case Paused:
             case PausedForRenewal:
-                this.setImageResource(R.drawable.play);
+                playButton.setImageResource(R.drawable.play_question_audio);
         }
     }
 
@@ -196,46 +208,51 @@ public class AudioPlaybackButton extends ImageButton implements OnClickListener,
         return audioFilename;
     }
 
-    @Override
-    public void onClick(View v) {
-        String audioFilename = getAudioFilename();
-        if ("".equals(audioFilename)) {
-            return;
-        }
-
-        switch (currentState) {
-            case Ready:
-                MediaPlayer player = new MediaPlayer();
-                try {
-                    player.setDataSource(audioFilename);
-                    player.prepare();
-                    player.setOnCompletionListener(new OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mediaPlayer) {
-                            endPlaying();
-                        }
-
-                    });
-                    AudioController.INSTANCE.setCurrentMediaAndButton(new MediaEntity(URI, player, residingViewId, currentState), this);
-                    startPlaying();
-                } catch (IOException e) {
-                    String errorMsg =
-                            getContext().getString(R.string.audio_file_invalid);
-                    Log.e(TAG, errorMsg);
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
+    private OnClickListener buildOnClickListener() {
+        return new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String audioFilename = getAudioFilename();
+                if ("".equals(audioFilename)) {
+                    return;
                 }
-                break;
-            case PausedForRenewal:
-            case Paused:
-                startPlaying();
-                break;
-            case Playing:
-                pausePlaying();
-                break;
-            default:
-                Log.w(TAG, "Current playback state set to unexpected value");
-        }
+
+                switch (currentState) {
+                    case Ready:
+                        MediaPlayer player = new MediaPlayer();
+                        try {
+                            player.setDataSource(audioFilename);
+                            player.prepare();
+                            player.setOnCompletionListener(new OnCompletionListener() {
+                                @Override
+                                public void onCompletion(MediaPlayer mediaPlayer) {
+                                    endPlaying();
+                                }
+
+                            });
+                            AudioController.INSTANCE.setCurrentMediaAndButton(new MediaEntity(URI, player, residingViewId, currentState), AudioPlaybackButton.this);
+                            startPlaying();
+                        } catch (IOException e) {
+                            String errorMsg =
+                                    getContext().getString(R.string.audio_file_invalid);
+                            Log.e(TAG, errorMsg);
+                            Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+                            e.printStackTrace();
+                        }
+                        break;
+                    case PausedForRenewal:
+                    case Paused:
+                        startPlaying();
+                        break;
+                    case Playing:
+                        pausePlaying();
+                        break;
+                    default:
+                        Log.w(TAG, "Current playback state set to unexpected value");
+
+                }
+            }
+        };
     }
 
     private void startPlaying() {
