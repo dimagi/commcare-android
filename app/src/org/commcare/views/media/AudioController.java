@@ -149,6 +149,24 @@ public enum AudioController {
         return currentEntity != null;
     }
 
+    boolean mediaForInstance(AudioPlaybackReset resetInstance) {
+        return currentEntity != null && currentAudioReset == resetInstance;
+    }
+
+    void seekTo(int pos) {
+        if (currentEntity != null) {
+            currentEntity.getPlayer().seekTo(pos);
+        }
+    }
+
+    int getCurrentPosition() {
+        if (currentEntity == null) {
+            return -1;
+        } else {
+            return currentEntity.getPlayer().getCurrentPosition();
+        }
+    }
+
     ViewId getMediaViewId() {
         return currentEntity.getId();
     }
