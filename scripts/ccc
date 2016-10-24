@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 """
 ccc (commcare control center) allows you to automate oft performed actions.

@@ -14,7 +14,6 @@ import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.android.tests.queries.CaseDbQueryTest;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
@@ -44,8 +43,7 @@ import static junit.framework.Assert.assertTrue;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class FormRecordProcessingTest {
     private static final String TAG = FormRecordProcessingTest.class.getSimpleName();

@@ -16,7 +16,6 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.CommCareSession;
@@ -41,8 +40,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class EntityListCalloutDataTest {
     private EntitySelectActivity entitySelectActivity;
@@ -112,9 +110,7 @@ public class EntityListCalloutDataTest {
 
     private void performFingerprintCallout() {
         // make entity list callout to 'fingerprint identification'
-        ImageButton calloutButton =
-                (ImageButton)entitySelectActivity.findViewById(R.id.barcodeButton);
-        calloutButton.performClick();
+        entitySelectActivity.barcodeScanOnClickListener.onClick(null);
 
         // receive the (faked) callout result
         Callout identificationScanCallout = getEntitySelectCallout();

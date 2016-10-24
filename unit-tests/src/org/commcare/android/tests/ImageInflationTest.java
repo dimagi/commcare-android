@@ -5,7 +5,6 @@ import android.util.DisplayMetrics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.utils.MediaUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,8 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
-@Config(application = CommCareApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class ImageInflationTest {
 

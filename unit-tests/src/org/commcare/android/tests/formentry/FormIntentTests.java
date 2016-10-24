@@ -10,7 +10,6 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.utils.CompoundIntentList;
 import org.junit.Before;
@@ -30,8 +29,7 @@ import static junit.framework.Assert.assertNull;
 /**
  * @author Clayton Sims
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class FormIntentTests {
 

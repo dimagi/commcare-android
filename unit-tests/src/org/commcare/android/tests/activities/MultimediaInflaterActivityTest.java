@@ -8,7 +8,6 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.MultimediaInflaterActivity;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 import org.junit.Assert;
@@ -24,8 +23,7 @@ import org.robolectric.shadows.ShadowToast;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class MultimediaInflaterActivityTest {
 

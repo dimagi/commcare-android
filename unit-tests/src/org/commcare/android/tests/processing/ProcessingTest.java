@@ -4,7 +4,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestUtils;
 import org.commcare.cases.model.Case;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.android.database.user.models.ACase;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,8 +15,7 @@ import static junit.framework.Assert.assertEquals;
 /**
  * @author ctsims
  */
-@Config(application = CommCareApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class ProcessingTest {
 

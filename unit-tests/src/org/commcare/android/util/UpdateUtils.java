@@ -2,6 +2,7 @@ package org.commcare.android.util;
 
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.tasks.InstallStagedUpdateTask;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
@@ -29,7 +30,7 @@ public class UpdateUtils {
                                          AppInstallStatus expectedInstallStatus) {
         UpdateTask updateTask = UpdateTask.getNewInstance();
         try {
-            updateTask.registerTaskListener(taskListenerFactory(expectedInstallStatus));
+            updateTask.registerTaskListener(taskListenerFactory(new ResultAndError<>(expectedInstallStatus)));
         } catch (TaskListenerRegistrationException e) {
             fail("failed to register listener for update task");
         }
@@ -44,15 +45,15 @@ public class UpdateUtils {
         return baseDir + app + "/" + resource;
     }
 
-    private static TaskListener<Integer, AppInstallStatus> taskListenerFactory(final AppInstallStatus expectedResult) {
-        return new TaskListener<Integer, AppInstallStatus>() {
+    private static TaskListener<Integer, ResultAndError<AppInstallStatus>> taskListenerFactory(final ResultAndError<AppInstallStatus> expectedResult) {
+        return new TaskListener<Integer, ResultAndError<AppInstallStatus>>() {
             @Override
             public void handleTaskUpdate(Integer... updateVals) {
             }
 
             @Override
-            public void handleTaskCompletion(AppInstallStatus result) {
-                Assert.assertTrue(result == expectedResult);
+            public void handleTaskCompletion(ResultAndError<AppInstallStatus> result) {
+                assertEquals(expectedResult.data, result.data);
             }
 
             @Override

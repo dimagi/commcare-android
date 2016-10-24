@@ -86,6 +86,7 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
@@ -323,7 +324,7 @@ public class CommCareApplication extends Application {
      */
     public void closeUserSession() {
         synchronized (serviceLock) {
-            // Cancel any running tasks before closing down the user databse.
+            // Cancel any running tasks before closing down the user database.
             ManagedAsyncTask.cancelTasks();
 
             releaseUserResourcesAndServices();
@@ -365,7 +366,6 @@ public class CommCareApplication extends Application {
 
     synchronized public Tracker getDefaultTracker() {
         if (analyticsTracker == null) {
-            // TODO: AMS - Will want to set this conditionally after test release
             if (BuildConfig.DEBUG) {
                 analyticsTracker = analyticsInstance.newTracker(DEV_TRACKING_ID);
             } else {
@@ -811,8 +811,9 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * This method wipes out all local user data (users, referrals, etc) but leaves
-     * application resources in place.
+     * Assumes that there is an active session when it is called, and wipes out all local user
+     * data (users, referrals, etc) for the user with an active session, but leaves application
+     * resources in place.
      *
      * It makes no attempt to make sure this is a safe operation when called, so
      * it shouldn't be used lightly.
@@ -835,13 +836,20 @@ public class CommCareApplication extends Application {
 //
 //        getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 
-        final String username;
-        username = this.getSession().getLoggedInUser().getUsername();
+        wipeSandboxForUser(this.getSession().getLoggedInUser().getUsername());
 
+        CommCareApplication._().getCurrentApp().getAppPreferences().edit()
+                .putString(CommCarePreferences.LAST_LOGGED_IN_USER, null).commit();
+
+        // manually clear file-backed fixture storage to ensure files are removed
+        CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
+
+        CommCareApplication._().closeUserSession();
+    }
+
+    public void wipeSandboxForUser(final String username) {
         final Set<String> dbIdsToRemove = new HashSet<>();
-
-        this.getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
-
+        CommCareApplication._().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
             @Override
             public boolean matches(UserKeyRecord ukr) {
                 if (ukr.getUsername().equalsIgnoreCase(username.toLowerCase())) {
@@ -851,21 +859,9 @@ public class CommCareApplication extends Application {
                 return false;
             }
         });
-
-        //TODO: We can just delete the db entirely.
-
-        Editor sharedPreferencesEditor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
-        sharedPreferencesEditor.putString(CommCarePreferences.LAST_LOGGED_IN_USER, null).commit();
-
-        // manually clear file-backed fixture storage to ensure files are removed
-        CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
-
         for (String id : dbIdsToRemove) {
-            //TODO: We only wanna do this if the user is the _last_ one with a key to this id, actually.
-            //(Eventually)
-            this.getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
+            CommCareApplication._().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
         }
-        CommCareApplication._().closeUserSession();
     }
 
     public String getCurrentUserId() {
@@ -1198,7 +1194,7 @@ public class CommCareApplication extends Application {
 
     // Start - Error message Hooks
 
-    private final int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;
+    public static final int MESSAGE_NOTIFICATION = R.string.notification_message_title;
 
     private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<>();
 
@@ -1206,7 +1202,7 @@ public class CommCareApplication extends Application {
         reportNotificationMessage(message, false);
     }
 
-    public void reportNotificationMessage(final NotificationMessage message, boolean notifyUser) {
+    public void reportNotificationMessage(final NotificationMessage message, boolean showToast) {
         synchronized (pendingMessages) {
             //make sure there is no matching message pending
             for (NotificationMessage msg : pendingMessages) {
@@ -1215,7 +1211,7 @@ public class CommCareApplication extends Application {
                     return;
                 }
             }
-            if (notifyUser) {
+            if (showToast) {
                 Bundle b = new Bundle();
                 b.putParcelable("message", message);
                 Message m = Message.obtain(toaster);
@@ -1239,20 +1235,17 @@ public class CommCareApplication extends Application {
 
             String title = pendingMessages.get(0).getTitle();
 
-            Notification messageNotification = new Notification(org.commcare.dalvik.R.drawable.notification, title, System.currentTimeMillis());
-            messageNotification.number = pendingMessages.size();
-
             // The PendingIntent to launch our activity if the user selects this notification
             Intent i = new Intent(this, MessageActivity.class);
 
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
 
             String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
-            
-            messageNotification = new NotificationCompat.Builder(this)
+
+            Notification messageNotification = new NotificationCompat.Builder(this)
                     .setContentTitle(title)
                     .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
-                    .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                    .setSmallIcon(R.drawable.notification)
                     .setNumber(pendingMessages.size())
                     .setContentIntent(contentIntent)
                     .setDeleteIntent(PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0))
@@ -1260,10 +1253,8 @@ public class CommCareApplication extends Application {
                     .setWhen(System.currentTimeMillis())
                     .build();
 
-            //Send the notification.
             mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
         }
-
     }
 
     public ArrayList<NotificationMessage> purgeNotifications() {

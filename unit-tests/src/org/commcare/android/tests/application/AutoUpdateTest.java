@@ -7,11 +7,11 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.suite.model.Profile;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
@@ -25,6 +25,7 @@ import org.robolectric.annotation.Config;
 
 import java.util.Calendar;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -33,8 +34,7 @@ import static org.junit.Assert.fail;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class AutoUpdateTest {
     private final static String REF_BASE_DIR = "jr://resource/commcare-apps/update_tests/";
@@ -60,8 +60,9 @@ public class AutoUpdateTest {
         updateTask.startPinnedNotification(RuntimeEnvironment.application);
         updateTask.setAsAutoUpdate();
         try {
-            TaskListener<Integer, AppInstallStatus> listener =
-                    logOutAndInOnCompletionListener(AppInstallStatus.MissingResourcesWithMessage);
+            TaskListener<Integer, ResultAndError<AppInstallStatus>> listener =
+                    logOutAndInOnCompletionListener(
+                            new ResultAndError<>(AppInstallStatus.MissingResourcesWithMessage));
             updateTask.registerTaskListener(listener);
         } catch (TaskListenerRegistrationException e) {
             fail("failed to register listener for update task");
@@ -96,15 +97,15 @@ public class AutoUpdateTest {
         return REF_BASE_DIR + app + "/" + resource;
     }
 
-    private TaskListener<Integer, AppInstallStatus> logOutAndInOnCompletionListener(final AppInstallStatus expectedResult) {
-        return new TaskListener<Integer, AppInstallStatus>() {
+    private TaskListener<Integer, ResultAndError<AppInstallStatus>> logOutAndInOnCompletionListener(final ResultAndError<AppInstallStatus> expectedResult) {
+        return new TaskListener<Integer, ResultAndError<AppInstallStatus>>() {
             @Override
             public void handleTaskUpdate(Integer... updateVals) {
             }
 
             @Override
-            public void handleTaskCompletion(AppInstallStatus result) {
-                Assert.assertTrue(result == expectedResult);
+            public void handleTaskCompletion(ResultAndError<AppInstallStatus> result) {
+                assertEquals(expectedResult.data, result.data);
                 logoutAndIntoApp();
             }
 

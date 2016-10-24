@@ -13,7 +13,6 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.views.QuestionsView;
@@ -36,8 +35,7 @@ import static junit.framework.Assert.assertTrue;
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class CalendarLocaleTest {
 

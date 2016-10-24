@@ -15,7 +15,6 @@ import org.commcare.activities.QueryRequestActivity;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestAppInstaller;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.CommCareSession;
@@ -37,8 +36,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class QueryRequestActivityTest {
     @Before

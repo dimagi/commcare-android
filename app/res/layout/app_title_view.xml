@@ -12,6 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/title_padding"
+        android:gravity="center"
         android:paddingBottom="@dimen/title_padding"/>
 
 </LinearLayout>

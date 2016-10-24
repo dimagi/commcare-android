@@ -7,7 +7,6 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.UpdateUtils;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.suite.model.Profile;
@@ -28,8 +27,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = CommCareTestApplication.class,
-        constants = BuildConfig.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class AppUpdateTest {
     private final static String TAG = AppUpdateTest.class.getSimpleName();

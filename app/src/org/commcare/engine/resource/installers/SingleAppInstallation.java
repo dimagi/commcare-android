@@ -51,6 +51,9 @@ public class SingleAppInstallation {
                             case MissingResources:
                                 receiver.failMissingResource(this.missingResourceException, result);
                                 break;
+                            case InvalidResource:
+                                receiver.failInvalidResource(this.invalidResourceException, result);
+                                break;
                             case IncompatibleReqs:
                                 receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
                                 break;

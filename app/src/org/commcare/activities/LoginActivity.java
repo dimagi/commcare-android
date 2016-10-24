@@ -30,6 +30,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
@@ -59,7 +60,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-    private static final int MENU_DEMO = Menu.FIRST;
+    public static final int MENU_DEMO = Menu.FIRST;
     private static final int MENU_ABOUT = Menu.FIRST + 1;
     private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
     private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
@@ -188,16 +189,26 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public String getActivityTitle() {
-        //TODO: "Login"?
         return null;
     }
 
     @Override
-    public void startDataPull() {
-        if (CommCareApplication._().isConsumerApp()) {
-            formAndDataSyncer.performLocalRestore(this, getUniformUsername(), uiController.getEnteredPasswordOrPin());
-        } else {
-            formAndDataSyncer.performOtaRestore(this, getUniformUsername(), uiController.getEnteredPasswordOrPin());
+    public void startDataPull(DataPullMode mode) {
+        switch(mode) {
+            case CONSUMER_APP:
+                formAndDataSyncer.performLocalRestore(this, getUniformUsername(),
+                    uiController.getEnteredPasswordOrPin());
+                break;
+            case CCZ_DEMO:
+                OfflineUserRestore offlineUserRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
+                uiController.setUsername(offlineUserRestore.getUsername());
+                uiController.setPasswordOrPin(offlineUserRestore.getPassword());
+                formAndDataSyncer.performDemoUserRestore(this,offlineUserRestore);
+                break;
+            case NORMAL:
+                formAndDataSyncer.performOtaRestore(this, getUniformUsername(),
+                        uiController.getEnteredPasswordOrPin());
+                break;
         }
     }
 
@@ -288,12 +299,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession) {
         //TODO: check username/password for emptiness
         return tryLocalLogin(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
-                warnMultipleAccounts, restoreSession, uiController.getLoginMode());
+                warnMultipleAccounts, restoreSession, uiController.getLoginMode(), false);
     }
 
     private boolean tryLocalLogin(final String username, String passwordOrPin,
                                   final boolean warnMultipleAccounts, final boolean restoreSession,
-                                  LoginMode loginMode) {
+                                  LoginMode loginMode, boolean forCustomDemoUser) {
         try {
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
@@ -302,7 +313,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username,
                             passwordOrPin, loginMode,
                             CommCareApplication._().getCurrentApp(), restoreSession,
-                            triggerMultipleUsersWarning) {
+                            triggerMultipleUsersWarning, forCustomDemoUser) {
 
                         @Override
                         protected void deliverUpdate(LoginActivity receiver, String... update) {
@@ -334,6 +345,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void dataPullCompleted() {
         ACRAUtil.registerUserData();
+        ViewUtil.hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
         Intent i = new Intent();
@@ -367,9 +379,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         boolean otherResult = super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case MENU_DEMO:
-                DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
-                tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
-                        false, LoginMode.PASSWORD);
+                loginDemoUser();
                 return true;
             case MENU_ABOUT:
                 DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog();
@@ -388,6 +398,23 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             default:
                 return otherResult;
         }
+    }
+
+    private void loginDemoUser() {
+        OfflineUserRestore offlineUserRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
+        if (offlineUserRestore != null) {
+            loginCczDemoUser(offlineUserRestore);
+        } else {
+            DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
+            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
+                    false, LoginMode.PASSWORD, false);
+        }
+    }
+
+    private void loginCczDemoUser(OfflineUserRestore offlineUserRestore) {
+        String username = offlineUserRestore.getUsername();
+        String password = offlineUserRestore.getPassword();
+        tryLocalLogin(username, password, false, false, LoginMode.PASSWORD, true);
     }
 
     @Override
@@ -545,7 +572,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         // If local login was not successful
-        startDataPull();
+        startDataPull(CommCareApplication._().isConsumerApp() ? DataPullMode.CONSUMER_APP : DataPullMode.NORMAL);
     }
 
     @Override
