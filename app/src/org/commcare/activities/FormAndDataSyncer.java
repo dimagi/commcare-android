@@ -45,14 +45,14 @@ public class FormAndDataSyncer {
                 syncAfterwards) {
 
             @Override
-            protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
+            protected void deliverResult(CommCareHomeActivity receiver, FormUploadUtil.FormUploadResult result) {
                 if (CommCareApplication._().isConsumerApp()) {
                     // if this is a consumer app we don't want to show anything in the UI about
                     // sending forms, or do a sync afterward
                     return;
                 }
 
-                if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
+                if (result == FormUploadUtil.FormUploadResult.PROGRESS_LOGGED_OUT) {
                     receiver.finish();
                     return;
                 }
@@ -60,7 +60,7 @@ public class FormAndDataSyncer {
 
                 int successfulSends = this.getSuccessfulSends();
 
-                if (result == FormUploadUtil.FULL_SUCCESS) {
+                if (result == FormUploadUtil.FormUploadResult.FULL_SUCCESS) {
                     String label = Localization.get("sync.success.sent.singular",
                             new String[]{String.valueOf(successfulSends)});
                     if (successfulSends > 1) {
@@ -72,7 +72,7 @@ public class FormAndDataSyncer {
                     if (syncAfterwards) {
                         syncDataForLoggedInUser(receiver, true, userTriggered);
                     }
-                } else if (result != FormUploadUtil.FAILURE) {
+                } else if (result != FormUploadUtil.FormUploadResult.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
                     receiver.reportFailure(Localization.get("sync.fail.unsent"), true);
                 }

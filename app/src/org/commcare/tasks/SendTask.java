@@ -31,7 +31,7 @@ import java.util.Properties;
  */
 public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R> {
     private String postUrl;
-    private Long[] results;
+    private FormUploadUtil.FormUploadResult[] results;
 
     private final File dumpDirectory;
 
@@ -82,11 +82,11 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         File[] files = dumpDirectory.listFiles();
         int counter = 0;
 
-        results = new Long[files.length];
+        results = new FormUploadUtil.FormUploadResult[files.length];
 
         for (int i = 0; i < files.length; ++i) {
             //Assume failure
-            results[i] = FormUploadUtil.FAILURE;
+            results[i] = FormUploadUtil.FormUploadResult.FAILURE;
         }
 
         boolean allSuccessful = true;
@@ -115,9 +115,9 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
                 User user = CommCareApplication._().getSession().getLoggedInUser();
                 results[i] = FormUploadUtil.sendInstance(counter, formFolder, postUrl, user);
 
-                if (results[i] == FormUploadUtil.FULL_SUCCESS) {
+                if (results[i] == FormUploadUtil.FormUploadResult.FULL_SUCCESS) {
                     FileUtil.deleteFileOrDir(formFolder);
-                } else if (results[i] == FormUploadUtil.TRANSPORT_FAILURE) {
+                } else if (results[i] == FormUploadUtil.FormUploadResult.TRANSPORT_FAILURE) {
                     allSuccessful = false;
                     publishProgress(Localization.get("bulk.send.transport.error"));
                     return false;

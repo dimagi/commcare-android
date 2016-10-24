@@ -39,7 +39,7 @@ import javax.crypto.spec.SecretKeySpec;
 public abstract class DumpTask extends CommCareTask<String, String, Boolean, CommCareFormDumpActivity>{
 
     private Context c;
-    private Long[] results;
+    private FormUploadUtil.FormUploadResult[] results;
     private File dumpFolder;
 
     private static final String TAG = DumpTask.class.getSimpleName();
@@ -66,7 +66,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
     private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp"};
 
-    private long dumpInstance(File folder, SecretKeySpec key) throws FileNotFoundException {
+    private FormUploadUtil.FormUploadResult dumpInstance(File folder, SecretKeySpec key) throws FileNotFoundException {
 
         Logger.log(TAG, "Dumping form instance at folder: " + folder);
 
@@ -124,7 +124,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                 } catch (IOException ie) {
                     Logger.log(TAG, "Error copying file: " + file + " exception: " + ie.getMessage());
                     publishProgress(("File writing failed: " + ie.getMessage()));
-                    return FormUploadUtil.FAILURE;
+                    return FormUploadUtil.FormUploadResult.FAILURE;
                 }
             } else {
                 try {
@@ -132,11 +132,11 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                 } catch (IOException ie) {
                     Logger.log(TAG, "Error copying file: " + file + " exception: " + ie.getMessage());
                     publishProgress(("File writing failed: " + ie.getMessage()));
-                    return FormUploadUtil.FAILURE;
+                    return FormUploadUtil.FormUploadResult.FAILURE;
                 }
             }
         }
-        return FormUploadUtil.FULL_SUCCESS;
+        return FormUploadUtil.FormUploadResult.FULL_SUCCESS;
     }
 
     @SuppressLint("NewApi")
@@ -207,11 +207,10 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
             dumpFolder = dumpDirectory;
 
-
-                results = new Long[records.length];
+                results = new FormUploadUtil.FormUploadResult[records.length];
                 for(int i = 0; i < records.length ; ++i ) {
                     //Assume failure
-                    results[i] = FormUploadUtil.FAILURE;
+                    results[i] = FormUploadUtil.FormUploadResult.FAILURE;
                 }
 
                 publishProgress(Localization.get("bulk.form.start"));
@@ -247,9 +246,9 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                             }
 
                             //Check for success
-                            if(results[i].intValue() == FormUploadUtil.FULL_SUCCESS) {
+                            if(results[i] == FormUploadUtil.FormUploadResult.FULL_SUCCESS) {
                                 FormRecordCleanupTask.wipeRecord(c, record);
-                                publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i].intValue()}));
+                                publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i]}));
                             }
                         }
                     } catch(SessionUnavailableException sue) {
@@ -261,14 +260,8 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                     }
                 }
 
-                long result = 0;
-                for(int i = 0 ; i < records.length ; ++ i) {
-                    if(results[i] > result) {
-                        result = results[i];
-                    }
-                }
-            // if any individual send has failed the result will be > 0
-            return result <= 0;
+            FormUploadUtil.FormUploadResult result = FormUploadUtil.FormUploadResult.getWorstResult(results);
+            return result == FormUploadUtil.FormUploadResult.FULL_SUCCESS;
 
         } else {
             publishProgress(Localization.get("bulk.form.no.unsynced"));

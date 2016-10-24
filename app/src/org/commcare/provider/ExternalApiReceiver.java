@@ -131,12 +131,12 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                     settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                             context.getString(R.string.PostURL))) {
                 @Override
-                protected void deliverResult(Object receiver, Integer result) {
-                    if (result == FormUploadUtil.FULL_SUCCESS) {
+                protected void deliverResult(Object receiver, FormUploadUtil.FormUploadResult result) {
+                    if (result == FormUploadUtil.FormUploadResult.FULL_SUCCESS) {
                         //OK, all forms sent, sync time 
                         syncData(context);
 
-                    } else if (result == FormUploadUtil.FAILURE) {
+                    } else if (result == FormUploadUtil.FormUploadResult.FAILURE) {
                         Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
