@@ -39,7 +39,7 @@ public class FormAndDataSyncer {
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
 
-        ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(
+        ProcessAndSendTask<CommCareHomeActivity> processAndSendTask = new ProcessAndSendTask<CommCareHomeActivity>(
                 activity,
                 getFormPostURL(activity),
                 syncAfterwards) {
@@ -90,9 +90,9 @@ public class FormAndDataSyncer {
             }
         };
 
-        mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
-        mProcess.connect(activity);
-        mProcess.executeParallel(records);
+        processAndSendTask.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+        processAndSendTask.connect(activity);
+        processAndSendTask.executeParallel(records);
     }
 
     private static String getFormPostURL(final Context context) {
