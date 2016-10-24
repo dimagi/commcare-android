@@ -193,6 +193,8 @@ public class FormUploadUtil {
 
         if (responseCode >= 200 && responseCode < 300) {
             return FormUploadResult.FULL_SUCCESS;
+        } else if (responseCode == 401) {
+            return FormUploadResult.AUTH_FAILURE;
         } else {
             return FormUploadResult.FAILURE;
         }

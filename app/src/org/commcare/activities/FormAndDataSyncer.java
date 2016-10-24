@@ -72,6 +72,8 @@ public class FormAndDataSyncer {
                     if (syncAfterwards) {
                         syncDataForLoggedInUser(receiver, true, userTriggered);
                     }
+                } else if (result == FormUploadResult.AUTH_FAILURE) {
+                    receiver.reportFailure(Localization.get("sync.fail.auth.loggedin"), true);
                 } else if (result != FormUploadResult.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
                     receiver.reportFailure(Localization.get("sync.fail.unsent"), true);
