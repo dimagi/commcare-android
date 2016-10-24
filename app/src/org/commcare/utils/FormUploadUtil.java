@@ -36,26 +36,6 @@ public class FormUploadUtil {
     private static final String TAG = FormUploadUtil.class.getSimpleName();
 
     /**
-     * Everything worked great!
-     */
-    public static final long FULL_SUCCESS = 0;
-
-    /**
-     * There was a problem with the server's response
-     */
-    public static final long FAILURE = 2;
-
-    /**
-     * There was a problem with the transport layer during transit
-     */
-    public static final long TRANSPORT_FAILURE = 4;
-
-    /**
-     * There is a problem with this record that prevented submission success
-     */
-    public static final long RECORD_FAILURE = 8;
-
-    /**
      * 15 MB size limit
      */
     public static final long MAX_BYTES = (15 * 1048576) - 1024;
