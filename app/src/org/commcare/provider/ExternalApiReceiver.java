@@ -23,7 +23,7 @@ import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
-import org.commcare.utils.FormUploadUtil;
+import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.StorageUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
@@ -131,12 +131,12 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                     settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                             context.getString(R.string.PostURL))) {
                 @Override
-                protected void deliverResult(Object receiver, FormUploadUtil.FormUploadResult result) {
-                    if (result == FormUploadUtil.FormUploadResult.FULL_SUCCESS) {
+                protected void deliverResult(Object receiver, FormUploadResult result) {
+                    if (result == FormUploadResult.FULL_SUCCESS) {
                         //OK, all forms sent, sync time 
                         syncData(context);
 
-                    } else if (result == FormUploadUtil.FormUploadResult.FAILURE) {
+                    } else if (result == FormUploadResult.FAILURE) {
                         Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();

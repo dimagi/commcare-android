@@ -6,6 +6,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -31,7 +32,7 @@ import java.util.Properties;
  */
 public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R> {
     private String postUrl;
-    private FormUploadUtil.FormUploadResult[] results;
+    private FormUploadResult[] results;
 
     private final File dumpDirectory;
 
@@ -82,11 +83,11 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         File[] files = dumpDirectory.listFiles();
         int counter = 0;
 
-        results = new FormUploadUtil.FormUploadResult[files.length];
+        results = new FormUploadResult[files.length];
 
         for (int i = 0; i < files.length; ++i) {
             //Assume failure
-            results[i] = FormUploadUtil.FormUploadResult.FAILURE;
+            results[i] = FormUploadResult.FAILURE;
         }
 
         boolean allSuccessful = true;
@@ -115,9 +116,9 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
                 User user = CommCareApplication._().getSession().getLoggedInUser();
                 results[i] = FormUploadUtil.sendInstance(counter, formFolder, postUrl, user);
 
-                if (results[i] == FormUploadUtil.FormUploadResult.FULL_SUCCESS) {
+                if (results[i] == FormUploadResult.FULL_SUCCESS) {
                     FileUtil.deleteFileOrDir(formFolder);
-                } else if (results[i] == FormUploadUtil.FormUploadResult.TRANSPORT_FAILURE) {
+                } else if (results[i] == FormUploadResult.TRANSPORT_FAILURE) {
                     allSuccessful = false;
                     publishProgress(Localization.get("bulk.send.transport.error"));
                     return false;

@@ -9,6 +9,7 @@ import org.commcare.models.FormRecordProcessor;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -32,11 +33,11 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * @author ctsims
  */
-public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, FormUploadUtil.FormUploadResult, R> implements DataSubmissionListener {
+public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, FormUploadResult, R> implements DataSubmissionListener {
 
     private Context c;
     private String url;
-    private FormUploadUtil.FormUploadResult[] results;
+    private FormUploadResult[] results;
 
     private final int sendTaskId;
 
@@ -77,23 +78,23 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     }
 
     @Override
-    protected FormUploadUtil.FormUploadResult doTaskBackground(FormRecord... records) {
+    protected FormUploadResult doTaskBackground(FormRecord... records) {
         boolean needToSendLogs = false;
 
         try {
-            results = new FormUploadUtil.FormUploadResult[records.length];
+            results = new FormUploadResult[records.length];
             for (int i = 0; i < records.length; ++i) {
                 //Assume failure
-                results[i] = FormUploadUtil.FormUploadResult.FAILURE;
+                results[i] = FormUploadResult.FAILURE;
             }
             //The first thing we need to do is make sure everything is processed,
             //we can't actually proceed before that.
             try {
                 needToSendLogs = checkFormRecordStatus(records);
             } catch (FileNotFoundException e) {
-                return FormUploadUtil.FormUploadResult.PROGRESS_SDCARD_REMOVED;
+                return FormUploadResult.PROGRESS_SDCARD_REMOVED;
             } catch (TaskCancelledException e) {
-                return FormUploadUtil.FormUploadResult.FAILURE;
+                return FormUploadResult.FAILURE;
             }
 
 
@@ -107,7 +108,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             try {
                 needToRefresh = blockUntilTopOfQueue();
             } catch (TaskCancelledException e) {
-                return FormUploadUtil.FormUploadResult.FAILURE;
+                return FormUploadResult.FAILURE;
             }
 
 
@@ -128,10 +129,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
             sendForms(records);
 
-            return FormUploadUtil.FormUploadResult.getWorstResult(results);
+            return FormUploadResult.getWorstResult(results);
         } catch (SessionUnavailableException sue) {
             this.cancel(false);
-            return FormUploadUtil.FormUploadResult.PROGRESS_LOGGED_OUT;
+            return FormUploadResult.PROGRESS_LOGGED_OUT;
         } finally {
             this.endSubmissionProcess();
 
@@ -232,7 +233,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             //that forms are sent in order, so we won't proceed unless we succeed. We'll also permit
             //proceeding if there was a local problem with a record, since we'll just move on from that
             //processing.
-            if (i > 0 && !(results[i - 1] == FormUploadUtil.FormUploadResult.FULL_SUCCESS || results[i - 1] == FormUploadUtil.FormUploadResult.RECORD_FAILURE)) {
+            if (i > 0 && !(results[i - 1] == FormUploadResult.FULL_SUCCESS || results[i - 1] == FormUploadResult.RECORD_FAILURE)) {
                 //Something went wrong with the last form, so we need to cancel this whole shebang
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Cancelling submission due to network errors. " + (i - 1) + " forms succesfully sent.");
                 break;
@@ -261,14 +262,14 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Retrying submission. " + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
                             }
                             results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this, mUser);
-                            if (results[i] == FormUploadUtil.FormUploadResult.FULL_SUCCESS) {
+                            if (results[i] == FormUploadResult.FULL_SUCCESS) {
                                 break;
                             } else {
                                 attemptsMade++;
                             }
                         }
 
-                        if (results[i] == FormUploadUtil.FormUploadResult.RECORD_FAILURE) {
+                        if (results[i] == FormUploadResult.RECORD_FAILURE) {
                             //We tried to submit multiple times and there was a local problem (not a remote problem).
                             //This implies that something is wrong with the current record, and we need to quarantine it.
                             processor.updateRecordStatus(record, FormRecord.STATUS_LIMBO);
@@ -290,7 +291,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
                     Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
                     //Check for success
-                    if (results[i] == FormUploadUtil.FormUploadResult.FULL_SUCCESS) {
+                    if (results[i] == FormUploadResult.FULL_SUCCESS) {
                         //Only delete if this device isn't set up to review.
                         if (p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
                             FormRecordCleanupTask.wipeRecord(c, record);
@@ -300,7 +301,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         }
                     }
                 } else {
-                    results[i] = FormUploadUtil.FormUploadResult.FULL_SUCCESS;
+                    results[i] = FormUploadResult.FULL_SUCCESS;
                 }
             } catch (SessionUnavailableException sue) {
                 throw sue;
@@ -350,7 +351,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     }
 
     @Override
-    protected void onPostExecute(FormUploadUtil.FormUploadResult result) {
+    protected void onPostExecute(FormUploadResult result) {
         super.onPostExecute(result);
 
         clearState();
@@ -364,8 +365,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
     protected int getSuccessfulSends() {
         int successes = 0;
-        for (FormUploadUtil.FormUploadResult formResult : results) {
-            if (formResult != null && FormUploadUtil.FormUploadResult.FULL_SUCCESS == formResult) {
+        for (FormUploadResult formResult : results) {
+            if (formResult != null && FormUploadResult.FULL_SUCCESS == formResult) {
                 successes++;
             }
         }
