@@ -1,13 +1,18 @@
 package org.commcare.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -93,6 +98,16 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
     private void setListeners() {
         enterPinBox.addTextChangedListener(getPinTextWatcher(continueButton));
+        enterPinBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
+                    continueButton.performClick();
+                    return true;
+                }
+                return false;
+            }
+        });
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,6 +149,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private void setInitialEntryMode() {
         enterPinBox.setText("");
         enterPinBox.requestFocus();
+        enterPinBox.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         continueButton.setText(Localization.get("pin.continue.button"));
         if (userRecord.hasPinSet()) {
             promptText.setText(Localization.get("pin.directive.reset"));
@@ -146,9 +162,24 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private void setConfirmMode() {
         enterPinBox.setText("");
         enterPinBox.requestFocus();
+
+        // open up the keyboard if it was dismissed
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+
+        setTextEntryKeyboardAction(enterPinBox, EditorInfo.IME_ACTION_DONE);
+
         continueButton.setText(Localization.get("pin.confirm.button"));
         promptText.setText(Localization.get("pin.directive.confirm"));
         inConfirmMode = true;
+    }
+
+    private static void setTextEntryKeyboardAction(EditText textEntry, int action) {
+        // bug/feature that requires setting the input type to null then changing the action type
+        int inputType = textEntry.getInputType();
+        textEntry.setInputType(InputType.TYPE_NULL);
+        textEntry.setImeOptions(action);
+        textEntry.setInputType(inputType);
     }
 
     private void assignPin(String pin) {
