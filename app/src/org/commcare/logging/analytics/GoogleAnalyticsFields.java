@@ -105,7 +105,7 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_LANGUAGE_AT_FORM_ENTRY = "Language at Time of Form Entry";
 
     // Actions for CATEGORY_HIGH_LEVEL_STATS
-    public static final String ACTION_ANDROID_VERSION_AT_STARTUP = "Android Version at Startup";
+    public static final String ACTION_ANDROID_API_LEVEL_AT_STARTUP = "Android API Level at Startup";
 
     // Labels for ACTION_BUTTON
     public static final String LABEL_START_BUTTON = "Start Button";

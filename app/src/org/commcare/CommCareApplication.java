@@ -263,7 +263,7 @@ public class CommCareApplication extends Application {
 
         if (!GoogleAnalyticsUtils.versionIncompatible()) {
             analyticsInstance = GoogleAnalytics.getInstance(this);
-            GoogleAnalyticsUtils.reportAndroidVersionAtStartup();
+            GoogleAnalyticsUtils.reportAndroidApiLevelAtStartup();
         }
     }
 
