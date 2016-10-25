@@ -8,6 +8,8 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * Tests for util methods surrounding processing of app install SMSs
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class SigningUtilTest {
