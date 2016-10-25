@@ -21,7 +21,7 @@ public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<Str
     protected String doTaskBackground(String... params) {
         try {
             String url = SigningUtil.trimMessagePayload(params[0]);
-            String messagePayload = SigningUtil.convertUrlToPayload(url);
+            String messagePayload = SigningUtil.convertEncodedUrlToPayload(url);
             byte[] messagePayloadBytes = SigningUtil.getBytesFromString(messagePayload);
             Pair<String, byte[]> messageAndBytes = SigningUtil.getUrlAndSignatureFromPayload(messagePayloadBytes);
             return SigningUtil.verifyMessageAndBytes(messageAndBytes.first, messageAndBytes.second);

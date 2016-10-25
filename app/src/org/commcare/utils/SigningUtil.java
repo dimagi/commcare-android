@@ -7,6 +7,8 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -16,6 +18,7 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
 
 /**
  * A set of helper methods for verifying whether a message was genuinely sent from HQ. Currently we
@@ -33,9 +36,16 @@ import java.security.spec.X509EncodedKeySpec;
  * And we can then verify that the profile link was in fact signed (using SHA256withRSA) by
  * the CommCareHQ private key
  *
- * Created by wpride1 on 9/11/15.
+ * @author Will Pride (wpride@dimagi.com)
  */
 public class SigningUtil {
+    private final static ArrayList<String> WHITELISTED_URL_HOSTS = new ArrayList<>();
+
+    static {
+        WHITELISTED_URL_HOSTS.add("commcarehq.org");
+        WHITELISTED_URL_HOSTS.add("www.commcarehq.org");
+        WHITELISTED_URL_HOSTS.add("india.commcarehq.org");
+    }
 
     /**
      * Given a trimmed byte[] payload, return the parsed out download link and signature
@@ -50,12 +60,36 @@ public class SigningUtil {
         return new Pair<>(downloadLink, signatureBytes);
     }
 
+    /**
+     * Given a base64 encoded URL, decode the URL, and return first line read
+     * from accessing that URL
+     */
+    public static String convertEncodedUrlToPayload(String baseEncodedUrl)
+            throws IOException, Base64DecoderException {
+        return readURL(decodeUrl(baseEncodedUrl));
+    }
+
+    protected static String decodeUrl(String baseEncodedUrl)
+            throws Base64DecoderException, UnsupportedEncodingException {
+        String decodedUrl = new String(Base64.decode(baseEncodedUrl), "UTF-8");
+        assertWhitelistedUrlHost(decodedUrl);
+        return decodedUrl;
+    }
 
     /**
-     * Given a URL, return the text at that location as a String
+     * Very basic method to prevent spoofed SMSs from making CommCare hit malicious URLs.
      */
-    public static String convertUrlToPayload(String url) throws IOException {
-        return readURL(url);
+    private static void assertWhitelistedUrlHost(String urlString) {
+        URL url;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(urlString + " is not a valid URL.");
+        }
+
+        if (!WHITELISTED_URL_HOSTS.contains(url.getHost())) {
+            throw new RuntimeException(url + " is not an approved URL.");
+        }
     }
 
     // given the raw trimmed byte paylaod, return the message (everything before the signature)
