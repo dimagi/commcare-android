@@ -25,6 +25,7 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_AUDIO_WIDGET = "Audio Widget Prototype";
     public static final String CATEGORY_PRIVILEGE_ENABLED = "Global Privilege Enabled";
     public static final String CATEGORY_LANGUAGE_STATS = "Language Statistics";
+    public static final String CATEGORY_HIGH_LEVEL_STATS = "High Level Statistics";
 
     //Actions for CATEGORY_AUDIO_WIDGET only
     public static final String ACTION_START_RECORDING_DIALOG = "Click the button to open recording popup";
@@ -102,6 +103,9 @@ public final class GoogleAnalyticsFields {
 
     // Actions for CATEGORY_LANGUAGE_STATS
     public static final String ACTION_LANGUAGE_AT_FORM_ENTRY = "Language at Time of Form Entry";
+
+    // Actions for CATEGORY_HIGH_LEVEL_STATS
+    public static final String ACTION_ANDROID_VERSION_AT_STARTUP = "Android Version at Startup";
 
     // Labels for ACTION_BUTTON
     public static final String LABEL_START_BUTTON = "Start Button";
