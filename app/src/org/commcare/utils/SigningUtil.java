@@ -45,6 +45,8 @@ public class SigningUtil {
         WHITELISTED_URL_HOSTS.add("commcarehq.org");
         WHITELISTED_URL_HOSTS.add("www.commcarehq.org");
         WHITELISTED_URL_HOSTS.add("india.commcarehq.org");
+        WHITELISTED_URL_HOSTS.add("swiss.commcarehq.org");
+        WHITELISTED_URL_HOSTS.add("staging.commcarehq.org");
     }
 
     /**
