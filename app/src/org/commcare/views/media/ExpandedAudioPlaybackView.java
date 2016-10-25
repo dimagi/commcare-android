@@ -39,6 +39,7 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
     @Override
     protected void startProgressBar(int milliPosition, int milliDuration) {
         seekBar = (SeekBar)findViewById(R.id.seek_bar);
+        seekBar.setEnabled(true);
         seekBar.setMax(milliDuration);
         seekBar.setProgress(milliPosition);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -90,6 +91,7 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
         }
         if (seekBar != null) {
             seekBar.setProgress(0);
+            seekBar.setEnabled(false);
             updateProgressText(0, seekBar.getMax());
         }
     }
@@ -110,6 +112,4 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
         );
     }
-
-
 }

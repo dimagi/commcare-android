@@ -284,4 +284,13 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout implements Au
     protected abstract void pauseProgressBar();
 
     protected abstract int getLayout();
+
+    @Override
+    protected void onWindowVisibilityChanged(int visibility) {
+        super.onWindowVisibilityChanged(visibility);
+
+        if (visibility != View.VISIBLE) {
+            endPlaying();
+        }
+    }
 }

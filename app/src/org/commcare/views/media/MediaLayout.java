@@ -466,14 +466,4 @@ public class MediaLayout extends RelativeLayout {
         }
         addView(v, dividerParams);
     }
-
-    @Override
-    protected void onWindowVisibilityChanged(int visibility) {
-        super.onWindowVisibilityChanged(visibility);
-        if (visibility != View.VISIBLE) {
-            if (audioButton != null) {
-                audioButton.endPlaying();
-            }
-        }
-    }
 }
