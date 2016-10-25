@@ -20,6 +20,12 @@ public class SigningUtilTest {
         String encodedURL = SigningUtil.trimMessagePayload(exampleSMS);
         String decodedURL = SigningUtil.decodeUrl(encodedURL);
         assertTrue(decodedURL.startsWith("https://www.commcarehq.org"));
+
+        // check that the old format still works
+        String legacyExampleSMS = "[commcare app - do not delete] https://www.commcarehq.org/a/gc/sms/app_info/7c7d49fbef59b703fb468e20d52a21e4/";
+        String legacyEncodedURL = SigningUtil.trimMessagePayload(legacyExampleSMS);
+        String legacyDecodedURL = SigningUtil.decodeUrl(legacyEncodedURL);
+        assertTrue(legacyDecodedURL.startsWith("https://www.commcarehq.org"));
     }
 
     @Test

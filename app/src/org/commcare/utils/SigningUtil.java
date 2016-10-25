@@ -71,7 +71,15 @@ public class SigningUtil {
 
     protected static String decodeUrl(String baseEncodedUrl)
             throws Base64DecoderException, UnsupportedEncodingException {
-        String decodedUrl = new String(Base64.decode(baseEncodedUrl), "UTF-8");
+        String decodedUrl;
+        if (baseEncodedUrl.startsWith("http://") || baseEncodedUrl.startsWith("https://")) {
+            // for backwards compatibility, accept non-base64 encoded URLS
+            // once all users have migrated to the new format
+            // (info available on HQ?) we can remove this branch
+            decodedUrl = baseEncodedUrl;
+        } else {
+            decodedUrl = new String(Base64.decode(baseEncodedUrl), "UTF-8");
+        }
         assertWhitelistedUrlHost(decodedUrl);
         return decodedUrl;
     }
