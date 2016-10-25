@@ -19,6 +19,7 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 /**
  * A set of helper methods for verifying whether a message was genuinely sent from HQ. Currently we
@@ -39,14 +40,10 @@ import java.util.ArrayList;
  * @author Will Pride (wpride@dimagi.com)
  */
 public class SigningUtil {
-    private final static ArrayList<String> WHITELISTED_URL_HOSTS = new ArrayList<>();
+    private final static ArrayList<Pattern> WHITELISTED_URL_HOSTS_REGEX = new ArrayList<>();
 
     static {
-        WHITELISTED_URL_HOSTS.add("commcarehq.org");
-        WHITELISTED_URL_HOSTS.add("www.commcarehq.org");
-        WHITELISTED_URL_HOSTS.add("india.commcarehq.org");
-        WHITELISTED_URL_HOSTS.add("swiss.commcarehq.org");
-        WHITELISTED_URL_HOSTS.add("staging.commcarehq.org");
+        WHITELISTED_URL_HOSTS_REGEX.add(Pattern.compile("^*.commcarehq.org"));
     }
 
     /**
@@ -97,7 +94,16 @@ public class SigningUtil {
             throw new RuntimeException(urlString + " is not a valid URL.");
         }
 
-        if (!WHITELISTED_URL_HOSTS.contains(url.getHost())) {
+        String host = url.getHost();
+        boolean isURLWhitelisted = false;
+        for (Pattern urlPattern : WHITELISTED_URL_HOSTS_REGEX) {
+            if (urlPattern.matcher(host).find()) {
+                isURLWhitelisted = true;
+                break;
+            }
+        }
+
+        if (!isURLWhitelisted) {
             throw new RuntimeException(url + " is not an approved URL.");
         }
     }
