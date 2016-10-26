@@ -24,6 +24,18 @@ public class EntityStorageCache {
     private static final String COL_VALUE = "value";
     private static final String COL_TIMESTAMP = "timestamp";
 
+    private final SQLiteDatabase db;
+    private final String mCacheName;
+
+    public EntityStorageCache(String cacheName) {
+        this(cacheName, CommCareApplication._().getUserDbHandle());
+    }
+
+    public EntityStorageCache(String cacheName, SQLiteDatabase db) {
+        this.db = db;
+        this.mCacheName = cacheName;
+    }
+
     public static String getTableDefinition() {
         return "CREATE TABLE " + TABLE_NAME + "(" +
                 DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY, " +
@@ -36,29 +48,12 @@ public class EntityStorageCache {
     }
 
     public static void createIndexes(SQLiteDatabase db) {
-        //To query what 
-
         db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("CACHE_TIMESTAMP", TABLE_NAME, COL_CACHE_NAME + ", " + COL_TIMESTAMP));
         db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("NAME_ENTITY_KEY", TABLE_NAME, COL_CACHE_NAME + ", " + COL_ENTITY_KEY + ", " + COL_CACHE_KEY));
     }
 
     //TODO: We should do some synchronization to make it the case that nothing can hold
     //an object for the same cache at once
-
-    public EntityStorageCache(String cacheName) {
-        // TODO PLM: refactor so that error handling occurs by caller and this
-        // method can call 'this'.
-        this.db = CommCareApplication._().getUserDbHandle();
-        this.mCacheName = cacheName;
-    }
-
-    private SQLiteDatabase db;
-    private String mCacheName;
-
-    public EntityStorageCache(String cacheName, SQLiteDatabase db) {
-        this.db = db;
-        this.mCacheName = cacheName;
-    }
 
     public void cache(String entityKey, String cacheKey, String value) {
         long timestamp = System.currentTimeMillis();

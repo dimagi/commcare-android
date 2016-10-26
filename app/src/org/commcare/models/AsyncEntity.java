@@ -23,9 +23,9 @@ import java.util.Hashtable;
  * An AsyncEntity is an entity reference which is capable of building its
  * values (evaluating all Text elements/background data elements) lazily
  * rather than upfront when the entity is constructed.
- * <p/>
+ *
  * It is threadsafe.
- * <p/>
+ *
  * It will attempt to Cache its values persistently by a derived entity key rather
  * than evaluating them each time when possible. This can be slow to perform across
  * all entities internally due to the overhead of establishing the db connection, it
@@ -158,7 +158,6 @@ public class AsyncEntity extends Entity<TreeReference> {
                         }
                     }
 
-
                     loadVariableContext();
                     try {
                         sortText = fields[i].getSort();
@@ -242,7 +241,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         }
     }
 
-    private String[] breakUpField(String input) {
+    private static String[] breakUpField(String input) {
         if (input == null) {
             return new String[0];
         } else {
