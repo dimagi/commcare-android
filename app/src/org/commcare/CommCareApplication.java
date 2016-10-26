@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -86,7 +85,6 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
-import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
@@ -262,8 +260,10 @@ public class CommCareApplication extends Application {
         }
 
         ACRAUtil.initACRA(this);
+
         if (!GoogleAnalyticsUtils.versionIncompatible()) {
             analyticsInstance = GoogleAnalytics.getInstance(this);
+            GoogleAnalyticsUtils.reportAndroidApiLevelAtStartup();
         }
     }
 
@@ -841,13 +841,14 @@ public class CommCareApplication extends Application {
         CommCareApplication._().getCurrentApp().getAppPreferences().edit()
                 .putString(CommCarePreferences.LAST_LOGGED_IN_USER, null).commit();
 
-        // manually clear file-backed fixture storage to ensure files are removed
-        CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
-
         CommCareApplication._().closeUserSession();
     }
 
     public void wipeSandboxForUser(final String username) {
+        // manually clear file-backed fixture storage to ensure files are removed
+        CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
+
+        // wipe the user's db
         final Set<String> dbIdsToRemove = new HashSet<>();
         CommCareApplication._().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
             @Override
@@ -859,6 +860,7 @@ public class CommCareApplication extends Application {
                 return false;
             }
         });
+
         for (String id : dbIdsToRemove) {
             CommCareApplication._().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
         }
@@ -1509,4 +1511,5 @@ public class CommCareApplication extends Application {
     public PrototypeFactory getPrototypeFactory(Context c) {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
+
 }

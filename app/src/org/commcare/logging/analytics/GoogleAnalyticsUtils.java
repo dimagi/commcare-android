@@ -321,6 +321,12 @@ public class GoogleAnalyticsUtils {
                 GoogleAnalyticsFields.ACTION_LANGUAGE_AT_FORM_ENTRY, language);
     }
 
+    public static void reportAndroidApiLevelAtStartup() {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_HIGH_LEVEL_STATS,
+                GoogleAnalyticsFields.ACTION_ANDROID_API_LEVEL_AT_STARTUP,
+                "" + Build.VERSION.SDK_INT);
+    }
+
     /**
      * Report the length of a certain user event/action/concept
      *
