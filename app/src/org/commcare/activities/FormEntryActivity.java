@@ -237,7 +237,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         uiController.setupUI();
-        mGestureDetector = new GestureDetector(this);
+        mGestureDetector = new GestureDetector(this, this);
 
         // Load JavaRosa modules. needed to restore forms.
         new XFormsModule().registerModule();
