@@ -4,7 +4,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.ProgressBar;
 
 import org.commcare.dalvik.R;
@@ -52,7 +52,7 @@ public class AudioPlaybackButton extends AudioPlaybackButtonBase {
             animation = ObjectAnimator.ofInt(progressBar, "progress", 0, 500);
             animation.setDuration(milliDuration);
             animation.setCurrentPlayTime(milliPosition);
-            animation.setInterpolator(new DecelerateInterpolator());
+            animation.setInterpolator(new LinearInterpolator());
             animation.start();
         }
     }
@@ -74,7 +74,7 @@ public class AudioPlaybackButton extends AudioPlaybackButtonBase {
     @Override
     protected void pauseProgressBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            animation.pause();
+            animation.cancel();
         }
     }
 }
