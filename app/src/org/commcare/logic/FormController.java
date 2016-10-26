@@ -2,13 +2,9 @@ package org.commcare.logic;
 
 import android.support.annotation.NonNull;
 
-import org.commcare.views.QuestionsView;
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.GroupDef;
-import org.javarosa.core.model.IFormElement;
-import org.javarosa.core.model.SubmissionProfile;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -20,7 +16,6 @@ import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.model.xform.XPathReference;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -409,35 +404,6 @@ public class FormController implements PendingCalloutInterface {
     }
 
     /**
-     * Find the portion of the form that is to be submitted
-     */
-    private XPathReference getSubmissionDataReference() {
-        FormDef formDef = mFormEntryController.getModel().getForm();
-        // Determine the information about the submission...
-        SubmissionProfile p = formDef.getSubmissionProfile();
-        if (p == null || p.getRef() == null) {
-            return new XPathReference("/");
-        } else {
-            return p.getRef();
-        }
-    }
-
-    /**
-     * Once a submission is marked as complete, it is saved in the
-     * submission format, which might be a fragment of the original
-     * form or might be a SMS text string, etc.
-     *
-     * @return true if the submission is the entire form.  If it is,
-     * then the submission can be re-opened for editing
-     * after it was marked-as-complete (provided it has
-     * not been encrypted).
-     */
-    public boolean isSubmissionEntireForm() {
-        XPathReference sub = getSubmissionDataReference();
-        return (getInstance().resolveReference(sub) == null);
-    }
-
-    /**
      * Extract the portion of the form that should be uploaded to the server.
      */
     public ByteArrayPayload getSubmissionXml() throws IOException {
@@ -445,7 +411,7 @@ public class FormController implements PendingCalloutInterface {
         XFormSerializingVisitor serializer = new XFormSerializingVisitor();
 
         return (ByteArrayPayload)serializer.createSerializedPayload(instance,
-                getSubmissionDataReference());
+                new XPathReference("/"));
     }
 
     /**
@@ -472,22 +438,8 @@ public class FormController implements PendingCalloutInterface {
         FormDef formDef = mFormEntryController.getModel().getForm();
         TreeElement rootElement = formDef.getInstance().getRoot();
 
-        TreeElement trueSubmissionElement;
-        // Determine the information about the submission...
-        SubmissionProfile p = formDef.getSubmissionProfile();
-        if (p == null || p.getRef() == null) {
-            trueSubmissionElement = rootElement;
-        } else {
-            XPathReference ref = p.getRef();
-            trueSubmissionElement = formDef.getInstance().resolveReference(ref);
-            // resolveReference returns null if the reference is to the root element...
-            if (trueSubmissionElement == null) {
-                trueSubmissionElement = rootElement;
-            }
-        }
-
         // and find the depth-first meta block in this...
-        TreeElement e = findDepthFirst(trueSubmissionElement, "meta");
+        TreeElement e = findDepthFirst(rootElement, "meta");
 
         String instanceId = null;
 

@@ -236,8 +236,6 @@ public class SaveToDiskTask extends
         updateInstanceDatabase(true, true);
 
         if ( markCompleted ) {
-            // now see if it is to be finalized and perhaps update everything...
-            boolean canEditAfterCompleted = FormEntryActivity.mFormController.isSubmissionEntireForm();
             boolean isEncrypted = false;
 
             // build a submission.xml to hold the data being submitted 
@@ -254,9 +252,8 @@ public class SaveToDiskTask extends
 
             // see if the form is encrypted and we can encrypt it...
             EncryptedFormInformation formInfo = EncryptionUtils.getEncryptedFormInformation(mUri, FormEntryActivity.mFormController.getSubmissionMetadata(), context, instanceContentUri);
-            if ( formInfo != null ) {
+            if (formInfo != null) {
                 // if we are encrypting, the form cannot be reopened afterward
-                canEditAfterCompleted = false;
                 // and encrypt the submission (this is a one-way operation)...
                 if (!EncryptionUtils.generateEncryptedSubmission(instanceXml, submissionXml, formInfo)) {
                     throw new RuntimeException("Unable to encrypt form submission.");
@@ -274,37 +271,35 @@ public class SaveToDiskTask extends
             // 1. Update the instance database (with status complete).
             // 2. Overwrite the instanceXml with the submission.xml 
             //    and remove the plaintext attachments if encrypting
-            updateInstanceDatabase(false, canEditAfterCompleted);
+            updateInstanceDatabase(false, false);
 
-            if (  !canEditAfterCompleted ) {
-                // AT THIS POINT, there is no going back.  We are committed
-                // to returning "success" (true) whether or not we can 
-                // rename "submission.xml" to instanceXml and whether or 
-                // not we can delete the plaintext media files.
-                //
-                // Handle the fall-out for a failed "submission.xml" rename
-                // in the InstanceUploader task.  Leftover plaintext media
-                // files are handled during form deletion.
+            // AT THIS POINT, there is no going back.  We are committed
+            // to returning "success" (true) whether or not we can
+            // rename "submission.xml" to instanceXml and whether or
+            // not we can delete the plaintext media files.
+            //
+            // Handle the fall-out for a failed "submission.xml" rename
+            // in the InstanceUploader task.  Leftover plaintext media
+            // files are handled during form deletion.
 
-                // delete the restore Xml file.
-                if ( !instanceXml.delete() ) {
-                    Log.e(TAG, "Error deleting " + instanceXml.getAbsolutePath()
-                            + " prior to renaming submission.xml");
-                    return;
-                }
+            // delete the restore Xml file.
+            if (!instanceXml.delete()) {
+                Log.e(TAG, "Error deleting " + instanceXml.getAbsolutePath()
+                        + " prior to renaming submission.xml");
+                return;
+            }
 
-                // rename the submission.xml to be the instanceXml
-                if ( !submissionXml.renameTo(instanceXml) ) {
-                    Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
-                    return;
-                }
+            // rename the submission.xml to be the instanceXml
+            if (!submissionXml.renameTo(instanceXml)) {
+                Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
+                return;
+            }
 
-                // if encrypted, delete all plaintext files
-                // (anything not named instanceXml or anything not ending in .enc)
-                if ( isEncrypted ) {
-                    if ( !EncryptionUtils.deletePlaintextFiles(instanceXml) ) {
-                        Log.e(TAG, "Error deleting plaintext files for " + instanceXml.getAbsolutePath());
-                    }
+            // if encrypted, delete all plaintext files
+            // (anything not named instanceXml or anything not ending in .enc)
+            if (isEncrypted) {
+                if (!EncryptionUtils.deletePlaintextFiles(instanceXml)) {
+                    Log.e(TAG, "Error deleting plaintext files for " + instanceXml.getAbsolutePath());
                 }
             }
         }
