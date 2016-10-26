@@ -4,6 +4,7 @@ import android.content.Context;
 
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.util.CalendarUtils;
+import org.javarosa.xform.util.NepaliCalendarUtils;
 import org.javarosa.xform.util.UniversalDate;
 
 /**
@@ -20,18 +21,18 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
     @Override
     protected UniversalDate decrementMonth(long millisFromJavaEpoch) {
         UniversalDate origDate = fromMillis(millisFromJavaEpoch);
-        return CalendarUtils.decrementMonth(origDate);
+        return NepaliCalendarUtils.decrementMonth(origDate);
     }
 
     @Override
     protected UniversalDate decrementYear(long millisFromJavaEpoch) {
         UniversalDate origDate = fromMillis(millisFromJavaEpoch);
-        return CalendarUtils.decrementYear(origDate);
+        return NepaliCalendarUtils.decrementYear(origDate);
     }
 
     @Override
     protected UniversalDate fromMillis(long millisFromJavaEpoch) {
-        return CalendarUtils.fromMillis(millisFromJavaEpoch);
+        return NepaliCalendarUtils.fromMillis(millisFromJavaEpoch);
     }
 
     @Override
@@ -42,17 +43,17 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
     @Override
     protected UniversalDate incrementMonth(long millisFromJavaEpoch) {
         UniversalDate origDate = fromMillis(millisFromJavaEpoch);
-        return CalendarUtils.incrementMonth(origDate);
+        return NepaliCalendarUtils.incrementMonth(origDate);
     }
 
     @Override
     protected UniversalDate incrementYear(long millisFromJavaEpoch) {
         UniversalDate origDate = fromMillis(millisFromJavaEpoch);
-        return CalendarUtils.incrementYear(origDate);
+        return NepaliCalendarUtils.incrementYear(origDate);
     }
 
     @Override
     protected long toMillisFromJavaEpoch(int year, int month, int day) {
-        return CalendarUtils.toMillisFromJavaEpoch(year, month, day);
+        return NepaliCalendarUtils.toMillisFromJavaEpoch(year, month, day);
     }
 }
