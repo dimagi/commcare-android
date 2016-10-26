@@ -1,15 +1,19 @@
 package org.commcare.views.media;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.widget.SeekBar;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.animation.LinearInterpolator;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 
 import java.util.concurrent.TimeUnit;
-
 
 /**
  * Audio playback widget with clickable horizontal progress bar
@@ -17,17 +21,21 @@ import java.util.concurrent.TimeUnit;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
-    private SeekBar seekBar;
+    private ProgressBar seekBar;
+    private ObjectAnimator animation;
     private Handler handler;
     private TextView progressText;
+    private int playbackDurationMillis;
 
     public ExpandedAudioPlaybackView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
         progressText = (TextView)findViewById(R.id.duration_info);
     }
 
     public ExpandedAudioPlaybackView(Context context, String URI) {
         super(context, URI, null, true);
+
         progressText = (TextView)findViewById(R.id.duration_info);
     }
 
@@ -37,36 +45,49 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
     }
 
     @Override
-    protected void startProgressBar(int milliPosition, int milliDuration) {
-        seekBar = (SeekBar)findViewById(R.id.seek_bar);
-        seekBar.setEnabled(true);
-        seekBar.setMax(milliDuration);
-        seekBar.setProgress(milliPosition);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (AudioController.INSTANCE.mediaForInstance(ExpandedAudioPlaybackView.this) && fromUser) {
-                    AudioController.INSTANCE.seekTo(progress);
-                }
-            }
-        });
-
-        launchProgressBarUpdater();
-
+    protected void startProgressBar(int currentPositionMillis, int milliDuration) {
+        playbackDurationMillis = milliDuration;
+        setupProgressBar();
+        setupProgressAnimation(currentPositionMillis);
+        launchElapseTextUpdaterThread();
     }
 
-    private void launchProgressBarUpdater() {
+    private void setupProgressBar() {
+        seekBar = (ProgressBar)findViewById(R.id.seek_bar);
+        seekBar.setEnabled(true);
+        seekBar.setMax(playbackDurationMillis);
+        seekBar.setOnTouchListener(
+                new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        return performProgressBarTouch(v, event);
+                    }
+                });
+    }
+
+    private boolean performProgressBarTouch(View v, MotionEvent event) {
+        int progress = (int)(playbackDurationMillis * (event.getX() / v.getWidth()));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            animation.setCurrentPlayTime(progress);
+        }
+        updateProgressText(progress, playbackDurationMillis);
+        if (AudioController.INSTANCE.mediaForInstance(ExpandedAudioPlaybackView.this)) {
+            AudioController.INSTANCE.seekTo(progress);
+        }
+        return false;
+    }
+
+    private void setupProgressAnimation(int currentPositionMillis) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            animation = ObjectAnimator.ofInt(seekBar, "progress", 0, playbackDurationMillis);
+            animation.setDuration(playbackDurationMillis);
+            animation.setCurrentPlayTime(currentPositionMillis);
+            animation.setInterpolator(new LinearInterpolator());
+            animation.start();
+        }
+    }
+
+    private void launchElapseTextUpdaterThread() {
         handler = new Handler();
         this.post(new Runnable() {
 
@@ -75,7 +96,6 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
                 // make sure we are playing this audio
                 if (AudioController.INSTANCE.mediaForInstance(ExpandedAudioPlaybackView.this)) {
                     int pos = AudioController.INSTANCE.getCurrentPosition();
-                    seekBar.setProgress(pos);
                     updateProgressText(pos, seekBar.getMax());
                     handler.postDelayed(this, 20);
                 }
@@ -89,7 +109,17 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
             handler.removeCallbacksAndMessages(null);
             handler = null;
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            if (animation != null) {
+                animation.removeAllListeners();
+                animation.end();
+                animation.cancel();
+            }
+        }
+
         if (seekBar != null) {
+            seekBar.clearAnimation();
             seekBar.setProgress(0);
             seekBar.setEnabled(false);
             updateProgressText(0, seekBar.getMax());
@@ -99,10 +129,13 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
     @Override
     protected void pauseProgressBar() {
         handler.removeCallbacksAndMessages(null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            animation.cancel();
+        }
     }
 
     private void updateProgressText(int progress, int max) {
-        progressText.setText(milliToHumanReadable(progress) + " / " +milliToHumanReadable(max));
+        progressText.setText(milliToHumanReadable(progress) + " / " + milliToHumanReadable(max));
     }
 
     private static String milliToHumanReadable(int millis) {

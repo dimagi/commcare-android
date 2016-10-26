@@ -11,7 +11,7 @@
         android:background="@null"
         android:src="@drawable/large_audio_playback_selector"/>
 
-    <SeekBar
+    <ProgressBar
         android:id="@+id/seek_bar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
@@ -23,6 +23,7 @@
         android:layout_toEndOf="@+id/play_button"
         android:layout_toRightOf="@+id/play_button"
         android:enabled="false"
+        android:progressDrawable="@drawable/progressbar_modern"
         android:progress="0"/>
 
     <TextView
@@ -32,7 +33,6 @@
         android:layout_alignBottom="@+id/play_button"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="21dp"
         android:text="00:00"/>
 
 </RelativeLayout>
