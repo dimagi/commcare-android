@@ -43,7 +43,7 @@ public class SigningUtil {
     private final static ArrayList<Pattern> WHITELISTED_URL_HOSTS_REGEX = new ArrayList<>();
 
     static {
-        WHITELISTED_URL_HOSTS_REGEX.add(Pattern.compile("^*.commcarehq.org"));
+        WHITELISTED_URL_HOSTS_REGEX.add(Pattern.compile("\\.commcarehq\\.org$"));
     }
 
     /**

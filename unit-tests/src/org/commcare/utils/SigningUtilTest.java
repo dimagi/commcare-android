@@ -36,8 +36,12 @@ public class SigningUtilTest {
         assertEquals(goodUrlBase, SigningUtil.decodeUrl(goodUrl));
 
         // try to decode a 'malicious', of non-commcarehq origin, URL
-        String badUrlBase = "https://www.corncarehq.org/a/gc/sms/app_info/7c7d49fbef59b703fb468e20d52a21e4/";
-        String badUrl = Base64.encode(badUrlBase.getBytes("UTF-8"));
+        assertWhitelistURLFailure("https://www.corncarehq.org/a/gc/sms/app_info/7c7d49fbef59b703fb468e20d52a21e4/");
+        assertWhitelistURLFailure("https://zcommcarehq.org/a/gc/sms/app_info/7c7d49fbef59b703fb468e20d52a21e4/");
+    }
+
+    private void assertWhitelistURLFailure(String url) throws UnsupportedEncodingException, Base64DecoderException {
+        String badUrl = Base64.encode(url.getBytes("UTF-8"));
         boolean didFail = false;
         try {
             SigningUtil.decodeUrl(badUrl);
