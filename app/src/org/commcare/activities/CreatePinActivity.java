@@ -101,6 +101,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         enterPinBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                // processes the done/next keyboard action
                 if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
                     continueButton.performClick();
                     return true;
@@ -165,7 +166,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
         // open up the keyboard if it was dismissed
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+        imm.showSoftInput(enterPinBox, 0);
 
         setTextEntryKeyboardAction(enterPinBox, EditorInfo.IME_ACTION_DONE);
 
