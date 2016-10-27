@@ -19,7 +19,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
@@ -31,7 +30,6 @@ import android.support.v4.util.Pair;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
@@ -99,6 +97,7 @@ import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.ODKPropertyManager;
+import org.commcare.utils.PopupHandler;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
@@ -117,7 +116,6 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -1321,43 +1319,6 @@ public class CommCareApplication extends Application {
 
     public ArchiveFileRoot getArchiveFileRoot() {
         return mArchiveFileRoot;
-    }
-
-    /**
-     * Message handler that pops-up notifications to the user via toast.
-     */
-    private static class PopupHandler extends Handler {
-        /**
-         * Reference to the context used to show pop-ups (the parent class).
-         * Reference is weak to avoid memory leaks.
-         */
-        private final WeakReference<CommCareApplication> mActivity;
-
-        /**
-         * @param activity Is the context used to pop-up the toast message.
-         */
-        public PopupHandler(CommCareApplication activity) {
-            mActivity = new WeakReference<>(activity);
-        }
-
-        /**
-         * Pops up the message to the user by way of toast
-         *
-         * @param m Has a 'message' parcel storing pop-up message text
-         */
-        @Override
-        public void handleMessage(Message m) {
-            NotificationMessage message = m.getData().getParcelable("message");
-
-            CommCareApplication activity = mActivity.get();
-
-            if (activity != null && message != null) {
-                Toast.makeText(activity,
-                        Localization.get("notification.for.details.wrapper",
-                                new String[]{message.getTitle()}),
-                        Toast.LENGTH_LONG).show();
-            }
-        }
     }
 
     /**
