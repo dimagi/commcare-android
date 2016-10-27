@@ -83,7 +83,7 @@ public abstract class DataPullTask<R>
     public static final int PROGRESS_DOWNLOADING_COMPLETE = 512;
     public static final int PROGRESS_SERVER_PROCESSING = 1024;
 
-    private DataPullRequester dataPullRequester;
+    private final DataPullRequester dataPullRequester;
     private final AsyncRestoreHelper asyncRestoreHelper;
     private final boolean blockRemoteKeyManagement;
 
@@ -120,7 +120,7 @@ public abstract class DataPullTask<R>
         super.onCancelled();
         wipeLoginIfItOccurred();
     }
-    private HttpRequestEndpoints requestor;
+    private final HttpRequestEndpoints requestor;
 
     @Override
     protected ResultAndError<PullTaskResult> doTaskBackground(Void... params) {

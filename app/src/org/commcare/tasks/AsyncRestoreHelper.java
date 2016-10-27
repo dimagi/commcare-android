@@ -20,7 +20,7 @@ import java.util.TimerTask;
  */
 public class AsyncRestoreHelper {
 
-    private DataPullTask syncTask;
+    private final DataPullTask syncTask;
 
     public long retryAtTime = -1;
     public int serverProgressCompletedSoFar = -1;

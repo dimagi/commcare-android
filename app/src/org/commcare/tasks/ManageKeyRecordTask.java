@@ -67,7 +67,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     private boolean calloutNeeded = false;
     private final boolean restoreSession;
-    private boolean forCustomDemoUser;
+    private final boolean forCustomDemoUser;
 
     private boolean calloutSuccessRequired;
 

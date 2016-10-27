@@ -10,7 +10,7 @@ import org.commcare.util.ArrayDataSource;
 
 public class AndroidArrayDataSource implements ArrayDataSource {
 
-    private Context context;
+    private final Context context;
 
     public AndroidArrayDataSource(Context context){
         this.context = context;
