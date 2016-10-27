@@ -291,11 +291,8 @@ public class CommCareApplication extends Application {
     public static void restartCommCare(Activity originActivity, Class c, boolean systemExit) {
         Intent intent = new Intent(originActivity, c);
 
-        // Make sure that the new stack starts with the given class, and clear everything
-        // between.
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        // Make sure that the new stack starts with the given class, and clear everything between.
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 
         originActivity.moveTaskToBack(true);
         originActivity.startActivity(intent);
