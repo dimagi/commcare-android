@@ -37,9 +37,8 @@ import org.javarosa.xpath.XPathUnhandledException;
 import java.util.Arrays;
 
 /**
- * This class defines an individual panel within an advanced case list.
- * Each panel is defined by a Detail and an Entity
- * Significant axis of configuration are NUMBER_ROWS, NUMBER_COLUMNS, AND CELL_HEIGHT_DIVISOR defined below
+ * This class defines an individual panel that is shown either within an advanced case list
+ * or as a case tile. Each panel is defined by a Detail and an Entity.
  *
  * @author wspride
  */
