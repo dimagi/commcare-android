@@ -18,7 +18,6 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 /**
@@ -40,11 +39,9 @@ import java.util.regex.Pattern;
  * @author Will Pride (wpride@dimagi.com)
  */
 public class SigningUtil {
-    private final static ArrayList<Pattern> WHITELISTED_URL_HOSTS_REGEX = new ArrayList<>();
 
-    static {
-        WHITELISTED_URL_HOSTS_REGEX.add(Pattern.compile("\\.commcarehq\\.org$"));
-    }
+    private final static Pattern WHITELISTED_URL_HOSTS_REGEX =
+            Pattern.compile("\\.commcarehq\\.org$");
 
     /**
      * Given a trimmed byte[] payload, return the parsed out download link and signature
@@ -95,15 +92,7 @@ public class SigningUtil {
         }
 
         String host = url.getHost();
-        boolean isURLWhitelisted = false;
-        for (Pattern urlPattern : WHITELISTED_URL_HOSTS_REGEX) {
-            if (urlPattern.matcher(host).find()) {
-                isURLWhitelisted = true;
-                break;
-            }
-        }
-
-        if (!isURLWhitelisted) {
+        if (!WHITELISTED_URL_HOSTS_REGEX.matcher(host).find()) {
             throw new DisallowedSMSInstallURLException(url + " is not an approved URL.");
         }
     }
