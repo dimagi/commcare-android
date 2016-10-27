@@ -4,7 +4,6 @@ option.yes=YES
 option.no=NO
 option.cancel=CANCEL
 
-install.problem.unexpected=Unexpected install error!
 install.keep.trying=Keep trying if connection is interrupted
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
 updates.success=App is up to date
