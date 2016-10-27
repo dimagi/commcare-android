@@ -665,9 +665,6 @@ invalid.image.selection=The image you have chosen cannot be located on your devi
 image.capture.not.saved=The image you have taken was not able to be saved properly. Please try again.
 image.selection.not.saved=The image you have chosen was not able to be saved properly. Please select another image.
 
-odk_perfect_match_color=\#87D13E
-odk_fuzzy_match_color=\#FFE88F
-
 permission.all.title=CommCare Permissions
 permission.all.message=CommCare needs permissions to read/write forms to memory, call/message from the case list, and provide location data during form entry.
 permission.all.denial.message=CommCare doesn't have the necessary permissions. Please enable via 'Settings -> Apps'
@@ -726,3 +723,6 @@ calendar.low.year=Year value below min value of
 calendar.high.year=Year value above max value of ${0}
 calendar.low.day=Day value below min value of 1
 calendar.high.day=Day value above max value of ${0}
+
+odk_perfect_match_color=\#87D13E
+odk_fuzzy_match_color=\#FFE88F

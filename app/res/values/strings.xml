@@ -2,14 +2,12 @@
 <resources xmlns:cc="http://strings_namespace">
     <string name="title_bar_name">CommCare</string>
 
-    <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
     <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
     <string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
     <string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
-    <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
-    <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
-    <string name="your_comment">Your comment</string>
+
+    <string name="comment_hint">Your comment</string>
 
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 

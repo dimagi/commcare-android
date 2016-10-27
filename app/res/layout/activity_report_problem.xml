@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/ReportPrompt01"
             android:gravity="top"
-            android:hint="@string/your_comment"
+            android:hint="@string/comment_hint"
             android:inputType="textMultiLine"
             android:lines="5"
             android:textColor="@color/black"/>
