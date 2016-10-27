@@ -29,8 +29,6 @@ import static junit.framework.Assert.assertTrue;
 @RunWith(CommCareTestRunner.class)
 public class CalendarLocaleTest {
 
-    private static final String TAG = CalendarLocaleTest.class.getSimpleName();
-
     @Before
     public void setup() {
         TestAppInstaller.installAppAndLogin(

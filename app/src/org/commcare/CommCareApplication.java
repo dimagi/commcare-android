@@ -557,32 +557,6 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * @return all ApplicationRecords that have status installed and are NOT archived
-     */
-    private ArrayList<ApplicationRecord> getVisibleAppRecords() {
-        ArrayList<ApplicationRecord> visible = new ArrayList<>();
-        for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (r.isVisible()) {
-                visible.add(r);
-            }
-        }
-        return visible;
-    }
-
-    /**
-     * @return all ApplicationRecords that are installed AND are not archived AND have MM verified
-     */
-    public ArrayList<ApplicationRecord> getUsableAppRecords() {
-        ArrayList<ApplicationRecord> ready = new ArrayList<>();
-        for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (r.isUsable()) {
-                ready.add(r);
-            }
-        }
-        return ready;
-    }
-
-    /**
      * @param uniqueId - the uniqueId of the ApplicationRecord being sought
      * @return the ApplicationRecord corresponding to the given id, if it exists. Otherwise,
      * return null

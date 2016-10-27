@@ -1377,10 +1377,6 @@ public class CommCareHomeActivity
         }
     }
 
-    public FormAndDataSyncer getFormAndDataSyncer() {
-        return formAndDataSyncer;
-    }
-
     @Override
     public void initUIController() {
         uiController = new HomeActivityUIController(this);

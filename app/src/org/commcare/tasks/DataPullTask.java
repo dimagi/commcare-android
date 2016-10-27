@@ -596,10 +596,6 @@ public abstract class DataPullTask<R>
         this.publishProgress(PROGRESS_PROCESSING, mCurrentProgress, mTotalItems, 0);
     }
 
-    @Override
-    public void refreshView() {
-    }
-
     protected void reportServerProgress(int completedSoFar, int total) {
         publishProgress(PROGRESS_SERVER_PROCESSING, completedSoFar, total);
     }
