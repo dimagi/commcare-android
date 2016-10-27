@@ -104,7 +104,7 @@ public class SigningUtil {
         }
 
         if (!isURLWhitelisted) {
-            throw new RuntimeException(url + " is not an approved URL.");
+            throw new DisallowedSMSInstallURLException(url + " is not an approved URL.");
         }
     }
 
@@ -244,5 +244,11 @@ public class SigningUtil {
             acc = inputLine;
         in.close();
         return acc;
+    }
+
+    public static class DisallowedSMSInstallURLException extends RuntimeException {
+        public DisallowedSMSInstallURLException(String message) {
+            super(message);
+        }
     }
 }
