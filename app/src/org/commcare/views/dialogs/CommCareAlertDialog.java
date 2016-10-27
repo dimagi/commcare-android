@@ -16,7 +16,7 @@ import android.view.View;
 public abstract class CommCareAlertDialog {
 
     protected AlertDialog dialog;
-    protected DialogInterface.OnCancelListener cancelListener;
+    private DialogInterface.OnCancelListener cancelListener;
     private DialogInterface.OnDismissListener dismissListener;
     protected View view;
     // false by default, can be overridden if desired

@@ -24,8 +24,8 @@ public class AsyncRestoreHelper {
 
     public long retryAtTime = -1;
     public int serverProgressCompletedSoFar = -1;
-    protected int serverProgressTotal = -1;
-    protected int lastReportedServerProgressValue = 0;
+    private int serverProgressTotal = -1;
+    private int lastReportedServerProgressValue = 0;
 
     public AsyncRestoreHelper(DataPullTask task) {
         this.syncTask = task;
@@ -50,7 +50,7 @@ public class AsyncRestoreHelper {
         }
     }
 
-    protected boolean parseProgressFromRetryResult(RemoteDataPullResponse response) {
+    private boolean parseProgressFromRetryResult(RemoteDataPullResponse response) {
         try {
             InputStream stream = response.writeResponseToCache(syncTask.context).retrieveCache();
             KXmlParser parser = ElementParser.instantiateParser(stream);
