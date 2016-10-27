@@ -7,7 +7,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DataPullController;
-import org.commcare.activities.LoginActivity;
 import org.commcare.activities.LoginMode;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.data.xml.TransactionParser;
