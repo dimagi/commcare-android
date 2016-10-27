@@ -20,7 +20,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.models.Entity;
+import org.commcare.cases.entity.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Detail;

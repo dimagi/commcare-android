@@ -10,9 +10,12 @@ import android.widget.ListAdapter;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.cases.entity.EntitySortNotificationInterface;
+import org.commcare.cases.entity.EntitySorter;
+import org.commcare.cases.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.models.AsyncNodeEntityFactory;
-import org.commcare.models.Entity;
+import org.commcare.cases.entity.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.session.SessionInstanceBuilder;
@@ -20,10 +23,10 @@ import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.CachingAsyncImageLoader;
-import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityActionViewUtils;
 import org.commcare.views.EntityView;
 import org.commcare.views.EntityViewTile;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
@@ -163,8 +166,14 @@ public class EntityListAdapter implements ListAdapter {
     private void sort(int[] fields, boolean reverse) {
         this.reverseSort = reverse;
         currentSort = fields;
+        java.util.Collections.sort(full, new EntitySorter(detail.getFields(), reverseSort, currentSort, new BreadcrumbNotifier()));
+    }
 
-        java.util.Collections.sort(full, new EntitySorter(detail.getFields(), reverseSort, currentSort));
+    class BreadcrumbNotifier implements EntitySortNotificationInterface {
+        @Override
+        public void notifyBadfilter(String[] stringArgs) {
+            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Case_Filter, stringArgs));
+        }
     }
 
     @Override

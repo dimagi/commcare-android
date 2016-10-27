@@ -28,7 +28,7 @@ import org.commcare.graph.util.GraphException;
 import org.commcare.graph.view.GraphLoader;
 import org.commcare.graph.view.GraphView;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.models.Entity;
+import org.commcare.cases.entity.Entity;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;

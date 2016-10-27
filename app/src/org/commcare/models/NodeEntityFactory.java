@@ -1,5 +1,6 @@
 package org.commcare.models;
 
+import org.commcare.cases.entity.Entity;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;

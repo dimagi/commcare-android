@@ -6,7 +6,7 @@ import android.util.Pair;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
-import org.commcare.models.Entity;
+import org.commcare.cases.entity.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;

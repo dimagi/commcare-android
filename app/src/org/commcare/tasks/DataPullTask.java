@@ -19,7 +19,6 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.core.encryption.CryptUtil;
-import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.preferences.CommCarePreferences;
@@ -375,12 +374,6 @@ public abstract class DataPullTask<R>
             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                     "User sync failed oddly, ISE |" + e.getMessage());
             throw new UnknownSyncError();
-        } catch (RecordTooLargeException e) {
-            wipeLoginIfItOccurred();
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                    "Storage Full during user sync |" + e.getMessage());
-            return new ResultAndError<>(PullTaskResult.STORAGE_FULL);
         }
     }
 

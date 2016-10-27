@@ -31,7 +31,7 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.models.Entity;
+import org.commcare.cases.entity.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.provider.SimprintsCalloutProcessing;
