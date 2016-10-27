@@ -149,10 +149,8 @@ public class CommCareApplication extends Application {
     private static final String DEV_TRACKING_ID = BuildConfig.ANALYTICS_TRACKING_ID_DEV;
 
     private static final int STATE_UNINSTALLED = 0;
-    public static final int STATE_UPGRADE = 1;
     private static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
-    public static final int STATE_DELETE_REQUESTED = 8;
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
 
@@ -430,7 +428,9 @@ public class CommCareApplication extends Application {
     public void intializeDefaultLocalizerData() {
         Localization.init(true);
         Localization.registerLanguageReference("default",
-                "jr://asset/locales/messages_ccodk_default.txt");
+                "jr://asset/locales/android_translatable_strings.txt");
+        Localization.registerLanguageReference("default",
+                "jr://asset/locales/android_startup_strings.txt");
         Localization.setDefaultLocale("default");
 
         // For now. Possibly handle this better in the future

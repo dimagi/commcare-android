@@ -1,10 +1,8 @@
-#new localizations should be added above the comment "Add new localization strings here" in this file
-
 option.yes=YES
 option.no=NO
 option.cancel=CANCEL
+dialog.ok=OK
 
-install.keep.trying=Keep trying if connection is interrupted
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
 updates.success=App is up to date
 updates.check.begin=Checking for updates...
@@ -17,10 +15,8 @@ updates.check.network_unavailable=No network connectivity
 updates.staged.version=Update to version ${0} & log out
 updates.staged.version.app.manager=Update to version ${0}
 updates.error=Error encountered during update download
-
 updates.pinned.download=Downloading updates
 updates.pinned.progress=${0}/${1}
-
 install.current.version=Current version: ${0}
 
 verify.retry=Retry
@@ -29,42 +25,11 @@ verify.check.failed=Validation failed for an unknown reason
 
 barcode.reader.missing=No barcode reader available! You can install one from the android market.
 
-install.barcode.top=Welcome to CommCare!
-install.barcode.bottom=Please choose an installation method below
-install.manual=Please enter the URL
-install.ready.top=Almost there!
-install.ready.bottom=Press the button below to install your app.
-install.netwarn=If you are attempting to install from a server, make sure you have an internet connection.
-install.button.enter=Enter Code
-install.button.startover=Start Over
-install.button.retry=Retry Installation
-install.button.start=Start Install
-install.bad.ref=You did not scan a valid URL. Please try again.
-install.bad.login=Login to Existing App
-install.appprofile=Enter your app code
-install.perms.rationale.message=CommCare requires at least external storage read & write permissions in order to store form submissions.
-install.perms.denied.message=Crucial permissions denied ${0} times.\n\n If requesting permissions here fails, please enable permissions under Android's 'Settings -> Apps -> CommCare -> Permissions'.
-
-install.choose.local.app=Available Apps
-
 upgrade.button.retry=Retry Upgrade
 upgrade.button.startover=Restart Upgrade
 
-updates.resources.initialization=Initializing Resources
-updates.resources.profile=Locating application...
-
 updates.installing.title=Installing new app version
 updates.installing.message=Installing downloaded updates
-
-menu.basic=Basic Install
-menu.advanced=Advanced Install
-menu.archive=Offline Install
-menu.sms=SMS Install
-menu.sms.not.found=Install link not found in your texts!
-menu.sms.ready=Found install link. Press "Start" to begin installation.
-menu.sms.not.verified=We found a valid looking text, but could not verify its authenticity.
-menu.sms.not.retrieved=We could not retrieve the installation link. Please check your connectivity and try again.
-
 
 profile.found=Application found. ${0} resources loaded, of ${1} total.
 
@@ -108,12 +73,6 @@ home.developer.options.enabled=Developer Mode Enabled
 
 menu.save.session=Save Your Session
 menu.clear.saved.session=Clear Saved Session
-menu.enable.privilege=Enable Mobile Privileges
-menu.privilege.claim.disable=Disable Privileges
-
-install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
-install.major.mismatch=Please uninstall your CommCare Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
-install.minor.mismatch=Please update your version of CommCare from the Android Market to run this application. 
 
 sync.success.sent.singular=Form sent to server!
 sync.success.sent=${0} forms sent to server!
@@ -268,6 +227,9 @@ mult.install.progress.errormoving=There was a problem copying the multimedia fro
 
 mult.install.prompt=From here you can install your app multimedia from a ZIP file on the local filesystem
 mult.install.button=Install Multimedia
+mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}
+mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
+
 
 bulk.form.prompt=From here you can dump forms to and submit forms from your external SD card. You have ${0} unsynced forms on your phone and ${1} unsynced forms on your SD card
 bulk.form.submit=Submit Forms
@@ -307,14 +269,11 @@ bulk.send.transport.error=Couldn't reach the server. Please ensure that you are 
 bulk.form.send.success=${0} forms sent successfully
 bulk.form.dump.success=${1} forms dumped successfully
 
-mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}  
-
 login.menu.demo=Enter Practice Mode
 login.menu.password.mode=Forgot PIN?
-
-main.sync.demo=You cannot sync data down from the server when using practice mode
 login.menu.app.manager=Go To App Manager
 
+main.sync.demo=You cannot sync data down from the server when using practice mode
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in practice mode.
 main.sync.demo.no.forms=You have no forms to submit and you cannot retrieve forms from the server in practice mode.
 
@@ -322,10 +281,8 @@ home.start.demo=Explore CommCare Practice Mode
 home.sync.demo=Submit Practice Data to Server
 home.logout.demo=Log out of Practice Mode
 home.sync.message.last.demo=You are using CommCare in practice mode
-
 demo.mode.warning.title=Starting Practice Mode
 demo.mode.warning=You are logging into CommCare in Practice mode. Practice mode is for testing and practice only!
-
 demo.mode.feature.unavailable=Sorry, this app uses a feature that is not available in Practice mode. Please log in as a named user.
 
 select.search.label=Search:
@@ -335,12 +292,8 @@ select.callout.search.invalid=Invalid callout response
 select.detail.confirm=Continue
 select.detail.bypass=Done
 select.address.show=Show Address
-
-mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
-
 select.menu.sort=Sort By...
 select.menu.map=View on Map
-
 select.detail.title=Details
 select.list.title=Select
 select.detail.callout.title=Select phone number action
@@ -355,8 +308,6 @@ title.datum.wrapper=[${0}]
 activity.task.error.generic=Unexpected error! Please try again.
 activity.task.cancelling.title=Cancelling: ${0}
 activity.task.cancelling.message=Cancelling...
-
-dialog.ok=OK
 
 connection.test.prompt=This will try to fix connection problems that you may be having.
 connection.test.run=Run Connection Test
@@ -417,8 +368,6 @@ save=Save
 recording.prompt=Record or choose sound below...
 recording.custom=Recorded Sound
 
-#Add new localization strings here
-
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found
 callout.missing=No application found for action: ${0}
@@ -460,8 +409,6 @@ refresh.build.update.error=An error occurred while attempting to update, so no r
 refresh.build.update.canceled=The update was canceled, so no refresh occurred.
 refresh.build.session.error=The refresh build utility cannot be used when you are not logged in, so no refresh occurred.
 refresh.build.settings.error=No refresh occurred. In order to use this utility, please turn on the "Enable Session Saving" setting in the Developer Preferences menu.
-
-#Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
@@ -646,8 +593,6 @@ archive.install.bad=The selected CCZ file is not valid. Please choose a valid cc
 archive.install.unzip=Unzipping
 archive.install.no.browser=You need a file manager to access the files on this device. You have not installed a file manager, please go to the Google Play Store and download a file manager, then return to this screen.
 
-archive.install.prompt=Install your CommCare application from a .ccz file
-archive.install.button=Install App
 archive.update.prompt=Update your CommCare application from a .ccz file
 archive.update.button=Update App
 
@@ -712,7 +657,6 @@ wifi.direct.status.submit.message=This mode will allow you to submit forms to th
 
 form.transfer.no.forms=No forms to send.
 
-
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
 
 form.hierarchy=Form Hierarchy
@@ -753,8 +697,6 @@ settings.server.title=CommCare > Server Settings
 settings.developer.options=Developer Options
 settings.main.title=CommCare > Application Preferences
 settings.advanced.title=CommCare > Advanced
-app.manager.advanced.settings.title=App Manager > Advanced Settings
-app.manager.advanced.settings.option=Advanced
 clear.user.data=Clear User Data
 clear.user.data.warning.title=Clear User Data
 clear.user.data.warning.message=Are you sure you want to clear all mobile user data? All unsynced data will be lost!
