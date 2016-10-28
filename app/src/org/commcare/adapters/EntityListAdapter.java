@@ -264,17 +264,17 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
-    private View getTileView(Entity<TreeReference> entity, EntityViewTile emv) {
+    private View getTileView(Entity<TreeReference> entity, EntityViewTile tile) {
         int[] titleColor = AndroidUtil.getThemeColorIDs(commCareActivity, new int[]{R.attr.entity_select_title_text_color});
-        if (emv == null) {
-            emv = EntityViewTile.createTileForEntitySelectDisplay(commCareActivity, detail, entity,
+        if (tile == null) {
+            tile = EntityViewTile.createTileForEntitySelectDisplay(commCareActivity, detail, entity,
                         currentSearchTerms, mImageLoader, mFuzzySearchEnabled, selectActivityInAwesomeMode);
         } else {
-            emv.setSearchTerms(currentSearchTerms);
-            emv.addFieldViews(commCareActivity, detail, entity);
+            tile.setSearchTerms(currentSearchTerms);
+            tile.addFieldViews(commCareActivity, detail, entity);
         }
-        emv.setTitleTextColor(titleColor[0]);
-        return emv;
+        tile.setTitleTextColor(titleColor[0]);
+        return tile;
     }
 
     private View getListEntityView(Entity<TreeReference> entity, EntityView emv, int position) {
