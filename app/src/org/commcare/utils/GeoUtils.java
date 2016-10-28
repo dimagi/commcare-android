@@ -18,7 +18,6 @@ import org.javarosa.core.model.data.UncastData;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Static functions for dealing with GPS data, specifically Location and LocationManager objects.

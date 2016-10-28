@@ -45,6 +45,7 @@ public enum PollSensorController implements LocationListener {
         // LocationManager needs to be dealt with in the main UI thread, so
         // wrap GPS-checking logic in a Handler
         new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
             public void run() {
                 // Start requesting GPS updates
                 Context context = CommCareApplication._();

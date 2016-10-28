@@ -50,7 +50,7 @@ public class CaseIndexTable {
         this.db = CommCareApplication._().getUserDbHandle();
     }
 
-    private SQLiteDatabase db;
+    private final SQLiteDatabase db;
 
     public CaseIndexTable(SQLiteDatabase dbHandle) {
         this.db = dbHandle;

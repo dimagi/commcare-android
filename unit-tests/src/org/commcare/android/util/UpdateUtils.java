@@ -6,7 +6,6 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
-import org.junit.Assert;
 import org.robolectric.Robolectric;
 
 import static junit.framework.TestCase.assertEquals;

@@ -136,7 +136,7 @@ public class CommCareHomeActivity
     private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
-    public static final String MENU_STYLE_GRID = "grid";
+    private static final String MENU_STYLE_GRID = "grid";
 
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
@@ -1167,7 +1167,7 @@ public class CommCareHomeActivity
         displayMessage(message, true, !showPopupNotification);
     }
 
-    void displayMessage(String message, boolean bad, boolean suppressToast) {
+    private void displayMessage(String message, boolean bad, boolean suppressToast) {
         uiController.displayMessage(message, bad, suppressToast);
     }
 
@@ -1375,10 +1375,6 @@ public class CommCareHomeActivity
         } else {
             throw new RuntimeException("On principal of design, only meant for testing purposes");
         }
-    }
-
-    public FormAndDataSyncer getFormAndDataSyncer() {
-        return formAndDataSyncer;
     }
 
     @Override
