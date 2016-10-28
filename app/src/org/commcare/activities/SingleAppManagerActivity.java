@@ -140,6 +140,10 @@ public class SingleAppManagerActivity extends CommCareActivity {
                         Toast.makeText(this, R.string.update_canceled, Toast.LENGTH_LONG).show();
                         task.cancel(true);
                     }
+                } else if (resultCode == RESULT_OK) {
+                    // update activity may have writen to the app record storage, so get new changes
+                    appRecord = MultipleAppsUtil.getAppById(appRecord.getUniqueId());
+                    refresh();
                 }
                 return;
             case MISSING_MEDIA_ACTIVITY:

@@ -5,8 +5,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -44,7 +42,6 @@ import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.utils.ConsumerAppsUtil;
-import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
@@ -56,7 +53,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
-import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.security.SignatureException;
@@ -90,10 +86,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private static final String FORCE_VALIDATE_KEY = "validate";
 
-    /**
-     * How many sms messages to scan over looking for commcare install link
-     */
-    private static final int SMS_CHECK_COUNT = 100;
 
     /**
      * UI configuration states.
@@ -563,86 +555,53 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * @param installTriggeredManually don't install the found app link
      */
     private void scanSMSLinks(final boolean installTriggeredManually) {
-        // http://stackoverflow.com/questions/11301046/search-sms-inbox
-        final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
+        RetrieveParseVerifyMessageTask<CommCareSetupActivity> smsProcessTask =
+                new RetrieveParseVerifyMessageTask<CommCareSetupActivity>(this, getContentResolver(), installTriggeredManually) {
 
-        DateTime oneDayAgo = (new DateTime()).minusDays(1);
-        Cursor cursor = getContentResolver().query(SMS_INBOX,
-                null, "date >? ",
-                new String[]{"" + oneDayAgo.getMillis()},
-                "date DESC");
+                    @Override
+                    protected void deliverResult(CommCareSetupActivity receiver, String result) {
+                        if (installTriggeredManually) {
+                            if (result != null) {
+                                receiver.incomingRef = result;
+                                receiver.uiState = UiState.READY_TO_INSTALL;
+                                receiver.lastInstallMode = INSTALL_MODE_SMS;
+                                receiver.uiStateScreenTransition();
+                                receiver.startResourceInstall();
+                            } else {
+                                // only notify if this was manually triggered
+                                receiver.displayError(Localization.get("menu.sms.not.found"));
+                            }
+                        } else {
+                            if (result != null) {
+                                receiver.incomingRef = result;
+                                receiver.uiState = UiState.READY_TO_INSTALL;
+                                receiver.lastInstallMode = INSTALL_MODE_SMS;
+                                receiver.uiStateScreenTransition();
+                                Toast.makeText(receiver, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    }
 
-        if (cursor == null) {
-            return;
-        }
-        int messageIterationCount = 0;
-        try {
-            boolean attemptedInstall = false;
-            while (cursor.moveToNext() && messageIterationCount <= SMS_CHECK_COUNT) { // must check the result to prevent exception
-                messageIterationCount++;
-                String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
-                if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
-                    attemptedInstall = true;
-                    RetrieveParseVerifyMessageTask<CommCareSetupActivity> mTask =
-                            new RetrieveParseVerifyMessageTask<CommCareSetupActivity>(this, installTriggeredManually) {
+                    @Override
+                    protected void deliverUpdate(CommCareSetupActivity receiver, Void... update) {
+                    }
 
-                                @Override
-                                protected void deliverResult(CommCareSetupActivity receiver, String result) {
-                                    if (installTriggeredManually) {
-                                        if (result != null) {
-                                            receiver.incomingRef = result;
-                                            receiver.uiState = UiState.READY_TO_INSTALL;
-                                            receiver.lastInstallMode = INSTALL_MODE_SMS;
-                                            receiver.uiStateScreenTransition();
-                                            receiver.startResourceInstall();
-                                        } else {
-                                            // only notify if this was manually triggered
-                                            receiver.displayError(Localization.get("menu.sms.not.found"));
-                                        }
-                                    } else {
-                                        if (result != null) {
-                                            receiver.incomingRef = result;
-                                            receiver.uiState = UiState.READY_TO_INSTALL;
-                                            receiver.lastInstallMode = INSTALL_MODE_SMS;
-                                            receiver.uiStateScreenTransition();
-                                            Toast.makeText(receiver, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                protected void deliverUpdate(CommCareSetupActivity receiver, Void... update) {
-                                    //do nothing for now
-                                }
-
-                                @Override
-                                protected void deliverError(CommCareSetupActivity receiver, Exception e) {
-                                    if (e instanceof SignatureException) {
-                                        e.printStackTrace();
-                                        receiver.fail(Localization.get("menu.sms.not.verified"));
-                                    } else if (e instanceof IOException) {
-                                        e.printStackTrace();
-                                        receiver.fail(Localization.get("menu.sms.not.retrieved"));
-                                    } else {
-                                        e.printStackTrace();
-                                        receiver.fail(Localization.get("notification.install.unknown.title"));
-                                    }
-                                }
-                            };
-                    mTask.connect(this);
-                    mTask.executeParallel(textMessageBody);
-                    break;
-                }
-            }
-
-            // attemptedInstall will only be true if we found no texts with the SMS_INSTALL_KEY_STRING tag
-            // if we found one, notification will be handle by the task receiver
-            if (!attemptedInstall && installTriggeredManually) {
-                displayError(Localization.get("menu.sms.not.found"));
-            }
-        } finally {
-            cursor.close();
-        }
+                    @Override
+                    protected void deliverError(CommCareSetupActivity receiver, Exception e) {
+                        if (e instanceof SignatureException) {
+                            e.printStackTrace();
+                            receiver.fail(Localization.get("menu.sms.not.verified"));
+                        } else if (e instanceof IOException) {
+                            e.printStackTrace();
+                            receiver.fail(Localization.get("menu.sms.not.retrieved"));
+                        } else {
+                            e.printStackTrace();
+                            receiver.fail(Localization.get("notification.install.unknown.title"));
+                        }
+                    }
+                };
+        smsProcessTask.connect(this);
+        smsProcessTask.executeParallel();
     }
 
     @Override

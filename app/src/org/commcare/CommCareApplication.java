@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -86,7 +85,6 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
-import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
@@ -151,10 +149,8 @@ public class CommCareApplication extends Application {
     private static final String DEV_TRACKING_ID = BuildConfig.ANALYTICS_TRACKING_ID_DEV;
 
     private static final int STATE_UNINSTALLED = 0;
-    public static final int STATE_UPGRADE = 1;
     private static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
-    public static final int STATE_DELETE_REQUESTED = 8;
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
 
@@ -174,20 +170,15 @@ public class CommCareApplication extends Application {
 
     private ArchiveFileRoot mArchiveFileRoot;
 
-    // Fields for managing a connection to the CommCareSessionService
-    //
-    // A bound service is created out of the CommCareSessionService to ensure
-    // it stays in memory.
+    // A bound service is created out of the CommCareSessionService to ensure it stays in memory.
     private CommCareSessionService mBoundService;
     private ServiceConnection mConnection;
     private final Object serviceLock = new Object();
-    // Has the CommCareSessionService been bound?
-    private boolean mIsBound = false;
-    // Has CommCareSessionService initilization finished?
+    private boolean sessionServiceIsBound = false;
     // Important so we don't use the service before the db is initialized.
-    private boolean mIsBinding = false;
+    private boolean sessionServiceIsBinding = false;
 
-    //Milliseconds to wait for bind
+    // Milliseconds to wait for bind
     private static final int MAX_BIND_TIMEOUT = 5000;
 
     private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
@@ -213,8 +204,8 @@ public class CommCareApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        //Sets the static strategy for the deserializtion code to be
-        //based on an optimized md5 hasher. Major speed improvements.
+        // Sets the static strategy for the deserialization code to be based on an optimized
+        // md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
 
         CommCareApplication.app = this;
@@ -223,9 +214,8 @@ public class CommCareApplication extends Application {
         PreInitLogger pil = new PreInitLogger();
         Logger.registerLogger(pil);
 
-        //Workaround because android is written by 7 year olds.
-        //(reuses http connection pool improperly, so the second https
-        //request in a short time period will flop)
+        // Workaround because android is written by 7 year-olds (re-uses http connection pool
+        // improperly, so the second https request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
@@ -238,19 +228,19 @@ public class CommCareApplication extends Application {
 
         prepareTemporaryStorage();
 
-        //Init global storage (Just application records, logs, etc)
+        // Init global storage (Just application records, logs, etc)
         dbState = initGlobalDb();
 
-        //This is where we go through and check for updates between major transitions.
-        //Soon we should start doing this differently, and actually go to an activity
-        //first which tells the user what's going on.
-        //
-        //The rule about this transition is that if the user had logs pending, we still want them in order, so
-        //we aren't going to dump our logs from the Pre-init logger until after this transition occurs.
+        // This is where we go through and check for updates between major transitions.
+        // Soon we should start doing this differently, and actually go to an activity
+        // first which tells the user what's going on.
+        // The rule about this transition is that if the user had logs pending, we still want
+        // them in order, so we aren't going to dump our logs from the Pre-init logger until
+        // after this transition occurs.
         try {
             LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
         } finally {
-            //No matter what happens, set up our new logger, we want those logs!
+            // No matter what happens, set up our new logger, we want those logs!
             setupLoggerStorage(false);
             pil.dumpToNewLogger();
         }
@@ -258,12 +248,15 @@ public class CommCareApplication extends Application {
         intializeDefaultLocalizerData();
 
         if (dbState != STATE_MIGRATION_FAILED && dbState != STATE_MIGRATION_QUESTIONABLE) {
+            checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
         }
 
         ACRAUtil.initACRA(this);
+
         if (!GoogleAnalyticsUtils.versionIncompatible()) {
             analyticsInstance = GoogleAnalytics.getInstance(this);
+            GoogleAnalyticsUtils.reportAndroidApiLevelAtStartup();
         }
     }
 
@@ -291,11 +284,8 @@ public class CommCareApplication extends Application {
     public static void restartCommCare(Activity originActivity, Class c, boolean systemExit) {
         Intent intent = new Intent(originActivity, c);
 
-        // Make sure that the new stack starts with the given class, and clear everything
-        // between.
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        // Make sure that the new stack starts with the given class, and clear everything between.
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 
         originActivity.moveTaskToBack(true);
         originActivity.startActivity(intent);
@@ -311,7 +301,7 @@ public class CommCareApplication extends Application {
             // if we already have a connection established to
             // CommCareSessionService, close it and open a new one
             SessionActivityRegistration.unregisterSessionExpiration();
-            if (this.mIsBound) {
+            if (this.sessionServiceIsBound) {
                 releaseUserResourcesAndServices();
             }
             bindUserSessionService(symmetricKey, record, restoreSession);
@@ -438,10 +428,12 @@ public class CommCareApplication extends Application {
     public void intializeDefaultLocalizerData() {
         Localization.init(true);
         Localization.registerLanguageReference("default",
-                "jr://asset/locales/messages_ccodk_default.txt");
+                "jr://asset/locales/android_translatable_strings.txt");
+        Localization.registerLanguageReference("default",
+                "jr://asset/locales/android_startup_strings.txt");
         Localization.setDefaultLocale("default");
 
-        //For now. Possibly handle this better in the future
+        // For now. Possibly handle this better in the future
         Localization.setLocale("default");
     }
 
@@ -462,12 +454,10 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Performs the appropriate initialization of an application when this CommCareApplication is
-     * first launched
+     * Check if any existing apps were left in a partially deleted state, and finish
+     * uninstalling them if so.
      */
-    private void initializeAnAppOnStartup() {
-        // Before we try to initialize a new app, check if any existing apps were left in a
-        // partially deleted state, and finish uninstalling them if so
+    private void checkForIncompletelyUninstalledApps() {
         for (ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
             if (record.getStatus() == ApplicationRecord.STATUS_DELETE_REQUESTED) {
                 try {
@@ -478,26 +468,23 @@ public class CommCareApplication extends Application {
                 }
             }
         }
+    }
 
-        // There may now be multiple app records in storage, because of multiple apps support. We
-        // want to initialize one of them to start, so that there will be currently-seated app when
-        // the login screen starts up
-
+    /**
+     * Performs the appropriate initialization of an application when this CommCareApplication is
+     * first launched
+     */
+    private void initializeAnAppOnStartup() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
         if (!"".equals(lastAppId)) {
-            // If there is a 'last app' set in shared preferences, try to initialize that application.
             ApplicationRecord lastApp = MultipleAppsUtil.getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
-                // This app record could be null if it has since been uninstalled, or unusable if
-                // it has since been archived, etc. In either case, just revert to picking the
-                // first app
                 initFirstUsableAppRecord();
             } else {
                 initializeAppResources(new CommCareApp(lastApp));
             }
         } else {
-            // Otherwise, just pick the first app in the list to initialize
             initFirstUsableAppRecord();
         }
     }
@@ -527,7 +514,6 @@ public class CommCareApplication extends Application {
                 resourceState = STATE_READY;
                 this.sessionWrapper = new AndroidSessionWrapper(this.getCommCarePlatform());
             } else {
-                //????
                 resourceState = STATE_CORRUPTED;
             }
         } catch (Exception e) {
@@ -557,59 +543,6 @@ public class CommCareApplication extends Application {
 
         });
         return records;
-    }
-
-    /**
-     * @return all ApplicationRecords that have status installed and are NOT archived
-     */
-    private ArrayList<ApplicationRecord> getVisibleAppRecords() {
-        ArrayList<ApplicationRecord> visible = new ArrayList<>();
-        for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (r.isVisible()) {
-                visible.add(r);
-            }
-        }
-        return visible;
-    }
-
-    /**
-     * @return all ApplicationRecords that are installed AND are not archived AND have MM verified
-     */
-    public ArrayList<ApplicationRecord> getUsableAppRecords() {
-        ArrayList<ApplicationRecord> ready = new ArrayList<>();
-        for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (r.isUsable()) {
-                ready.add(r);
-            }
-        }
-        return ready;
-    }
-
-    /**
-     * @return whether the user should be sent to CommCareVerificationActivity. Current logic is
-     * that this should occur only if there is exactly one visible app and it is missing its MM
-     * (because we are then assuming the user is not currently using multiple apps functionality)
-     */
-    public boolean shouldSeeMMVerification() {
-        return (CommCareApplication._().getVisibleAppRecords().size() == 1 &&
-                CommCareApplication._().getUsableAppRecords().size() == 0);
-    }
-
-    public boolean usableAppsPresent() {
-        return getUsableAppRecords().size() > 0;
-    }
-
-    /**
-     * @return the list of all installed apps as an array
-     */
-    public ApplicationRecord[] appRecordArray() {
-        ArrayList<ApplicationRecord> appList = CommCareApplication._().getInstalledAppRecords();
-        ApplicationRecord[] appArray = new ApplicationRecord[appList.size()];
-        int index = 0;
-        for (ApplicationRecord r : appList) {
-            appArray[index++] = r;
-        }
-        return appArray;
     }
 
     /**
@@ -722,7 +655,7 @@ public class CommCareApplication extends Application {
             database.close();
             return STATE_READY;
         } catch (SQLiteException e) {
-            //Only thrown if DB isn't there
+            // Only thrown if DB isn't there
             return STATE_UNINSTALLED;
         } catch (MigrationException e) {
             if (e.isDefiniteFailure()) {
@@ -819,35 +752,17 @@ public class CommCareApplication extends Application {
      * it shouldn't be used lightly.
      */
     public void clearUserData() {
-//        //First clear anything that will require the user's key, since we're going to wipe it out!
-//        getStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
-//
-//        //TODO: We should really be wiping out the _stored_ instances here, too
-//        getStorage(FormRecord.STORAGE_KEY, FormRecord.class).removeAll();
-//
-//        //Also, any of the sessions we've got saved
-//        getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class).removeAll();
-//
-//        //Now we wipe out the user entirely
-//        getStorage(User.STORAGE_KEY, User.class).removeAll();
-//
-//        //Get rid of any user fixtures
-//        getStorage("fixture", FormInstance.class).removeAll();
-//
-//        getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
-
         wipeSandboxForUser(this.getSession().getLoggedInUser().getUsername());
-
         CommCareApplication._().getCurrentApp().getAppPreferences().edit()
                 .putString(CommCarePreferences.LAST_LOGGED_IN_USER, null).commit();
-
-        // manually clear file-backed fixture storage to ensure files are removed
-        CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
-
         CommCareApplication._().closeUserSession();
     }
 
     public void wipeSandboxForUser(final String username) {
+        // manually clear file-backed fixture storage to ensure files are removed
+        CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
+
+        // wipe the user's db
         final Set<String> dbIdsToRemove = new HashSet<>();
         CommCareApplication._().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
             @Override
@@ -899,15 +814,11 @@ public class CommCareApplication extends Application {
             ccv += vn;
         }
 
-
-        String profileVersion = "";
-
         Profile p = this.currentApp == null ? null : this.getCommCarePlatform().getCurrentProfile();
+        String profileVersion = "";
         if (p != null) {
             profileVersion = String.valueOf(p.getVersion());
         }
-
-
         String buildDate = BuildConfig.BUILD_DATE;
         String buildNumber = BuildConfig.BUILD_NUMBER;
 
@@ -957,11 +868,10 @@ public class CommCareApplication extends Application {
                     // Switch all loggers over to using user storage while there is a session
                     setupLoggerStorage(true);
 
-                    //service available
-                    mIsBound = true;
+                    sessionServiceIsBound = true;
 
-                    //Don't signal bind completion until the db is initialized.
-                    mIsBinding = false;
+                    // Don't signal bind completion until the db is initialized.
+                    sessionServiceIsBinding = false;
 
                     if (user != null) {
                         mBoundService.startSession(user, record);
@@ -978,7 +888,7 @@ public class CommCareApplication extends Application {
 
                         doReportMaintenance(false);
 
-                        //Register that this user was the last to successfully log in if it's a real user
+                        // Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
                             getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
 
@@ -1010,15 +920,14 @@ public class CommCareApplication extends Application {
         // supporting component replacement by other applications).
         startService(new Intent(this, CommCareSessionService.class));
         bindService(new Intent(this, CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
-        mIsBinding = true;
+        sessionServiceIsBinding = true;
     }
 
     @SuppressLint("NewApi")
     private void doReportMaintenance(boolean force) {
-        //OK. So for now we're going to daily report sends and not bother with any of the frequency properties.
 
-        //Create a new submission task no matter what. If nothing is pending, it'll see if there are unsent reports
-        //and try to send them. Otherwise, it'll create the report
+        // Create a new submission task no matter what. If nothing is pending, it'll see if there
+        // are unsent reports and try to send them. Otherwise, it'll create the report
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
         String url = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null);
 
@@ -1074,12 +983,12 @@ public class CommCareApplication extends Application {
 
     public boolean isUpdatePending() {
         SharedPreferences preferences = getCurrentApp().getAppPreferences();
-        //Establish whether or not an AutoUpdate is Pending
+        // Establish whether or not an AutoUpdate is Pending
         String autoUpdateFreq =
                 preferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY,
                         CommCarePreferences.FREQUENCY_NEVER);
 
-        //See if auto update is even turned on
+        // See if auto update is even turned on
         if (!autoUpdateFreq.equals(CommCarePreferences.FREQUENCY_NEVER)) {
             long lastUpdateCheck =
                     preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
@@ -1107,22 +1016,22 @@ public class CommCareApplication extends Application {
     private boolean isPending(long last, long period) {
         long now = new Date().getTime();
 
-        //1) Straightforward - Time is greater than last + duration
+        // 1) Straightforward - Time is greater than last + duration
         long diff = now - last;
         if (diff > period) {
             return true;
         }
 
-        //2) For daily stuff, we want it to be the case that if the last time you synced was the day prior,
-        //you still sync, so people can get into the cycle of doing it once in the morning, which
-        //is more valuable than syncing mid-day.
+        // 2) For daily stuff, we want it to be the case that if the last time you synced was the day prior,
+        // you still sync, so people can get into the cycle of doing it once in the morning, which
+        // is more valuable than syncing mid-day.
         if (isDifferentDayInPast(now, last, period)) {
             return true;
         }
 
-        //3) Major time change - (Phone might have had its calendar day manipulated).
-        //for now we'll simply say that if last was more than a day in the future (timezone blur)
-        //we should also trigger
+        // 3) Major time change - (Phone might have had its calendar day manipulated).
+        // for now we'll simply say that if last was more than a day in the future (timezone blur)
+        // we should also trigger
         return (now < (last - DateUtils.DAY_IN_MILLIS));
     }
 
@@ -1149,11 +1058,11 @@ public class CommCareApplication extends Application {
 
     private void unbindUserSessionService() {
         synchronized (serviceLock) {
-            if (mIsBound) {
+            if (sessionServiceIsBound) {
                 if (sessionWrapper != null) {
                     sessionWrapper.reset();
                 }
-                mIsBound = false;
+                sessionServiceIsBound = false;
                 // Detach our existing connection.
                 unbindService(mConnection);
                 stopService(new Intent(this, CommCareSessionService.class));
@@ -1163,8 +1072,7 @@ public class CommCareApplication extends Application {
 
     public CommCareSessionService getSession() {
         long started = System.currentTimeMillis();
-        //If binding is currently in process, just wait for it.
-        while (mIsBinding) {
+        while (sessionServiceIsBinding) {
             if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
                 throw new SessionUnavailableException(
                         "Trying to access session on UI thread while session is binding");
@@ -1178,7 +1086,7 @@ public class CommCareApplication extends Application {
             }
         }
 
-        if (mIsBound) {
+        if (sessionServiceIsBound) {
             synchronized (serviceLock) {
                 return mBoundService;
             }
@@ -1192,8 +1100,6 @@ public class CommCareApplication extends Application {
         return getSession().getUserKeyRecord();
     }
 
-    // Start - Error message Hooks
-
     public static final int MESSAGE_NOTIFICATION = R.string.notification_message_title;
 
     private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<>();
@@ -1204,10 +1110,10 @@ public class CommCareApplication extends Application {
 
     public void reportNotificationMessage(final NotificationMessage message, boolean showToast) {
         synchronized (pendingMessages) {
-            //make sure there is no matching message pending
+            // Make sure there is no matching message pending
             for (NotificationMessage msg : pendingMessages) {
                 if (msg.equals(message)) {
-                    //If so, bail.
+                    // If so, bail.
                     return;
                 }
             }
@@ -1219,7 +1125,7 @@ public class CommCareApplication extends Application {
                 toaster.sendMessage(m);
             }
 
-            //Otherwise, add it to the queue, and update the notification
+            // Otherwise, add it to the queue, and update the notification
             pendingMessages.add(message);
             updateMessageNotification();
         }
@@ -1297,26 +1203,24 @@ public class CommCareApplication extends Application {
 
         long period = -1;
 
-        //Old flag, use a day by default
+        // Old flag, use a day by default
         if ("true".equals(prefs.getString("cc-auto-update", "false"))) {
             period = DateUtils.DAY_IN_MILLIS;
         }
 
-        //new flag, read what it is.
+        // new flag, read what it is.
         String periodic = prefs.getString(CommCarePreferences.AUTO_SYNC_FREQUENCY, CommCarePreferences.FREQUENCY_NEVER);
 
         if (!periodic.equals(CommCarePreferences.FREQUENCY_NEVER)) {
             period = DateUtils.DAY_IN_MILLIS * (periodic.equals(CommCarePreferences.FREQUENCY_DAILY) ? 1 : 7);
         }
 
-        //If we didn't find a period, bail
+        // If we didn't find a period, bail
         if (period == -1) {
             return false;
         }
 
-
         long lastRestore = prefs.getLong(CommCarePreferences.LAST_SYNC_ATTEMPT, 0);
-
         return (isPending(lastRestore, period));
     }
 
@@ -1324,8 +1228,8 @@ public class CommCareApplication extends Application {
         if (areAutomatedActionsInvalid()) {
             return false;
         }
-        //We only set this to true occasionally, but in theory it could be set to false
-        //from other factors, so turn it off if it is.
+        // We only set this to true occasionally, but in theory it could be set to false
+        // from other factors, so turn it off if it is.
         if (!getPendingSyncStatus()) {
             syncPending = false;
         }
@@ -1418,7 +1322,7 @@ public class CommCareApplication extends Application {
      * Used for manually linking to a session service during tests
      */
     public void setTestingService(CommCareSessionService service) {
-        mIsBound = true;
+        sessionServiceIsBound = true;
         mBoundService = service;
         mConnection = new ServiceConnection() {
             @Override
@@ -1509,4 +1413,5 @@ public class CommCareApplication extends Application {
     public PrototypeFactory getPrototypeFactory(Context c) {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
+
 }
