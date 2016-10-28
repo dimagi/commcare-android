@@ -1,7 +1,7 @@
 package org.commcare.tasks;
 
 /**
- * Created by wpride1 on 9/25/15.
+ * @author Will Pride (wpride@dimagi.com)
  */
 public interface RetrieveParseVerifyMessageListener {
     void downloadLinkReceived(String url);
