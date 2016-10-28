@@ -36,7 +36,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
     private static final String SAVING_NOT_ENABLED_ERROR = "session-saving-not-enabled";
 
     // Activity request code
-    private int PERFORM_UPDATE = 0;
+    private final int PERFORM_UPDATE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

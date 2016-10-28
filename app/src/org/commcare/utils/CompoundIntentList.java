@@ -1,7 +1,6 @@
 package org.commcare.utils;
 
 import android.content.Intent;
-import android.text.Spannable;
 
 import java.util.ArrayList;
 
