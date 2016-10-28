@@ -16,7 +16,9 @@ HELP_MSG = """'capture' saves the current session for restoring later.
 'uninstall app_id' uninstalls an installed app.
 'login username password' logs into the currently seated app
 'invalidate' forces recovery on next sync by providing fake case db hash.
-'clear_restore_cache' sets a flag that will cause the next restore request to include a param that clears the cache on HQ.
+'expire_key username' updates a user key record to expire yesterday.
+'clear_restore_cache' sets a flag that will cause the next restore request to
+                      include a param that clears the cache on HQ.
 'remote domain app_id build' downloads an app from HQ and installs it.
                              The 'build' argument is optional
 'media_remote domain app_id build' downloads an app with multimedia from HQ and
@@ -73,6 +75,18 @@ def stage_recover():
     """
     cmd = receiver_command("org.commcare.dalvik.api.action" +
                            ".TriggerSyncRecover")
+    print(cmd)
+    subprocess.call(cmd, shell=True)
+
+
+# String -> None
+def expire_key(username):
+    """
+    Expire user key record for user by setting 'validTo' to yesterday
+    """
+    extras = {"username": username}
+    cmd = receiver_command("org.commcare.dalvik.api.action" +
+                           ".ExpireUserKeyRecord", extras)
     print(cmd)
     subprocess.call(cmd, shell=True)
 
@@ -212,6 +226,8 @@ def main():
             lambda: uninstall(sys.argv[2]),
         'invalidate':
             lambda: stage_recover(),
+        'expire_key':
+            lambda: expire_key(sys.argv[2]),
         'remote':
             lambda: remote_install(*sys.argv[2:5]),
         'media_remote':

@@ -129,7 +129,7 @@ public class SpinnerWidget extends QuestionWidget {
     // Defines how to display the select answers
     private class SpinnerAdapter extends ArrayAdapter<String> {
         final Context context;
-        String[] items;
+        final String[] items;
         final int textUnit;
         final float textSize;
 

@@ -2,12 +2,9 @@ package org.commcare.logic;
 
 import android.support.annotation.NonNull;
 
-import org.commcare.views.QuestionsView;
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.GroupDef;
-import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.SubmissionProfile;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.FormInstance;
@@ -20,7 +17,6 @@ import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.model.xform.XPathReference;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Vector;
 
 /**
