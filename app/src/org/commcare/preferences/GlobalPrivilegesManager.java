@@ -54,7 +54,7 @@ public class GlobalPrivilegesManager {
     public static String getEnabledPrivilegesString() {
         StringBuilder builder = new StringBuilder();
         for (String privilege : getEnabledPrivileges()) {
-            builder.append("- " + getPrivilegeDisplayName(privilege) +"\n");
+            builder.append("- ").append(getPrivilegeDisplayName(privilege)).append("\n");
         }
         return builder.toString();
     }

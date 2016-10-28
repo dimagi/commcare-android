@@ -63,12 +63,12 @@ import org.javarosa.core.util.NoLocalizedTextException;
 public abstract class CommCareActivity<R> extends FragmentActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
 
-    private static String TAG = CommCareActivity.class.getSimpleName();
+    private static final String TAG = CommCareActivity.class.getSimpleName();
 
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
 
-    int invalidTaskIdMessageThrown = -2;
+    private int invalidTaskIdMessageThrown = -2;
     private TaskConnectorFragment<R> stateHolder;
 
 
@@ -381,7 +381,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     /**
      * Display exception details as a pop-up to the user.
      */
-    public void displayException(String title, String message) {
+    private void displayException(String title, String message) {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {

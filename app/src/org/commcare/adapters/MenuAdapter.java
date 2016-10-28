@@ -57,7 +57,7 @@ public class MenuAdapter implements ListAdapter {
     private Exception loadError;
     private String errorXpathException = "";
     final Context context;
-    MenuDisplayable[] displayableData;
+    final MenuDisplayable[] displayableData;
 
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
         this.context = context;

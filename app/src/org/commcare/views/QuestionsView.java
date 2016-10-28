@@ -64,7 +64,7 @@ public class QuestionsView extends ScrollView
 
     private SpannableStringBuilder mGroupLabel;
 
-    private BlockingActionsManager blockingActionsManager;
+    private final BlockingActionsManager blockingActionsManager;
 
     /**
      * If enabled, we use dividers between question prompts

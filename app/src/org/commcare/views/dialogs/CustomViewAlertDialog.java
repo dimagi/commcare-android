@@ -12,7 +12,7 @@ import android.view.View;
  */
 public class CustomViewAlertDialog extends CommCareAlertDialog {
 
-    private AlertDialog.Builder builder;
+    private final AlertDialog.Builder builder;
 
     public CustomViewAlertDialog(Context context, View view) {
         this.builder = new AlertDialog.Builder(context);

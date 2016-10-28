@@ -23,7 +23,7 @@ public class HttpResponseMock {
     public static HttpResponse buildHttpResponseMock(final int statusCode, final InputStream entityStream) {
         return new HttpResponse() {
 
-            private Map<String,Header> headers = new HashMap<>();
+            private final Map<String,Header> headers = new HashMap<>();
 
             private final StatusLine statusLine = new StatusLine() {
                 @Override
