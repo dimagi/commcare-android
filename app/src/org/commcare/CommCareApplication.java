@@ -586,33 +586,6 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * @return whether the user should be sent to CommCareVerificationActivity. Current logic is
-     * that this should occur only if there is exactly one visible app and it is missing its MM
-     * (because we are then assuming the user is not currently using multiple apps functionality)
-     */
-    public boolean shouldSeeMMVerification() {
-        return (CommCareApplication._().getVisibleAppRecords().size() == 1 &&
-                CommCareApplication._().getUsableAppRecords().size() == 0);
-    }
-
-    public boolean usableAppsPresent() {
-        return getUsableAppRecords().size() > 0;
-    }
-
-    /**
-     * @return the list of all installed apps as an array
-     */
-    public ApplicationRecord[] appRecordArray() {
-        ArrayList<ApplicationRecord> appList = CommCareApplication._().getInstalledAppRecords();
-        ApplicationRecord[] appArray = new ApplicationRecord[appList.size()];
-        int index = 0;
-        for (ApplicationRecord r : appList) {
-            appArray[index++] = r;
-        }
-        return appArray;
-    }
-
-    /**
      * @param uniqueId - the uniqueId of the ApplicationRecord being sought
      * @return the ApplicationRecord corresponding to the given id, if it exists. Otherwise,
      * return null
@@ -841,13 +814,13 @@ public class CommCareApplication extends Application {
         CommCareApplication._().getCurrentApp().getAppPreferences().edit()
                 .putString(CommCarePreferences.LAST_LOGGED_IN_USER, null).commit();
 
-        // manually clear file-backed fixture storage to ensure files are removed
-        CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
-
         CommCareApplication._().closeUserSession();
     }
 
     public void wipeSandboxForUser(final String username) {
+        // manually clear file-backed fixture storage to ensure files are removed
+        CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
+
         final Set<String> dbIdsToRemove = new HashSet<>();
         CommCareApplication._().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
             @Override
