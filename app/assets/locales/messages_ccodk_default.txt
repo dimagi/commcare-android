@@ -777,7 +777,7 @@ fingerprint.match.100=★★★★★
 fingerprint.match.75=★★★★
 fingerprint.match.50=★★★
 fingerprint.match.25=★★
-fingerprint.match.0=★/
+fingerprint.match.0=★
 fingerprint.match.unknown=?
 
 calendar.empty.fields=Empty fields
