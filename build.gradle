@@ -42,12 +42,11 @@ configurations {
 dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.1.2'
-
     testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
     debugCompile project(':commcare-core')
     compile project(':commcare-core')
-    compile fileTree(dir: 'app/libs', include: '*.jar')
+    compile fileTree(include: '*.jar', dir: 'app/libs')
     compile(name: 'htmlspanner-custom', ext: 'aar')
     compile(name: 'android-zebra-interface-1.0', ext: 'aar')
     compile(name: 'simprints-lib', ext: 'aar')
@@ -359,6 +358,15 @@ task switchGoogleServicesCommcare(type: Copy) {
     description = 'Makes build use normal google-services.json file'
     println project.ext.COMMCARE_APP_ID
 
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    if (Double.parseDouble(gradle.gradleVersion) < 3) {
+        outputs.files.setFrom(file("$projectDir/google-services.json"))
+    }
+
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.COMMCARE_APP_ID])
     into projectDir
@@ -366,6 +374,15 @@ task switchGoogleServicesCommcare(type: Copy) {
 
 task switchGoogleServicesLts(type: Copy) {
     description = 'Switches package name in google-services.json to match Lts package name'
+
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    if (Double.parseDouble(gradle.gradleVersion) < 3) {
+        outputs.files.setFrom(file("$projectDir/google-services.json"))
+    }
 
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.LTS_APP_ID])
@@ -376,6 +393,15 @@ task switchGoogleServicesStandalone(type: Copy) {
     description = 'Switches package name in google-services.json to match Standalone package name'
     outputs.upToDateWhen { false }
 
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    if (Double.parseDouble(gradle.gradleVersion) < 3) {
+        outputs.files.setFrom(file("$projectDir/google-services.json"))
+    }
+
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.STANDALONE_APP_ID])
     into projectDir
@@ -383,6 +409,15 @@ task switchGoogleServicesStandalone(type: Copy) {
 
 task switchGoogleServicesQabeta(type: Copy) {
     description = 'Switches package name in google-services.json to match Qabeta package name'
+
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    if (Double.parseDouble(gradle.gradleVersion) < 3) {
+        outputs.files.setFrom(file("$projectDir/google-services.json"))
+    }
 
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.QA_BETA_APP_ID])
