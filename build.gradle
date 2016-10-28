@@ -363,7 +363,9 @@ task switchGoogleServicesCommcare(type: Copy) {
      * to copy something into the root directory (containing the .gradle folder). Don't
      * change it without testing on a windows machine
      */
-    outputs.files.setFrom(file("$projectDir/google-services.json"))
+    if (Double.parseDouble(gradle.gradleVersion) < 3) {
+        outputs.files.setFrom(file("$projectDir/google-services.json"))
+    }
 
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.COMMCARE_APP_ID])
@@ -378,7 +380,9 @@ task switchGoogleServicesLts(type: Copy) {
      * to copy something into the root directory (containing the .gradle folder). Don't
      * change it without testing on a windows machine
      */
-    outputs.files.setFrom(file("$projectDir/google-services.json"))
+    if (Double.parseDouble(gradle.gradleVersion) < 3) {
+        outputs.files.setFrom(file("$projectDir/google-services.json"))
+    }
 
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.LTS_APP_ID])
@@ -394,7 +398,9 @@ task switchGoogleServicesStandalone(type: Copy) {
      * to copy something into the root directory (containing the .gradle folder). Don't
      * change it without testing on a windows machine
      */
-    outputs.files.setFrom(file("$projectDir/google-services.json"))
+    if (Double.parseDouble(gradle.gradleVersion) < 3) {
+        outputs.files.setFrom(file("$projectDir/google-services.json"))
+    }
 
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.STANDALONE_APP_ID])
@@ -409,7 +415,9 @@ task switchGoogleServicesQabeta(type: Copy) {
      * to copy something into the root directory (containing the .gradle folder). Don't
      * change it without testing on a windows machine
      */
-    outputs.files.setFrom(file("$projectDir/google-services.json"))
+    if (Double.parseDouble(gradle.gradleVersion) < 3) {
+        outputs.files.setFrom(file("$projectDir/google-services.json"))
+    }
 
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.QA_BETA_APP_ID])
