@@ -136,11 +136,6 @@ public abstract class DataPullTask<R>
         }
     }
 
-    @Override
-    public void refreshView() {
-        
-    }
-
     private ResultAndError<PullTaskResult> doTaskBackgroundHelper() {
         publishProgress(PROGRESS_STARTED);
         recordSyncAttemptTime();
