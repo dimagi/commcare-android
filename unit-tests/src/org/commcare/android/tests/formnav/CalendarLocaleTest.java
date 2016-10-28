@@ -90,9 +90,9 @@ public class CalendarLocaleTest {
         TextView ethiopianDayText = (TextView)formEntryActivity.findViewById(R.id.daytxt);
         TextView ethiopianMonthText = (TextView)formEntryActivity.findViewById(R.id.monthtxt);
         TextView ethiopianYearText = (TextView)formEntryActivity.findViewById(R.id.yeartxt);
-        assertEquals(ethiopianMonthText.getText(), "Senie");
-        assertEquals(ethiopianDayText.getText(), "26");
-        assertEquals(ethiopianYearText.getText(), "2008");
+        assertEquals("Säne",ethiopianMonthText.getText());
+        assertEquals("26", ethiopianDayText.getText());
+        assertEquals("2008", ethiopianYearText.getText());
     }
 
 
