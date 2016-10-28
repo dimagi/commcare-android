@@ -41,8 +41,8 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
 
     public static final int ZIP_TASK_ID = 72135;
 
-    private File toBeZippedFile;
-    private String zipFilePath;
+    private final File toBeZippedFile;
+    private final String zipFilePath;
 
     public ZipTask(String toBeZippedPath, String zipFilePath) {
         taskId = ZIP_TASK_ID;

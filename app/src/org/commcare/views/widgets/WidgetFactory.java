@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import org.commcare.utils.BlockingActionsManager;
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;

@@ -8,9 +8,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Vector;
 
 /**
