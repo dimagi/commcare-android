@@ -1,7 +1,9 @@
 package org.commcare.activities;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -80,6 +82,16 @@ public class PinAuthenticationActivity extends
         }
 
         pinEntry.addTextChangedListener(CreatePinActivity.getPinTextWatcher(enterButton));
+        pinEntry.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    enterButton.performClick();
+                    return true;
+                }
+                return false;
+            }
+        });
 
         enterButton.setOnClickListener(new View.OnClickListener() {
 
@@ -106,6 +118,7 @@ public class PinAuthenticationActivity extends
     private void setPinAuthModeUI() {
         promptText.setText(Localization.get("pin.auth.prompt.pin"));
         pinEntry.setVisibility(View.VISIBLE);
+        pinEntry.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         passwordEntry.setVisibility(View.GONE);
         enterButton.setEnabled(false);
     }

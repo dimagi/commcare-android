@@ -26,7 +26,6 @@ public class CaseIndexTable {
     private static final String COL_INDEX_TYPE = "type";
     private static final String COL_INDEX_TARGET = "target";
 
-
     public static String getTableDefinition() {
         return "CREATE TABLE " + TABLE_NAME + "(" +
                 DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY, " +
@@ -97,7 +96,6 @@ public class CaseIndexTable {
         } finally {
             db.endTransaction();
         }
-
     }
 
     /**
@@ -116,5 +114,4 @@ public class CaseIndexTable {
         Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID}, COL_INDEX_NAME + " = ? AND " + COL_INDEX_TARGET + " =  ?", args, null, null, null);
         return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
     }
-
 }

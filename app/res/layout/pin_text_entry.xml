@@ -8,5 +8,6 @@
           android:layout_centerVertical="true"
           android:gravity="center_horizontal"
           android:inputType="numberPassword"
+          android:maxLines="1"
           android:maxLength="4">
 </EditText>

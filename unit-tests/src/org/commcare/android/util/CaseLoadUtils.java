@@ -12,8 +12,6 @@ import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowListView;
 
-import static org.junit.Assert.assertTrue;
-
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
@@ -44,7 +42,7 @@ public class CaseLoadUtils {
 
         // start the entity select activity
         return Robolectric.buildActivity(EntitySelectActivity.class)
-                .withIntent(entitySelectIntent).create().start().resume().get();
+                .withIntent(entitySelectIntent).setup().get();
     }
 
 }

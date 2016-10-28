@@ -9,7 +9,13 @@ import org.commcare.views.notifications.NotificationMessage;
 public interface DataPullController {
 
     enum DataPullMode {
-        NORMAL, CONSUMER_APP, CCZ_DEMO
+        NORMAL,
+        CONSUMER_APP,
+
+        /**
+         * Pulls data from demo user restore file present in CCZ app
+         */
+        CCZ_DEMO
     }
 
     void startDataPull(DataPullMode mode);
