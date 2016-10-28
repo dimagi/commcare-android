@@ -363,7 +363,7 @@ task switchGoogleServicesCommcare(type: Copy) {
      * to copy something into the root directory (containing the .gradle folder). Don't
      * change it without testing on a windows machine
      */
-    if (Double.parseDouble(gradle.gradleVersion) < 3) {
+    if (gradle.gradleVersion.split("\\.")[0] as double) {
         outputs.files.setFrom(file("$projectDir/google-services.json"))
     }
 
@@ -380,7 +380,7 @@ task switchGoogleServicesLts(type: Copy) {
      * to copy something into the root directory (containing the .gradle folder). Don't
      * change it without testing on a windows machine
      */
-    if (Double.parseDouble(gradle.gradleVersion) < 3) {
+    if (gradle.gradleVersion.split("\\.")[0] as double) {
         outputs.files.setFrom(file("$projectDir/google-services.json"))
     }
 
@@ -398,7 +398,7 @@ task switchGoogleServicesStandalone(type: Copy) {
      * to copy something into the root directory (containing the .gradle folder). Don't
      * change it without testing on a windows machine
      */
-    if (Double.parseDouble(gradle.gradleVersion) < 3) {
+    if (gradle.gradleVersion.split("\\.")[0] as double) {
         outputs.files.setFrom(file("$projectDir/google-services.json"))
     }
 
@@ -415,7 +415,7 @@ task switchGoogleServicesQabeta(type: Copy) {
      * to copy something into the root directory (containing the .gradle folder). Don't
      * change it without testing on a windows machine
      */
-    if (Double.parseDouble(gradle.gradleVersion) < 3) {
+    if (gradle.gradleVersion.split("\\.")[0] as double) {
         outputs.files.setFrom(file("$projectDir/google-services.json"))
     }
 
