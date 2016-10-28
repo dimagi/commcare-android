@@ -1,0 +1,41 @@
+# Install strings
+install.keep.trying=Keep trying if connection is interrupted
+install.barcode.top=Welcome to CommCare!
+install.barcode.bottom=Please choose an installation method below
+install.manual=Please enter the URL
+install.ready.top=Almost there!
+install.ready.bottom=Press the button below to install your app.
+install.netwarn=If you are attempting to install from a server, make sure you have an internet connection.
+install.button.enter=Enter Code
+install.button.startover=Start Over
+install.button.retry=Retry Installation
+install.button.start=Start Install
+install.bad.ref=You did not scan a valid URL. Please try again.
+install.bad.login=Login to Existing App
+install.appprofile=Enter your app code
+install.perms.rationale.message=CommCare requires at least external storage read & write permissions in order to store form submissions.
+install.perms.denied.message=Crucial permissions denied ${0} times.\n\n If requesting permissions here fails, please enable permissions under Android's 'Settings -> Apps -> CommCare -> Permissions'.
+install.choose.local.app=Available Apps
+
+menu.archive=Offline Install
+menu.sms=SMS Install
+menu.sms.not.found=Install link not found in your texts!
+menu.sms.ready=Found install link. Press "Start" to begin installation.
+menu.sms.not.verified=We found a valid looking text, but could not verify its authenticity.
+menu.sms.not.retrieved=We could not retrieve the installation link. Please check your connectivity and try again.
+
+updates.resources.initialization=Initializing Resources
+updates.resources.profile=Locating application...
+
+archive.install.prompt=Install your CommCare application from a .ccz file
+archive.install.button=Install App
+
+install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
+install.major.mismatch=Please uninstall your CommCare Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
+install.minor.mismatch=Please update your version of CommCare from the Android Market to run this application.
+
+# App manager strings
+menu.enable.privilege=Enable Mobile Privileges
+menu.privilege.claim.disable=Disable Privileges
+app.manager.advanced.settings.title=App Manager > Advanced Settings
+app.manager.advanced.settings.option=Advanced
