@@ -52,6 +52,8 @@ public class GoogleAnalyticsUtils {
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
+                .setCustomDimension(4, "" + CommCareApplication._().isConsumerApp())
+                .setCustomDimension(5, ReportingUtils.getAppId())
                 .setCategory(category)
                 .setAction(action)
                 .setLabel(label)
@@ -69,6 +71,8 @@ public class GoogleAnalyticsUtils {
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
+                .setCustomDimension(4, "" + CommCareApplication._().isConsumerApp())
+                .setCustomDimension(5, ReportingUtils.getAppId())
                 .setCategory(category)
                 .setAction(action)
                 .setLabel(label)
@@ -319,6 +323,12 @@ public class GoogleAnalyticsUtils {
     public static void reportLanguageAtPointOfFormEntry(String language) {
         reportEvent(GoogleAnalyticsFields.CATEGORY_LANGUAGE_STATS,
                 GoogleAnalyticsFields.ACTION_LANGUAGE_AT_FORM_ENTRY, language);
+    }
+
+    public static void reportAndroidApiLevelAtStartup() {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_HIGH_LEVEL_STATS,
+                GoogleAnalyticsFields.ACTION_ANDROID_API_LEVEL_AT_STARTUP,
+                "" + Build.VERSION.SDK_INT);
     }
 
     /**

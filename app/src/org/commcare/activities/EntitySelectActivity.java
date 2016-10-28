@@ -1,34 +1,25 @@
 package org.commcare.activities;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,8 +73,7 @@ import java.util.List;
  * @author ctsims
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
-        implements TextWatcher, EntityLoaderListener,
-        OnItemClickListener, DetailCalloutListener {
+        implements EntityLoaderListener, OnItemClickListener, DetailCalloutListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
 
@@ -104,16 +94,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private static final int MENU_ACTION_GROUP = Menu.FIRST + 1;
 
-    private EditText preHoneycombSearchBox;
-
-    private TextView searchResultStatus;
-    private ImageButton clearSearchButton;
-    private View searchBanner;
     private EntityListAdapter adapter;
     private LinearLayout header;
-    private SearchView searchView;
-    private MenuItem searchMenuItem;
-    private MenuItem barcodeMenuItem;
 
     private EntityDatum selectDatum;
 
@@ -134,8 +116,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private TabbedDetailView detailView;
 
     private Intent selectedIntent = null;
+    private boolean hideActionsFromOptionsMenu;
+    private boolean hideActionsFromEntityList;
 
-    private String filterString = "";
+    private EntitySelectSearchUI entitySelectSearchUI;
 
     private Detail shortSelect;
 
@@ -159,9 +143,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
     private boolean containsHereFunction = false;
     private boolean locationChangedWhileLoading = false;
-
-    private boolean hideActionsFromOptionsMenu;
-    private boolean hideActionsFromEntityList;
 
     // Handler for displaying alert dialog when no location providers are found
     private final LocationNotificationHandler locationNotificationHandler =
@@ -211,29 +192,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             public void onChanged() {
                 super.onChanged();
 
-                setSearchBannerState();
+                entitySelectSearchUI.setSearchBannerState();
             }
         };
-    }
-
-    private void setSearchBannerState() {
-        if (!"".equals(adapter.getSearchQuery())) {
-            showSearchBanner();
-            // Android's native SearchView has its own clear search button, so need to add our own
-            clearSearchButton.setVisibility(View.GONE);
-        } else if (adapter.isFilteringByCalloutResult()) {
-            showSearchBanner();
-            clearSearchButton.setVisibility(View.VISIBLE);
-        } else {
-            searchBanner.setVisibility(View.GONE);
-            clearSearchButton.setVisibility(View.GONE);
-        }
-    }
-
-    private void showSearchBanner() {
-        searchResultStatus.setText(adapter.getSearchNotificationText());
-        searchResultStatus.setVisibility(View.VISIBLE);
-        searchBanner.setVisibility(View.VISIBLE);
     }
 
     private void restoreSavedState(Bundle savedInstanceState) {
@@ -274,27 +235,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
         visibleView.setOnItemClickListener(this);
 
-        initUIComponents();
+        header = (LinearLayout)findViewById(R.id.entity_select_header);
+        entitySelectSearchUI = new EntitySelectSearchUI(this);
         restoreLastQueryString();
         persistAdapterState(visibleView);
         attemptInitCallout();
-        setupPreHoneycombFooter();
+        entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, shortSelect.getCallout());
         setupMapNav();
-    }
-
-    private void initUIComponents() {
-        searchBanner = findViewById(R.id.search_result_banner);
-        searchResultStatus = (TextView) findViewById(R.id.search_results_status);
-        header = (LinearLayout) findViewById(R.id.entity_select_header);
-        clearSearchButton = (ImageButton)findViewById(R.id.clear_search_button);
-        clearSearchButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adapter.clearCalloutResponseData();
-                refreshView();
-            }
-        });
-        clearSearchButton.setVisibility(View.GONE);
     }
 
     private void attemptInitCallout() {
@@ -341,43 +288,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void setupPreHoneycombFooter() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            TextView preHoneycombSearchLabel =
-                    (TextView)findViewById(R.id.screen_entity_select_search_label);
-            //use the old method here because some Android versions don't like Spannables for titles
-            preHoneycombSearchLabel.setText(Localization.get("select.search.label"));
-            preHoneycombSearchLabel.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // get the focus on the edittext by performing click
-                    preHoneycombSearchBox.performClick();
-                    // then force the keyboard up since performClick() apparently isn't enough on some devices
-                    InputMethodManager inputMethodManager =
-                            (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    // only will trigger it if no physical keyboard is open
-                    inputMethodManager.showSoftInput(preHoneycombSearchBox, InputMethodManager.SHOW_IMPLICIT);
-                }
-            });
-
-            preHoneycombSearchBox = (EditText)findViewById(R.id.searchbox);
-            preHoneycombSearchBox.setMaxLines(3);
-            preHoneycombSearchBox.setHorizontallyScrolling(false);
-            preHoneycombSearchBox.addTextChangedListener(this);
-            preHoneycombSearchBox.requestFocus();
-            preHoneycombSearchBox.setText(lastQueryString);
-
-            ImageButton preHoneycombBarcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
-            preHoneycombBarcodeButton.setOnClickListener(barcodeScanOnClickListener);
-            Callout callout = shortSelect.getCallout();
-            if (callout != null && callout.getImage() != null) {
-                EntitySelectCalloutSetup.setupImageLayout(this, preHoneycombBarcodeButton,
-                        callout.getImage());
-            }
-
-        }
-    }
-
     private void persistAdapterState(AdapterView view) {
         FragmentManager fm = this.getSupportFragmentManager();
 
@@ -403,7 +313,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             EntitySelectViewSetup.setupDivider(this, (ListView)view, shortSelect.usesEntityTileView());
         }
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
-        setSearchBannerState();
+        entitySelectSearchUI.setSearchBannerState();
     }
 
     private void setupMapNav() {
@@ -472,7 +382,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     /**
      * Get form list from database and insert into view.
      */
-    private void refreshView() {
+    protected void refreshView() {
         try {
             rebuildHeaders();
 
@@ -567,8 +477,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             adapter.signalKilled();
         }
     }
-
-
 
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
@@ -668,7 +576,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             if (result != null) {
                 result = result.trim();
             }
-            setSearchText(result);
+            entitySelectSearchUI.setSearchText(result);
         }
     }
 
@@ -689,12 +597,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void handleSearchStringCallout(Intent intent) {
         String result = intent.getStringExtra(IntentCallout.INTENT_RESULT_VALUE);
         if (result != null) {
-            setSearchText(result.trim());
+            entitySelectSearchUI.setSearchText(result.trim());
         } else {
             for (String key : shortSelect.getCallout().getResponses()) {
                 result = intent.getExtras().getString(key);
                 if (result != null) {
-                    setSearchText(result);
+                    entitySelectSearchUI.setSearchText(result);
                     return;
                 }
             }
@@ -722,31 +630,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    public void afterTextChanged(Editable incomingEditable) {
-        final String incomingString = incomingEditable.toString();
-        final String currentSearchText = getSearchText().toString();
-        if (incomingString.equals(currentSearchText)) {
-            filterString = currentSearchText;
-            if (adapter != null) {
-                adapter.filterByString(filterString);
-            }
-        }
-        if (!isUsingActionBar()) {
-            lastQueryString = filterString;
-        }
-    }
-
-
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count,
-                                  int after) {
-    }
-
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         //use the old method here because some Android versions don't like Spannables for titles
@@ -757,45 +640,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     android.R.drawable.ic_menu_mapmode);
         }
 
-        tryToAddSearchActionToAppBar(this, menu, new ActionBarInstantiator() {
-            // again, this should be unnecessary...
-            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-            @Override
-            public void onActionBarFound(MenuItem searchItem, SearchView searchView, MenuItem barcodeItem) {
-                EntitySelectActivity.this.searchMenuItem = searchItem;
-                EntitySelectActivity.this.searchView = searchView;
-                EntitySelectActivity.this.barcodeMenuItem = barcodeItem;
-                // restore last query string in the searchView if there is one
-                if (lastQueryString != null && lastQueryString.length() > 0) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                        searchItem.expandActionView();
-                    }
-                    searchView.setQuery(lastQueryString, false);
-                    if (adapter != null) {
-                        adapter.filterByString(lastQueryString == null ? "" : lastQueryString);
-                    }
-                }
-                EntitySelectActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-                        lastQueryString = newText;
-                        filterString = newText;
-                        if (adapter != null) {
-                            adapter.filterByString(newText);
-                        }
-                        return false;
-                    }
-                });
-            }
-        });
-
+        tryToAddSearchActionToAppBar(this, menu, entitySelectSearchUI.getActionBarInstantiator());
         setupActionOptionsMenu(menu);
-
         return true;
     }
 
@@ -808,38 +654,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     indexToAddActionAt += 1;
                 }
             }
-            if (shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null) {
-                // Replace the barcode scan callout with our custom callout
-                EntitySelectCalloutSetup.setupImageLayout(this, barcodeMenuItem, shortSelect.getCallout().getImage());
-            }
-        }
-    }
-
-    /**
-     * Checks if this activity uses the ActionBar
-     */
-    private boolean isUsingActionBar() {
-        return searchView != null;
-    }
-
-    @SuppressWarnings("NewApi")
-    private CharSequence getSearchText() {
-        if (isUsingActionBar()) {
-            return searchView.getQuery();
-        } else {
-            return preHoneycombSearchBox.getText();
-        }
-    }
-
-    @SuppressWarnings("NewApi")
-    private void setSearchText(CharSequence text) {
-        if (isUsingActionBar()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                searchMenuItem.expandActionView();
-            }
-            searchView.setQuery(text, false);
-        } else {
-            preHoneycombSearchBox.setText(text);
+            entitySelectSearchUI.setupActionImage(shortSelect.getCallout());
         }
     }
 
@@ -940,7 +755,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 @Override
                 public void onClick(View v) {
                     adapter.sortEntities(new int[]{keyArray[index]});
-                    adapter.filterByString(getSearchText().toString());
+                    adapter.filterByString(entitySelectSearchUI.getSearchText().toString());
                     dismissAlertDialog();
                 }
             };
@@ -966,9 +781,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         AdapterView visibleView;
         if (shortSelect.shouldBeLaidOutInGrid()) {
-            visibleView = ((GridView) this.findViewById(R.id.screen_entity_select_grid));
+            visibleView = ((GridView)this.findViewById(R.id.screen_entity_select_grid));
         } else {
-            ListView listView = ((ListView) this.findViewById(R.id.screen_entity_select_list));
+            ListView listView = ((ListView)this.findViewById(R.id.screen_entity_select_list));
             EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
             visibleView = listView;
         }
@@ -1017,9 +832,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void restoreAdapterStateFromSession() {
-        if (filterString != null && !"".equals(filterString)) {
-            adapter.filterByString(filterString);
-        }
+        entitySelectSearchUI.restoreSearchString();
 
         adapter.loadCalloutDataFromSession();
     }
@@ -1101,8 +914,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             detailView = (TabbedDetailView)rightFrame.findViewById(R.id.entity_detail_tabs);
             detailView.setRoot(detailView);
 
-            factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
-            Detail detail = factory.getDetail();
+            Detail detail = session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID));
+            factory = new NodeEntityFactory(detail, session.getEvaluationContext(new AndroidInstanceInitializer(session)));
             detailView.showMenu();
 
             if (detail.isCompound()) {
@@ -1190,4 +1003,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return null;
     }
 
+    protected EntityListAdapter getAdapter() {
+        return adapter;
+    }
 }

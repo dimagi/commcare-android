@@ -203,7 +203,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 OfflineUserRestore offlineUserRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
                 uiController.setUsername(offlineUserRestore.getUsername());
                 uiController.setPasswordOrPin(offlineUserRestore.getPassword());
-                formAndDataSyncer.performDemoUserRestore(this,offlineUserRestore);
+                formAndDataSyncer.performDemoUserRestore(this, offlineUserRestore);
                 break;
             case NORMAL:
                 formAndDataSyncer.performOtaRestore(this, getUniformUsername(),
