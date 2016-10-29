@@ -1566,7 +1566,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     /**
      * Has form loading (via FormLoaderTask) completed?
      */
-    private boolean formHasLoaded() {
+    public boolean formHasLoaded() {
         return mFormController != null;
     }
 

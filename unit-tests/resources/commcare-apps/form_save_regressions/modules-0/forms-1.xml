@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa" xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns:vellum="http://commcarehq.org/xforms/vellum" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <h:head>
+        <h:title>Close patient</h:title>
+        <model>
+            <instance>
+                <data name="Close patient"
+                      uiVersion="1"
+                      version="29" xmlns="http://openrosa.org/formdesigner/7C08763B-86F6-4760-B72A-E161E62EBEFF" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+                    <closing/>
+                    <case case_id="" date_modified=""
+                          user_id="" xmlns="http://commcarehq.org/case/transaction/v2">
+                        <close/>
+                    </case>
+                    <orx:meta xmlns:cc="http://commcarehq.org/xforms">
+                        <orx:deviceID/>
+                        <orx:timeStart/>
+                        <orx:timeEnd/>
+                        <orx:username/>
+                        <orx:userID/>
+                        <orx:instanceID/>
+                        <cc:appVersion/>
+                    </orx:meta>
+                </data>
+            </instance>
+            <instance id="casedb" src="jr://instance/casedb"/>
+            <instance id="commcaresession" src="jr://instance/session"/>
+            <bind nodeset="/data/closing"/>
+            <itext>
+                <translation default="" lang="en">
+                    <text id="closing-label">
+                        <value>Closing patient
+                            <output
+                                value="instance('casedb')/casedb/case[@case_id = instance('commcaresession')/session/data/case_id]/case_name"/>
+                        </value>
+                    </text>
+                </translation>
+            </itext>
+            <bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified"
+                  type="xsd:dateTime"/>
+            <bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/>
+            <bind calculate="instance('commcaresession')/session/data/case_id"
+                  nodeset="/data/case/@case_id"/>
+            <setvalue event="xforms-ready" ref="/data/meta/deviceID"
+                      value="instance('commcaresession')/session/context/deviceid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/>
+            <bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/>
+            <setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/>
+            <bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/>
+            <setvalue event="xforms-ready" ref="/data/meta/username"
+                      value="instance('commcaresession')/session/context/username"/>
+            <setvalue event="xforms-ready" ref="/data/meta/userID"
+                      value="instance('commcaresession')/session/context/userid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/>
+            <setvalue event="xforms-ready" ref="/data/meta/appVersion"
+                      value="instance('commcaresession')/session/context/appversion"/>
+        </model>
+    </h:head>
+    <h:body>
+        <trigger appearance="minimal" ref="/data/closing">
+            <label ref="jr:itext('closing-label')"/>
+        </trigger>
+    </h:body>
+</h:html>

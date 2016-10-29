@@ -8,8 +8,7 @@
                 <data name="1. Registration"
                       uiVersion="1"
                       version="1"
-                      xmlns="http://openrosa.org/formdesigner/47B9C4D7-6034-4D0E-849B-9A727F9E58EA"
-                >
+                      xmlns="http://openrosa.org/formdesigner/47B9C4D7-6034-4D0E-849B-9A727F9E58EA" >
                     <Registration>
                         <cohort/>
                     </Registration>

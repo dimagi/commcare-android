@@ -1,6 +1,7 @@
 package org.commcare.views.dialogs;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -22,7 +23,7 @@ class ChoiceDialogAdapter extends ArrayAdapter<DialogChoiceItem> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         Button choicePanel = (Button)convertView;
         if (choicePanel == null) {
             choicePanel = (Button)View.inflate(context, R.layout.single_dialog_choice_view, null);
