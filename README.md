@@ -28,23 +28,20 @@ git clone https://github.com/dimagi/commcare-core.git
 
 - Open Android Studio
 - If this is your first time using Android Studio, click "Config" and setup the Android SDK.
-- Download the Android 6 (API 23) SDK Platform and the Google APIs for 23.
+- Download the Android 7 (API 24) SDK Platform and the Google APIs for 24.
 - Now go back to the Android Studio Welcome dashboard and click "Import project (Eclipse ADT, Gradle, etc.)"
 - Select AndroidStudioProjects > CommCare > commcare-android and hit OK
 - Click "OK" to use the Gradle wrapper
 - Wait while Android Studio spins its wheels
 - Download any build dependencies that the SDK Manager tells you you need.
 
-## Running
+## Building
 
 Now you're basically ready to go. To build CommCare Android and get it running on your phone,
 plug in an android phone that
 
 - is [in developer mode has USB debugging enabled](https://developer.android.com/tools/device.html#setting-up)
 - doesn't have CommCare Android installed on it
-
-Alternatively, you can resign yourself to using the android emulator on your computer,
-but that will be a less pleasurable experience.
 
 In Android Studio, hit the build button (a green "play" symbol in the toolbar).
 The first build will take a minute.
@@ -55,7 +52,15 @@ Then it'll ask you what device to run it on
 
 Enjoy!
 
-(or just select the emulator and cry)
+### Building from the command-line
+
+CommCare has several different build variants. The normal build variant is `commcare` and can built built from the command-line with the following command:
+
+```bash
+cd commcare-android
+gradle assembleCommcareDebug
+# the apk can now be found in the build/outputs/apk/ directory
+```
 
 ## Tests
 
