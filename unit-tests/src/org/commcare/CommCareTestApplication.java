@@ -58,6 +58,7 @@ public class CommCareTestApplication extends CommCareApplication {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable ex) {
+                System.out.println("Derp");
                 Assert.fail(ex.getMessage());
             }
         });
