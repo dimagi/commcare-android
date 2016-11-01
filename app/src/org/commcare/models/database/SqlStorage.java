@@ -11,7 +11,9 @@ import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.models.EncryptedModel;
+import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
@@ -502,6 +504,10 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         if (p.getID() != -1) {
             update(p.getID(), p);
             return;
+        }
+        int persistableSize = TableBuilder.toBlob(p).length;
+        if (persistableSize > HybridFileBackedSqlStorage.ONE_MB_DB_SIZE_LIMIT) {
+            throw new RecordTooLargeException(persistableSize);
         }
         SQLiteDatabase db = helper.getHandle();
         try {
