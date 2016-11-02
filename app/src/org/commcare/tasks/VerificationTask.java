@@ -16,7 +16,7 @@ import org.javarosa.core.util.SizeBoundVector;
  * @author ctsims
  */
 public abstract class VerificationTask<Reciever>
-        extends CommCareTask<String, int[], SizeBoundVector<MissingMediaException>, Reciever>
+        extends CommCareTask<Void, int[], SizeBoundVector<MissingMediaException>, Reciever>
         implements TableStateListener, InstallCancelled {
 
     public VerificationTask(int taskId) {
@@ -24,7 +24,7 @@ public abstract class VerificationTask<Reciever>
     }
 
     @Override
-    protected SizeBoundVector<MissingMediaException> doTaskBackground(String... profileRefs) {
+    protected SizeBoundVector<MissingMediaException> doTaskBackground(Void... params) {
         AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
 
         try {
