@@ -29,8 +29,10 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Assert;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.TestLifecycleApplication;
 import org.robolectric.util.ServiceController;
 
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.HashMap;
 import java.io.File;
@@ -38,15 +40,19 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class CommCareTestApplication extends CommCareApplication {
+public class CommCareTestApplication extends CommCareApplication implements TestLifecycleApplication {
     private static final String TAG = CommCareTestApplication.class.getSimpleName();
     private static PrototypeFactory testPrototypeFactory;
     private static final ArrayList<String> factoryClassNames = new ArrayList<>();
 
     private String cachedUserPassword;
+
+    public static boolean asyncTestsPassed = true;
 
     @Override
     public void onCreate() {
@@ -58,6 +64,7 @@ public class CommCareTestApplication extends CommCareApplication {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable ex) {
+                asyncTestsPassed = false;
                 Assert.fail(ex.getMessage());
             }
         });
@@ -213,5 +220,21 @@ public class CommCareTestApplication extends CommCareApplication {
     @Override
     public DataPullRequester getDataPullRequester() {
         return LocalDataPullResponseFactory.INSTANCE;
+    }
+
+    @Override
+    public void afterTest(Method method) {
+        Robolectric.flushBackgroundThreadScheduler();
+        assertTrue(asyncTestsPassed);
+    }
+
+    @Override
+    public void beforeTest(Method method) {
+
+    }
+
+    @Override
+    public void prepareTest(Object test) {
+
     }
 }
