@@ -50,19 +50,19 @@
     </string-array>
     <string-array
         name="ethiopian_months">
-        <item>Meskerem</item>
-        <item>Tikimt</item>
-        <item>Hidar</item>
+        <item>Mäskäräm</item>
+        <item>T’ïk’ïmt</item>
+        <item>Hïdar</item>
         <item>Tahsas</item>
-        <item>Tir</item>
-        <item>Yekatit</item>
-        <item>Megabit</item>
-        <item>Miazia</item>
-        <item>Ginbot</item>
-        <item>Senie</item>
-        <item>Hamlie</item>
-        <item>Nehasie</item>
-        <item>Pagumien</item>
+        <item>T’ïr</item>
+        <item>Yäkatit</item>
+        <item>Mägabit</item>
+        <item>Miyaziya</item>
+        <item>Gïnbot</item>
+        <item>Säne</item>
+        <item>Hämle</item>
+        <item>Nähäse</item>
+        <item>P’agume</item>
     </string-array>
     <string-array
         name="nepali_months">
