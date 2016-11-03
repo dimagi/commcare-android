@@ -13,47 +13,47 @@ import org.commcare.dalvik.R;
 
 public class GeoProgressDialog extends Dialog {
 
-    private final TextView mText;
-    private final ImageView mImage;
-    private final Button mAccept;
-    private final Button mCancel;
-    private final ProgressBar mProgress;
+    private final TextView textView;
+    private final ImageView imageView;
+    private final Button acceptButton;
+    private final Button cancelButton;
+    private final ProgressBar progressBar;
     private boolean locationFound;
-    private final String mFoundMessage;
-    private final String mSearchMessage;
+    private final String locationFoundMessage;
+    private final String searchingMessage;
 
     public GeoProgressDialog(Context context, String foundMessage, String searchMessage) {
         super(context);
         // back button doesn't cancel
         setCancelable(false);
         setContentView(R.layout.geo_progress);
-        this.mImage = (ImageView)findViewById(R.id.geoImage);
-        this.mText = (TextView)findViewById(R.id.geoText);
-        this.mAccept = (Button)findViewById(R.id.geoOK);
-        this.mCancel = (Button)findViewById(R.id.geoCancel);
-        this.mProgress = (ProgressBar)findViewById(R.id.geoProgressBar);
+        this.imageView = (ImageView)findViewById(R.id.geoImage);
+        this.textView = (TextView)findViewById(R.id.geoText);
+        this.acceptButton = (Button)findViewById(R.id.geoOK);
+        this.cancelButton = (Button)findViewById(R.id.geoCancel);
+        this.progressBar = (ProgressBar)findViewById(R.id.geoProgressBar);
         locationFound = false;
-        mFoundMessage = foundMessage;
-        mSearchMessage = searchMessage;
+        locationFoundMessage = foundMessage;
+        searchingMessage = searchMessage;
         refreshView();
     }
 
     public void setMessage(String txt) {
-        mText.setText(txt);
+        textView.setText(txt);
     }
 
     public void setImage(Drawable img) {
-        mImage.setImageDrawable(img);
+        imageView.setImageDrawable(img);
     }
 
     public void setOKButton(String title, View.OnClickListener ocl) {
-        mAccept.setText(title);
-        mAccept.setOnClickListener(ocl);
+        acceptButton.setText(title);
+        acceptButton.setOnClickListener(ocl);
     }
 
     public void setCancelButton(String title, View.OnClickListener ocl) {
-        mCancel.setText(title);
-        mCancel.setOnClickListener(ocl);
+        cancelButton.setText(title);
+        cancelButton.setOnClickListener(ocl);
     }
 
     public void setLocationFound(boolean locationFound) {
@@ -63,17 +63,17 @@ public class GeoProgressDialog extends Dialog {
 
     private void refreshView() {
         if (locationFound) {
-            mImage.setVisibility(View.VISIBLE);
-            mProgress.setVisibility(View.GONE);
-            mCancel.setVisibility(View.GONE);
-            mAccept.setVisibility(View.VISIBLE);
-            this.setTitle(mFoundMessage);
+            imageView.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+            cancelButton.setVisibility(View.GONE);
+            acceptButton.setVisibility(View.VISIBLE);
+            this.setTitle(locationFoundMessage);
         } else {
-            this.setTitle(mSearchMessage);
-            mImage.setVisibility(View.GONE);
-            mCancel.setVisibility(View.VISIBLE);
-            mAccept.setVisibility(View.GONE);
-            mProgress.setVisibility(View.VISIBLE);
+            this.setTitle(searchingMessage);
+            imageView.setVisibility(View.GONE);
+            cancelButton.setVisibility(View.VISIBLE);
+            acceptButton.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
         }
     }
 
