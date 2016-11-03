@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -52,7 +53,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     private String cachedUserPassword;
 
-    public static boolean asyncTestsPassed = true;
+    public static ArrayList<Throwable> asyncExceptions = new ArrayList<>();
 
     @Override
     public void onCreate() {
@@ -64,7 +65,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable ex) {
-                asyncTestsPassed = false;
+                asyncExceptions.add(ex);
                 Assert.fail(ex.getMessage());
             }
         });
@@ -225,7 +226,12 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     @Override
     public void afterTest(Method method) {
         Robolectric.flushBackgroundThreadScheduler();
-        assertTrue(asyncTestsPassed);
+        if (asyncExceptions.size() > 0) {
+            for(Throwable throwable: asyncExceptions) {
+                throwable.printStackTrace();
+                fail("Test failed with " + asyncExceptions.size() + " asyncronous exceptions.");
+            }
+        }
     }
 
     @Override
