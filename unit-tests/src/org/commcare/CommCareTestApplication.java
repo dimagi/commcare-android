@@ -53,7 +53,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     private String cachedUserPassword;
 
-    public static ArrayList<Throwable> asyncExceptions = new ArrayList<>();
+    public ArrayList<Throwable> asyncExceptions = new ArrayList<>();
 
     @Override
     public void onCreate() {
