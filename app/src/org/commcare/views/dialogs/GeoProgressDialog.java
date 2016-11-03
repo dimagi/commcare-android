@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -24,9 +25,15 @@ public class GeoProgressDialog extends Dialog {
 
     public GeoProgressDialog(Context context, String foundMessage, String searchMessage) {
         super(context);
-        // back button doesn't cancel
+
+        // So that back button doesn't cancel
         setCancelable(false);
+
+        // Using a custom TextView for the title instead, to avoid the out-dated styling of the built-in one
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+
         setContentView(R.layout.geo_progress);
+
         this.imageView = (ImageView)findViewById(R.id.geoImage);
         this.textView = (TextView)findViewById(R.id.geoText);
         this.acceptButton = (Button)findViewById(R.id.geoOK);
@@ -35,7 +42,14 @@ public class GeoProgressDialog extends Dialog {
         locationFound = false;
         locationFoundMessage = foundMessage;
         searchingMessage = searchMessage;
+
         refreshView();
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        TextView customProgressDialogTitle = (TextView)findViewById(R.id.dialog_title_text);
+        customProgressDialogTitle.setText(title);
     }
 
     public void setMessage(String txt) {
@@ -67,9 +81,9 @@ public class GeoProgressDialog extends Dialog {
             progressBar.setVisibility(View.GONE);
             cancelButton.setVisibility(View.GONE);
             acceptButton.setVisibility(View.VISIBLE);
-            this.setTitle(locationFoundMessage);
+            setTitle(locationFoundMessage);
         } else {
-            this.setTitle(searchingMessage);
+            setTitle(searchingMessage);
             imageView.setVisibility(View.GONE);
             cancelButton.setVisibility(View.VISIBLE);
             acceptButton.setVisibility(View.GONE);
