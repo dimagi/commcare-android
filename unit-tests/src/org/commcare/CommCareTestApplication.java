@@ -21,6 +21,7 @@ import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
@@ -229,7 +230,8 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         if (asyncExceptions.size() > 0) {
             for(Throwable throwable: asyncExceptions) {
                 throwable.printStackTrace();
-                fail("Test failed with " + asyncExceptions.size() + " asyncronous exceptions.");
+                fail("Test failed due to " + asyncExceptions.size() +
+                        " threads crashing off the main thread. See error log for more details");
             }
         }
     }
