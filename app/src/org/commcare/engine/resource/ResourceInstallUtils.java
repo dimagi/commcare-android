@@ -220,9 +220,9 @@ public class ResourceInstallUtils {
         if (CommCarePreferences.isNewestAppVersionEnabled()) {
             if (profileUrl.getQuery() != null) {
                 // url already has query strings, so add a new one to the end
-                return profileRef + "&target=build";
+                return profileRef + "&target=save";
             } else {
-                return profileRef + "?target=build";
+                return profileRef + "?target=save";
             }
         }
 
