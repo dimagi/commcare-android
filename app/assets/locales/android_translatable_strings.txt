@@ -21,7 +21,7 @@ install.current.version=Current version: ${0}
 
 verify.retry=Retry
 verify.checking=Verifying media...
-verify.check.failed=Validation failed for an unknown reason
+exception.during.verification=Verification could not complete due to the following exception. This error must be resolved before verification can proceed:\n\n${0}
 
 barcode.reader.missing=No barcode reader available! You can install one from the android market.
 

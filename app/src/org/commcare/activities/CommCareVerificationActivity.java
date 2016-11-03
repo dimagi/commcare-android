@@ -183,7 +183,7 @@ public class CommCareVerificationActivity
                     @Override
                     protected void deliverError(CommCareVerificationActivity receiver,
                                                 Exception e) {
-                        receiver.missingMediaPrompt.setText(Localization.get("verify.check.failed"));
+                        receiver.missingMediaPrompt.setText(Localization.get("exception.during.verification", e.getMessage()));
                     }
                 };
         task.connect(this);
