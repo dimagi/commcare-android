@@ -24,6 +24,8 @@ public class GeoProgressDialog extends Dialog {
 
     public GeoProgressDialog(Context context, String foundMessage, String searchMessage) {
         super(context);
+        // back button doesn't cancel
+        setCancelable(false);
         setContentView(R.layout.geo_progress);
         this.mImage = (ImageView)findViewById(R.id.geoImage);
         this.mText = (TextView)findViewById(R.id.geoText);
