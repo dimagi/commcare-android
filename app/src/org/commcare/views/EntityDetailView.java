@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.support.annotation.IdRes;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -85,6 +86,9 @@ public class EntityDetailView extends FrameLayout {
     private static final String FORM_IMAGE = MediaUtil.FORM_IMAGE;
     private static final String FORM_GRAPH = "graph";
     private static final String FORM_CALLOUT = "callout";
+
+    @IdRes
+    private static final int IMAGE_RESOURCE_ID = 23422634;
 
     private static final int TEXT = 0;
     private static final int PHONE = 1;
@@ -218,7 +222,7 @@ public class EntityDetailView extends FrameLayout {
         }
     }
 
-    private boolean setupCallout(CalloutData callout) {
+    private boolean setupCallout(final CalloutData callout) {
         boolean veryLong = false;
 
         String imagePath = callout.getImage();
@@ -241,7 +245,7 @@ public class EntityDetailView extends FrameLayout {
                 calloutImageButton.setPadding(10, 10, 10, 10);
                 calloutImageButton.setAdjustViewBounds(true);
                 calloutImageButton.setImageBitmap(b);
-                calloutImageButton.setId(23422634);
+                calloutImageButton.setId(IMAGE_RESOURCE_ID);
             }
 
             calloutImageButton.setOnClickListener(new OnClickListener() {
@@ -304,7 +308,7 @@ public class EntityDetailView extends FrameLayout {
             imageView.setPadding(10, 10, 10, 10);
             imageView.setAdjustViewBounds(true);
             imageView.setImageBitmap(b);
-            imageView.setId(23422634);
+            imageView.setId(IMAGE_RESOURCE_ID);
         }
 
         updateCurrentView(IMAGE, imageView);
