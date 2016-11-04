@@ -2,11 +2,16 @@ package org.commcare.interfaces;
 
 import android.os.Bundle;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.FormAndDataSyncer;
 import org.commcare.activities.SessionAwareCommCareActivity;
+import org.commcare.activities.SyncUIHandling;
+import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.PullTaskResultReceiver;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.dialogs.DialogController;
+import org.javarosa.core.services.locale.Localization;
 
 public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCareActivity<R>
         implements PullTaskResultReceiver {
@@ -35,7 +40,24 @@ public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCar
         return formAndDataSyncer.checkAndStartUnsentFormsTask(this, syncAfterwards, userTriggered);
     }
 
-    public abstract void reportSyncSuccess(String message);
+    @Override
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError, boolean userTriggeredSync, boolean formsToSend) {
+        if (CommCareApplication._().isConsumerApp()) {
+            return;
+        }
+        SyncUIHandling.handleSyncResult(this, resultAndError, userTriggeredSync, formsToSend);
+    }
 
-    public abstract void reportSyncFailure(String message, boolean showPopupNotification);
+    @Override
+    public void handlePullTaskUpdate(Integer... update) {
+        SyncUIHandling.handleSyncUpdate(this, update);
+    }
+
+    @Override
+    public void handlePullTaskError() {
+        reportSyncResult(Localization.get("sync.fail.unknown"), false, true);
+    }
+
+    public abstract void reportSyncResult(String message, boolean success, boolean showToast);
+
 }

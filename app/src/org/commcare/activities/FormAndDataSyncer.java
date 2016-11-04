@@ -71,16 +71,16 @@ public class FormAndDataSyncer {
                         label = Localization.get("sync.success.sent",
                                 new String[]{String.valueOf(successfulSends)});
                     }
-                    receiver.reportSyncSuccess(label);
+                    receiver.reportSyncResult(label, true, true);
 
                     if (syncAfterwards) {
                         syncDataForLoggedInUser(receiver, true, userTriggered);
                     }
                 } else if (result == FormUploadResult.AUTH_FAILURE) {
-                    receiver.reportSyncFailure(Localization.get("sync.fail.auth.loggedin"), true);
+                    receiver.reportSyncResult(Localization.get("sync.fail.auth.loggedin"), false, true);
                 } else if (result != FormUploadResult.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
-                    receiver.reportSyncFailure(Localization.get("sync.fail.unsent"), true);
+                    receiver.reportSyncResult(Localization.get("sync.fail.unsent"), false, true);
                 }
             }
 
@@ -90,7 +90,7 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverError(SyncCapableCommCareActivity receiver, Exception e) {
-                receiver.reportSyncFailure(Localization.get("sync.fail.unsent"), true);
+                receiver.reportSyncResult(Localization.get("sync.fail.unsent"), false, true);
             }
         };
 
@@ -113,9 +113,9 @@ public class FormAndDataSyncer {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.reportSyncFailure(Localization.get("main.sync.demo.has.forms"), false);
+                    activity.reportSyncResult(Localization.get("main.sync.demo.has.forms"), false, false);
                 } else {
-                    activity.reportSyncFailure(Localization.get("main.sync.demo.no.forms"), false);
+                    activity.reportSyncResult(Localization.get("main.sync.demo.no.forms"), false, false);
                 }
             }
             return;

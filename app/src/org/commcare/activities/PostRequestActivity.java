@@ -153,14 +153,13 @@ public class PostRequestActivity
     }
 
     @Override
-    public void reportSyncSuccess(String message) {
-        setResult(RESULT_OK);
-        finish();
-    }
-
-    @Override
-    public void reportSyncFailure(String message, boolean showPopupNotification) {
-        enterErrorState(message);
+    public void reportSyncResult(String message, boolean success, boolean showToast) {
+        if (success) {
+            setResult(RESULT_OK);
+            finish();
+        } else {
+            enterErrorState(message);
+        }
     }
 
     @Override
@@ -232,18 +231,4 @@ public class PostRequestActivity
         return CustomProgressDialog.newInstance(title, message, taskId);
     }
 
-    @Override
-    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError, boolean userTriggeredSync, boolean formsToSend) {
-        SyncUIHandling.handleSyncResult(this, resultAndError, userTriggeredSync, formsToSend);
-    }
-
-    @Override
-    public void handlePullTaskUpdate(Integer... update) {
-        SyncUIHandling.handleSyncUpdate(this, update);
-    }
-
-    @Override
-    public void handlePullTaskError() {
-        reportSyncFailure(Localization.get("sync.fail.unknown"), true);
-    }
 }

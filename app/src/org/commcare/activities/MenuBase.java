@@ -13,13 +13,11 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
-import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.ResultAndError;
 import org.commcare.views.ViewUtil;
 
 public abstract class MenuBase
         extends SyncCapableCommCareActivity
-        implements AdapterView.OnItemClickListener  {
+        implements AdapterView.OnItemClickListener {
 
     private static final int MENU_GROUP_HOME_SCREEN_ACTIONS = android.view.Menu.FIRST;
 
@@ -124,29 +122,9 @@ public abstract class MenuBase
                 (CommCareApplication._().isConsumerApp() || DeveloperPreferences.useRootModuleMenuAsHomeScreen());
     }
 
-
     @Override
-    public void reportSyncSuccess(String message) {
+    public void reportSyncResult(String message, boolean success, boolean showToast) {
 
     }
 
-    @Override
-    public void reportSyncFailure(String message, boolean showPopupNotification) {
-
-    }
-
-    @Override
-    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError, boolean userTriggeredSync, boolean formsToSend) {
-
-    }
-
-    @Override
-    public void handlePullTaskUpdate(Integer... update) {
-
-    }
-
-    @Override
-    public void handlePullTaskError() {
-
-    }
 }

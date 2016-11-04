@@ -528,7 +528,7 @@ public class CommCareHomeActivity
         if (resultCode == AdvancedActionsActivity.RESULT_FORMS_PROCESSED) {
             int formProcessCount = intent.getIntExtra(AdvancedActionsActivity.FORM_PROCESS_COUNT_KEY, 0);
             String localizationKey = intent.getStringExtra(AdvancedActionsActivity.FORM_PROCESS_MESSAGE_KEY);
-            displayMessage(Localization.get(localizationKey, new String[]{"" + formProcessCount}), false, false);
+            displayMessage(Localization.get(localizationKey, new String[]{"" + formProcessCount}), false);
 
             uiController.refreshView();
         }
@@ -1026,10 +1026,10 @@ public class CommCareHomeActivity
     void syncButtonPressed() {
         if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
-                displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
+                displayMessage(Localization.get("notification.sync.airplane.action"), true);
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
             } else {
-                displayMessage(Localization.get("notification.sync.connections.action"), true, true);
+                displayMessage(Localization.get("notification.sync.connections.action"), true);
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
             }
             GoogleAnalyticsUtils.reportSyncAttempt(
@@ -1123,17 +1123,12 @@ public class CommCareHomeActivity
     }
 
     @Override
-    public void reportSyncSuccess(String message) {
-        displayMessage(message, false, false);
+    public void reportSyncResult(String message, boolean success, boolean showToast) {
+        displayMessage(message, showToast);
     }
 
-    @Override
-    public void reportSyncFailure(String message, boolean showPopupNotification) {
-        displayMessage(message, true, !showPopupNotification);
-    }
-
-    private void displayMessage(String message, boolean bad, boolean suppressToast) {
-        uiController.displayMessage(message, bad, suppressToast);
+    private void displayMessage(String message, boolean suppressToast) {
+        uiController.displayMessage(message, suppressToast);
     }
 
     protected static boolean isDemoUser() {
@@ -1355,21 +1350,8 @@ public class CommCareHomeActivity
     @Override
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
                                      boolean userTriggeredSync, boolean formsToSend) {
+        super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend);
         getUIController().refreshView();
-        if (CommCareApplication._().isConsumerApp()) {
-            return;
-        }
-
-        SyncUIHandling.handleSyncResult(this, resultAndErrorMessage, userTriggeredSync, formsToSend);
     }
 
-    @Override
-    public void handlePullTaskUpdate(Integer... update) {
-        SyncUIHandling.handleSyncUpdate(this, update);
-    }
-
-    @Override
-    public void handlePullTaskError() {
-        reportSyncFailure(Localization.get("sync.fail.unknown"), true);
-    }
 }
