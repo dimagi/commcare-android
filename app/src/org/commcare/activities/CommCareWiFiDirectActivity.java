@@ -47,6 +47,7 @@ import org.commcare.tasks.WipeTask;
 import org.commcare.tasks.ZipTask;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -655,10 +656,10 @@ public class CommCareWiFiDirectActivity
     }
 
 
-    private void onRecordPullCompleted(Pair<Long, FormRecord[]> result, CommCareWiFiDirectActivity receiver) {
+    private void onRecordPullCompleted(Pair<FormUploadResult, FormRecord[]> result, CommCareWiFiDirectActivity receiver) {
         myStatusText.setText(localize("wifi.direct.pull.successful"));
-        if(result != null){
-            if(result.first > 0){
+        if (result != null) {
+            if (result.first != FormUploadResult.FULL_SUCCESS) {
                 // if we had files but they failed, we should error and block
                 receiver.myStatusText.setText(localize("wifi.direct.pull.unsuccessful",
                         "Problem transferring forms to file system"));
@@ -677,7 +678,7 @@ public class CommCareWiFiDirectActivity
         Logger.log(TAG, "Getting records from storage");
         FormRecordToFileTask formRecordToFileTask = new FormRecordToFileTask(this, toBeTransferredDirectory) {
             @Override
-            protected void deliverResult(CommCareWiFiDirectActivity receiver, Pair<Long, FormRecord[]> result) {
+            protected void deliverResult(CommCareWiFiDirectActivity receiver, Pair<FormUploadResult, FormRecord[]> result) {
                 receiver.onRecordPullCompleted(result, receiver);
             }
 

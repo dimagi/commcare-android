@@ -17,7 +17,7 @@ import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
-import org.commcare.utils.FormUploadUtil;
+import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -39,20 +39,20 @@ public class FormAndDataSyncer {
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
 
-        ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(
+        ProcessAndSendTask<CommCareHomeActivity> processAndSendTask = new ProcessAndSendTask<CommCareHomeActivity>(
                 activity,
                 getFormPostURL(activity),
                 syncAfterwards) {
 
             @Override
-            protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
+            protected void deliverResult(CommCareHomeActivity receiver, FormUploadResult result) {
                 if (CommCareApplication._().isConsumerApp()) {
                     // if this is a consumer app we don't want to show anything in the UI about
                     // sending forms, or do a sync afterward
                     return;
                 }
 
-                if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
+                if (result == FormUploadResult.PROGRESS_LOGGED_OUT) {
                     receiver.finish();
                     return;
                 }
@@ -60,7 +60,7 @@ public class FormAndDataSyncer {
 
                 int successfulSends = this.getSuccessfulSends();
 
-                if (result == FormUploadUtil.FULL_SUCCESS) {
+                if (result == FormUploadResult.FULL_SUCCESS) {
                     String label = Localization.get("sync.success.sent.singular",
                             new String[]{String.valueOf(successfulSends)});
                     if (successfulSends > 1) {
@@ -72,7 +72,9 @@ public class FormAndDataSyncer {
                     if (syncAfterwards) {
                         syncDataForLoggedInUser(receiver, true, userTriggered);
                     }
-                } else if (result != FormUploadUtil.FAILURE) {
+                } else if (result == FormUploadResult.AUTH_FAILURE) {
+                    receiver.reportFailure(Localization.get("sync.fail.auth.loggedin"), true);
+                } else if (result != FormUploadResult.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
                     receiver.reportFailure(Localization.get("sync.fail.unsent"), true);
                 }
@@ -88,9 +90,9 @@ public class FormAndDataSyncer {
             }
         };
 
-        mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
-        mProcess.connect(activity);
-        mProcess.executeParallel(records);
+        processAndSendTask.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+        processAndSendTask.connect(activity);
+        processAndSendTask.executeParallel(records);
     }
 
     private static String getFormPostURL(final Context context) {

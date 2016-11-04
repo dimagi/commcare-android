@@ -87,6 +87,7 @@ public class DebugControlsReceiver extends BroadcastReceiver {
                         ukr.getEncryptedKey(), ukr.getWrappedPassword(),
                         ukr.getValidFrom(), yesterday, ukr.getUuid(),
                         ukr.getType());
+                invalidUkr.setID(ukr.getID());
                 break;
             }
         }
