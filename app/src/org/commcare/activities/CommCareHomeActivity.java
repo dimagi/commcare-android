@@ -1116,8 +1116,7 @@ public class CommCareHomeActivity
         if (CommCareApplication._().isSyncPending(false)) {
             // There is a sync pending
             handlePendingSync();
-        } else if (CommCareApplication._().isConsumerApp()) {
-            // so that the user never sees the real home screen in a consumer app
+        } else if (CommCareApplication._().isConsumerApp() || DeveloperPreferences.useRootModuleMenuAsHomeScreen()) {
             enterRootModule();
         } else {
             // Display the normal home screen!

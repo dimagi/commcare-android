@@ -20,16 +20,17 @@ import java.util.Map;
 
 public class DeveloperPreferences extends SessionAwarePreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
-    public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
-    public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
-    public final static String CSS_ENABLED = "cc-css-enabled";
-    public final static String MARKDOWN_ENABLED = "cc-markdown-enabled";
-    public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
-    public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
-    public final static String HOME_REPORT_ENABLED = "cc-home-report";
-    public final static String AUTO_PURGE_ENABLED = "cc-auto-purge";
-    public final static String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
-    public final static String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
+    public static final String SUPERUSER_ENABLED = "cc-superuser-enabled";
+    public static final String NAV_UI_ENABLED = "cc-nav-ui-enabled";
+    public static final String CSS_ENABLED = "cc-css-enabled";
+    public static final String MARKDOWN_ENABLED = "cc-markdown-enabled";
+    public static final String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
+    public static final String LIST_REFRESH_ENABLED = "cc-list-refresh";
+    public static final String HOME_REPORT_ENABLED = "cc-home-report";
+    public static final String AUTO_PURGE_ENABLED = "cc-auto-purge";
+    public static final String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
+    public static final String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
+    public static final String USE_ROOT_MENU_AS_HOME_SCREEN = "cc-use-root-menu-as-home-screen";
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -302,5 +303,9 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      */
     public static boolean isDetailTabSwipeActionEnabled() {
         return doesPropertyMatch(DETAIL_TAB_SWIPE_ACTION_ENABLED, CommCarePreferences.YES, CommCarePreferences.YES);
+    }
+
+    public static boolean useRootModuleMenuAsHomeScreen() {
+        return doesPropertyMatch(USE_ROOT_MENU_AS_HOME_SCREEN, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 }
