@@ -26,7 +26,7 @@ import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.interfaces.ConnectorWithResultCallback;
+import org.commcare.interfaces.SyncCapableCommCareActivity;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -52,7 +52,6 @@ import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.ProcessAndSendTask;
-import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -62,7 +61,6 @@ import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.utils.StorageUtils;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CommCareAlertDialog;
@@ -85,9 +83,8 @@ import java.util.Map;
 import java.util.Vector;
 
 public class CommCareHomeActivity
-        extends SessionAwareCommCareActivity<CommCareHomeActivity>
-        implements SessionNavigationResponder, WithUIController,
-                   PullTaskReceiver, ConnectorWithResultCallback<CommCareHomeActivity> {
+        extends SyncCapableCommCareActivity<CommCareHomeActivity>
+        implements SessionNavigationResponder, WithUIController {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -147,12 +144,10 @@ public class CommCareHomeActivity
 
     private HomeActivityUIController uiController;
     private SessionNavigator sessionNavigator;
-    private FormAndDataSyncer formAndDataSyncer;
 
     private boolean loginExtraWasConsumed;
     private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
     private boolean isRestoringSession = false;
-    private boolean isSyncUserLaunched = false;
 
     private boolean sessionNavigationProceedingAfterOnResume;
 
@@ -165,7 +160,6 @@ public class CommCareHomeActivity
         ACRAUtil.registerAppData();
         uiController.setupUI();
         sessionNavigator = new SessionNavigator(this);
-        formAndDataSyncer = new FormAndDataSyncer();
 
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
@@ -1060,34 +1054,6 @@ public class CommCareHomeActivity
         sendFormsOrSync(false);
     }
 
-    /**
-     * Attempts first to send unsent forms to the server.  If any forms are sent, a sync will be
-     * triggered after they are submitted. If no forms are sent, triggers a sync explicitly.
-     */
-    private void sendFormsOrSync(boolean userTriggeredSync) {
-        boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
-        if(!formsSentToServer) {
-            formAndDataSyncer.syncDataForLoggedInUser(this, false, userTriggeredSync);
-        }
-    }
-
-    /**
-     * @return Were forms sent to the server by this method invocation?
-     */
-    private boolean checkAndStartUnsentFormsTask(final boolean syncAfterwards,
-                                                 boolean userTriggered) {
-        isSyncUserLaunched = userTriggered;
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
-        FormRecord[] records = StorageUtils.getUnsentRecords(storage);
-
-        if(records.length > 0) {
-            formAndDataSyncer.processAndSendForms(this, records, syncAfterwards, userTriggered);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     @Override
     protected void onResumeSessionSafe() {
         if (!sessionNavigationProceedingAfterOnResume) {
@@ -1157,12 +1123,12 @@ public class CommCareHomeActivity
     }
 
     @Override
-    public void reportSuccess(String message) {
+    public void reportSyncSuccess(String message) {
         displayMessage(message, false, false);
     }
 
     @Override
-    public void reportFailure(String message, boolean showPopupNotification) {
+    public void reportSyncFailure(String message, boolean showPopupNotification) {
         displayMessage(message, true, !showPopupNotification);
     }
 
@@ -1404,6 +1370,6 @@ public class CommCareHomeActivity
 
     @Override
     public void handlePullTaskError() {
-        reportFailure(Localization.get("sync.fail.unknown"), true);
+        reportSyncFailure(Localization.get("sync.fail.unknown"), true);
     }
 }

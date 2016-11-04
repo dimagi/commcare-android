@@ -2,12 +2,11 @@ package org.commcare.android.mocks;
 
 import android.util.Log;
 
+import org.apache.tools.ant.taskdefs.Sync;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.activities.FormAndDataSyncer;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.interfaces.ConnectorWithResultCallback;
-import org.commcare.tasks.PullTaskReceiver;
+import org.commcare.interfaces.SyncCapableCommCareActivity;
 
 /**
  * Fake object that prevent tests from communicating with server to pull or submit data
@@ -21,18 +20,14 @@ public class FormAndDataSyncerFake extends FormAndDataSyncer {
     }
 
     @Override
-    public void processAndSendForms(CommCareHomeActivity activity,
-                                    FormRecord[] records,
-                                    final boolean syncAfterwards,
-                                    final boolean userTriggered) {
+    public void processAndSendForms(SyncCapableCommCareActivity activity, FormRecord[] records,
+                                    final boolean syncAfterwards, final boolean userTriggered) {
         Log.d(TAG, "faking form processing and sending");
     }
 
     @Override
-    public <I extends CommCareActivity & PullTaskReceiver & ConnectorWithResultCallback>
-    void syncDataForLoggedInUser(final I activity,
-                                 boolean formsToSend,
-                                 boolean userTriggeredSync) {
+    public void syncDataForLoggedInUser(final SyncCapableCommCareActivity activity,
+                                        boolean formsToSend, boolean userTriggeredSync) {
         Log.d(TAG, "faking data sync");
     }
     

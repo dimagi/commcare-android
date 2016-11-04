@@ -8,15 +8,18 @@ import android.widget.AdapterView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.SyncCapableCommCareActivity;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
+import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.views.ViewUtil;
 
 public abstract class MenuBase
-        extends SaveSessionCommCareActivity
-        implements AdapterView.OnItemClickListener {
+        extends SyncCapableCommCareActivity
+        implements AdapterView.OnItemClickListener  {
 
     private static final int MENU_GROUP_HOME_SCREEN_ACTIONS = android.view.Menu.FIRST;
 
@@ -105,7 +108,7 @@ public abstract class MenuBase
             finish();
             return true;
         } else if (item.getItemId() == MENU_SYNC) {
-
+            sendFormsOrSync(true);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -119,5 +122,31 @@ public abstract class MenuBase
     private boolean menuIsBeingUsedAsHomeScreen() {
         return isRootModuleMenu &&
                 (CommCareApplication._().isConsumerApp() || DeveloperPreferences.useRootModuleMenuAsHomeScreen());
+    }
+
+
+    @Override
+    public void reportSyncSuccess(String message) {
+
+    }
+
+    @Override
+    public void reportSyncFailure(String message, boolean showPopupNotification) {
+
+    }
+
+    @Override
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError, boolean userTriggeredSync, boolean formsToSend) {
+
+    }
+
+    @Override
+    public void handlePullTaskUpdate(Integer... update) {
+
+    }
+
+    @Override
+    public void handlePullTaskError() {
+
     }
 }

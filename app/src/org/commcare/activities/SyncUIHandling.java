@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import org.commcare.interfaces.ConnectorWithResultCallback;
+import org.commcare.interfaces.SyncCapableCommCareActivity;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.tasks.DataPullTask;
@@ -13,7 +13,7 @@ import org.javarosa.core.services.locale.Localization;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class SyncUIHandling {
-    public static void handleSyncResult(ConnectorWithResultCallback activity,
+    public static void handleSyncResult(SyncCapableCommCareActivity activity,
                                         ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
                                         boolean userTriggeredSync, boolean formsToSend) {
         DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
@@ -22,11 +22,11 @@ public class SyncUIHandling {
 
         switch (result) {
             case AUTH_FAILED:
-                activity.reportFailure(Localization.get("sync.fail.auth.loggedin"), true);
+                activity.reportSyncFailure(Localization.get("sync.fail.auth.loggedin"), true);
                 break;
             case BAD_DATA:
             case BAD_DATA_REQUIRES_INTERVENTION:
-                activity.reportFailure(Localization.get("sync.fail.bad.data"), true);
+                activity.reportSyncFailure(Localization.get("sync.fail.bad.data"), true);
                 break;
             case DOWNLOAD_SUCCESS:
                 if (formsToSend) {
@@ -34,22 +34,22 @@ public class SyncUIHandling {
                 } else {
                     reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
                 }
-                activity.reportSuccess(Localization.get("sync.success.synced"));
+                activity.reportSyncSuccess(Localization.get("sync.success.synced"));
                 break;
             case SERVER_ERROR:
-                activity.reportFailure(Localization.get("sync.fail.server.error"), true);
+                activity.reportSyncFailure(Localization.get("sync.fail.server.error"), true);
                 break;
             case UNREACHABLE_HOST:
-                activity.reportFailure(Localization.get("sync.fail.bad.network"), true);
+                activity.reportSyncFailure(Localization.get("sync.fail.bad.network"), true);
                 break;
             case CONNECTION_TIMEOUT:
-                activity.reportFailure(Localization.get("sync.fail.timeout"), true);
+                activity.reportSyncFailure(Localization.get("sync.fail.timeout"), true);
                 break;
             case UNKNOWN_FAILURE:
-                activity.reportFailure(Localization.get("sync.fail.unknown"), true);
+                activity.reportSyncFailure(Localization.get("sync.fail.unknown"), true);
                 break;
             case ACTIONABLE_FAILURE:
-                activity.reportFailure(resultAndErrorMessage.errorMessage, true);
+                activity.reportSyncFailure(resultAndErrorMessage.errorMessage, true);
                 break;
         }
 
