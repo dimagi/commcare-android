@@ -4,8 +4,6 @@ import android.media.MediaPlayer;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
-import org.commcare.interfaces.AudioPlaybackReset;
-
 /**
  * Audio playback is delegated through this singleton class since only one
  * track should play at a time. Audio buttons invoke this controller on button
@@ -31,7 +29,7 @@ public enum AudioController {
      * Button that corresponds to the currentEntity media. Pressing the button
      * should trigger playback control methods here.
      */
-    private AudioPlaybackReset currentAudioReset;
+    private AudioPlaybackButton currentAudioReset;
 
     /**
      * Set the media to be played and store the playback button attached to
@@ -43,7 +41,7 @@ public enum AudioController {
      *                      the media's playback state
      */
     public void setCurrentMediaAndButton(MediaEntity newMedia,
-                                         AudioPlaybackReset newAudioReset) {
+                                         AudioPlaybackButton newAudioReset) {
         if (currentAudioReset != null && currentAudioReset != newAudioReset) {
             // reset the old button to not be playing
             currentAudioReset.resetPlaybackState();
@@ -64,7 +62,7 @@ public enum AudioController {
      * @param button Corresponds with the media that is currently
      *               loaded/playing
      */
-    public void registerPlaybackButton(AudioPlaybackReset button) {
+    public void registerPlaybackButton(AudioPlaybackButton button) {
         currentAudioReset = button;
     }
 

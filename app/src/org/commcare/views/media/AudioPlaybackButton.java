@@ -17,7 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
-import org.commcare.interfaces.AudioPlaybackReset;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -27,7 +26,7 @@ import java.io.IOException;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackReset {
+public class AudioPlaybackButton extends LinearLayout {
     private final static String TAG = AudioPlaybackButton.class.getSimpleName();
 
     /**
@@ -162,7 +161,6 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
      * Set button appearance and playback state to 'ready'. Used when another
      * button is pressed and this one is reset.
      */
-    @Override
     public void resetPlaybackState() {
         currentState = MediaState.Ready;
         refreshAppearance();
@@ -273,13 +271,13 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
     }
 
     private void startPlaying() {
-        Pair<Integer, Integer> posAndduration = AudioController.INSTANCE.playCurrentMediaEntity();
+        Pair<Integer, Integer> posAndDuration = AudioController.INSTANCE.playCurrentMediaEntity();
 
         currentState = MediaState.Playing;
         refreshAppearance();
 
-        if (posAndduration != null) {
-            animateProgress(posAndduration.first, posAndduration.second);
+        if (posAndDuration != null) {
+            animateProgress(posAndDuration.first, posAndDuration.second);
         }
     }
 
@@ -300,7 +298,9 @@ public class AudioPlaybackButton extends LinearLayout implements AudioPlaybackRe
     private void animateProgress(int milliPosition, int milliDuration) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
-            animation = ObjectAnimator.ofInt(progressBar, "progress", 0, 500);
+            int startPosition = 0;
+            int progressDuration = 500;
+            animation = ObjectAnimator.ofInt(progressBar, "progress", startPosition, progressDuration);
             animation.setDuration(milliDuration);
             animation.setCurrentPlayTime(milliPosition);
             animation.setInterpolator(new DecelerateInterpolator());
