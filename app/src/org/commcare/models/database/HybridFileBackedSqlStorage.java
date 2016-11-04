@@ -303,7 +303,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         return bos;
     }
 
-    protected boolean blobFitsInDb(ByteArrayOutputStream blobStream) {
+    protected static boolean blobFitsInDb(ByteArrayOutputStream blobStream) {
         return blobStream.size() < ONE_MB_DB_SIZE_LIMIT;
     }
 

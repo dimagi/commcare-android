@@ -83,7 +83,7 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
         }
     }
 
-    private void checkBlobSize(byte[] blob) {
+    private static void checkBlobSize(byte[] blob) {
         int blobSize = blob.length;
         if (blobSize > HybridFileBackedSqlStorage.ONE_MB_DB_SIZE_LIMIT) {
             throw new RecordTooLargeException(blobSize);
