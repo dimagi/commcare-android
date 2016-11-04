@@ -8,20 +8,19 @@ import android.util.Log;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidPrototypeFactory;
+import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.core.encryption.CryptUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.HttpUtils;
 import org.commcare.network.LocalDataPullResponseFactory;
-import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
-import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
@@ -33,16 +32,15 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.TestLifecycleApplication;
 import org.robolectric.util.ServiceController;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.HashMap;
-import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 import static junit.framework.Assert.fail;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
@@ -54,7 +52,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     private String cachedUserPassword;
 
-    public ArrayList<Throwable> asyncExceptions = new ArrayList<>();
+    private final ArrayList<Throwable> asyncExceptions = new ArrayList<>();
 
     @Override
     public void onCreate() {
@@ -227,7 +225,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     @Override
     public void afterTest(Method method) {
         Robolectric.flushBackgroundThreadScheduler();
-        if (asyncExceptions.size() > 0) {
+        if (!asyncExceptions.isEmpty()) {
             for(Throwable throwable: asyncExceptions) {
                 throwable.printStackTrace();
                 fail("Test failed due to " + asyncExceptions.size() +
