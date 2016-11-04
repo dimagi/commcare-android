@@ -22,11 +22,11 @@ public class SyncUIHandling {
 
         switch (result) {
             case AUTH_FAILED:
-                activity.reportSyncResult(Localization.get("sync.fail.auth.loggedin"), false, true);
+                activity.reportSyncResult(Localization.get("sync.fail.auth.loggedin"), false);
                 break;
             case BAD_DATA:
             case BAD_DATA_REQUIRES_INTERVENTION:
-                activity.reportSyncResult(Localization.get("sync.fail.bad.data"), false, true);
+                activity.reportSyncResult(Localization.get("sync.fail.bad.data"), false);
                 break;
             case DOWNLOAD_SUCCESS:
                 if (formsToSend) {
@@ -34,22 +34,22 @@ public class SyncUIHandling {
                 } else {
                     reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
                 }
-                activity.reportSyncResult(Localization.get("sync.success.synced"), true, true);
+                activity.reportSyncResult(Localization.get("sync.success.synced"), true);
                 break;
             case SERVER_ERROR:
-                activity.reportSyncResult(Localization.get("sync.fail.server.error"), false, true);
+                activity.reportSyncResult(Localization.get("sync.fail.server.error"), false);
                 break;
             case UNREACHABLE_HOST:
-                activity.reportSyncResult(Localization.get("sync.fail.bad.network"), false, true);
+                activity.reportSyncResult(Localization.get("sync.fail.bad.network"), false);
                 break;
             case CONNECTION_TIMEOUT:
-                activity.reportSyncResult(Localization.get("sync.fail.timeout"), false, true);
+                activity.reportSyncResult(Localization.get("sync.fail.timeout"), false);
                 break;
             case UNKNOWN_FAILURE:
-                activity.reportSyncResult(Localization.get("sync.fail.unknown"), false, true);
+                activity.reportSyncResult(Localization.get("sync.fail.unknown"), false);
                 break;
             case ACTIONABLE_FAILURE:
-                activity.reportSyncResult(resultAndErrorMessage.errorMessage, false, true);
+                activity.reportSyncResult(resultAndErrorMessage.errorMessage, false);
                 break;
         }
 

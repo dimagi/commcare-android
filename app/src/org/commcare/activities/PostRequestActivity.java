@@ -153,7 +153,7 @@ public class PostRequestActivity
     }
 
     @Override
-    public void reportSyncResult(String message, boolean success, boolean showToast) {
+    public void reportSyncResult(String message, boolean success) {
         if (success) {
             setResult(RESULT_OK);
             finish();

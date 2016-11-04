@@ -71,16 +71,16 @@ public class FormAndDataSyncer {
                         label = Localization.get("sync.success.sent",
                                 new String[]{String.valueOf(successfulSends)});
                     }
-                    receiver.reportSyncResult(label, true, true);
+                    receiver.reportSyncResult(label, true);
 
                     if (syncAfterwards) {
                         syncDataForLoggedInUser(receiver, true, userTriggered);
                     }
                 } else if (result == FormUploadResult.AUTH_FAILURE) {
-                    receiver.reportSyncResult(Localization.get("sync.fail.auth.loggedin"), false, true);
+                    receiver.reportSyncResult(Localization.get("sync.fail.auth.loggedin"), false);
                 } else if (result != FormUploadResult.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
-                    receiver.reportSyncResult(Localization.get("sync.fail.unsent"), false, true);
+                    receiver.reportSyncResult(Localization.get("sync.fail.unsent"), false);
                 }
             }
 
@@ -90,7 +90,7 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverError(SyncCapableCommCareActivity receiver, Exception e) {
-                receiver.reportSyncResult(Localization.get("sync.fail.unsent"), false, true);
+                receiver.reportSyncResult(Localization.get("sync.fail.unsent"), false);
             }
         };
 
@@ -113,9 +113,9 @@ public class FormAndDataSyncer {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.reportSyncResult(Localization.get("main.sync.demo.has.forms"), false, false);
+                    activity.reportSyncResult(Localization.get("main.sync.demo.has.forms"), false);
                 } else {
-                    activity.reportSyncResult(Localization.get("main.sync.demo.no.forms"), false, false);
+                    activity.reportSyncResult(Localization.get("main.sync.demo.no.forms"), false);
                 }
             }
             return;

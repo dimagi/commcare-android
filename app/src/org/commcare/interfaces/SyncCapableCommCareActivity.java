@@ -55,9 +55,9 @@ public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCar
 
     @Override
     public void handlePullTaskError() {
-        reportSyncResult(Localization.get("sync.fail.unknown"), false, true);
+        reportSyncResult(Localization.get("sync.fail.unknown"), false);
     }
 
-    public abstract void reportSyncResult(String message, boolean success, boolean showToast);
+    public abstract void reportSyncResult(String message, boolean success);
 
 }

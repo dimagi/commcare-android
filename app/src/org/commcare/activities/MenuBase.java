@@ -123,7 +123,7 @@ public abstract class MenuBase
     }
 
     @Override
-    public void reportSyncResult(String message, boolean success, boolean showToast) {
+    public void reportSyncResult(String message, boolean success) {
 
     }
 

@@ -1123,8 +1123,8 @@ public class CommCareHomeActivity
     }
 
     @Override
-    public void reportSyncResult(String message, boolean success, boolean showToast) {
-        displayMessage(message, showToast);
+    public void reportSyncResult(String message, boolean success) {
+        displayMessage(message, false);
     }
 
     private void displayMessage(String message, boolean suppressToast) {
