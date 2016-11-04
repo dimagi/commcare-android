@@ -195,7 +195,7 @@ public class FormAndDataSyncer {
         String[] demoUserRestore = new String[]{offlineUserRestore.getReference()};
         LocalDataPullResponseFactory.setRequestPayloads(demoUserRestore);
         syncData(context, false, false, "fake-server-that-is-never-used",
-                offlineUserRestore.getUsername(), offlineUserRestore.getPassword(),
+                offlineUserRestore.getUsername(), OfflineUserRestore.DEMO_USER_PASSWORD,
                 LocalDataPullResponseFactory.INSTANCE, true);
     }
 }
