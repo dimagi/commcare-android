@@ -505,10 +505,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             update(p.getID(), p);
             return;
         }
-        int persistableSize = TableBuilder.toBlob(p).length;
-        if (persistableSize > HybridFileBackedSqlStorage.ONE_MB_DB_SIZE_LIMIT) {
-            throw new RecordTooLargeException(persistableSize);
-        }
         SQLiteDatabase db = helper.getHandle();
         try {
             db.beginTransaction();
