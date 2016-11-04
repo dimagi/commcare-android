@@ -109,8 +109,12 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
-                getEditPrefLabel(key), getEditPrefValue(key));
+        String analyticsLabelForPref = prefKeyToAnalyticsEvent.get(key);
+        if (analyticsLabelForPref != null) {
+            GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
+                    analyticsLabelForPref, getEditPrefValue(key));
+        }
+
         switch (key) {
             case ENABLE_AUTO_LOGIN:
                 if (!isAutoLoginEnabled()) {
@@ -161,10 +165,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         editor.putString(CommCarePreferences.CURRENT_SESSION, sessionParts[0]);
         editor.putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, sessionParts[1]);
         editor.commit();
-    }
-
-    private static String getEditPrefLabel(String key) {
-        return prefKeyToAnalyticsEvent.get(key);
     }
 
     private static int getEditPrefValue(String key) {
