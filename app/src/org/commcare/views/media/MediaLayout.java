@@ -198,7 +198,7 @@ public class MediaLayout extends RelativeLayout {
 
         // Add the audioButton and videoButton (if applicable) and view
         // (containing text) to the relative layout.
-        if (audioButton != null ) {
+        if (audioButton != null) {
             if (videoButton == null) {
                 audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());

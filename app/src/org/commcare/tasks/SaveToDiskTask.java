@@ -29,6 +29,7 @@ import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.xform.util.XFormSerializer;
+import org.javarosa.xpath.XPathException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -94,8 +95,15 @@ public class SaveToDiskTask extends
      */
     @Override
     protected ResultAndError<SaveStatus> doTaskBackground(Void... nothing) {
-        if (hasInvalidAnswers(mMarkCompleted, DeveloperPreferences.shouldFireTriggersOnSave())) {
-            return new ResultAndError<>(SaveStatus.INVALID_ANSWER);
+        try{
+            if (hasInvalidAnswers(mMarkCompleted, DeveloperPreferences.shouldFireTriggersOnSave())) {
+                return new ResultAndError<>(SaveStatus.INVALID_ANSWER);
+            }
+        } catch(XPathException xpe) {
+            String cleanedMessage = "An error in your form prevented it from saving: \n" +
+                    xpe.getMessage();
+
+            return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
         FormEntryActivity.mFormController.postProcessInstance();

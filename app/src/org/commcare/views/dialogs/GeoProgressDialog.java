@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -13,45 +14,60 @@ import org.commcare.dalvik.R;
 
 public class GeoProgressDialog extends Dialog {
 
-    private final TextView mText;
-    private final ImageView mImage;
-    private final Button mAccept;
-    private final Button mCancel;
-    private final ProgressBar mProgress;
+    private final TextView textView;
+    private final ImageView imageView;
+    private final Button acceptButton;
+    private final Button cancelButton;
+    private final ProgressBar progressBar;
     private boolean locationFound;
-    private final String mFoundMessage;
-    private final String mSearchMessage;
+    private final String locationFoundMessage;
+    private final String searchingMessage;
 
     public GeoProgressDialog(Context context, String foundMessage, String searchMessage) {
         super(context);
+
+        // So that back button doesn't cancel
+        setCancelable(false);
+
+        // Using a custom TextView for the title instead, to avoid the out-dated styling of the built-in one
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+
         setContentView(R.layout.geo_progress);
-        this.mImage = (ImageView)findViewById(R.id.geoImage);
-        this.mText = (TextView)findViewById(R.id.geoText);
-        this.mAccept = (Button)findViewById(R.id.geoOK);
-        this.mCancel = (Button)findViewById(R.id.geoCancel);
-        this.mProgress = (ProgressBar)findViewById(R.id.geoProgressBar);
+
+        this.imageView = (ImageView)findViewById(R.id.geoImage);
+        this.textView = (TextView)findViewById(R.id.geoText);
+        this.acceptButton = (Button)findViewById(R.id.geoOK);
+        this.cancelButton = (Button)findViewById(R.id.geoCancel);
+        this.progressBar = (ProgressBar)findViewById(R.id.geoProgressBar);
         locationFound = false;
-        mFoundMessage = foundMessage;
-        mSearchMessage = searchMessage;
+        locationFoundMessage = foundMessage;
+        searchingMessage = searchMessage;
+
         refreshView();
     }
 
+    @Override
+    public void setTitle(CharSequence title) {
+        TextView customProgressDialogTitle = (TextView)findViewById(R.id.dialog_title_text);
+        customProgressDialogTitle.setText(title);
+    }
+
     public void setMessage(String txt) {
-        mText.setText(txt);
+        textView.setText(txt);
     }
 
     public void setImage(Drawable img) {
-        mImage.setImageDrawable(img);
+        imageView.setImageDrawable(img);
     }
 
     public void setOKButton(String title, View.OnClickListener ocl) {
-        mAccept.setText(title);
-        mAccept.setOnClickListener(ocl);
+        acceptButton.setText(title);
+        acceptButton.setOnClickListener(ocl);
     }
 
     public void setCancelButton(String title, View.OnClickListener ocl) {
-        mCancel.setText(title);
-        mCancel.setOnClickListener(ocl);
+        cancelButton.setText(title);
+        cancelButton.setOnClickListener(ocl);
     }
 
     public void setLocationFound(boolean locationFound) {
@@ -61,17 +77,17 @@ public class GeoProgressDialog extends Dialog {
 
     private void refreshView() {
         if (locationFound) {
-            mImage.setVisibility(View.VISIBLE);
-            mProgress.setVisibility(View.GONE);
-            mCancel.setVisibility(View.GONE);
-            mAccept.setVisibility(View.VISIBLE);
-            this.setTitle(mFoundMessage);
+            imageView.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+            cancelButton.setVisibility(View.GONE);
+            acceptButton.setVisibility(View.VISIBLE);
+            setTitle(locationFoundMessage);
         } else {
-            this.setTitle(mSearchMessage);
-            mImage.setVisibility(View.GONE);
-            mCancel.setVisibility(View.VISIBLE);
-            mAccept.setVisibility(View.GONE);
-            mProgress.setVisibility(View.VISIBLE);
+            setTitle(searchingMessage);
+            imageView.setVisibility(View.GONE);
+            cancelButton.setVisibility(View.VISIBLE);
+            acceptButton.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
         }
     }
 

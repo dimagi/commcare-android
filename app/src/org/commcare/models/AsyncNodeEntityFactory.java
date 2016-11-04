@@ -99,7 +99,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         System.arraycopy(cachePrimeKeys[1], 0, args, 0, cachePrimeKeys[1].length);
 
         for (int i = 0; i < sortKeys.size(); ++i) {
-            args[2 + i] = getCacheKey(detail.getId(), String.valueOf(sortKeys.get(i)));
+            args[cachePrimeKeys[1].length + i] = getCacheKey(detail.getId(), String.valueOf(sortKeys.get(i)));
         }
 
         String[] names = cachePrimeKeys[0];
