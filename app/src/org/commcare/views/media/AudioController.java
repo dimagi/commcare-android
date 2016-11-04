@@ -4,8 +4,6 @@ import android.media.MediaPlayer;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
-import org.commcare.interfaces.AudioPlaybackReset;
-
 /**
  * Audio playback is delegated through this singleton class since only one
  * track should play at a time. Audio buttons invoke this controller on button
@@ -31,7 +29,7 @@ public enum AudioController {
      * Button that corresponds to the currentEntity media. Pressing the button
      * should trigger playback control methods here.
      */
-    private AudioPlaybackReset currentAudioReset;
+    private AudioPlaybackButtonBase currentAudioButton;
 
     /**
      * Set the media to be played and store the playback button attached to
@@ -43,12 +41,12 @@ public enum AudioController {
      *                      the media's playback state
      */
     public void setCurrentMediaAndButton(MediaEntity newMedia,
-                                         AudioPlaybackReset newAudioReset) {
-        if (currentAudioReset != null && currentAudioReset != newAudioReset) {
+                                         AudioPlaybackButtonBase newAudioReset) {
+        if (currentAudioButton != null && currentAudioButton != newAudioReset) {
             // reset the old button to not be playing
-            currentAudioReset.resetPlaybackState();
+            currentAudioButton.resetPlaybackState();
         }
-        currentAudioReset = newAudioReset;
+        currentAudioButton = newAudioReset;
 
         if (newMedia != currentEntity) {
             // newMedia is actually new, so release old media
@@ -64,8 +62,8 @@ public enum AudioController {
      * @param button Corresponds with the media that is currently
      *               loaded/playing
      */
-    public void registerPlaybackButton(AudioPlaybackReset button) {
-        currentAudioReset = button;
+    public void registerPlaybackButton(AudioPlaybackButtonBase button) {
+        currentAudioButton = button;
     }
 
 
@@ -149,8 +147,8 @@ public enum AudioController {
         return currentEntity != null;
     }
 
-    boolean mediaForInstance(AudioPlaybackReset resetInstance) {
-        return currentEntity != null && currentAudioReset == resetInstance;
+    boolean mediaForInstance(AudioPlaybackButtonBase audioButton) {
+        return currentEntity != null && currentAudioButton == audioButton;
     }
 
     void seekTo(int pos) {

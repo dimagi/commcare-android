@@ -79,7 +79,8 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
 
     private void setupProgressAnimation(int currentPositionMillis) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            animation = ObjectAnimator.ofInt(seekBar, "progress", 0, playbackDurationMillis);
+            final int startPosition = 0;
+            animation = ObjectAnimator.ofInt(seekBar, "progress", startPosition, playbackDurationMillis);
             animation.setDuration(playbackDurationMillis);
             animation.setCurrentPlayTime(currentPositionMillis);
             animation.setInterpolator(new LinearInterpolator());

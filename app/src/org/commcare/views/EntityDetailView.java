@@ -80,10 +80,10 @@ public class EntityDetailView extends FrameLayout {
     private final LinearLayout.LayoutParams fill;
 
     @IdRes
-    private static final int imageViewID = 23422634;
+    private static final int IMAGE_VIEW_ID = 23422634;
 
     @IdRes
-    private static final int calloutButtonID = 23422634;
+    private static final int CALLOUT_BUTTON_ID = 23422634;
 
     private static final String FORM_VIDEO = MediaUtil.FORM_VIDEO;
     private static final String FORM_AUDIO = MediaUtil.FORM_AUDIO;
@@ -206,7 +206,7 @@ public class EntityDetailView extends FrameLayout {
                     calloutImageButton.setPadding(10, 10, 10, 10);
                     calloutImageButton.setAdjustViewBounds(true);
                     calloutImageButton.setImageBitmap(b);
-                    calloutImageButton.setId(calloutButtonID);
+                    calloutImageButton.setId(CALLOUT_BUTTON_ID);
                 }
 
                 calloutImageButton.setOnClickListener(new OnClickListener() {
@@ -264,7 +264,7 @@ public class EntityDetailView extends FrameLayout {
                 imageView.setPadding(10, 10, 10, 10);
                 imageView.setAdjustViewBounds(true);
                 imageView.setImageBitmap(b);
-                imageView.setId(imageViewID);
+                imageView.setId(IMAGE_VIEW_ID);
             }
 
             updateCurrentView(IMAGE, imageView);

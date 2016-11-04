@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
-import org.commcare.interfaces.AudioPlaybackReset;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -22,7 +21,7 @@ import java.io.IOException;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class AudioPlaybackButtonBase extends LinearLayout implements AudioPlaybackReset {
+public abstract class AudioPlaybackButtonBase extends LinearLayout {
 
     private final static String TAG = AudioPlaybackButtonBase.class.getSimpleName();
     /**
@@ -77,7 +76,6 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout implements Au
      * Set button appearance and playback state to 'ready'. Used when another
      * button is pressed and this one is reset.
      */
-    @Override
     public void resetPlaybackState() {
         currentState = MediaState.Ready;
         refreshAppearance();
@@ -103,13 +101,13 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout implements Au
     }
 
     private void startPlaying() {
-        Pair<Integer, Integer> posAndduration = AudioController.INSTANCE.playCurrentMediaEntity();
+        Pair<Integer, Integer> posAndDuration = AudioController.INSTANCE.playCurrentMediaEntity();
 
         currentState = MediaState.Playing;
         refreshAppearance();
 
-        if (posAndduration != null) {
-            startProgressBar(posAndduration.first, posAndduration.second);
+        if (posAndDuration != null) {
+            startProgressBar(posAndDuration.first, posAndDuration.second);
         }
     }
 
