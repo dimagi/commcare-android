@@ -115,7 +115,8 @@ public abstract class MenuBase
 
     @Override
     public boolean isBackEnabled() {
-        return !(menuIsBeingUsedAsHomeScreen() || CommCareApplication._().isConsumerApp());
+        return !isRootModuleMenu ||
+                (!menuIsBeingUsedAsHomeScreen() && !CommCareApplication._().isConsumerApp());
     }
 
     private boolean menuIsBeingUsedAsHomeScreen() {
