@@ -634,7 +634,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (CommCareApplication._().isConsumerApp()) {
             return;
         }
-        SyncUIHandling.handleSyncUpdate(this, update);
+        SyncCapableCommCareActivity.handleSyncUpdate(this, update);
     }
 
     @Override
