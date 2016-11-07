@@ -1,13 +1,19 @@
 package org.commcare.views.media;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.os.Build;
+import android.support.v4.util.Pair;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
@@ -18,13 +24,10 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @author ctsims
- * @author carlhartung
- * @author amstone326
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class AudioButton extends ImageButton implements OnClickListener {
-    private final static String TAG = AudioController.class.getSimpleName();
+public class AudioPlaybackButton extends LinearLayout {
+    private final static String TAG = AudioPlaybackButton.class.getSimpleName();
 
     /**
      * Audio to load when play button pressed.
@@ -43,18 +46,21 @@ public class AudioButton extends ImageButton implements OnClickListener {
      */
     private ViewId residingViewId;
 
+    private ImageButton playButton;
+    private ObjectAnimator animation;
+
     /**
      * Used by media inflater.
      */
-    public AudioButton(Context context, AttributeSet attrs) {
+    public AudioPlaybackButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setOnClickListener(this);
+        setupView(context);
     }
 
     /**
      * @param URI audio to load when play button pressed
      */
-    public AudioButton(Context context, final String URI, boolean visible) {
+    public AudioPlaybackButton(Context context, final String URI, boolean visible) {
         this(context, URI, null, visible);
     }
 
@@ -63,12 +69,29 @@ public class AudioButton extends ImageButton implements OnClickListener {
      * @param viewId  Id for the ListAdapter view that contains this button
      * @param visible Should the button be visible?
      */
-    public AudioButton(Context context, String URI,
-                       ViewId viewId, boolean visible) {
+    public AudioPlaybackButton(Context context, String URI,
+                               ViewId viewId, boolean visible) {
         super(context);
-        setOnClickListener(this);
+        setupView(context);
 
         resetButton(URI, viewId, visible);
+    }
+
+    private void setupView(Context context) {
+        LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = vi.inflate(R.layout.small_audio_playback, null);
+        addView(view);
+        setupButton();
+    }
+
+    private void setupButton() {
+        playButton = (ImageButton)findViewById(R.id.play_button);
+
+        // Set not focusable so that list onclick will work
+        playButton.setFocusable(false);
+        playButton.setFocusableInTouchMode(false);
+
+        playButton.setOnClickListener(buildOnClickListener());
     }
 
     /**
@@ -138,7 +161,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
      * Set button appearance and playback state to 'ready'. Used when another
      * button is pressed and this one is reset.
      */
-    public void setStateToReady() {
+    public void resetPlaybackState() {
         currentState = MediaState.Ready;
         refreshAppearance();
     }
@@ -149,14 +172,16 @@ public class AudioButton extends ImageButton implements OnClickListener {
     private void refreshAppearance() {
         switch (currentState) {
             case Ready:
-                this.setImageResource(R.drawable.icon_audioplay_lightcool);
+                clearProgressBar();
+                playButton.setImageResource(R.drawable.play_question_audio);
                 break;
             case Playing:
-                this.setImageResource(R.drawable.icon_audiostop_darkwarm);
+                playButton.setImageResource(R.drawable.pause_question_audio);
                 break;
             case Paused:
             case PausedForRenewal:
-                this.setImageResource(R.drawable.icon_audioplay_lightcool);
+                pauseProgressBar();
+                playButton.setImageResource(R.drawable.play_question_audio);
         }
     }
 
@@ -198,53 +223,62 @@ public class AudioButton extends ImageButton implements OnClickListener {
         return audioFilename;
     }
 
-    @Override
-    public void onClick(View v) {
-        String audioFilename = getAudioFilename();
-        if ("".equals(audioFilename)) {
-            return;
-        }
-
-        switch (currentState) {
-            case Ready:
-                MediaPlayer player = new MediaPlayer();
-                try {
-                    player.setDataSource(audioFilename);
-                    player.prepare();
-                    player.setOnCompletionListener(new OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mediaPlayer) {
-                            endPlaying();
-                        }
-
-                    });
-                    AudioController.INSTANCE.setCurrentMediaAndButton(new MediaEntity(URI, player, residingViewId, currentState), this);
-                    startPlaying();
-                } catch (IOException e) {
-                    String errorMsg =
-                            getContext().getString(R.string.audio_file_invalid);
-                    Log.e(TAG, errorMsg);
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
+    private OnClickListener buildOnClickListener() {
+        return new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String audioFilename = getAudioFilename();
+                if ("".equals(audioFilename)) {
+                    return;
                 }
-                break;
-            case PausedForRenewal:
-            case Paused:
-                startPlaying();
-                break;
-            case Playing:
-                pausePlaying();
-                break;
-            default:
-                Log.w(TAG, "Current playback state set to unexpected value");
-        }
+
+                switch (currentState) {
+                    case Ready:
+                        MediaPlayer player = new MediaPlayer();
+                        try {
+                            player.setDataSource(audioFilename);
+                            player.prepare();
+                            player.setOnCompletionListener(new OnCompletionListener() {
+                                @Override
+                                public void onCompletion(MediaPlayer mediaPlayer) {
+                                    endPlaying();
+                                }
+
+                            });
+                            AudioController.INSTANCE.setCurrentMediaAndButton(new MediaEntity(URI, player, residingViewId, currentState), AudioPlaybackButton.this);
+                            startPlaying();
+                        } catch (IOException e) {
+                            String errorMsg =
+                                    getContext().getString(R.string.audio_file_invalid);
+                            Log.e(TAG, errorMsg);
+                            Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+                            e.printStackTrace();
+                        }
+                        break;
+                    case PausedForRenewal:
+                    case Paused:
+                        startPlaying();
+                        break;
+                    case Playing:
+                        pausePlaying();
+                        break;
+                    default:
+                        Log.w(TAG, "Current playback state set to unexpected value");
+
+                }
+            }
+        };
     }
 
     private void startPlaying() {
-        AudioController.INSTANCE.playCurrentMediaEntity();
+        Pair<Integer, Integer> posAndDuration = AudioController.INSTANCE.playCurrentMediaEntity();
 
         currentState = MediaState.Playing;
         refreshAppearance();
+
+        if (posAndDuration != null) {
+            animateProgress(posAndDuration.first, posAndDuration.second);
+        }
     }
 
     public void endPlaying() {
@@ -259,5 +293,37 @@ public class AudioButton extends ImageButton implements OnClickListener {
 
         currentState = MediaState.Paused;
         refreshAppearance();
+    }
+
+    private void animateProgress(int milliPosition, int milliDuration) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
+            int startPosition = 0;
+            int progressDuration = 500;
+            animation = ObjectAnimator.ofInt(progressBar, "progress", startPosition, progressDuration);
+            animation.setDuration(milliDuration);
+            animation.setCurrentPlayTime(milliPosition);
+            animation.setInterpolator(new DecelerateInterpolator());
+            animation.start();
+        }
+    }
+
+    private void clearProgressBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
+            if (animation != null) {
+                animation.removeAllListeners();
+                animation.end();
+                animation.cancel();
+            }
+            progressBar.clearAnimation();
+            progressBar.setProgress(0);
+        }
+    }
+
+    private void pauseProgressBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            animation.pause();
+        }
     }
 }

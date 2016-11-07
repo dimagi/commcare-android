@@ -162,12 +162,12 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         try {
             fis = new FileInputStream(formXmlFile);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException("Error reading XForm file");
+            throw new RuntimeException("Error reading XForm file", e);
         }
         XFormAndroidInstaller.registerAndroidLevelFormParsers();
         FormDef fd = XFormExtensionUtils.getFormFromInputStream(fis);
         if (fd == null) {
-            throw new RuntimeException("Error reading XForm file");
+            throw new RuntimeException("Error reading XForm file: FormDef is null");
         }
         return fd;
     }

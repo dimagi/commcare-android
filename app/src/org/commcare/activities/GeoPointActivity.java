@@ -26,10 +26,10 @@ import java.text.DecimalFormat;
 import java.util.Set;
 
 public class GeoPointActivity extends Activity implements LocationListener, TimerListener {
-    private GeoProgressDialog mLocationDialog;
-    private LocationManager mLocationManager;
-    private Location mLocation;
-    private Set<String> mProviders;
+    private GeoProgressDialog locationDialog;
+    private LocationManager locationManager;
+    private Location location;
+    private Set<String> providers;
 
     private final static int millisToWait = 60000; //allow to accept location after 60 seconds
 
@@ -42,9 +42,9 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         setTitle(StringUtils.getStringRobust(this, R.string.application_name) +
                 " > " + StringUtils.getStringRobust(this, R.string.get_location));
 
-        mLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
-        mProviders = GeoUtils.evaluateProviders(mLocationManager);
+        providers = GeoUtils.evaluateProviders(locationManager);
 
         setupLocationDialog();
         long mLong = -1;
@@ -67,13 +67,13 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         // stops the GPS. Note that this will turn off the GPS if the screen goes to sleep.
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mLocationManager.removeUpdates(this);
+            locationManager.removeUpdates(this);
         }
 
         // We're not using managed dialogs, so we have to dismiss the dialog to prevent it from
         // leaking memory.
-        if (mLocationDialog != null && mLocationDialog.isShowing())
-            mLocationDialog.dismiss();
+        if (locationDialog != null && locationDialog.isShowing())
+            locationDialog.dismiss();
     }
 
 
@@ -81,12 +81,12 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     protected void onResume() {
         super.onResume();
 
-        mProviders = GeoUtils.evaluateProviders(mLocationManager);
-        if (mProviders.isEmpty()) {
+        providers = GeoUtils.evaluateProviders(locationManager);
+        if (providers.isEmpty()) {
             DialogInterface.OnCancelListener onCancelListener = new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
-                    mLocation = null;
+                    location = null;
                     GeoPointActivity.this.finish();
                 }
             };
@@ -100,7 +100,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
                             startActivity(intent);
                             break;
                         case DialogInterface.BUTTON_NEGATIVE:
-                            mLocation = null;
+                            location = null;
                             GeoPointActivity.this.finish();
                             break;
                     }
@@ -110,14 +110,14 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
 
             GeoUtils.showNoGpsDialog(this, onChangeListener, onCancelListener);
         } else {
-            for (String provider : mProviders) {
+            for (String provider : providers) {
                 if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
                         (provider.equals(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-                    mLocationManager.requestLocationUpdates(provider, 0, 0, this);
+                    locationManager.requestLocationUpdates(provider, 0, 0, this);
                 }
             }
             // TODO PLM: warn user and ask for permissions if the user has disabled them
-            mLocationDialog.show();
+            locationDialog.show();
         }
     }
 
@@ -131,7 +131,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         OnClickListener cancelButtonListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mLocation = null;
+                location = null;
                 finish();
             }
         };
@@ -143,24 +143,21 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
             }
         };
 
-        mLocationDialog = new GeoProgressDialog(this, StringUtils.getStringRobust(this, R.string.found_location),
+        locationDialog = new GeoProgressDialog(this, StringUtils.getStringRobust(this, R.string.found_location),
                 StringUtils.getStringRobust(this, R.string.finding_location));
-
-        // back button doesn't cancel
-        mLocationDialog.setCancelable(false);
-        mLocationDialog.setImage(getResources().getDrawable(R.drawable.green_check_mark));
-        mLocationDialog.setMessage(StringUtils.getStringRobust(this, R.string.please_wait_long));
-        mLocationDialog.setOKButton(StringUtils.getStringRobust(this, R.string.accept_location),
+        locationDialog.setImage(getResources().getDrawable(R.drawable.green_check_mark));
+        locationDialog.setMessage(StringUtils.getStringRobust(this, R.string.please_wait_long));
+        locationDialog.setOKButton(StringUtils.getStringRobust(this, R.string.accept_location),
                 okButtonListener);
-        mLocationDialog.setCancelButton(StringUtils.getStringRobust(this, R.string.cancel_location),
+        locationDialog.setCancelButton(StringUtils.getStringRobust(this, R.string.cancel_location),
                 cancelButtonListener);
     }
 
 
     private void returnLocation() {
-        if (mLocation != null) {
+        if (location != null) {
             Intent i = new Intent();
-            i.putExtra(FormEntryActivity.LOCATION_RESULT, GeoUtils.locationToString(mLocation));
+            i.putExtra(FormEntryActivity.LOCATION_RESULT, GeoUtils.locationToString(location));
             setResult(RESULT_OK, i);
         }
         finish();
@@ -169,21 +166,21 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
 
     @Override
     public void onLocationChanged(Location location) {
-        mLocation = location;
-        if (mLocation != null) {
-            String[] args = {mLocation.getProvider(), truncateDouble(mLocation.getAccuracy())};
-            mLocationDialog.setMessage(StringUtils.getStringRobust(this,
+        this.location = location;
+        if (this.location != null) {
+            String[] args = {this.location.getProvider(), truncateDouble(this.location.getAccuracy())};
+            locationDialog.setMessage(StringUtils.getStringRobust(this,
                     R.string.location_provider_accuracy, args));
 
             // If location is accurate, we're done
-            if (mLocation.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
+            if (this.location.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
                 returnLocation();
             }
 
             // If location isn't great but might be acceptable, notify
             // the user and let them decide whether or not to record it
-            mLocationDialog.setLocationFound(
-                    mLocation.getAccuracy() < GeoUtils.ACCEPTABLE_ACCURACY
+            locationDialog.setLocationFound(
+                    this.location.getAccuracy() < GeoUtils.ACCEPTABLE_ACCURACY
                             || mTimer.getMillisUntilFinished() == 0
             );
         }
@@ -212,9 +209,9 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     public void onStatusChanged(String provider, int status, Bundle extras) {
         switch (status) {
             case LocationProvider.AVAILABLE:
-                if (mLocation != null) {
-                    mLocationDialog.setMessage(StringUtils.getStringRobust(this, R.string.location_accuracy,
-                            "" + (int)mLocation.getAccuracy()));
+                if (location != null) {
+                    locationDialog.setMessage(StringUtils.getStringRobust(this, R.string.location_accuracy,
+                            "" + (int) location.getAccuracy()));
                 }
                 break;
             case LocationProvider.OUT_OF_SERVICE:
@@ -226,7 +223,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
 
     @Override
     public void notifyTimerFinished() {
-        onLocationChanged(mLocation);
+        onLocationChanged(location);
     }
 
     @Override
