@@ -106,4 +106,11 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-use-root-menu-as-home-screen"
         android:title="Use root module menu as home screen"/>
+    <ListPreference
+        android:enabled="true"
+        android:defaultValue="no"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-update-to-latest-saved"
+        android:title="Enable Updating to Latest Saved Version"/>
 </PreferenceScreen>

@@ -87,7 +87,7 @@ public class CommCarePreferences
      * Does the user want to download the latest app version deployed (built),
      * not just the latest app version released (starred)?
      */
-    public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
+    public final static String UPDATE_TO_UNSTARRED_BUILDS = "cc-update-to-unstarred-builds";
 
     // Preferences that are set incidentally/automatically by CommCare, based upon a user's workflow
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
@@ -128,7 +128,7 @@ public class CommCarePreferences
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
         prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
-        prefKeyToAnalyticsEvent.put(NEWEST_APP_VERSION_ENABLED, GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION);
+        prefKeyToAnalyticsEvent.put(UPDATE_TO_UNSTARRED_BUILDS, GoogleAnalyticsFields.LABEL_UPDATE_TO_UNSTARRED);
     }
 
     @Override
@@ -500,15 +500,15 @@ public class CommCarePreferences
      * deployed (built) is enabled.  Otherwise the latest released (starred)
      * app version will be downloaded on upgrade.
      */
-    public static boolean isNewestAppVersionEnabled() {
+    public static boolean updateToUnstarredBuildsEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        return properties.getString(UPDATE_TO_UNSTARRED_BUILDS, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
-    public static void enableNewestAppVersion() {
+    public static void enableUpdateToUnstarredBuilds() {
         CommCareApplication._().getCurrentApp().getAppPreferences()
                 .edit()
-                .putString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.YES)
+                .putString(UPDATE_TO_UNSTARRED_BUILDS, CommCarePreferences.YES)
                 .apply();
     }
 }
