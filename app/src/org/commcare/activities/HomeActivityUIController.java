@@ -94,8 +94,7 @@ public class HomeActivityUIController implements CommCareActivityUIController {
         });
     }
 
-    // TODO: Use syncNeeded flag to change color of sync message
-    protected void displayMessage(String message, boolean syncNeeded, boolean suppressToast) {
+    protected void displayMessage(String message, boolean suppressToast) {
         if (!suppressToast) {
             Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
         }

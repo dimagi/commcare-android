@@ -34,7 +34,7 @@ import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
-import org.commcare.tasks.PullTaskReceiver;
+import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 
 import org.commcare.utils.ACRAUtil;
@@ -56,7 +56,7 @@ import java.util.ArrayList;
  */
 public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
-        RuntimePermissionRequester, WithUIController, PullTaskReceiver {
+        RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
@@ -634,7 +634,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (CommCareApplication._().isConsumerApp()) {
             return;
         }
-        SyncUIHandling.handleSyncUpdate(this, update);
+        SyncCapableCommCareActivity.handleSyncUpdate(this, update);
     }
 
     @Override
