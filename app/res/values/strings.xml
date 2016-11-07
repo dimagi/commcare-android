@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:cc="http://strings_namespace">
-    <string name="title_bar_name">CommCare</string>
 
     <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
     <string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
     <string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
+    <string name="form_record_url"/>
 
+    <string name="panes">one</string>
     <string name="comment_hint">Your comment</string>
+
+    <string name="font_size" cc:translatable="true">Text Font Size</string>
+    <string name="preference_help_mode_tray" cc:translatable="true">Display Rich Help Inline</string>
+
+    <!-- ABOVE THIS LINE are strings I've determined should actually stay here -->
+
+
+
 
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
@@ -22,23 +31,18 @@
     <string name="verify_resources">Validate Multimedia</string>
     <string name="skip_button_text">Skip For Now</string>
     <string name="retry_button_text">Retry</string>
-    <string name="skipped_verification_warning">You did not validate multimedia resources for the app that was just
-         installed! This app will not be visible to users on the log-in screen until multimedia is validated.</string>
+
     <string name="skipped_verification_warning_2">You did not validate multimedia resources for this app! The app will 
         not be visible to users on the log-in screen until multimedia is validated.</string>
     <string name="manager_instructions">Select an app to view its management options, or install a new app.</string>
     <string name="pre_multiple_apps_warning">Warning: The app you have installed is from an outdated build.
         For full functionality of multiple application seating, please make a new build of your app.</string>
     <string name="uninstall_reboot_warning">CommCare will uninstall your app and then reboot to save changes.</string>
-    <string name="logout_warning">In order to complete this action, CommCare must log out the currently logged-in app. Do you want to proceed?</string>
-    <string name="logging_out">Logging out your app</string>
+
     <string name="uninstalling">Uninstalling your app</string>
-    <string name="media_not_verified">Media Not Verified</string>
+
     <string name="media_verified">Media Validated!</string>
     <string name="no_installation">No app was installed!</string>
-    <string name="migration_definite_failure">CommCare was unable to migrate your app data for an upgrade. To resolve this issue, please uninstall CommCare from your device and then relaunch it.</string>
-    <string name="migration_possible_failure">CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare in your device\'s Settings menu.</string>
-    <string name="migration_failure_title">Migration Error</string>
     <string name="multiple_apps_limit_message">You have reached your limit of installed apps; you may only have up to 2 apps installed at once.\n\nIf you would like to install a new app, you may uninstall an existing app first, which can be done from the app manager.</string>
     <string name="back_to_manager">"Back to App Manager"</string>
     <string name="go_to_manager">Go to App Manager</string>
@@ -61,7 +65,6 @@
     <string name="expirenotification">CommCare Login Expired</string>
     <string name="submission_notification_title">Submitting Data</string>
     <string name="submission_logs_title">Submitting CommCare Logs</string>
-    <string name="form_record_url"/>
 
     <item name="login_screen_hide_all_cuttoff" type="integer">200</item>
     <item name="login_screen_hide_banner_cuttoff" type="integer">250</item>
@@ -139,7 +142,6 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="permission_content_provider_description">Allows this app to read data from CommCare while a user is logged in</string>
     <string name="title_activity_report_problem">ReportProblemActivity</string>
     <string name="title_activity_comm_care_verification">CommCareVerificationActivity</string>
-    <string name="panes">one</string>
     <string name="restore_session_prompt">Restore saved session upon login</string>
 
 
@@ -156,7 +158,6 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="audio_file_error" cc:translatable="true">No audio file was specified.</string>
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
     <string name="backup" cc:translatable="true">back to\nprevious\nprompt</string>
-    <string name="cancel" cc:translatable="true">CANCEL</string>
     <string name="cancel_loading_form" cc:translatable="true">Cancel</string>
     <string name="cancel_location" cc:translatable="true">Cancel</string>
     <string name="cancel_saving_form" cc:translatable="true">Cancel</string>
@@ -184,8 +185,6 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="download_complete" cc:translatable="true">Form Get Complete</string>
     <string name="download_failed_with_error" cc:translatable="true">Form \"%1$s\" failed. %2$s.</string>
     <string name="do_not_change" cc:translatable="true">Cancel</string>
-    <string name="do_not_exit" cc:translatable="true">STAY IN FORM</string>
-    <string name="do_not_save" cc:translatable="true">EXIT WITHOUT SAVING</string>
     <string name="enter" cc:translatable="true">start</string>
     <string name="enter_data" cc:translatable="true">Fill Blank Form</string>
     <string name="enter_data_button" cc:translatable="true">Fill Blank Form</string>
@@ -205,7 +204,6 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="getting_location" cc:translatable="true">Loading Location</string>
     <string name="get_forms" cc:translatable="true">Get Blank Form</string>
     <string name="get_location" cc:translatable="true">Record Location</string>
-    <string name="provider_disabled_error" cc:translatable="true">Sorry, Location providers are disabled!</string>
     <string name="invalid_answer_error" cc:translatable="true">Sorry, this response is invalid!</string>
     <string name="jump_to_beginning" cc:translatable="true">Go To Start</string>
     <string name="jump_to_end" cc:translatable="true">Go To End</string>
@@ -230,7 +228,6 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="no_items_display_instances" cc:translatable="true">Nothing available to display.\n\nTry finalizing saved forms before sending.</string>
     <string name="no_items_error" cc:translatable="true">Nothing available to %s!</string>
     <string name="no_sd_error" cc:translatable="true">Sorry, your memory card is not working!</string>
-    <string name="ok" cc:translatable="true">OK</string>
     <string name="one_capture" cc:translatable="true">Multimedia recorded.</string>
     <string name="parse_error" cc:translatable="true">Sorry, unable to parse form.</string>
     <string name="parse_legacy_formlist_failed" cc:translatable="true">The server has not provided an available-forms document compatible with Aggregate 0.9.x. : %s</string>
@@ -279,9 +276,7 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="client" cc:translatable="true">Client</string>
     <string name="use_odk_default" cc:translatable="true">Use Default Image</string>
     <string name="show_location" cc:translatable="true">Show Location</string>
-    <string name="keep_changes" cc:translatable="true">SAVE INCOMPLETE</string>
     <string name="go_to_location" cc:translatable="true">Go to Location</string>
-    <string name="font_size" cc:translatable="true">Text Font Size</string>
     <string name="change_font_size" cc:translatable="true">Text Font Size</string>
     <string name="form_scan_starting" cc:translatable="true">Scanning for forms...</string>
     <string name="form_scan_finished" cc:translatable="true">Form scanning completed</string>
@@ -294,12 +289,6 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="file_fetch_failed" cc:translatable="true">Error: %2$s (%3$s) at %1$s</string>
     <string name="fetching_manifest" cc:translatable="true">%s. Getting manifest </string>
     <string name="success" cc:translatable="true">Success</string>
-    <string name="no_forms_uploaded" cc:translatable="true">Sorry, no form was uploaded.</string>
-    <string name="upload_results" cc:translatable="true">Upload Results</string>
-    <string name="xform_parse_error" cc:translatable="true">XForm parse error. %1$s is missing element %2$s</string>
-    <string name="choose_sound" cc:translatable="true">Choose Sound</string>
-    <string name="choose_video" cc:translatable="true">Choose Video</string>
-    <string name="choose_image" cc:translatable="true">Choose Image</string>
     <string name="selected" cc:translatable="true">Selected: </string>
     <string name="select_answer" cc:translatable="true">Select Answer</string>
     <string name="save_form_as" cc:translatable="true">Name this form:</string>
@@ -307,15 +296,4 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="form_name" cc:translatable="true">Form Name:</string>
     <string name="edit_prompt" cc:translatable="true">Edit Prompt</string>
     <string name="exit" cc:translatable="true">Exit</string>
-    <string name="no_gps_title" cc:translatable="true">Location Data Disabled</string>
-    <string name="no_gps_message" cc:translatable="true">The location providers on this device are currently disabled. Do you want to change those settings?</string>
-    <string name="change_settings" cc:translatable="true">Change Settings</string>
-    <string name="finding_location" cc:translatable="true">Finding Location...</string>
-    <string name="found_location" cc:translatable="true">Location Found!</string>
-    <string name="preference_help_mode_tray" cc:translatable="true">Display Rich Help Inline</string>
-    <string name="reset_image" cc:translatable="true">Reset</string>
-    <string name="save_and_close" cc:translatable="true">Save and Close</string>
-    <string name="sign_button" cc:translatable="true">Gather Signature</string>
-    <string name="markup_image" cc:translatable="true">Markup Image</string>
-    <string name="draw_image" cc:translatable="true">Sketch Image</string>
 </resources>

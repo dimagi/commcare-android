@@ -101,6 +101,7 @@ import org.commcare.utils.PopupHandler;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.notifications.NotificationClearReceiver;
 import org.commcare.views.notifications.NotificationMessage;
 import org.javarosa.core.model.User;
@@ -820,7 +821,9 @@ public class CommCareApplication extends Application {
         String buildDate = BuildConfig.BUILD_DATE;
         String buildNumber = BuildConfig.BUILD_NUMBER;
 
-        return Localization.get(getString(R.string.app_version_string), new String[]{pi.versionName, String.valueOf(pi.versionCode), ccv, buildNumber, buildDate, profileVersion});
+        return Localization.get(StringUtils.getNativeString(this, R.string.app_version_string),
+                new String[]{pi.versionName, String.valueOf(pi.versionCode), ccv,
+                        buildNumber, buildDate, profileVersion});
     }
 
     /**

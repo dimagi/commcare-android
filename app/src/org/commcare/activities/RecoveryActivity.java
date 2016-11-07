@@ -19,6 +19,7 @@ import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.Logger;
@@ -65,7 +66,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                 ProcessAndSendTask<RecoveryActivity> mProcess =
                         new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this,
                                 settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
-                                        RecoveryActivity.this.getString(R.string.PostURL)), true) {
+                                        StringUtils.getNativeString(RecoveryActivity.this, R.string.PostURL)), true) {
 
                             @Override
                             protected void onPreExecute() {

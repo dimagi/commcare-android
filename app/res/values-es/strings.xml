@@ -168,8 +168,4 @@
     <string name="save_as_error">"El nombre no puede estar en blanco!"</string>
     <string name="form_name">Nombre del Formulario:</string>
     <string name="edit_prompt">"Editar el Aviso"</string>
-    <string name="exit">Exit</string>
-    <string name="no_gps_title">Location Data Disabled</string>
-    <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>
-    <string name="change_settings">Change Settings</string>
 </resources>

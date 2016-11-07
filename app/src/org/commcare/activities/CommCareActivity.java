@@ -258,7 +258,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             // In honeycomb and above the fragment takes care of this
-            this.setTitle(getTitle(this, getActivityTitle()));
+            this.setTitle(getTitle(getActivityTitle()));
         }
 
         AudioController.INSTANCE.playPreviousAudio();
@@ -443,16 +443,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return null;
     }
 
-    public static String getTopLevelTitleName(Context c) {
-        try {
-            return Localization.get("app.display.name");
-        } catch (NoLocalizedTextException nlte) {
-            return c.getString(org.commcare.dalvik.R.string.title_bar_name);
-        }
+    public static String getTopLevelTitleName() {
+        return Localization.getWithDefault("app.display.name", "CommCare");
     }
 
-    protected static String getTitle(Context c, String local) {
-        String topLevel = getTopLevelTitleName(c);
+    protected static String getTitle(String local) {
+        String topLevel = getTopLevelTitleName();
 
         String[] stepTitles = new String[0];
         try {

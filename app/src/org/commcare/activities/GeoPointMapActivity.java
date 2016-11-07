@@ -29,6 +29,7 @@ import com.google.android.maps.Overlay;
 import org.commcare.dalvik.R;
 import org.commcare.utils.GeoUtils;
 import org.commcare.views.widgets.GeoPointWidget;
+import org.javarosa.core.services.locale.Localization;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -92,7 +93,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
             }
         }
         if (!mGPSOn && !mNetworkOn) {
-            Toast.makeText(getBaseContext(), getString(R.string.provider_disabled_error),
+            Toast.makeText(getBaseContext(), Localization.get("odk_provider_disabled_error"),
                     Toast.LENGTH_SHORT).show();
             finish();
         }

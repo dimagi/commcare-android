@@ -59,6 +59,7 @@ import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CommCareAlertDialog;
@@ -906,7 +907,7 @@ public class CommCareHomeActivity
         if (selectDatum instanceof EntityDatum) {
             EntityDatum entityDatum = (EntityDatum) selectDatum;
             TreeReference contextRef = sessionNavigator.getCurrentAutoSelection();
-            if (this.getString(R.string.panes).equals("two")
+            if (StringUtils.getNativeString(this, R.string.panes).equals("two")
                     && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 // Large tablet in landscape: send to entity select activity
                 // (awesome mode, with case pre-selected) instead of entity detail
@@ -968,7 +969,7 @@ public class CommCareHomeActivity
         FormRecord record = state.getFormRecord();
         AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         formEntry(platform.getFormContentUri(record.getFormNamespace()), record,
-                CommCareActivity.getTitle(this, null));
+                CommCareActivity.getTitle(null));
     }
 
     private void formEntry(Uri formUri, FormRecord r) {

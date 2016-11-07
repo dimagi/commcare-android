@@ -28,6 +28,7 @@ import org.commcare.utils.DotsData.DotsBox;
 import org.commcare.utils.DotsData.DotsDay;
 import org.commcare.utils.DotsEditListener;
 import org.commcare.utils.GestureDetector;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.DotsDetailView;
 import org.commcare.views.DotsHomeView;
 import org.javarosa.core.model.utils.DateUtils;
@@ -134,7 +135,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
             
             showView(home(), AnimationType.fade);
         }
-        setTitle(getString(R.string.application_name) + " > " + " DOTS");
+        setTitle(StringUtils.getNativeString(this, R.string.application_name) + " > " + " DOTS");
         mGestureDetector = new GestureDetector();
     }
     
@@ -161,7 +162,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     }
     
     private DotsHomeView home() {
-        setTitle(getString(R.string.application_name) + " > " + " DOTS");
+        setTitle(StringUtils.getNativeString(this, R.string.application_name) + " > " + " DOTS");
         return new DotsHomeView(this, dotsData, this);
     }
     
@@ -204,7 +205,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         
         //DateFormat df = DateFormat.getDateFormat(this);
         
-        setTitle(getString(R.string.application_name) + " > " + "DOTS Details for " + DateFormat.format("MM/dd/yyyy", date));
+        setTitle(StringUtils.getNativeString(this, R.string.application_name) + " > " + "DOTS Details for " + DateFormat.format("MM/dd/yyyy", date));
         showView(view, anim);
     }
     

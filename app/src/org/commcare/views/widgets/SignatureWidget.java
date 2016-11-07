@@ -37,12 +37,14 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.ODKStorage;
+import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UrlUtils;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -80,7 +82,7 @@ public class SignatureWidget extends QuestionWidget {
         // setup Blank Image Button
         mSignButton = new Button(getContext());
         WidgetUtils.setupButton(mSignButton,
-                StringUtils.getStringSpannableRobust(getContext(), R.string.sign_button),
+                MarkupUtil.localizeStyleSpannable(context, "odk_sign_button"),
                 mAnswerFontsize,
                 !prompt.isReadOnly());
 
@@ -189,7 +191,7 @@ public class SignatureWidget extends QuestionWidget {
         mErrorTextView.setVisibility(View.GONE);
 
         // reset buttons
-        mSignButton.setText(getContext().getString(R.string.sign_button));
+        mSignButton.setText(Localization.get("odk_sign_button"));
     }
 
 

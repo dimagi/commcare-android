@@ -1,3 +1,7 @@
+migration.definite.failure=CommCare was unable to migrate your app data for an upgrade. To resolve this issue, please uninstall CommCare from your device and then relaunch it.
+migration.possible.failure=CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare in your device\'s Settings menu.
+migration.failure.title=Migration Error
+
 # Install strings
 install.keep.trying=Keep trying if connection is interrupted
 install.barcode.top=Welcome to CommCare!
@@ -34,7 +38,7 @@ install.version.mismatch=The application requires CommCare version ${0}. You are
 install.major.mismatch=Please uninstall your CommCare Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
 install.minor.mismatch=Please update your version of CommCare from the Android Market to run this application.
 
-# App manager strings
+# App manager strings that can be requested when there is no seated app
 menu.enable.privilege=Enable Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 app.manager.advanced.settings.title=App Manager > Advanced Settings

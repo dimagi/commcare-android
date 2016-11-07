@@ -368,7 +368,7 @@ public class BreadcrumbBarFragment extends Fragment {
             return "CommCare";
         }
         if (currentTitle == null || "".equals(currentTitle)) {
-            currentTitle = CommCareActivity.getTopLevelTitleName(activity);
+            currentTitle = CommCareActivity.getTopLevelTitleName();
         }
         if (currentTitle == null || "".equals(currentTitle)) {
             currentTitle = "CommCare";

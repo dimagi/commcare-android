@@ -20,6 +20,7 @@ import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.StorageUtils;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -101,7 +102,7 @@ public class FormAndDataSyncer {
     private static String getFormPostURL(final Context context) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
         return settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
-                context.getString(R.string.PostURL));
+                StringUtils.getNativeString(context, R.string.PostURL));
     }
 
     public void syncDataForLoggedInUser(final SyncCapableCommCareActivity activity,
@@ -122,7 +123,8 @@ public class FormAndDataSyncer {
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         syncData(activity, formsToSend, userTriggeredSync,
-                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
+                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY,
+                        StringUtils.getNativeString(activity, R.string.ota_restore_url)),
                 u.getUsername(), u.getCachedPwd());
     }
 
@@ -146,7 +148,8 @@ public class FormAndDataSyncer {
     public void performOtaRestore(LoginActivity context, String username, String password) {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         syncData(context, false, false,
-                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, context.getString(R.string.ota_restore_url)),
+                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY,
+                       StringUtils.getNativeString(context, R.string.ota_restore_url)),
                 username,
                 password);
     }

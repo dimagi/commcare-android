@@ -22,6 +22,7 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.ODKStorage;
+import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UrlUtils;
@@ -108,7 +109,7 @@ public class ImageWidget extends QuestionWidget {
         // setup chooser button
         mChooseButton = new Button(getContext());
         WidgetUtils.setupButton(mChooseButton,
-                StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image),
+                MarkupUtil.localizeStyleSpannable(context, "odk_choose_image"),
                 mAnswerFontsize,
                 !mPrompt.isReadOnly());
 

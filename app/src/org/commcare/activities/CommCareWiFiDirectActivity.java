@@ -49,6 +49,7 @@ import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.StorageUtils;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
@@ -382,7 +383,7 @@ public class CommCareWiFiDirectActivity
 
         unzipFilesHelper();
 
-        final String url = this.getString(R.string.PostURL);
+        final String url = StringUtils.getNativeString(this, R.string.PostURL);
 
         File receiveFolder = new File(toBeSubmittedDirectory);
 

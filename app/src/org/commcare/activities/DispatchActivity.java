@@ -176,13 +176,13 @@ public class DispatchActivity extends FragmentActivity {
         int dbState = CommCareApplication._().getDatabaseState();
         if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
             CommCareApplication._().triggerHandledAppExit(this,
-                    getString(R.string.migration_definite_failure),
-                    getString(R.string.migration_failure_title), false);
+                    Localization.get("migration.definite.failure"),
+                    Localization.get("migration.failure.title"), false);
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
             CommCareApplication._().triggerHandledAppExit(this,
-                    getString(R.string.migration_possible_failure),
-                    getString(R.string.migration_failure_title), false);
+                    Localization.get("migration.possible.failure"),
+                    Localization.get("migration.failure.title"), false);
             return true;
         } else if (dbState == CommCareApplication.STATE_CORRUPTED) {
             handleDamagedApp();

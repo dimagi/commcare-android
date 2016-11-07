@@ -19,6 +19,7 @@ import org.commcare.tasks.UpdateTask;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.StandardAlertDialog;
+import org.javarosa.core.services.locale.Localization;
 
 
 /**
@@ -149,7 +150,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
             case MISSING_MEDIA_ACTIVITY:
                 refresh();
                 if (resultCode == RESULT_CANCELED) {
-                    String title = getString(R.string.media_not_verified);
+                    String title = Localization.get("app.manager.media.not.verified");
                     String msg = getString(R.string.skipped_verification_warning_2);
                     showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, msg, null));
                 } else if (resultCode == RESULT_OK) {
@@ -322,8 +323,9 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * session being logged out
      */
     private void triggerLogoutWarning(final int actionKey) {
-        StandardAlertDialog d = new StandardAlertDialog(this, getString(R.string.logging_out),
-                getString(R.string.logout_warning));
+        StandardAlertDialog d = new StandardAlertDialog(this,
+                Localization.get("app.manager.logout.warning.title"),
+                Localization.get("app.manager.logout.warning.message"));
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
 
             @Override
@@ -346,8 +348,8 @@ public class SingleAppManagerActivity extends CommCareActivity {
             }
 
         };
-        d.setPositiveButton(getString(R.string.ok), listener);
-        d.setNegativeButton(getString(R.string.cancel), listener);
+        d.setPositiveButton(Localization.get("odk_ok"), listener);
+        d.setNegativeButton(Localization.get("odk_cancel"), listener);
         showAlertDialog(d);
     }
 }

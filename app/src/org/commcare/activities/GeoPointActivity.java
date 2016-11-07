@@ -21,6 +21,7 @@ import org.commcare.utils.GeoUtils;
 import org.commcare.utils.ODKTimer;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.GeoProgressDialog;
+import org.javarosa.core.services.locale.Localization;
 
 import java.text.DecimalFormat;
 import java.util.Set;
@@ -143,8 +144,8 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
             }
         };
 
-        locationDialog = new GeoProgressDialog(this, StringUtils.getStringRobust(this, R.string.found_location),
-                StringUtils.getStringRobust(this, R.string.finding_location));
+        locationDialog = new GeoProgressDialog(this, Localization.get("odk_found_location"),
+                Localization.get("odk_finding_location"));
         locationDialog.setImage(getResources().getDrawable(R.drawable.green_check_mark));
         locationDialog.setMessage(StringUtils.getStringRobust(this, R.string.please_wait_long));
         locationDialog.setOKButton(StringUtils.getStringRobust(this, R.string.accept_location),

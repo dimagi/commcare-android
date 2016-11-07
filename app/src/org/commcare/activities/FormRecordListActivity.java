@@ -51,6 +51,7 @@ import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.IncompleteFormRecordView;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -502,7 +503,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         });
         if (!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-            String source = prefs.getString(FORM_RECORD_URL, this.getString(R.string.form_record_url));
+            String source = prefs.getString(FORM_RECORD_URL,
+                    StringUtils.getNativeString(this, R.string.form_record_url));
 
             //If there's nowhere to fetch forms from, we can't really go fetch them
             if (!source.equals("")) {
@@ -533,7 +535,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS:
                 SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-                String source = prefs.getString(FORM_RECORD_URL, this.getString(R.string.form_record_url));
+                String source = prefs.getString(FORM_RECORD_URL,
+                        StringUtils.getNativeString(this, R.string.form_record_url));
                 ArchivedFormRemoteRestore.pullArchivedFormsFromServer(source, this, platform);
                 return true;
             case MENU_SUBMIT_QUARANTINE_REPORT:

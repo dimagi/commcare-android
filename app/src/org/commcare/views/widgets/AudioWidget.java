@@ -17,6 +17,7 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -54,7 +55,7 @@ public class AudioWidget extends MediaWidget {
         // setup audio filechooser button
         mChooseButton = new Button(getContext());
         WidgetUtils.setupButton(mChooseButton,
-                StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
+                MarkupUtil.localizeStyleSpannable(getContext(), "odk_choose_sound"),
                 mAnswerFontsize,
                 !mPrompt.isReadOnly());
 

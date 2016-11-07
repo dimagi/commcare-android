@@ -22,6 +22,7 @@ import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StorageUtils;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -67,7 +68,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        final String url = this.getString(R.string.PostURL);
+        final String url = StringUtils.getNativeString(this, R.string.PostURL);
 
         super.onCreate(savedInstanceState);
 

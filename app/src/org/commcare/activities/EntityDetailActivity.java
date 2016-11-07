@@ -23,6 +23,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.SessionStateUninitException;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UiElement;
@@ -106,7 +107,7 @@ public class EntityDetailActivity
          */
         this.detailIndex = i.getIntExtra("entity_detail_index", -1);
 
-        if (this.getString(R.string.panes).equals("two")) {
+        if (StringUtils.getNativeString(this, R.string.panes).equals("two")) {
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 //this occurs when the screen was rotated to be vertical on the select activity. We
                 //want to navigate back to that screen now.

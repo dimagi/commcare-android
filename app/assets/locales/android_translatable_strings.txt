@@ -724,5 +724,37 @@ calendar.high.year=Year value above max value of ${0}
 calendar.low.day=Day value below min value of 1
 calendar.high.day=Day value above max value of ${0}
 
+app.manager.media.not.verified=Media Not Verified
+app.manager.skipped.verification.warning=You did not validate multimedia resources for the app that was just installed! This app will not be visible to users on the log-in screen until multimedia is validated.
+app.manager.logout.warning.title=Logging out your app
+app.manager.logout.warning.message=In order to complete this action, CommCare must log out the currently logged-in app. Do you want to proceed?
+
+# Strings below this comment were converted from the old native android translations system, which is why these use a slightly different format
+
 odk_perfect_match_color=\#87D13E
 odk_fuzzy_match_color=\#FFE88F
+
+odk_keep_changes=SAVE INCOMPLETE
+odk_do_not_exit=STAY IN FORM
+odk_do_not_save=EXIT WITHOUT SAVING
+
+odk_ok=OK
+odk_cancel=CANCEL
+
+odk_sign_button=Gather Signature
+odk_save_and_close=Save and Close
+
+odk_reset_image=Reset
+odk_markup_image=Markup Image
+odk_draw_image=Sketch Image
+
+odk_choose_sound=Choose Sound
+odk_choose_video=Choose Video
+odk_choose_image=Choose Image
+
+odk_no_gps_title=Location Data Disabled
+odk_no_gps_message=The location providers on this device are currently disabled. Do you want to change those settings?
+odk_change_settings=Change Settings
+odk_finding_location=Finding Location...
+odk_found_location=Location Found!
+odk_provider_disabled_error=Sorry, Location providers are disabled!

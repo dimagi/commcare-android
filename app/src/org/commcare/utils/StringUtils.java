@@ -144,6 +144,10 @@ public class StringUtils {
         return Pair.create(false, -1);
     }
 
+    public static String getNativeString(Context context, int resId) {
+        return context.getString(resId);
+    }
+
     public static String getStringRobust(Context c, int resId) {
         return getStringRobust(c, resId, "");
     }

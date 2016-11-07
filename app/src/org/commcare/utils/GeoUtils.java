@@ -14,6 +14,7 @@ import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashSet;
 import java.util.List;
@@ -119,11 +120,10 @@ public class GeoUtils {
                                                          DialogInterface.OnClickListener onChange,
                                                          DialogInterface.OnCancelListener onCancel) {
         StandardAlertDialog factory =
-                new StandardAlertDialog(context,
-                        StringUtils.getStringRobust(context, R.string.no_gps_title),
-                        StringUtils.getStringRobust(context, R.string.no_gps_message));
-        factory.setPositiveButton(StringUtils.getStringRobust(context, R.string.change_settings), onChange);
-        factory.setNegativeButton(StringUtils.getStringRobust(context, R.string.cancel_location), onChange);
+                new StandardAlertDialog(context, Localization.get("odk_no_gps_title"),
+                        Localization.get("odk_no_gps_message"));
+        factory.setPositiveButton(Localization.get("odk_change_settings"), onChange);
+        factory.setNegativeButton(Localization.get("odk_cancel_location"), onChange);
 
         if (onCancel != null) {
             factory.setOnCancelListener(onCancel);

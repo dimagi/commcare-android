@@ -29,6 +29,7 @@ import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -144,19 +145,18 @@ public class DrawActivity extends Activity {
         if (OPTION_SIGNATURE.equals(loadOption)) {
             // set landscape
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            alertTitleString = getString(R.string.quit_application,
-                    getString(R.string.sign_button));
+            alertTitleString = getString(R.string.quit_application, Localization.get("odk_sign_button"));
         } else if (OPTION_ANNOTATE.equals(loadOption)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             alertTitleString = getString(R.string.quit_application,
-                    getString(R.string.markup_image));
+                    Localization.get("odk_markup_image"));
         } else {
             alertTitleString = getString(R.string.quit_application,
-                    getString(R.string.draw_image));
+                    Localization.get("odk_draw_image"));
         }
 
-        setTitle(getString(R.string.application_name) + " > "
-                + getString(R.string.draw_image));
+        setTitle(StringUtils.getNativeString(this, R.string.application_name) + " > "
+                + Localization.get("odk_draw_image"));
 
         LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         RelativeLayout v = (RelativeLayout)inflater.inflate(
@@ -186,7 +186,7 @@ public class DrawActivity extends Activity {
         setContentView(v);
 
         Button btnFinished = (Button)findViewById(R.id.btnFinishDraw);
-        btnFinished.setText(StringUtils.getStringRobust(this, R.string.save_and_close));
+        btnFinished.setText(Localization.get("odk_save_and_close"));
         btnFinished.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -202,7 +202,7 @@ public class DrawActivity extends Activity {
                 reset();
             }
         });
-        btnReset.setText(StringUtils.getStringRobust(this, R.string.reset_image));
+        btnReset.setText(Localization.get("odk_reset_image"));
 
         Button btnCancel = (Button)findViewById(R.id.btnCancelDraw);
         btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -211,7 +211,7 @@ public class DrawActivity extends Activity {
                 cancelAndClose();
             }
         });
-        btnCancel.setText(StringUtils.getStringRobust(this, R.string.cancel));
+        btnCancel.setText(Localization.get("odk_cancel"));
     }
 
     private void saveAndClose() {
@@ -305,8 +305,8 @@ public class DrawActivity extends Activity {
                 saveAndClose();
             }
         };
-        DialogChoiceItem keepOption = new DialogChoiceItem(getString(R.string.keep_changes), -1,
-                keepChangesListener);
+        DialogChoiceItem keepOption = new DialogChoiceItem(
+                Localization.get("odk_keep_changes"), -1, keepChangesListener);
 
         View.OnClickListener discardChangesListener = new View.OnClickListener() {
             @Override
@@ -314,12 +314,12 @@ public class DrawActivity extends Activity {
                 cancelAndClose();
             }
         };
-        DialogChoiceItem discardOption = new DialogChoiceItem(getString(R.string.do_not_save), -1,
-                discardChangesListener);
+        DialogChoiceItem discardOption = new DialogChoiceItem(
+                Localization.get("odk_do_not_save"), -1, discardChangesListener);
 
         dialog.setChoiceItems(new DialogChoiceItem[]{keepOption, discardOption});
 
-        dialog.addButton(getString(R.string.cancel), new View.OnClickListener() {
+        dialog.addButton(Localization.get("odk_cancel"), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();

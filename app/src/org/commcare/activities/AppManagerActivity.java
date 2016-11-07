@@ -134,8 +134,8 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                 return;
             case DispatchActivity.MISSING_MEDIA_ACTIVITY:
                 if (resultCode == RESULT_CANCELED) {
-                    String title = getString(R.string.media_not_verified);
-                    String msg = getString(R.string.skipped_verification_warning);
+                    String title = Localization.get("app.manager.media.not.verified");
+                    String msg = Localization.get("app.manager.skipped.verification.warning");
                     showAlertDialog(
                             StandardAlertDialog.getBasicAlertDialog(
                                     this, title, msg, new DialogInterface.OnClickListener() {
@@ -173,8 +173,8 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
      * session being logged out
      */
     private void triggerLogoutWarning() {
-        String title = getString(R.string.logging_out);
-        String message = getString(R.string.logout_warning);
+        String title = Localization.get("app.manager.logout.warning.title");
+        String message = Localization.get("app.manager.logout.warning.message");
         StandardAlertDialog d = new StandardAlertDialog(this, title, message);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
@@ -187,8 +187,8 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
             }
 
         };
-        d.setPositiveButton(getString(R.string.ok), listener);
-        d.setNegativeButton(getString(R.string.cancel), listener);
+        d.setPositiveButton(Localization.get("odk_ok"), listener);
+        d.setNegativeButton(Localization.get("odk_cancel"), listener);
         showAlertDialog(d);
     }
 }

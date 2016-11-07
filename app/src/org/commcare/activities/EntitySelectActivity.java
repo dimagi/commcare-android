@@ -51,6 +51,7 @@ import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.EntitySelectRefreshTimer;
 import org.commcare.utils.HereFunctionHandler;
 import org.commcare.utils.SerializationUtil;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityView;
 import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UserfacingErrorHandling;
@@ -208,7 +209,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void setupUI(boolean isOrientationChange) {
-        if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
+        if (StringUtils.getNativeString(this, R.string.panes).equals("two") && !mNoDetailMode) {
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 setupLandscapeDualPaneView();
             } else {
