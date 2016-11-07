@@ -34,7 +34,7 @@ import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
-import org.commcare.tasks.PullTaskReceiver;
+import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 
 import org.commcare.utils.ACRAUtil;
@@ -56,7 +56,7 @@ import java.util.ArrayList;
  */
 public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
-        RuntimePermissionRequester, WithUIController, PullTaskReceiver {
+        RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
@@ -202,7 +202,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case CCZ_DEMO:
                 OfflineUserRestore offlineUserRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
                 uiController.setUsername(offlineUserRestore.getUsername());
-                uiController.setPasswordOrPin(offlineUserRestore.getPassword());
+                uiController.setPasswordOrPin(OfflineUserRestore.DEMO_USER_PASSWORD);
                 formAndDataSyncer.performDemoUserRestore(this, offlineUserRestore);
                 break;
             case NORMAL:
@@ -403,18 +403,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private void loginDemoUser() {
         OfflineUserRestore offlineUserRestore = CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
         if (offlineUserRestore != null) {
-            loginCczDemoUser(offlineUserRestore);
+            tryLocalLogin(offlineUserRestore.getUsername(), OfflineUserRestore.DEMO_USER_PASSWORD,
+                    false, false, LoginMode.PASSWORD, true);
         } else {
             DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
             tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
                     false, LoginMode.PASSWORD, false);
         }
-    }
-
-    private void loginCczDemoUser(OfflineUserRestore offlineUserRestore) {
-        String username = offlineUserRestore.getUsername();
-        String password = offlineUserRestore.getPassword();
-        tryLocalLogin(username, password, false, false, LoginMode.PASSWORD, true);
     }
 
     @Override
@@ -639,7 +634,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (CommCareApplication._().isConsumerApp()) {
             return;
         }
-        SyncUIHandling.handleSyncUpdate(this, update);
+        SyncCapableCommCareActivity.handleSyncUpdate(this, update);
     }
 
     @Override

@@ -15,7 +15,7 @@ import org.commcare.tasks.templates.CommCareTask;
  */
 public abstract class WipeTask extends CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity> {
 
-    private Context c;
+    private final Context c;
 
     public static final int WIPE_TASK_ID = 9213435;
 

@@ -3,13 +3,10 @@ package org.commcare.views.widgets;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
-import android.os.Handler;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
 
-import org.commcare.utils.BlockingActionsManager;
-import org.commcare.utils.DelayedBlockingAction;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;

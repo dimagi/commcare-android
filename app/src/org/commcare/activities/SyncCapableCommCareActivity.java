@@ -1,32 +1,61 @@
 package org.commcare.activities;
 
-import org.commcare.interfaces.ConnectorWithResultCallback;
+import android.os.Bundle;
+
+import org.commcare.CommCareApplication;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
-/**
- * Default sync task result handling logic.
- *
- * @author Phillip Mates (pmates@dimagi.com)
- */
-public class SyncUIHandling {
-    public static void handleSyncResult(ConnectorWithResultCallback activity,
-                                        ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
-                                        boolean userTriggeredSync, boolean formsToSend) {
-        DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
+public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCareActivity<R>
+        implements PullTaskResultReceiver {
+
+    protected boolean isSyncUserLaunched = false;
+    protected FormAndDataSyncer formAndDataSyncer;
+
+    @Override
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        formAndDataSyncer = new FormAndDataSyncer();
+    }
+
+    /**
+     * Attempts first to send unsent forms to the server.  If any forms are sent, a sync will be
+     * triggered after they are submitted. If no forms are sent, triggers a sync explicitly.
+     */
+    protected void sendFormsOrSync(boolean userTriggeredSync) {
+        boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
+        if (!formsSentToServer) {
+            formAndDataSyncer.syncDataForLoggedInUser(this, false, userTriggeredSync);
+        }
+    }
+
+    protected boolean checkAndStartUnsentFormsTask(boolean syncAfterwards, boolean userTriggered) {
+        isSyncUserLaunched = userTriggered;
+        return formAndDataSyncer.checkAndStartUnsentFormsTask(this, syncAfterwards, userTriggered);
+    }
+
+    @Override
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError,
+                                     boolean userTriggeredSync, boolean formsToSend) {
+        if (CommCareApplication._().isConsumerApp()) {
+            return;
+        }
+        DataPullTask.PullTaskResult result = resultAndError.data;
         String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
         int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
 
         switch (result) {
             case AUTH_FAILED:
-                activity.reportFailure(Localization.get("sync.fail.auth.loggedin"), true);
+                reportSyncResult(Localization.get("sync.fail.auth.loggedin"), false);
                 break;
             case BAD_DATA:
             case BAD_DATA_REQUIRES_INTERVENTION:
-                activity.reportFailure(Localization.get("sync.fail.bad.data"), true);
+                reportSyncResult(Localization.get("sync.fail.bad.data"), false);
                 break;
             case DOWNLOAD_SUCCESS:
                 if (formsToSend) {
@@ -34,22 +63,22 @@ public class SyncUIHandling {
                 } else {
                     reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
                 }
-                activity.reportSuccess(Localization.get("sync.success.synced"));
+                reportSyncResult(Localization.get("sync.success.synced"), true);
                 break;
             case SERVER_ERROR:
-                activity.reportFailure(Localization.get("sync.fail.server.error"), true);
+                reportSyncResult(Localization.get("sync.fail.server.error"), false);
                 break;
             case UNREACHABLE_HOST:
-                activity.reportFailure(Localization.get("sync.fail.bad.network"), true);
+                reportSyncResult(Localization.get("sync.fail.bad.network"), false);
                 break;
             case CONNECTION_TIMEOUT:
-                activity.reportFailure(Localization.get("sync.fail.timeout"), true);
+                reportSyncResult(Localization.get("sync.fail.timeout"), false);
                 break;
             case UNKNOWN_FAILURE:
-                activity.reportFailure(Localization.get("sync.fail.unknown"), true);
+                reportSyncResult(Localization.get("sync.fail.unknown"), false);
                 break;
             case ACTIONABLE_FAILURE:
-                activity.reportFailure(resultAndErrorMessage.errorMessage, true);
+                reportSyncResult(resultAndError.errorMessage, false);
                 break;
         }
 
@@ -63,6 +92,18 @@ public class SyncUIHandling {
                     reportSyncLabel, reportSyncValue);
         }
     }
+
+    @Override
+    public void handlePullTaskUpdate(Integer... update) {
+        handleSyncUpdate(this, update);
+    }
+
+    @Override
+    public void handlePullTaskError() {
+        reportSyncResult(Localization.get("sync.fail.unknown"), false);
+    }
+
+    public abstract void reportSyncResult(String message, boolean success);
 
     public static void handleSyncUpdate(CommCareActivity activity,
                                         Integer... update) {
@@ -100,4 +141,37 @@ public class SyncUIHandling {
             activity.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
         }
     }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        String title, message;
+        CustomProgressDialog dialog;
+        switch (taskId) {
+            case ProcessAndSendTask.SEND_PHASE_ID:
+                title = Localization.get("sync.progress.submitting.title");
+                message = Localization.get("sync.progress.submitting");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                break;
+            case ProcessAndSendTask.PROCESSING_PHASE_ID:
+                title = Localization.get("form.entry.processing.title");
+                message = Localization.get("form.entry.processing");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                dialog.addProgressBar();
+                break;
+            case DataPullTask.DATA_PULL_TASK_ID:
+                title = Localization.get("sync.communicating.title");
+                message = Localization.get("sync.progress.purge");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                if (isSyncUserLaunched) {
+                    // allow users to cancel syncs that they launched
+                    dialog.addCancelButton();
+                }
+                isSyncUserLaunched = false;
+                break;
+            default:
+                return null;
+        }
+        return dialog;
+    }
+
 }

@@ -8,17 +8,17 @@ import android.util.Log;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidPrototypeFactory;
+import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.core.encryption.CryptUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.HttpUtils;
 import org.commcare.network.LocalDataPullResponseFactory;
-import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.model.User;
@@ -29,24 +29,30 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Assert;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.TestLifecycleApplication;
 import org.robolectric.util.ServiceController;
 
-import java.net.URL;
-import java.util.HashMap;
 import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
+import static junit.framework.Assert.fail;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class CommCareTestApplication extends CommCareApplication {
+public class CommCareTestApplication extends CommCareApplication implements TestLifecycleApplication {
     private static final String TAG = CommCareTestApplication.class.getSimpleName();
     private static PrototypeFactory testPrototypeFactory;
     private static final ArrayList<String> factoryClassNames = new ArrayList<>();
 
     private String cachedUserPassword;
+
+    private final ArrayList<Throwable> asyncExceptions = new ArrayList<>();
 
     @Override
     public void onCreate() {
@@ -58,6 +64,7 @@ public class CommCareTestApplication extends CommCareApplication {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable ex) {
+                asyncExceptions.add(ex);
                 Assert.fail(ex.getMessage());
             }
         });
@@ -213,5 +220,27 @@ public class CommCareTestApplication extends CommCareApplication {
     @Override
     public DataPullRequester getDataPullRequester() {
         return LocalDataPullResponseFactory.INSTANCE;
+    }
+
+    @Override
+    public void afterTest(Method method) {
+        Robolectric.flushBackgroundThreadScheduler();
+        if (!asyncExceptions.isEmpty()) {
+            for(Throwable throwable: asyncExceptions) {
+                throwable.printStackTrace();
+                fail("Test failed due to " + asyncExceptions.size() +
+                        " threads crashing off the main thread. See error log for more details");
+            }
+        }
+    }
+
+    @Override
+    public void beforeTest(Method method) {
+
+    }
+
+    @Override
+    public void prepareTest(Object test) {
+
     }
 }

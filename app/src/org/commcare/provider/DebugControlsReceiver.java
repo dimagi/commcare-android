@@ -5,10 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.LoginActivity;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
+import org.joda.time.DateTime;
+
+import java.util.Date;
 
 /**
  * Process broadcasts requesting to
@@ -16,6 +22,7 @@ import org.commcare.preferences.DevSessionRestorer;
  * - save the current commcare user session.
  * - log into the currently seated app
  * - invalidate sync token to force recovery on sync
+ * - invalidate user key record, future login will hit HQ for a new UKR
  * - set a flag that will include a param to clear the cache on the next restore request
  *
  * @author Phillip Mates (pmates@dimagi.com).
@@ -34,6 +41,8 @@ public class DebugControlsReceiver extends BroadcastReceiver {
             login(context, intent.getStringExtra("username"), intent.getStringExtra("password"));
         } else if (action.endsWith("TriggerSyncRecover")) {
             storeFakeCaseDbHash();
+        } else if (action.endsWith("ExpireUserKeyRecord")) {
+            invalidateUserKeyRecord(intent.getStringExtra("username"));
         } else if (action.endsWith("ClearCacheOnRestore")) {
             CommCareApplication._().setInvalidateCacheFlag(true);
         }
@@ -61,9 +70,30 @@ public class DebugControlsReceiver extends BroadcastReceiver {
         context.startActivity(loginIntent);
     }
 
-    public static void storeFakeCaseDbHash() {
+    private static void storeFakeCaseDbHash() {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         prefs.edit().putString(FAKE_CASE_DB_HASH, "FAKE").apply();
+    }
+
+    private static void invalidateUserKeyRecord(String username) {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
+        UserKeyRecord invalidUkr = null;
+        Date yesterday = DateTime.now().minusDays(1).toDate();
+        for (UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+            if (ukr.isActive() && ukr.isCurrentlyValid()) {
+                invalidUkr = new UserKeyRecord(
+                        ukr.getUsername(), ukr.getPasswordHash(),
+                        ukr.getEncryptedKey(), ukr.getWrappedPassword(),
+                        ukr.getValidFrom(), yesterday, ukr.getUuid(),
+                        ukr.getType());
+                invalidUkr.setID(ukr.getID());
+                break;
+            }
+        }
+        if (invalidUkr != null) {
+            storage.write(invalidUkr);
+        }
     }
 
     public static String getFakeCaseDbHash() {

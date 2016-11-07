@@ -2,29 +2,19 @@ package org.commcare.android.tests.formnav;
 
 import android.content.Intent;
 import android.os.Environment;
-import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
-import org.commcare.models.database.SqlStorage;
-import org.commcare.views.QuestionsView;
-import org.commcare.views.widgets.IntegerWidget;
-import org.commcare.views.widgets.NepaliDateWidget;
-import org.javarosa.core.model.data.DateData;
-import org.javarosa.core.model.data.IAnswerData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowEnvironment;
@@ -38,8 +28,6 @@ import static junit.framework.Assert.assertTrue;
 @Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class CalendarLocaleTest {
-
-    private static final String TAG = CalendarLocaleTest.class.getSimpleName();
 
     @Before
     public void setup() {
@@ -90,9 +78,9 @@ public class CalendarLocaleTest {
         TextView ethiopianDayText = (TextView)formEntryActivity.findViewById(R.id.daytxt);
         TextView ethiopianMonthText = (TextView)formEntryActivity.findViewById(R.id.monthtxt);
         TextView ethiopianYearText = (TextView)formEntryActivity.findViewById(R.id.yeartxt);
-        assertEquals(ethiopianMonthText.getText(), "Senie");
-        assertEquals(ethiopianDayText.getText(), "26");
-        assertEquals(ethiopianYearText.getText(), "2008");
+        assertEquals("Säne",ethiopianMonthText.getText());
+        assertEquals("26", ethiopianDayText.getText());
+        assertEquals("2008", ethiopianYearText.getText());
     }
 
 

@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -48,6 +47,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     private final static int WIFI_DIRECT_ACTIVITY = 1;
     private final static int DUMP_FORMS_ACTIVITY = 2;
     private final static int REPORT_PROBLEM_ACTIVITY = 3;
+    private final static int VALIDATE_MEDIA_ACTIVITY = 4;
 
     public final static int RESULT_DATA_RESET = CommCareHomeActivity.RESULT_RESTART + 1;
     public final static int RESULT_FORMS_PROCESSED = CommCareHomeActivity.RESULT_RESTART + 2;
@@ -198,7 +198,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     private void startValidationActivity() {
         Intent i = new Intent(this, CommCareVerificationActivity.class);
         i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_SETTINGS, true);
-        startActivity(i);
+        startActivityForResult(i, VALIDATE_MEDIA_ACTIVITY);
     }
 
     private void startWifiDirect() {
@@ -251,7 +251,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == REPORT_PROBLEM_ACTIVITY) {
+        if (requestCode == REPORT_PROBLEM_ACTIVITY || requestCode == VALIDATE_MEDIA_ACTIVITY) {
             finish();
         } else if (requestCode == WIFI_DIRECT_ACTIVITY || requestCode == DUMP_FORMS_ACTIVITY) {
             String messageKey = getBulkFormMessageKey(resultCode);

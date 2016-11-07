@@ -26,7 +26,6 @@ import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -51,8 +50,6 @@ import org.commcare.suite.model.Text;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
-import org.commcare.tasks.ProcessAndSendTask;
-import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -62,11 +59,9 @@ import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.utils.StorageUtils;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CommCareAlertDialog;
-import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
@@ -85,9 +80,8 @@ import java.util.Map;
 import java.util.Vector;
 
 public class CommCareHomeActivity
-        extends SessionAwareCommCareActivity<CommCareHomeActivity>
-        implements SessionNavigationResponder, WithUIController,
-                   PullTaskReceiver, ConnectorWithResultCallback<CommCareHomeActivity> {
+        extends SyncCapableCommCareActivity<CommCareHomeActivity>
+        implements SessionNavigationResponder, WithUIController {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -136,7 +130,7 @@ public class CommCareHomeActivity
     private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
-    public static final String MENU_STYLE_GRID = "grid";
+    private static final String MENU_STYLE_GRID = "grid";
 
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
@@ -147,12 +141,10 @@ public class CommCareHomeActivity
 
     private HomeActivityUIController uiController;
     private SessionNavigator sessionNavigator;
-    private FormAndDataSyncer formAndDataSyncer;
 
     private boolean loginExtraWasConsumed;
     private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
     private boolean isRestoringSession = false;
-    private boolean isSyncUserLaunched = false;
 
     private boolean sessionNavigationProceedingAfterOnResume;
 
@@ -165,7 +157,6 @@ public class CommCareHomeActivity
         ACRAUtil.registerAppData();
         uiController.setupUI();
         sessionNavigator = new SessionNavigator(this);
-        formAndDataSyncer = new FormAndDataSyncer();
 
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
@@ -534,7 +525,7 @@ public class CommCareHomeActivity
         if (resultCode == AdvancedActionsActivity.RESULT_FORMS_PROCESSED) {
             int formProcessCount = intent.getIntExtra(AdvancedActionsActivity.FORM_PROCESS_COUNT_KEY, 0);
             String localizationKey = intent.getStringExtra(AdvancedActionsActivity.FORM_PROCESS_MESSAGE_KEY);
-            displayMessage(Localization.get(localizationKey, new String[]{"" + formProcessCount}), false, false);
+            displayMessage(Localization.get(localizationKey, new String[]{"" + formProcessCount}), false);
 
             uiController.refreshView();
         }
@@ -1032,10 +1023,10 @@ public class CommCareHomeActivity
     void syncButtonPressed() {
         if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
-                displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
+                displayMessage(Localization.get("notification.sync.airplane.action"), true);
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
             } else {
-                displayMessage(Localization.get("notification.sync.connections.action"), true, true);
+                displayMessage(Localization.get("notification.sync.connections.action"), true);
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
             }
             GoogleAnalyticsUtils.reportSyncAttempt(
@@ -1058,34 +1049,6 @@ public class CommCareHomeActivity
 
         uiController.refreshView();
         sendFormsOrSync(false);
-    }
-
-    /**
-     * Attempts first to send unsent forms to the server.  If any forms are sent, a sync will be
-     * triggered after they are submitted. If no forms are sent, triggers a sync explicitly.
-     */
-    private void sendFormsOrSync(boolean userTriggeredSync) {
-        boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
-        if(!formsSentToServer) {
-            formAndDataSyncer.syncDataForLoggedInUser(this, false, userTriggeredSync);
-        }
-    }
-
-    /**
-     * @return Were forms sent to the server by this method invocation?
-     */
-    private boolean checkAndStartUnsentFormsTask(final boolean syncAfterwards,
-                                                 boolean userTriggered) {
-        isSyncUserLaunched = userTriggered;
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
-        FormRecord[] records = StorageUtils.getUnsentRecords(storage);
-
-        if(records.length > 0) {
-            formAndDataSyncer.processAndSendForms(this, records, syncAfterwards, userTriggered);
-            return true;
-        } else {
-            return false;
-        }
     }
 
     @Override
@@ -1116,8 +1079,7 @@ public class CommCareHomeActivity
         if (CommCareApplication._().isSyncPending(false)) {
             // There is a sync pending
             handlePendingSync();
-        } else if (CommCareApplication._().isConsumerApp()) {
-            // so that the user never sees the real home screen in a consumer app
+        } else if (CommCareApplication._().isConsumerApp() || DeveloperPreferences.useRootModuleMenuAsHomeScreen()) {
             enterRootModule();
         } else {
             // Display the normal home screen!
@@ -1158,17 +1120,12 @@ public class CommCareHomeActivity
     }
 
     @Override
-    public void reportSuccess(String message) {
-        displayMessage(message, false, false);
+    public void reportSyncResult(String message, boolean success) {
+        displayMessage(message, false);
     }
 
-    @Override
-    public void reportFailure(String message, boolean showPopupNotification) {
-        displayMessage(message, true, !showPopupNotification);
-    }
-
-    void displayMessage(String message, boolean bad, boolean suppressToast) {
-        uiController.displayMessage(message, bad, suppressToast);
+    private void displayMessage(String message, boolean suppressToast) {
+        uiController.displayMessage(message, suppressToast);
     }
 
     protected static boolean isDemoUser() {
@@ -1317,40 +1274,6 @@ public class CommCareHomeActivity
     }
 
     @Override
-    public CustomProgressDialog generateProgressDialog(int taskId) {
-        String title, message;
-        CustomProgressDialog dialog;
-        switch (taskId) {
-            case ProcessAndSendTask.SEND_PHASE_ID:
-                title = Localization.get("sync.progress.submitting.title");
-                message = Localization.get("sync.progress.submitting");
-                dialog = CustomProgressDialog.newInstance(title, message, taskId);
-                break;
-            case ProcessAndSendTask.PROCESSING_PHASE_ID:
-                title = Localization.get("form.entry.processing.title");
-                message = Localization.get("form.entry.processing");
-                dialog = CustomProgressDialog.newInstance(title, message, taskId);
-                dialog.addProgressBar();
-                break;
-            case DataPullTask.DATA_PULL_TASK_ID:
-                title = Localization.get("sync.communicating.title");
-                message = Localization.get("sync.progress.purge");
-                dialog = CustomProgressDialog.newInstance(title, message, taskId);
-                if (isSyncUserLaunched) {
-                    // allow users to cancel syncs that they launched
-                    dialog.addCancelButton();
-                }
-                isSyncUserLaunched = false;
-                break;
-            default:
-                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                        + "any valid possibilities in CommCareHomeActivity");
-                return null;
-        }
-        return dialog;
-    }
-
-    @Override
     public boolean isBackEnabled() {
         return false;
     }
@@ -1377,10 +1300,6 @@ public class CommCareHomeActivity
         }
     }
 
-    public FormAndDataSyncer getFormAndDataSyncer() {
-        return formAndDataSyncer;
-    }
-
     @Override
     public void initUIController() {
         uiController = new HomeActivityUIController(this);
@@ -1394,21 +1313,8 @@ public class CommCareHomeActivity
     @Override
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
                                      boolean userTriggeredSync, boolean formsToSend) {
+        super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend);
         getUIController().refreshView();
-        if (CommCareApplication._().isConsumerApp()) {
-            return;
-        }
-
-        SyncUIHandling.handleSyncResult(this, resultAndErrorMessage, userTriggeredSync, formsToSend);
     }
 
-    @Override
-    public void handlePullTaskUpdate(Integer... update) {
-        SyncUIHandling.handleSyncUpdate(this, update);
-    }
-
-    @Override
-    public void handlePullTaskError() {
-        reportFailure(Localization.get("sync.fail.unknown"), true);
-    }
 }

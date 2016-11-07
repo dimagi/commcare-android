@@ -161,6 +161,13 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
+    <style name="ListContentTall">
+        <item name="android:layout_height">@dimen/list_height_tall</item>
+        <item name="android:layout_margin">@dimen/content_min_margin</item>
+        <item name="android:colorBackground">@color/cc_core_bg</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
     <style name="ListViewHeaderV2">
         <item name="android:padding">@dimen/content_start</item>
         <item name="android:gravity">center_vertical</item>

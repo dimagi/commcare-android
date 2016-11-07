@@ -186,7 +186,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
     }
 
     //Redraws the calendar display
-    public void refresh(){
+    private void refresh(){
         ArrayList<Date> dateList = new ArrayList<>();
         Calendar populator = (Calendar) calendar.clone();
 

@@ -3,6 +3,7 @@ package org.commcare.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
@@ -25,6 +26,8 @@ import java.io.IOException;
  * @author ctsims
  */
 public class MediaUtil {
+
+    private static final String TAG = MediaUtil.class.toString();
 
     public static final String FORM_VIDEO = "video";
     public static final String FORM_AUDIO = "audio";
@@ -239,12 +242,17 @@ public class MediaUtil {
             // Not worth performance loss of creating an exact scaled bitmap in this case
             return b;
         } else {
-            // Here we want to be more precise because we have a target width and height, or
-            // specified that respecting the bounding container precisely is important
-            return Bitmap.createScaledBitmap(b, newWidth, newHeight, false);
+            try {
+                // Here we want to be more precise because we have a target width and height, or
+                // specified that respecting the bounding container precisely is important
+                return Bitmap.createScaledBitmap(b, newWidth, newHeight, false);
+            } catch (OutOfMemoryError e) {
+                Log.d(TAG, "Ran out of memory attempting to scale image at: " + imageFilepath);
+                return null;
+            }
         }
-
     }
+
 
     private static int getApproxScaleDownFactor(int newWidth, int originalWidth) {
         if (newWidth == 0) {
