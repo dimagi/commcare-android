@@ -91,8 +91,10 @@ public abstract class MenuBase
 
     private void addHomeScreenActionsToTopBar(android.view.Menu menu) {
         if (menuIsBeingUsedAsHomeScreen()) {
-            ViewUtil.addItemToActionBar(menu, MENU_LOGOUT, MENU_GROUP_HOME_SCREEN_ACTIONS, "Logout", R.drawable.ic_logout_action_bar);
-            ViewUtil.addItemToActionBar(menu, MENU_SYNC, MENU_GROUP_HOME_SCREEN_ACTIONS, "Sync", R.drawable.ic_sync_action_bar);
+            ViewUtil.addItemToActionBar(menu, MENU_LOGOUT, MENU_GROUP_HOME_SCREEN_ACTIONS, "Logout",
+                    R.drawable.ic_logout_action_bar);
+            ViewUtil.addItemToActionBar(menu, MENU_SYNC, MENU_GROUP_HOME_SCREEN_ACTIONS, "Sync",
+                    R.drawable.ic_sync_action_bar);
         }
     }
 
@@ -118,7 +120,8 @@ public abstract class MenuBase
 
     private boolean menuIsBeingUsedAsHomeScreen() {
         return isRootModuleMenu &&
-                (CommCareApplication._().isConsumerApp() || DeveloperPreferences.useRootModuleMenuAsHomeScreen());
+                (CommCareApplication._().isConsumerApp() ||
+                        DeveloperPreferences.useRootModuleMenuAsHomeScreen());
     }
 
     @Override

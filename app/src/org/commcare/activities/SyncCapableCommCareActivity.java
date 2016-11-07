@@ -6,8 +6,10 @@ import org.commcare.CommCareApplication;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
 public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCareActivity<R>
@@ -138,6 +140,38 @@ public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCar
                     DataPullTask.DATA_PULL_TASK_ID);
             activity.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
         }
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        String title, message;
+        CustomProgressDialog dialog;
+        switch (taskId) {
+            case ProcessAndSendTask.SEND_PHASE_ID:
+                title = Localization.get("sync.progress.submitting.title");
+                message = Localization.get("sync.progress.submitting");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                break;
+            case ProcessAndSendTask.PROCESSING_PHASE_ID:
+                title = Localization.get("form.entry.processing.title");
+                message = Localization.get("form.entry.processing");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                dialog.addProgressBar();
+                break;
+            case DataPullTask.DATA_PULL_TASK_ID:
+                title = Localization.get("sync.communicating.title");
+                message = Localization.get("sync.progress.purge");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                if (isSyncUserLaunched) {
+                    // allow users to cancel syncs that they launched
+                    dialog.addCancelButton();
+                }
+                isSyncUserLaunched = false;
+                break;
+            default:
+                return null;
+        }
+        return dialog;
     }
 
 }

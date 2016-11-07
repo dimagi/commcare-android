@@ -50,7 +50,6 @@ import org.commcare.suite.model.Text;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
-import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -63,7 +62,6 @@ import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CommCareAlertDialog;
-import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
@@ -1273,40 +1271,6 @@ public class CommCareHomeActivity
                     Localization.get("home.developer.options.enabled"),
                     Toast.LENGTH_SHORT).show();
         }
-    }
-
-    @Override
-    public CustomProgressDialog generateProgressDialog(int taskId) {
-        String title, message;
-        CustomProgressDialog dialog;
-        switch (taskId) {
-            case ProcessAndSendTask.SEND_PHASE_ID:
-                title = Localization.get("sync.progress.submitting.title");
-                message = Localization.get("sync.progress.submitting");
-                dialog = CustomProgressDialog.newInstance(title, message, taskId);
-                break;
-            case ProcessAndSendTask.PROCESSING_PHASE_ID:
-                title = Localization.get("form.entry.processing.title");
-                message = Localization.get("form.entry.processing");
-                dialog = CustomProgressDialog.newInstance(title, message, taskId);
-                dialog.addProgressBar();
-                break;
-            case DataPullTask.DATA_PULL_TASK_ID:
-                title = Localization.get("sync.communicating.title");
-                message = Localization.get("sync.progress.purge");
-                dialog = CustomProgressDialog.newInstance(title, message, taskId);
-                if (isSyncUserLaunched) {
-                    // allow users to cancel syncs that they launched
-                    dialog.addCancelButton();
-                }
-                isSyncUserLaunched = false;
-                break;
-            default:
-                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                        + "any valid possibilities in CommCareHomeActivity");
-                return null;
-        }
-        return dialog;
     }
 
     @Override
