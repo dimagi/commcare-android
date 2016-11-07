@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
-import org.commcare.interfaces.SyncCapableCommCareActivity;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.SqlStorage;

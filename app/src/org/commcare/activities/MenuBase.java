@@ -8,7 +8,6 @@ import android.widget.AdapterView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.interfaces.SyncCapableCommCareActivity;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;

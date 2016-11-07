@@ -2,11 +2,9 @@ package org.commcare.android.mocks;
 
 import android.util.Log;
 
-import org.apache.tools.ant.taskdefs.Sync;
-import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.FormAndDataSyncer;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.interfaces.SyncCapableCommCareActivity;
+import org.commcare.activities.SyncCapableCommCareActivity;
 
 /**
  * Fake object that prevent tests from communicating with server to pull or submit data

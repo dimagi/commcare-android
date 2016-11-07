@@ -1,4 +1,4 @@
-package org.commcare.interfaces;
+package org.commcare.activities;
 
 import android.os.Bundle;
 

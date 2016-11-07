@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import org.commcare.interfaces.SyncCapableCommCareActivity;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.tasks.DataPullTask;

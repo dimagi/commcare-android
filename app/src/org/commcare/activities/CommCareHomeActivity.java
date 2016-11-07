@@ -26,7 +26,6 @@ import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.interfaces.SyncCapableCommCareActivity;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
