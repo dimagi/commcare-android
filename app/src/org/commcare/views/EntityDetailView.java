@@ -37,7 +37,7 @@ import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MediaUtil;
-import org.commcare.views.media.AudioButton;
+import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -71,7 +71,7 @@ public class EntityDetailView extends FrameLayout {
     private final Hashtable<Integer, Intent> graphIntentsCache;    // index => intent
     private final Set<Integer> graphsWithErrors;
     private final ImageButton videoButton;
-    private final AudioButton audioButton;
+    private final AudioPlaybackButton audioButton;
     private final View valuePane;
     private View currentView;
     private final LinearLayout detailRow;
@@ -120,7 +120,7 @@ public class EntityDetailView extends FrameLayout {
 
         ViewId uniqueId = new ViewId(detailNumber, index, true);
         String audioText = e.getFieldString(index);
-        audioButton = new AudioButton(context, audioText, uniqueId, false);
+        audioButton = new AudioPlaybackButton(context, audioText, uniqueId, false);
         detailRow.addView(audioButton);
         audioButton.setVisibility(View.GONE);
 

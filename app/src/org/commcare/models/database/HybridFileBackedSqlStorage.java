@@ -41,7 +41,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
     private final File dbDir;
-    private final static int ONE_MB_DB_SIZE_LIMIT = 1000000;
+    public final static int ONE_MB_DB_SIZE_LIMIT = 1000000;
 
     /**
      * Column selection used for reading file data:
