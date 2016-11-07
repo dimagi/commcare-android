@@ -36,26 +36,6 @@ public class FormUploadUtil {
     private static final String TAG = FormUploadUtil.class.getSimpleName();
 
     /**
-     * Everything worked great!
-     */
-    public static final long FULL_SUCCESS = 0;
-
-    /**
-     * There was a problem with the server's response
-     */
-    public static final long FAILURE = 2;
-
-    /**
-     * There was a problem with the transport layer during transit
-     */
-    public static final long TRANSPORT_FAILURE = 4;
-
-    /**
-     * There is a problem with this record that prevented submission success
-     */
-    public static final long RECORD_FAILURE = 8;
-
-    /**
      * 15 MB size limit
      */
     public static final long MAX_BYTES = (15 * 1048576) - 1024;
@@ -92,11 +72,10 @@ public class FormUploadUtil {
      * @throws FileNotFoundException Is raised if xml file isn't found on the
      *                               file-system
      */
-    public static long sendInstance(int submissionNumber, File folder,
-                                    String url, User user)
+    public static FormUploadResult sendInstance(int submissionNumber, File folder,
+                                                String url, User user)
             throws FileNotFoundException {
-        return FormUploadUtil.sendInstance(submissionNumber, folder, null,
-                url, null, user);
+        return sendInstance(submissionNumber, folder, null, url, null, user);
     }
 
     /**
@@ -114,9 +93,9 @@ public class FormUploadUtil {
      * @throws FileNotFoundException Is raised if xml file isn't found on the
      *                               file-system
      */
-    public static long sendInstance(int submissionNumber, File folder,
-                                    SecretKeySpec key, String url,
-                                    AsyncTask listener, User user)
+    public static FormUploadResult sendInstance(int submissionNumber, File folder,
+                                                SecretKeySpec key, String url,
+                                                AsyncTask listener, User user)
             throws FileNotFoundException {
         boolean hasListener = false;
         DataSubmissionListener myListener = null;
@@ -156,7 +135,7 @@ public class FormUploadUtil {
         MultipartEntity entity =
                 new DataSubmissionEntity(myListener, submissionNumber);
         if (!buildMultipartEntity(entity, key, files)) {
-            return RECORD_FAILURE;
+            return FormUploadResult.RECORD_FAILURE;
         }
 
         HttpRequestGenerator generator = new HttpRequestGenerator(user);
@@ -168,8 +147,8 @@ public class FormUploadUtil {
      *
      * @return submission status of multipart entity post
      */
-    private static long submitEntity(MultipartEntity entity, String url,
-                                     HttpRequestGenerator generator) {
+    private static FormUploadResult submitEntity(MultipartEntity entity, String url,
+                                                 HttpRequestGenerator generator) {
         HttpResponse response;
 
         try {
@@ -180,17 +159,17 @@ public class FormUploadUtil {
             Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
                     "Internal error reading form record during submission: " +
                             ioe.getWrapped().getMessage());
-            return RECORD_FAILURE;
+            return FormUploadResult.RECORD_FAILURE;
         } catch (ClientProtocolException e) {
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
                     "Client network issues during submission: " + e.getMessage());
-            return TRANSPORT_FAILURE;
+            return FormUploadResult.TRANSPORT_FAILURE;
         } catch (IOException | IllegalStateException e) {
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
                     "Error reading form during submission: " + e.getMessage());
-            return TRANSPORT_FAILURE;
+            return FormUploadResult.TRANSPORT_FAILURE;
         }
 
         int responseCode = response.getStatusLine().getStatusCode();
@@ -213,9 +192,11 @@ public class FormUploadUtil {
         Log.d(TAG, responseString);
 
         if (responseCode >= 200 && responseCode < 300) {
-            return FULL_SUCCESS;
+            return FormUploadResult.FULL_SUCCESS;
+        } else if (responseCode == 401) {
+            return FormUploadResult.AUTH_FAILURE;
         } else {
-            return FAILURE;
+            return FormUploadResult.FAILURE;
         }
     }
 
