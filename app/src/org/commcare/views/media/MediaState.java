@@ -1,8 +1,8 @@
 package org.commcare.views.media;
 
 /**
- * Representation of the state of an AudioButton OR MediaEntity. For an
- * AudioButton, refers to the state of the media player that the button
+ * Representation of the state of an AudioPlaybackButton OR MediaEntity. For an
+ * AudioPlaybackButton, refers to the state of the media player that the button
  * controls. For a MediaEntity, refers to the state of that entity's media
  * player.
  *

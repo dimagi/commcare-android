@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -218,9 +219,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } else {
             // Gives user generic failure warning; even if update staging
             // failed for a specific reason like xml syntax
-            if (!"".equals(result.errorMessage)) {
-                String[] resouceAndMessage = result.errorMessage.split("==", 2);
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(AppInstallStatus.InvalidResource, new String[]{null, resouceAndMessage[0], resouceAndMessage[1]}), true);
+            if (UpdateTask.isCombinedErrorMessage(result.errorMessage)) {
+                Pair<String, String> resouceAndMessage = UpdateTask.splitCombinedErrorMessage(result.errorMessage);
+                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(AppInstallStatus.InvalidResource, new String[]{null, resouceAndMessage.first, resouceAndMessage.second}), true);
             }
             uiController.checkFailedUiState();
             if (proceedAutomatically) {

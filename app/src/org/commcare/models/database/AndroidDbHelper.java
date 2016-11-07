@@ -10,6 +10,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
+import org.commcare.modern.models.RecordTooLargeException;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -39,9 +40,7 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
     public ContentValues getContentValues(Externalizable e) {
         ContentValues contentValues = new ContentValues();
         HashMap<String, Object> metaFieldsAndValues = DatabaseHelper.getMetaFieldsAndValues(e);
-
         copyMetadataIntoContentValues(metaFieldsAndValues, contentValues);
-
         return contentValues;
     }
 
@@ -76,10 +75,18 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
             } else if (obj instanceof Long) {
                 contentValues.put(key, (Long)obj);
             } else if (obj instanceof byte[]) {
+                checkBlobSize((byte[]) obj);
                 contentValues.put(key, (byte[])obj);
             } else {
                 Log.w(TAG, "Couldn't determine type of object: " + obj);
             }
+        }
+    }
+
+    private static void checkBlobSize(byte[] blob) {
+        int blobSize = blob.length;
+        if (blobSize > HybridFileBackedSqlStorage.ONE_MB_DB_SIZE_LIMIT) {
+            throw new RecordTooLargeException(blobSize);
         }
     }
 

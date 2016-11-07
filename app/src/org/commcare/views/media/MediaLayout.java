@@ -62,7 +62,7 @@ public class MediaLayout extends RelativeLayout {
     private static final int MISSING_IMAGE_ID = 234873453;
 
     private TextView viewText;
-    private AudioButton audioButton;
+    private AudioPlaybackButton audioButton;
     private ImageButton videoButton;
     private TextView missingImageText;
 
@@ -98,7 +98,7 @@ public class MediaLayout extends RelativeLayout {
         questionTextPane.setId(QUESTION_TEXT_PANE_ID);
 
         if (audioURI != null) {
-            audioButton = new AudioButton(getContext(), audioURI, true);
+            audioButton = new AudioPlaybackButton(getContext(), audioURI, true);
             // random ID to be used by the relative layout.
             audioButton.setId(AUDIO_BUTTON_ID);
         }
