@@ -34,6 +34,7 @@ import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -72,7 +73,7 @@ import java.util.List;
 /**
  * @author ctsims
  */
-public class EntitySelectActivity extends SaveSessionCommCareActivity
+public class EntitySelectActivity extends SyncCapableCommCareActivity<EntitySelectActivity>
         implements EntityLoaderListener, OnItemClickListener, DetailCalloutListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
@@ -632,7 +633,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        //use the old method here because some Android versions don't like Spannables for titles
+        // use the old method here because some Android versions don't like Spannables for titles
         menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
         if (isMappingEnabled) {
@@ -643,6 +644,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         tryToAddSearchActionToAppBar(this, menu, entitySelectSearchUI.getActionBarInstantiator());
         setupActionOptionsMenu(menu);
         return true;
+    }
+
+    @Override
+    public boolean shouldShowSyncItemInActionBar() {
+        return DeveloperPreferences.syncFromAllContextsEnabled();
     }
 
     private void setupActionOptionsMenu(Menu menu) {
