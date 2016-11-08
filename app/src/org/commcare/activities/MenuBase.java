@@ -114,11 +114,6 @@ public abstract class MenuBase
     }
 
     @Override
-    public void reportSyncResult(String message, boolean success) {
-        // empty intentionally
-    }
-
-    @Override
     public boolean shouldShowSyncItemInActionBar() {
         return menuIsBeingUsedAsHomeScreen() || DeveloperPreferences.syncFromAllContextsEnabled();
     }

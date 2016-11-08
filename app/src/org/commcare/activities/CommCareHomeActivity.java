@@ -327,7 +327,7 @@ public class CommCareHomeActivity
                 }
                 // rebuild home buttons in case language changed;
                 uiController.setupUI();
-                rebuildOptionMenu();
+                rebuildOptionsMenu();
                 dismissAlertDialog();
             }
         };

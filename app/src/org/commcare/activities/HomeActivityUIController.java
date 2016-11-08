@@ -89,7 +89,7 @@ public class HomeActivityUIController implements CommCareActivityUIController {
 
                 grid.requestLayout();
                 adapter.notifyDataSetChanged();
-                activity.rebuildOptionMenu();
+                activity.rebuildOptionsMenu();
             }
         });
     }

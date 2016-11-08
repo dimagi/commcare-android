@@ -1,21 +1,27 @@
 package org.commcare.activities;
 
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
-public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCareActivity<R>
+public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
         implements PullTaskResultReceiver {
 
     private static final int MENU_SYNC = Menu.FIRST;
@@ -109,7 +115,14 @@ public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCar
         reportSyncResult(Localization.get("sync.fail.unknown"), false);
     }
 
-    public abstract void reportSyncResult(String message, boolean success);
+    public void reportSyncResult(String message, boolean success) {
+        if (shouldShowSyncItemInActionBar()) {
+            if (success) {
+                rebuildOptionsMenu();
+            }
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public static void handleSyncUpdate(CommCareActivity activity,
                                         Integer... update) {
@@ -190,7 +203,7 @@ public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCar
     }
 
     @Override
-    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         addSyncItemToActionBar(menu);
         return true;
@@ -200,7 +213,17 @@ public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCar
         if (shouldShowSyncItemInActionBar() &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuItem item = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");
-            item.setIcon(getResources().getDrawable(org.commcare.dalvik.R.drawable.ic_sync_action_bar));
+            Drawable syncDrawable =
+                    getResources().getDrawable(R.drawable.ic_sync_action_bar);
+            int numUnsentForms = SyncDetailCalculations.getNumUnsentForms();
+            if (numUnsentForms > 0) {
+                syncDrawable.setColorFilter(new PorterDuffColorFilter(
+                        getResources().getColor(R.color.cc_attention_negative_color),
+                        PorterDuff.Mode.MULTIPLY));
+            } else {
+                syncDrawable.setColorFilter(null);
+            }
+            item.setIcon(syncDrawable);
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
     }

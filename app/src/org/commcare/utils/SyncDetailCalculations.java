@@ -31,16 +31,7 @@ public class SyncDetailCalculations {
                                      SquareButtonViewHolder squareButtonViewHolder,
                                      HomeCardDisplayData cardDisplayData) {
 
-        SqlStorage<FormRecord> formsStorage = CommCareApplication._().getUserStorage(FormRecord.class);
-        int numUnsentForms;
-        try {
-            numUnsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
-        } catch (SessionUnavailableException e) {
-            // Addresses unexpected issue where this db lookup occurs after session ends.
-            // If possible, replace this with fix that addresses root issue
-            numUnsentForms = 0;
-        }
-
+        int numUnsentForms = getNumUnsentForms();
         Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
 
         if (numUnsentForms > 0) {
@@ -54,6 +45,17 @@ public class SyncDetailCalculations {
                 squareButtonViewHolder.subTextView, numUnsentForms, lastSyncTimeAndMessage.first,
                 activity.getResources().getColor(cardDisplayData.subTextColor),
                 activity.getResources().getColor(R.color.cc_dark_warm_accent_color));
+    }
+
+    public static int getNumUnsentForms() {
+        SqlStorage<FormRecord> formsStorage = CommCareApplication._().getUserStorage(FormRecord.class);
+        try {
+            return formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+        } catch (SessionUnavailableException e) {
+            // Addresses unexpected issue where this db lookup occurs after session ends.
+            // If possible, replace this with fix that addresses root issue
+            return 0;
+        }
     }
 
     private static Pair<Long, String> getLastSyncTimeAndMessage() {
