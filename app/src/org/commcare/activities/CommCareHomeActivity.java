@@ -112,13 +112,14 @@ public class CommCareHomeActivity
     private static final int CREATE_PIN = 16384;
     private static final int AUTHENTICATION_FOR_PIN = 32768;
 
-    private static final int MENU_UPDATE = Menu.FIRST;
-    private static final int MENU_SAVED_FORMS = Menu.FIRST + 1;
-    private static final int MENU_CHANGE_LANGUAGE = Menu.FIRST + 2;
-    private static final int MENU_PREFERENCES = Menu.FIRST + 3;
-    private static final int MENU_ADVANCED = Menu.FIRST + 4;
-    private static final int MENU_ABOUT = Menu.FIRST + 5;
-    private static final int MENU_PIN = Menu.FIRST + 6;
+    // NOTE: Menu.FIRST is reserved for MENU_SYNC in SyncCapableCommCareActivity
+    private static final int MENU_UPDATE = Menu.FIRST + 1;
+    private static final int MENU_SAVED_FORMS = Menu.FIRST + 2;
+    private static final int MENU_CHANGE_LANGUAGE = Menu.FIRST + 3;
+    private static final int MENU_PREFERENCES = Menu.FIRST + 4;
+    private static final int MENU_ADVANCED = Menu.FIRST + 5;
+    private static final int MENU_ABOUT = Menu.FIRST + 6;
+    private static final int MENU_PIN = Menu.FIRST + 7;
 
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
@@ -1315,6 +1316,11 @@ public class CommCareHomeActivity
                                      boolean userTriggeredSync, boolean formsToSend) {
         super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend);
         getUIController().refreshView();
+    }
+
+    @Override
+    public boolean shouldShowSyncItemInActionBar() {
+        return false;
     }
 
 }

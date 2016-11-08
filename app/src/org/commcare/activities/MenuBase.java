@@ -18,10 +18,8 @@ public abstract class MenuBase
         extends SyncCapableCommCareActivity
         implements AdapterView.OnItemClickListener {
 
-    private static final int MENU_GROUP_HOME_SCREEN_ACTIONS = android.view.Menu.FIRST;
-
+    // NOTE: Menu.FIRST is reserved for MENU_SYNC in SyncCapableCommCareActivity
     private static final int MENU_LOGOUT = android.view.Menu.FIRST + 1;
-    private static final int MENU_SYNC = android.view.Menu.FIRST + 2;
 
     private boolean isRootModuleMenu;
     protected String menuId;
@@ -85,17 +83,12 @@ public abstract class MenuBase
     @Override
     public boolean onCreateOptionsMenu(android.view.Menu menu) {
         super.onCreateOptionsMenu(menu);
-        addHomeScreenActionsToTopBar(menu);
-        return true;
-    }
-
-    private void addHomeScreenActionsToTopBar(android.view.Menu menu) {
+        // TODO: TEMPORARY, MOVE THIS TO THE DRAWER MENU LATER
         if (menuIsBeingUsedAsHomeScreen()) {
-            ViewUtil.addItemToActionBar(menu, MENU_LOGOUT, MENU_GROUP_HOME_SCREEN_ACTIONS, "Logout",
+            ViewUtil.addItemToActionBar(menu, MENU_LOGOUT, MENU_LOGOUT, "Logout",
                     R.drawable.ic_logout_action_bar);
-            ViewUtil.addItemToActionBar(menu, MENU_SYNC, MENU_GROUP_HOME_SCREEN_ACTIONS, "Sync",
-                    R.drawable.ic_sync_action_bar);
         }
+        return true;
     }
 
     @Override
@@ -105,9 +98,6 @@ public abstract class MenuBase
             Intent i = new Intent(getIntent());
             setResult(RESULT_CANCELED, i);
             finish();
-            return true;
-        } else if (item.getItemId() == MENU_SYNC) {
-            sendFormsOrSync(true);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -126,6 +116,11 @@ public abstract class MenuBase
     @Override
     public void reportSyncResult(String message, boolean success) {
         // empty intentionally
+    }
+
+    @Override
+    public boolean shouldShowSyncItemInActionBar() {
+        return menuIsBeingUsedAsHomeScreen() || DeveloperPreferences.syncFromAllContextsEnabled();
     }
 
 }

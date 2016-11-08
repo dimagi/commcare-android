@@ -1,6 +1,9 @@
 package org.commcare.activities;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -14,6 +17,9 @@ import org.javarosa.core.services.locale.Localization;
 
 public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCareActivity<R>
         implements PullTaskResultReceiver {
+
+    private static final int MENU_SYNC = Menu.FIRST;
+    private static final int MENU_GROUP_SYNC_ACTION = Menu.FIRST;
 
     protected boolean isSyncUserLaunched = false;
     protected FormAndDataSyncer formAndDataSyncer;
@@ -173,5 +179,32 @@ public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCar
         }
         return dialog;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == MENU_SYNC) {
+            sendFormsOrSync(true);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        addSyncItemToActionBar(menu);
+        return true;
+    }
+
+    public void addSyncItemToActionBar(Menu menu) {
+        if (shouldShowSyncItemInActionBar() &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            MenuItem item = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");
+            item.setIcon(getResources().getDrawable(org.commcare.dalvik.R.drawable.ic_sync_action_bar));
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
+    }
+
+    public abstract boolean shouldShowSyncItemInActionBar();
 
 }
