@@ -1,10 +1,15 @@
 package org.commcare.activities;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
@@ -18,8 +23,13 @@ public abstract class MenuBase
         extends SyncCapableCommCareActivity
         implements AdapterView.OnItemClickListener {
 
+    protected DrawerLayout drawerLayout;
+    protected ListView navDrawerList;
+
     // NOTE: Menu.FIRST is reserved for MENU_SYNC in SyncCapableCommCareActivity
     private static final int MENU_LOGOUT = android.view.Menu.FIRST + 1;
+
+    private static final String[] navDrawerItems = {"Sync", "Logout"};
 
     private boolean isRootModuleMenu;
     protected String menuId;
@@ -27,13 +37,39 @@ public abstract class MenuBase
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-
         menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
-
         if (menuId == null) {
             menuId = Menu.ROOT_MENU_ID;
             isRootModuleMenu = true;
         }
+        setupNavDrawer();
+    }
+
+    private void setupNavDrawer() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && menuIsBeingUsedAsHomeScreen()) {
+            navDrawerList = (ListView)findViewById(R.id.nav_drawer);
+            navDrawerList.setAdapter(
+                    new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, navDrawerItems));
+            navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
+
+            drawerLayout = (DrawerLayout)findViewById(R.id.menu_activity_drawer_layout);
+            drawerLayout.addDrawerListener(new ActionBarDrawerToggle(this, drawerLayout,
+                    R.drawable.ic_menu_bar, R.string.drawer_open, R.string.drawer_close));
+            //getActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_bar);
+        }
+    }
+
+    private DrawerLayout.DrawerListener getDrawerToggle() {
+        return null;
+    }
+
+    private ListView.OnItemClickListener getNavDrawerClickListener() {
+        return new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+        };
     }
 
     /**

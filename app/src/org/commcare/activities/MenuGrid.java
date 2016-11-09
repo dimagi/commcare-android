@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
+import android.widget.ListView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.GridMenuAdapter;
@@ -35,12 +36,12 @@ public class MenuGrid extends MenuBase implements OnItemLongClickListener {
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
-       adapter = new GridMenuAdapter(this, CommCareApplication._().getCommCarePlatform(), menuId);
-       adapter.showAnyLoadErrors(this);
-       refreshView();
-       
-       grid.setOnItemClickListener(this);
-       grid.setOnItemLongClickListener(this);
+        adapter = new GridMenuAdapter(this, CommCareApplication._().getCommCarePlatform(), menuId);
+        adapter.showAnyLoadErrors(this);
+        refreshView();
+
+        grid.setOnItemClickListener(this);
+        grid.setOnItemLongClickListener(this);
     }
 
     /**
