@@ -125,7 +125,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_FUZZY_SEARCH = "Fuzzy Search Matches";
     public static final String LABEL_PRINT_TEMPLATE = "Set Print Template";
     public static final String LABEL_DEVELOPER_OPTIONS = "Developer Options";
-    public static final String LABEL_NEWEST_APP_VERSION = "Use Newest App Version From HQ";
+    public static final String LABEL_UPDATE_TO_UNSTARRED = "Update to Unstarred Builds";
 
     // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_FORM_PREFS
     public static final String LABEL_FONT_SIZE = "Font Size";
