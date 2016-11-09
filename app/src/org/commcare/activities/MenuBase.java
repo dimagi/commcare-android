@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -55,7 +56,10 @@ public abstract class MenuBase
             drawerLayout = (DrawerLayout)findViewById(R.id.menu_activity_drawer_layout);
             initDrawerListener();
             drawerLayout.addDrawerListener(drawerListener);
-            getActionBar().setHomeButtonEnabled(true);
+            ActionBar actionBar = getActionBar();
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayUseLogoEnabled(false);
+            actionBar.setIcon(R.drawable.ic_menu_bar);
         }
     }
 
