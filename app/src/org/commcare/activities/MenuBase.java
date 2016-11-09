@@ -112,6 +112,9 @@ public abstract class MenuBase
 
     @Override
     protected boolean onBackwardSwipe() {
+        if (menuIsBeingUsedAsHomeScreen()) {
+            return true;
+        }
         onBackPressed();
         return true;
     }
