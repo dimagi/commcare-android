@@ -24,7 +24,7 @@ import org.javarosa.core.services.locale.Localization;
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
         implements PullTaskResultReceiver {
 
-    private static final int MENU_SYNC = Menu.FIRST;
+    protected static final int MENU_SYNC = Menu.FIRST;
     private static final int MENU_GROUP_SYNC_ACTION = Menu.FIRST;
 
     protected boolean isSyncUserLaunched = false;

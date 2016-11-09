@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +23,7 @@ public abstract class MenuBase
         implements AdapterView.OnItemClickListener {
 
     protected DrawerLayout drawerLayout;
+    private DrawerLayout.DrawerListener drawerListener;
     protected ListView navDrawerList;
 
     // NOTE: Menu.FIRST is reserved for MENU_SYNC in SyncCapableCommCareActivity
@@ -53,14 +53,34 @@ public abstract class MenuBase
             navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
 
             drawerLayout = (DrawerLayout)findViewById(R.id.menu_activity_drawer_layout);
-            drawerLayout.addDrawerListener(new ActionBarDrawerToggle(this, drawerLayout,
-                    R.drawable.ic_menu_bar, R.string.drawer_open, R.string.drawer_close));
-            //getActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_bar);
+            initDrawerListener();
+            drawerLayout.addDrawerListener(drawerListener);
+            getActionBar().setHomeButtonEnabled(true);
         }
     }
 
-    private DrawerLayout.DrawerListener getDrawerToggle() {
-        return null;
+    private void initDrawerListener() {
+        drawerListener = new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        };
     }
 
     private ListView.OnItemClickListener getNavDrawerClickListener() {
@@ -132,7 +152,14 @@ public abstract class MenuBase
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == MENU_LOGOUT) {
+        if (item.getItemId() == android.R.id.home && menuIsBeingUsedAsHomeScreen()) {
+            if (drawerLayout.isDrawerOpen(navDrawerList)) {
+                drawerLayout.closeDrawer(navDrawerList);
+            } else {
+                drawerLayout.openDrawer(navDrawerList);
+            }
+            return true;
+        } else if (item.getItemId() == MENU_LOGOUT) {
             CommCareApplication._().closeUserSession();
             Intent i = new Intent(getIntent());
             setResult(RESULT_CANCELED, i);
