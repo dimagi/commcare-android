@@ -8,7 +8,7 @@ import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.FunctionUtils;
 
 import java.util.Comparator;
 
@@ -81,7 +81,7 @@ public class EntitySorter implements Comparator<Entity<TreeReference>> {
                 //Double int compares just fine here and also
                 //deals with NaN's appropriately
 
-                double ret = XPathFuncExpr.toInt(value);
+                double ret = FunctionUtils.toInt(value);
                 if (Double.isNaN(ret)) {
                     String[] stringArgs = new String[3];
                     stringArgs[2] = value;
@@ -92,7 +92,7 @@ public class EntitySorter implements Comparator<Entity<TreeReference>> {
                 }
                 return ret;
             } else if (sortType == Constants.DATATYPE_DECIMAL) {
-                double ret = XPathFuncExpr.toDouble(value);
+                double ret = FunctionUtils.toDouble(value);
                 if (Double.isNaN(ret)) {
 
                     String[] stringArgs = new String[3];

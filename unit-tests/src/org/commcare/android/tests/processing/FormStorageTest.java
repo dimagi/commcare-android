@@ -213,7 +213,7 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathCosFunc"
             , "org.javarosa.xpath.expr.XPathCountFunc"
             , "org.javarosa.xpath.expr.XPathCountSelectedFunc"
-            , "org.javarosa.xpath.expr.XPathCustomFunc"
+            , "org.javarosa.xpath.expr.XPathCustomRuntimeFunc"
             , "org.javarosa.xpath.expr.XPathDateFunc"
             , "org.javarosa.xpath.expr.XPathDependFunc"
             , "org.javarosa.xpath.expr.XPathDistanceFunc"

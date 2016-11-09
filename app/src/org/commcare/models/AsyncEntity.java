@@ -12,8 +12,8 @@ import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.Enumeration;
@@ -90,7 +90,7 @@ public class AsyncEntity extends Entity<TreeReference> {
                 //in a 1.3 hashtable equivalent
                 for (Enumeration<String> en = mVariableDeclarations.keys(); en.hasMoreElements(); ) {
                     String key = en.nextElement();
-                    context.setVariable(key, XPathFuncExpr.unpack(mVariableDeclarations.get(key).eval(context)));
+                    context.setVariable(key, FunctionUtils.unpack(mVariableDeclarations.get(key).eval(context)));
                 }
                 mVariableContextLoaded = true;
             }
