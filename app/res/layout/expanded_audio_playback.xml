@@ -23,7 +23,6 @@
         android:layout_toEndOf="@+id/play_button"
         android:layout_toRightOf="@+id/play_button"
         android:enabled="false"
-        android:max="500"
         android:progress="0"
         android:progressDrawable="@drawable/progressbar_modern"/>
 
