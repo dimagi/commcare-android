@@ -194,7 +194,7 @@ public class CommCareHomeActivity
             getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
             loginExtraWasConsumed = true;
 
-            CommCareSession session = CommCareApplication._().getCurrentSession();
+            CommCareSession session = CommCareApplication.instance().getCurrentSession();
             if (session.getCommand() != null) {
                 // restore the session state if there is a command.
                 // For debugging and occurs when a serialized
@@ -206,7 +206,7 @@ public class CommCareHomeActivity
 
             // Trigger off a regular unsent task processor, unless we're about to sync (which will
             // then handle this in a blocking fashion)
-            if (!CommCareApplication._().isSyncPending(false)) {
+            if (!CommCareApplication.instance().isSyncPending(false)) {
                 checkAndStartUnsentFormsTask(false, false);
             }
 
@@ -236,7 +236,7 @@ public class CommCareHomeActivity
             boolean userManuallyEnteredPasswordMode = getIntent()
                     .getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
             boolean alreadyDismissedPinCreation =
-                    CommCareApplication._().getCurrentApp().getAppPreferences()
+                    CommCareApplication.instance().getCurrentApp().getAppPreferences()
                             .getBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, false);
             if (!alreadyDismissedPinCreation || userManuallyEnteredPasswordMode) {
                 showPinChoiceDialog(loginMode);
@@ -246,7 +246,7 @@ public class CommCareHomeActivity
 
     private void showPinChoiceDialog(final LoginMode loginMode) {
         String promptMessage;
-        UserKeyRecord currentUserRecord = CommCareApplication._().getRecordForCurrentUser();
+        UserKeyRecord currentUserRecord = CommCareApplication.instance().getRecordForCurrentUser();
         if (currentUserRecord.hasPinSet()) {
             promptMessage = Localization.get("pin.dialog.prompt.reset");
         } else {
@@ -277,7 +277,7 @@ public class CommCareHomeActivity
                     @Override
                     public void onClick(View v) {
                         dismissAlertDialog();
-                        CommCareApplication._().getCurrentApp().getAppPreferences()
+                        CommCareApplication.instance().getCurrentApp().getAppPreferences()
                                 .edit()
                                 .putBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, true)
                                 .commit();
@@ -368,7 +368,7 @@ public class CommCareHomeActivity
         } else {
             i = new Intent(this, MenuList.class);
         }
-        addPendingDataExtra(i, CommCareApplication._().getCurrentSessionWrapper().getSession());
+        addPendingDataExtra(i, CommCareApplication.instance().getCurrentSessionWrapper().getSession());
         startActivityForResult(i, GET_COMMAND);
     }
 
@@ -381,7 +381,7 @@ public class CommCareHomeActivity
         if(menuId == null) {
             menuId = org.commcare.suite.model.Menu.ROOT_MENU_ID;
         }
-        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
+        AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
         String commonDisplayStyle = platform.getMenuDisplayStyle(menuId);
         return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
@@ -424,20 +424,20 @@ public class CommCareHomeActivity
                             //Hm, what to do here?
                             break;
                         }
-                        FormRecord r = CommCareApplication._().getUserStorage(FormRecord.class).read(record);
+                        FormRecord r = CommCareApplication.instance().getUserStorage(FormRecord.class).read(record);
 
                         //Retrieve and load the appropriate ssd
-                        SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+                        SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
                         Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
                         AndroidSessionWrapper currentState =
-                                CommCareApplication._().getCurrentSessionWrapper();
+                                CommCareApplication.instance().getCurrentSessionWrapper();
                         if(ssds.size() == 1) {
                             currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
                         } else {
                             currentState.setFormRecordId(r.getID());
                         }
 
-                        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
+                        AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
                         formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
                         return;
                     }
@@ -445,7 +445,7 @@ public class CommCareHomeActivity
                 case GET_COMMAND:
                     //TODO: We might need to load this from serialized state?
                     AndroidSessionWrapper currentState =
-                            CommCareApplication._().getCurrentSessionWrapper();
+                            CommCareApplication.instance().getCurrentSessionWrapper();
                     if (resultCode == RESULT_CANCELED) {
                         if (currentState.getSession().getCommand() == null) {
                             //Needed a command, and didn't already have one. Stepping back from
@@ -470,7 +470,7 @@ public class CommCareHomeActivity
                     break;
                 case GET_CASE:
                     //TODO: We might need to load this from serialized state?
-                    AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                    AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
                     CommCareSession currentSession = asw.getSession();
                     if (resultCode == RESULT_CANCELED) {
                         currentSession.stepBack(asw.getEvaluationContext());
@@ -499,7 +499,7 @@ public class CommCareHomeActivity
                 case CREATE_PIN:
                     boolean choseRememberPassword = intent != null && intent.getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false);
                     if (choseRememberPassword) {
-                        CommCareApplication._().closeUserSession();
+                        CommCareApplication.instance().closeUserSession();
                     } else if (resultCode == RESULT_OK) {
                         Toast.makeText(this, Localization.get("pin.set.success"), Toast.LENGTH_SHORT).show();
                     } else {
@@ -509,7 +509,7 @@ public class CommCareHomeActivity
                 case MAKE_REMOTE_POST:
                     stepBackIfCancelled(resultCode);
                     if (resultCode == RESULT_OK) {
-                        CommCareApplication._().getCurrentSessionWrapper().terminateSession();
+                        CommCareApplication.instance().getCurrentSessionWrapper().terminateSession();
                     }
                     break;
                 case GET_REMOTE_DATA:
@@ -534,7 +534,7 @@ public class CommCareHomeActivity
 
     private static void stepBackIfCancelled(int resultCode) {
         if (resultCode == RESULT_CANCELED) {
-            AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+            AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
             CommCareSession currentSession = asw.getSession();
             currentSession.stepBack(asw.getEvaluationContext());
         }
@@ -562,7 +562,7 @@ public class CommCareHomeActivity
      */
     private boolean sessionStateUnchangedSinceCallout(CommCareSession session, Intent intent) {
         EvaluationContext evalContext =
-                CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
+                CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
         boolean neededDataUnchanged = session.getNeededData(evalContext).equals(
                 intent.getStringExtra(KEY_PENDING_SESSION_DATA));
         String intentDatum = intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID);
@@ -584,7 +584,7 @@ public class CommCareHomeActivity
      */
     private boolean processReturnFromFormEntry(int resultCode, Intent intent) {
         // TODO: We might need to load this from serialized state?
-        AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
+        AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
 
         // This is the state we were in when we _Started_ form entry
         FormRecord current = currentState.getFormRecord();
@@ -625,7 +625,7 @@ public class CommCareHomeActivity
                 resultInstanceURI = intent.getData();
             }
             if (resultInstanceURI == null) {
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
+                CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
                 Toast.makeText(this,
                         "Error while trying to read the form! See the notification",
                         Toast.LENGTH_LONG).show();
@@ -753,7 +753,7 @@ public class CommCareHomeActivity
         String userName;
 
         try {
-            userName = CommCareApplication._().getSession().getLoggedInUser().getUsername();
+            userName = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
             if (userName != null) {
                 return Localization.get("home.logged.in.message", new String[]{userName});
             }
@@ -772,7 +772,7 @@ public class CommCareHomeActivity
 
     @Override
     public void processSessionResponse(int statusCode) {
-        AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+        AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
         switch(statusCode) {
             case SessionNavigator.ASSERTION_FAILURE:
                 handleAssertionFailureFromSessionNav(asw);
@@ -810,12 +810,12 @@ public class CommCareHomeActivity
 
     @Override
     public CommCareSession getSessionForNavigator() {
-        return CommCareApplication._().getCurrentSession();
+        return CommCareApplication.instance().getCurrentSession();
     }
 
     @Override
     public EvaluationContext getEvalContextForNavigator() {
-        return CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
+        return CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
     }
 
     // endregion
@@ -864,7 +864,7 @@ public class CommCareHomeActivity
 
     private void launchRemoteSync(AndroidSessionWrapper asw) {
         String command = asw.getSession().getCommand();
-        Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
+        Entry commandEntry = CommCareApplication.instance().getCommCarePlatform().getEntry(command);
         if (commandEntry instanceof RemoteRequestEntry) {
             PostRequest postRequest = ((RemoteRequestEntry)commandEntry).getPostRequest();
             Intent i = new Intent(getApplicationContext(), PostRequestActivity.class);
@@ -930,7 +930,7 @@ public class CommCareHomeActivity
 
     private static void addPendingDataExtra(Intent i, CommCareSession session) {
         EvaluationContext evalContext =
-                CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
+                CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
         i.putExtra(KEY_PENDING_SESSION_DATA, session.getNeededData(evalContext));
     }
 
@@ -967,7 +967,7 @@ public class CommCareHomeActivity
         }
 
         FormRecord record = state.getFormRecord();
-        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
+        AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
         formEntry(platform.getFormContentUri(record.getFormNamespace()), record,
                 CommCareActivity.getTitle(this, null));
     }
@@ -980,12 +980,12 @@ public class CommCareHomeActivity
         Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
 
         //TODO: This is... just terrible. Specify where external instance data should come from
-        FormLoaderTask.iif = new AndroidInstanceInitializer(CommCareApplication._().getCurrentSession());
+        FormLoaderTask.iif = new AndroidInstanceInitializer(CommCareApplication.instance().getCurrentSession());
 
         // Create our form entry activity callout
         Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
-        i.putExtra(FormEntryActivity.KEY_INSTANCEDESTINATION, CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
+        i.putExtra(FormEntryActivity.KEY_INSTANCEDESTINATION, CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
         
         // See if there's existing form data that we want to continue entering
         // (note, this should be stored in the form record as a URI link to
@@ -1008,7 +1008,7 @@ public class CommCareHomeActivity
         if (isRestoringSession) {
             isRestoringSession = false;
             SharedPreferences prefs =
-                    CommCareApplication._().getCurrentApp().getAppPreferences();
+                    CommCareApplication.instance().getCurrentApp().getAppPreferences();
             String formEntrySession = prefs.getString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, "");
             if (!"".equals(formEntrySession)) {
                 i.putExtra(FormEntryActivity.KEY_FORM_ENTRY_SESSION, formEntrySession);
@@ -1025,10 +1025,10 @@ public class CommCareHomeActivity
         if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
                 displayMessage(Localization.get("notification.sync.airplane.action"), true);
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
+                CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
             } else {
                 displayMessage(Localization.get("notification.sync.connections.action"), true);
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
+                CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
             }
             GoogleAnalyticsUtils.reportSyncAttempt(
                     GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
@@ -1036,7 +1036,7 @@ public class CommCareHomeActivity
                     GoogleAnalyticsFields.VALUE_NO_CONNECTION);
             return;
         }
-        CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
+        CommCareApplication.instance().clearNotifications(AIRPLANE_MODE_CATEGORY);
         sendFormsOrSync(true);
     }
 
@@ -1044,7 +1044,7 @@ public class CommCareHomeActivity
      * Triggered when an automatic sync is pending
      */
     private void handlePendingSync() {
-        long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
+        long lastSync = CommCareApplication.instance().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
         String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
         Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
 
@@ -1069,7 +1069,7 @@ public class CommCareHomeActivity
      */
     private void attemptDispatchHomeScreen() {
         try {
-            CommCareApplication._().getSession();
+            CommCareApplication.instance().getSession();
         } catch (SessionUnavailableException e) {
             // User was logged out somehow, so we want to return to dispatch activity
             setResult(RESULT_OK);
@@ -1077,10 +1077,10 @@ public class CommCareHomeActivity
             return;
         }
 
-        if (CommCareApplication._().isSyncPending(false)) {
+        if (CommCareApplication.instance().isSyncPending(false)) {
             // There is a sync pending
             handlePendingSync();
-        } else if (CommCareApplication._().isConsumerApp() || DeveloperPreferences.useRootModuleMenuAsHomeScreen()) {
+        } else if (CommCareApplication.instance().isConsumerApp() || DeveloperPreferences.useRootModuleMenuAsHomeScreen()) {
             enterRootModule();
         } else {
             // Display the normal home screen!
@@ -1089,7 +1089,7 @@ public class CommCareHomeActivity
     }
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
-        final AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
+        final AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
         String msg = Localization.get("app.workflow.incomplete.continue");
         StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
@@ -1131,7 +1131,7 @@ public class CommCareHomeActivity
 
     protected static boolean isDemoUser() {
         try {
-            User u = CommCareApplication._().getSession().getLoggedInUser();
+            User u = CommCareApplication.instance().getSession().getLoggedInUser();
             return (User.TYPE_DEMO.equals(u.getUserType()));
         } catch (SessionUnavailableException e) {
             // Default to a normal user: this should only happen if session
@@ -1184,7 +1184,7 @@ public class CommCareHomeActivity
         boolean hasPinSet = false;
 
         try {
-            hasPinSet = CommCareApplication._().getRecordForCurrentUser().hasPinSet();
+            hasPinSet = CommCareApplication.instance().getRecordForCurrentUser().hasPinSet();
         } catch (SessionUnavailableException e) {
             Log.d(TAG, "Session expired and menu is being created before redirect to login screen");
         }
@@ -1264,7 +1264,7 @@ public class CommCareHomeActivity
     private void handleDeveloperModeClicks() {
         mDeveloperModeClicks++;
         if (mDeveloperModeClicks == 4) {
-            CommCareApplication._().getCurrentApp().getAppPreferences()
+            CommCareApplication.instance().getCurrentApp().getAppPreferences()
                     .edit()
                     .putString(DeveloperPreferences.SUPERUSER_ENABLED, CommCarePreferences.YES)
                     .commit();

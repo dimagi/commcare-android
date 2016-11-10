@@ -76,14 +76,14 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
 
         //Handle these cases better later.
         try {
-            ReferenceManager._().DeriveReference(source).remove();
+            ReferenceManager.instance().DeriveReference(source).remove();
         } catch (InvalidReferenceException | IOException e) {
             e.printStackTrace();
         }
     }
 
     protected SQLiteDatabase getDbHandle() {
-        return CommCareApplication._().getUserDbHandle();
+        return CommCareApplication.instance().getUserDbHandle();
     }
 
     @Override
@@ -129,7 +129,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         } else if (CaseXmlParser.ATTACHMENT_FROM_REMOTE.equals(from)) {
             //The attachment is in remote location.
             try {
-                Reference remote = ReferenceManager._().DeriveReference(src);
+                Reference remote = ReferenceManager.instance().DeriveReference(src);
 
                 //TODO: Awful.
                 if (remote instanceof JavaHttpReference) {
@@ -192,7 +192,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
      * @param source the full path of the source of the attachment.
      */
     private Pair<File, String> getDestination(String source) {
-        File storagePath = new File(CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_ATTACHMENTS));
+        File storagePath = new File(CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_ATTACHMENTS));
         String dest = PropertyUtils.genUUID().replace("-", "");
 
         //add an extension

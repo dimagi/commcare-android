@@ -26,7 +26,7 @@ public class StorageUtils {
             SqlStorage<FormRecord> storage) {
 
         String currentAppId =
-                CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+                CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
 
         Vector<Integer> ids = storage.getIDsForValues(
                 new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
@@ -40,9 +40,9 @@ public class StorageUtils {
 
     public static int getNumIncompleteForms() {
         SqlStorage<FormRecord> formsStorage =
-                CommCareApplication._().getUserStorage(FormRecord.class);
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
         String currentAppId =
-                CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+                CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
 
         return formsStorage.getIDsForValues(
                 new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},

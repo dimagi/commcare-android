@@ -244,11 +244,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * If a message for the user has been set in CommCareApplication, show it and then clear it
      */
     private void showPendingUserMessage() {
-        String[] messageAndTitle = CommCareApplication._().getPendingUserMessage();
+        String[] messageAndTitle = CommCareApplication.instance().getPendingUserMessage();
         if (messageAndTitle != null) {
             showAlertDialog(StandardAlertDialog.getBasicAlertDialog(
                     this, messageAndTitle[1], messageAndTitle[0], null));
-            CommCareApplication._().clearPendingUserMessage();
+            CommCareApplication.instance().clearPendingUserMessage();
         }
     }
 
@@ -412,11 +412,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     protected void restoreLastQueryString() {
-        lastQueryString = (String)CommCareApplication._().getCurrentSession().getCurrentFrameStepExtra(SessionInstanceBuilder.KEY_LAST_QUERY_STRING);
+        lastQueryString = (String)CommCareApplication.instance().getCurrentSession().getCurrentFrameStepExtra(SessionInstanceBuilder.KEY_LAST_QUERY_STRING);
     }
 
     protected void saveLastQueryString() {
-        CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_LAST_QUERY_STRING, lastQueryString);
+        CommCareApplication.instance().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_LAST_QUERY_STRING, lastQueryString);
     }
 
     //Graphical stuff below, needs to get modularized
@@ -456,16 +456,16 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         String[] stepTitles = new String[0];
         try {
-            stepTitles = CommCareApplication._().getCurrentSession().getHeaderTitles();
+            stepTitles = CommCareApplication.instance().getCurrentSession().getHeaderTitles();
 
             //See if we can insert any case hacks
             int i = 0;
-            for (StackFrameStep step : CommCareApplication._().getCurrentSession().getFrame().getSteps()) {
+            for (StackFrameStep step : CommCareApplication.instance().getCurrentSession().getFrame().getSteps()) {
                 try {
                     if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                         //Haaack
                         if (step.getId() != null && step.getId().contains("case_id")) {
-                            ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step.getValue());
+                            ACase foundCase = CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step.getValue());
                             stepTitles[i] = Localization.get("title.datum.wrapper", new String[]{foundCase.getName()});
                         }
                     }
@@ -786,7 +786,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void rebuildOptionsMenu() {
-        if (CommCareApplication._().getCurrentApp() != null) {
+        if (CommCareApplication.instance().getCurrentApp() != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 invalidateOptionsMenu();
             } else {

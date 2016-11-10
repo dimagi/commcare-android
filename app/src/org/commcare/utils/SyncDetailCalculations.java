@@ -48,7 +48,7 @@ public class SyncDetailCalculations {
     }
 
     public static int getNumUnsentForms() {
-        SqlStorage<FormRecord> formsStorage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> formsStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         try {
             return formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
         } catch (SessionUnavailableException e) {
@@ -60,7 +60,7 @@ public class SyncDetailCalculations {
 
     private static Pair<Long, String> getLastSyncTimeAndMessage() {
         CharSequence syncTimeMessage;
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         long lastSyncTime = prefs.getLong("last-succesful-sync", 0);
         if (lastSyncTime == 0) {
             syncTimeMessage = Localization.get("home.sync.message.last.never");
@@ -85,13 +85,13 @@ public class SyncDetailCalculations {
     }
 
     private static boolean unsentFormNumberLimitExceeded(int numUnsentForms) {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         int unsentFormNumberLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_NUMBER_KEY, "5"));
         return numUnsentForms > unsentFormNumberLimit;
     }
 
     private static boolean unsentFormTimeLimitExceeded(long lastSyncTime) {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         int unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY, "5"));
 
         long now = new Date().getTime();

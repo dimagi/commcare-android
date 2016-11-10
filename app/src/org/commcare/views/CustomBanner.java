@@ -26,7 +26,7 @@ public class CustomBanner {
     public static boolean useCustomBanner(Context context,
                                           int screenHeight, int screenWidth,
                                           @NonNull ImageView topBannerImageView) {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        CommCareApp app = CommCareApplication.instance().getCurrentApp();
         if (app == null) {
             return false;
         }

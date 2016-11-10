@@ -54,7 +54,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     @Override
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError,
                                      boolean userTriggeredSync, boolean formsToSend) {
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             return;
         }
         DataPullTask.PullTaskResult result = resultAndError.data;

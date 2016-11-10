@@ -72,7 +72,7 @@ public class CommCareVerificationActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             setContentView(R.layout.blank_missing_multimedia_layout);
         } else {
             setContentView(R.layout.missing_multimedia_layout);
@@ -241,7 +241,7 @@ public class CommCareVerificationActivity
     }
 
     private void handleVerificationSuccess() {
-        CommCareApplication._().getCurrentApp().setMMResourcesValidated();
+        CommCareApplication.instance().getCurrentApp().setMMResourcesValidated();
         if (Intent.ACTION_VIEW.equals(CommCareVerificationActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
@@ -253,7 +253,7 @@ public class CommCareVerificationActivity
             i.putExtra(KEY_REQUIRE_REFRESH, true);
             setResult(RESULT_OK, i);
         }
-        if (!CommCareApplication._().isConsumerApp()) {
+        if (!CommCareApplication.instance().isConsumerApp()) {
             Toast.makeText(getApplicationContext(), Localization.get("verification.success.message"), Toast.LENGTH_SHORT).show();
         }
         finish();
@@ -272,7 +272,7 @@ public class CommCareVerificationActivity
             case MENU_UNZIP:
                 Intent i = new Intent(this, MultimediaInflaterActivity.class);
                 i.putExtra(MultimediaInflaterActivity.EXTRA_FILE_DESTINATION,
-                        CommCareApplication._().getCurrentApp().storageRoot());
+                        CommCareApplication.instance().getCurrentApp().storageRoot());
                 this.startActivityForResult(i, GET_MULTIMEDIA);
                 return true;
         }
@@ -281,7 +281,7 @@ public class CommCareVerificationActivity
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, false);
         }
         
