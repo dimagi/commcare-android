@@ -23,14 +23,13 @@ public abstract class MenuBase
         extends SyncCapableCommCareActivity
         implements AdapterView.OnItemClickListener {
 
-    protected DrawerLayout drawerLayout;
-    private DrawerLayout.DrawerListener drawerListener;
-    protected ListView navDrawerList;
-
     // NOTE: Menu.FIRST is reserved for MENU_SYNC in SyncCapableCommCareActivity
     private static final int MENU_LOGOUT = android.view.Menu.FIRST + 1;
 
     private static final String[] navDrawerItems = {"Sync", "Logout"};
+
+    protected DrawerLayout drawerLayout;
+    protected ListView navDrawerList;
 
     private boolean isRootModuleMenu;
     protected String menuId;
@@ -54,37 +53,12 @@ public abstract class MenuBase
             navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
 
             drawerLayout = (DrawerLayout)findViewById(R.id.menu_activity_drawer_layout);
-            initDrawerListener();
-            drawerLayout.addDrawerListener(drawerListener);
             ActionBar actionBar = getActionBar();
             actionBar.setHomeButtonEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayUseLogoEnabled(false);
             actionBar.setIcon(R.drawable.ic_menu_bar);
         }
-    }
-
-    private void initDrawerListener() {
-        drawerListener = new DrawerLayout.DrawerListener() {
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-
-            }
-
-            @Override
-            public void onDrawerStateChanged(int newState) {
-
-            }
-        };
     }
 
     private ListView.OnItemClickListener getNavDrawerClickListener() {
