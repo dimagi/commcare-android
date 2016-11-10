@@ -46,18 +46,22 @@ public abstract class MenuBase
     }
 
     private void setupNavDrawer() {
+        drawerLayout = (DrawerLayout)findViewById(R.id.menu_activity_drawer_layout);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && menuIsBeingUsedAsHomeScreen()) {
             navDrawerList = (ListView)findViewById(R.id.nav_drawer);
             navDrawerList.setAdapter(
                     new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, navDrawerItems));
             navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
 
-            drawerLayout = (DrawerLayout)findViewById(R.id.menu_activity_drawer_layout);
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+
             ActionBar actionBar = getActionBar();
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayUseLogoEnabled(false);
             actionBar.setIcon(R.drawable.ic_menu_bar);
+        } else {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
     }
 
