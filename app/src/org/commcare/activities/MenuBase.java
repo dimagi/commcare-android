@@ -28,8 +28,8 @@ public abstract class MenuBase
     // NOTE: Menu.FIRST is reserved for MENU_SYNC in SyncCapableCommCareActivity
     private static final int MENU_LOGOUT = android.view.Menu.FIRST + 1;
 
-    protected DrawerLayout drawerLayout;
-    protected ListView navDrawerList;
+    private DrawerLayout drawerLayout;
+    private ListView navDrawerList;
     private NavDrawerItem[] drawerItems;
 
     private boolean isRootModuleMenu;
@@ -72,7 +72,8 @@ public abstract class MenuBase
         drawerItems = new NavDrawerItem[3];
         String[] textArray = {"Sync with Server", "Settings", "Logout"};
         String[] subtextArray = {null, null, null};
-        int[] iconResArray = {R.drawable.ic_sync_action_bar, R.drawable.ic_blue_forward, R.drawable.ic_logout_action_bar};
+        int[] iconResArray = {R.drawable.ic_sync_nav_drawer, R.drawable.ic_settings_nav_drawer,
+                R.drawable.ic_logout_nav_drawer};
 
         for (int i = 0; i < 3; i++) {
             NavDrawerItem item = new NavDrawerItem(textArray[i], iconResArray[i], subtextArray[i]);
