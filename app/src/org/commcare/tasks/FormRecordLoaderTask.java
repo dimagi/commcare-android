@@ -176,7 +176,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
                 asw.loadFromStateDescription(ssd);
                 try {
                     dataTitle =
-                            FormDataUtil.getTitleFromSession(new AndroidSandbox(CommCareApplication._()),
+                            FormDataUtil.getTitleFromSession(new AndroidSandbox(CommCareApplication.getInstance()),
                                     asw.getSession(), asw.getEvaluationContext());
                 } catch (RuntimeException e) {
                     dataTitle = "[Unavailable]";

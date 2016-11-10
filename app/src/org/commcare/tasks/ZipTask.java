@@ -132,7 +132,7 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
     protected void onCancelled() {
         super.onCancelled();
 
-        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+        CommCareApplication.getInstance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 
 }

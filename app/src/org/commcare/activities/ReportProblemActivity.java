@@ -35,7 +35,7 @@ public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportPr
         Logger.log(AndroidLogger.USER_REPORTED_PROBLEM, reportEntry);
         setResult(RESULT_OK);
         sendReportEmail(reportEntry);
-        CommCareApplication._().notifyLogsPending();
+        CommCareApplication.getInstance().notifyLogsPending();
         finish();
     }
 

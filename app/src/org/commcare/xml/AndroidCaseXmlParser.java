@@ -83,7 +83,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     }
 
     protected SQLiteDatabase getDbHandle() {
-        return CommCareApplication._().getUserDbHandle();
+        return CommCareApplication.getInstance().getUserDbHandle();
     }
 
     @Override
@@ -192,7 +192,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
      * @param source the full path of the source of the attachment.
      */
     private Pair<File, String> getDestination(String source) {
-        File storagePath = new File(CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_ATTACHMENTS));
+        File storagePath = new File(CommCareApplication.getInstance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_ATTACHMENTS));
         String dest = PropertyUtils.genUUID().replace("-", "");
 
         //add an extension

@@ -25,7 +25,7 @@ public class GlobalPrivilegesManager {
     }
 
     private static SharedPreferences getGlobalPrivilegesRecord() {
-        return CommCareApplication._().getSharedPreferences(GLOBAL_PRIVELEGES_FILENAME,
+        return CommCareApplication.getInstance().getSharedPreferences(GLOBAL_PRIVELEGES_FILENAME,
                 Context.MODE_PRIVATE);
     }
 

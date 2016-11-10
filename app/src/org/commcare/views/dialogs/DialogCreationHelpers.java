@@ -46,7 +46,7 @@ public class DialogCreationHelpers {
     }
 
     private static Spannable buildAboutMessage(Context context) {
-        String commcareVersion = CommCareApplication._().getCurrentVersionString();
+        String commcareVersion = CommCareApplication.getInstance().getCurrentVersionString();
         String customAcknowledgment = Localization.getWithDefault("custom.acknowledgement", "");
         String message = context.getString(R.string.about_dialog, commcareVersion, customAcknowledgment);
         return MarkupUtil.returnMarkdown(context, message);

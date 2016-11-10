@@ -41,7 +41,7 @@ public class XPathErrorEntry extends AndroidLogEntry {
         this.sessionFramePath = ReportingUtils.getCurrentSession();
         this.appVersion = ReportingUtils.getAppBuildNumber();
         this.appId = ReportingUtils.getAppId();
-        this.userId = CommCareApplication._().getCurrentUserId();
+        this.userId = CommCareApplication.getInstance().getCurrentUserId();
     }
 
     public String getExpression() {

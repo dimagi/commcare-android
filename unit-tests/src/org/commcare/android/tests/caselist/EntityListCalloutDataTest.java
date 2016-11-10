@@ -133,7 +133,7 @@ public class EntityListCalloutDataTest {
 
     private static Callout getEntitySelectCallout() {
         AndroidSessionWrapper sessionWrapper =
-                CommCareApplication._().getCurrentSessionWrapper();
+                CommCareApplication.getInstance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         EntityDatum selectDatum = (EntityDatum)session.getNeededDatum();
         Detail shortSelect = session.getDetail(selectDatum.getShortDetail());

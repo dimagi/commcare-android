@@ -39,7 +39,7 @@ public class UserSandboxUtils {
 
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Database is re-keyed and ready for use. Copying over files now");
         //OK, so now we have the Db transitioned. What we need to do now is go through and rekey all of our file references.
-        final SQLiteDatabase db = new DatabaseUserOpenHelper(CommCareApplication._(), newSandbox.getUuid()).getWritableDatabase(newKeyEncoded);
+        final SQLiteDatabase db = new DatabaseUserOpenHelper(CommCareApplication.getInstance(), newSandbox.getUuid()).getWritableDatabase(newKeyEncoded);
 
         try {
             //If we were able to iterate over the users, the key was fine, so let's use it to open our db
@@ -210,7 +210,7 @@ public class UserSandboxUtils {
             ukr.remove(sandbox);
         }
 
-        final SQLiteDatabase db = new DatabaseUserOpenHelper(CommCareApplication._(), sandbox.getUuid()).getWritableDatabase(getSqlCipherEncodedKey(key));
+        final SQLiteDatabase db = new DatabaseUserOpenHelper(CommCareApplication.getInstance(), sandbox.getUuid()).getWritableDatabase(getSqlCipherEncodedKey(key));
 
         try {
             AndroidDbHelper dbh = new AndroidDbHelper(context) {

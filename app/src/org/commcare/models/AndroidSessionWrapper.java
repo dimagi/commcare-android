@@ -90,7 +90,7 @@ public class AndroidSessionWrapper {
             return null;
         }
 
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.getInstance().getUserStorage(FormRecord.class);
         return storage.read(formRecordId);
     }
 
@@ -120,10 +120,10 @@ public class AndroidSessionWrapper {
         }
 
         SqlStorage<FormRecord> storage =
-                CommCareApplication._().getUserStorage(FormRecord.class);
+                CommCareApplication.getInstance().getUserStorage(FormRecord.class);
 
         SqlStorage<SessionStateDescriptor> sessionStorage =
-                CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+                CommCareApplication.getInstance().getUserStorage(SessionStateDescriptor.class);
 
         // TODO: This is really a join situation. Need a way to outline
         // connections between tables to enable joining
@@ -152,16 +152,16 @@ public class AndroidSessionWrapper {
 
     public void commitStub() {
         //TODO: This should now be locked somehow
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
-        SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.getInstance().getUserStorage(FormRecord.class);
+        SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication.getInstance().getUserStorage(SessionStateDescriptor.class);
 
-        SecretKey key = CommCareApplication._().createNewSymmetricKey();
+        SecretKey key = CommCareApplication.getInstance().createNewSymmetricKey();
 
         //TODO: this has two components which can fail. be able to roll them back
 
         FormRecord r = new FormRecord("", FormRecord.STATUS_UNSTARTED, getSession().getForm(),
                 key.getEncoded(), null, new Date(0),
-                CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId());
+                CommCareApplication.getInstance().getCurrentApp().getAppRecord().getApplicationId());
         storage.write(r);
         setFormRecordId(r.getID());
 

@@ -148,7 +148,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
     private IStorageUtilityIndexed<FormRecord> cachedStorage() {
         if (storage == null) {
-            storage = CommCareApplication._().getUserStorage(FormRecord.class);
+            storage = CommCareApplication.getInstance().getUserStorage(FormRecord.class);
         }
         return storage;
     }

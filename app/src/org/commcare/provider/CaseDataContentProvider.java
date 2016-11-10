@@ -77,7 +77,7 @@ public class CaseDataContentProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         //first, determine whether we're logged in and whether we have a valid data set to even be iterating over.
         try {
-            CommCareApplication._().getUserDbHandle();
+            CommCareApplication.getInstance().getUserDbHandle();
         } catch(SessionUnavailableException sue) {
             //This implies that the user isn't logged in. In the future we should probably broadcast an intent
             //that notifies the other service to trigger a Login event.
@@ -109,7 +109,7 @@ public class CaseDataContentProvider extends ContentProvider {
     private Cursor queryCaseList(Uri uri, String selection, String[] selectionArgs) {
 
         //Not cached yet. Long term this should be a priority.
-        SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
+        SqlStorage<ACase> storage = CommCareApplication.getInstance().getUserStorage(ACase.STORAGE_KEY, ACase.class);
         
         //What we'd really like to do here is raw DB queries, but sadly it looks like we don't actually index 
         //enough of the right fields for that, so we're going to deserialize the models. We'll consider 
@@ -205,7 +205,7 @@ public class CaseDataContentProvider extends ContentProvider {
     private Cursor queryCaseAttachments(String caseId) {
 
         //Demo only, we'll pull this out when we're doing this for real and centralize it/manage its lifecycle more carefully
-        SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
+        SqlStorage<ACase> storage = CommCareApplication.getInstance().getUserStorage(ACase.STORAGE_KEY, ACase.class);
 
         //Default projection.
         MatrixCursor retCursor = new MatrixCursor(new String[] {CaseDataAPI.DataColumns._ID,
@@ -249,7 +249,7 @@ public class CaseDataContentProvider extends ContentProvider {
      */
     private Cursor queryCaseData(String caseId) {
         //Demo only, we'll pull this out when we're doing this for real and centralize it/manage its lifecycle more carefully
-        SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
+        SqlStorage<ACase> storage = CommCareApplication.getInstance().getUserStorage(ACase.STORAGE_KEY, ACase.class);
         
         //Default projection.
         MatrixCursor retCursor = new MatrixCursor(new String[] {CaseDataAPI.DataColumns._ID,

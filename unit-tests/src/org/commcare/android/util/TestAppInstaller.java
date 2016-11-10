@@ -109,17 +109,17 @@ public class TestAppInstaller {
     }
 
     private void buildTestUser() {
-        CommCareApp ccApp = CommCareApplication._().getCurrentApp();
+        CommCareApp ccApp = CommCareApplication.getInstance().getCurrentApp();
         DemoUserBuilder.buildTestUser(RuntimeEnvironment.application,
                 ccApp,
                 username, password);
     }
 
     public static void login(String username, String password) {
-        CommCareApp ccApp = CommCareApplication._().getCurrentApp();
-        ((CommCareTestApplication)CommCareApplication._()).setCachedUserPassword(password);
+        CommCareApp ccApp = CommCareApplication.getInstance().getCurrentApp();
+        ((CommCareTestApplication)CommCareApplication.getInstance()).setCachedUserPassword(password);
         UserKeyRecord keyRecord =
                 UserKeyRecord.getCurrentValidRecordByPassword(ccApp, username, password, true);
-        CommCareApplication._().startUserSession(keyRecord.unWrapKey(password), keyRecord, false);
+        CommCareApplication.getInstance().startUserSession(keyRecord.unWrapKey(password), keyRecord, false);
     }
 }

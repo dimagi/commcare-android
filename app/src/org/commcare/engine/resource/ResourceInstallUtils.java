@@ -39,7 +39,7 @@ public class ResourceInstallUtils {
      * for installation?
      */
     public static boolean isUpdateReadyToInstall() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        CommCareApp app = CommCareApplication.getInstance().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
         ResourceTable upgradeTable = platform.getUpgradeResourceTable();
         return ResourceManager.isTableStagedForUpgrade(upgradeTable);
@@ -50,7 +50,7 @@ public class ResourceInstallUtils {
      * profile not found.
      */
     public static int upgradeTableVersion() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        CommCareApp app = CommCareApplication.getInstance().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
 
         ResourceTable upgradeTable = platform.getUpgradeResourceTable();
@@ -88,7 +88,7 @@ public class ResourceInstallUtils {
                                         String profileRef) {
         // Initializes app resources and the app itself, including doing a
         // check to see if this app record was converted by the db upgrader
-        CommCareApplication._().initializeGlobalResources(currentApp);
+        CommCareApplication.getInstance().initializeGlobalResources(currentApp);
 
         // Write this App Record to storage -- needs to be performed after
         // localizations have been initialized (by
@@ -239,10 +239,10 @@ public class ResourceInstallUtils {
      * @return default profile reference stored in the app's shared preferences
      */
     public static String getDefaultProfileRef() {
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.getInstance().isConsumerApp()) {
             return SingleAppInstallation.SINGLE_APP_REFERENCE;
         } else {
-            CommCareApp app = CommCareApplication._().getCurrentApp();
+            CommCareApp app = CommCareApplication.getInstance().getCurrentApp();
             SharedPreferences prefs = app.getAppPreferences();
             return prefs.getString(DEFAULT_APP_SERVER_KEY, null);
         }

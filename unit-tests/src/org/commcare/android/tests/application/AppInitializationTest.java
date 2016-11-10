@@ -31,9 +31,9 @@ public class AppInitializationTest {
 
     @Test
     public void testAppInit() {
-        Assert.assertFalse(CommCareApplication._().isUpdatePending());
+        Assert.assertFalse(CommCareApplication.getInstance().isUpdatePending());
 
-        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+        Profile p = CommCareApplication.getInstance().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 8);
     }
 }

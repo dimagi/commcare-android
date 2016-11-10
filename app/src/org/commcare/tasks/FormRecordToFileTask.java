@@ -134,7 +134,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
             File formProperties = new File(formInstanceFolder, "form.properties");
             outputStream = new FileOutputStream(formProperties);
             Properties properties = new Properties();
-            SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+            SharedPreferences settings = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
             // HQ likes us to submit forms to the "correct" app and user specific URL
             String postUrl = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                     c.getString(R.string.PostURL));
@@ -165,7 +165,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
         }
         storedFormDirectory.mkdirs();
 
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.getInstance().getUserStorage(FormRecord.class);
         Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
 
         if (ids.size() > 0) {
@@ -224,7 +224,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+        CommCareApplication.getInstance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 
 }

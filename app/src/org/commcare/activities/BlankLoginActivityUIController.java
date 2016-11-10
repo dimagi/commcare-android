@@ -68,7 +68,7 @@ public class BlankLoginActivityUIController extends LoginActivityUIController {
 
     @Override
     protected void restoreLastUser() {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
         if (lastUser != null) {
             username.setText(lastUser);

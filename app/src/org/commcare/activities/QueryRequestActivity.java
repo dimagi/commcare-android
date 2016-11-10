@@ -80,7 +80,7 @@ public class QueryRequestActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        AndroidSessionWrapper sessionWrapper = CommCareApplication._().getCurrentSessionWrapper();
+        AndroidSessionWrapper sessionWrapper = CommCareApplication.getInstance().getCurrentSessionWrapper();
         remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
                         sessionWrapper.getEvaluationContext());
@@ -250,7 +250,7 @@ public class QueryRequestActivity
         } else if (isResponseEmpty(instanceOrError.first)) {
             Toast.makeText(this, Localization.get("query.response.empty"), Toast.LENGTH_SHORT).show();
         } else {
-            CommCareApplication._().getCurrentSession().setQueryDatum(instanceOrError.first);
+            CommCareApplication.getInstance().getCurrentSession().setQueryDatum(instanceOrError.first);
             setResult(RESULT_OK);
             finish();
         }

@@ -67,7 +67,7 @@ public class CommCareApp implements AppFilePathBuilder {
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
         // Now, we need to identify the state of the application resources
-        int[] version = CommCareApplication._().getCommCareVersion();
+        int[] version = CommCareApplication.getInstance().getCommCareVersion();
 
         // TODO: Badly coupled
         platform = new AndroidCommCarePlatform(version[0], version[1], this);
@@ -81,7 +81,7 @@ public class CommCareApp implements AppFilePathBuilder {
         // This External Storage Directory will always destroy your data when you upgrade, which is stupid. Unfortunately
         // it's also largely unavoidable until Froyo's fix for this problem makes it to the phones. For now we're going
         // to rely on the fact that the phone knows how to fix missing/corrupt directories every time it upgrades.
-        return CommCareApplication._().getAndroidFsRoot() + "app/" + record.getApplicationId() + "/";
+        return CommCareApplication.getInstance().getAndroidFsRoot() + "app/" + record.getApplicationId() + "/";
     }
 
     private void createPaths() {
@@ -128,7 +128,7 @@ public class CommCareApp implements AppFilePathBuilder {
     }
 
     public SharedPreferences getAppPreferences() {
-        return CommCareApplication._().getSharedPreferences(getPreferencesFilename(), Context.MODE_PRIVATE);
+        return CommCareApplication.getInstance().getSharedPreferences(getPreferencesFilename(), Context.MODE_PRIVATE);
     }
 
     public void setupSandbox() {
@@ -173,7 +173,7 @@ public class CommCareApp implements AppFilePathBuilder {
         record.setConvertedByDbUpgrader(false);
 
         // Commit changes
-        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+        CommCareApplication.getInstance().getGlobalStorage(ApplicationRecord.class).write(record);
     }
 
     public boolean initializeApplication() {
@@ -244,7 +244,7 @@ public class CommCareApp implements AppFilePathBuilder {
     }
 
     private void initializeStylizer() {
-        mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
+        mStylizer = new Stylizer(CommCareApplication.getInstance().getApplicationContext());
     }
 
 
@@ -259,7 +259,7 @@ public class CommCareApp implements AppFilePathBuilder {
         editor.putBoolean("isValidated", true);
         editor.commit();
         record.setResourcesStatus(true);
-        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+        CommCareApplication.getInstance().getGlobalStorage(ApplicationRecord.class).write(record);
     }
 
     public int getAppResourceState() {
@@ -302,7 +302,7 @@ public class CommCareApp implements AppFilePathBuilder {
     }
 
     protected AndroidDbHelper buildAndroidDbHelper() {
-        return new AndroidDbHelper(CommCareApplication._().getApplicationContext()) {
+        return new AndroidDbHelper(CommCareApplication.getInstance().getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (appDbHandleLock) {
@@ -323,7 +323,7 @@ public class CommCareApp implements AppFilePathBuilder {
         record.setStatus(ApplicationRecord.STATUS_INSTALLED);
         record.setResourcesStatus(areMMResourcesValidated());
         record.setPropertiesFromProfile(getCommCarePlatform().getCurrentProfile());
-        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+        CommCareApplication.getInstance().getGlobalStorage(ApplicationRecord.class).write(record);
     }
 
     public String getUniqueId() {
@@ -352,7 +352,7 @@ public class CommCareApp implements AppFilePathBuilder {
      */
     public static SQLiteDatabase getAppDatabaseForTesting() {
         if (BuildConfig.DEBUG) {
-            return CommCareApplication._().getCurrentApp().buildAndroidDbHelper().getHandle();
+            return CommCareApplication.getInstance().getCurrentApp().buildAndroidDbHelper().getHandle();
         } else {
             throw new RuntimeException("For testing purposes only!");
         }

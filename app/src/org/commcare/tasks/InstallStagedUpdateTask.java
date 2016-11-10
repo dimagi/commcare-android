@@ -28,7 +28,7 @@ public abstract class InstallStagedUpdateTask<R>
     }
 
     public static AppInstallStatus installStagedUpdate() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        CommCareApp app = CommCareApplication.getInstance().getCurrentApp();
         app.setupSandbox();
 
         AndroidCommCarePlatform platform = app.getCommCarePlatform();

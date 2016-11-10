@@ -189,7 +189,7 @@ public class DataPullTaskTest {
     }
 
     private static void useLocalKeys() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        CommCareApp app = CommCareApplication.getInstance().getCurrentApp();
         app.getAppPreferences().edit().putString("key_server", null).commit();
     }
 }

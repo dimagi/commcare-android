@@ -114,14 +114,14 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
             @Override
             public void onClick(View v) {
                 SharedPreferences settings =
-                        CommCareApplication._().getCurrentApp().getAppPreferences();
+                        CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
                 String url = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null);
 
                 if (url != null) {
                     DataSubmissionListener dataListener;
 
                     dataListener =
-                            CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title);
+                            CommCareApplication.getInstance().getSession().startDataSubmissionListener(R.string.submission_logs_title);
                     LogSubmissionTask reportSubmitter =
                             new LogSubmissionTask(
                                     true,
@@ -129,7 +129,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                     reportSubmitter.execute();
                     ConnectionDiagnosticActivity.this.finish();
                     Toast.makeText(
-                            CommCareApplication._(),
+                            CommCareApplication.getInstance(),
                             Localization.get("connection.task.report.commcare.popup"),
                             Toast.LENGTH_LONG).show();
                 } else {

@@ -44,7 +44,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private static final String TAG = EntityMapActivity.class.getSimpleName();
     private static final int MAP_PADDING = 50;  // Number of pixels to pad bounding region of markers
 
-    private final CommCareSession session = CommCareApplication._().getCurrentSession();
+    private final CommCareSession session = CommCareApplication.getInstance().getCurrentSession();
     private EntityDatum selectDatum;
 
     private final Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations = new Vector<>();

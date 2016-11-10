@@ -48,7 +48,7 @@ public class UnsentFormsTest {
                 "2dd2031e-ee5a-4423-93b3-ad45c3ced47b",
                 "3dd1031e-ee5a-4423-93b3-ad45c3ced47c",
                 "4dd0031e-ee5a-4423-93b3-ad45c3ced47d"};
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.getInstance().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
         int count = 0;

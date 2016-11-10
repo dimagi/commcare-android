@@ -86,7 +86,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 
 
         //TODO: Where should this context be?
-        ContentResolver cr = CommCareApplication._().getContentResolver();
+        ContentResolver cr = CommCareApplication.getInstance().getContentResolver();
         ContentProviderClient cpc = cr.acquireContentProviderClient(FormsProviderAPI.FormsColumns.CONTENT_URI);
 
         ContentValues cv = new ContentValues();
@@ -170,7 +170,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         }
 
         //We're maintaining this whole Content setup now, so we've goota update things when we move them.
-        ContentResolver cr = CommCareApplication._().getContentResolver();
+        ContentResolver cr = CommCareApplication.getInstance().getContentResolver();
 
         ContentValues cv = new ContentValues();
         cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, new File(localRawUri).getAbsolutePath());
@@ -232,7 +232,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
         } catch (Exception e) {
             // something weird/bad happened here. first make sure storage is available
-            if (!CommCareApplication._().isStorageAvailable()) {
+            if (!CommCareApplication.getInstance().isStorageAvailable()) {
                 problems.addElement(new MissingMediaException(r, "Couldn't access your persisent storage. Please make sure your SD card is connected properly"));
             }
 

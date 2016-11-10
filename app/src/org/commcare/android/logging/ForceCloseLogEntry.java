@@ -48,7 +48,7 @@ public class ForceCloseLogEntry extends AndroidLogEntry {
         readableSessionString = ReportingUtils.getCurrentSession();
         serializedSessionString = DevSessionRestorer.getSerializedSessionString();
         appId = ReportingUtils.getAppId();
-        userId = CommCareApplication._().getCurrentUserId();
+        userId = CommCareApplication.getInstance().getCurrentUserId();
     }
 
     public int getAppBuildNumber() {

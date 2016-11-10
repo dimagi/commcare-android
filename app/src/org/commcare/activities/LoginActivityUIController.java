@@ -148,7 +148,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void setBannerLayoutLogic() {
         final View activityRootView = activity.findViewById(R.id.screen_login_main);
-        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        final SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
 
@@ -224,7 +224,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         // Remove any error content from trying to log into a different app
         setStyleDefault();
 
-        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        final SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
         if (lastUser != null) {
             // If there was a last user for this app, show it
@@ -256,7 +256,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private static String[] getExistingUsernames() {
         SqlStorage<UserKeyRecord> existingUsers =
-                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class);
+                CommCareApplication.getInstance().getCurrentApp().getStorage(UserKeyRecord.class);
         Set<String> uniqueUsernames = new HashSet<>();
         for (UserKeyRecord ukr : existingUsers) {
             uniqueUsernames.add(ukr.getUsername());
@@ -278,7 +278,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
      */
     private static UserKeyRecord getActiveRecordForUsername(String username) {
         SqlStorage<UserKeyRecord> existingUsers =
-                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class);
+                CommCareApplication.getInstance().getCurrentApp().getStorage(UserKeyRecord.class);
 
         // Even though we don't allow multiple users with same username in a domain, there can be
         // multiple UKRs for 1 user (for ex if password changes)
@@ -442,7 +442,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected void restoreLastUser() {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
         if (lastUser != null) {
             username.setText(lastUser);

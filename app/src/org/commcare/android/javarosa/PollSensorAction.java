@@ -69,7 +69,7 @@ public class PollSensorAction extends Action {
             EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), qualifiedReference);
             AbstractTreeElement node = context.resolveReference(qualifiedReference);
             if (node == null) {
-                Context applicationContext = CommCareApplication._();
+                Context applicationContext = CommCareApplication.getInstance();
                 Intent xpathErrorIntent = new Intent(XPATH_ERROR_ACTION);
                 xpathErrorIntent.putExtra(KEY_UNRESOLVED_XPATH, qualifiedReference.toString(true));
                 applicationContext.sendStickyBroadcast(xpathErrorIntent);

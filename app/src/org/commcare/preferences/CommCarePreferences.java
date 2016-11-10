@@ -136,7 +136,7 @@ public class CommCarePreferences
         super.onCreate(savedInstanceState);
 
         PreferenceManager prefMgr = getPreferenceManager();
-        prefMgr.setSharedPreferencesName((CommCareApplication._().getCurrentApp().getPreferencesFilename()));
+        prefMgr.setSharedPreferencesName((CommCareApplication.getInstance().getCurrentApp().getPreferencesFilename()));
         addPreferencesFromResource(R.xml.commcare_preferences);
 
         GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
@@ -268,10 +268,10 @@ public class CommCarePreferences
         if (requestCode == REQUEST_TEMPLATE) {
             if (resultCode == RESULT_OK && data != null) {
                 Uri uri = data.getData();
-                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
+                String filePath = UriToFilePath.getPathFromUri(CommCareApplication.getInstance(), uri);
                 String extension = FileUtil.getExtension(filePath);
                 if (extension.equalsIgnoreCase("html")) {
-                    SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().
+                    SharedPreferences.Editor editor = CommCareApplication.getInstance().getCurrentApp().
                             getAppPreferences().edit();
                     editor.putString(PREFS_PRINT_DOC_LOCATION, filePath);
                     editor.commit();
@@ -344,11 +344,11 @@ public class CommCarePreferences
     }
 
     public static boolean isIncompleteFormsEnabled() {
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.getInstance().isConsumerApp()) {
             return false;
         }
 
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         //If there is a setting for form management it takes precedence
         if (properties.contains(ENABLE_INCOMPLETE_FORMS)) {
             return properties.getString(ENABLE_INCOMPLETE_FORMS, YES).equals(YES);
@@ -358,7 +358,7 @@ public class CommCarePreferences
     }
 
     public static boolean isSavedFormsEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         //If there is a setting for form management it takes precedence
         if (properties.contains(ENABLE_SAVED_FORMS)) {
             return properties.getString(ENABLE_SAVED_FORMS, YES).equals(YES);
@@ -368,18 +368,18 @@ public class CommCarePreferences
     }
 
     public static boolean isGridMenuEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         return properties.getString(GRID_MENUS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
 
     public static boolean isFuzzySearchEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         return properties.getString(PREFS_FUZZY_SEARCH_KEY, NO).equals(YES);
     }
 
     public static boolean isEntityDetailLoggingEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         return properties.getString(LOG_ENTITY_DETAIL, FALSE).equals(TRUE);
     }
 
@@ -390,7 +390,7 @@ public class CommCarePreferences
     public static int getLoginDuration() {
         final int oneDayInSecs = 60 * 60 * 24;
 
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
 
         // try loading setting but default to 24 hours
         try {
@@ -405,7 +405,7 @@ public class CommCarePreferences
      * @return Accuracy needed for GPS auto-capture to stop polling during form entry
      */
     public static double getGpsCaptureAccuracy() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         try {
             return Double.parseDouble(properties.getString(GPS_AUTO_CAPTURE_ACCURACY,
                     Double.toString(GeoUtils.AUTO_CAPTURE_GOOD_ACCURACY)));
@@ -415,7 +415,7 @@ public class CommCarePreferences
     }
 
     public static int getGpsAutoCaptureTimeoutInMilliseconds() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         try {
             return (int)TimeUnit.MINUTES.toMillis(Long.parseLong(
                     properties.getString(GPS_AUTO_CAPTURE_TIMEOUT,
@@ -426,7 +426,7 @@ public class CommCarePreferences
     }
 
     public static String getResizeMethod() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         //If there is a setting for form management it takes precedence
         if (properties.contains(RESIZING_METHOD)) {
             return properties.getString(RESIZING_METHOD, CommCarePreferences.NONE);
@@ -437,7 +437,7 @@ public class CommCarePreferences
     }
 
     public static boolean isSmartInflationEnabled() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        CommCareApp app = CommCareApplication.getInstance().getCurrentApp();
         if (app == null) {
             return false;
         }
@@ -447,12 +447,12 @@ public class CommCarePreferences
     }
 
     public static int getTargetInflationDensity() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         return Integer.parseInt(properties.getString(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
     }
 
     public static boolean isAnalyticsEnabled() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        CommCareApp app = CommCareApplication.getInstance().getCurrentApp();
         if (app == null) {
             return true;
         }
@@ -460,7 +460,7 @@ public class CommCarePreferences
     }
 
     public static void disableAnalytics() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        CommCareApp app = CommCareApplication.getInstance().getCurrentApp();
         if (app == null) {
             return;
         }
@@ -492,7 +492,7 @@ public class CommCarePreferences
     }
 
     public static String getKeyServer() {
-        return CommCareApplication._().getCurrentApp().getAppPreferences().getString("key_server", null);
+        return CommCareApplication.getInstance().getCurrentApp().getAppPreferences().getString("key_server", null);
     }
 
     /**
@@ -501,12 +501,12 @@ public class CommCarePreferences
      * app version will be downloaded on upgrade.
      */
     public static boolean updateToUnstarredBuildsEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         return properties.getString(UPDATE_TO_UNSTARRED_BUILDS, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
     public static void enableUpdateToUnstarredBuilds() {
-        CommCareApplication._().getCurrentApp().getAppPreferences()
+        CommCareApplication.getInstance().getCurrentApp().getAppPreferences()
                 .edit()
                 .putString(UPDATE_TO_UNSTARRED_BUILDS, CommCarePreferences.YES)
                 .apply();

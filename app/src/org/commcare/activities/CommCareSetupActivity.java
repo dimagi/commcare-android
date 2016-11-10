@@ -232,7 +232,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * @return if installation is not allowed due to multiple apps limitations
      */
     private boolean checkForMultipleAppsViolation() {
-        if (CommCareApplication._().getInstalledAppRecords().size() >= 2
+        if (CommCareApplication.getInstance().getInstalledAppRecords().size() >= 2
                 && !GlobalPrivilegesManager.isMultipleAppsPrivilegeEnabled()
                 && !BuildConfig.DEBUG) {
             Intent i = new Intent(this, MultipleAppsLimitWarningActivity.class);
@@ -621,7 +621,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {
         String message;
         if (showAsPinnedNotifcation) {
-            CommCareApplication._().reportNotificationMessage(notificationMessage);
+            CommCareApplication.getInstance().reportNotificationMessage(notificationMessage);
             message = Localization.get("notification.for.details.wrapper",
                     new String[]{notificationMessage.getTitle()});
         } else {
@@ -663,7 +663,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void reportSuccess(boolean newAppInstalled) {
-        CommCareApplication._().clearNotifications("install_update");
+        CommCareApplication.getInstance().clearNotifications("install_update");
 
         if (newAppInstalled) {
             GoogleAnalyticsUtils.reportAppInstall(lastInstallMode);
@@ -723,7 +723,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void updateResourceProgress(int done, int total, int phase) {
         // perform safe localization because the localization dictionary might
         // be the resource currently being installed.
-        if (!CommCareApplication._().isConsumerApp()) {
+        if (!CommCareApplication.getInstance().isConsumerApp()) {
             // Don't change the text on the progress dialog if we are showing the generic consumer
             // apps startup dialog
             String installProgressText =
@@ -864,7 +864,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
             // external storage perms were enabled, so setup temp storage,
             // which fails in application setup without external storage perms.
-            CommCareApplication._().prepareTemporaryStorage();
+            CommCareApplication.getInstance().prepareTemporaryStorage();
             if (!isSingleAppBuild()) {
                 uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
                 uiStateScreenTransition();

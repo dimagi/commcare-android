@@ -70,8 +70,8 @@ public class TestUtils {
      */
     private static TransactionParserFactory getFactory(final SQLiteDatabase db) {
         final Hashtable<String, String> formInstanceNamespaces;
-        if (CommCareApplication._().getCurrentApp() != null) {
-            formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication._());
+        if (CommCareApplication.getInstance().getCurrentApp() != null) {
+            formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.getInstance());
         } else {
             formInstanceNamespaces = null;
         }
@@ -80,9 +80,9 @@ public class TestUtils {
             public TransactionParser getParser(KXmlParser parser) {
                 String namespace = parser.getNamespace();
                 if (namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
-                    return new FormInstanceXmlParser(parser, CommCareApplication._(),
+                    return new FormInstanceXmlParser(parser, CommCareApplication.getInstance(),
                             Collections.unmodifiableMap(formInstanceNamespaces),
-                            CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
+                            CommCareApplication.getInstance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
                 } else if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
                     return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new CaseIndexTable(db)) {
                         @Override
@@ -128,11 +128,11 @@ public class TestUtils {
         DataModelPullParser parser;
 
         AndroidTransactionParserFactory androidTransactionFactory =
-                new AndroidTransactionParserFactory(CommCareApplication._().getApplicationContext(), null);
+                new AndroidTransactionParserFactory(CommCareApplication.getInstance().getApplicationContext(), null);
 
-        if (CommCareApplication._().getCurrentApp() != null) {
+        if (CommCareApplication.getInstance().getCurrentApp() != null) {
             Hashtable<String, String> formInstanceNamespaces =
-                    FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication._());
+                    FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.getInstance());
             androidTransactionFactory.initFormInstanceParser(formInstanceNamespaces);
         }
 
@@ -163,7 +163,7 @@ public class TestUtils {
     }
 
     public static PrototypeFactory getStaticPrototypeFactory(){
-        return CommCareTestApplication._().getPrototypeFactory(RuntimeEnvironment.application);
+        return CommCareTestApplication.getInstance().getPrototypeFactory(RuntimeEnvironment.application);
     }
     
     /**
@@ -216,7 +216,7 @@ public class TestUtils {
     }
 
     public static EvaluationContext getEvaluationContextWithAndroidIIF() {
-        AndroidInstanceInitializer iif = new AndroidInstanceInitializer(CommCareApplication._().getCurrentSession());
+        AndroidInstanceInitializer iif = new AndroidInstanceInitializer(CommCareApplication.getInstance().getCurrentSession());
         ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
         DataInstance specializedDataInstance = edi.initialize(iif, "casedb");
 

@@ -75,7 +75,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                 return false;
             }
 
-            File tempFile = new File(CommCareApplication._().getTempFilePath());
+            File tempFile = new File(CommCareApplication.getInstance().getTempFilePath());
             Reference localReference;
             OutputStream outputFileStream;
             try {

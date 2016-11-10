@@ -25,7 +25,7 @@ public class ArchivedFormRemoteRestore {
     public static void pullArchivedFormsFromServer(String remoteUrl,
                                                    final FormRecordListActivity activity,
                                                    final CommCarePlatform platform) {
-        User u = CommCareApplication._().getSession().getLoggedInUser();
+        User u = CommCareApplication.getInstance().getSession().getLoggedInUser();
 
         // We should go digest auth this user on the server and see whether to pull them down.
         DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(),

@@ -234,7 +234,7 @@ public class BreadcrumbBarFragment extends Fragment {
                         mInternalDetailView = (TabbedDetailView)holder.findViewById(R.id.com_tile_holder_detail_frame);
                         mInternalDetailView.setRoot(mInternalDetailView);
 
-                        AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                        AndroidSessionWrapper asw = CommCareApplication.getInstance().getCurrentSessionWrapper();
                         CommCareSession session = asw.getSession();
 
                         Detail detail = session.getDetail(inlineDetail);
@@ -261,7 +261,7 @@ public class BreadcrumbBarFragment extends Fragment {
     private Pair<View, TreeReference> loadTile(Activity activity) {
         AndroidSessionWrapper asw;
         try {
-            asw = CommCareApplication._().getCurrentSessionWrapper();
+            asw = CommCareApplication.getInstance().getCurrentSessionWrapper();
         } catch (SessionStateUninitException e) {
             return null;
         }
@@ -329,7 +329,7 @@ public class BreadcrumbBarFragment extends Fragment {
         AndroidSessionWrapper asw;
 
         try {
-            asw = CommCareApplication._().getCurrentSessionWrapper();
+            asw = CommCareApplication.getInstance().getCurrentSessionWrapper();
         } catch (SessionStateUninitException e) {
             return null;
         }

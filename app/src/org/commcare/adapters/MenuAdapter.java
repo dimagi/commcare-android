@@ -65,7 +65,7 @@ public class MenuAdapter implements ListAdapter {
         Vector<MenuDisplayable> items = new Vector<>();
 
         Hashtable<String, Entry> map = platform.getMenuMap();
-        asw = CommCareApplication._().getCurrentSessionWrapper();
+        asw = CommCareApplication.getInstance().getCurrentSessionWrapper();
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 errorXpathException = "";

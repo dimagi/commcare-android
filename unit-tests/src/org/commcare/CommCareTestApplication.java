@@ -172,14 +172,14 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         if (user == null && cachedUserPassword != null) {
             Log.d(TAG, "No user instance found, creating one");
             user = new User(record.getUsername(), cachedUserPassword, "some_unique_id");
-            CommCareApplication._().getRawStorage("USER", User.class, ccService.getUserDbHandle()).write(user);
+            CommCareApplication.getInstance().getRawStorage("USER", User.class, ccService.getUserDbHandle()).write(user);
         }
         if (user != null) {
             user.setCachedPwd(cachedUserPassword);
             user.setWrappedKey(ByteEncrypter.wrapByteArrayWithString(CryptUtil.generateSemiRandomKey().getEncoded(), cachedUserPassword));
         }
         ccService.startSession(user, record);
-        CommCareApplication._().setTestingService(ccService);
+        CommCareApplication.getInstance().setTestingService(ccService);
     }
 
     private static CommCareSessionService startRoboCommCareService() {
@@ -194,7 +194,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     private static User getUserFromDb(CommCareSessionService ccService, UserKeyRecord keyRecord) {
-        for (User u : CommCareApplication._().getRawStorage("USER", User.class, ccService.getUserDbHandle())) {
+        for (User u : CommCareApplication.getInstance().getRawStorage("USER", User.class, ccService.getUserDbHandle())) {
             if (keyRecord.getUsername().equals(u.getUsername())) {
                 return u;
             }

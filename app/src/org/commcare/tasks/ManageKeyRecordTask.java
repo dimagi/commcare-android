@@ -114,7 +114,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 //If we got here, we didn't "log in" fully. IE: We have a key record and a
                 //functional sandbox, but this user has never been synced, so we aren't
                 //really "logged in".
-                CommCareApplication._().releaseUserResourcesAndServices();
+                CommCareApplication.getInstance().releaseUserResourcesAndServices();
                 keysReadyForSync(receiver);
                 return;
             } else {
@@ -128,7 +128,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         }
 
         //For any other result make sure we're logged out.
-        CommCareApplication._().releaseUserResourcesAndServices();
+        CommCareApplication.getInstance().releaseUserResourcesAndServices();
 
         //TODO: Do we wanna split this up at all? Seems unlikely. We don't have, like, a ton
         //more context that the receiving activity will
@@ -436,7 +436,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         }
 
         // Log into our local sandbox.
-        CommCareApplication._().startUserSession(current.unWrapKey(password), current, restoreSession);
+        CommCareApplication.getInstance().startUserSession(current.unWrapKey(password), current, restoreSession);
         setupLoggedInUser();
 
         return HttpCalloutTask.HttpCalloutOutcomes.Success;
@@ -499,7 +499,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         // so don't worry
         try {
             this.publishProgress(Localization.get("key.manage.legacy.begin"));
-            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), current.unWrapKey(password), current);
+            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication.getInstance().getCurrentApp(), current.unWrapKey(password), current);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -516,7 +516,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         // So we may have logged in a key record but not a user (if we just received the
         // key, but not the user's data, for instance).
         try {
-            User u = CommCareApplication._().getSession().getLoggedInUser();
+            User u = CommCareApplication.getInstance().getSession().getLoggedInUser();
             if (u != null) {
                 u.setCachedPwd(password);
                 loggedIn = u;
@@ -601,7 +601,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     private void migrateLegacySandbox(UserKeyRecord oldSandboxToMigrate, byte[] oldKey) {
         if (oldSandboxToMigrate.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
             //transition the old storage into the new format before we copy the DB over.
-            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), oldKey, oldSandboxToMigrate);
+            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication.getInstance().getCurrentApp(), oldKey, oldSandboxToMigrate);
             publishProgress(Localization.get("key.manage.legacy.begin"));
         }
     }

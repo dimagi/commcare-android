@@ -128,7 +128,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         //Get a db handle so we can get an outer lock
         SQLiteDatabase db;
         try {
-            db = CommCareApplication._().getUserDbHandle();
+            db = CommCareApplication.getInstance().getUserDbHandle();
         } catch (SessionUnavailableException e) {
             return null;
         }

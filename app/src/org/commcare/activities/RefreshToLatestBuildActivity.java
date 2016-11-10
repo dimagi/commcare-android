@@ -52,7 +52,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
 
         try {
             DevSessionRestorer.tryAutoLoginPasswordSave(getCurrentUserPassword(), true);
-            CommCareApplication._().setPendingRefreshToLatestBuild(true);
+            CommCareApplication.getInstance().setPendingRefreshToLatestBuild(true);
             DevSessionRestorer.saveSessionToPrefs();
             attemptUpdate();
         } catch (SessionUnavailableException e) {
@@ -79,7 +79,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
 
     private void errorOccurred(String status) {
         // Reset this flag to false, since an error occurred and the refresh process is being halted
-        CommCareApplication._().setPendingRefreshToLatestBuild(false);
+        CommCareApplication.getInstance().setPendingRefreshToLatestBuild(false);
 
         // Construct an error dialog
         String title = "No Refresh Occurred";
@@ -115,7 +115,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
     }
 
     private String getCurrentUserPassword() {
-        return CommCareApplication._().getSession().getLoggedInUser().getCachedPwd();
+        return CommCareApplication.getInstance().getSession().getLoggedInUser().getCachedPwd();
     }
 
     private void attemptUpdate() {

@@ -28,7 +28,7 @@ public class EntityStorageCache {
     private final String mCacheName;
 
     public EntityStorageCache(String cacheName) {
-        this(cacheName, CommCareApplication._().getUserDbHandle());
+        this(cacheName, CommCareApplication.getInstance().getUserDbHandle());
     }
 
     public EntityStorageCache(String cacheName, SQLiteDatabase db) {

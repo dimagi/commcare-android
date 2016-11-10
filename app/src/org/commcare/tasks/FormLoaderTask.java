@@ -294,7 +294,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
             // read serialized formdef into new formdef
-            fd.readExternal(dis, CommCareApplication._().getPrototypeFactory(context));
+            fd.readExternal(dis, CommCareApplication.getInstance().getPrototypeFactory(context));
             dis.close();
         } catch (Throwable e) {
             e.printStackTrace();
@@ -338,7 +338,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     }
 
     private File getCachedForm(String hash) {
-        return new File(CommCareApplication._().getCurrentApp().
+        return new File(CommCareApplication.getInstance().getCurrentApp().
                 fsPath(GlobalConstants.FILE_CC_CACHE) + "/" + hash + ".formdef");
     }
 

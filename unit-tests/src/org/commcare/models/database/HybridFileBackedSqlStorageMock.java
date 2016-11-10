@@ -18,7 +18,7 @@ public class HybridFileBackedSqlStorageMock<T extends Persistable>
                                           Class<? extends T> ctype,
                                           AndroidDbHelper helper,
                                           String baseDir) {
-        super(table, ctype, helper, baseDir, CommCareApplication._().getCurrentApp());
+        super(table, ctype, helper, baseDir, CommCareApplication.getInstance().getCurrentApp());
     }
 
     public static void alwaysPutInDatabase() {

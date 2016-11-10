@@ -24,14 +24,14 @@ public class TimedStatsTracker {
 
     public static void registerEnterForm(int formID) {
         SharedPreferences.Editor editor =
-                CommCareApplication._().getCurrentApp().getAppPreferences().edit();
+                CommCareApplication.getInstance().getCurrentApp().getAppPreferences().edit();
         editor.putInt(KEY_LAST_FORM_ID, formID)
                 .putLong(KEY_LAST_FORM_START_TIME, currentTime())
                 .commit();
     }
 
     public static void registerExitForm(int formID) {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         long enterTime = prefs.getLong(KEY_LAST_FORM_START_TIME, -1);
         if (enterTime != -1) {
             int formLastEntered = prefs.getInt(KEY_LAST_FORM_ID, -1);
@@ -50,8 +50,8 @@ public class TimedStatsTracker {
 
     public static void registerStartSession() {
         SharedPreferences.Editor editor =
-                CommCareApplication._().getCurrentApp().getAppPreferences().edit();
-        String currentUserId = CommCareApplication._().getCurrentUserId();
+                CommCareApplication.getInstance().getCurrentApp().getAppPreferences().edit();
+        String currentUserId = CommCareApplication.getInstance().getCurrentUserId();
         if (!"".equals(currentUserId)) {
             editor.putLong(KEY_LAST_SESSION_START_TIME, currentTime())
                     .putString(KEY_LAST_LOGGED_IN_USER, currentUserId)
@@ -66,7 +66,7 @@ public class TimedStatsTracker {
             Log.i(TAG, "Attempting to report ending a session with no logged in user available");
             return;
         }
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         String lastLoggedInUser = prefs.getString(KEY_LAST_LOGGED_IN_USER, "");
         if (!"".equals(lastLoggedInUser)) {
             if (lastLoggedInUser.equals(loggedOutUser)) {

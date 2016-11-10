@@ -87,7 +87,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         }
 
         String keyId = intent.getStringExtra(AndroidSharedKeyRecord.EXTRA_KEY_ID);
-        SqlStorage<AndroidSharedKeyRecord> storage = CommCareApplication._().getGlobalStorage(AndroidSharedKeyRecord.class);
+        SqlStorage<AndroidSharedKeyRecord> storage = CommCareApplication.getInstance().getGlobalStorage(AndroidSharedKeyRecord.class);
         AndroidSharedKeyRecord sharingKey;
         try {
             sharingKey = storage.getRecordForValue(AndroidSharedKeyRecord.META_KEY_ID, keyId);
@@ -117,7 +117,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
 
     private boolean checkAndStartUnsentTask(final Context context) {
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.getInstance().getUserStorage(FormRecord.class);
         Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
 
         if (ids.size() > 0) {
@@ -125,7 +125,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             for (int i = 0; i < ids.size(); ++i) {
                 records[i] = storage.read(ids.elementAt(i));
             }
-            SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+            SharedPreferences settings = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
             ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(
                     context,
                     settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
@@ -152,7 +152,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 }
             };
 
-            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+            mProcess.setListeners(CommCareApplication.getInstance().getSession().startDataSubmissionListener());
             mProcess.connect(dummyconnector);
             mProcess.execute(records);
             return true;
@@ -163,9 +163,9 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
 
     private void syncData(final Context context) {
-        User u = CommCareApplication._().getSession().getLoggedInUser();
+        User u = CommCareApplication.getInstance().getSession().getLoggedInUser();
 
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
 
         DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(
                 u.getUsername(),
@@ -200,7 +200,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     private boolean tryLocalLogin(Context context, String uname, String password) {
         try {
             UserKeyRecord matchingRecord = null;
-            for (UserKeyRecord record : CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)) {
+            for (UserKeyRecord record : CommCareApplication.getInstance().getCurrentApp().getStorage(UserKeyRecord.class)) {
                 if (!record.getUsername().equals(uname)) {
                     continue;
                 }
@@ -229,14 +229,14 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             //TODO: Extract this
             byte[] key = ByteEncrypter.unwrapByteArrayWithString(matchingRecord.getEncryptedKey(), password);
             if (matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-                LegacyInstallUtils.transitionLegacyUserStorage(context, CommCareApplication._().getCurrentApp(), key, matchingRecord);
+                LegacyInstallUtils.transitionLegacyUserStorage(context, CommCareApplication.getInstance().getCurrentApp(), key, matchingRecord);
             }
             //TODO: See if it worked first?
 
-            CommCareApplication._().startUserSession(key, matchingRecord, false);
+            CommCareApplication.getInstance().startUserSession(key, matchingRecord, false);
             ExternalManageKeyRecordTask mKeyRecordTask = new ExternalManageKeyRecordTask(context, 0,
                     matchingRecord.getUsername(), password, LoginMode.PASSWORD,
-                    CommCareApplication._().getCurrentApp(), false);
+                    CommCareApplication.getInstance().getCurrentApp(), false);
 
             mKeyRecordTask.connect(dummyconnector);
             mKeyRecordTask.execute();

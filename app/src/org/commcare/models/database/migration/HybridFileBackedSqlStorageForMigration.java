@@ -23,7 +23,7 @@ public class HybridFileBackedSqlStorageForMigration<T extends Persistable> exten
                                                   AndroidDbHelper helper,
                                                   String baseDir,
                                                   byte[] fileKeySeed) {
-        super(table, ctype, helper, baseDir, CommCareApplication._().getCurrentApp());
+        super(table, ctype, helper, baseDir, CommCareApplication.getInstance().getCurrentApp());
 
         this.fileKeySeed = fileKeySeed;
     }

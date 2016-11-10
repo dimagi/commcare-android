@@ -35,7 +35,7 @@ public class MenuGrid extends MenuBase implements OnItemLongClickListener {
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
-       adapter = new GridMenuAdapter(this, CommCareApplication._().getCommCarePlatform(), menuId);
+       adapter = new GridMenuAdapter(this, CommCareApplication.getInstance().getCommCarePlatform(), menuId);
        adapter.showAnyLoadErrors(this);
        refreshView();
        

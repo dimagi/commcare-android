@@ -16,7 +16,7 @@ import org.robolectric.shadows.ShadowActivity;
 public class ActivityLaunchUtils {
     public static ShadowActivity buildHomeActivityForFormEntryLaunch(String sessionCommand) {
         AndroidSessionWrapper sessionWrapper =
-                CommCareApplication._().getCurrentSessionWrapper();
+                CommCareApplication.getInstance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand(sessionCommand);
         return buildHomeActivity();

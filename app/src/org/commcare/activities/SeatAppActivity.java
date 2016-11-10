@@ -99,7 +99,7 @@ public class SeatAppActivity extends Activity {
 
         @Override
         public void run() {
-            CommCareApplication._().initializeAppResources(new CommCareApp(this.record));
+            CommCareApplication.getInstance().initializeAppResources(new CommCareApp(this.record));
             handler.sendEmptyMessage(0);
         }
     }

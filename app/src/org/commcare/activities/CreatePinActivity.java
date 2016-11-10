@@ -69,8 +69,8 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
-        userRecord = CommCareApplication._().getRecordForCurrentUser();
-        unhashedUserPassword = CommCareApplication._().getSession().getLoggedInUser().getCachedPwd();
+        userRecord = CommCareApplication.getInstance().getRecordForCurrentUser();
+        unhashedUserPassword = CommCareApplication.getInstance().getSession().getLoggedInUser().getCachedPwd();
         LoginMode loginMode = (LoginMode)getIntent().getSerializableExtra(LoginActivity.LOGIN_MODE);
 
         if (loginMode == LoginMode.PRIMED) {
@@ -83,7 +83,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
             // Clear the primed password
             userRecord.clearPrimedPassword();
-            CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
+            CommCareApplication.getInstance().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
         }
 
         setListeners();
@@ -185,7 +185,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
     private void assignPin(String pin) {
         userRecord.assignPinToRecord(pin, unhashedUserPassword);
-        CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
+        CommCareApplication.getInstance().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
         GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_SET_USER_PIN);
     }
 
@@ -216,7 +216,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             public void onClick(DialogInterface dialog, int which) {
                 dismissAlertDialog();
                 userRecord.setPrimedPassword(unhashedUserPassword);
-                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
+                CommCareApplication.getInstance().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
                 Intent i = new Intent();
                 i.putExtra(CHOSE_REMEMBER_PASSWORD, true);
                 setResult(RESULT_OK, i);

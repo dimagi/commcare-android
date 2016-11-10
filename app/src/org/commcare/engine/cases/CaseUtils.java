@@ -38,7 +38,7 @@ public class CaseUtils {
         //We need to determine if we're using ownership for purging. For right now, only in sync mode
         Vector<String> owners = new Vector<>();
         Vector<String> users = new Vector<>();
-        for (IStorageIterator<User> userIterator = CommCareApplication._()
+        for (IStorageIterator<User> userIterator = CommCareApplication.getInstance()
                 .getUserStorage(User.STORAGE_KEY, User.class).iterate(); userIterator.hasMore(); ) {
             String id = userIterator.nextRecord().getUniqueId();
             owners.addElement(id);
@@ -62,13 +62,13 @@ public class CaseUtils {
         }
 
         SQLiteDatabase db;
-        db = CommCareApplication._().getUserDbHandle();
+        db = CommCareApplication.getInstance().getUserDbHandle();
 
         db.beginTransaction();
         int removedCaseCount;
         int removedLedgers;
         try {
-            SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
+            SqlStorage<ACase> storage = CommCareApplication.getInstance().getUserStorage(ACase.STORAGE_KEY, ACase.class);
 
             CasePurgeFilter filter = new CasePurgeFilter(storage, owners);
             if (filter.invalidEdgesWereRemoved()) {
@@ -89,7 +89,7 @@ public class CaseUtils {
             }
 
 
-            SqlStorage<Ledger> stockStorage = CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
+            SqlStorage<Ledger> stockStorage = CommCareApplication.getInstance().getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
             LedgerPurgeFilter stockFilter = new LedgerPurgeFilter(stockStorage, storage);
             removedLedgers = stockStorage.removeAll(stockFilter).size();
             db.setTransactionSuccessful();

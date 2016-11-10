@@ -336,9 +336,9 @@ public class CommCareApplication extends Application {
     }
 
     public void releaseUserResourcesAndServices() {
-        String userBeingLoggedOut = CommCareApplication._().getCurrentUserId();
+        String userBeingLoggedOut = CommCareApplication.getInstance().getCurrentUserId();
         try {
-            CommCareApplication._().getSession().closeServiceResources();
+            CommCareApplication.getInstance().getSession().closeServiceResources();
         } catch (SessionUnavailableException e) {
             Log.w(TAG, "User's session services have unexpectedly already " +
                     "been closed down. Proceeding to close the session.");
@@ -708,7 +708,7 @@ public class CommCareApplication extends Application {
 
     public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
         return new HybridFileBackedSqlStorage<>(storage, c, buildUserDbHandle(),
-                getUserKeyRecordId(), CommCareApplication._().getCurrentApp());
+                getUserKeyRecordId(), CommCareApplication.getInstance().getCurrentApp());
     }
 
     public String getUserKeyRecordId() {
@@ -737,7 +737,7 @@ public class CommCareApplication extends Application {
         });
     }
 
-    public static CommCareApplication _() {
+    public static CommCareApplication getInstance() {
         return app;
     }
 
@@ -751,18 +751,18 @@ public class CommCareApplication extends Application {
      */
     public void clearUserData() {
         wipeSandboxForUser(this.getSession().getLoggedInUser().getUsername());
-        CommCareApplication._().getCurrentApp().getAppPreferences().edit()
+        CommCareApplication.getInstance().getCurrentApp().getAppPreferences().edit()
                 .putString(CommCarePreferences.LAST_LOGGED_IN_USER, null).commit();
-        CommCareApplication._().closeUserSession();
+        CommCareApplication.getInstance().closeUserSession();
     }
 
     public void wipeSandboxForUser(final String username) {
         // manually clear file-backed fixture storage to ensure files are removed
-        CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
+        CommCareApplication.getInstance().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
 
         // wipe the user's db
         final Set<String> dbIdsToRemove = new HashSet<>();
-        CommCareApplication._().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
+        CommCareApplication.getInstance().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
             @Override
             public boolean matches(UserKeyRecord ukr) {
                 if (ukr.getUsername().equalsIgnoreCase(username.toLowerCase())) {
@@ -773,7 +773,7 @@ public class CommCareApplication extends Application {
             }
         });
         for (String id : dbIdsToRemove) {
-            CommCareApplication._().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
+            CommCareApplication.getInstance().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
         }
     }
 
@@ -926,7 +926,7 @@ public class CommCareApplication extends Application {
 
         // Create a new submission task no matter what. If nothing is pending, it'll see if there
         // are unsent reports and try to send them. Otherwise, it'll create the report
-        SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences settings = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         String url = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null);
 
         if (url == null) {
@@ -1197,7 +1197,7 @@ public class CommCareApplication extends Application {
      * @return True if there is a sync action pending.
      */
     private boolean getPendingSyncStatus() {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
 
         long period = -1;
 

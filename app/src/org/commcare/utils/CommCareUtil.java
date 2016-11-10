@@ -23,8 +23,8 @@ import java.util.Vector;
  */
 public class CommCareUtil {
     public static FormInstance loadFixture(String refId, String userId) {
-        IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
-        IStorageUtilityIndexed<FormInstance> appFixtureStorage = CommCareApplication._().getAppStorage("fixture", FormInstance.class);
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication.getInstance().getUserStorage("fixture", FormInstance.class);
+        IStorageUtilityIndexed<FormInstance> appFixtureStorage = CommCareApplication.getInstance().getAppStorage("fixture", FormInstance.class);
 
         Vector<Integer> userFixtures = userFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
         ///... Nooooot so clean.
@@ -82,7 +82,7 @@ public class CommCareUtil {
     }
 
     public static void triggerLogSubmission(Context c) {
-        SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences settings = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
         String url = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null);
 
         if (url == null) {
@@ -91,7 +91,7 @@ public class CommCareUtil {
         } else {
             LogSubmissionTask reportSubmitter =
                     new LogSubmissionTask(true,
-                            CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title),
+                            CommCareApplication.getInstance().getSession().startDataSubmissionListener(R.string.submission_logs_title),
                             url);
             reportSubmitter.execute();
         }

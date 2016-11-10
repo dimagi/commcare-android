@@ -38,7 +38,7 @@ public class AndroidShortcuts extends Activity {
 
         // The Android needs to know what shortcuts are available, generate the list
         if (Intent.ACTION_CREATE_SHORTCUT.equals(action)) {
-            if (CommCareApplication._().getCurrentApp() == null) {
+            if (CommCareApplication.getInstance().getCurrentApp() == null) {
                 Toast.makeText(this, "Please install a CommCare app first.", Toast.LENGTH_LONG).show();
                 setResult(RESULT_CANCELED);
                 finish();
@@ -65,7 +65,7 @@ public class AndroidShortcuts extends Activity {
     private DialogChoiceItem[] getChoiceItemList(final PaneledChoiceDialog dialog) {
         ArrayList<String> names = new ArrayList<>();
         ArrayList<String> commands = new ArrayList<>();
-        for (Suite s : CommCareApplication._().getCommCarePlatform().getInstalledSuites()) {
+        for (Suite s : CommCareApplication.getInstance().getCommCarePlatform().getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 if ("root".equals(m.getRoot())) {
                     String name = m.getName().evaluate();

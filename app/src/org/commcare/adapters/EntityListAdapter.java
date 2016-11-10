@@ -460,7 +460,7 @@ public class EntityListAdapter implements ListAdapter {
 
     public void loadCalloutDataFromSession() {
         OrderedHashtable<String, String> externalData =
-                (OrderedHashtable<String, String>)CommCareApplication._()
+                (OrderedHashtable<String, String>)CommCareApplication.getInstance()
                         .getCurrentSession()
                         .getCurrentFrameStepExtra(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA);
         if (externalData != null) {
@@ -470,7 +470,7 @@ public class EntityListAdapter implements ListAdapter {
 
     public void saveCalloutDataToSession() {
         if (isFilteringByCalloutResult) {
-            CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
+            CommCareApplication.getInstance().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
         }
     }
 

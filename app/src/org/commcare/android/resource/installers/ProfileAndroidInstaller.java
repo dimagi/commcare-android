@@ -99,7 +99,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     // Check that this app is not already installed on the phone
     private void checkDuplicate(Profile p) throws UnfullfilledRequirementsException {
         String newAppId = p.getUniqueId();
-        ArrayList<ApplicationRecord> installedApps = CommCareApplication._().
+        ArrayList<ApplicationRecord> installedApps = CommCareApplication.getInstance().
                 getInstalledAppRecords();
         for (ApplicationRecord record : installedApps) {
             if (record.getUniqueId().equals(newAppId)) {
