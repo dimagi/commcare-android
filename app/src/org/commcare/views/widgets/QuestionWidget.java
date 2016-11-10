@@ -414,7 +414,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         // shown when image is clicked
         String bigImageURI = mPrompt.getSpecialFormQuestionText("big-image");
 
-        MediaLayout mediaLayout = MediaLayout.build(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri, expandedAudioURI);
+        MediaLayout mediaLayout = MediaLayout.buildComprehensiveLayout(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri, expandedAudioURI);
         addView(mediaLayout, mLayout);
     }
 
@@ -483,7 +483,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         text.setPadding(0, 0, 0, 7);
         text.setId(38475483); // assign random id
 
-        MediaLayout helpLayout = MediaLayout.build(getContext(), text,
+        MediaLayout helpLayout = MediaLayout.buildAudioImageVisualLayout(getContext(), text,
                 mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_AUDIO),
                 mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_IMAGE),
                 mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_VIDEO),

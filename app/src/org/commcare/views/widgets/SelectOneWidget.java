@@ -87,7 +87,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
 
                 String bigImageURI = prompt.getSpecialFormSelectChoiceText(mItems.get(i), "big-image");
 
-                MediaLayout mediaLayout = MediaLayout.build(getContext(), rb, audioURI, imageURI, videoURI, bigImageURI);
+                MediaLayout mediaLayout = MediaLayout.buildAudioImageVisualLayout(getContext(), rb, audioURI, imageURI, videoURI, bigImageURI);
                 mediaLayout.setPadding(0, padding, 0, padding);
 
                 mediaLayout.setOnClickListener(new OnClickListener() {

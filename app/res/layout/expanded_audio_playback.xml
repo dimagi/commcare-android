@@ -17,14 +17,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignBottom="@+id/play_button"
-        android:layout_marginBottom="24dp"
-        android:layout_marginLeft="21dp"
-        android:layout_marginStart="21dp"
+        android:layout_marginBottom="@dimen/expanded_audio_playback_margin_bottom"
+        android:layout_marginLeft="@dimen/expanded_audio_playback_margin"
+        android:layout_marginStart="@dimen/expanded_audio_playback_margin"
         android:layout_toEndOf="@+id/play_button"
         android:layout_toRightOf="@+id/play_button"
         android:enabled="false"
-        android:progressDrawable="@drawable/progressbar_modern"
-        android:progress="0"/>
+        android:max="500"
+        android:progress="0"
+        android:progressDrawable="@drawable/progressbar_modern"/>
 
     <TextView
         android:id="@+id/duration_info"

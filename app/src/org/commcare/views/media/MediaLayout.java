@@ -75,25 +75,25 @@ public class MediaLayout extends RelativeLayout {
         videoButton = null;
     }
 
-    public static MediaLayout build(Context context, TextView text, String audioURI, String imageURI) {
+    public static MediaLayout buildAudioImageLayout(Context context, TextView text, String audioURI, String imageURI) {
         MediaLayout mediaLayout = new MediaLayout(context);
         mediaLayout.setAVT(text, audioURI, imageURI, null, null, null, null, null, true);
         return mediaLayout;
     }
 
-    public static MediaLayout build(Context context,
-                                    TextView text, String audioURI, String imageURI,
-                                    final String videoURI, final String bigImageURI) {
+    public static MediaLayout buildAudioImageVisualLayout(Context context,
+                                                          TextView text, String audioURI, String imageURI,
+                                                          final String videoURI, final String bigImageURI) {
         MediaLayout mediaLayout = new MediaLayout(context);
         mediaLayout.setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null, null, null, false);
         return mediaLayout;
     }
 
-    public static MediaLayout build(Context context,
-                                    TextView text, String audioURI, String imageURI,
-                                    final String videoURI, final String bigImageURI,
-                                    final String qrCodeContent, String inlineVideoURI,
-                                    String expandedAudioUri) {
+    public static MediaLayout buildComprehensiveLayout(Context context,
+                                                       TextView text, String audioURI, String imageURI,
+                                                       final String videoURI, final String bigImageURI,
+                                                       final String qrCodeContent, String inlineVideoURI,
+                                                       String expandedAudioUri) {
         MediaLayout mediaLayout = new MediaLayout(context);
         mediaLayout.setAVT(text, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoURI, expandedAudioUri, false);
         return mediaLayout;

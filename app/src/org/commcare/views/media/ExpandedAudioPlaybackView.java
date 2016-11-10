@@ -74,13 +74,14 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
         if (AudioController.INSTANCE.doesCurrentMediaCorrespondToButton(ExpandedAudioPlaybackView.this)) {
             AudioController.INSTANCE.seekTo(progress);
         }
-        return false;
+        return true;
     }
 
     private void setupProgressAnimation(int currentPositionMillis) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             final int startPosition = 0;
-            animation = ObjectAnimator.ofInt(seekBar, "progress", startPosition, playbackDurationMillis);
+            final int progressBarMax = 500;
+            animation = ObjectAnimator.ofInt(seekBar, "progress", startPosition, progressBarMax);
             animation.setDuration(playbackDurationMillis);
             animation.setCurrentPlayTime(currentPositionMillis);
             animation.setInterpolator(new LinearInterpolator());

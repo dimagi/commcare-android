@@ -50,8 +50,8 @@ public class AudioPlaybackButton extends AudioPlaybackButtonBase {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
             final int startPosition = 0;
-            final int progressDuration = 500;
-            animation = ObjectAnimator.ofInt(progressBar, "progress", startPosition, progressDuration);
+            final int progressBarMax = 500;
+            animation = ObjectAnimator.ofInt(progressBar, "progress", startPosition, progressBarMax);
             animation.setDuration(milliDuration);
             animation.setCurrentPlayTime(milliPosition);
             animation.setInterpolator(new LinearInterpolator());
