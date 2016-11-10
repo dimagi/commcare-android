@@ -48,7 +48,7 @@ public enum PollSensorController implements LocationListener {
             @Override
             public void run() {
                 // Start requesting GPS updates
-                Context context = CommCareApplication.getInstance();
+                Context context = CommCareApplication.instance();
                 mLocationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
 
                 Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
@@ -159,7 +159,7 @@ public enum PollSensorController implements LocationListener {
     }
 
     private static boolean hasLocationPerms() {
-        Context context = CommCareApplication.getInstance().getApplicationContext();
+        Context context = CommCareApplication.instance().getApplicationContext();
         return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }

@@ -94,7 +94,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
      */
     public void installAppClicked(View v) {
         try {
-            CommCareSessionService s = CommCareApplication.getInstance().getSession();
+            CommCareSessionService s = CommCareApplication.instance().getSession();
             if (s.isActive()) {
                 triggerLogoutWarning();
             } else {
@@ -123,7 +123,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                     GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_INSTALL_FROM_MANAGER);
                     // If we have just returned from installation and the currently-seated app's
                     // resources are not validated, launch the MM verification activity
-                    if (!CommCareApplication.getInstance().getCurrentApp().areMMResourcesValidated()) {
+                    if (!CommCareApplication.instance().getCurrentApp().areMMResourcesValidated()) {
                         Intent i = new Intent(this, CommCareVerificationActivity.class);
                         i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
                         this.startActivityForResult(i, DispatchActivity.MISSING_MEDIA_ACTIVITY);
@@ -181,7 +181,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
             public void onClick(DialogInterface dialog, int which) {
                 dismissAlertDialog();
                 if (which == AlertDialog.BUTTON_POSITIVE) {
-                    CommCareApplication.getInstance().expireUserSession();
+                    CommCareApplication.instance().expireUserSession();
                     installApp();
                 }
             }

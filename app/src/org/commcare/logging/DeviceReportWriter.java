@@ -81,7 +81,7 @@ public class DeviceReportWriter {
     }
 
     private void writeHeader() throws IllegalArgumentException, IllegalStateException, IOException {
-        CommCareApplication application = CommCareApplication.getInstance();
+        CommCareApplication application = CommCareApplication.instance();
 
         String did = application.getPhoneId();
         writeText("device_id", did);
@@ -90,7 +90,7 @@ public class DeviceReportWriter {
     }
 
     private void writeUserReport() throws IllegalArgumentException, IllegalStateException, IOException {
-        SqlStorage<User> storage = CommCareApplication.getInstance().getUserStorage(User.STORAGE_KEY, User.class);
+        SqlStorage<User> storage = CommCareApplication.instance().getUserStorage(User.STORAGE_KEY, User.class);
 
         serializer.startTag(XMLNS, "user_subreport");
 

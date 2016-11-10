@@ -86,7 +86,7 @@ public class GridMultiWidget extends QuestionWidget {
 
                 String imageFilename;
                 try {
-                    imageFilename = ReferenceManager.getInstance().DeriveReference(imageURI).getLocalURI();
+                    imageFilename = ReferenceManager.instance().DeriveReference(imageURI).getLocalURI();
                     final File imageFile = new File(imageFilename);
                     if (imageFile.exists()) {
                         Display display =

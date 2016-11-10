@@ -52,7 +52,7 @@ public class UpdateTask
 
     private UpdateTask() {
         TAG = UpdateTask.class.getSimpleName();
-        app = CommCareApplication.getInstance().getCurrentApp();
+        app = CommCareApplication.instance().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
         authority = Resource.RESOURCE_AUTHORITY_REMOTE;
 

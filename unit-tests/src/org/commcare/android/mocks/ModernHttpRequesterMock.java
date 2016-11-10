@@ -75,7 +75,7 @@ public class ModernHttpRequesterMock extends AndroidModernHttpRequester {
                 InputStream payloadStream;
                 try {
                     payloadStream =
-                            ReferenceManager.getInstance().DeriveReference(payloadReference).getStream();
+                            ReferenceManager.instance().DeriveReference(payloadReference).getStream();
                 } catch (InvalidReferenceException ire) {
                     throw new IOException("No payload available at " + payloadReference);
                 }

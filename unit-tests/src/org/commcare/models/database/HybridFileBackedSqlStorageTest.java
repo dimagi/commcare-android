@@ -41,7 +41,7 @@ public class HybridFileBackedSqlStorageTest {
         HybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
 
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
-                CommCareApplication.getInstance().getFileBackedUserStorage("fixture", FormInstance.class);
+                CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class);
 
         FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
                 new String[]{"commtrack:programs"});
@@ -78,7 +78,7 @@ public class HybridFileBackedSqlStorageTest {
         HybridFileBackedSqlStorageMock.alwaysPutInDatabase();
 
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
-                CommCareApplication.getInstance().getFileBackedUserStorage("fixture", FormInstance.class);
+                CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class);
         FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
                 new String[]{"commtrack:programs"});
 
@@ -129,7 +129,7 @@ public class HybridFileBackedSqlStorageTest {
         UnencryptedHybridFileBackedSqlStorageMock.alwaysPutInDatabase();
 
         UnencryptedHybridFileBackedSqlStorage<FormInstance> appFixtureStorage =
-                CommCareApplication.getInstance().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
+                CommCareApplication.instance().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
         FormInstance form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
                 new String[]{"user-groups"});
 
@@ -177,7 +177,7 @@ public class HybridFileBackedSqlStorageTest {
 
         // unencrypted write / update test
         UnencryptedHybridFileBackedSqlStorage<FormInstance> appFixtureStorage =
-                CommCareApplication.getInstance().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
+                CommCareApplication.instance().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
         FormInstance appLevelFixture =
                 appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
                         new String[]{"user-groups"});
@@ -202,7 +202,7 @@ public class HybridFileBackedSqlStorageTest {
 
         // encrypted write / update test
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
-                CommCareApplication.getInstance().getFileBackedUserStorage("fixture", FormInstance.class);
+                CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class);
         FormInstance userLevelFixture =
                 userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
                         new String[]{"commtrack:programs"});
@@ -227,7 +227,7 @@ public class HybridFileBackedSqlStorageTest {
     }
 
     private static void clearOrphanedFiles() {
-        HybridFileBackedSqlHelpers.removeOrphanedFiles(CommCareApplication.getInstance().getUserDbHandle());
+        HybridFileBackedSqlHelpers.removeOrphanedFiles(CommCareApplication.instance().getUserDbHandle());
     }
 
     private static void clearOrphanedUnencryptedFiles() {

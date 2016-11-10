@@ -53,7 +53,7 @@ public class PurgeStaleArchivedFormsTask
 
     @Override
     protected Void doInBackground(Void... params) {
-        CommCareApp app = CommCareApplication.getInstance().getCurrentApp();
+        CommCareApp app = CommCareApplication.instance().getCurrentApp();
 
         performArchivedFormPurge(app);
         return null;
@@ -84,7 +84,7 @@ public class PurgeStaleArchivedFormsTask
         Vector<Integer> toPurge = getSavedFormsToPurge(lastValidDate);
 
         for (int formRecord : toPurge) {
-            FormRecordCleanupTask.wipeRecord(CommCareApplication.getInstance(), formRecord);
+            FormRecordCleanupTask.wipeRecord(CommCareApplication.instance(), formRecord);
         }
     }
 
@@ -119,9 +119,9 @@ public class PurgeStaleArchivedFormsTask
         Vector<Integer> toPurge = new Vector<>();
 
         SqlStorage<FormRecord> formStorage =
-                CommCareApplication.getInstance().getUserStorage(FormRecord.class);
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
 
-        String currentAppId = CommCareApplication.getInstance().getCurrentApp().getAppRecord().getApplicationId();
+        String currentAppId = CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
         Vector<Integer> savedFormsForThisApp = formStorage.getIDsForValues(
                 new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
                 new Object[]{FormRecord.STATUS_SAVED, currentAppId});

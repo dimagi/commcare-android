@@ -96,7 +96,7 @@ public class DemoUserBuilder {
     private void writeNewUser(UserKeyRecord keyRecord) {
         SQLiteDatabase userDatabase = null;
         try {
-            userDatabase = new DatabaseUserOpenHelper(CommCareApplication.getInstance(),
+            userDatabase = new DatabaseUserOpenHelper(CommCareApplication.instance(),
                     keyRecord.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(randomKey));
 
             User user = new User(username, passwordHash, username, userType);

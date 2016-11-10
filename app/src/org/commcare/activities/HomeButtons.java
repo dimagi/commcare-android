@@ -187,7 +187,7 @@ public class HomeButtons {
             @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_LOGOUT_BUTTON);
-                CommCareApplication.getInstance().closeUserSession();
+                CommCareApplication.instance().closeUserSession();
                 activity.userTriggeredLogout();
             }
         };

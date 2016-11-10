@@ -105,7 +105,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
     protected static String buildDomainUser(String username) {
         if (username != null) {
-            SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
             if (prefs.contains(USER_DOMAIN_SUFFIX)) {
                 username += "@" + prefs.getString(USER_DOMAIN_SUFFIX, null);
@@ -168,12 +168,12 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         //Add items count to fetch request
         serverUri = serverUri.buildUpon().appendQueryParameter("items", "true").build();
 
-        if (CommCareApplication.getInstance().shouldInvalidateCacheOnRestore()) {
+        if (CommCareApplication.instance().shouldInvalidateCacheOnRestore()) {
             // Currently used for testing purposes only, in order to ensure that a full sync will
             // occur when we want to test one
             serverUri = serverUri.buildUpon().appendQueryParameter("overwrite_cache", "true").build();
             // Always wipe this flag after we have used it once
-            CommCareApplication.getInstance().setInvalidateCacheFlag(false);
+            CommCareApplication.instance().setInvalidateCacheFlag(false);
         }
 
         String uri = serverUri.toString();
@@ -208,14 +208,14 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         if (lastToken != null) {
             base.addHeader("X-CommCareHQ-LastSyncToken", lastToken);
         }
-        base.addHeader("x-openrosa-deviceid", CommCareApplication.getInstance().getPhoneId());
+        base.addHeader("x-openrosa-deviceid", CommCareApplication.instance().getPhoneId());
     }
 
     private String getSyncToken(String username) {
         if (username == null) {
             return null;
         }
-        SqlStorage<User> storage = CommCareApplication.getInstance().getUserStorage(User.STORAGE_KEY, User.class);
+        SqlStorage<User> storage = CommCareApplication.instance().getUserStorage(User.STORAGE_KEY, User.class);
         Vector<Integer> users = storage.getIDsForValue(User.META_USERNAME, username);
         //should be exactly one user
         if (users.size() != 1) {
@@ -231,7 +231,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             // For integration tests, use fake hash to trigger 412 recovery on this sync
             return fakeHash;
         } else {
-            return CaseDBUtils.computeCaseDbHash(CommCareApplication.getInstance().getUserStorage(ACase.STORAGE_KEY, ACase.class));
+            return CaseDBUtils.computeCaseDbHash(CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class));
         }
     }
 

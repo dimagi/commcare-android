@@ -197,7 +197,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
         dumpDirectory.mkdirs();
 
-        SqlStorage<FormRecord> storage = CommCareApplication.getInstance().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
 
         if(ids.size() > 0) {
@@ -235,12 +235,12 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                                 results[i] = dumpInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"));
 
                             } catch (FileNotFoundException e) {
-                                if(CommCareApplication.getInstance().isStorageAvailable()) {
+                                if(CommCareApplication.instance().isStorageAvailable()) {
                                     //If storage is available generally, this is a bug in the app design
                                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
                                 } else {
                                     //Otherwise, the SD card just got removed, and we need to bail anyway.
-                                    CommCareApplication.getInstance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+                                    CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
                                     break;
                                 }
                                 continue;
@@ -284,7 +284,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     protected void onCancelled() {
         super.onCancelled();
 
-        CommCareApplication.getInstance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+        CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 
 }

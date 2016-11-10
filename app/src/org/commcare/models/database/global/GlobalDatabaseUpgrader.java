@@ -127,9 +127,9 @@ class GlobalDatabaseUpgrader {
      * to the new per-app system
      */
     private boolean upgradeProviderDb(SQLiteDatabase db, ProviderUtils.ProviderType type) {
-        File oldDbFile = CommCareApplication.getInstance().getDatabasePath(type.getOldDbName());
+        File oldDbFile = CommCareApplication.instance().getDatabasePath(type.getOldDbName());
         if (oldDbFile.exists()) {
-            File newDbFile = CommCareApplication.getInstance().getDatabasePath(
+            File newDbFile = CommCareApplication.instance().getDatabasePath(
                     ProviderUtils.getProviderDbName(type, getInstalledAppRecord(c, db).getApplicationId()));
             if (!oldDbFile.renameTo(newDbFile)) {
                 throw new MigrationException(false);

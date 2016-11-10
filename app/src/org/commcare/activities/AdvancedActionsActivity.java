@@ -208,7 +208,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
 
     private void startFormDump() {
         Intent i = new Intent(this, CommCareFormDumpActivity.class);
-        i.putExtra(CommCareFormDumpActivity.EXTRA_FILE_DESTINATION, CommCareApplication.getInstance().getCurrentApp().storageRoot());
+        i.putExtra(CommCareFormDumpActivity.EXTRA_FILE_DESTINATION, CommCareApplication.instance().getCurrentApp().storageRoot());
         startActivityForResult(i, DUMP_FORMS_ACTIVITY);
     }
 
@@ -237,7 +237,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
             public void onClick(DialogInterface dialog,
                                 int which) {
                 if (which == AlertDialog.BUTTON_POSITIVE) {
-                    CommCareApplication.getInstance().clearUserData();
+                    CommCareApplication.instance().clearUserData();
                     activity.setResult(RESULT_DATA_RESET);
                     activity.finish();
                 }

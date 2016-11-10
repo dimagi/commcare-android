@@ -86,7 +86,7 @@ public class EntitySorter implements Comparator<Entity<TreeReference>> {
                     String[] stringArgs = new String[3];
                     stringArgs[2] = value;
                     if (!hasWarned) {
-                        CommCareApplication.getInstance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Case_Filter, stringArgs));
+                        CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Case_Filter, stringArgs));
                         hasWarned = true;
                     }
                 }
@@ -98,7 +98,7 @@ public class EntitySorter implements Comparator<Entity<TreeReference>> {
                     String[] stringArgs = new String[3];
                     stringArgs[2] = value;
                     if (!hasWarned) {
-                        CommCareApplication.getInstance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Case_Filter, stringArgs));
+                        CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Case_Filter, stringArgs));
                         hasWarned = true;
                     }
                 }

@@ -75,7 +75,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                 return false;
             }
 
-            File tempFile = new File(CommCareApplication.getInstance().getTempFilePath());
+            File tempFile = new File(CommCareApplication.instance().getTempFilePath());
             Reference localReference;
             OutputStream outputFileStream;
             try {
@@ -138,11 +138,11 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
 
     private Reference getEmptyLocalReference(String root, String fileName, String extension)
             throws InvalidReferenceException, IOException {
-        Reference r = ReferenceManager.getInstance().DeriveReference(root + "/" + fileName + extension);
+        Reference r = ReferenceManager.instance().DeriveReference(root + "/" + fileName + extension);
         int count = 0;
         while (r.doesBinaryExist()) {
             count++;
-            r = ReferenceManager.getInstance().DeriveReference(root + "/" + fileName + String.valueOf(count) + extension);
+            r = ReferenceManager.instance().DeriveReference(root + "/" + fileName + String.valueOf(count) + extension);
         }
         return r;
     }
@@ -158,7 +158,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     @Override
     public boolean uninstall(Resource r) throws UnresolvedResourceException {
         try {
-            return new File(ReferenceManager.getInstance().DeriveReference(this.localLocation).getLocalURI()).delete();
+            return new File(ReferenceManager.instance().DeriveReference(this.localLocation).getLocalURI()).delete();
         } catch (InvalidReferenceException e) {
             throw new UnresolvedResourceException(r, "Local reference couldn't be found for resource at " + this.localLocation);
         }
@@ -293,9 +293,9 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         }
 
         try {
-            File preMove = new File(ReferenceManager.getInstance().DeriveReference(oldRef).getLocalURI());
+            File preMove = new File(ReferenceManager.instance().DeriveReference(oldRef).getLocalURI());
 
-            File expectedFile = new File(ReferenceManager.getInstance().DeriveReference(expectedRef).getLocalURI());
+            File expectedFile = new File(ReferenceManager.instance().DeriveReference(expectedRef).getLocalURI());
 
             //the expectation is that localReference might be pointing to the old ref which no longer exists, 
             //in which case the moved already happened.
@@ -342,7 +342,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> issues) {
         try {
-            Reference ref = ReferenceManager.getInstance().DeriveReference(localLocation);
+            Reference ref = ReferenceManager.instance().DeriveReference(localLocation);
             if (!ref.doesBinaryExist()) {
                 issues.add(new MissingMediaException(r, "File doesn't exist at: " + ref.getLocalURI()));
                 return true;

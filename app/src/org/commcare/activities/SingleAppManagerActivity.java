@@ -174,8 +174,8 @@ public class SingleAppManagerActivity extends CommCareActivity {
      */
     private void uninstall() {
         GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_UNINSTALL_APP);
-        CommCareApplication.getInstance().expireUserSession();
-        CommCareApplication.getInstance().uninstall(appRecord);
+        CommCareApplication.instance().expireUserSession();
+        CommCareApplication.instance().uninstall(appRecord);
         CommCareApplication.restartCommCare(
                 SingleAppManagerActivity.this, AppManagerActivity.class, false);
     }
@@ -187,9 +187,9 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * @param v linter sees this as unused, but is required for a button to find its onClick method
      */
     public void toggleArchiveClicked(View v) {
-        if (CommCareApplication.getInstance().isSeated(appRecord)) {
+        if (CommCareApplication.instance().isSeated(appRecord)) {
             try {
-                CommCareSessionService s = CommCareApplication.getInstance().getSession();
+                CommCareSessionService s = CommCareApplication.instance().getSession();
                 if (s.isActive()) {
                     triggerLogoutWarning(LOGOUT_FOR_ARCHIVE);
                 } else {
@@ -209,9 +209,9 @@ public class SingleAppManagerActivity extends CommCareActivity {
             GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_ARCHIVE_APP);
         }
         appRecord.setArchiveStatus(!appRecord.isArchived());
-        CommCareApplication.getInstance().getGlobalStorage(ApplicationRecord.class).write(appRecord);
-        if (CommCareApplication.getInstance().isSeated(appRecord)) {
-            CommCareApplication.getInstance().getCurrentApp().refreshAppRecord();
+        CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class).write(appRecord);
+        if (CommCareApplication.instance().isSeated(appRecord)) {
+            CommCareApplication.instance().getCurrentApp().refreshAppRecord();
         }
         refresh();
     }
@@ -223,7 +223,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      */
     public void verifyResourcesClicked(View v) {
         try {
-            CommCareSessionService s = CommCareApplication.getInstance().getSession();
+            CommCareSessionService s = CommCareApplication.instance().getSession();
             if (s.isActive()) {
                 triggerLogoutWarning(LOGOUT_FOR_VERIFY_MM);
             } else {
@@ -238,7 +238,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * Opens the MM verification activity for the selected app
      */
     private void verifyResources() {
-        if (!CommCareApplication.getInstance().isSeated(appRecord)) {
+        if (!CommCareApplication.instance().isSeated(appRecord)) {
             launchUpdateAfterSeating = false;
             seatApp();
         } else {
@@ -259,7 +259,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      */
     public void updateClicked(View v) {
         try {
-            CommCareSessionService s = CommCareApplication.getInstance().getSession();
+            CommCareSessionService s = CommCareApplication.instance().getSession();
             if (s.isActive()) {
                 triggerLogoutWarning(LOGOUT_FOR_UPDATE);
             } else {
@@ -274,7 +274,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * Conducts an update for the selected app
      */
     private void update() {
-        if (!CommCareApplication.getInstance().isSeated(appRecord)) {
+        if (!CommCareApplication.instance().isSeated(appRecord)) {
             launchUpdateAfterSeating = true;
             seatApp();
         } else {
@@ -331,7 +331,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
                                 int which) {
                 dismissAlertDialog();
                 if (which == AlertDialog.BUTTON_POSITIVE) {
-                    CommCareApplication.getInstance().expireUserSession();
+                    CommCareApplication.instance().expireUserSession();
                     switch (actionKey) {
                         case LOGOUT_FOR_UPDATE:
                             update();

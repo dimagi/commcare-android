@@ -39,7 +39,7 @@ public class AppUpdateTest {
                 UpdateUtils.buildResourceRef(REF_BASE_DIR, "base_app", "profile.ccpr"),
                 "test", "123");
 
-        Profile p = CommCareApplication.getInstance().getCommCarePlatform().getCurrentProfile();
+        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 6);
     }
 
@@ -52,7 +52,7 @@ public class AppUpdateTest {
                 AppInstallStatus.UpdateStaged,
                 AppInstallStatus.Installed);
 
-        Profile p = CommCareApplication.getInstance().getCommCarePlatform().getCurrentProfile();
+        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 9);
     }
 
@@ -65,7 +65,7 @@ public class AppUpdateTest {
                 AppInstallStatus.UpToDate,
                 AppInstallStatus.UnknownFailure);
 
-        Profile p = CommCareApplication.getInstance().getCommCarePlatform().getCurrentProfile();
+        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 6);
     }
 
@@ -74,7 +74,7 @@ public class AppUpdateTest {
         Log.d(TAG, "Try updating after removing local filesystem temp dirs.");
 
         // nuke local folder that CommCare uses to stage updates.
-        File dir = new File(CommCareApplication.getInstance().getAndroidFsTemp());
+        File dir = new File(CommCareApplication.instance().getAndroidFsTemp());
         Assert.assertTrue(dir.delete());
 
         String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "valid_update", "profile.ccpr");
@@ -82,7 +82,7 @@ public class AppUpdateTest {
                 AppInstallStatus.NoLocalStorage,
                 AppInstallStatus.UnknownFailure);
 
-        Profile p = CommCareApplication.getInstance().getCommCarePlatform().getCurrentProfile();
+        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 6);
     }
 
@@ -95,7 +95,7 @@ public class AppUpdateTest {
                 AppInstallStatus.MissingResourcesWithMessage,
                 AppInstallStatus.UnknownFailure);
 
-        Profile p = CommCareApplication.getInstance().getCommCarePlatform().getCurrentProfile();
+        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 6);
     }
 
@@ -108,7 +108,7 @@ public class AppUpdateTest {
                 AppInstallStatus.UpdateStaged,
                 AppInstallStatus.Installed);
 
-        Profile p = CommCareApplication.getInstance().getCommCarePlatform().getCurrentProfile();
+        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 14);
     }
 
@@ -121,7 +121,7 @@ public class AppUpdateTest {
                 AppInstallStatus.MissingResources,
                 AppInstallStatus.UnknownFailure);
 
-        Profile p = CommCareApplication.getInstance().getCommCarePlatform().getCurrentProfile();
+        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 6);
     }
 
@@ -134,7 +134,7 @@ public class AppUpdateTest {
                 AppInstallStatus.IncompatibleReqs,
                 AppInstallStatus.UnknownFailure);
 
-        Profile p = CommCareApplication.getInstance().getCommCarePlatform().getCurrentProfile();
+        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 6);
     }
 
@@ -142,7 +142,7 @@ public class AppUpdateTest {
     public void testAppUpdateWithSuiteFixture() {
         Log.d(TAG, "Applying a app update with a suite fixture");
 
-        AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication.getInstance());
+        AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication.instance());
         IStorageUtilityIndexed<FormInstance> appFixtureStorage = sandbox.getAppFixtureStorage();
         assertEquals(1, appFixtureStorage.getNumRecords());
         assertEquals(1, appFixtureStorage.read(1).getRoot().getNumChildren());

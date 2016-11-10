@@ -42,7 +42,7 @@ public class EntityDetailFragment extends Fragment {
     ModifiableEntityDetailAdapter adapter;
 
     public EntityDetailFragment() {
-        this.asw = CommCareApplication.getInstance().getCurrentSessionWrapper();
+        this.asw = CommCareApplication.instance().getCurrentSessionWrapper();
     }
 
     public void setModifier(ListItemViewModifier modifier) {

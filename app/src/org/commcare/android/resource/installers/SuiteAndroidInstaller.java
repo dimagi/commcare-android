@@ -51,7 +51,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             if (localLocation == null) {
                 throw new RuntimeException("Error initializing the suite, its file location is null!");
             }
-            Reference local = ReferenceManager.getInstance().DeriveReference(localLocation);
+            Reference local = ReferenceManager.instance().DeriveReference(localLocation);
 
             SuiteParser parser;
             if (isUpgrade) {
@@ -82,7 +82,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         super.install(r, location, ref, table, instance, upgrade);
 
         try {
-            Reference local = ReferenceManager.getInstance().DeriveReference(localLocation);
+            Reference local = ReferenceManager.instance().DeriveReference(localLocation);
 
             AndroidSuiteParser.buildInstallParser(local.getStream(), table, r.getRecordGuid(), instance.getFixtureStorage()).parse();
 
@@ -112,7 +112,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
-            Reference local = ReferenceManager.getInstance().DeriveReference(localLocation);
+            Reference local = ReferenceManager.instance().DeriveReference(localLocation);
             Suite suite = AndroidSuiteParser.buildVerifyParser(local.getStream(), new DummyResourceTable()).parse();
             Hashtable<String, Entry> mHashtable = suite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {

@@ -32,7 +32,7 @@ public class SerializationUtil {
         T t;
         try {
             t = type.newInstance();
-            t.readExternal(new DataInputStream(new ByteArrayInputStream(bytes)), CommCareApplication.getInstance().getPrototypeFactory(CommCareApplication.getInstance()));
+            t.readExternal(new DataInputStream(new ByteArrayInputStream(bytes)), CommCareApplication.instance().getPrototypeFactory(CommCareApplication.instance()));
         } catch (IOException | InstantiationException
                 | DeserializationException | IllegalAccessException e1) {
             e1.printStackTrace();

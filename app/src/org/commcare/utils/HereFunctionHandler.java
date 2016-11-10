@@ -43,7 +43,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     private boolean requestingLocationUpdates;
     private boolean locationGoodEnough;
 
-    private final Context context = CommCareApplication.getInstance().getApplicationContext();
+    private final Context context = CommCareApplication.instance().getApplicationContext();
     private final LocationManager mLocationManager = (LocationManager)context.getSystemService(
             Context.LOCATION_SERVICE);
 

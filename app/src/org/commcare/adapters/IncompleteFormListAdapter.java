@@ -150,7 +150,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
             loader = loader.spawn();
         }
 
-        SqlStorage<FormRecord> storage = CommCareApplication.getInstance().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
 
         // choose a default filter if none set
         if (filter == null) {
@@ -158,7 +158,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         }
 
         records.clear();
-        String currentAppId = CommCareApplication.getInstance().getCurrentApp().getAppRecord().getApplicationId();
+        String currentAppId = CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
         // Grab all form records that satisfy ANY of the statuses in the filter, AND belong to the
         // currently seated app
         for (String status : filter.getStatus()) {

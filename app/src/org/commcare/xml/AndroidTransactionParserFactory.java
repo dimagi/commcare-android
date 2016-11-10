@@ -48,7 +48,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
     private Hashtable<String, String> formInstanceNamespaces;
 
     public AndroidTransactionParserFactory(Context context, HttpRequestEndpoints generator) {
-        super(new AndroidSandbox(CommCareApplication.getInstance()));
+        super(new AndroidSandbox(CommCareApplication.instance()));
         this.context = context;
         this.generator = generator;
     }
@@ -130,7 +130,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
                     //TODO: We really don't wanna keep using fsPath eventually
                     created = new FormInstanceXmlParser(parser, context,
                             Collections.unmodifiableMap(formInstanceNamespaces),
-                            CommCareApplication.getInstance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
+                            CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
                 }
 
                 return created;

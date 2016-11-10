@@ -49,7 +49,7 @@ public class HomeActivityUIController implements CommCareActivityUIController {
     }
 
     private static Vector<String> getHiddenButtons() {
-        CommCareApp ccApp = CommCareApplication.getInstance().getCurrentApp();
+        CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
         Vector<String> hiddenButtons = new Vector<>();
 
         Profile p = ccApp.getCommCarePlatform().getCurrentProfile();

@@ -46,7 +46,7 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverResult(SyncCapableCommCareActivity receiver, FormUploadResult result) {
-                if (CommCareApplication.getInstance().isConsumerApp()) {
+                if (CommCareApplication.instance().isConsumerApp()) {
                     // if this is a consumer app we don't want to show anything in the UI about
                     // sending forms, or do a sync afterward
                     return;
@@ -93,20 +93,20 @@ public class FormAndDataSyncer {
             }
         };
 
-        processAndSendTask.setListeners(CommCareApplication.getInstance().getSession().startDataSubmissionListener());
+        processAndSendTask.setListeners(CommCareApplication.instance().getSession().startDataSubmissionListener());
         processAndSendTask.connect(activity);
         processAndSendTask.executeParallel(records);
     }
 
     private static String getFormPostURL(final Context context) {
-        SharedPreferences settings = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
+        SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                 context.getString(R.string.PostURL));
     }
 
     public void syncDataForLoggedInUser(final SyncCapableCommCareActivity activity,
                                         final boolean formsToSend, final boolean userTriggeredSync) {
-        User u = CommCareApplication.getInstance().getSession().getLoggedInUser();
+        User u = CommCareApplication.instance().getSession().getLoggedInUser();
 
         if (User.TYPE_DEMO.equals(u.getUserType())) {
             if (userTriggeredSync) {
@@ -120,7 +120,7 @@ public class FormAndDataSyncer {
             return;
         }
 
-        SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         syncData(activity, formsToSend, userTriggeredSync,
                 prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
                 u.getUsername(), u.getCachedPwd());
@@ -132,7 +132,7 @@ public class FormAndDataSyncer {
     public boolean checkAndStartUnsentFormsTask(SyncCapableCommCareActivity activity,
                                                 final boolean syncAfterwards,
                                                 boolean userTriggered) {
-        SqlStorage<FormRecord> storage = CommCareApplication.getInstance().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
         if (records.length > 0) {
@@ -144,7 +144,7 @@ public class FormAndDataSyncer {
     }
 
     public void performOtaRestore(LoginActivity context, String username, String password) {
-        SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         syncData(context, false, false,
                 prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, context.getString(R.string.ota_restore_url)),
                 username,
@@ -157,7 +157,7 @@ public class FormAndDataSyncer {
             String password) {
 
         try {
-            ReferenceManager.getInstance().DeriveReference(
+            ReferenceManager.instance().DeriveReference(
                     SingleAppInstallation.LOCAL_RESTORE_REFERENCE).getStream();
         } catch (InvalidReferenceException | IOException e) {
             throw new RuntimeException("Local restore file missing");
@@ -184,7 +184,7 @@ public class FormAndDataSyncer {
             String username, String password) {
 
         syncData(activity, formsToSend, userTriggeredSync, server, username, password,
-                CommCareApplication.getInstance().getDataPullRequester(), false);
+                CommCareApplication.instance().getDataPullRequester(), false);
     }
 
     private <I extends CommCareActivity & PullTaskResultReceiver> void syncData(

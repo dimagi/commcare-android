@@ -16,11 +16,11 @@ public class HttpUtils {
         String domain = null;
         if (isAuthenticatedRequest) {
             try {
-                user = CommCareApplication.getInstance().getSession().getLoggedInUser();
+                user = CommCareApplication.instance().getSession().getLoggedInUser();
             } catch (SessionUnavailableException sue) {
                 throw new RuntimeException("Can't find user to make authenticated http request.");
             }
-            SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
             if (prefs.contains(HttpRequestGenerator.USER_DOMAIN_SUFFIX)) {
                 domain = prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, null);
             }

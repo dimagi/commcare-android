@@ -126,7 +126,7 @@ public class CommCareSessionService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         try {
-            CommCareApplication.getInstance().getCurrentSessionWrapper().reset();
+            CommCareApplication.instance().getCurrentSessionWrapper().reset();
         } catch (SessionStateUninitException e) {
             Log.e(AndroidLogger.SOFT_ASSERT,
                     "Trying to wipe uninitialized session in session service tear-down");
@@ -188,7 +188,7 @@ public class CommCareSessionService extends Service {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
 
         String notificationText;
-        if (CommCareApplication.getInstance().getInstalledAppRecords().size() > 1) {
+        if (CommCareApplication.instance().getInstalledAppRecords().size() > 1) {
             try {
                 notificationText = Localization.get("notification.logged.in",
                         new String[]{Localization.get("app.display.name")});
@@ -254,7 +254,7 @@ public class CommCareSessionService extends Service {
                 userDatabase.close();
             }
 
-            userDatabase = new DatabaseUserOpenHelper(CommCareApplication.getInstance(), userKeyRecordUUID)
+            userDatabase = new DatabaseUserOpenHelper(CommCareApplication.instance(), userKeyRecordUUID)
                     .getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
         }
     }
@@ -280,7 +280,7 @@ public class CommCareSessionService extends Service {
 
             this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
 
-            if (!CommCareApplication.getInstance().isConsumerApp()) {
+            if (!CommCareApplication.instance().isConsumerApp()) {
                 // Put an icon in the status bar for the session, and set up session expiration
                 // (unless this is a consumer app)
                 showLoggedInNotification(user);
@@ -319,7 +319,7 @@ public class CommCareSessionService extends Service {
                 return;
             }
             try {
-                CommCareApplication.getInstance().expireUserSession();
+                CommCareApplication.instance().expireUserSession();
             } finally {
                 CommCareSessionService.sessionAliveLock.unlock();
             }
@@ -353,7 +353,7 @@ public class CommCareSessionService extends Service {
      */
     private void saveFormAndCloseSession() {
         // Remember when we started so that if form saving takes too long, the
-        // maintenance timer will launch CommCareApplication.getInstance().expireUserSession
+        // maintenance timer will launch CommCareApplication.instance().expireUserSession
         logoutStartedAt = new Date().getTime();
 
         // save form progress, if any
@@ -361,7 +361,7 @@ public class CommCareSessionService extends Service {
             if (formSaver != null) {
                 formSaver.formSaveCallback();
             } else {
-                CommCareApplication.getInstance().expireUserSession();
+                CommCareApplication.instance().expireUserSession();
             }
         }
     }
@@ -464,7 +464,7 @@ public class CommCareSessionService extends Service {
     }
 
     public UserKeyRecord getUserKeyRecord() {
-        return CommCareApplication.getInstance().getCurrentApp().getStorage(UserKeyRecord.class)
+        return CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class)
                 .read(this.userKeyRecordID);
     }
 

@@ -50,7 +50,7 @@ public class FormRecordProcessor {
 
     public FormRecordProcessor(Context c) {
         this.c = c;
-        storage = CommCareApplication.getInstance().getUserStorage(FormRecord.class);
+        storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
     }
 
     /**

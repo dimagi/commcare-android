@@ -33,7 +33,7 @@ public class ArchiveFileRoot implements ReferenceFactory {
         if (context.lastIndexOf('/') != -1) {
             context = context.substring(0, context.lastIndexOf('/') + 1);
         }
-        return ReferenceManager.getInstance().DeriveReference(context + URI);
+        return ReferenceManager.instance().DeriveReference(context + URI);
     }
 
     @Override

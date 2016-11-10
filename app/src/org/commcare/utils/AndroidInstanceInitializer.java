@@ -26,7 +26,7 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
     }
 
     public AndroidInstanceInitializer(CommCareSession session) {
-        super(session, new AndroidSandbox(CommCareApplication.getInstance()), CommCareApplication.getInstance().getCommCarePlatform());
+        super(session, new AndroidSandbox(CommCareApplication.instance()), CommCareApplication.instance().getCommCarePlatform());
     }
 
     @Override
@@ -56,12 +56,12 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
 
     @Override
     public String getVersionString() {
-        return CommCareApplication.getInstance().getCurrentVersionString();
+        return CommCareApplication.instance().getCurrentVersionString();
     }
 
     @Override
     public String getDeviceId() {
-        String phoneId = CommCareApplication.getInstance().getPhoneId();
+        String phoneId = CommCareApplication.instance().getPhoneId();
         if (phoneId == null) {
             return super.getDeviceId();
         }

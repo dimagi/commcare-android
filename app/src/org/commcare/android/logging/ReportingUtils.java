@@ -15,7 +15,7 @@ import org.commcare.utils.SessionStateUninitException;
 public class ReportingUtils {
 
     public static int getAppBuildNumber() {
-        CommCareApp app = CommCareApplication.getInstance().getCurrentApp();
+        CommCareApp app = CommCareApplication.instance().getCurrentApp();
         if (app != null) {
             Profile profile = app.getCommCarePlatform().getCurrentProfile();
             if (profile != null) {
@@ -26,7 +26,7 @@ public class ReportingUtils {
     }
 
     public static String getAppId() {
-        CommCareApp app = CommCareApplication.getInstance().getCurrentApp();
+        CommCareApp app = CommCareApplication.instance().getCurrentApp();
         if (app != null) {
             Profile profile = app.getCommCarePlatform().getCurrentProfile();
             if (profile != null) {
@@ -39,7 +39,7 @@ public class ReportingUtils {
     public static String getCurrentSession() {
         CommCareSession currentSession;
         try {
-            currentSession = CommCareApplication.getInstance().getCurrentSession();
+            currentSession = CommCareApplication.instance().getCurrentSession();
             return currentSession.getFrame().toString();
         } catch (SessionStateUninitException e) {
             return "";
@@ -53,7 +53,7 @@ public class ReportingUtils {
 
     public static String getDomain() {
         try {
-            SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
             return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
         } catch (Exception e) {
             return "Domain not set.";
@@ -62,7 +62,7 @@ public class ReportingUtils {
 
     public static String getPostURL() {
         try {
-            SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
             return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
         } catch (Exception e) {
             return "PostURL not set.";
@@ -71,7 +71,7 @@ public class ReportingUtils {
 
     public static String getUser() {
         try {
-            return CommCareApplication.getInstance().getSession().getLoggedInUser().getUsername();
+            return CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
         } catch (Exception e) {
             return "User not logged in.";
         }
@@ -79,7 +79,7 @@ public class ReportingUtils {
 
     public static String getVersion() {
         try {
-            return CommCareApplication.getInstance().getCurrentVersionString();
+            return CommCareApplication.instance().getCurrentVersionString();
         } catch (Exception e) {
             return "Version not set.";
         }

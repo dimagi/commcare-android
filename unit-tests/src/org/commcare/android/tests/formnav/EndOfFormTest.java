@@ -97,7 +97,7 @@ public class EndOfFormTest {
 
     private void assertStoredForms() {
         SqlStorage<FormRecord> formsStorage =
-                CommCareApplication.getInstance().getUserStorage(FormRecord.class);
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
 
         int unsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS,
                 FormRecord.STATUS_UNSENT).size();

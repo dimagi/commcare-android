@@ -120,8 +120,8 @@ public class MarkupUtil {
 
 
     private static String getStyleString() {
-        if (CommCareApplication.getInstance() != null && CommCareApplication.getInstance().getCurrentApp() != null) {
-            return CommCareApplication.getInstance().getCurrentApp().getStylizer().getStyleString();
+        if (CommCareApplication.instance() != null && CommCareApplication.instance().getCurrentApp() != null) {
+            return CommCareApplication.instance().getCurrentApp().getStylizer().getStyleString();
         } else {
             // fail silently? 
             return "";

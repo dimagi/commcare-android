@@ -109,7 +109,7 @@ public abstract class DataPullTask<R>
 
     public DataPullTask(String username, String password,
                         String server, Context context) {
-        this(username, password, server, context, CommCareApplication.getInstance().getDataPullRequester(),
+        this(username, password, server, context, CommCareApplication.instance().getDataPullRequester(),
                 false);
     }
 
@@ -161,7 +161,7 @@ public abstract class DataPullTask<R>
 
     private void determineIfLoginNeeded() {
         try {
-            loginNeeded = !CommCareApplication.getInstance().getSession().isActive();
+            loginNeeded = !CommCareApplication.instance().getSession().isActive();
         } catch (SessionUnavailableException sue) {
             // expected if we aren't initialized.
             loginNeeded = true;
@@ -191,7 +191,7 @@ public abstract class DataPullTask<R>
             }
             key = ukrForLogin.getEncryptedKey();
         } else {
-            key = CommCareApplication.getInstance().getSession().getLoggedInUser().getWrappedKey();
+            key = CommCareApplication.instance().getSession().getLoggedInUser().getWrappedKey();
         }
         this.publishProgress(PROGRESS_CLEANED); // Either way, we don't want to do this step again
         return key;
@@ -209,7 +209,7 @@ public abstract class DataPullTask<R>
                     new Date(), new Date(Long.MAX_VALUE), sandboxId);
         } else {
             ukrForLogin = UserKeyRecord.getCurrentValidRecordByPassword(
-                    CommCareApplication.getInstance().getCurrentApp(), username, password, true);
+                    CommCareApplication.instance().getCurrentApp(), username, password, true);
             if (ukrForLogin == null) {
                 Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                         "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
@@ -388,7 +388,7 @@ public abstract class DataPullTask<R>
         if (loginNeeded) {
             // This is currently necessary to make sure that data is encoded, but there is
             // probably a better way to do it
-            CommCareApplication.getInstance().startUserSession(
+            CommCareApplication.instance().startUserSession(
                     ByteEncrypter.unwrapByteArrayWithString(ukrForLogin.getEncryptedKey(), password),
                     ukrForLogin, false);
             wasKeyLoggedIn = true;
@@ -425,7 +425,7 @@ public abstract class DataPullTask<R>
         this.context.sendBroadcast(i);
 
         if (loginNeeded) {
-            CommCareApplication.getInstance().getAppStorage(UserKeyRecord.class).write(ukrForLogin);
+            CommCareApplication.instance().getAppStorage(UserKeyRecord.class).write(ukrForLogin);
         }
 
         Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
@@ -441,7 +441,7 @@ public abstract class DataPullTask<R>
 
     private void wipeLoginIfItOccurred() {
         if (wasKeyLoggedIn) {
-            CommCareApplication.getInstance().releaseUserResourcesAndServices();
+            CommCareApplication.instance().releaseUserResourcesAndServices();
         }
     }
 
@@ -454,12 +454,12 @@ public abstract class DataPullTask<R>
 
     private static void recordSyncAttemptTime() {
         //TODO: This should be per _user_, not per app
-        CommCareApplication.getInstance().getCurrentApp().getAppPreferences().edit()
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putLong("last-ota-restore", new Date().getTime()).commit();
     }
 
     private static void recordSuccessfulSyncTime() {
-        CommCareApplication.getInstance().getCurrentApp().getAppPreferences().edit()
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putLong("last-succesful-sync", new Date().getTime()).commit();
     }
 
@@ -504,7 +504,7 @@ public abstract class DataPullTask<R>
 
         //Wipe storage
         //TODO: move table instead. Should be straightforward with sandboxed db's
-        CommCareApplication.getInstance().getUserStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
+        CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
 
         String failureReason = "";
         try {
@@ -535,13 +535,13 @@ public abstract class DataPullTask<R>
     }
 
     private void updateCurrentUser(String password) {
-        SqlStorage<User> storage = CommCareApplication.getInstance().getUserStorage("USER", User.class);
+        SqlStorage<User> storage = CommCareApplication.instance().getUserStorage("USER", User.class);
         User u = storage.getRecordForValue(User.META_USERNAME, username);
-        CommCareApplication.getInstance().getSession().setCurrentUser(u, password);
+        CommCareApplication.instance().getSession().setCurrentUser(u, password);
     }
 
     private void updateUserSyncToken(String syncToken) throws StorageFullException {
-        SqlStorage<User> storage = CommCareApplication.getInstance().getUserStorage("USER", User.class);
+        SqlStorage<User> storage = CommCareApplication.instance().getUserStorage("USER", User.class);
         try {
             User u = storage.getRecordForValue(User.META_USERNAME, username);
             u.setLastSyncToken(syncToken);
@@ -563,7 +563,7 @@ public abstract class DataPullTask<R>
         factory.initFormInstanceParser(formNamespaces);
 
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
-        SQLiteDatabase db = CommCareApplication.getInstance().getUserDbHandle();
+        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
         try {
             db.beginTransaction();
             parser = new DataModelPullParser(stream, factory, true, false, this);

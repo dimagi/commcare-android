@@ -308,7 +308,7 @@ public class EntityDetailView extends FrameLayout {
         } else if (FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
             String localLocation = null;
             try {
-                localLocation = ReferenceManager.getInstance().DeriveReference(textField).getLocalURI();
+                localLocation = ReferenceManager.instance().DeriveReference(textField).getLocalURI();
                 if (localLocation.startsWith("/")) {
                     //TODO: This should likely actually be happening with the getLocalURI _anyway_.
                     localLocation = FileUtil.getGlobalStringUri(localLocation);

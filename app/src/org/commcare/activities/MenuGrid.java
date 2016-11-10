@@ -35,7 +35,7 @@ public class MenuGrid extends MenuBase implements OnItemLongClickListener {
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
-       adapter = new GridMenuAdapter(this, CommCareApplication.getInstance().getCommCarePlatform(), menuId);
+       adapter = new GridMenuAdapter(this, CommCareApplication.instance().getCommCarePlatform(), menuId);
        adapter.showAnyLoadErrors(this);
        refreshView();
        
@@ -61,7 +61,7 @@ public class MenuGrid extends MenuBase implements OnItemLongClickListener {
         
         if(audioURI != null && !audioURI.equals("")) {
             try {
-                audioFilename = ReferenceManager.getInstance().DeriveReference(audioURI).getLocalURI();
+                audioFilename = ReferenceManager.instance().DeriveReference(audioURI).getLocalURI();
                 
                 mp.setDataSource(audioFilename);
                 mp.prepare();

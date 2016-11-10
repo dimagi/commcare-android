@@ -50,7 +50,7 @@ public class MediaUtil {
             return null;
         }
         try {
-            Reference ref = ReferenceManager.getInstance().DeriveReference(jrUri);
+            Reference ref = ReferenceManager.instance().DeriveReference(jrUri);
             try {
                 if (!ref.doesBinaryExist()) {
                     return null;

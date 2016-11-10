@@ -59,8 +59,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             @SuppressLint("NewApi")
             @Override
             public void onClick(View v) {
-                FormRecord[] records = StorageUtils.getUnsentRecords(CommCareApplication.getInstance().getUserStorage(FormRecord.class));
-                SharedPreferences settings = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
+                FormRecord[] records = StorageUtils.getUnsentRecords(CommCareApplication.instance().getUserStorage(FormRecord.class));
+                SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
                 ProcessAndSendTask<RecoveryActivity> mProcess =
                         new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this,
@@ -106,7 +106,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                         };
 
-                mProcess.setListeners(CommCareApplication.getInstance().getSession().startDataSubmissionListener());
+                mProcess.setListeners(CommCareApplication.instance().getSession().startDataSubmissionListener());
 
                 mProcess.connect(RecoveryActivity.this);
 
@@ -143,12 +143,12 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
     private void updateRecoverAppState() {
         btnRecoverApp.setEnabled(false);
-        if (!CommCareApplication.getInstance().isStorageAvailable()) {
+        if (!CommCareApplication.instance().isStorageAvailable()) {
             appState.setText("app state unavailable.");
             return;
         }
 
-        if (CommCareApplication.getInstance().getCurrentApp().getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
+        if (CommCareApplication.instance().getCurrentApp().getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
             appState.setText("App install is corrupt. Make sure forms are sent before attempting recovery.");
             btnRecoverApp.setEnabled(true);
         } else {
@@ -159,19 +159,19 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
     private void updateSendFormsState() {
         sendForms.setEnabled(false);
-        if (!CommCareApplication.getInstance().isStorageAvailable()) {
+        if (!CommCareApplication.instance().isStorageAvailable()) {
             txtUnsentForms.setText("unsent forms unavailable.");
             return;
         }
 
         try {
-            CommCareApplication.getInstance().getSession();
+            CommCareApplication.instance().getSession();
         } catch (SessionUnavailableException sue) {
             txtUnsentForms.setText("Couldn't read unsent forms. Not Logged in");
             return;
         }
 
-        SqlStorage<FormRecord> recordStorage = CommCareApplication.getInstance().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> recordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         try {
             FormRecord[] records = StorageUtils.getUnsentRecords(recordStorage);
             if (records.length == 0) {

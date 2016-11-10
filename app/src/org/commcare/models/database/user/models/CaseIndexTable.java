@@ -47,7 +47,7 @@ public class CaseIndexTable {
     public CaseIndexTable() {
         // TODO PLM: remove this constructor and have callers pass in result
         // from getUserDbHandle()
-        this.db = CommCareApplication.getInstance().getUserDbHandle();
+        this.db = CommCareApplication.instance().getUserDbHandle();
     }
 
     private final SQLiteDatabase db;

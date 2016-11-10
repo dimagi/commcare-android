@@ -44,7 +44,7 @@ public class DebugControlsReceiver extends BroadcastReceiver {
         } else if (action.endsWith("ExpireUserKeyRecord")) {
             invalidateUserKeyRecord(intent.getStringExtra("username"));
         } else if (action.endsWith("ClearCacheOnRestore")) {
-            CommCareApplication.getInstance().setInvalidateCacheFlag(true);
+            CommCareApplication.instance().setInvalidateCacheFlag(true);
         }
     }
 
@@ -55,10 +55,10 @@ public class DebugControlsReceiver extends BroadcastReceiver {
     }
 
     private static void uninstallApp(String appId) {
-        ApplicationRecord appRecord = CommCareApplication.getInstance().getAppById(appId);
+        ApplicationRecord appRecord = CommCareApplication.instance().getAppById(appId);
         if (appRecord != null) {
-            CommCareApplication.getInstance().expireUserSession();
-            CommCareApplication.getInstance().uninstall(appRecord);
+            CommCareApplication.instance().expireUserSession();
+            CommCareApplication.instance().uninstall(appRecord);
         }
     }
 
@@ -71,12 +71,12 @@ public class DebugControlsReceiver extends BroadcastReceiver {
     }
 
     private static void storeFakeCaseDbHash() {
-        SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         prefs.edit().putString(FAKE_CASE_DB_HASH, "FAKE").apply();
     }
 
     private static void invalidateUserKeyRecord(String username) {
-        CommCareApp app = CommCareApplication.getInstance().getCurrentApp();
+        CommCareApp app = CommCareApplication.instance().getCurrentApp();
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
         UserKeyRecord invalidUkr = null;
         Date yesterday = DateTime.now().minusDays(1).toDate();
@@ -97,7 +97,7 @@ public class DebugControlsReceiver extends BroadcastReceiver {
     }
 
     public static String getFakeCaseDbHash() {
-        SharedPreferences prefs = CommCareApplication.getInstance().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         String fakeHash = prefs.getString(FAKE_CASE_DB_HASH, null);
         prefs.edit().remove(FAKE_CASE_DB_HASH).apply();
         return fakeHash;

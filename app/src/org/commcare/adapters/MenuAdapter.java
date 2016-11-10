@@ -65,7 +65,7 @@ public class MenuAdapter implements ListAdapter {
         Vector<MenuDisplayable> items = new Vector<>();
 
         Hashtable<String, Entry> map = platform.getMenuMap();
-        asw = CommCareApplication.getInstance().getCurrentSessionWrapper();
+        asw = CommCareApplication.instance().getCurrentSessionWrapper();
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 errorXpathException = "";
@@ -235,7 +235,7 @@ public class MenuAdapter implements ListAdapter {
         String audioFilename = "";
         if (audioURI != null && !audioURI.equals("")) {
             try {
-                audioFilename = ReferenceManager.getInstance().DeriveReference(audioURI).getLocalURI();
+                audioFilename = ReferenceManager.instance().DeriveReference(audioURI).getLocalURI();
             } catch (InvalidReferenceException e) {
                 Log.e("AVTLayout", "Invalid reference exception");
                 e.printStackTrace();

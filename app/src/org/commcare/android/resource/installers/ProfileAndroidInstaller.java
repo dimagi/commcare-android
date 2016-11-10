@@ -47,7 +47,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
         try {
 
-            Reference local = ReferenceManager.getInstance().DeriveReference(localLocation);
+            Reference local = ReferenceManager.instance().DeriveReference(localLocation);
 
             ProfileParser parser = new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(), null,
                     Resource.RESOURCE_STATUS_INSTALLED, false);
@@ -72,7 +72,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, instance, upgrade);
         try {
-            Reference local = ReferenceManager.getInstance().DeriveReference(localLocation);
+            Reference local = ReferenceManager.instance().DeriveReference(localLocation);
 
 
             ProfileParser parser = new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(),
@@ -99,7 +99,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     // Check that this app is not already installed on the phone
     private void checkDuplicate(Profile p) throws UnfullfilledRequirementsException {
         String newAppId = p.getUniqueId();
-        ArrayList<ApplicationRecord> installedApps = CommCareApplication.getInstance().
+        ArrayList<ApplicationRecord> installedApps = CommCareApplication.instance().
                 getInstalledAppRecords();
         for (ApplicationRecord record : installedApps) {
             if (record.getUniqueId().equals(newAppId)) {
@@ -127,7 +127,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         }
 
         try {
-            Reference local = ReferenceManager.getInstance().DeriveReference(localLocation);
+            Reference local = ReferenceManager.instance().DeriveReference(localLocation);
 
             //Create a parser with no side effects
             ProfileParser parser = new ProfileParser(local.getStream(), null, new DummyResourceTable(), null, Resource.RESOURCE_STATUS_INSTALLED, false);

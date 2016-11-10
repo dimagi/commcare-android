@@ -308,7 +308,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     }
 
     protected byte[] generateKeyAndAdd(ContentValues contentValues) {
-        byte[] key = CommCareApplication.getInstance().createNewSymmetricKey().getEncoded();
+        byte[] key = CommCareApplication.instance().createNewSymmetricKey().getEncoded();
         contentValues.put(DatabaseHelper.AES_COL, key);
         return key;
     }

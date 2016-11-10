@@ -195,7 +195,7 @@ public class AudioWidget extends MediaWidget {
         String path;
 
         if(binaryuri instanceof Uri){
-            path = UriToFilePath.getPathFromUri(CommCareApplication.getInstance(),
+            path = UriToFilePath.getPathFromUri(CommCareApplication.instance(),
                     (Uri)binaryuri);
             customFileTag = "";
         }else{

@@ -200,7 +200,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     uiController.getEnteredPasswordOrPin());
                 break;
             case CCZ_DEMO:
-                OfflineUserRestore offlineUserRestore = CommCareApplication.getInstance().getCommCarePlatform().getDemoUserRestore();
+                OfflineUserRestore offlineUserRestore = CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
                 uiController.setUsername(offlineUserRestore.getUsername());
                 uiController.setPasswordOrPin(OfflineUserRestore.DEMO_USER_PASSWORD);
                 formAndDataSyncer.performDemoUserRestore(this, offlineUserRestore);
@@ -227,7 +227,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected boolean checkForSeatedAppChange() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lastSeatedId = prefs.getString(KEY_LAST_APP, "");
-        String currentSeatedId = CommCareApplication.getInstance().getCurrentApp().getUniqueId();
+        String currentSeatedId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         if (!lastSeatedId.equals(currentSeatedId)) {
             prefs.edit().putString(KEY_LAST_APP, currentSeatedId).commit();
             return true;
@@ -236,7 +236,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private static boolean shouldFinish() {
-        CommCareApp currentApp = CommCareApplication.getInstance().getCurrentApp();
+        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         return currentApp == null || !currentApp.getAppRecord().isUsable();
     }
 
@@ -254,7 +254,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
-        if (CommCareApplication.getInstance().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             uiController.setUsername(BuildConfig.CONSUMER_APP_USERNAME);
             uiController.setPasswordOrPin(BuildConfig.CONSUMER_APP_PASSWORD);
             localLoginOrPullAndLogin(false);
@@ -289,7 +289,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private boolean forceAutoLogin() {
-        return CommCareApplication.getInstance().checkPendingBuildRefresh();
+        return CommCareApplication.instance().checkPendingBuildRefresh();
     }
 
     private String getUniformUsername() {
@@ -312,7 +312,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             ManageKeyRecordTask<LoginActivity> task =
                     new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username,
                             passwordOrPin, loginMode,
-                            CommCareApplication.getInstance().getCurrentApp(), restoreSession,
+                            CommCareApplication.instance().getCurrentApp(), restoreSession,
                             triggerMultipleUsersWarning, forCustomDemoUser) {
 
                         @Override
@@ -334,7 +334,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private int getMatchingUsersCount(String username) {
         int count = 0;
-        for (UserKeyRecord record : CommCareApplication.getInstance().getAppStorage(UserKeyRecord.class)) {
+        for (UserKeyRecord record : CommCareApplication.instance().getAppStorage(UserKeyRecord.class)) {
             if (record.getUsername().equals(username)) {
                 count++;
             }
@@ -346,7 +346,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void dataPullCompleted() {
         ACRAUtil.registerUserData();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
-        CommCareApplication.getInstance().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
+        CommCareApplication.instance().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
         Intent i = new Intent();
         i.putExtra(LOGIN_MODE, uiController.getLoginMode());
@@ -401,12 +401,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void loginDemoUser() {
-        OfflineUserRestore offlineUserRestore = CommCareApplication.getInstance().getCommCarePlatform().getDemoUserRestore();
+        OfflineUserRestore offlineUserRestore = CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
         if (offlineUserRestore != null) {
             tryLocalLogin(offlineUserRestore.getUsername(), OfflineUserRestore.DEMO_USER_PASSWORD,
                     false, false, LoginMode.PASSWORD, true);
         } else {
-            DemoUserBuilder.build(this, CommCareApplication.getInstance().getCurrentApp());
+            DemoUserBuilder.build(this, CommCareApplication.instance().getCurrentApp());
             tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
                     false, LoginMode.PASSWORD, false);
         }
@@ -432,7 +432,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void raiseMessage(NotificationMessage message, boolean showTop) {
         String toastText = message.getTitle();
         if (showTop) {
-            CommCareApplication.getInstance().reportNotificationMessage(message);
+            CommCareApplication.instance().reportNotificationMessage(message);
             toastText = Localization.get("notification.for.details.wrapper",
                     new String[]{toastText});
         }
@@ -445,7 +445,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        if (CommCareApplication.getInstance().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, false);
         }
 
@@ -493,7 +493,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         // Want to set the spinner's selection to match whatever the currently seated app is
-        String currAppId = CommCareApplication.getInstance().getCurrentApp().getUniqueId();
+        String currAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         int position = appIdDropdownList.indexOf(currAppId);
         uiController.setMultipleAppsUIState(appNames, position);
     }
@@ -503,7 +503,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // Retrieve the app record corresponding to the app selected
         String appId = appIdDropdownList.get(position);
 
-        boolean selectedNewApp = !appId.equals(CommCareApplication.getInstance().getCurrentApp().getUniqueId());
+        boolean selectedNewApp = !appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
         if (selectedNewApp) {
             // Set the id of the last selected app
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -534,7 +534,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                     Localization.get("login.update.install.success"),
                                     Toast.LENGTH_LONG).show();
                         } else {
-                            CommCareApplication.getInstance().reportNotificationMessage(NotificationMessageFactory.message(result));
+                            CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(result));
                         }
 
                         localLoginOrPullAndLogin(uiController.isRestoreSessionChecked());
@@ -567,12 +567,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         // If local login was not successful
-        startDataPull(CommCareApplication.getInstance().isConsumerApp() ? DataPullMode.CONSUMER_APP : DataPullMode.NORMAL);
+        startDataPull(CommCareApplication.instance().isConsumerApp() ? DataPullMode.CONSUMER_APP : DataPullMode.NORMAL);
     }
 
     @Override
     public void initUIController() {
-        if (CommCareApplication.getInstance().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             uiController = new BlankLoginActivityUIController(this);
         } else {
             uiController = new LoginActivityUIController(this);
@@ -631,7 +631,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void handlePullTaskUpdate(Integer... update) {
-        if (CommCareApplication.getInstance().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             return;
         }
         SyncCapableCommCareActivity.handleSyncUpdate(this, update);

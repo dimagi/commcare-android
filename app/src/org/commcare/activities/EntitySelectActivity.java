@@ -160,7 +160,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         refreshTimer = new EntitySelectRefreshTimer();
-        asw = CommCareApplication.getInstance().getCurrentSessionWrapper();
+        asw = CommCareApplication.instance().getCurrentSessionWrapper();
         session = asw.getSession();
 
         // avoid session dependent when there is no command
@@ -664,7 +664,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
         // hide sorting menu when using async loading strategy
         menu.findItem(MENU_SORT).setVisible((shortSelect == null || !shortSelect.useAsyncStrategy()));
-        menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.getInstance().isConsumerApp());
+        menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -703,7 +703,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     public static void triggerDetailAction(Action action, CommCareActivity activity) {
         try {
-            CommCareApplication.getInstance().getCurrentSessionWrapper().executeStackActions(action.getStackOperations());
+            CommCareApplication.instance().getCurrentSessionWrapper().executeStackActions(action.getStackOperations());
         } catch (XPathTypeMismatchException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(activity, e, true);
             return;

@@ -43,7 +43,7 @@ public class CommCareServerPreferences
         super.onCreate(savedInstanceState);
 
         PreferenceManager prefMgr = getPreferenceManager();
-        prefMgr.setSharedPreferencesName(CommCareApplication.getInstance().getCurrentApp().getPreferencesFilename());
+        prefMgr.setSharedPreferencesName(CommCareApplication.instance().getCurrentApp().getPreferencesFilename());
         addPreferencesFromResource(R.xml.server_preferences);
 
         GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_SERVER_PREFS);

@@ -100,6 +100,6 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
     }
 
     public PrototypeFactory getPrototypeFactory() {
-        return CommCareApplication.getInstance().getPrototypeFactory(c);
+        return CommCareApplication.instance().getPrototypeFactory(c);
     }
 }

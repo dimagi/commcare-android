@@ -36,7 +36,7 @@ public class MenuList extends MenuBase {
             list.addHeaderView(header, null, false);
         }
 
-        adapter = new MenuAdapter(this, CommCareApplication.getInstance().getCommCarePlatform(), menuId);
+        adapter = new MenuAdapter(this, CommCareApplication.instance().getCommCarePlatform(), menuId);
         adapter.showAnyLoadErrors(this);
         refreshView();
 

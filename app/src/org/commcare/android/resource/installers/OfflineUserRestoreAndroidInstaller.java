@@ -62,9 +62,9 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
 
         if (upgrade) {
             OfflineUserRestore currentOfflineUserRestore =
-                    CommCareApplication.getInstance().getCommCarePlatform().getDemoUserRestore();
+                    CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
             if (currentOfflineUserRestore != null) {
-                CommCareApplication.getInstance().wipeSandboxForUser(currentOfflineUserRestore.getUsername());
+                CommCareApplication.instance().wipeSandboxForUser(currentOfflineUserRestore.getUsername());
             }
             return Resource.RESOURCE_STATUS_UPGRADE;
         } else {

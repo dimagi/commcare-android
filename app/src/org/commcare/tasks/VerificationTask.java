@@ -25,7 +25,7 @@ public abstract class VerificationTask<Reciever>
 
     @Override
     protected SizeBoundVector<MissingMediaException> doTaskBackground(Void... params) {
-        AndroidCommCarePlatform platform = CommCareApplication.getInstance().getCommCarePlatform();
+        AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
 
         // This is replicated in the application in a few places.
         ResourceTable global = platform.getGlobalResourceTable();

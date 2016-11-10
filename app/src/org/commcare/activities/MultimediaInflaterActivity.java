@@ -148,7 +148,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
                             Toast.LENGTH_SHORT).show();
                 } else {
                     String filePath = 
-                        UriToFilePath.getPathFromUri(CommCareApplication.getInstance(), uriPath);
+                        UriToFilePath.getPathFromUri(CommCareApplication.instance(), uriPath);
                     if (filePath != null) {
                         editFileLocation.setText(filePath);
                     }

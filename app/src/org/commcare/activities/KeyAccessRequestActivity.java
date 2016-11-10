@@ -43,7 +43,7 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
                 AndroidSharedKeyRecord record = AndroidSharedKeyRecord.generateNewSharingKey();
 
                 try {
-                    CommCareApplication.getInstance().getGlobalStorage(AndroidSharedKeyRecord.class).write(record);
+                    CommCareApplication.instance().getGlobalStorage(AndroidSharedKeyRecord.class).write(record);
                 } catch (StorageFullException e) {
                     setResult(Activity.RESULT_CANCELED);
                     finish();
