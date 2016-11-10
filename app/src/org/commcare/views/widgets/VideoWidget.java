@@ -125,7 +125,7 @@ public class VideoWidget extends MediaWidget {
 
     @Override
     protected String createFilePath(Object binaryUri){
-        return UriToFilePath.getPathFromUri(CommCareApplication._(), (Uri)binaryUri);
+        return UriToFilePath.getPathFromUri(CommCareApplication.instance(), (Uri)binaryUri);
     }
 
     @Override

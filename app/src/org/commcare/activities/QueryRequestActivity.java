@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -17,6 +16,7 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.suite.model.DisplayUnit;
@@ -28,16 +28,9 @@ import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.media.MediaLayout;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.xml.ElementParser;
-import org.javarosa.xml.TreeElementParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,7 +73,7 @@ public class QueryRequestActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        AndroidSessionWrapper sessionWrapper = CommCareApplication._().getCurrentSessionWrapper();
+        AndroidSessionWrapper sessionWrapper = CommCareApplication.instance().getCurrentSessionWrapper();
         remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
                         sessionWrapper.getEvaluationContext());
@@ -241,34 +234,17 @@ public class QueryRequestActivity
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
         Pair<ExternalDataInstance, String> instanceOrError =
-                buildExternalDataInstance(responseData,
-                        remoteQuerySessionManager.getStorageInstanceName());
+                remoteQuerySessionManager.buildExternalDataInstance(responseData);
         if (instanceOrError.first == null) {
             enterErrorState(Localization.get("query.response.format.error",
                     instanceOrError.second));
         } else if (isResponseEmpty(instanceOrError.first)) {
             Toast.makeText(this, Localization.get("query.response.empty"), Toast.LENGTH_SHORT).show();
         } else {
-            CommCareApplication._().getCurrentSession().setQueryDatum(instanceOrError.first);
+            CommCareApplication.instance().getCurrentSession().setQueryDatum(instanceOrError.first);
             setResult(RESULT_OK);
             finish();
         }
-    }
-
-    /**
-     * @return Data instance built from xml stream or the error message raised during parsing
-     */
-    public static Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream instanceStream,
-                                                                               String instanceId) {
-        TreeElement root;
-        try {
-            KXmlParser baseParser = ElementParser.instantiateParser(instanceStream);
-            root = new TreeElementParser(baseParser, 0, instanceId).parse();
-        } catch (InvalidStructureException | IOException
-                | XmlPullParserException | UnfullfilledRequirementsException e) {
-            return new Pair<>(null, e.getMessage());
-        }
-        return new Pair<>(ExternalDataInstance.buildFromRemote(instanceId, root), "");
     }
 
     private boolean isResponseEmpty(ExternalDataInstance instance) {

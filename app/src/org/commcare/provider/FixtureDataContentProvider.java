@@ -75,7 +75,7 @@ public class FixtureDataContentProvider extends ContentProvider {
     private Cursor getFixtureNames() {
         MatrixCursor retCursor = new MatrixCursor(new String[]{FixtureDataAPI.MetadataColumns._ID, FixtureDataAPI.MetadataColumns.FIXTURE_ID});
 
-        IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication.instance().getUserStorage("fixture", FormInstance.class);
 
         for (IStorageIterator<FormInstance> userFixtures = userFixtureStorage.iterate(); userFixtures.hasMore(); ) {
             FormInstance fi = userFixtures.nextRecord();
@@ -92,7 +92,7 @@ public class FixtureDataContentProvider extends ContentProvider {
     private Cursor getFixtureForId(String instanceId) {
         MatrixCursor retCursor = new MatrixCursor(new String[]{FixtureDataAPI.MetadataColumns._ID, FixtureDataAPI.MetadataColumns.FIXTURE_ID, "content"});
 
-        IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication.instance().getUserStorage("fixture", FormInstance.class);
 
         for (IStorageIterator<FormInstance> userFixtures = userFixtureStorage.iterate(); userFixtures.hasMore(); ) {
 

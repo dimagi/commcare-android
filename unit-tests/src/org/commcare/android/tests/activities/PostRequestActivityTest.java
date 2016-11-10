@@ -1,7 +1,6 @@
 package org.commcare.android.tests.activities;
 
 import android.content.Intent;
-import android.support.v4.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -9,7 +8,6 @@ import android.widget.TextView;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.PostRequestActivity;
-import org.commcare.activities.QueryRequestActivity;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.mocks.HttpURLConnectionMock;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
@@ -17,9 +15,11 @@ import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.modern.util.Pair;
 import org.commcare.network.HttpRequestEndpointsMock;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.session.CommCareSession;
+import org.commcare.session.RemoteQuerySessionManager;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
 import org.junit.Before;
@@ -175,13 +175,17 @@ public class PostRequestActivityTest {
         LocalDataPullResponseFactory.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/empty_restore.xml"});
 
         AndroidSessionWrapper sessionWrapper =
-                CommCareApplication._().getCurrentSessionWrapper();
+                CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand("patient-search");
         InputStream is =
                 PostRequestActivity.class.getClassLoader().getResourceAsStream("commcare-apps/case_search_and_claim/good-query-result.xml");
+
+        RemoteQuerySessionManager remoteQuerySessionManager =
+                RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
+                        sessionWrapper.getEvaluationContext());
         Pair<ExternalDataInstance, String> instanceOrError =
-                QueryRequestActivity.buildExternalDataInstance(is, "patients");
+                remoteQuerySessionManager.buildExternalDataInstance(is);
         session.setQueryDatum(instanceOrError.first);
         session.setDatum("case_id", "321");
 

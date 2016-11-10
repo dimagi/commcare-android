@@ -87,14 +87,14 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                     return;
                 }
 
-                SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+                SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
                 SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(
                         settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, url),
                         getFolderPath()) {
                     @Override
                     protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
                         if (result == Boolean.TRUE) {
-                            CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
+                            CommCareApplication.instance().clearNotifications(AIRPLANE_MODE_CATEGORY);
                             Intent i = new Intent(getIntent());
                             i.putExtra(AdvancedActionsActivity.KEY_NUMBER_DUMPED, formsOnSD);
                             receiver.setResult(BULK_SEND_ID, i);
@@ -102,7 +102,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                             receiver.finish();
                         } else {
                             //assume that we've already set the error message, but make it look scary
-                            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
+                            CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
                             receiver.updateCounters();
                             receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                         }
@@ -223,7 +223,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     }
 
     private String getFolderName() {
-        SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return settings.getString(CommCarePreferences.DUMP_FOLDER_PATH, Localization.get("bulk.form.foldername"));
     }
 
@@ -249,7 +249,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     }
 
     private Vector<Integer> getUnsyncedForms() {
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
         Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Found " + ids.size() + " unsynced forms.");
         return ids;

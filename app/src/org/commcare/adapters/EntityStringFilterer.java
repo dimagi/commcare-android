@@ -71,7 +71,7 @@ public class EntityStringFilterer extends EntityFiltererBase {
         //anything else from processing
         SQLiteDatabase db;
         try {
-            db = CommCareApplication._().getUserDbHandle();
+            db = CommCareApplication.instance().getUserDbHandle();
         } catch (SessionUnavailableException e) {
             this.cancelSearch();
             return;
