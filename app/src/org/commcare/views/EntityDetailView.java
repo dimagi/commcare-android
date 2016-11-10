@@ -356,7 +356,7 @@ public class EntityDetailView extends FrameLayout {
     private void setupVideo(String textField) {
         String localLocation = null;
         try {
-            localLocation = ReferenceManager._().DeriveReference(textField).getLocalURI();
+            localLocation = ReferenceManager.instance().DeriveReference(textField).getLocalURI();
             if (localLocation.startsWith("/")) {
                 //TODO: This should likely actually be happening with the getLocalURI _anyway_.
                 localLocation = FileUtil.getGlobalStringUri(localLocation);

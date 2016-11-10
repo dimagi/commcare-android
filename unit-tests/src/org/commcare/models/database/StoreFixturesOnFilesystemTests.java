@@ -52,7 +52,7 @@ public class StoreFixturesOnFilesystemTests {
                 "jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
                 "test", "123");
 
-        AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication._());
+        AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication.instance());
 
         try {
             parseIntoSandbox(testClass.getClassLoader().getResourceAsStream(fixtureResource), false);
@@ -67,7 +67,7 @@ public class StoreFixturesOnFilesystemTests {
             throws InvalidStructureException, IOException,
             UnfullfilledRequirementsException, XmlPullParserException {
         AndroidTransactionParserFactory factory =
-                new AndroidTransactionParserFactory(CommCareApplication._().getApplicationContext(), null);
+                new AndroidTransactionParserFactory(CommCareApplication.instance().getApplicationContext(), null);
         DataModelPullParser parser = new DataModelPullParser(stream, factory, failfast, true);
         parser.parse();
     }
@@ -219,7 +219,7 @@ public class StoreFixturesOnFilesystemTests {
     public void testUpdate() {
         // test encrypted update
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
-                CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
+                CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class);
         FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
                 new String[]{"commtrack:programs"});
 
@@ -233,7 +233,7 @@ public class StoreFixturesOnFilesystemTests {
 
         // test unencrypted update
         UnencryptedHybridFileBackedSqlStorage<FormInstance> appFixtureStorage =
-                CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture",
+                CommCareApplication.instance().getCurrentApp().getFileBackedStorage("fixture",
                         FormInstance.class);
         form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
                 new String[]{"user-groups"});
@@ -250,7 +250,7 @@ public class StoreFixturesOnFilesystemTests {
     public void testRecordLookup() {
         // test encrypted record lookup
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
-                CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
+                CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class);
 
         Vector<FormInstance> forms = userFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID},
                 new String[]{"commtrack:programs"});
@@ -265,7 +265,7 @@ public class StoreFixturesOnFilesystemTests {
 
         // Test unencrpyted record lookup
         UnencryptedHybridFileBackedSqlStorage<FormInstance> appFixtureStorage =
-                CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
+                CommCareApplication.instance().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
 
         forms = appFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID},
                 new String[]{"user-groups"});

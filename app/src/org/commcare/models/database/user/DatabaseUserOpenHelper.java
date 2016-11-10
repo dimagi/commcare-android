@@ -161,9 +161,9 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         //TODO: Not a great way to get the current app! Pass this in to the constructor.
         //I am preeeeeety sure that we can't get here without _having_ an app/platform, but not 100%
         try {
-            if (CommCareApplication._().getCommCarePlatform() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null) {
-                if (CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null &&
-                        CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense")) {
+            if (CommCareApplication.instance().getCommCarePlatform() != null && CommCareApplication.instance().getCommCarePlatform().getCurrentProfile() != null) {
+                if (CommCareApplication.instance().getCommCarePlatform().getCurrentProfile() != null &&
+                        CommCareApplication.instance().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense")) {
                     inSenseMode = true;
                 }
             }

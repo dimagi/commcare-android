@@ -50,7 +50,7 @@ public class FixtureSerializationMigration {
                                                 byte[] fileMigrationKeySeed) {
         // Not sure how long this process should take, so tell the service to
         // wait longer to make sure this can finish.
-        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
         long start = System.currentTimeMillis();
         db.beginTransaction();
         ConcreteAndroidDbHelper helper = new ConcreteAndroidDbHelper(c, db);
@@ -63,7 +63,7 @@ public class FixtureSerializationMigration {
             } else {
                 fixtureStorage =
                         new UnencryptedHybridFileBackedSqlStorage<Persistable>("fixture",
-                                FormInstance.class, helper, CommCareApplication._().getCurrentApp());
+                                FormInstance.class, helper, CommCareApplication.instance().getCurrentApp());
             }
             SqlStorage<Persistable> oldUserFixtureStorage =
                     new SqlStorage<Persistable>("oldfixture", FormInstance.class, helper);

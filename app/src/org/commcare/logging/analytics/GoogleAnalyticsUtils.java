@@ -31,10 +31,10 @@ public class GoogleAnalyticsUtils {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
-                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
-                .setCustomDimension(4, "" + CommCareApplication._().isConsumerApp())
+                .setCustomDimension(4, "" + CommCareApplication.instance().isConsumerApp())
                 .setCustomDimension(5, ReportingUtils.getAppId())
                 .setCategory(category)
                 .setAction(action)
@@ -49,10 +49,10 @@ public class GoogleAnalyticsUtils {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
-                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
-                .setCustomDimension(4, "" + CommCareApplication._().isConsumerApp())
+                .setCustomDimension(4, "" + CommCareApplication.instance().isConsumerApp())
                 .setCustomDimension(5, ReportingUtils.getAppId())
                 .setCategory(category)
                 .setAction(action)
@@ -68,10 +68,10 @@ public class GoogleAnalyticsUtils {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
-                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
-                .setCustomDimension(4, "" + CommCareApplication._().isConsumerApp())
+                .setCustomDimension(4, "" + CommCareApplication.instance().isConsumerApp())
                 .setCustomDimension(5, ReportingUtils.getAppId())
                 .setCategory(category)
                 .setAction(action)
@@ -214,7 +214,7 @@ public class GoogleAnalyticsUtils {
         }
         HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
         builder.setCategory(category)
-                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
                 .setAction(GoogleAnalyticsFields.ACTION_EDIT_PREF)
@@ -264,7 +264,7 @@ public class GoogleAnalyticsUtils {
     public static void reportAppInstall(int lastInstallModeCode) {
         reportEvent(GoogleAnalyticsFields.CATEGORY_APP_INSTALL,
                 CommCareSetupActivity.getAnalyticsActionFromInstallMode(lastInstallModeCode),
-                CommCareApplication._().getCurrentVersionString());
+                CommCareApplication.instance().getCurrentVersionString());
     }
 
     /**
@@ -342,7 +342,7 @@ public class GoogleAnalyticsUtils {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
-                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
                 .setCategory(GoogleAnalyticsFields.CATEGORY_TIMED_EVENTS)
@@ -375,7 +375,7 @@ public class GoogleAnalyticsUtils {
     }
 
     private static Tracker getTracker() {
-        return CommCareApplication._().getDefaultTracker();
+        return CommCareApplication.instance().getDefaultTracker();
     }
 
     private static boolean analyticsDisabled() {

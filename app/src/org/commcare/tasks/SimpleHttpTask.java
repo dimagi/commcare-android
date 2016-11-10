@@ -33,7 +33,7 @@ public class SimpleHttpTask
                           HashMap<String, String> params,
                           boolean isPostRequest) {
         taskId = SIMPLE_HTTP_TASK_ID;
-        requestor = CommCareApplication._().buildModernHttpRequester(context, url,
+        requestor = CommCareApplication.instance().buildModernHttpRequester(context, url,
                 params, true, isPostRequest);
         requestor.setResponseProcessor(this);
     }

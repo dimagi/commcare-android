@@ -72,7 +72,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         if (getIntent().getBooleanExtra(KEY_FROM_LATEST_BUILD_ACTIVITY, false)) {
             proceedAutomatically = true;
-        } else if (CommCareApplication._().isConsumerApp()) {
+        } else if (CommCareApplication.instance().isConsumerApp()) {
             proceedAutomatically = true;
             isLocalUpdate = true;
         }
@@ -202,7 +202,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     @Override
     public void handleTaskCompletion(ResultAndError<AppInstallStatus> result) {
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             dismissProgressDialog();
         }
 
@@ -221,7 +221,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             // failed for a specific reason like xml syntax
             if (UpdateTask.isCombinedErrorMessage(result.errorMessage)) {
                 Pair<String, String> resouceAndMessage = UpdateTask.splitCombinedErrorMessage(result.errorMessage);
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(AppInstallStatus.InvalidResource, new String[]{null, resouceAndMessage.first, resouceAndMessage.second}), true);
+                CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(AppInstallStatus.InvalidResource, new String[]{null, resouceAndMessage.first, resouceAndMessage.second}), true);
             }
             uiController.checkFailedUiState();
             if (proceedAutomatically) {
@@ -280,7 +280,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
      * alternative method of displaying the update check's progress in that case
      */
     private void initUpdateTaskProgressDisplay() {
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             showProgressDialog(DIALOG_CONSUMER_APP_UPGRADE);
         } else {
             updateTask.startPinnedNotification(this);
@@ -355,7 +355,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, false);
         } else if (taskId != DIALOG_UPGRADE_INSTALL) {
             Log.w(TAG, "taskId passed to generateProgressDialog does not match "
@@ -378,7 +378,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private void logoutOnSuccessfulUpdate() {
         final String upgradeFinishedText =
                 Localization.get("updates.install.finished");
-        CommCareApplication._().expireUserSession();
+        CommCareApplication.instance().expireUserSession();
         if (proceedAutomatically) {
             finishWithResult(RefreshToLatestBuildActivity.UPDATE_SUCCESS);
         } else {
@@ -396,7 +396,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     public void initUIController() {
         boolean fromAppManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             uiController = new BlankUpdateUIController(this, fromAppManager);
         } else {
             uiController = new UpdateUIController(this, fromAppManager);

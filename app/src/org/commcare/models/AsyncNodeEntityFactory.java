@@ -107,7 +107,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
         long now = System.currentTimeMillis();
 
-        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
 
         String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " + whereClause + " AND cache_key IN " + validKeys;
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
