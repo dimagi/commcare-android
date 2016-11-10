@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.database.user.models;
 
 import org.commcare.cases.model.CaseIndex;
@@ -22,8 +19,7 @@ import java.util.Vector;
  * A model extension which reads Resource models from the
  * Version 6 db, and writes them back into the Version 7
  * db.
- * <p/>
- * <p/>
+ *
  * NOTE: This updater is _NOT ROBUST AGAINST METADATA
  * CHANGES_. If the Resource model metadata changes, this
  * needs to be modified to reflect the V6/7 metadata.
@@ -47,7 +43,7 @@ public class ACasePreV6Model extends ACase {
         closed = ExtUtil.readBool(in);
         dateOpened = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
         recordId = ExtUtil.readInt(in);
-        indices = (Vector<CaseIndex>)ExtUtil.read(in, new ExtWrapList(CaseIndexUpdater.class));
+        indices = (Vector<CaseIndex>)ExtUtil.read(in, new ExtWrapList(CaseIndexUpdater.class), pf);
         data = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
     }
 
