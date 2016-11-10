@@ -19,7 +19,6 @@ import java.util.Vector;
  *
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-
 public class PropertyManager implements IPropertyManager {
     private final static String TAG = PropertyManager.class.getSimpleName();
 
@@ -69,7 +68,7 @@ public class PropertyManager implements IPropertyManager {
     }
 
     @Override
-    public void setProperty(String propertyName, @SuppressWarnings("rawtypes") Vector propertyValue) {
+    public void setProperty(String propertyName, Vector<String> propertyValue) {
 
     }
 

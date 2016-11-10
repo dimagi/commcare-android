@@ -40,7 +40,7 @@ public class ODKPropertyManager implements IPropertyManager {
     }
 
     @Override
-    public void setProperty(String propertyName, Vector propertyValue) {
+    public void setProperty(String propertyName, Vector<String> propertyValue) {
         // TODO Auto-generated method stub
     }
 }
