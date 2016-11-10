@@ -32,7 +32,7 @@
         android:defaultValue="no"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-newest-version-from-hq"
+        android:key="cc-update-to-unstarred-builds"
         android:title="Enable Updating to Un-Starred Builds"/>
     <Preference
         android:key="disable-analytics"/>

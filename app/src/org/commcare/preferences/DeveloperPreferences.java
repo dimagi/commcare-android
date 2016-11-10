@@ -31,6 +31,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static final String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
     public static final String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
     public static final String USE_ROOT_MENU_AS_HOME_SCREEN = "cc-use-root-menu-as-home-screen";
+    public static final String UPDATE_TO_LATEST_SAVED_ENABLED = "cc-update-to-latest-saved";
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -57,6 +58,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
 
     public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
+
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
     private Preference savedSessionEditTextPreference;
@@ -307,5 +309,17 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static boolean useRootModuleMenuAsHomeScreen() {
         return doesPropertyMatch(USE_ROOT_MENU_AS_HOME_SCREEN, CommCarePreferences.NO, CommCarePreferences.YES);
+    }
+
+    public static boolean updateToLatestSavedEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(UPDATE_TO_LATEST_SAVED_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
+    public static void enableUpdateToLatestSavedVersion() {
+        CommCareApplication._().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(UPDATE_TO_LATEST_SAVED_ENABLED, CommCarePreferences.YES)
+                .apply();
     }
 }
