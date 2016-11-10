@@ -26,6 +26,7 @@ import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityActionViewUtils;
 import org.commcare.views.EntityView;
 import org.commcare.views.EntityViewTile;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
@@ -478,6 +479,6 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
 
     @Override
     public void notifyBadfilter(String[] args) {
-
+        CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Case_Filter, args));
     }
 }
