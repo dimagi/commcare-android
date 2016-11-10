@@ -147,7 +147,7 @@ public enum AudioController {
         return currentEntity != null;
     }
 
-    boolean mediaForInstance(AudioPlaybackButtonBase audioButton) {
+    boolean doesCurrentMediaCorrespondToButton(AudioPlaybackButtonBase audioButton) {
         return currentEntity != null && currentAudioButton == audioButton;
     }
 

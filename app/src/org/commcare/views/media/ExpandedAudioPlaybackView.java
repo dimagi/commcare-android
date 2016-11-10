@@ -71,7 +71,7 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
             animation.setCurrentPlayTime(progress);
         }
         updateProgressText(progress, playbackDurationMillis);
-        if (AudioController.INSTANCE.mediaForInstance(ExpandedAudioPlaybackView.this)) {
+        if (AudioController.INSTANCE.doesCurrentMediaCorrespondToButton(ExpandedAudioPlaybackView.this)) {
             AudioController.INSTANCE.seekTo(progress);
         }
         return false;
@@ -95,7 +95,7 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
             @Override
             public void run() {
                 // make sure we are playing this audio
-                if (AudioController.INSTANCE.mediaForInstance(ExpandedAudioPlaybackView.this)) {
+                if (AudioController.INSTANCE.doesCurrentMediaCorrespondToButton(ExpandedAudioPlaybackView.this)) {
                     int pos = AudioController.INSTANCE.getCurrentPosition();
                     updateProgressText(pos, seekBar.getMax());
                     handler.postDelayed(this, 20);
