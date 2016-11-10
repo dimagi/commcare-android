@@ -59,7 +59,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         super.onCreate();
 
         // allow "jr://resource" references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
+        ReferenceManager.getInstance().addReferenceFactory(new ResourceReferenceFactory());
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override

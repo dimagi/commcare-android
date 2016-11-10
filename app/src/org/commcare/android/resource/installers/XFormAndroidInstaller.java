@@ -163,7 +163,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     private boolean updateFilePath() {
         String localRawUri;
         try {
-            localRawUri = ReferenceManager._().DeriveReference(this.localLocation).getLocalURI();
+            localRawUri = ReferenceManager.getInstance().DeriveReference(this.localLocation).getLocalURI();
         } catch (InvalidReferenceException e) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "Installed resource wasn't able to be derived from " + localLocation);
             return false;
@@ -228,7 +228,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         //Check to see whether the formDef exists and reads correctly
         FormDef formDef;
         try {
-            Reference local = ReferenceManager._().DeriveReference(localLocation);
+            Reference local = ReferenceManager.getInstance().DeriveReference(localLocation);
             formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
         } catch (Exception e) {
             // something weird/bad happened here. first make sure storage is available
@@ -263,7 +263,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                         try {
 
                             String externalMedia = localeData.get(key);
-                            Reference ref = ReferenceManager._().DeriveReference(externalMedia);
+                            Reference ref = ReferenceManager.getInstance().DeriveReference(externalMedia);
                             String localName = ref.getLocalURI();
                             try {
                                 if (!ref.doesBinaryExist()) {

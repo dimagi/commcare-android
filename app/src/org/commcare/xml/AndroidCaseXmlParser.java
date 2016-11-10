@@ -76,7 +76,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
 
         //Handle these cases better later.
         try {
-            ReferenceManager._().DeriveReference(source).remove();
+            ReferenceManager.getInstance().DeriveReference(source).remove();
         } catch (InvalidReferenceException | IOException e) {
             e.printStackTrace();
         }
@@ -129,7 +129,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         } else if (CaseXmlParser.ATTACHMENT_FROM_REMOTE.equals(from)) {
             //The attachment is in remote location.
             try {
-                Reference remote = ReferenceManager._().DeriveReference(src);
+                Reference remote = ReferenceManager.getInstance().DeriveReference(src);
 
                 //TODO: Awful.
                 if (remote instanceof JavaHttpReference) {

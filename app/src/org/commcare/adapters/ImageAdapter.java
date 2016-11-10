@@ -63,7 +63,7 @@ public class ImageAdapter extends BaseAdapter {
         if (imageURI != null) {
             try {
                 String imageFilename =
-                        ReferenceManager._().DeriveReference(imageURI).getLocalURI();
+                        ReferenceManager.getInstance().DeriveReference(imageURI).getLocalURI();
                 final File imageFile = new File(imageFilename);
                 if (imageFile.exists()) {
                     Display display =

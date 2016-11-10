@@ -126,7 +126,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         FormEntryController fec = initFormDef(fd);
 
         // Remove previous forms
-        ReferenceManager._().clearSession();
+        ReferenceManager.getInstance().clearSession();
 
         setupFormMedia(formMediaPath, formXml);
 
@@ -218,17 +218,17 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     private void setupFormMedia(String formMediaPath, File formXmlFile) {
         if (formMediaPath != null) {
-            ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager.getInstance().addSessionRootTranslator(
                     new RootTranslator("jr://images/", formMediaPath));
-            ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager.getInstance().addSessionRootTranslator(
                     new RootTranslator("jr://audio/", formMediaPath));
-            ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager.getInstance().addSessionRootTranslator(
                     new RootTranslator("jr://video/", formMediaPath));
         } else {
             // This should get moved to the Application Class
-            if (ReferenceManager._().getFactories().length == 0) {
+            if (ReferenceManager.getInstance().getFactories().length == 0) {
                 // this is /sdcard/odk
-                ReferenceManager._().addReferenceFactory(
+                ReferenceManager.getInstance().addReferenceFactory(
                         new FileReferenceFactory(Environment.getExternalStorageDirectory() + "/odk"));
             }
 
@@ -236,11 +236,11 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             String formFileName = formXmlFile.getName().substring(0, formXmlFile.getName().lastIndexOf("."));
 
             // Set jr://... to point to /sdcard/odk/forms/filename-media/
-            ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager.getInstance().addSessionRootTranslator(
                     new RootTranslator("jr://images/", "jr://file/forms/" + formFileName + "-media/"));
-            ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager.getInstance().addSessionRootTranslator(
                     new RootTranslator("jr://audio/", "jr://file/forms/" + formFileName + "-media/"));
-            ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager.getInstance().addSessionRootTranslator(
                     new RootTranslator("jr://video/", "jr://file/forms/" + formFileName + "-media/"));
         }
     }

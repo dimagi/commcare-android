@@ -3,7 +3,6 @@ package org.commcare.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
@@ -51,7 +50,7 @@ public class MediaUtil {
             return null;
         }
         try {
-            Reference ref = ReferenceManager._().DeriveReference(jrUri);
+            Reference ref = ReferenceManager.getInstance().DeriveReference(jrUri);
             try {
                 if (!ref.doesBinaryExist()) {
                     return null;

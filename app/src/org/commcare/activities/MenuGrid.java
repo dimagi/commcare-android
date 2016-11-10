@@ -61,7 +61,7 @@ public class MenuGrid extends MenuBase implements OnItemLongClickListener {
         
         if(audioURI != null && !audioURI.equals("")) {
             try {
-                audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
+                audioFilename = ReferenceManager.getInstance().DeriveReference(audioURI).getLocalURI();
                 
                 mp.setDataSource(audioFilename);
                 mp.prepare();

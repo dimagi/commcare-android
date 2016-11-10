@@ -29,7 +29,7 @@ public class JavaFileRoot implements ReferenceFactory {
         if (context.lastIndexOf('/') != -1) {
             context = context.substring(0, context.lastIndexOf('/') + 1);
         }
-        return ReferenceManager._().DeriveReference(context + URI);
+        return ReferenceManager.getInstance().DeriveReference(context + URI);
     }
 
     @Override

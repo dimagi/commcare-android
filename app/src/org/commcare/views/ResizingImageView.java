@@ -122,7 +122,7 @@ public class ResizingImageView extends ImageView {
         }
 
         try {
-            String imageFilename = ReferenceManager._()
+            String imageFilename = ReferenceManager.getInstance()
                     .DeriveReference(imageFileURI).getLocalURI();
             File bigImage = new File(imageFilename);
 

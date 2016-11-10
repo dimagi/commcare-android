@@ -230,7 +230,7 @@ public class CaseDataContentProvider extends ContentProvider {
             String fileSource;
 
             try {
-                fileSource = ReferenceManager._().DeriveReference(jrSource).getLocalURI();
+                fileSource = ReferenceManager.getInstance().DeriveReference(jrSource).getLocalURI();
             } catch (InvalidReferenceException e) {
                 e.printStackTrace();
                 fileSource = "invalid";

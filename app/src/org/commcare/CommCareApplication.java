@@ -444,10 +444,10 @@ public class CommCareApplication extends Application {
 
         mArchiveFileRoot = arfr;
 
-        ReferenceManager._().addReferenceFactory(http);
-        ReferenceManager._().addReferenceFactory(afr);
-        ReferenceManager._().addReferenceFactory(arfr);
-        ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/",
+        ReferenceManager.getInstance().addReferenceFactory(http);
+        ReferenceManager.getInstance().addReferenceFactory(afr);
+        ReferenceManager.getInstance().addReferenceFactory(arfr);
+        ReferenceManager.getInstance().addRootTranslator(new RootTranslator("jr://media/",
                 GlobalConstants.MEDIA_REF));
     }
 

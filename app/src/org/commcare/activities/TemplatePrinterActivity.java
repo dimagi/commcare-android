@@ -163,7 +163,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         String path = data.getString("cc:print_template_reference");
         if (path != null) {
             try {
-                path = ReferenceManager._().DeriveReference(path).getLocalURI();
+                path = ReferenceManager.getInstance().DeriveReference(path).getLocalURI();
                 return path;
             } catch (InvalidReferenceException e) {
                 showErrorDialog(Localization.get("template.invalid"));

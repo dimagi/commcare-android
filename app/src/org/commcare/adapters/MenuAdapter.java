@@ -235,7 +235,7 @@ public class MenuAdapter implements ListAdapter {
         String audioFilename = "";
         if (audioURI != null && !audioURI.equals("")) {
             try {
-                audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
+                audioFilename = ReferenceManager.getInstance().DeriveReference(audioURI).getLocalURI();
             } catch (InvalidReferenceException e) {
                 Log.e("AVTLayout", "Invalid reference exception");
                 e.printStackTrace();

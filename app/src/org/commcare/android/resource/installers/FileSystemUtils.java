@@ -26,8 +26,8 @@ public class FileSystemUtils {
     }
 
     protected static boolean moveFrom(String oldLocation, String newLocation, boolean force) throws InvalidReferenceException {
-        File newFile = new File(ReferenceManager._().DeriveReference(newLocation).getLocalURI());
-        File oldFile = new File(ReferenceManager._().DeriveReference(oldLocation).getLocalURI());
+        File newFile = new File(ReferenceManager.getInstance().DeriveReference(newLocation).getLocalURI());
+        File oldFile = new File(ReferenceManager.getInstance().DeriveReference(oldLocation).getLocalURI());
 
         if (!oldFile.exists()) {
             //Nothing should be allowed to exist in the new location except for the incoming file

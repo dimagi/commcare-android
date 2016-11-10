@@ -157,7 +157,7 @@ public class FormAndDataSyncer {
             String password) {
 
         try {
-            ReferenceManager._().DeriveReference(
+            ReferenceManager.getInstance().DeriveReference(
                     SingleAppInstallation.LOCAL_RESTORE_REFERENCE).getStream();
         } catch (InvalidReferenceException | IOException e) {
             throw new RuntimeException("Local restore file missing");

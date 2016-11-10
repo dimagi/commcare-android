@@ -396,7 +396,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         this.uiState = UiState.READY_TO_INSTALL;
 
         try {
-            ReferenceManager._().DeriveReference(incomingRef);
+            ReferenceManager.getInstance().DeriveReference(incomingRef);
             if (lastInstallMode == INSTALL_MODE_OFFLINE) {
                 onStartInstallClicked();
             } else {

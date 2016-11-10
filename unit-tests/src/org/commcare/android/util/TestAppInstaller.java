@@ -74,7 +74,7 @@ public class TestAppInstaller {
 
     private static void storageSetup() {
         // needed to resolve "jr://resource" type references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
+        ReferenceManager.getInstance().addReferenceFactory(new ResourceReferenceFactory());
     }
 
     private void installApp() {

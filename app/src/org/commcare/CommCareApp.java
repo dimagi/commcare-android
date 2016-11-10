@@ -112,7 +112,7 @@ public class CommCareApp implements AppFilePathBuilder {
             String testFileRoot = "jr://file/mytest.file";
             // Assertion: There should be _no_ other file roots when we initialize
             try {
-                String testFilePath = ReferenceManager._().DeriveReference(testFileRoot).getLocalURI();
+                String testFilePath = ReferenceManager.getInstance().DeriveReference(testFileRoot).getLocalURI();
                 String message = "Cannot setup sandbox. An Existing file root is set up, which directs to: " + testFilePath;
                 Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, message);
                 throw new IllegalStateException(message);
@@ -121,7 +121,7 @@ public class CommCareApp implements AppFilePathBuilder {
             }
 
 
-            ReferenceManager._().addReferenceFactory(fileRoot);
+            ReferenceManager.getInstance().addReferenceFactory(fileRoot);
 
             // Double check that things point to the right place?
         }
@@ -273,7 +273,7 @@ public class CommCareApp implements AppFilePathBuilder {
     public void teardownSandbox() {
         synchronized (lock) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "Tearing down sandbox: " + record.getApplicationId());
-            ReferenceManager._().removeReferenceFactory(fileRoot);
+            ReferenceManager.getInstance().removeReferenceFactory(fileRoot);
 
             synchronized (appDbHandleLock) {
                 if (appDatabase != null) {

@@ -136,7 +136,7 @@ public class MediaLayout extends RelativeLayout {
                     String videoFilename = "";
                     try {
                         videoFilename =
-                                ReferenceManager._().DeriveReference(videoURI).getLocalURI();
+                                ReferenceManager.getInstance().DeriveReference(videoURI).getLocalURI();
                     } catch (InvalidReferenceException e) {
                         Log.e(TAG, "Invalid reference exception");
                         e.printStackTrace();
@@ -237,7 +237,7 @@ public class MediaLayout extends RelativeLayout {
         View mediaPane = null;
         try {
             int[] maxBounds = getMaxCenterViewBounds();
-            final String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
+            final String imageFilename = ReferenceManager.getInstance().DeriveReference(imageURI).getLocalURI();
             final File imageFile = new File(imageFilename);
             if (imageFile.exists()) {
                 Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0],
@@ -344,7 +344,7 @@ public class MediaLayout extends RelativeLayout {
      */
     private View getInlineVideoView(String inlineVideoURI, RelativeLayout.LayoutParams viewLayoutParams) {
         try {
-            final String videoFilename = ReferenceManager._().DeriveReference(inlineVideoURI).getLocalURI();
+            final String videoFilename = ReferenceManager.getInstance().DeriveReference(inlineVideoURI).getLocalURI();
 
             int[] maxBounds = getMaxCenterViewBounds();
 
