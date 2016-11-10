@@ -47,7 +47,7 @@ public class KeyRecordTest {
     public void setupTests() {
         TestUtils.initializeStaticTestStorage();
         TestAppInstaller.installApp("jr://resource/commcare-apps/form_nav_tests/profile.ccpr");
-        app = CommCareApplication._().getCurrentApp();
+        app = CommCareApplication.instance().getCurrentApp();
     }
 
     /**
@@ -98,10 +98,10 @@ public class KeyRecordTest {
                 "/commcare-apps/form_nav_tests/form_instances_restore.xml",
                 FormRecord.STATUS_SAVED);
         SqlStorage<FormRecord> formRecordStorage =
-                CommCareApplication._().getUserStorage(FormRecord.class);
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
         assertEquals(2, formRecordStorage.getNumRecords());
         assertFormInstanceCount(2);
-        CommCareApplication._().closeUserSession();
+        CommCareApplication.instance().closeUserSession();
 
         markOutOfDate(recordStorage);
 
@@ -109,11 +109,11 @@ public class KeyRecordTest {
         TestAppInstaller.login("test", "old_pass");
 
         assertActiveKeyRecordCount(1, recordStorage);
-        CommCareApplication._().closeUserSession();
+        CommCareApplication.instance().closeUserSession();
         // trigger form record cleanup.
         runKeyRecordTask("old_pass", "/inputs/key_record_create_different_uuid.xml");
         TestAppInstaller.login("test", "old_pass");
-        formRecordStorage = CommCareApplication._().getUserStorage(FormRecord.class);
+        formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         assertEquals(2, formRecordStorage.getNumRecords());
         assertFormInstanceCount(2);
 

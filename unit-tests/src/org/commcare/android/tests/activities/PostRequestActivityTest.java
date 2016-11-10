@@ -175,7 +175,7 @@ public class PostRequestActivityTest {
         LocalDataPullResponseFactory.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/empty_restore.xml"});
 
         AndroidSessionWrapper sessionWrapper =
-                CommCareApplication._().getCurrentSessionWrapper();
+                CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand("patient-search");
         InputStream is =

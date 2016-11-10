@@ -111,7 +111,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         }
 
 
-        this.outputPath = CommCareApplication._().getTempFilePath() + ".html";
+        this.outputPath = CommCareApplication.instance().getTempFilePath() + ".html";
 
         preparePrintDoc(path);
     }
@@ -163,7 +163,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         String path = data.getString("cc:print_template_reference");
         if (path != null) {
             try {
-                path = ReferenceManager._().DeriveReference(path).getLocalURI();
+                path = ReferenceManager.instance().DeriveReference(path).getLocalURI();
                 return path;
             } catch (InvalidReferenceException e) {
                 showErrorDialog(Localization.get("template.invalid"));
@@ -171,7 +171,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             }
         } else {
             //Try to use the document location that was set in Settings menu
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
             path = prefs.getString(CommCarePreferences.PREFS_PRINT_DOC_LOCATION, "");
             if ("".equals(path)) {
                 showErrorDialog(Localization.get("missing.template.file"));
