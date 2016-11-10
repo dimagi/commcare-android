@@ -353,7 +353,7 @@ public class CommCareSessionService extends Service {
      */
     private void saveFormAndCloseSession() {
         // Remember when we started so that if form saving takes too long, the
-        // maintenance timer will launch CommCareApplication._().expireUserSession
+        // maintenance timer will launch CommCareApplication.getInstance().expireUserSession
         logoutStartedAt = new Date().getTime();
 
         // save form progress, if any
