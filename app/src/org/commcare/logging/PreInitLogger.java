@@ -29,8 +29,8 @@ public class PreInitLogger implements ILogger {
 
     public void dumpToNewLogger() {
         for (AndroidLogEntry log : logs) {
-            if (Logger._() != null) {
-                Logger._().log(log.getType(), log.getMessage(), log.getTime());
+            if (Logger.getInstance() != null) {
+                Logger.getInstance().log(log.getType(), log.getMessage(), log.getTime());
             }
         }
     }
