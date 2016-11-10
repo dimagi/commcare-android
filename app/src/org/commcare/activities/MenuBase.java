@@ -1,39 +1,24 @@
 package org.commcare.activities;
 
-import android.app.ActionBar;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.components.NavDrawerItem;
-import org.commcare.adapters.NavDrawerAdapter;
-import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
-import org.commcare.views.ViewUtil;
 
 public abstract class MenuBase
         extends SyncCapableCommCareActivity
         implements AdapterView.OnItemClickListener {
 
-    // NOTE: Menu.FIRST is reserved for MENU_SYNC in SyncCapableCommCareActivity
-    private static final int MENU_LOGOUT = android.view.Menu.FIRST + 1;
-
-    private DrawerLayout drawerLayout;
-    private ListView navDrawerList;
-    private NavDrawerItem[] drawerItems;
-
     private boolean isRootModuleMenu;
     protected String menuId;
+    private NavDrawerController navDrawerController;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -43,51 +28,8 @@ public abstract class MenuBase
             menuId = Menu.ROOT_MENU_ID;
             isRootModuleMenu = true;
         }
-        setupNavDrawer();
-    }
-
-    private void setupNavDrawer() {
-        initDrawerItems();
-        drawerLayout = (DrawerLayout)findViewById(R.id.menu_activity_drawer_layout);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2
-                && menuIsBeingUsedAsHomeScreen()) {
-            navDrawerList = (ListView)findViewById(R.id.nav_drawer);
-            navDrawerList.setAdapter(new NavDrawerAdapter(this, drawerItems));
-            navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-
-            ActionBar actionBar = getActionBar();
-            actionBar.setHomeButtonEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(false);
-            actionBar.setDisplayUseLogoEnabled(false);
-            actionBar.setIcon(R.drawable.ic_menu_bar);
-        } else {
-            // Don't allow swiping to open the nav drawer if this menu is not being used as the home screen
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        }
-    }
-
-    private void initDrawerItems() {
-        drawerItems = new NavDrawerItem[3];
-        String[] textArray = {"Sync with Server", "Settings", "Logout"};
-        String[] subtextArray = {null, null, null};
-        int[] iconResArray = {R.drawable.ic_sync_nav_drawer, R.drawable.ic_settings_nav_drawer,
-                R.drawable.ic_logout_nav_drawer};
-
-        for (int i = 0; i < 3; i++) {
-            NavDrawerItem item = new NavDrawerItem(textArray[i], iconResArray[i], subtextArray[i]);
-            drawerItems[i] = item;
-        }
-    }
-
-    private ListView.OnItemClickListener getNavDrawerClickListener() {
-        return new ListView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-            }
-        };
+        navDrawerController = new NavDrawerController(this);
+        navDrawerController.setupNavDrawer();
     }
 
     /**
@@ -138,30 +80,13 @@ public abstract class MenuBase
     }
 
     @Override
-    public boolean onCreateOptionsMenu(android.view.Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        // TODO: TEMPORARY, MOVE THIS TO THE DRAWER MENU LATER
-        if (menuIsBeingUsedAsHomeScreen()) {
-            ViewUtil.addItemToActionBar(menu, MENU_LOGOUT, MENU_LOGOUT, "Logout",
-                    R.drawable.ic_logout_action_bar);
-        }
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home && menuIsBeingUsedAsHomeScreen()) {
-            if (drawerLayout.isDrawerOpen(navDrawerList)) {
-                drawerLayout.closeDrawer(navDrawerList);
+            if (navDrawerController.isDrawerOpen()) {
+                navDrawerController.closeDrawer();
             } else {
-                drawerLayout.openDrawer(navDrawerList);
+                navDrawerController.openDrawer();
             }
-            return true;
-        } else if (item.getItemId() == MENU_LOGOUT) {
-            CommCareApplication.instance().closeUserSession();
-            Intent i = new Intent(getIntent());
-            setResult(RESULT_CANCELED, i);
-            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -173,7 +98,7 @@ public abstract class MenuBase
                 (!menuIsBeingUsedAsHomeScreen() && !CommCareApplication.instance().isConsumerApp());
     }
 
-    private boolean menuIsBeingUsedAsHomeScreen() {
+    protected boolean menuIsBeingUsedAsHomeScreen() {
         return isRootModuleMenu && DeveloperPreferences.useRootModuleMenuAsHomeScreen();
     }
 
