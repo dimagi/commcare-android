@@ -12,6 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.components.NavDrawerItem;
+import org.commcare.adapters.NavDrawerAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.SessionFrame;
@@ -26,10 +28,9 @@ public abstract class MenuBase
     // NOTE: Menu.FIRST is reserved for MENU_SYNC in SyncCapableCommCareActivity
     private static final int MENU_LOGOUT = android.view.Menu.FIRST + 1;
 
-    private static final String[] navDrawerItems = {"Sync", "Logout"};
-
     protected DrawerLayout drawerLayout;
     protected ListView navDrawerList;
+    private NavDrawerItem[] drawerItems;
 
     private boolean isRootModuleMenu;
     protected String menuId;
@@ -46,13 +47,14 @@ public abstract class MenuBase
     }
 
     private void setupNavDrawer() {
+        initDrawerItems();
         drawerLayout = (DrawerLayout)findViewById(R.id.menu_activity_drawer_layout);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && menuIsBeingUsedAsHomeScreen()) {
-            navDrawerList = (ListView)findViewById(R.id.nav_drawer);
-            navDrawerList.setAdapter(
-                    new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, navDrawerItems));
-            navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2
+                && menuIsBeingUsedAsHomeScreen()) {
+            navDrawerList = (ListView)findViewById(R.id.nav_drawer);
+            navDrawerList.setAdapter(new NavDrawerAdapter(this, drawerItems));
+            navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
             ActionBar actionBar = getActionBar();
@@ -61,7 +63,20 @@ public abstract class MenuBase
             actionBar.setDisplayUseLogoEnabled(false);
             actionBar.setIcon(R.drawable.ic_menu_bar);
         } else {
+            // Don't allow swiping to open the nav drawer if this menu is not being used as the home screen
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        }
+    }
+
+    private void initDrawerItems() {
+        drawerItems = new NavDrawerItem[3];
+        String[] textArray = {"Sync with Server", "Settings", "Logout"};
+        String[] subtextArray = {null, null, null};
+        int[] iconResArray = {R.drawable.ic_sync_action_bar, R.drawable.ic_blue_forward, R.drawable.ic_logout_action_bar};
+
+        for (int i = 0; i < 3; i++) {
+            NavDrawerItem item = new NavDrawerItem(textArray[i], iconResArray[i], subtextArray[i]);
+            drawerItems[i] = item;
         }
     }
 
