@@ -45,7 +45,7 @@ public class DemoUserRestoreTest {
     public void loginUsingDemoUserWithoutRestore() {
         TestAppInstaller.installApp(REF_BASE_DIR +
                 "app_without_demo_user_restore/profile.ccpr");
-        CommCareApplication._().getCurrentApp().setMMResourcesValidated();
+        CommCareApplication.instance().getCurrentApp().setMMResourcesValidated();
 
         loginAsDemoUser();
         launchHomeActivityForDemoUser();
@@ -83,16 +83,16 @@ public class DemoUserRestoreTest {
     public void demoUserRestoreAndUpdateTest() {
         TestAppInstaller.installApp(REF_BASE_DIR +
                 "app_with_demo_user_restore/profile.ccpr");
-        CommCareApplication._().getCurrentApp().setMMResourcesValidated();
+        CommCareApplication.instance().getCurrentApp().setMMResourcesValidated();
 
         loginAsDemoUser();
         launchHomeActivityForDemoUser();
 
-        AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication._());
+        AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication.instance());
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = sandbox.getUserFixtureStorage();
         assertEquals(1, userFixtureStorage.getNumRecords());
 
-        assertEquals(1, CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).getNumRecords());
+        assertEquals(1, CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).getNumRecords());
 
         EntitySelectActivity entitySelectActivity =
                 CaseLoadUtils.launchEntitySelectActivity("m0-f0");
@@ -115,7 +115,7 @@ public class DemoUserRestoreTest {
         userFixtureStorage = sandbox.getUserFixtureStorage();
         assertEquals(0, userFixtureStorage.getNumRecords());
 
-        assertEquals(1, CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).getNumRecords());
+        assertEquals(1, CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).getNumRecords());
 
         // make sure there is only 1 case after updating the demo user restore
         entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m0-f0");

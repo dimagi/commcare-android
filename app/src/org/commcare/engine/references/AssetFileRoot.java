@@ -31,7 +31,7 @@ public class AssetFileRoot implements ReferenceFactory {
         if (context.lastIndexOf('/') != -1) {
             context = context.substring(0, context.lastIndexOf('/') + 1);
         }
-        return ReferenceManager._().DeriveReference(context + URI);
+        return ReferenceManager.instance().DeriveReference(context + URI);
     }
 
     @Override

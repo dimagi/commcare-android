@@ -100,7 +100,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     protected LogSubmitOutcomes doInBackground(Void... params) {
         try {
             SqlStorage<DeviceReportRecord> storage =
-                    CommCareApplication._().getUserStorage(DeviceReportRecord.class);
+                    CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
 
             if (serializeCurrentLogs && !serializeLogs(storage)) {
                 return LogSubmitOutcomes.Error;
@@ -136,7 +136,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
      * object of all DeviceReportRecords that have yet to be submitted
      */
     private boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
-        SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
         //update the last recorded record
         settings.edit().putLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, new Date().getTime()).commit();
@@ -157,34 +157,34 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
             // Serialize regular and xpath error logs for the current user
             AndroidLogSerializer<AndroidLogEntry> userLogSerializer = new AndroidLogSerializer<>(
-                    CommCareApplication._().getUserStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
+                    CommCareApplication.instance().getUserStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
             reporter.addReportElement(userLogSerializer);
 
             XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(
-                    CommCareApplication._().getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
+                    CommCareApplication.instance().getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
             reporter.addReportElement(xpathErrorSerializer);
 
             // Serialize all force close logs -- these can exist in both user and global storage
             ForceCloseLogSerializer globalForceCloseSerializer = new ForceCloseLogSerializer(
-                    CommCareApplication._().getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+                    CommCareApplication.instance().getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
             reporter.addReportElement(globalForceCloseSerializer);
             ForceCloseLogSerializer userForceCloseSerializer = new ForceCloseLogSerializer(
-                    CommCareApplication._().getUserStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+                    CommCareApplication.instance().getUserStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
             reporter.addReportElement(userForceCloseSerializer);
 
             // TEMPORARILY ONLY - serialize all force close logs in the old format, so that HQ
             // still picks them up, until we start processing the new format
             AndroidLogSerializer<ForceCloseLogEntry> globalForceCloseSerializer_oldFormat = new AndroidLogSerializer<>(
-                    CommCareApplication._().getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+                    CommCareApplication.instance().getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
             reporter.addReportElement(globalForceCloseSerializer_oldFormat);
             AndroidLogSerializer<ForceCloseLogEntry> userForceCloseSerializer_oldFormat = new AndroidLogSerializer<>(
-                    CommCareApplication._().getUserStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+                    CommCareApplication.instance().getUserStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
             reporter.addReportElement(userForceCloseSerializer_oldFormat);
 
             // Serialize all logs currently in global storage, since we have no way to determine
             // which app they truly belong to
             AndroidLogSerializer globalLogSerializer = new AndroidLogSerializer(
-                    CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
+                    CommCareApplication.instance().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
             reporter.addReportElement(globalLogSerializer);
 
             // Write serialized logs to the record
@@ -239,7 +239,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         HttpRequestGenerator generator;
         User user;
         try {
-            user = CommCareApplication._().getSession().getLoggedInUser();
+            user = CommCareApplication.instance().getSession().getLoggedInUser();
         } catch (SessionUnavailableException e) {
             // lost the session, so report failed submission
             return false;
@@ -362,9 +362,9 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         super.onPostExecute(result);
         listener.endSubmissionProcess();
         if (result != LogSubmitOutcomes.Submitted) {
-            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
+            CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(result));
         } else {
-            CommCareApplication._().clearNotifications(result.getCategory());
+            CommCareApplication.instance().clearNotifications(result.getCategory());
         }
     }
 }

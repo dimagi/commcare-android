@@ -177,7 +177,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeFiveSix(SQLiteDatabase db) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.
-        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
 
         db.beginTransaction();
         try {
@@ -210,7 +210,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeSixSeven(SQLiteDatabase db) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.
-        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
 
         long start = System.currentTimeMillis();
         db.beginTransaction();
@@ -232,7 +232,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeSevenEight(SQLiteDatabase db) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.
-        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
         long start = System.currentTimeMillis();
         db.beginTransaction();
         try {
@@ -274,7 +274,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeNineTen(SQLiteDatabase db) {
         // This process could take a while, so tell the service to wait longer to make sure
         // it can finish
-        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
 
         db.beginTransaction();
         try {
@@ -387,7 +387,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeThirteenFourteen(SQLiteDatabase db) {
         // This process could take a while, so tell the service to wait longer
         // to make sure it can finish
-        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
 
         db.beginTransaction();
         try {
@@ -453,7 +453,7 @@ class UserDatabaseUpgrader {
 
     private static boolean multipleInstalledAppRecords() {
         SqlStorage<ApplicationRecord> storage =
-                CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
+                CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class);
         int count = 0;
         for (ApplicationRecord r : storage) {
             if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED && r.resourcesValidated()) {
@@ -465,7 +465,7 @@ class UserDatabaseUpgrader {
 
     private static ApplicationRecord getInstalledAppRecord() {
         SqlStorage<ApplicationRecord> storage =
-                CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
+                CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class);
         for (Persistable p : storage) {
             ApplicationRecord r = (ApplicationRecord)p;
             if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED && r.resourcesValidated()) {
@@ -493,6 +493,6 @@ class UserDatabaseUpgrader {
         String warningMessage = "Due to the experimental state of" +
                 " multiple application seating, we were not able to migrate all of your app data" +
                 " during upgrade. Any saved, incomplete, and unsent forms on the device were deleted.";
-        CommCareApplication._().storeMessageForUserOnDispatch(warningTitle, warningMessage);
+        CommCareApplication.instance().storeMessageForUserOnDispatch(warningTitle, warningMessage);
     }
 }

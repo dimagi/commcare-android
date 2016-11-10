@@ -235,7 +235,7 @@ public class QueryRequestActivityTest {
 
     private static void setSessionCommand(String command) {
         AndroidSessionWrapper sessionWrapper =
-                CommCareApplication._().getCurrentSessionWrapper();
+                CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand(command);
     }
