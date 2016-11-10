@@ -40,6 +40,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.logic.AndroidFormController;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.views.media.MediaLayout;
 import org.commcare.android.javarosa.IntentCallout;
@@ -52,7 +53,7 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.logging.analytics.TimedStatsTracker;
-import org.commcare.logic.FormController;
+import org.javarosa.form.api.FormController;
 import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
@@ -185,7 +186,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private SecretKeySpec symetricKey = null;
 
-    public static FormController mFormController;
+    public static AndroidFormController mFormController;
 
     private boolean mIncompleteEnabled = true;
     private boolean hasFormLoadBeenTriggered = false;
@@ -1145,7 +1146,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    private void handleFormLoadCompletion(FormController fc) {
+    private void handleFormLoadCompletion(AndroidFormController fc) {
         if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(locationRecieverErrorAction)) {
             handleNoGpsBroadcast();
         } else if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
