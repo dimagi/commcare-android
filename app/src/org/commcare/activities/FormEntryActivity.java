@@ -53,7 +53,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.FormController;
-import org.commcare.logic.PropertyManager;
+import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
@@ -237,7 +237,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mGestureDetector = new GestureDetector(this);
 
         // needed to override rms property manager
-        org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(
+        org.javarosa.core.services.PropertyManager.setPropertyManager(new AndroidPropertyManager(
                 getApplicationContext()));
 
         if (savedInstanceState == null) {

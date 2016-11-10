@@ -96,7 +96,7 @@ import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MultipleAppsUtil;
-import org.commcare.utils.ODKPropertyManager;
+import org.commcare.utils.DummyPropertyManager;
 import org.commcare.utils.PopupHandler;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
@@ -218,7 +218,7 @@ public class CommCareApplication extends Application {
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
-        PropertyManager.setPropertyManager(new ODKPropertyManager());
+        PropertyManager.setPropertyManager(new DummyPropertyManager());
 
         SQLiteDatabase.loadLibs(this);
 

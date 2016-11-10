@@ -19,8 +19,8 @@ import java.util.Vector;
  *
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class PropertyManager implements IPropertyManager {
-    private final static String TAG = PropertyManager.class.getSimpleName();
+public class AndroidPropertyManager implements IPropertyManager {
+    private final static String TAG = AndroidPropertyManager.class.getSimpleName();
 
     private final HashMap<String, String> mProperties;
 
@@ -29,7 +29,7 @@ public class PropertyManager implements IPropertyManager {
     private final static String SIM_SERIAL_PROPERTY = "simserial";
     private final static String PHONE_NUMBER_PROPERTY = "phonenumber";
 
-    public PropertyManager(Context context) {
+    public AndroidPropertyManager(Context context) {
         Log.i(TAG, "calling constructor");
 
         mProperties = new HashMap<>();
