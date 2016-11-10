@@ -282,12 +282,12 @@ public class IntentCallout implements Externalizable {
         className = ExtUtil.readString(in);
         refs = (Hashtable<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
         responseToRefMap = (Hashtable<String, Vector<TreeReference>>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapList(TreeReference.class)), pf);
-        appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        component = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        updateButtonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        type = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        data = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        component = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        updateButtonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        type = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        data = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
     }
 
     @Override
