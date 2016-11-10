@@ -10,10 +10,12 @@ import android.widget.ListAdapter;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.EntitySortNotificationInterface;
+import org.commcare.cases.entity.EntitySorter;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.models.AsyncNodeEntityFactory;
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Action;
@@ -41,7 +43,7 @@ import java.util.List;
  * @author ctsims
  * @author wspride
  */
-public class EntityListAdapter implements ListAdapter {
+public class EntityListAdapter implements ListAdapter, EntitySortNotificationInterface {
     public static final int ENTITY_TYPE = 0;
     public static final int ACTION_TYPE = 1;
     public static final int DIVIDER_TYPE = 2;
@@ -164,7 +166,7 @@ public class EntityListAdapter implements ListAdapter {
         this.reverseSort = reverse;
         currentSort = fields;
 
-        java.util.Collections.sort(full, new EntitySorter(detail.getFields(), reverseSort, currentSort));
+        java.util.Collections.sort(full, new EntitySorter(detail.getFields(), reverseSort, currentSort, this));
     }
 
     @Override
@@ -474,4 +476,8 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
+    @Override
+    public void notifyBadfilter(String[] args) {
+
+    }
 }
