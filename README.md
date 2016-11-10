@@ -88,3 +88,20 @@ Create a new Android Studio JUnit Build configuration using the following steps.
 - Click `OK` to finish creating the configuration.
 - Select the "commcare android test suite" under the configuration drop down to the left of the green play button.
 - Press the green play button to run the tests.
+
+### Common Errors
+
+If you experience the following exception when running the tests:
+```
+java.security.InvalidKeyException: Illegal key size or default parameters
+```
+you will need to upgrade the JCE policy files that are being used. To do so:
+
+1. Download the JCE Unlimited Strength policy files for Java 8 (Last we checked they could be found [here](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html), but this can change
+2. Find the java home directory on your machine. On mac you can do so by entering the following into the command line:
+```
+echo $(/usr/libexec/java_home)
+```
+3. From there, cd into `jre/lib/security`, and replace the local\_policy.jar and US\_export\_policy.jar files found there with the ones in the zip file you downloaded
+
+NOTE that if you are running the tests from Android Studio, it may be using a different version of Java than that in your java home directory. The first line of the test output will usually show the directory from which Android Studio is running Java. If it is indeed different, you should follow the steps above for that directory as well.
