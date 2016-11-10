@@ -87,7 +87,6 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntrySession;
 import org.javarosa.form.api.FormEntrySessionReplayer;
-import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -236,9 +235,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         uiController.setupUI();
         mGestureDetector = new GestureDetector(this, this);
-
-        // Load JavaRosa modules. needed to restore forms.
-        new XFormsModule().registerModule();
 
         // needed to override rms property manager
         org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(

@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.DrawableRes;
 import android.support.v4.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,6 +44,15 @@ public final class ViewUtil {
             if (b != null) {
                 item.setIcon(new BitmapDrawable(context.getResources(), b));
             }
+        }
+    }
+
+    public static void addItemToActionBar(Menu menu, int menuId, int menuGroupId, String title,
+                                          @DrawableRes int drawableResource) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            MenuItem item = menu.add(menuGroupId, menuId, menuId, title);
+            item.setIcon(drawableResource);
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
     }
 
