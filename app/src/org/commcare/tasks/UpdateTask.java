@@ -1,6 +1,7 @@
 package org.commcare.tasks;
 
 import android.content.Context;
+import android.support.v4.util.Pair;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -107,12 +108,7 @@ public class UpdateTask
         } catch (InvalidResourceException e) {
             ResourceInstallUtils.logInstallError(e,
                     "Structure error ocurred during install|");
-            // Put both the resource in question and a detailed error message into one string for
-            // ease of transport, which will be split out later and formatted into a user-readable
-            // pinned notification
-            String combinedMessage = e.resourceName + "==" + e.getMessage();
-
-            return new ResultAndError<>(AppInstallStatus.UnknownFailure, combinedMessage);
+            return new ResultAndError<>(AppInstallStatus.UnknownFailure, buildCombinedErrorMessage(e.resourceName, e.getMessage()));
         } catch (Exception e) {
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
@@ -264,5 +260,22 @@ public class UpdateTask
         taskWasCancelledByUser = true;
     }
 
+    public static boolean isCombinedErrorMessage(String message) {
+        return message != null && message.startsWith("||");
+    }
+
+    /**
+     * Put both the resource in question and a detailed error message into one string for
+     * ease of transport, which will be split out later and formatted into a user-readable
+     * pinned notification
+     */
+    private static String buildCombinedErrorMessage(String head, String tail) {
+        return "||" + head + "==" + tail;
+    }
+
+    public static Pair<String, String> splitCombinedErrorMessage(String message) {
+        String[] splitMessage = message.split("==", 2);
+        return Pair.create(splitMessage[0].substring(2), splitMessage[1]);
+    }
 
 }

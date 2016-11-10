@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.support.annotation.IdRes;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -36,7 +37,7 @@ import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MediaUtil;
-import org.commcare.views.media.AudioButton;
+import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -70,13 +71,19 @@ public class EntityDetailView extends FrameLayout {
     private final Hashtable<Integer, Intent> graphIntentsCache;    // index => intent
     private final Set<Integer> graphsWithErrors;
     private final ImageButton videoButton;
-    private final AudioButton audioButton;
+    private final AudioPlaybackButton audioButton;
     private final View valuePane;
     private View currentView;
     private final LinearLayout detailRow;
     private final LinearLayout.LayoutParams origValue;
     private final LinearLayout.LayoutParams origLabel;
     private final LinearLayout.LayoutParams fill;
+
+    @IdRes
+    private static final int IMAGE_VIEW_ID = 23422634;
+
+    @IdRes
+    private static final int CALLOUT_BUTTON_ID = 23422634;
 
     private static final String FORM_VIDEO = MediaUtil.FORM_VIDEO;
     private static final String FORM_AUDIO = MediaUtil.FORM_AUDIO;
@@ -113,7 +120,7 @@ public class EntityDetailView extends FrameLayout {
 
         ViewId uniqueId = new ViewId(detailNumber, index, true);
         String audioText = e.getFieldString(index);
-        audioButton = new AudioButton(context, audioText, uniqueId, false);
+        audioButton = new AudioPlaybackButton(context, audioText, uniqueId, false);
         detailRow.addView(audioButton);
         audioButton.setVisibility(View.GONE);
 
@@ -199,7 +206,7 @@ public class EntityDetailView extends FrameLayout {
                     calloutImageButton.setPadding(10, 10, 10, 10);
                     calloutImageButton.setAdjustViewBounds(true);
                     calloutImageButton.setImageBitmap(b);
-                    calloutImageButton.setId(23422634);
+                    calloutImageButton.setId(CALLOUT_BUTTON_ID);
                 }
 
                 calloutImageButton.setOnClickListener(new OnClickListener() {
@@ -257,7 +264,7 @@ public class EntityDetailView extends FrameLayout {
                 imageView.setPadding(10, 10, 10, 10);
                 imageView.setAdjustViewBounds(true);
                 imageView.setImageBitmap(b);
-                imageView.setId(23422634);
+                imageView.setId(IMAGE_VIEW_ID);
             }
 
             updateCurrentView(IMAGE, imageView);

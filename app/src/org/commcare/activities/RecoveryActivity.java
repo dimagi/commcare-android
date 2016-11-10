@@ -16,7 +16,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.ProcessAndSendTask;
-import org.commcare.utils.FormUploadUtil;
+import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.ManagedUi;
@@ -74,8 +74,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                             }
 
                             @Override
-                            protected void deliverResult(RecoveryActivity receiver, Integer result) {
-                                if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
+                            protected void deliverResult(RecoveryActivity receiver, FormUploadResult result) {
+                                if (result == FormUploadResult.PROGRESS_LOGGED_OUT) {
 
                                     receiver.displayMessage("Log-in expired during send. Please press back and log in again");
                                     return;
@@ -83,12 +83,12 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                                 int successfulSends = this.getSuccessfulSends();
 
-                                if (result == FormUploadUtil.FULL_SUCCESS) {
+                                if (result == FormUploadResult.FULL_SUCCESS) {
                                     receiver.displayMessage("Send succesful. All  " + successfulSends + " forms were submitted");
-                                } else if (result == FormUploadUtil.FAILURE) {
+                                } else if (result == FormUploadResult.FAILURE) {
                                     String remainder = successfulSends > 0 ? " Only " + successfulSends + " were submitted" : "";
                                     receiver.displayMessage("There were errors submitting the forms." + remainder);
-                                } else if (result == FormUploadUtil.TRANSPORT_FAILURE) {
+                                } else if (result == FormUploadResult.TRANSPORT_FAILURE) {
                                     receiver.displayMessage("Unable to contact the remote server.");
                                 }
                             }

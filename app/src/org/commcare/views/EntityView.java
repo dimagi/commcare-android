@@ -26,7 +26,7 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
-import org.commcare.views.media.AudioButton;
+import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -199,7 +199,7 @@ public class EntityView extends LinearLayout {
         } else if (FORM_AUDIO.equals(form)) {
             String text = (String) data;
             boolean isVisible = (text != null && text.length() > 0);
-            return new AudioButton(getContext(), text, uniqueId, isVisible);
+            return new AudioPlaybackButton(getContext(), text, uniqueId, isVisible);
         } else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
             return View.inflate(getContext(), R.layout.entity_item_graph, null);
         } else if (FORM_CALLLOUT.equals(form)) {
@@ -308,11 +308,11 @@ public class EntityView extends LinearLayout {
     }
 
     /**
-     * Updates the AudioButton layout that is passed in, based on the
+     * Updates the AudioPlaybackButton layout that is passed in, based on the
      * new id and source
      */
     private void setupAudioLayout(View layout, String source, ViewId uniqueId) {
-        AudioButton b = (AudioButton) layout;
+        AudioPlaybackButton b = (AudioPlaybackButton) layout;
         if (source != null && source.length() > 0) {
             b.modifyButtonForNewView(uniqueId, source, true);
         } else {

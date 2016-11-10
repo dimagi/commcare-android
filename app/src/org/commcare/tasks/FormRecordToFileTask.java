@@ -14,6 +14,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -40,7 +41,7 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * @author wspride
  */
-public abstract class FormRecordToFileTask extends CommCareTask<String, String, Pair<Long, FormRecord[]>, CommCareWiFiDirectActivity> {
+public abstract class FormRecordToFileTask extends CommCareTask<String, String, Pair<FormUploadResult, FormRecord[]>, CommCareWiFiDirectActivity> {
     private static final String TAG = AndroidLogger.TYPE_FORM_DUMP;
 
     private final Context c;
@@ -61,7 +62,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
      * Turn a FormRecord folder from storage into a standard file representation in our file system.
      * Return an int status code from FormUploadUtil corresponding to the outcome of the transfer
      */
-    private long copyFileInstanceFromStorage(File formRecordFolder, SecretKeySpec decryptionKey) {
+    private FormUploadResult copyFileInstanceFromStorage(File formRecordFolder, SecretKeySpec decryptionKey) {
         File[] files = formRecordFolder.listFiles(new FileFilter() {
             @Override
             public boolean accept(File file) {
@@ -81,12 +82,12 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
         } catch (IOException e){
             Log.d(TAG, "Copying file failed with: " + e.getMessage());
             publishProgress(("File writing failed: " + e.getMessage()));
-            return FormUploadUtil.FAILURE;
+            return FormUploadResult.FAILURE;
         }
 
         // write any form.properties we want
         writeProperties(myDir);
-        return FormUploadUtil.FULL_SUCCESS;
+        return FormUploadResult.FULL_SUCCESS;
     }
 
     private void decryptCopyFiles(File[] files, File targetDirectory, Cipher decryptCipher) throws IOException{
@@ -154,10 +155,10 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
     }
 
     @Override
-    protected Pair<Long, FormRecord[]> doTaskBackground(String... params) {
+    protected Pair<FormUploadResult, FormRecord[]> doTaskBackground(String... params) {
         Log.d(TAG, "Doing zip task in background with params: " + Arrays.toString(params));
 
-        Long[] results;
+        FormUploadResult[] results;
         // we want this directory to be clean
         if (storedFormDirectory.exists()) {
             storedFormDirectory.delete();
@@ -169,10 +170,10 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
 
         if (ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];
-            results = new Long[records.length];
+            results = new FormUploadResult[records.length];
             for (int i = 0; i < ids.size(); ++i) {
                 records[i] = storage.read(ids.elementAt(i));
-                results[i] = FormUploadUtil.FAILURE;
+                results[i] = FormUploadResult.FAILURE;
             }
 
             publishProgress(Localization.get("bulk.form.start"));
@@ -193,7 +194,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
                         //Good!
                         //Time to transfer forms to storage!
                         results[i] = copyFileInstanceFromStorage(folder, new SecretKeySpec(record.getAesKey(), "AES"));
-                        if (results[i].intValue() == FormUploadUtil.FAILURE) {
+                        if (results[i] == FormUploadResult.FAILURE) {
                             publishProgress("Failure during zipping process");
                         }
                     }
@@ -203,27 +204,11 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
                 }
             }
 
-            long result = getLoopResult(results);
-            return new Pair<>(result, records);
-
+            return new Pair<>(FormUploadResult.getWorstResult(results), records);
         } else {
             publishProgress(Localization.get("form.transfer.no.forms"));
             return null;
         }
-    }
-
-    /**
-     * Iterate over each form transfer result and return the "worst" (high value) outcome
-     * @return The FormUploadUtil int outcome code corresponding to the "worst" result
-     */
-    private long getLoopResult(Long[] results){
-        long returnResult = 0;
-        for (long iterResult: results) {
-            if (iterResult > returnResult) {
-                returnResult = iterResult;
-            }
-        }
-        return returnResult;
     }
 
     private static String getExceptionText(Exception e) {

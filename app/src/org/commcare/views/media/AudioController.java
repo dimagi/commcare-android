@@ -1,6 +1,7 @@
 package org.commcare.views.media;
 
 import android.media.MediaPlayer;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 /**
@@ -28,24 +29,24 @@ public enum AudioController {
      * Button that corresponds to the currentEntity media. Pressing the button
      * should trigger playback control methods here.
      */
-    private AudioButton currentButton;
+    private AudioPlaybackButton currentAudioReset;
 
     /**
      * Set the media to be played and store the playback button attached to
      * that media, enableing button display state to mirror playback state.
      *
      * @param newMedia      New media to be controlled
-     * @param clickedButton Button that corresponds to the new media, needed so
+     * @param newAudioReset Button that corresponds to the new media, needed so
      *                      we can update the button's display state to mirror
      *                      the media's playback state
      */
     public void setCurrentMediaAndButton(MediaEntity newMedia,
-                                         AudioButton clickedButton) {
-        if (currentButton != null && currentButton != clickedButton) {
+                                         AudioPlaybackButton newAudioReset) {
+        if (currentAudioReset != null && currentAudioReset != newAudioReset) {
             // reset the old button to not be playing
-            currentButton.setStateToReady();
+            currentAudioReset.resetPlaybackState();
         }
-        currentButton = clickedButton;
+        currentAudioReset = newAudioReset;
 
         if (newMedia != currentEntity) {
             // newMedia is actually new, so release old media
@@ -61,8 +62,8 @@ public enum AudioController {
      * @param button Corresponds with the media that is currently
      *               loaded/playing
      */
-    public void registerPlaybackButton(AudioButton button) {
-        currentButton = button;
+    public void registerPlaybackButton(AudioPlaybackButton button) {
+        currentAudioReset = button;
     }
 
 
@@ -80,12 +81,17 @@ public enum AudioController {
 
     /**
      * Start audio playback of current media resource.
+     *
+     * @return the current playback position and total playback duration
      */
-    public void playCurrentMediaEntity() {
+    public Pair<Integer, Integer> playCurrentMediaEntity() {
         if (currentEntity != null) {
-            currentEntity.getPlayer().start();
+            MediaPlayer player = currentEntity.getPlayer();
+            player.start();
             currentEntity.setState(MediaState.Playing);
+            return new Pair<>(player.getCurrentPosition(), player.getDuration());
         }
+        return null;
     }
 
     /**

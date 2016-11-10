@@ -21,7 +21,7 @@ install.current.version=Current version: ${0}
 
 verify.retry=Retry
 verify.checking=Verifying media...
-verify.check.failed=Validation failed for an unknown reason
+exception.during.verification=Verification could not complete due to the following exception. This error must be resolved before verification can proceed:\n\n${0}
 
 barcode.reader.missing=No barcode reader available! You can install one from the android market.
 
@@ -81,7 +81,7 @@ sync.fail.timeout=CommCare didn't receive a response from the remote service in 
 
 sync.success.synced=Sync Successful! Your information is up to date.
 
-sync.fail.auth.loggedin=Username or password has changed. Please log out and try to log in again with syncing.
+sync.fail.auth.loggedin=Password has changed. Please log in with updated credentials
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occured with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
