@@ -15,12 +15,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
 import org.commcare.graph.view.GraphView;
 import org.commcare.models.AsyncEntity;
-import org.commcare.models.Entity;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.utils.AndroidUtil;

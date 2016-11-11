@@ -11,9 +11,9 @@ import android.widget.ListView;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.EntitySubnodeDetailAdapter;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
 import org.commcare.suite.model.Detail;
 import org.commcare.tasks.EntityLoaderListener;
 import org.commcare.tasks.EntityLoaderTask;
