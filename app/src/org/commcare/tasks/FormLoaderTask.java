@@ -14,11 +14,12 @@ import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.logging.XPathErrorLogger;
+import org.commcare.logic.AndroidFormController;
 import org.javarosa.xpath.XPathException;
 import org.commcare.engine.extensions.XFormExtensionUtils;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logic.FileReferenceFactory;
-import org.commcare.logic.FormController;
+import org.javarosa.form.api.FormController;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.tasks.templates.CommCareTask;
@@ -130,9 +131,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
         setupFormMedia(formMediaPath, formXml);
 
-        FormController fc = new FormController(fec, mReadOnly);
+        AndroidFormController formController = new AndroidFormController(fec, mReadOnly);
 
-        data = new FECWrapper(fc);
+        data = new FECWrapper(formController);
         return data;
     }
 
@@ -350,13 +351,13 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     }
 
     protected static class FECWrapper {
-        FormController controller;
+        AndroidFormController controller;
 
-        protected FECWrapper(FormController controller) {
+        protected FECWrapper(AndroidFormController controller) {
             this.controller = controller;
         }
 
-        public FormController getController() {
+        public AndroidFormController getController() {
             return controller;
         }
 

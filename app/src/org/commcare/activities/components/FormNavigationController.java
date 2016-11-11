@@ -1,6 +1,6 @@
 package org.commcare.activities.components;
 
-import org.commcare.logic.FormController;
+import org.javarosa.form.api.FormController;
 import org.commcare.views.QuestionsView;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
