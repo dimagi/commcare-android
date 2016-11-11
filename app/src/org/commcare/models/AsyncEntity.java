@@ -3,6 +3,7 @@ package org.commcare.models;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.cases.entity.Entity;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.suite.model.DetailField;

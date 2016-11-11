@@ -22,7 +22,7 @@ import android.widget.TextView;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
-import org.commcare.logic.FormController;
+import org.javarosa.form.api.FormController;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.views.ClippingFrame;
 import org.commcare.views.QuestionsView;
