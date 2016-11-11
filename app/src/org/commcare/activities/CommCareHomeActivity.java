@@ -98,11 +98,6 @@ public class CommCareHomeActivity
      */
     private static final int MODEL_RESULT = 4;
 
-
-    public static final int REPORT_PROBLEM_ACTIVITY = 64;
-
-
-
     private static final int CREATE_PIN = 16384;
     private static final int AUTHENTICATION_FOR_PIN = 32768;
 

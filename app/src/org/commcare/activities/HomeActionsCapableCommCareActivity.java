@@ -28,8 +28,8 @@ import org.javarosa.core.services.locale.Localization;
 public abstract class HomeActionsCapableCommCareActivity<T> extends SyncCapableCommCareActivity<T> {
 
     public static final int GET_INCOMPLETE_FORM = 16;
-    protected static final int PREFERENCES_ACTIVITY=512;
-    protected static final int ADVANCED_ACTIONS_ACTIVITY=1024;
+    protected static final int PREFERENCES_ACTIVITY = 512;
+    protected static final int ADVANCED_ACTIONS_ACTIVITY = 1024;
 
     private int mDeveloperModeClicks = 0;
 
@@ -110,7 +110,7 @@ public abstract class HomeActionsCapableCommCareActivity<T> extends SyncCapableC
 
     private static DialogChoiceItem[] buildLocaleChoices() {
         String[] locales = ChangeLocaleUtil.getLocaleNames();
-        DialogChoiceItem[] choices =new DialogChoiceItem[locales.length];
+        DialogChoiceItem[] choices = new DialogChoiceItem[locales.length];
         for (int i = 0; i < choices.length; i++) {
             choices[i] = DialogChoiceItem.nonListenerItem(locales[i]);
         }
@@ -126,6 +126,5 @@ public abstract class HomeActionsCapableCommCareActivity<T> extends SyncCapableC
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
     }
-
 
 }

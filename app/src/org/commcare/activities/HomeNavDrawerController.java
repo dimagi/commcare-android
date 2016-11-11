@@ -15,6 +15,7 @@ import org.commcare.activities.components.NavDrawerItem;
 import org.commcare.adapters.NavDrawerAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.utils.ChangeLocaleUtil;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
@@ -85,7 +86,7 @@ public class HomeNavDrawerController {
     private void initDrawerItemsToInclude() {
         Map<String, NavDrawerItem> itemsToShowMap = new HashMap<>();
         itemsToShowMap.putAll(allDrawerItems);
-        if (Localization.getNumLocales() <= 1) {
+        if (ChangeLocaleUtil.getLocaleNames().length <= 1) {
             itemsToShowMap.remove(CHANGE_LANGUAGE_DRAWER_ITEM_ID);
         }
         if (!CommCarePreferences.isSavedFormsEnabled()) {
@@ -153,8 +154,7 @@ public class HomeNavDrawerController {
         return new String[] {
                 ABOUT_CC_DRAWER_ITEM_ID, UPDATE_DRAWER_ITEM_ID, CHANGE_LANGUAGE_DRAWER_ITEM_ID,
                 SETTINGS_DRAWER_ITEM_ID, ADVANCED_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID,
-                SAVED_FORMS_ITEM_ID, LOGOUT_DRAWER_ITEM_ID
-        };
+                SAVED_FORMS_ITEM_ID, LOGOUT_DRAWER_ITEM_ID };
     }
 
     private static String[] getAllItemTitles() {
