@@ -18,9 +18,7 @@ import org.commcare.preferences.CommCarePreferences;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.javarosa.core.services.locale.Localization;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -95,9 +93,12 @@ public class HomeNavDrawerController {
 
         drawerItemsShowing = new NavDrawerItem[itemsToShowMap.size()];
         int index = 0;
-        for (NavDrawerItem item : itemsToShowMap.values()) {
-            drawerItemsShowing[index] =  item;
-            index++;
+        for (String id : getAllItemIds()) {
+            NavDrawerItem item = itemsToShowMap.get(id);
+            if (item != null) {
+                drawerItemsShowing[index] = item;
+                index++;
+            }
         }
     }
 
@@ -152,8 +153,8 @@ public class HomeNavDrawerController {
 
     private static String[] getAllItemIds() {
         return new String[] {
-                ABOUT_CC_DRAWER_ITEM_ID, UPDATE_DRAWER_ITEM_ID, CHANGE_LANGUAGE_DRAWER_ITEM_ID,
-                SETTINGS_DRAWER_ITEM_ID, ADVANCED_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID,
+                ABOUT_CC_DRAWER_ITEM_ID, SETTINGS_DRAWER_ITEM_ID, UPDATE_DRAWER_ITEM_ID,
+                CHANGE_LANGUAGE_DRAWER_ITEM_ID, ADVANCED_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID,
                 SAVED_FORMS_ITEM_ID, LOGOUT_DRAWER_ITEM_ID };
     }
 
@@ -167,18 +168,18 @@ public class HomeNavDrawerController {
         String SAVED_FORMS_ITEM_TEXT = Localization.get("home.menu.saved.forms");
         String LOGOUT_DRAWER_ITEM_TEXT = Localization.get("home.logout");
         return new String[] {
-                ABOUT_CC_DRAWER_ITEM_TEXT, UPDATE_DRAWER_ITEM_TEXT, CHANGE_LANGUAGE_DRAWER_ITEM_TEXT,
-                SETTINGS_DRAWER_ITEM_TEXT, ADVANCED_DRAWER_ITEM_TEXT, SYNC_DRAWER_ITEM_TEXT,
+                ABOUT_CC_DRAWER_ITEM_TEXT, SETTINGS_DRAWER_ITEM_TEXT, UPDATE_DRAWER_ITEM_TEXT,
+                CHANGE_LANGUAGE_DRAWER_ITEM_TEXT, ADVANCED_DRAWER_ITEM_TEXT, SYNC_DRAWER_ITEM_TEXT,
                 SAVED_FORMS_ITEM_TEXT, LOGOUT_DRAWER_ITEM_TEXT
         };
     }
 
     private static int[] getAllItemIcons() {
         return new int[] {
-                R.drawable.ic_blue_forward, R.drawable.ic_blue_forward, R.drawable.ic_blue_forward,
-                R.drawable.ic_settings_nav_drawer, R.drawable.ic_blue_forward,
-                R.drawable.ic_sync_nav_drawer, R.drawable.ic_blue_forward,
-                R.drawable.ic_logout_nav_drawer
+                R.drawable.ic_blue_forward, R.drawable.ic_settings_nav_drawer,
+                R.drawable.ic_blue_forward, R.drawable.ic_blue_forward,
+                R.drawable.ic_blue_forward, R.drawable.ic_sync_nav_drawer,
+                R.drawable.ic_blue_forward, R.drawable.ic_logout_nav_drawer
         };
     }
 
