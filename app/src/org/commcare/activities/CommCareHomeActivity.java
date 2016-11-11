@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,7 +14,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -54,16 +52,13 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
-import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.StandardAlertDialog;
-import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
-import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
@@ -80,7 +75,7 @@ import java.util.Map;
 import java.util.Vector;
 
 public class CommCareHomeActivity
-        extends SyncCapableCommCareActivity<CommCareHomeActivity>
+        extends HomeActionsCapableCommCareActivity<CommCareHomeActivity>
         implements SessionNavigationResponder, WithUIController {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
@@ -103,11 +98,10 @@ public class CommCareHomeActivity
      */
     private static final int MODEL_RESULT = 4;
 
-    public static final int GET_INCOMPLETE_FORM = 16;
+
     public static final int REPORT_PROBLEM_ACTIVITY = 64;
 
-    private static final int PREFERENCES_ACTIVITY=512;
-    private static final int ADVANCED_ACTIONS_ACTIVITY=1024;
+
 
     private static final int CREATE_PIN = 16384;
     private static final int AUTHENTICATION_FOR_PIN = 32768;
@@ -137,8 +131,6 @@ public class CommCareHomeActivity
     // activity instead of commcare.
     private boolean wasExternal = false;
     private static final String WAS_EXTERNAL_KEY = "was_external";
-
-    private int mDeveloperModeClicks = 0;
 
     private HomeActivityUIController uiController;
     private SessionNavigator sessionNavigator;
@@ -306,59 +298,6 @@ public class CommCareHomeActivity
         Intent i = new Intent(this, CreatePinActivity.class);
         i.putExtra(LoginActivity.LOGIN_MODE, loginMode);
         startActivityForResult(i, CREATE_PIN);
-    }
-
-    protected void goToFormArchive(boolean incomplete) {
-        goToFormArchive(incomplete, null);
-    }
-
-    private void showLocaleChangeMenu() {
-        final PaneledChoiceDialog dialog =
-                new PaneledChoiceDialog(this, Localization.get("home.menu.locale.select"));
-
-        AdapterView.OnItemClickListener listClickListener = new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String[] localeCodes = ChangeLocaleUtil.getLocaleCodes();
-                if (position >= localeCodes.length) {
-                    Localization.setLocale("default");
-                } else {
-                    Localization.setLocale(localeCodes[position]);
-                }
-                // rebuild home buttons in case language changed;
-                uiController.setupUI();
-                rebuildOptionsMenu();
-                dismissAlertDialog();
-            }
-        };
-
-        dialog.setChoiceItems(buildLocaleChoices(), listClickListener);
-        showAlertDialog(dialog);
-    }
-
-    private static DialogChoiceItem[] buildLocaleChoices() {
-        String[] locales = ChangeLocaleUtil.getLocaleNames();
-        DialogChoiceItem[] choices =new DialogChoiceItem[locales.length];
-        for (int i = 0; i < choices.length; i++) {
-            choices[i] = DialogChoiceItem.nonListenerItem(locales[i]);
-        }
-        return choices;
-    }
-
-    private void goToFormArchive(boolean incomplete, FormRecord record) {
-        if (incomplete) {
-            GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_INCOMPLETE);
-        } else {
-            GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_COMPLETE);
-        }
-        Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
-        if (incomplete) {
-            i.putExtra(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
-        }
-        if (record != null) {
-            i.putExtra(FormRecordListActivity.KEY_INITIAL_RECORD_ID, record.getID());
-        }
-        startActivityForResult(i, GET_INCOMPLETE_FORM);
     }
 
     void enterRootModule() {
@@ -1204,14 +1143,13 @@ public class CommCareHomeActivity
                 menuIdToAnalyticsEventLabel.get(item.getItemId()));
         switch (item.getItemId()) {
             case MENU_UPDATE:
-                Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
-                startActivity(i);
+                launchUpdateActivity();
                 return true;
             case MENU_SAVED_FORMS:
                 goToFormArchive(false);
                 return true;
             case MENU_CHANGE_LANGUAGE:
-                showLocaleChangeMenu();
+                showLocaleChangeMenu(uiController);
                 return true;
             case MENU_PREFERENCES:
                 createPreferencesMenu(this);
@@ -1238,40 +1176,6 @@ public class CommCareHomeActivity
         menuIdToAnalyticsEvent.put(MENU_ADVANCED, GoogleAnalyticsFields.LABEL_ADVANCED_ACTIONS);
         menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
         return menuIdToAnalyticsEvent;
-    }
-
-    public static void createPreferencesMenu(Activity activity) {
-        Intent i = new Intent(activity, CommCarePreferences.class);
-        activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
-    }
-
-    private void startAdvancedActionsActivity() {
-        startActivityForResult(new Intent(this, AdvancedActionsActivity.class), ADVANCED_ACTIONS_ACTIVITY);
-    }
-
-    private void showAboutCommCareDialog() {
-        CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
-        dialog.makeCancelable();
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                handleDeveloperModeClicks();
-            }
-        });
-        showAlertDialog(dialog);
-    }
-
-    private void handleDeveloperModeClicks() {
-        mDeveloperModeClicks++;
-        if (mDeveloperModeClicks == 4) {
-            CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                    .edit()
-                    .putString(DeveloperPreferences.SUPERUSER_ENABLED, CommCarePreferences.YES)
-                    .commit();
-            Toast.makeText(CommCareHomeActivity.this,
-                    Localization.get("home.developer.options.enabled"),
-                    Toast.LENGTH_SHORT).show();
-        }
     }
 
     @Override

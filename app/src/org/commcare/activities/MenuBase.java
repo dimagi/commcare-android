@@ -13,12 +13,12 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 
 public abstract class MenuBase
-        extends SyncCapableCommCareActivity
+        extends HomeActionsCapableCommCareActivity<MenuBase>
         implements AdapterView.OnItemClickListener {
 
     private boolean isRootModuleMenu;
     protected String menuId;
-    private NavDrawerController navDrawerController;
+    private HomeNavDrawerController navDrawerController;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -28,7 +28,7 @@ public abstract class MenuBase
             menuId = Menu.ROOT_MENU_ID;
             isRootModuleMenu = true;
         }
-        navDrawerController = new NavDrawerController(this);
+        navDrawerController = new HomeNavDrawerController(this);
         navDrawerController.setupNavDrawer();
     }
 

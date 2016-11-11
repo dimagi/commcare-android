@@ -26,7 +26,7 @@ import java.util.Map;
  * Created by amstone326 on 11/10/16.
  */
 
-public class NavDrawerController {
+public class HomeNavDrawerController {
 
     private static final String ABOUT_CC_DRAWER_ITEM_ID = "about-cc";
     private static final String UPDATE_DRAWER_ITEM_ID = "update";
@@ -44,7 +44,7 @@ public class NavDrawerController {
     private Map<String, NavDrawerItem> allDrawerItems;
     private NavDrawerItem[] drawerItemsShowing;
 
-    public NavDrawerController(MenuBase activity) {
+    public HomeNavDrawerController(MenuBase activity) {
         this.activity = activity;
     }
 
@@ -109,9 +109,23 @@ public class NavDrawerController {
                     case SYNC_DRAWER_ITEM_ID:
                         activity.sendFormsOrSync(true);
                         break;
+                    case SAVED_FORMS_ITEM_ID:
+                        activity.goToFormArchive(false);
+                        break;
+                    case UPDATE_DRAWER_ITEM_ID:
+                        activity.launchUpdateActivity();
+                        break;
+                    case ABOUT_CC_DRAWER_ITEM_ID:
+                        activity.showAboutCommCareDialog();
+                        break;
                     case SETTINGS_DRAWER_ITEM_ID:
-                        Intent i = new Intent(activity, CommCarePreferences.class);
-                        activity.startActivity(i);
+                        activity.createPreferencesMenu(activity);
+                        break;
+                    case ADVANCED_DRAWER_ITEM_ID:
+                        activity.startAdvancedActionsActivity();
+                        break;
+                    case CHANGE_LANGUAGE_DRAWER_ITEM_ID:
+                        activity.showLocaleChangeMenu(null);
                         break;
                     case LOGOUT_DRAWER_ITEM_ID:
                         CommCareApplication.instance().closeUserSession();
