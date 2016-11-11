@@ -172,7 +172,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             if (queryCount == 0) {
                 throw new NoSuchElementException("No element in table " + table + " with names " + Arrays.toString(rawFieldNames) + " and values " + Arrays.toString(values));
             } else if (queryCount > 1) {
-                throw new InvalidIndexException("Invalid unique column set" + Arrays.toString(rawFieldNames) + ". Multiple records found with value " + Arrays.toString(values), Arrays.toString(rawFieldNames));
+                Logger.log("non-unique-storage-error", "Ignoring that unique lookup has " + queryCount + "results. (names: '" + Arrays.toString(rawFieldNames) + "' values: '" + Arrays.toString(values) + "')");
             }
             c.moveToFirst();
             byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
