@@ -16,6 +16,7 @@ import org.commcare.adapters.NavDrawerAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.utils.ChangeLocaleUtil;
+import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
@@ -72,12 +73,10 @@ public class HomeNavDrawerController {
 
     private void initDrawerItemsMap() {
         allDrawerItems = new HashMap<>();
-        String[] ids = getAllItemIds();
-        String[] titles = getAllItemTitles();
-        int[] icons = getAllItemIcons();
-        for (int i = 0; i < ids.length; i++) {
-            NavDrawerItem item = new NavDrawerItem(ids[i], titles[i], icons[i], null);
-            allDrawerItems.put(ids[i], item);
+        for (String itemId : getAllItemIdsInOrder()) {
+            NavDrawerItem item = new NavDrawerItem(itemId, getItemTitle(itemId),
+                    getItemIcon(itemId), getItemSubtext(itemId));
+            allDrawerItems.put(itemId, item);
         }
     }
 
@@ -90,7 +89,7 @@ public class HomeNavDrawerController {
 
         drawerItemsShowing = new NavDrawerItem[numItemsToInclude];
         int index = 0;
-        for (String id : getAllItemIds()) {
+        for (String id : getAllItemIdsInOrder()) {
             NavDrawerItem item = allDrawerItems.get(id);
             if ((id.equals(CHANGE_LANGUAGE_DRAWER_ITEM_ID) && !shouldShowChangeLanguageItem) ||
                     (id.equals(SAVED_FORMS_ITEM_ID) && !shouldShowSavedFormsItem)) {
@@ -151,37 +150,63 @@ public class HomeNavDrawerController {
         drawerLayout.closeDrawer(navDrawerList);
     }
 
-    private static String[] getAllItemIds() {
+    private static String[] getAllItemIdsInOrder() {
         return new String[] {
-                ABOUT_CC_DRAWER_ITEM_ID, SETTINGS_DRAWER_ITEM_ID, UPDATE_DRAWER_ITEM_ID,
-                CHANGE_LANGUAGE_DRAWER_ITEM_ID, ADVANCED_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID,
-                SAVED_FORMS_ITEM_ID, LOGOUT_DRAWER_ITEM_ID };
+                ABOUT_CC_DRAWER_ITEM_ID, SETTINGS_DRAWER_ITEM_ID, ADVANCED_DRAWER_ITEM_ID,
+                CHANGE_LANGUAGE_DRAWER_ITEM_ID, SAVED_FORMS_ITEM_ID, UPDATE_DRAWER_ITEM_ID,
+                SYNC_DRAWER_ITEM_ID, LOGOUT_DRAWER_ITEM_ID };
     }
 
-    private static String[] getAllItemTitles() {
-        String ABOUT_CC_DRAWER_ITEM_TEXT = Localization.get("home.menu.about");
-        String UPDATE_DRAWER_ITEM_TEXT = Localization.get("home.menu.update");
-        String CHANGE_LANGUAGE_DRAWER_ITEM_TEXT = Localization.get("home.menu.locale.change");
-        String SETTINGS_DRAWER_ITEM_TEXT = Localization.get("home.menu.settings");
-        String ADVANCED_DRAWER_ITEM_TEXT = Localization.get("home.menu.advanced");
-        String SYNC_DRAWER_ITEM_TEXT = Localization.get("home.sync");
-        String SAVED_FORMS_ITEM_TEXT = Localization.get("home.menu.saved.forms");
-        String LOGOUT_DRAWER_ITEM_TEXT = Localization.get("home.logout");
-        return new String[] {
-                ABOUT_CC_DRAWER_ITEM_TEXT, SETTINGS_DRAWER_ITEM_TEXT, UPDATE_DRAWER_ITEM_TEXT,
-                CHANGE_LANGUAGE_DRAWER_ITEM_TEXT, ADVANCED_DRAWER_ITEM_TEXT, SYNC_DRAWER_ITEM_TEXT,
-                SAVED_FORMS_ITEM_TEXT, LOGOUT_DRAWER_ITEM_TEXT
-        };
+    private static String getItemTitle(String id) {
+        switch(id) {
+            case ABOUT_CC_DRAWER_ITEM_ID:
+                return Localization.get("home.menu.about");
+            case SETTINGS_DRAWER_ITEM_ID:
+                return Localization.get("home.menu.settings");
+            case UPDATE_DRAWER_ITEM_ID:
+                return Localization.get("home.menu.update");
+            case CHANGE_LANGUAGE_DRAWER_ITEM_ID:
+                return Localization.get("home.menu.locale.change");
+            case ADVANCED_DRAWER_ITEM_ID:
+                return Localization.get("home.menu.advanced");
+            case SYNC_DRAWER_ITEM_ID:
+                return Localization.get("home.sync");
+            case SAVED_FORMS_ITEM_ID:
+                return Localization.get("home.menu.saved.forms");
+            case LOGOUT_DRAWER_ITEM_ID:
+                return Localization.get("home.logout");
+        }
+        return "";
     }
 
-    private static int[] getAllItemIcons() {
-        return new int[] {
-                R.drawable.ic_about_cc_nav_drawer, R.drawable.ic_settings_nav_drawer,
-                R.drawable.ic_update_nav_drawer, R.drawable.ic_change_lang_nav_drawer,
-                R.drawable.ic_cog_nav_drawer, R.drawable.ic_sync_nav_drawer,
-                R.drawable.ic_saved_forms_nav_drawer, R.drawable.ic_logout_nav_drawer
-        };
+    private static int getItemIcon(String id) {
+        switch(id) {
+            case ABOUT_CC_DRAWER_ITEM_ID:
+                return R.drawable.ic_about_cc_nav_drawer;
+            case SETTINGS_DRAWER_ITEM_ID:
+                return R.drawable.ic_settings_nav_drawer;
+            case UPDATE_DRAWER_ITEM_ID:
+                return R.drawable.ic_update_nav_drawer;
+            case CHANGE_LANGUAGE_DRAWER_ITEM_ID:
+                return R.drawable.ic_change_lang_nav_drawer;
+            case ADVANCED_DRAWER_ITEM_ID:
+                return R.drawable.ic_cog_nav_drawer;
+            case SYNC_DRAWER_ITEM_ID:
+                return R.drawable.ic_sync_nav_drawer;
+            case SAVED_FORMS_ITEM_ID:
+                return R.drawable.ic_saved_forms_nav_drawer;
+            case LOGOUT_DRAWER_ITEM_ID:
+                return R.drawable.ic_logout_nav_drawer;
+        }
+        return -1;
     }
 
+    private String getItemSubtext(String id) {
+        if (SYNC_DRAWER_ITEM_ID.equals(id)) {
+            return SyncDetailCalculations.getLastSyncTimeAndMessage().second;
+        } else {
+            return null;
+        }
+    }
 
 }

@@ -58,7 +58,7 @@ public class SyncDetailCalculations {
         }
     }
 
-    private static Pair<Long, String> getLastSyncTimeAndMessage() {
+    public static Pair<Long, String> getLastSyncTimeAndMessage() {
         CharSequence syncTimeMessage;
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         long lastSyncTime = prefs.getLong("last-succesful-sync", 0);
