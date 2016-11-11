@@ -82,20 +82,20 @@ public class HomeNavDrawerController {
     }
 
     private void initDrawerItemsToInclude() {
-        Map<String, NavDrawerItem> itemsToShowMap = new HashMap<>();
-        itemsToShowMap.putAll(allDrawerItems);
-        if (ChangeLocaleUtil.getLocaleNames().length <= 1) {
-            itemsToShowMap.remove(CHANGE_LANGUAGE_DRAWER_ITEM_ID);
-        }
-        if (!CommCarePreferences.isSavedFormsEnabled()) {
-            itemsToShowMap.remove(SAVED_FORMS_ITEM_ID);
-        }
+        boolean shouldShowSavedFormsItem = CommCarePreferences.isSavedFormsEnabled();
+        boolean shouldShowChangeLanguageItem = ChangeLocaleUtil.getLocaleNames().length > 1;
+        int numItemsToInclude = allDrawerItems.size()
+                - (shouldShowChangeLanguageItem ? 0 : 1)
+                - (shouldShowSavedFormsItem ? 0 : 1);
 
-        drawerItemsShowing = new NavDrawerItem[itemsToShowMap.size()];
+        drawerItemsShowing = new NavDrawerItem[numItemsToInclude];
         int index = 0;
         for (String id : getAllItemIds()) {
-            NavDrawerItem item = itemsToShowMap.get(id);
-            if (item != null) {
+            NavDrawerItem item = allDrawerItems.get(id);
+            if ((id.equals(CHANGE_LANGUAGE_DRAWER_ITEM_ID) && !shouldShowChangeLanguageItem) ||
+                    (id.equals(SAVED_FORMS_ITEM_ID) && !shouldShowSavedFormsItem)) {
+                continue;
+            } else {
                 drawerItemsShowing[index] = item;
                 index++;
             }
@@ -176,10 +176,10 @@ public class HomeNavDrawerController {
 
     private static int[] getAllItemIcons() {
         return new int[] {
-                R.drawable.ic_blue_forward, R.drawable.ic_settings_nav_drawer,
-                R.drawable.ic_blue_forward, R.drawable.ic_blue_forward,
-                R.drawable.ic_blue_forward, R.drawable.ic_sync_nav_drawer,
-                R.drawable.ic_blue_forward, R.drawable.ic_logout_nav_drawer
+                R.drawable.ic_about_cc_nav_drawer, R.drawable.ic_settings_nav_drawer,
+                R.drawable.ic_update_nav_drawer, R.drawable.ic_change_lang_nav_drawer,
+                R.drawable.ic_cog_nav_drawer, R.drawable.ic_sync_nav_drawer,
+                R.drawable.ic_saved_forms_nav_drawer, R.drawable.ic_logout_nav_drawer
         };
     }
 
