@@ -562,8 +562,12 @@ public class CommCareHomeActivity
     private boolean sessionStateUnchangedSinceCallout(CommCareSession session, Intent intent) {
         EvaluationContext evalContext =
                 CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
-        boolean neededDataUnchanged = session.getNeededData(evalContext).equals(
-                intent.getStringExtra(KEY_PENDING_SESSION_DATA));
+
+        String pendingSessionData = intent.getStringExtra(KEY_PENDING_SESSION_DATA);
+        String sessionNeededData = session.getNeededData(evalContext);
+        boolean neededDataUnchanged = (pendingSessionData == null && sessionNeededData == null)
+                || (pendingSessionData != null && pendingSessionData.equals(sessionNeededData));
+
         String intentDatum = intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID);
         boolean datumIdsUnchanged = intentDatum == null || intentDatum.equals(session.getNeededDatum().getDataId());
         return neededDataUnchanged && datumIdsUnchanged;
