@@ -21,7 +21,7 @@ public class LocalDataPullResponse extends RemoteDataPullResponse {
 
         try {
             debugStream =
-                    ReferenceManager._().DeriveReference(xmlPayloadReference).getStream();
+                    ReferenceManager.instance().DeriveReference(xmlPayloadReference).getStream();
         } catch (InvalidReferenceException ire) {
             throw new IOException("No payload available at " + xmlPayloadReference);
         }

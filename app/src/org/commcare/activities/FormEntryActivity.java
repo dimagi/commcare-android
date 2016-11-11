@@ -40,6 +40,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.logic.AndroidFormController;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.views.media.MediaLayout;
 import org.commcare.android.javarosa.IntentCallout;
@@ -52,8 +53,8 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.logging.analytics.TimedStatsTracker;
-import org.commcare.logic.FormController;
-import org.commcare.logic.PropertyManager;
+import org.javarosa.form.api.FormController;
+import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
@@ -185,7 +186,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private SecretKeySpec symetricKey = null;
 
-    public static FormController mFormController;
+    public static AndroidFormController mFormController;
 
     private boolean mIncompleteEnabled = true;
     private boolean hasFormLoadBeenTriggered = false;
@@ -237,7 +238,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mGestureDetector = new GestureDetector(this);
 
         // needed to override rms property manager
-        org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(
+        org.javarosa.core.services.PropertyManager.setPropertyManager(new AndroidPropertyManager(
                 getApplicationContext()));
 
         if (savedInstanceState == null) {
@@ -435,7 +436,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // For audio/video capture/chooser, we get the URI from the content provider
         // then the widget copies the file and makes a new entry in the content provider.
         Uri media = intent.getData();
-        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(), media);
+        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), media);
         if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
             // don't let the user select a file that won't be included in the
             // upload to the server
@@ -523,7 +524,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             // Do not show options menu at all if this is a consumer app
             return super.onPrepareOptionsMenu(menu);
         }
@@ -1145,7 +1146,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    private void handleFormLoadCompletion(FormController fc) {
+    private void handleFormLoadCompletion(AndroidFormController fc) {
         if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(locationRecieverErrorAction)) {
             handleNoGpsBroadcast();
         } else if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
@@ -1325,7 +1326,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 // CommCareSessionService will call this.formSaveCallback when
                 // the key session is closing down and we need to save any
                 // intermediate results before they become un-saveable.
-                CommCareApplication._().getSession().registerFormSaveCallback(this);
+                CommCareApplication.instance().getSession().registerFormSaveCallback(this);
             } catch (SessionUnavailableException e) {
                 Log.w(TAG,
                         "Couldn't register form save callback because session doesn't exist");
@@ -1350,7 +1351,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // Notify the key session that the form state has been saved (or at
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
-            CommCareApplication._().expireUserSession();
+            CommCareApplication.instance().expireUserSession();
         } else if (saveStatus != null) {
             String toastMessage = "";
             switch (saveStatus) {
@@ -1374,13 +1375,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS);
                     return;
                 case SAVE_ERROR:
-                    if (!CommCareApplication._().isConsumerApp()) {
+                    if (!CommCareApplication.instance().isConsumerApp()) {
                         UserfacingErrorHandling.createErrorDialog(this, errorMessage,
                                 Localization.get("notification.formentry.save_error.title"), EXIT);
                     }
                     return;
             }
-            if (!"".equals(toastMessage) && !CommCareApplication._().isConsumerApp()) {
+            if (!"".equals(toastMessage) && !CommCareApplication.instance().isConsumerApp()) {
                 Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
             }
             uiController.refreshView();
@@ -1489,7 +1490,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         try {
-            CommCareApplication._().getSession().unregisterFormSaveCallback();
+            CommCareApplication.instance().getSession().unregisterFormSaveCallback();
         } catch (SessionUnavailableException sue) {
             // looks like the session expired, swallow exception because we
             // might be auto-saving a form due to user session expiring
@@ -1629,7 +1630,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             formEntryRestoreSession = new FormEntrySession();
             DataInputStream objectInputStream = new DataInputStream(new ByteArrayInputStream(serializedObject));
             try {
-                formEntryRestoreSession.readExternal(objectInputStream, CommCareApplication._().getPrototypeFactory(this));
+                formEntryRestoreSession.readExternal(objectInputStream, CommCareApplication.instance().getPrototypeFactory(this));
             } catch (IOException | DeserializationException e) {
                 Log.e(TAG, "failed to deserialize form entry session during saved instance restore");
             } finally {

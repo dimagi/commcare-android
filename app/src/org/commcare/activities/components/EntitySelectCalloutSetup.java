@@ -49,7 +49,7 @@ public class EntitySelectCalloutSetup {
         Bitmap b;
         if (!imagePath.equals("")) {
             try {
-                b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(imagePath).getStream());
+                b = BitmapFactory.decodeStream(ReferenceManager.instance().DeriveReference(imagePath).getStream());
                 if (b == null) {
                     // Input stream could not be used to derive bitmap, so
                     // showing error-indicating image

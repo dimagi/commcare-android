@@ -25,8 +25,8 @@ public class SavedFormLoader {
     public static void loadFormsFromPayload(String payloadFile, String recordStatus) {
         TestUtils.processResourceTransaction(payloadFile);
 
-        CommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
-        FormRecordCleanupTask<Object> task = new FormRecordCleanupTask<Object>(CommCareApplication._(), platform, -1, recordStatus) {
+        CommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
+        FormRecordCleanupTask<Object> task = new FormRecordCleanupTask<Object>(CommCareApplication.instance(), platform, -1, recordStatus) {
             @Override
             protected void deliverResult(Object receiver, Integer result) {
             }

@@ -10,10 +10,12 @@ import android.widget.ListAdapter;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.EntitySortNotificationInterface;
+import org.commcare.cases.entity.EntitySorter;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.models.AsyncNodeEntityFactory;
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Action;
@@ -24,6 +26,7 @@ import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityActionViewUtils;
 import org.commcare.views.EntityView;
 import org.commcare.views.EntityViewTile;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
@@ -41,7 +44,7 @@ import java.util.List;
  * @author ctsims
  * @author wspride
  */
-public class EntityListAdapter implements ListAdapter {
+public class EntityListAdapter implements ListAdapter, EntitySortNotificationInterface {
     public static final int ENTITY_TYPE = 0;
     public static final int ACTION_TYPE = 1;
     public static final int DIVIDER_TYPE = 2;
@@ -164,7 +167,7 @@ public class EntityListAdapter implements ListAdapter {
         this.reverseSort = reverse;
         currentSort = fields;
 
-        java.util.Collections.sort(full, new EntitySorter(detail.getFields(), reverseSort, currentSort));
+        java.util.Collections.sort(full, new EntitySorter(detail.getFields(), reverseSort, currentSort, this));
     }
 
     @Override
@@ -460,7 +463,7 @@ public class EntityListAdapter implements ListAdapter {
 
     public void loadCalloutDataFromSession() {
         OrderedHashtable<String, String> externalData =
-                (OrderedHashtable<String, String>)CommCareApplication._()
+                (OrderedHashtable<String, String>)CommCareApplication.instance()
                         .getCurrentSession()
                         .getCurrentFrameStepExtra(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA);
         if (externalData != null) {
@@ -470,8 +473,12 @@ public class EntityListAdapter implements ListAdapter {
 
     public void saveCalloutDataToSession() {
         if (isFilteringByCalloutResult) {
-            CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
+            CommCareApplication.instance().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
         }
     }
 
+    @Override
+    public void notifyBadfilter(String[] args) {
+        CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Case_Filter, args));
+    }
 }

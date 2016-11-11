@@ -58,7 +58,7 @@ public class AppManagerAdvancedSettings extends PreferenceActivity {
         });
 
         Preference clearUserDataButton = findPreference(CLEAR_USER_DATA);
-        clearUserDataButton.setEnabled(!"".equals(CommCareApplication._().getCurrentUserId()));
+        clearUserDataButton.setEnabled(!"".equals(CommCareApplication.instance().getCurrentUserId()));
         clearUserDataButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {

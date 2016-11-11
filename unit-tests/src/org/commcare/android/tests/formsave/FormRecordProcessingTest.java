@@ -110,7 +110,7 @@ public class FormRecordProcessingTest {
 
     private CommCareHomeActivity buildHomeActivityForFormEntryLaunch() {
         AndroidSessionWrapper sessionWrapper =
-                CommCareApplication._().getCurrentSessionWrapper();
+                CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand("m0-f0");
 
@@ -154,7 +154,7 @@ public class FormRecordProcessingTest {
 
     private void assertStoredFroms() {
         SqlStorage<FormRecord> formsStorage =
-                CommCareApplication._().getUserStorage(FormRecord.class);
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
 
         int unsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS,
                 FormRecord.STATUS_UNSENT).size();
