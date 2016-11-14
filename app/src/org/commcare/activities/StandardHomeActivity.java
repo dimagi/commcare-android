@@ -50,7 +50,6 @@ public class StandardHomeActivity
 
     void enterRootModule() {
         Intent i = new Intent(this, MenuActivity.class);
-        i.putExtra(MenuActivity.KEY_USE_GRID_MENU, useGridMenu(null));
         addPendingDataExtra(i, CommCareApplication.instance().getCurrentSessionWrapper().getSession());
         startActivityForResult(i, GET_COMMAND);
     }

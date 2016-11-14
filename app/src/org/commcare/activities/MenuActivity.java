@@ -2,10 +2,13 @@ package org.commcare.activities;
 
 import android.os.Bundle;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.components.MenuBase;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Menu;
+import org.commcare.utils.AndroidCommCarePlatform;
 
 /**
  * Created by amstone326 on 11/14/16.
@@ -13,7 +16,8 @@ import org.commcare.suite.model.Menu;
 
 public class MenuActivity extends SyncCapableCommCareActivity<MenuActivity> {
 
-    public static final String KEY_USE_GRID_MENU = "should-use-grid-menu";
+    private static final String MENU_STYLE_GRID = "grid";
+
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -28,8 +32,18 @@ public class MenuActivity extends SyncCapableCommCareActivity<MenuActivity> {
             finish();
             return;
         }
-        boolean useGridMenu = getIntent().getBooleanExtra(KEY_USE_GRID_MENU, false);
-        MenuBase.setupMenuInActivity(this, menuId, useGridMenu, false);
+        MenuBase.setupMenuInActivity(this, menuId, useGridMenu(menuId), false);
+    }
+
+    private static boolean useGridMenu(String currentCommand) {
+        // First check if this is enabled in profile
+        if (CommCarePreferences.isGridMenuEnabled()) {
+            return true;
+        }
+        // If not, check style attribute for this particular menu block
+        AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
+        String commonDisplayStyle = platform.getMenuDisplayStyle(currentCommand);
+        return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
 
     @Override

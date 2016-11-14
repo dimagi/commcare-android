@@ -2,15 +2,12 @@ package org.commcare.activities;
 
 
 import android.app.ActionBar;
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Build;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import org.commcare.CommCareApplication;
 import org.commcare.activities.components.NavDrawerItem;
 import org.commcare.adapters.NavDrawerAdapter;
 import org.commcare.dalvik.R;
@@ -25,7 +22,6 @@ import java.util.Map;
 /**
  * Created by amstone326 on 11/10/16.
  */
-
 public class HomeNavDrawerController {
 
     private static final String ABOUT_CC_DRAWER_ITEM_ID = "about-cc";

@@ -100,8 +100,6 @@ public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareAc
     private static final String KEY_PENDING_SESSION_DATA = "pending-session-data-id";
     private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
 
-    private static final String MENU_STYLE_GRID = "grid";
-
     /**
      * Restart is a special CommCare activity result code which means that the session was
      * invalidated in the calling activity and that the current session should be resynced
@@ -666,24 +664,8 @@ public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareAc
         Intent i = new Intent(this, MenuActivity.class);
         String command = asw.getSession().getCommand();
         i.putExtra(SessionFrame.STATE_COMMAND_ID, command);
-        i.putExtra(MenuActivity.KEY_USE_GRID_MENU, useGridMenu(command));
         addPendingDataExtra(i, asw.getSession());
         startActivityForResult(i, GET_COMMAND);
-    }
-
-    protected static boolean useGridMenu(String currentCommand) {
-        // First check if this is enabled in profile
-        if (CommCarePreferences.isGridMenuEnabled()) {
-            return true;
-        }
-        // If not, check style attribute for this particular menu block
-        if (currentCommand == null) {
-            // If current command is null, that means we are on the root menu
-            currentCommand = org.commcare.suite.model.Menu.ROOT_MENU_ID;
-        }
-        AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
-        String commonDisplayStyle = platform.getMenuDisplayStyle(currentCommand);
-        return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
 
     private void launchRemoteSync(AndroidSessionWrapper asw) {
