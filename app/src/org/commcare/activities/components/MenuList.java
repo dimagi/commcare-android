@@ -6,7 +6,7 @@ import android.widget.TextView;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.MenuAdapter;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.ActionBarController;
+import org.commcare.fragments.BreadcrumbBarFragment;
 
 public class MenuList extends MenuBase {
 
@@ -26,7 +26,7 @@ public class MenuList extends MenuBase {
         if (header == null) {
             header = (TextView)activity.getLayoutInflater().inflate(R.layout.menu_list_header, null);
         }
-        String subHeaderTitle = ActionBarController.getBestSubHeaderTitle();
+        String subHeaderTitle = BreadcrumbBarFragment.getBestSubHeaderTitle();
         if (subHeaderTitle != null) {
             header.setText(subHeaderTitle);
             // header must not be clickable
