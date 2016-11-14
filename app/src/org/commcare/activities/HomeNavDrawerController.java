@@ -53,20 +53,18 @@ public class HomeNavDrawerController {
         initDrawerItemsToInclude();
         drawerLayout = (DrawerLayout)activity.findViewById(R.id.menu_activity_drawer_layout);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2
-                && activity.menuIsBeingUsedAsHomeScreen()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             navDrawerList = (ListView)activity.findViewById(R.id.nav_drawer);
             navDrawerList.setAdapter(new NavDrawerAdapter(activity, drawerItemsShowing));
             navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
             ActionBar actionBar = activity.getActionBar();
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayUseLogoEnabled(false);
             actionBar.setIcon(R.drawable.ic_menu_bar);
-        } else {
-            // Disable opening of the nav drawer if this menu is not being used as the home screen
+
+            // Disable opening of the nav drawer via swiping
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
     }

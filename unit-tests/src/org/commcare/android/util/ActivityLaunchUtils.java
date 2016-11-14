@@ -1,7 +1,7 @@
 package org.commcare.android.util;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.CommCareSession;
@@ -23,8 +23,8 @@ public class ActivityLaunchUtils {
     }
 
     public static ShadowActivity buildHomeActivity() {
-        CommCareHomeActivity homeActivity =
-                Robolectric.buildActivity(CommCareHomeActivity.class).create().get();
+        StandardHomeActivity homeActivity =
+                Robolectric.buildActivity(StandardHomeActivity.class).create().get();
         // make sure we don't actually submit forms by using a fake form submitter
         homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake());
         SessionNavigator sessionNavigator = homeActivity.getSessionNavigator();

@@ -23,20 +23,20 @@ import java.util.Vector;
  *
  * @author Aliza Stone (astone@dimagi.com)
  */
-public class HomeActivityUIController implements CommCareActivityUIController {
+public class StandardHomeActivityUIController implements CommCareActivityUIController {
 
-    private final CommCareHomeActivity activity;
+    private final StandardHomeActivity activity;
 
     private HomeScreenAdapter adapter;
 
-    public HomeActivityUIController(CommCareHomeActivity activity) {
+    public StandardHomeActivityUIController(StandardHomeActivity activity) {
         this.activity = activity;
     }
 
     @Override
     public void setupUI() {
         activity.setContentView(R.layout.home_screen);
-        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), CommCareHomeActivity.isDemoUser());
+        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
         setupGridView();
     }
 
@@ -94,11 +94,7 @@ public class HomeActivityUIController implements CommCareActivityUIController {
         });
     }
 
-    protected void displayMessage(String message, boolean suppressToast) {
-        if (!suppressToast) {
-            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
-        }
-
+    protected void updateSyncButtonMessage(String message) {
         // Manually route message payloads since RecyclerView payloads are a pain in the ass
         adapter.setMessagePayload(adapter.getSyncButtonPosition(), message);
         adapter.notifyItemChanged(adapter.getSyncButtonPosition());

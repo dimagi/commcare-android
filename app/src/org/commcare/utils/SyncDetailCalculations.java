@@ -6,7 +6,7 @@ import android.text.format.DateUtils;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
@@ -27,7 +27,7 @@ public class SyncDetailCalculations {
     private final static String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
     private final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
 
-    public static void updateSubText(final CommCareHomeActivity activity,
+    public static void updateSubText(final StandardHomeActivity activity,
                                      SquareButtonViewHolder squareButtonViewHolder,
                                      HomeCardDisplayData cardDisplayData) {
 

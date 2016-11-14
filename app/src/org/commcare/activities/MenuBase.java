@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -13,12 +12,11 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 
 public abstract class MenuBase
-        extends HomeActionsCapableCommCareActivity<MenuBase>
+        extends HomeScreenCapableActivity<MenuBase>
         implements AdapterView.OnItemClickListener {
 
-    private boolean isRootModuleMenu;
+    protected boolean isRootModuleMenu;
     protected String menuId;
-    private HomeNavDrawerController navDrawerController;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -28,8 +26,6 @@ public abstract class MenuBase
             menuId = Menu.ROOT_MENU_ID;
             isRootModuleMenu = true;
         }
-        navDrawerController = new HomeNavDrawerController(this);
-        navDrawerController.setupNavDrawer();
     }
 
     /**
@@ -72,39 +68,24 @@ public abstract class MenuBase
 
     @Override
     protected boolean onBackwardSwipe() {
-        if (menuIsBeingUsedAsHomeScreen()) {
-            return true;
-        }
         onBackPressed();
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home && menuIsBeingUsedAsHomeScreen()) {
-            if (navDrawerController.isDrawerOpen()) {
-                navDrawerController.closeDrawer();
-            } else {
-                navDrawerController.openDrawer();
-            }
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
+    // TODO: this may not be needed anymore
     @Override
     public boolean isBackEnabled() {
         return !isRootModuleMenu ||
                 (!menuIsBeingUsedAsHomeScreen() && !CommCareApplication.instance().isConsumerApp());
     }
 
-    protected boolean menuIsBeingUsedAsHomeScreen() {
-        return isRootModuleMenu && DeveloperPreferences.useRootModuleMenuAsHomeScreen();
-    }
-
     @Override
     public boolean shouldShowSyncItemInActionBar() {
         return menuIsBeingUsedAsHomeScreen() || DeveloperPreferences.syncFromAllContextsEnabled();
+    }
+
+    private boolean menuIsBeingUsedAsHomeScreen() {
+        return this instanceof RootMenuHomeActivity;
     }
 
 }

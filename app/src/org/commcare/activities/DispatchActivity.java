@@ -12,6 +12,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
@@ -229,7 +230,13 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void launchHomeScreen() {
-        Intent i = new Intent(this, CommCareHomeActivity.class);
+        Intent i;
+        if (DeveloperPreferences.useRootModuleMenuAsHomeScreen() ||
+                CommCareApplication.instance().isConsumerApp()) {
+            i = new Intent(this, RootMenuHomeActivity.class);
+        } else {
+            i = new Intent(this, StandardHomeActivity.class);
+        }
         i.putExtra(START_FROM_LOGIN, startFromLogin);
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
@@ -283,7 +290,7 @@ public class DispatchActivity extends FragmentActivity {
         SessionStateDescriptor ssd = new SessionStateDescriptor();
         ssd.fromBundle(sessionRequest);
         CommCareApplication.instance().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-        Intent i = new Intent(this, CommCareHomeActivity.class);
+        Intent i = new Intent(this, StandardHomeActivity.class);
         i.putExtra(WAS_EXTERNAL, true);
         startActivityForResult(i, HOME_SCREEN);
     }
@@ -296,7 +303,7 @@ public class DispatchActivity extends FragmentActivity {
 
             getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
             shortcutExtraWasConsumed = true;
-            Intent i = new Intent(this, CommCareHomeActivity.class);
+            Intent i = new Intent(this, StandardHomeActivity.class);
             i.putExtra(WAS_SHORTCUT_LAUNCH, true);
             startActivityForResult(i, HOME_SCREEN);
         }

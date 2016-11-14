@@ -25,16 +25,16 @@ import java.io.IOException;
  * 
  * @author wspride
  */
-@ManagedUi(R.layout.grid_menu_layout)
 public class MenuGrid extends MenuBase implements OnItemLongClickListener {
     private MenuAdapter adapter;
     
-    @UiElement(R.id.grid_menu_grid)
-    private GridView grid;
+    protected GridView grid;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
+        setContentView(R.layout.grid_menu_layout);
+        grid = (GridView)findViewById(R.id.grid_menu_grid);
 
         adapter = new GridMenuAdapter(this, CommCareApplication.instance().getCommCarePlatform(), menuId);
         adapter.showAnyLoadErrors(this);
@@ -47,7 +47,7 @@ public class MenuGrid extends MenuBase implements OnItemLongClickListener {
     /**
      * Get form list from database and insert into view.
      */
-    private void refreshView() {
+    protected void refreshView() {
         grid.setAdapter(adapter);
     }
 

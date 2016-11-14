@@ -689,7 +689,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 return true;
             // this is needed because superclasses do not implement the menu_settings click
             case R.id.menu_settings:
-                CommCareHomeActivity.createPreferencesMenu(this);
+                StandardHomeActivity.createPreferencesMenu(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -709,7 +709,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             return;
         }
 
-        activity.setResult(CommCareHomeActivity.RESULT_RESTART);
+        activity.setResult(StandardHomeActivity.RESULT_RESTART);
         activity.finish();
     }
 

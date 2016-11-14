@@ -93,7 +93,8 @@
             android:label="CommCare Forced Closure">
         </activity>
 
-        <activity android:name="org.commcare.activities.CommCareHomeActivity"/>
+        <activity android:name="org.commcare.activities.StandardHomeActivity"/>
+        <activity android:name="org.commcare.activities.RootMenuHomeActivity"/>
         <activity android:name="org.commcare.activities.MenuList"/>
         <activity android:name="org.commcare.activities.MenuGrid"/>
 
