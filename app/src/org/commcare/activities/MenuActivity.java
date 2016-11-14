@@ -13,7 +13,7 @@ import org.commcare.utils.AndroidCommCarePlatform;
 /**
  * Created by amstone326 on 11/14/16.
  */
-public class MenuActivity extends SyncCapableCommCareActivity<MenuActivity> {
+public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
 
     private static final String MENU_STYLE_GRID = "grid";
 
@@ -43,11 +43,6 @@ public class MenuActivity extends SyncCapableCommCareActivity<MenuActivity> {
         AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
         String commonDisplayStyle = platform.getMenuDisplayStyle(currentCommand);
         return MENU_STYLE_GRID.equals(commonDisplayStyle);
-    }
-
-    @Override
-    public boolean shouldShowSyncItemInActionBar() {
-        return DeveloperPreferences.syncFromAllContextsEnabled();
     }
 
     @Override

@@ -107,13 +107,6 @@
         android:key="cc-use-root-menu-as-home-screen"
         android:title="Use root module menu as home screen"/>
     <ListPreference
-        android:defaultValue="no"
-        android:enabled="true"
-        android:entries="@array/pref_enabled_labels"
-        android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-sync-from-all-contexts"
-        android:title="Ability to sync from menu screens and case lists"/>
-    <ListPreference
         android:enabled="true"
         android:defaultValue="no"
         android:entries="@array/pref_enabled_labels"
