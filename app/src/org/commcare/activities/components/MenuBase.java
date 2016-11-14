@@ -19,8 +19,8 @@ public abstract class MenuBase implements AdapterView.OnItemClickListener {
     protected MenuAdapter adapter;
     private boolean beingUsedAsHomeScreen;
 
-    public static void setupMenuInActivity(CommCareActivity activity, String menuId,
-                                           boolean useGridMenu, boolean beingUsedAsHomeScreen) {
+    public static void setupMenusViewInActivity(CommCareActivity activity, String menuId,
+                                                boolean useGridMenu, boolean beingUsedAsHomeScreen) {
         MenuBase menuBase;
         if (useGridMenu) {
             activity.setContentView(MenuGrid.LAYOUT_FILE);

@@ -32,7 +32,7 @@ public class MenuActivity extends SyncCapableCommCareActivity<MenuActivity> {
             finish();
             return;
         }
-        MenuBase.setupMenuInActivity(this, menuId, useGridMenu(menuId), false);
+        MenuBase.setupMenusViewInActivity(this, menuId, useGridMenu(menuId), false);
     }
 
     private static boolean useGridMenu(String currentCommand) {

@@ -6,7 +6,6 @@ import android.view.View;
 /**
  * Created by amstone326 on 11/10/16.
  */
-
 public class NavDrawerItem {
 
     public String id;

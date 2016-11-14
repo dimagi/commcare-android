@@ -57,7 +57,6 @@ public class StandardHomeActivity
     @Override
     public String getActivityTitle() {
         String userName;
-
         try {
             userName = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
             if (userName != null) {

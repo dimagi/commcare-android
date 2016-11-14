@@ -1,6 +1,5 @@
 package org.commcare.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,16 +7,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.commcare.activities.AppManagerActivity;
 import org.commcare.activities.components.NavDrawerItem;
 import org.commcare.dalvik.R;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.utils.MultipleAppsUtil;
 
 /**
- * The ArrayAdapter used by AppManagerActivity to display all installed
- * CommCare apps on the manager screen.
- *
  * @author amstone326
  */
 public class NavDrawerAdapter extends ArrayAdapter<NavDrawerItem> {
