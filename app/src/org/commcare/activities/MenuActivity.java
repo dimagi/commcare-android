@@ -13,7 +13,6 @@ import org.commcare.utils.AndroidCommCarePlatform;
 /**
  * Created by amstone326 on 11/14/16.
  */
-
 public class MenuActivity extends SyncCapableCommCareActivity<MenuActivity> {
 
     private static final String MENU_STYLE_GRID = "grid";

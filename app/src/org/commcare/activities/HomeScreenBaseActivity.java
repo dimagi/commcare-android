@@ -73,7 +73,7 @@ import java.util.Vector;
 /**
  * Created by amstone326 on 11/11/16.
  */
-public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareActivity<T>
+public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActivity<T>
         implements SessionNavigationResponder {
 
     /**
@@ -640,7 +640,7 @@ public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareAc
             public void onClick(DialogInterface dialog, int i) {
                 dismissAlertDialog();
                 asw.getSession().stepBack(asw.getEvaluationContext());
-                HomeScreenCapableActivity.this.sessionNavigator.startNextSessionStep();
+                HomeScreenBaseActivity.this.sessionNavigator.startNextSessionStep();
             }
         });
     }
@@ -799,7 +799,7 @@ public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareAc
                         break;
                     case DialogInterface.BUTTON_NEGATIVE:
                         // delete the old incomplete form
-                        FormRecordCleanupTask.wipeRecord(HomeScreenCapableActivity.this, existing);
+                        FormRecordCleanupTask.wipeRecord(HomeScreenBaseActivity.this, existing);
                         // fallthrough to new now that old record is gone
                     case DialogInterface.BUTTON_NEUTRAL:
                         // create a new form record and begin form entry

@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StandardHomeActivity
-        extends HomeScreenCapableActivity<StandardHomeActivity>
+        extends HomeScreenBaseActivity<StandardHomeActivity>
         implements WithUIController {
 
     private static final String TAG = StandardHomeActivity.class.getSimpleName();

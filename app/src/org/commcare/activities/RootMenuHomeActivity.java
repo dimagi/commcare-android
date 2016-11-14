@@ -10,7 +10,7 @@ import org.commcare.suite.model.Menu;
 /**
  * Created by amstone326 on 11/14/16.
  */
-public class RootMenuHomeActivity extends HomeScreenCapableActivity<RootMenuHomeActivity> {
+public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeActivity> {
 
     private HomeNavDrawerController navDrawerController;
 

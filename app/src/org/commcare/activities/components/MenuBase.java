@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.HomeScreenCapableActivity;
+import org.commcare.activities.HomeScreenBaseActivity;
 import org.commcare.adapters.MenuAdapter;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
@@ -71,7 +71,7 @@ public abstract class MenuBase implements AdapterView.OnItemClickListener {
         }
 
         if (beingUsedAsHomeScreen) {
-            ((HomeScreenCapableActivity)activity).setCommandAndProceed(commandId);
+            ((HomeScreenBaseActivity)activity).setCommandAndProceed(commandId);
         } else {
             Intent i = new Intent(activity.getIntent());
             i.putExtra(SessionFrame.STATE_COMMAND_ID, commandId);
