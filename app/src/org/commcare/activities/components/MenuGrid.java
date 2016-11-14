@@ -1,20 +1,17 @@
-package org.commcare.activities;
+package org.commcare.activities.components;
 
 import android.media.MediaPlayer;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
-import android.widget.ListView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.components.MenuBase;
 import org.commcare.adapters.GridMenuAdapter;
-import org.commcare.adapters.MenuAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.MenuDisplayable;
-import org.commcare.views.ManagedUi;
-import org.commcare.views.UiElement;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -26,29 +23,15 @@ import java.io.IOException;
  * @author wspride
  */
 public class MenuGrid extends MenuBase implements OnItemLongClickListener {
-    private MenuAdapter adapter;
-    
-    protected GridView grid;
+
+    public static int LAYOUT_FILE = R.layout.grid_menu_layout;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
-        super.onCreateSessionSafe(savedInstanceState);
-        setContentView(R.layout.grid_menu_layout);
-        grid = (GridView)findViewById(R.id.grid_menu_grid);
-
-        adapter = new GridMenuAdapter(this, CommCareApplication.instance().getCommCarePlatform(), menuId);
-        adapter.showAnyLoadErrors(this);
-        refreshView();
-
-        grid.setOnItemClickListener(this);
-        grid.setOnItemLongClickListener(this);
-    }
-
-    /**
-     * Get form list from database and insert into view.
-     */
-    protected void refreshView() {
-        grid.setAdapter(adapter);
+    protected void initViewAndAdapter(String menuId) {
+        adapterView = (GridView)activity.findViewById(R.id.grid_menu_grid);
+        adapterView.setOnItemLongClickListener(this);
+        adapter = new GridMenuAdapter(activity,
+                CommCareApplication.instance().getCommCarePlatform(), menuId);
     }
 
     @Override
@@ -76,4 +59,5 @@ public class MenuGrid extends MenuBase implements OnItemLongClickListener {
         
         return false;
     }
+
 }

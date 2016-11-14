@@ -95,8 +95,7 @@
 
         <activity android:name="org.commcare.activities.StandardHomeActivity"/>
         <activity android:name="org.commcare.activities.RootMenuHomeActivity"/>
-        <activity android:name="org.commcare.activities.MenuList"/>
-        <activity android:name="org.commcare.activities.MenuGrid"/>
+        <activity android:name="org.commcare.activities.MenuActivity"/>
 
         <provider
             android:name="org.commcare.provider.FormsProvider"

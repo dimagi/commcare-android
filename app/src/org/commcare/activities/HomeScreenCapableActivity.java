@@ -79,7 +79,7 @@ public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareAc
     /**
      * Request code for launching a menu list or menu grid
      */
-    protected static final int GET_COMMAND = 1;
+    public static final int GET_COMMAND = 1;
     /**
      * Request code for launching EntitySelectActivity (to allow user to select a case),
      * or EntityDetailActivity (to allow user to confirm an auto-selected case)
@@ -358,12 +358,12 @@ public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareAc
                     return;
                 case GET_INCOMPLETE_FORM:
                     //TODO: We might need to load this from serialized state?
-                    if(resultCode == RESULT_CANCELED) {
+                    if (resultCode == RESULT_CANCELED) {
                         refreshUI();
                         return;
                     } else if(resultCode == RESULT_OK) {
                         int record = intent.getIntExtra("FORMRECORDS", -1);
-                        if(record == -1) {
+                        if (record == -1) {
                             //Hm, what to do here?
                             break;
                         }
@@ -374,7 +374,7 @@ public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareAc
                         Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
                         AndroidSessionWrapper currentState =
                                 CommCareApplication.instance().getCurrentSessionWrapper();
-                        if(ssds.size() == 1) {
+                        if (ssds.size() == 1) {
                             currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
                         } else {
                             currentState.setFormRecordId(r.getID());
@@ -386,50 +386,19 @@ public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareAc
                     }
                     break;
                 case GET_COMMAND:
-                    //TODO: We might need to load this from serialized state?
-                    AndroidSessionWrapper currentState =
-                            CommCareApplication.instance().getCurrentSessionWrapper();
-                    if (resultCode == RESULT_CANCELED) {
-                        if (currentState.getSession().getCommand() == null) {
-                            //Needed a command, and didn't already have one. Stepping back from
-                            //an empty state, Go home!
-                            currentState.reset();
-                            refreshUI();
-                            return;
-                        } else {
-                            currentState.getSession().stepBack(currentState.getEvaluationContext());
-                        }
-                    } else if (resultCode == RESULT_OK) {
-                        CommCareSession session = currentState.getSession();
-                        if (sessionStateUnchangedSinceCallout(session, intent)) {
-                            //Get our command, set it, and continue forward
-                            String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
-                            session.setCommand(command);
-                        } else {
-                            clearSessionAndExit(currentState, true);
-                            return;
-                        }
+                    boolean fetchNext = processReturnFromGetCommand(resultCode, intent);
+                    if (!fetchNext) {
+                        return;
                     }
                     break;
                 case GET_CASE:
-                    //TODO: We might need to load this from serialized state?
-                    AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
-                    CommCareSession currentSession = asw.getSession();
-                    if (resultCode == RESULT_CANCELED) {
-                        currentSession.stepBack(asw.getEvaluationContext());
-                    } else if (resultCode == RESULT_OK) {
-                        if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
-                            String sessionDatumId = currentSession.getNeededDatum().getDataId();
-                            String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
-                            currentSession.setDatum(sessionDatumId, chosenCaseId);
-                        } else {
-                            clearSessionAndExit(asw, true);
-                            return;
-                        }
+                    fetchNext = processReturnFromGetCase(resultCode, intent);
+                    if (!fetchNext) {
+                        return;
                     }
                     break;
                 case MODEL_RESULT:
-                    boolean fetchNext = processReturnFromFormEntry(resultCode, intent);
+                    fetchNext = processReturnFromFormEntry(resultCode, intent);
                     if (!fetchNext) {
                         return;
                     }
@@ -465,6 +434,68 @@ public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareAc
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
+    private boolean processReturnFromGetCase(int resultCode, Intent intent) {
+        if (resultCode == RESULT_CANCELED) {
+            return processCanceledGetCommandOrCase();
+        } else if (resultCode == RESULT_OK) {
+            return processSuccessfulGetCase(intent);
+        }
+        return false;
+    }
+
+    private boolean processReturnFromGetCommand(int resultCode, Intent intent) {
+        if (resultCode == RESULT_CANCELED) {
+            return processCanceledGetCommandOrCase();
+        } else if (resultCode == RESULT_OK) {
+            return processSuccessfulGetCommand(intent);
+        }
+        return true;
+    }
+
+    private boolean processSuccessfulGetCommand(Intent intent) {
+        AndroidSessionWrapper currentState =
+                CommCareApplication.instance().getCurrentSessionWrapper();
+        CommCareSession session = currentState.getSession();
+        if (sessionStateUnchangedSinceCallout(session, intent)) {
+            // Get our command, set it, and continue forward
+            String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
+            session.setCommand(command);
+            return true;
+        } else {
+            clearSessionAndExit(currentState, true);
+            return false;
+        }
+    }
+
+    private boolean processSuccessfulGetCase(Intent intent) {
+        AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
+        CommCareSession currentSession = asw.getSession();
+        if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
+            String sessionDatumId = currentSession.getNeededDatum().getDataId();
+            String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
+            currentSession.setDatum(sessionDatumId, chosenCaseId);
+            return true;
+        } else {
+            clearSessionAndExit(asw, true);
+            return false;
+        }
+    }
+
+    private boolean processCanceledGetCommandOrCase() {
+        AndroidSessionWrapper currentState =
+                CommCareApplication.instance().getCurrentSessionWrapper();
+        if (currentState.getSession().getCommand() == null) {
+            // Needed a command, and didn't already have one. Stepping back from
+            // an empty state, Go home!
+            currentState.reset();
+            refreshUI();
+            return false;
+        } else {
+            currentState.getSession().stepBack(currentState.getEvaluationContext());
+            return true;
+        }
+    }
+
     private void handleAdvancedActionResult(int resultCode, Intent intent) {
         if (resultCode == AdvancedActionsActivity.RESULT_FORMS_PROCESSED) {
             int formProcessCount = intent.getIntExtra(AdvancedActionsActivity.FORM_PROCESS_COUNT_KEY, 0);
@@ -486,7 +517,12 @@ public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareAc
         }
     }
 
-    private void startNextSessionStepSafe() {
+    public void setCommandAndProceed(String commandId) {
+        CommCareApplication.instance().getCurrentSessionWrapper().getSession().setCommand(commandId);
+        startNextSessionStepSafe();
+    }
+
+    public void startNextSessionStepSafe() {
         try {
             sessionNavigator.startNextSessionStep();
         } catch (CommCareInstanceInitializer.FixtureInitializationException e) {
@@ -627,30 +663,26 @@ public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareAc
     }
 
     private void handleGetCommand(AndroidSessionWrapper asw) {
-        Intent i;
+        Intent i = new Intent(this, MenuActivity.class);
         String command = asw.getSession().getCommand();
-
-        if (useGridMenu(command)) {
-            i = new Intent(this, MenuGrid.class);
-        } else {
-            i = new Intent(this, MenuList.class);
-        }
         i.putExtra(SessionFrame.STATE_COMMAND_ID, command);
+        i.putExtra(MenuActivity.KEY_USE_GRID_MENU, useGridMenu(command));
         addPendingDataExtra(i, asw.getSession());
         startActivityForResult(i, GET_COMMAND);
     }
 
-    protected static boolean useGridMenu(String menuId) {
-        // first check if this is enabled in profile
+    protected static boolean useGridMenu(String currentCommand) {
+        // First check if this is enabled in profile
         if (CommCarePreferences.isGridMenuEnabled()) {
             return true;
         }
-        // if not, check style attribute for this particular menu block
-        if (menuId == null) {
-            menuId = org.commcare.suite.model.Menu.ROOT_MENU_ID;
+        // If not, check style attribute for this particular menu block
+        if (currentCommand == null) {
+            // If current command is null, that means we are on the root menu
+            currentCommand = org.commcare.suite.model.Menu.ROOT_MENU_ID;
         }
         AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
-        String commonDisplayStyle = platform.getMenuDisplayStyle(menuId);
+        String commonDisplayStyle = platform.getMenuDisplayStyle(currentCommand);
         return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
 
@@ -1087,6 +1119,13 @@ public abstract class HomeScreenCapableActivity<T> extends SyncCapableCommCareAc
         }
         return true;
     }
+
+    void userTriggeredLogout() {
+        CommCareApplication.instance().closeUserSession();
+        setResult(RESULT_OK);
+        finish();
+    }
+
 
     /**
      * For Testing purposes only

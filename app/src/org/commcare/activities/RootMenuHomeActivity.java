@@ -3,18 +3,26 @@ package org.commcare.activities;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import org.commcare.activities.components.MenuBase;
+import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.Menu;
+
 /**
  * Created by amstone326 on 11/14/16.
  */
 
-public class RootMenuHomeActivity extends MenuGrid {
+public class RootMenuHomeActivity extends HomeScreenCapableActivity<RootMenuHomeActivity> {
 
     private HomeNavDrawerController navDrawerController;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        isRootModuleMenu = true;
+        String menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
+        if (menuId == null) {
+            menuId = Menu.ROOT_MENU_ID;
+        }
+        MenuBase.setupMenuInActivity(this, menuId, true, true);
         navDrawerController = new HomeNavDrawerController(this);
         navDrawerController.setupNavDrawer();
     }
@@ -33,7 +41,17 @@ public class RootMenuHomeActivity extends MenuGrid {
     }
 
     @Override
+    public boolean shouldShowSyncItemInActionBar() {
+        return true;
+    }
+
+    @Override
     public void refreshUI() {
-        refreshView();
+        //TODO: implement this
+    }
+
+    @Override
+    public boolean isBackEnabled() {
+        return false;
     }
 }

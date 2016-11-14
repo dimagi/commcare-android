@@ -37,14 +37,14 @@ public class HomeNavDrawerController {
     private static final String SAVED_FORMS_ITEM_ID = "saved-forms";
     private static final String LOGOUT_DRAWER_ITEM_ID = "home-logout";
 
-    private MenuBase activity;
+    private RootMenuHomeActivity activity;
 
     private DrawerLayout drawerLayout;
     private ListView navDrawerList;
     private Map<String, NavDrawerItem> allDrawerItems;
     private NavDrawerItem[] drawerItemsShowing;
 
-    public HomeNavDrawerController(MenuBase activity) {
+    public HomeNavDrawerController(RootMenuHomeActivity activity) {
         this.activity = activity;
     }
 
@@ -127,9 +127,7 @@ public class HomeNavDrawerController {
                         activity.showLocaleChangeMenu(null);
                         break;
                     case LOGOUT_DRAWER_ITEM_ID:
-                        CommCareApplication.instance().closeUserSession();
-                        activity.setResult(Activity.RESULT_CANCELED, new Intent(activity.getIntent()));
-                        activity.finish();
+                        activity.userTriggeredLogout();
                         break;
                 }
             }
