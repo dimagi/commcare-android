@@ -51,7 +51,7 @@ import java.util.Vector;
  * @author ctsims
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class BreadcrumbBarFragment extends Fragment {
+public class ActionBarController extends Fragment {
 
     private TabbedDetailView mInternalDetailView = null;
     private View tile;

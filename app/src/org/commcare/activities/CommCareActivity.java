@@ -27,7 +27,7 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.fragments.BreadcrumbBarFragment;
+import org.commcare.fragments.ActionBarController;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
@@ -137,11 +137,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             getActionBar().setDisplayShowCustomEnabled(true);
 
             // Add breadcrumb bar
-            BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+            ActionBarController bar = (ActionBarController) fm.findFragmentByTag("breadcrumbs");
 
             // If the state holder is null, create a new one for this activity
             if (bar == null) {
-                bar = new BreadcrumbBarFragment();
+                bar = new ActionBarController();
                 fm.beginTransaction().add(bar, "breadcrumbs").commit();
             }
         }
@@ -811,7 +811,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void refreshActionBar() {
         FragmentManager fm = this.getSupportFragmentManager();
-        BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+        ActionBarController bar = (ActionBarController) fm.findFragmentByTag("breadcrumbs");
         bar.refresh(this);
     }
 
