@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.os.Build;
 import android.support.v4.widget.DrawerLayout;
@@ -44,55 +44,30 @@ public class HomeNavDrawerController {
 
     public HomeNavDrawerController(RootMenuHomeActivity activity) {
         this.activity = activity;
-    }
-
-    private boolean versionCompatibleWithNavDrawer() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
-    }
-
-    protected boolean isDrawerOpen() {
-        return drawerLayout.isDrawerOpen(navDrawerList);
-    }
-
-    protected void openDrawer() {
-        if (versionCompatibleWithNavDrawer()) {
-            drawerLayout.openDrawer(navDrawerList);
-        }
-    }
-
-    protected void closeDrawer() {
-        if (versionCompatibleWithNavDrawer()) {
-            drawerLayout.closeDrawer(navDrawerList);
-        }
-    }
-
-    protected void setupNavDrawer() {
         drawerLayout = (DrawerLayout)activity.findViewById(R.id.menu_activity_drawer_layout);
         navDrawerList = (ListView)activity.findViewById(R.id.nav_drawer);
-
         // Disable opening of the nav drawer via swiping
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
 
-        if (versionCompatibleWithNavDrawer()) {
-            initDrawerItemsMap();
-            determineDrawerItemsToInclude();
-            navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
-            refreshItems();
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    protected void setupNavDrawer() {
+        initDrawerItemsMap();
+        determineDrawerItemsToInclude();
+        navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
+        refreshItems();
 
-            ActionBar actionBar = activity.getActionBar();
-            actionBar.setHomeButtonEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(false);
-            actionBar.setDisplayUseLogoEnabled(false);
-            actionBar.setIcon(R.drawable.ic_menu_bar);
-        }
+        ActionBar actionBar = activity.getActionBar();
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setDisplayUseLogoEnabled(false);
+        actionBar.setIcon(R.drawable.ic_menu_bar);
     }
 
     protected void refreshItems() {
-        if (versionCompatibleWithNavDrawer()) {
-            updateItemSubtexts();
-            determineDrawerItemsToInclude();
-            navDrawerList.setAdapter(new NavDrawerAdapter(activity, drawerItemsShowing));
-        }
+        updateItemSubtexts();
+        determineDrawerItemsToInclude();
+        navDrawerList.setAdapter(new NavDrawerAdapter(activity, drawerItemsShowing));
     }
 
     private void updateItemSubtexts() {
@@ -222,6 +197,18 @@ public class HomeNavDrawerController {
         } else {
             return null;
         }
+    }
+
+    protected boolean isDrawerOpen() {
+        return drawerLayout.isDrawerOpen(navDrawerList);
+    }
+
+    protected void openDrawer() {
+        drawerLayout.openDrawer(navDrawerList);
+    }
+
+    protected void closeDrawer() {
+        drawerLayout.closeDrawer(navDrawerList);
     }
 
 }

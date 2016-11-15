@@ -5,7 +5,6 @@ import android.os.Bundle;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.MenuList;
 import org.commcare.preferences.CommCarePreferences;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Menu;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -24,7 +23,7 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
         if (menuId == null) {
             menuId = Menu.ROOT_MENU_ID;
         }
-        if (menuId == Menu.ROOT_MENU_ID && DeveloperPreferences.useRootModuleMenuAsHomeScreen()) {
+        if (menuId == Menu.ROOT_MENU_ID && DispatchActivity.useRootMenuHomeActivity()) {
             // Pressing back from any screen immediately after the RootMenuHomeActivity will take
             // us here, so we want to redirect
             finish();

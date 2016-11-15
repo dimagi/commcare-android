@@ -1,9 +1,11 @@
 package org.commcare.activities;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 
 import org.commcare.activities.components.MenuList;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Menu;
 
@@ -27,12 +29,14 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
         }
         MenuList.setupMenusViewInActivity(this, menuId, true, true);
         navDrawerController = new HomeNavDrawerController(this);
-        navDrawerController.setupNavDrawer();
+        if (usingNavDrawer()) {
+            navDrawerController.setupNavDrawer();
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
+        if (usingNavDrawer() && item.getItemId() == android.R.id.home) {
             if (navDrawerController.isDrawerOpen()) {
                 navDrawerController.closeDrawer();
             } else {
@@ -43,15 +47,26 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
         return super.onOptionsItemSelected(item);
     }
 
+    private boolean usingNavDrawer() {
+        // It's possible that this activity is being used as the home screen without having this flag
+        // set explicitly (if this is a consumer app), in which case we don't want to show user actions
+        return DeveloperPreferences.useRootModuleMenuAsHomeScreen() &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+    }
+
     @Override
     public boolean shouldShowSyncItemInActionBar() {
-        return true;
+        // It's possible that this activity is being used as the home screen without having this flag
+        // set explicitly (if this is a consumer app), in which case we don't want to show user actions
+        return DeveloperPreferences.useRootModuleMenuAsHomeScreen();
     }
 
     @Override
     public void refreshUI() {
         rebuildOptionsMenu();
-        navDrawerController.refreshItems();
+        if (usingNavDrawer()) {
+            navDrawerController.refreshItems();
+        }
     }
 
 }

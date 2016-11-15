@@ -311,7 +311,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return choices;
     }
 
-
     protected void goToFormArchive(boolean incomplete) {
         goToFormArchive(incomplete, null);
     }

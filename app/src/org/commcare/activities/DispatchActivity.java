@@ -231,8 +231,7 @@ public class DispatchActivity extends FragmentActivity {
 
     private void launchHomeScreen() {
         Intent i;
-        if (DeveloperPreferences.useRootModuleMenuAsHomeScreen() ||
-                CommCareApplication.instance().isConsumerApp()) {
+        if (useRootMenuHomeActivity()) {
             i = new Intent(this, RootMenuHomeActivity.class);
         } else {
             i = new Intent(this, StandardHomeActivity.class);
@@ -242,6 +241,11 @@ public class DispatchActivity extends FragmentActivity {
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
         startFromLogin = false;
         startActivityForResult(i, HOME_SCREEN);
+    }
+
+    public static boolean useRootMenuHomeActivity() {
+        return DeveloperPreferences.useRootModuleMenuAsHomeScreen() ||
+                CommCareApplication.instance().isConsumerApp();
     }
 
     /**
