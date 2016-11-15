@@ -8,6 +8,7 @@ import org.commcare.activities.components.MenuList;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Menu;
+import org.commcare.tasks.DataSubmissionListener;
 
 /**
  * A version of the CommCare home screen that uses the UI of the root module menu
@@ -96,4 +97,9 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
         // empty intentionally
     }
 
+    @Override
+    boolean usingFormSubmissionProgressBar() {
+        return true;
+    }
+    
 }

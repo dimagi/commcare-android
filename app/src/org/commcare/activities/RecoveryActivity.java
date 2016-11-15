@@ -106,7 +106,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                         };
 
-                mProcess.setListeners(CommCareApplication.instance().getSession().startDataSubmissionListener());
+                mProcess.setListener(CommCareApplication.instance().getSession().getSubmissionListenerForNotificationManager());
 
                 mProcess.connect(RecoveryActivity.this);
 

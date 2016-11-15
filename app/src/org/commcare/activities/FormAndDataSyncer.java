@@ -93,7 +93,7 @@ public class FormAndDataSyncer {
             }
         };
 
-        processAndSendTask.setListeners(CommCareApplication.instance().getSession().startDataSubmissionListener());
+        processAndSendTask.setListener(CommCareApplication.instance().getSession().getSubmissionListenerForNotificationManager());
         processAndSendTask.connect(activity);
         processAndSendTask.executeParallel(records);
     }

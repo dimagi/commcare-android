@@ -121,12 +121,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 }
             }
 
-
-            //Ok, all forms are now processed. Time to focus on sending
+            // Ok, all forms are now processed. Time to focus on sending
             if (formSubmissionListener != null) {
                 formSubmissionListener.beginSubmissionProcess(records.length);
             }
-
             sendForms(records);
 
             return FormUploadResult.getWorstResult(results);
@@ -346,7 +344,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
     }
 
-    public void setListeners(DataSubmissionListener submissionListener) {
+    public void setListener(DataSubmissionListener submissionListener) {
         this.formSubmissionListener = submissionListener;
     }
 
@@ -408,12 +406,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     @Override
     protected void onCancelled() {
         super.onCancelled();
-
         if (this.formSubmissionListener != null) {
             formSubmissionListener.endSubmissionProcess();
         }
         CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
-
         clearState();
     }
 

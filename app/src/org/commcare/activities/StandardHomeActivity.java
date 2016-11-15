@@ -229,4 +229,9 @@ public class StandardHomeActivity
         uiController.refreshView();
     }
 
+    @Override
+    boolean usingFormSubmissionProgressBar() {
+        return false;
+    }
+
 }
