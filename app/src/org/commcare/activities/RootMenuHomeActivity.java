@@ -84,11 +84,16 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     }
 
     @Override
-    public void refreshUI() {
-        rebuildOptionsMenu();
+    public void reportSyncResult(String message, boolean success) {
+        super.reportSyncResult(message, success);
         if (usingNavDrawer()) {
             navDrawerController.refreshItems();
         }
+    }
+
+    @Override
+    public void refreshUI() {
+        // empty intentionally
     }
 
 }
