@@ -23,6 +23,9 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Normal CommCare home screen activity
+ */
 public class StandardHomeActivity
         extends HomeScreenBaseActivity<StandardHomeActivity>
         implements WithUIController {

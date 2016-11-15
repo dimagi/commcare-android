@@ -19,7 +19,7 @@ import org.commcare.suite.model.Profile;
 import java.util.Vector;
 
 /**
- * Handles home activity UI
+ * Handles UI of the normal home screen
  *
  * @author Aliza Stone (astone@dimagi.com)
  */

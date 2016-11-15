@@ -20,7 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by amstone326 on 11/10/16.
+ * Manages the UI of the nav drawer in RootMenuHomeActivity
+ *
+ * @author Aliza Stone
  */
 public class HomeNavDrawerController {
 

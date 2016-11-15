@@ -71,7 +71,8 @@ import java.util.HashMap;
 import java.util.Vector;
 
 /**
- * Created by amstone326 on 11/11/16.
+ * Manages all of the shared components of a CommCare home screen (activity lifecycle,
+ * implementation of available actions, session navigation, etc.)
  */
 public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActivity<T>
         implements SessionNavigationResponder {
@@ -1102,12 +1103,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return true;
     }
 
-    void userTriggeredLogout() {
+    protected void userTriggeredLogout() {
         CommCareApplication.instance().closeUserSession();
         setResult(RESULT_OK);
         finish();
     }
-
 
     /**
      * For Testing purposes only
@@ -1120,8 +1120,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
     }
 
-    public void refreshUI() {
-        // Empty intentionally, can be overrode by subclasses if desired
-    }
+    abstract void refreshUI();
 
 }

@@ -8,7 +8,11 @@ import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Menu;
 
 /**
- * Created by amstone326 on 11/14/16.
+ * A version of the CommCare home screen that uses the UI of the root module menu
+ * displayed in grid view, and makes all home screen actions available via a
+ * navigation drawer (instead of via the usual home screen buttons and options menu)
+ *
+ * @author Aliza Stone
  */
 public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeActivity> {
 

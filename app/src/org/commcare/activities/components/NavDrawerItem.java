@@ -1,10 +1,11 @@
 package org.commcare.activities.components;
 
 import android.support.annotation.DrawableRes;
-import android.view.View;
 
 /**
- * Created by amstone326 on 11/10/16.
+ * Represents a single item in the RootMenuHomeActivity's nav drawer
+ *
+ * @author Aliza Stone
  */
 public class NavDrawerItem {
 
