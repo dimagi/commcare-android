@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Normal CommCare home screen activity
+ * Normal CommCare home screen
  */
 public class StandardHomeActivity
         extends HomeScreenBaseActivity<StandardHomeActivity>

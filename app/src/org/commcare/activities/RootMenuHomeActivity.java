@@ -30,7 +30,7 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
         if (menuId == null) {
             menuId = Menu.ROOT_MENU_ID;
         }
-        MenuList.setupMenusViewInActivity(this, menuId, true, true);
+        MenuList.setupMenuViewInActivity(this, menuId, true, true);
         navDrawerController = new HomeNavDrawerController(this);
         if (usingNavDrawer()) {
             navDrawerController.setupNavDrawer();

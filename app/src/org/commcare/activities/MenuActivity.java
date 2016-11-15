@@ -9,9 +9,6 @@ import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Menu;
 import org.commcare.utils.AndroidCommCarePlatform;
 
-/**
- * Created by amstone326 on 11/14/16.
- */
 public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
 
     private static final String MENU_STYLE_GRID = "grid";
@@ -29,7 +26,7 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
             finish();
             return;
         }
-        MenuList.setupMenusViewInActivity(this, menuId, useGridMenu(menuId), false);
+        MenuList.setupMenuViewInActivity(this, menuId, useGridMenu(menuId), false);
     }
 
     private static boolean useGridMenu(String currentCommand) {

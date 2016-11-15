@@ -25,16 +25,20 @@ public class MenuList implements AdapterView.OnItemClickListener {
     private boolean beingUsedAsHomeScreen;
     private TextView header;
 
-    public static void setupMenusViewInActivity(CommCareActivity activity, String menuId,
-                                                boolean useGridMenu, boolean beingUsedAsHomeScreen) {
-        MenuList menusView;
+    /**
+     * Injects a list (or grid) of CommCare modules/forms for the given menu id into the UI of
+     * the given activity
+     */
+    public static void setupMenuViewInActivity(CommCareActivity activity, String menuId,
+                                               boolean useGridMenu, boolean beingUsedAsHomeScreen) {
+        MenuList menuView;
         if (useGridMenu) {
-            menusView = new MenuGrid();
+            menuView = new MenuGrid();
         } else {
-            menusView = new MenuList();
+            menuView = new MenuList();
         }
-        menusView.setupMenuInActivity(activity, menuId);
-        menusView.beingUsedAsHomeScreen = beingUsedAsHomeScreen;
+        menuView.setupMenuInActivity(activity, menuId);
+        menuView.beingUsedAsHomeScreen = beingUsedAsHomeScreen;
     }
 
     public int getLayoutFileResource() {
