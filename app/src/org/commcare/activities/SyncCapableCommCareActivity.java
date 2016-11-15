@@ -215,14 +215,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             MenuItem item = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");
             Drawable syncDrawable =
                     getResources().getDrawable(R.drawable.ic_sync_action_bar);
-            int numUnsentForms = SyncDetailCalculations.getNumUnsentForms();
-            if (numUnsentForms > 0) {
-                syncDrawable.setColorFilter(new PorterDuffColorFilter(
-                        getResources().getColor(R.color.cc_attention_negative_color),
-                        PorterDuff.Mode.MULTIPLY));
-            } else {
-                syncDrawable.setColorFilter(null);
-            }
             item.setIcon(syncDrawable);
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
