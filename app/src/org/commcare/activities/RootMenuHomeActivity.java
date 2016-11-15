@@ -18,7 +18,10 @@ import org.commcare.suite.model.Menu;
  */
 public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeActivity> {
 
+    private static final String KEY_DRAWER_WAS_OPEN = "drawer-open-before-rotation";
+
     private HomeNavDrawerController navDrawerController;
+    private boolean reopenDrawerInOnResume;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -31,6 +34,18 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
         navDrawerController = new HomeNavDrawerController(this);
         if (usingNavDrawer()) {
             navDrawerController.setupNavDrawer();
+            if (savedInstanceState != null && savedInstanceState.getBoolean(KEY_DRAWER_WAS_OPEN)) {
+                reopenDrawerInOnResume = true;
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (reopenDrawerInOnResume) {
+            navDrawerController.openDrawer();
+            reopenDrawerInOnResume = false;
         }
     }
 
@@ -45,6 +60,12 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_DRAWER_WAS_OPEN, navDrawerController.isDrawerOpen());
     }
 
     private boolean usingNavDrawer() {
