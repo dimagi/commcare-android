@@ -3,7 +3,7 @@ package org.commcare.activities;
 import android.os.Bundle;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.components.MenuBase;
+import org.commcare.activities.components.MenuList;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.SessionFrame;
@@ -31,7 +31,7 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
             finish();
             return;
         }
-        MenuBase.setupMenusViewInActivity(this, menuId, useGridMenu(menuId), false);
+        MenuList.setupMenusViewInActivity(this, menuId, useGridMenu(menuId), false);
     }
 
     private static boolean useGridMenu(String currentCommand) {

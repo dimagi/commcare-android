@@ -7,8 +7,6 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.components.MenuBase;
 import org.commcare.adapters.GridMenuAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.MenuDisplayable;
@@ -22,9 +20,12 @@ import java.io.IOException;
  * 
  * @author wspride
  */
-public class MenuGrid extends MenuBase implements OnItemLongClickListener {
+public class MenuGrid extends MenuList implements OnItemLongClickListener {
 
-    public static int LAYOUT_FILE = R.layout.grid_menu_layout;
+    @Override
+    public int getLayoutFileResource() {
+        return R.layout.grid_menu_layout;
+    }
 
     @Override
     protected void initViewAndAdapter(String menuId) {
@@ -39,24 +40,19 @@ public class MenuGrid extends MenuBase implements OnItemLongClickListener {
             int position, long id) {
         MenuDisplayable value = (MenuDisplayable)parent.getAdapter().getItem(position);
         String audioURI = value.getAudioURI();
-        String audioFilename;
-        
         MediaPlayer mp = new MediaPlayer();
-        
-        if(audioURI != null && !audioURI.equals("")) {
+        String audioFilename;
+        if (audioURI != null && !audioURI.equals("")) {
             try {
                 audioFilename = ReferenceManager.instance().DeriveReference(audioURI).getLocalURI();
-                
                 mp.setDataSource(audioFilename);
                 mp.prepare();
                 mp.start();
-                
             } catch (IOException | IllegalStateException
                     | InvalidReferenceException e) {
                 e.printStackTrace();
             }
         }
-        
         return false;
     }
 

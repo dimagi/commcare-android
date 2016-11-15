@@ -3,7 +3,7 @@ package org.commcare.activities;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import org.commcare.activities.components.MenuBase;
+import org.commcare.activities.components.MenuList;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Menu;
 
@@ -21,7 +21,7 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
         if (menuId == null) {
             menuId = Menu.ROOT_MENU_ID;
         }
-        MenuBase.setupMenusViewInActivity(this, menuId, true, true);
+        MenuList.setupMenusViewInActivity(this, menuId, true, true);
         navDrawerController = new HomeNavDrawerController(this);
         navDrawerController.setupNavDrawer();
     }
