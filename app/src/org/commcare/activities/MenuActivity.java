@@ -16,8 +16,7 @@ import org.commcare.utils.AndroidCommCarePlatform;
 public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
 
     private static final String MENU_STYLE_GRID = "grid";
-
-
+    
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);

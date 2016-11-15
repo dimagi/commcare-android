@@ -7,7 +7,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;

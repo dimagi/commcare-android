@@ -543,7 +543,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 barcodeScanOnClickListener.onClick(null);
                 return true;
             case R.id.menu_settings:
-                StandardHomeActivity.createPreferencesMenu(this);
+                HomeScreenBaseActivity.createPreferencesMenu(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
