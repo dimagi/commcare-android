@@ -204,11 +204,6 @@ public class StandardHomeActivity
     }
 
     @Override
-    public boolean isBackEnabled() {
-        return false;
-    }
-
-    @Override
     public void initUIController() {
         uiController = new StandardHomeActivityUIController(this);
     }

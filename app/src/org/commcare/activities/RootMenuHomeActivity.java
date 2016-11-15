@@ -54,8 +54,4 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
         navDrawerController.refreshItems();
     }
 
-    @Override
-    public boolean isBackEnabled() {
-        return false;
-    }
 }

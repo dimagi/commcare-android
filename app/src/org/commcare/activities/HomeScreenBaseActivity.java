@@ -521,11 +521,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
     }
 
-    public void setCommandAndProceed(String commandId) {
-        CommCareApplication.instance().getCurrentSessionWrapper().getSession().setCommand(commandId);
-        startNextSessionStepSafe();
-    }
-
     public void startNextSessionStepSafe() {
         try {
             sessionNavigator.startNextSessionStep();
@@ -615,7 +610,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 resultInstanceURI = intent.getData();
             }
             if (resultInstanceURI == null) {
-                CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Unretrievable));
+                CommCareApplication.instance().reportNotificationMessage(
+                        NotificationMessageFactory.message(
+                                NotificationMessageFactory.StockMessages.FormEntry_Unretrievable));
                 Toast.makeText(this,
                         "Error while trying to read the form! See the notification",
                         Toast.LENGTH_LONG).show();
@@ -776,6 +773,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
     }
 
+    public void setCommandAndProceed(String commandId) {
+        CommCareApplication.instance().getCurrentSessionWrapper().getSession().setCommand(commandId);
+        startNextSessionStepSafe();
+    }
+
     @Override
     public CommCareSession getSessionForNavigator() {
         return CommCareApplication.instance().getCurrentSession();
@@ -848,6 +850,18 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         startActivityForResult(getSelectIntent(session), GET_CASE);
     }
 
+    private Intent getSelectIntent(CommCareSession session) {
+        Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
+        i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
+        StackFrameStep lastPopped = session.getPoppedStep();
+        if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
+            i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
+        }
+        addPendingDataExtra(i, session);
+        addPendingDatumIdExtra(i, session);
+        return i;
+    }
+
     public void launchUpdateActivity() {
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
         startActivity(i);
@@ -879,18 +893,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 startActivityForResult(detailIntent, GET_CASE);
             }
         }
-    }
-
-    private Intent getSelectIntent(CommCareSession session) {
-        Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
-        i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
-        StackFrameStep lastPopped = session.getPoppedStep();
-        if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
-            i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
-        }
-        addPendingDataExtra(i, session);
-        addPendingDatumIdExtra(i, session);
-        return i;
     }
 
     protected static void addPendingDataExtra(Intent i, CommCareSession session) {
@@ -1104,6 +1106,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             Toast.makeText(this, Localization.get("home.developer.options.enabled"),
                     Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public boolean isBackEnabled() {
+        return false;
     }
 
     /**
