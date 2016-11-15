@@ -44,25 +44,58 @@ public class HomeNavDrawerController {
         this.activity = activity;
     }
 
-    protected void setupNavDrawer() {
-        initDrawerItemsMap();
-        initDrawerItemsToInclude();
-        drawerLayout = (DrawerLayout)activity.findViewById(R.id.menu_activity_drawer_layout);
+    private boolean versionCompatibleWithNavDrawer() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
+    }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            navDrawerList = (ListView)activity.findViewById(R.id.nav_drawer);
-            navDrawerList.setAdapter(new NavDrawerAdapter(activity, drawerItemsShowing));
+    protected boolean isDrawerOpen() {
+        return drawerLayout.isDrawerOpen(navDrawerList);
+    }
+
+    protected void openDrawer() {
+        if (versionCompatibleWithNavDrawer()) {
+            drawerLayout.openDrawer(navDrawerList);
+        }
+    }
+
+    protected void closeDrawer() {
+        if (versionCompatibleWithNavDrawer()) {
+            drawerLayout.closeDrawer(navDrawerList);
+        }
+    }
+
+    protected void setupNavDrawer() {
+        drawerLayout = (DrawerLayout)activity.findViewById(R.id.menu_activity_drawer_layout);
+        navDrawerList = (ListView)activity.findViewById(R.id.nav_drawer);
+
+        // Disable opening of the nav drawer via swiping
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+        if (versionCompatibleWithNavDrawer()) {
+            initDrawerItemsMap();
+            determineDrawerItemsToInclude();
             navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
+            refreshItems();
 
             ActionBar actionBar = activity.getActionBar();
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayUseLogoEnabled(false);
             actionBar.setIcon(R.drawable.ic_menu_bar);
-
-            // Disable opening of the nav drawer via swiping
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
+    }
+
+    protected void refreshItems() {
+        if (versionCompatibleWithNavDrawer()) {
+            updateItemSubtexts();
+            determineDrawerItemsToInclude();
+            navDrawerList.setAdapter(new NavDrawerAdapter(activity, drawerItemsShowing));
+        }
+    }
+
+    private void updateItemSubtexts() {
+        NavDrawerItem syncItem = allDrawerItems.get(SYNC_DRAWER_ITEM_ID);
+        syncItem.updateSubtext(SyncDetailCalculations.getLastSyncTimeAndMessage().second);
     }
 
     private void initDrawerItemsMap() {
@@ -74,7 +107,7 @@ public class HomeNavDrawerController {
         }
     }
 
-    private void initDrawerItemsToInclude() {
+    private void determineDrawerItemsToInclude() {
         boolean shouldShowSavedFormsItem = CommCarePreferences.isSavedFormsEnabled();
         boolean shouldShowChangeLanguageItem = ChangeLocaleUtil.getLocaleNames().length > 1;
         int numItemsToInclude = allDrawerItems.size()
@@ -130,18 +163,6 @@ public class HomeNavDrawerController {
         };
     }
 
-    protected boolean isDrawerOpen() {
-        return drawerLayout.isDrawerOpen(navDrawerList);
-    }
-
-    protected void openDrawer() {
-        drawerLayout.openDrawer(navDrawerList);
-    }
-
-    protected void closeDrawer() {
-        drawerLayout.closeDrawer(navDrawerList);
-    }
-
     private static String[] getAllItemIdsInOrder() {
         return new String[] {
                 ABOUT_CC_DRAWER_ITEM_ID, SETTINGS_DRAWER_ITEM_ID, ADVANCED_DRAWER_ITEM_ID,
@@ -193,7 +214,7 @@ public class HomeNavDrawerController {
         return -1;
     }
 
-    private String getItemSubtext(String id) {
+    private static String getItemSubtext(String id) {
         if (SYNC_DRAWER_ITEM_ID.equals(id)) {
             return SyncDetailCalculations.getLastSyncTimeAndMessage().second;
         } else {

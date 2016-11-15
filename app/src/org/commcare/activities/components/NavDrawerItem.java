@@ -21,4 +21,8 @@ public class NavDrawerItem {
         this.iconResource = iconResource;
     }
 
+    public void updateSubtext(String subtext) {
+        this.subtext = subtext;
+    }
+
 }

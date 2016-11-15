@@ -46,7 +46,8 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
 
     @Override
     public void refreshUI() {
-        //TODO: implement this
+        rebuildOptionsMenu();
+        navDrawerController.refreshItems();
     }
 
     @Override
