@@ -208,17 +208,6 @@ public class StandardHomeActivity
         return false;
     }
 
-    /**
-     * For Testing purposes only
-     */
-    public void setFormAndDataSyncer(FormAndDataSyncer formAndDataSyncer) {
-        if (BuildConfig.DEBUG) {
-            this.formAndDataSyncer = formAndDataSyncer;
-        } else {
-            throw new RuntimeException("On principal of design, only meant for testing purposes");
-        }
-    }
-
     @Override
     public void initUIController() {
         uiController = new StandardHomeActivityUIController(this);

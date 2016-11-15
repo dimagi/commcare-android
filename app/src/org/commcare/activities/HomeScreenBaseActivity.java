@@ -71,8 +71,8 @@ import java.util.HashMap;
 import java.util.Vector;
 
 /**
- * Manages all of the shared components of a CommCare home screen (activity lifecycle,
- * implementation of available actions, session navigation, etc.)
+ * Manages all of the shared (mostly non-UI) components of a CommCare home screen:
+ * activity lifecycle, implementation of available actions, session navigation, etc.
  */
 public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActivity<T>
         implements SessionNavigationResponder {
@@ -187,17 +187,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
     }
 
-    protected static boolean isDemoUser() {
-        try {
-            User u = CommCareApplication.instance().getSession().getLoggedInUser();
-            return (User.TYPE_DEMO.equals(u.getUserType()));
-        } catch (SessionUnavailableException e) {
-            // Default to a normal user: this should only happen if session
-            // expires and hasn't redirected to login.
-            return false;
-        }
-    }
-
     /**
      * See if we should launch either the pin choice dialog, or the create pin activity directly
      */
@@ -287,57 +276,73 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         startActivityForResult(i, CREATE_PIN);
     }
 
+    protected void showLocaleChangeMenu(final CommCareActivityUIController uiController) {
+        final PaneledChoiceDialog dialog =
+                new PaneledChoiceDialog(this, Localization.get("home.menu.locale.select"));
+
+        AdapterView.OnItemClickListener listClickListener = new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String[] localeCodes = ChangeLocaleUtil.getLocaleCodes();
+                if (position >= localeCodes.length) {
+                    Localization.setLocale("default");
+                } else {
+                    Localization.setLocale(localeCodes[position]);
+                }
+                // rebuild home buttons in case language changed;
+                if (uiController != null) {
+                    uiController.setupUI();
+                }
+                rebuildOptionsMenu();
+                dismissAlertDialog();
+            }
+        };
+
+        dialog.setChoiceItems(buildLocaleChoices(), listClickListener);
+        showAlertDialog(dialog);
+    }
+
+    private static DialogChoiceItem[] buildLocaleChoices() {
+        String[] locales = ChangeLocaleUtil.getLocaleNames();
+        DialogChoiceItem[] choices = new DialogChoiceItem[locales.length];
+        for (int i = 0; i < choices.length; i++) {
+            choices[i] = DialogChoiceItem.nonListenerItem(locales[i]);
+        }
+        return choices;
+    }
+
+
+    protected void goToFormArchive(boolean incomplete) {
+        goToFormArchive(incomplete, null);
+    }
+
+    protected void goToFormArchive(boolean incomplete, FormRecord record) {
+        if (incomplete) {
+            GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_INCOMPLETE);
+        } else {
+            GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_COMPLETE);
+        }
+        Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
+        if (incomplete) {
+            i.putExtra(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
+        }
+        if (record != null) {
+            i.putExtra(FormRecordListActivity.KEY_INITIAL_RECORD_ID, record.getID());
+        }
+        startActivityForResult(i, GET_INCOMPLETE_FORM);
+    }
+
+    protected void userTriggeredLogout() {
+        CommCareApplication.instance().closeUserSession();
+        setResult(RESULT_OK);
+        finish();
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(WAS_EXTERNAL_KEY, wasExternal);
         outState.putBoolean(EXTRA_CONSUMED_KEY, loginExtraWasConsumed);
-    }
-
-    @Override
-    protected void onResumeSessionSafe() {
-        if (!sessionNavigationProceedingAfterOnResume) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                refreshActionBar();
-            }
-            attemptDispatchHomeScreen();
-        }
-
-        sessionNavigationProceedingAfterOnResume = false;
-    }
-
-    /**
-     * Decides if we should actually be on the home screen, or else should redirect elsewhere
-     */
-    private void attemptDispatchHomeScreen() {
-        try {
-            CommCareApplication.instance().getSession();
-        } catch (SessionUnavailableException e) {
-            // User was logged out somehow, so we want to return to dispatch activity
-            setResult(RESULT_OK);
-            this.finish();
-            return;
-        }
-
-        if (CommCareApplication.instance().isSyncPending(false)) {
-            // There is a sync pending
-            handlePendingSync();
-        } else {
-            // Display the home screen!
-            refreshUI();
-        }
-    }
-
-    /**
-     * Triggered when an automatic sync is pending
-     */
-    private void handlePendingSync() {
-        long lastSync = CommCareApplication.instance().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
-        String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
-        Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
-
-        refreshUI();
-        sendFormsOrSync(false);
     }
 
     @Override
@@ -553,6 +558,154 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         String intentDatum = intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID);
         boolean datumIdsUnchanged = intentDatum == null || intentDatum.equals(session.getNeededDatum().getDataId());
         return neededDataUnchanged && datumIdsUnchanged;
+    }
+
+    /**
+     * Process user returning home from the form entry activity.
+     * Triggers form submission cycle, cleans up some session state.
+     *
+     * @param resultCode exit code of form entry activity
+     * @param intent     The intent of the returning activity, with the
+     *                   saved form provided as the intent URI data. Null if
+     *                   the form didn't exit cleanly
+     * @return Flag signifying that caller should fetch the next activity in
+     * the session to launch. If false then caller should exit or spawn home
+     * activity.
+     */
+    private boolean processReturnFromFormEntry(int resultCode, Intent intent) {
+        // TODO: We might need to load this from serialized state?
+        AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
+
+        // This is the state we were in when we _Started_ form entry
+        FormRecord current = currentState.getFormRecord();
+
+        if (current == null) {
+            // somehow we lost the form record for the current session
+            // TODO: how should this be handled? -- PLM
+            Toast.makeText(this,
+                    "Error while trying to save the form!",
+                    Toast.LENGTH_LONG).show();
+            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                    "Form Entry couldn't save because of corrupt state.");
+            clearSessionAndExit(currentState, true);
+            return false;
+        }
+
+        // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
+        if ((intent != null && intent.getBooleanExtra(FormEntryActivity.IS_ARCHIVED_FORM, false)) ||
+                FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
+                FormRecord.STATUS_SAVED.equals(current.getStatus())) {
+            // Viewing an old form, so don't change the historical record
+            // regardless of the exit code
+            currentState.reset();
+            if (wasExternal) {
+                setResult(RESULT_CANCELED);
+                this.finish();
+            } else {
+                // Return to where we started
+                goToFormArchive(false, current);
+            }
+            return false;
+        }
+
+        if (resultCode == RESULT_OK) {
+            // Determine if the form instance is complete
+            Uri resultInstanceURI = null;
+            if (intent != null) {
+                resultInstanceURI = intent.getData();
+            }
+            if (resultInstanceURI == null) {
+                CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Unretrievable));
+                Toast.makeText(this,
+                        "Error while trying to read the form! See the notification",
+                        Toast.LENGTH_LONG).show();
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                        "Form Entry did not return a form");
+                clearSessionAndExit(currentState, true);
+                return false;
+            }
+
+            Cursor c = null;
+            String instanceStatus;
+            try {
+                c = getContentResolver().query(resultInstanceURI, null, null, null, null);
+                if (!c.moveToFirst()) {
+                    throw new IllegalArgumentException("Empty query for instance record!");
+                }
+                instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
+            // was the record marked complete?
+            boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
+
+            // The form is either ready for processing, or not, depending on how it was saved
+            if (complete) {
+                // We're honoring in order submissions, now, so trigger a full
+                // submission cycle
+                checkAndStartUnsentFormsTask(false, false);
+
+                refreshUI();
+
+                if (wasExternal) {
+                    setResult(RESULT_CANCELED);
+                    this.finish();
+                    return false;
+                }
+
+                // Before we can terminate the session, we need to know that the form has been processed
+                // in case there is state that depends on it.
+                boolean terminateSuccessful;
+                try {
+                    terminateSuccessful = currentState.terminateSession();
+                } catch (XPathTypeMismatchException e) {
+                    UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+                    return false;
+                }
+                if (!terminateSuccessful) {
+                    // If we didn't find somewhere to go, we're gonna stay here
+                    return false;
+                }
+                // Otherwise, we want to keep proceeding in order
+                // to keep running the workflow
+            } else {
+                // Form record is now stored.
+                // TODO: session state clearing might be something we want to do in InstanceProvider.bindToFormRecord.
+                clearSessionAndExit(currentState, false);
+                return false;
+            }
+        } else if (resultCode == RESULT_CANCELED) {
+            // Nothing was saved during the form entry activity
+
+            Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
+
+            // If the form was unstarted, we want to wipe the record.
+            if (current.getStatus().equals(FormRecord.STATUS_UNSTARTED)) {
+                // Entry was cancelled.
+                FormRecordCleanupTask.wipeRecord(this, currentState);
+            }
+
+            if (wasExternal) {
+                currentState.reset();
+                setResult(RESULT_CANCELED);
+                this.finish();
+                return false;
+            } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
+                currentState.reset();
+                // We should head back to the incomplete forms screen
+                goToFormArchive(true, current);
+                return false;
+            } else {
+                // If we cancelled form entry from a normal menu entry
+                // we want to go back to where were were right before we started
+                // entering the form.
+                currentState.getSession().stepBack(currentState.getEvaluationContext());
+                currentState.setFormRecordId(-1);
+            }
+        }
+        return true;
     }
 
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
@@ -784,38 +937,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 CommCareActivity.getTitle(this, null));
     }
 
-    private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
-        final AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
-        String title = Localization.get("app.workflow.incomplete.continue.title");
-        String msg = Localization.get("app.workflow.incomplete.continue");
-        StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        // use the old form instance and load the it's state from the descriptor
-                        state.loadFromStateDescription(existing);
-                        formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        // delete the old incomplete form
-                        FormRecordCleanupTask.wipeRecord(HomeScreenBaseActivity.this, existing);
-                        // fallthrough to new now that old record is gone
-                    case DialogInterface.BUTTON_NEUTRAL:
-                        // create a new form record and begin form entry
-                        state.commitStub();
-                        formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
-                }
-                dismissAlertDialog();
-            }
-        };
-        d.setPositiveButton(Localization.get("option.yes"), listener);
-        d.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
-        d.setNeutralButton(Localization.get("option.no"), listener);
-        showAlertDialog(d);
-    }
-
     private void formEntry(Uri formUri, FormRecord r) {
         formEntry(formUri, r, null);
     }
@@ -862,28 +983,103 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         startActivityForResult(i, MODEL_RESULT);
     }
 
+    /**
+     * Triggered when an automatic sync is pending
+     */
+    private void handlePendingSync() {
+        long lastSync = CommCareApplication.instance().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
+        String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
+        Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
 
-
-
-
-    protected void goToFormArchive(boolean incomplete) {
-        goToFormArchive(incomplete, null);
+        refreshUI();
+        sendFormsOrSync(false);
     }
 
-    protected void goToFormArchive(boolean incomplete, FormRecord record) {
-        if (incomplete) {
-            GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_INCOMPLETE);
+    @Override
+    protected void onResumeSessionSafe() {
+        if (!sessionNavigationProceedingAfterOnResume) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                refreshActionBar();
+            }
+            attemptDispatchHomeScreen();
+        }
+
+        sessionNavigationProceedingAfterOnResume = false;
+    }
+
+    /**
+     * Decides if we should actually be on the home screen, or else should redirect elsewhere
+     */
+    private void attemptDispatchHomeScreen() {
+        try {
+            CommCareApplication.instance().getSession();
+        } catch (SessionUnavailableException e) {
+            // User was logged out somehow, so we want to return to dispatch activity
+            setResult(RESULT_OK);
+            this.finish();
+            return;
+        }
+
+        if (CommCareApplication.instance().isSyncPending(false)) {
+            // There is a sync pending
+            handlePendingSync();
         } else {
-            GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_COMPLETE);
+            // Display the home screen!
+            refreshUI();
         }
-        Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
-        if (incomplete) {
-            i.putExtra(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
+    }
+
+    private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
+        final AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
+        String title = Localization.get("app.workflow.incomplete.continue.title");
+        String msg = Localization.get("app.workflow.incomplete.continue");
+        StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        // use the old form instance and load the it's state from the descriptor
+                        state.loadFromStateDescription(existing);
+                        formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        // delete the old incomplete form
+                        FormRecordCleanupTask.wipeRecord(HomeScreenBaseActivity.this, existing);
+                        // fallthrough to new now that old record is gone
+                    case DialogInterface.BUTTON_NEUTRAL:
+                        // create a new form record and begin form entry
+                        state.commitStub();
+                        formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+                }
+                dismissAlertDialog();
+            }
+        };
+        d.setPositiveButton(Localization.get("option.yes"), listener);
+        d.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
+        d.setNeutralButton(Localization.get("option.no"), listener);
+        showAlertDialog(d);
+    }
+
+    protected static boolean isDemoUser() {
+        try {
+            User u = CommCareApplication.instance().getSession().getLoggedInUser();
+            return (User.TYPE_DEMO.equals(u.getUserType()));
+        } catch (SessionUnavailableException e) {
+            // Default to a normal user: this should only happen if session
+            // expires and hasn't redirected to login.
+            return false;
         }
-        if (record != null) {
-            i.putExtra(FormRecordListActivity.KEY_INITIAL_RECORD_ID, record.getID());
-        }
-        startActivityForResult(i, GET_INCOMPLETE_FORM);
+    }
+
+    public static void createPreferencesMenu(Activity activity) {
+        Intent i = new Intent(activity, CommCarePreferences.class);
+        activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
+    }
+
+    protected void startAdvancedActionsActivity() {
+        startActivityForResult(new Intent(this, AdvancedActionsActivity.class),
+                ADVANCED_ACTIONS_ACTIVITY);
     }
 
     protected void showAboutCommCareDialog() {
@@ -910,211 +1106,23 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
     }
 
-    protected void showLocaleChangeMenu(final CommCareActivityUIController uiController) {
-        final PaneledChoiceDialog dialog =
-                new PaneledChoiceDialog(this, Localization.get("home.menu.locale.select"));
-
-        AdapterView.OnItemClickListener listClickListener = new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String[] localeCodes = ChangeLocaleUtil.getLocaleCodes();
-                if (position >= localeCodes.length) {
-                    Localization.setLocale("default");
-                } else {
-                    Localization.setLocale(localeCodes[position]);
-                }
-                // rebuild home buttons in case language changed;
-                if (uiController != null) {
-                    uiController.setupUI();
-                }
-                rebuildOptionsMenu();
-                dismissAlertDialog();
-            }
-        };
-
-        dialog.setChoiceItems(buildLocaleChoices(), listClickListener);
-        showAlertDialog(dialog);
-    }
-
-    private static DialogChoiceItem[] buildLocaleChoices() {
-        String[] locales = ChangeLocaleUtil.getLocaleNames();
-        DialogChoiceItem[] choices = new DialogChoiceItem[locales.length];
-        for (int i = 0; i < choices.length; i++) {
-            choices[i] = DialogChoiceItem.nonListenerItem(locales[i]);
-        }
-        return choices;
-    }
-
-    protected void startAdvancedActionsActivity() {
-        startActivityForResult(new Intent(this, AdvancedActionsActivity.class),
-                ADVANCED_ACTIONS_ACTIVITY);
-    }
-
-    public static void createPreferencesMenu(Activity activity) {
-        Intent i = new Intent(activity, CommCarePreferences.class);
-        activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
-    }
-
-    /**
-     * Process user returning home from the form entry activity.
-     * Triggers form submission cycle, cleans up some session state.
-     *
-     * @param resultCode exit code of form entry activity
-     * @param intent     The intent of the returning activity, with the
-     *                   saved form provided as the intent URI data. Null if
-     *                   the form didn't exit cleanly
-     * @return Flag signifying that caller should fetch the next activity in
-     * the session to launch. If false then caller should exit or spawn home
-     * activity.
-     */
-    private boolean processReturnFromFormEntry(int resultCode, Intent intent) {
-        // TODO: We might need to load this from serialized state?
-        AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
-
-        // This is the state we were in when we _Started_ form entry
-        FormRecord current = currentState.getFormRecord();
-
-        if (current == null) {
-            // somehow we lost the form record for the current session
-            // TODO: how should this be handled? -- PLM
-            Toast.makeText(this,
-                    "Error while trying to save the form!",
-                    Toast.LENGTH_LONG).show();
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                    "Form Entry couldn't save because of corrupt state.");
-            clearSessionAndExit(currentState, true);
-            return false;
-        }
-
-        // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
-        if ((intent != null && intent.getBooleanExtra(FormEntryActivity.IS_ARCHIVED_FORM, false)) ||
-                FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
-                FormRecord.STATUS_SAVED.equals(current.getStatus())) {
-            // Viewing an old form, so don't change the historical record
-            // regardless of the exit code
-            currentState.reset();
-            if (wasExternal) {
-                setResult(RESULT_CANCELED);
-                this.finish();
-            } else {
-                // Return to where we started
-                goToFormArchive(false, current);
-            }
-            return false;
-        }
-
-        if (resultCode == RESULT_OK) {
-            // Determine if the form instance is complete
-            Uri resultInstanceURI = null;
-            if (intent != null) {
-                resultInstanceURI = intent.getData();
-            }
-            if (resultInstanceURI == null) {
-                CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Unretrievable));
-                Toast.makeText(this,
-                        "Error while trying to read the form! See the notification",
-                        Toast.LENGTH_LONG).show();
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                        "Form Entry did not return a form");
-                clearSessionAndExit(currentState, true);
-                return false;
-            }
-
-            Cursor c = null;
-            String instanceStatus;
-            try {
-                c = getContentResolver().query(resultInstanceURI, null, null, null, null);
-                if (!c.moveToFirst()) {
-                    throw new IllegalArgumentException("Empty query for instance record!");
-                }
-                instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
-            } finally {
-                if (c != null) {
-                    c.close();
-                }
-            }
-            // was the record marked complete?
-            boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
-
-            // The form is either ready for processing, or not, depending on how it was saved
-            if (complete) {
-                // We're honoring in order submissions, now, so trigger a full
-                // submission cycle
-                checkAndStartUnsentFormsTask(false, false);
-
-                refreshUI();
-
-                if (wasExternal) {
-                    setResult(RESULT_CANCELED);
-                    this.finish();
-                    return false;
-                }
-
-                // Before we can terminate the session, we need to know that the form has been processed
-                // in case there is state that depends on it.
-                boolean terminateSuccessful;
-                try {
-                    terminateSuccessful = currentState.terminateSession();
-                } catch (XPathTypeMismatchException e) {
-                    UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
-                    return false;
-                }
-                if (!terminateSuccessful) {
-                    // If we didn't find somewhere to go, we're gonna stay here
-                    return false;
-                }
-                // Otherwise, we want to keep proceeding in order
-                // to keep running the workflow
-            } else {
-                // Form record is now stored.
-                // TODO: session state clearing might be something we want to do in InstanceProvider.bindToFormRecord.
-                clearSessionAndExit(currentState, false);
-                return false;
-            }
-        } else if (resultCode == RESULT_CANCELED) {
-            // Nothing was saved during the form entry activity
-
-            Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
-
-            // If the form was unstarted, we want to wipe the record.
-            if (current.getStatus().equals(FormRecord.STATUS_UNSTARTED)) {
-                // Entry was cancelled.
-                FormRecordCleanupTask.wipeRecord(this, currentState);
-            }
-
-            if (wasExternal) {
-                currentState.reset();
-                setResult(RESULT_CANCELED);
-                this.finish();
-                return false;
-            } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
-                currentState.reset();
-                // We should head back to the incomplete forms screen
-                goToFormArchive(true, current);
-                return false;
-            } else {
-                // If we cancelled form entry from a normal menu entry
-                // we want to go back to where were were right before we started
-                // entering the form.
-                currentState.getSession().stepBack(currentState.getEvaluationContext());
-                currentState.setFormRecordId(-1);
-            }
-        }
-        return true;
-    }
-
-    protected void userTriggeredLogout() {
-        CommCareApplication.instance().closeUserSession();
-        setResult(RESULT_OK);
-        finish();
-    }
-
     /**
      * For Testing purposes only
      */
     public SessionNavigator getSessionNavigator() {
         if (BuildConfig.DEBUG) {
             return sessionNavigator;
+        } else {
+            throw new RuntimeException("On principal of design, only meant for testing purposes");
+        }
+    }
+
+    /**
+     * For Testing purposes only
+     */
+    public void setFormAndDataSyncer(FormAndDataSyncer formAndDataSyncer) {
+        if (BuildConfig.DEBUG) {
+            this.formAndDataSyncer = formAndDataSyncer;
         } else {
             throw new RuntimeException("On principal of design, only meant for testing purposes");
         }
