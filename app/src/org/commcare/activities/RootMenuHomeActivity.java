@@ -35,6 +35,7 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
         if (usingNavDrawer()) {
             navDrawerController.setupNavDrawer();
             if (savedInstanceState != null && savedInstanceState.getBoolean(KEY_DRAWER_WAS_OPEN)) {
+                // Necessary because opening the drawer here does not work for some unknown reason
                 reopenDrawerInOnResume = true;
             }
         }
