@@ -91,8 +91,8 @@ public class MenuList implements AdapterView.OnItemClickListener {
 
         if (beingUsedAsHomeScreen) {
             // If we are using a MenuList as our home screen, we don't want to finish() here
-            // because there is nowhere to go back to. Instead, just set the selected menu as
-            // our command and trigger the next session step
+            // because there is nowhere to go back to. Instead, just set the selected command
+            // and trigger the next session step
             ((HomeScreenBaseActivity)activity).setCommandAndProceed(commandId);
         } else {
             Intent i = new Intent(activity.getIntent());
