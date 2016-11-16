@@ -233,6 +233,7 @@ public class DispatchActivity extends FragmentActivity {
         Intent i;
         if (useRootMenuHomeActivity()) {
             i = new Intent(this, RootMenuHomeActivity.class);
+            // Since we are entering a menu list, the session state will expect this later
             HomeScreenBaseActivity.addPendingDataExtra(i,
                     CommCareApplication.instance().getCurrentSessionWrapper().getSession());
         } else {

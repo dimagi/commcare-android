@@ -98,7 +98,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
         if (beingUsedInHomeScreen) {
             // If this MenuList is on our home screen, that means we can't finish() here because we
             // are already in our home activity. Instead, just manually launch the same code path
-            // that would have been initiated by onActivityResult of HomeScreenBaseActivity 
+            // that would have been initiated by onActivityResult of HomeScreenBaseActivity
             HomeScreenBaseActivity homeActivity = (HomeScreenBaseActivity)activity;
             if (homeActivity.processReturnFromGetCommand(Activity.RESULT_OK, i)) {
                 homeActivity.startNextSessionStepSafe();
