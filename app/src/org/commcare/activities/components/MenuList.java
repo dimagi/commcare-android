@@ -22,7 +22,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
     protected CommCareActivity activity;
     protected AdapterView adapterView;
     protected MenuAdapter adapter;
-    private boolean beingUsedAsHomeScreen;
+    private boolean beingUsedInHomeScreen;
     private TextView header;
 
     /**
@@ -30,7 +30,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
      * the given activity
      */
     public static void setupMenuViewInActivity(CommCareActivity activity, String menuId,
-                                               boolean useGridMenu, boolean beingUsedAsHomeScreen) {
+                                               boolean useGridMenu, boolean beingUsedInHomeScreen) {
         MenuList menuView;
         if (useGridMenu) {
             menuView = new MenuGrid();
@@ -38,7 +38,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
             menuView = new MenuList();
         }
         menuView.setupMenuInActivity(activity, menuId);
-        menuView.beingUsedAsHomeScreen = beingUsedAsHomeScreen;
+        menuView.beingUsedInHomeScreen = beingUsedInHomeScreen;
     }
 
     public int getLayoutFileResource() {
@@ -93,14 +93,17 @@ public class MenuList implements AdapterView.OnItemClickListener {
             commandId = ((Menu)value).getId();
         }
 
-        if (beingUsedAsHomeScreen) {
-            // If we are using a MenuList as our home screen, we don't want to finish() here
-            // because there is nowhere to go back to. Instead, just set the selected command
-            // and trigger the next session step
-            ((HomeScreenBaseActivity)activity).setCommandAndProceed(commandId);
+        Intent i = new Intent(activity.getIntent());
+        i.putExtra(SessionFrame.STATE_COMMAND_ID, commandId);
+        if (beingUsedInHomeScreen) {
+            // If this MenuList is on our home screen, that means we can't finish() here because we
+            // are already in our home activity. Instead, just manually launch the same code path
+            // that would have been initiated by onActivityResult of HomeScreenBaseActivity 
+            HomeScreenBaseActivity homeActivity = (HomeScreenBaseActivity)activity;
+            if (homeActivity.processReturnFromGetCommand(Activity.RESULT_OK, i)) {
+                homeActivity.startNextSessionStepSafe();
+            }
         } else {
-            Intent i = new Intent(activity.getIntent());
-            i.putExtra(SessionFrame.STATE_COMMAND_ID, commandId);
             activity.setResult(Activity.RESULT_OK, i);
             activity.finish();
         }

@@ -233,6 +233,8 @@ public class DispatchActivity extends FragmentActivity {
         Intent i;
         if (useRootMenuHomeActivity()) {
             i = new Intent(this, RootMenuHomeActivity.class);
+            HomeScreenBaseActivity.addPendingDataExtra(i,
+                    CommCareApplication.instance().getCurrentSessionWrapper().getSession());
         } else {
             i = new Intent(this, StandardHomeActivity.class);
         }
