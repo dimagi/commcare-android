@@ -1,10 +1,17 @@
 package org.commcare.activities;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.ProgressBar;
 
 import org.commcare.activities.components.MenuList;
+import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Menu;
@@ -20,6 +27,7 @@ import org.commcare.tasks.DataSubmissionListener;
 public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeActivity> {
 
     private static final String KEY_DRAWER_WAS_OPEN = "drawer-open-before-rotation";
+    private static final long MIN_PROGRESS_BAR_DURATION_MS = 1500;
 
     private HomeNavDrawerController navDrawerController;
     private boolean reopenDrawerInOnResume;
@@ -98,26 +106,112 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     }
 
     @Override
-    public DataSubmissionListener getSubmissionListenerForProgressBar() {
+    public DataSubmissionListener getListenerForSubmissionProgressBar() {
+
         return new DataSubmissionListener() {
+
+            long sizeOfCurrentItem;
+            long startTime;
+            ProgressBar submissionProgressBar;
+
             @Override
             public void beginSubmissionProcess(int totalItems) {
-
+                startTime = System.currentTimeMillis();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        submissionProgressBar =
+                                (ProgressBar)findViewById(R.id.submission_progress_bar);
+                        submissionProgressBar.setVisibility(View.VISIBLE);
+                    }
+                });
             }
 
             @Override
             public void startSubmission(int itemNumber, long sizeOfItem) {
-
+                sizeOfCurrentItem = sizeOfItem;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        submissionProgressBar.setMax(100);
+                        submissionProgressBar.setProgress(0);
+                    }
+                });
             }
 
             @Override
-            public void notifyProgress(int itemNumber, long progress) {
-
+            public void notifyProgress(int itemNumber, final long progress) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        submissionProgressBar.setProgress(getProgressToReport(progress));
+                    }
+                });
             }
 
             @Override
             public void endSubmissionProcess() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (submissionProgressBar.getProgress() != 100) {
+                            finishAnimatingProgressBar();
+                        } else {
+                            submissionProgressBar.setVisibility(View.GONE);
+                        }
+                    }
+                });
+            }
 
+            private int getProgressToReport(long progressForCurrentItem) {
+                final int actualProgressPercent =
+                        (int)Math.floor((progressForCurrentItem * 1.0 / sizeOfCurrentItem) * 100);
+
+                long timeElapsed = System.currentTimeMillis() - startTime;
+                final int maxAllowedProgressByTime =
+                        (int)Math.floor((timeElapsed * 1.0 / MIN_PROGRESS_BAR_DURATION_MS) * 100);
+
+                return Math.min(actualProgressPercent, maxAllowedProgressByTime);
+            }
+
+            private void finishAnimatingProgressBar() {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    ObjectAnimator animation = ObjectAnimator.ofInt(submissionProgressBar, "progress",
+                            submissionProgressBar.getProgress(), 100);
+                    long timeRemaining =
+                            MIN_PROGRESS_BAR_DURATION_MS - (System.currentTimeMillis() - startTime);
+                    animation.setDuration(timeRemaining);
+                    animation.addListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    submissionProgressBar.setVisibility(View.GONE);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    });
+                    animation.start();
+                } else {
+                    submissionProgressBar.setProgress(100);
+                    submissionProgressBar.setVisibility(View.GONE);
+                }
             }
         };
     }

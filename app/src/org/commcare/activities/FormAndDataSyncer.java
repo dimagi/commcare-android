@@ -95,8 +95,8 @@ public class FormAndDataSyncer {
         };
 
         processAndSendTask.addListener(
-                CommCareApplication.instance().getSession().getSubmissionListenerForNotifications());
-        DataSubmissionListener progressBarListener = activity.getSubmissionListenerForProgressBar();
+                CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
+        DataSubmissionListener progressBarListener = activity.getListenerForSubmissionProgressBar();
         if (progressBarListener != null) {
             processAndSendTask.addListener(progressBarListener);
         }

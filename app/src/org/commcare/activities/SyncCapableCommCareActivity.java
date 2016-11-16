@@ -220,7 +220,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     public abstract boolean shouldShowSyncItemInActionBar();
 
-    public DataSubmissionListener getSubmissionListenerForProgressBar() {
+    public DataSubmissionListener getListenerForSubmissionProgressBar() {
         return null;
     }
 
