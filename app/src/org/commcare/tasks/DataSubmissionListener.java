@@ -10,5 +10,6 @@ public interface DataSubmissionListener {
 
     void notifyProgress(int itemNumber, long progress);
 
-    void endSubmissionProcess();
+    void endSubmissionProcess(boolean success);
+
 }

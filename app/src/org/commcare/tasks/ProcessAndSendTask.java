@@ -52,6 +52,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     public static final long SUBMISSION_NOTIFY = 64;
     public static final long SUBMISSION_DONE = 128;
 
+    private static final long SUBMISSION_SUCCESS = 1;
+    private static final long SUBMISSION_FAIL = 0;
+
     private List<DataSubmissionListener> formSubmissionListeners;
     private final FormRecordProcessor processor;
 
@@ -133,7 +136,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             this.cancel(false);
             return FormUploadResult.PROGRESS_LOGGED_OUT;
         } finally {
-            this.endSubmissionProcess();
+            this.endSubmissionProcess(
+                    FormUploadResult.FULL_SUCCESS.equals(FormUploadResult.getWorstResult(results)));
 
             synchronized (processTasks) {
                 processTasks.remove(this);
@@ -337,7 +341,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 long progress = values[2];
                 dispatchNotifyProgressToListeners(item, progress);
             } else if (values[0] == SUBMISSION_DONE) {
-                dispatchEndSubmissionProcessToListeners();
+                dispatchEndSubmissionProcessToListeners(values[1] == SUBMISSION_SUCCESS);
             }
         }
     }
@@ -364,9 +368,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
     }
 
-    private void dispatchEndSubmissionProcessToListeners() {
+    private void dispatchEndSubmissionProcessToListeners(boolean success) {
         for (DataSubmissionListener listener : formSubmissionListeners) {
-            listener.endSubmissionProcess();
+            listener.endSubmissionProcess(success);
         }
     }
 
@@ -410,8 +414,12 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     }
 
     @Override
-    public void endSubmissionProcess() {
-        this.publishProgress(SUBMISSION_DONE);
+    public void endSubmissionProcess(boolean success) {
+        if (success) {
+            this.publishProgress(SUBMISSION_DONE, SUBMISSION_SUCCESS);
+        } else {
+            this.publishProgress(SUBMISSION_DONE, SUBMISSION_FAIL);
+        }
     }
 
     private String getExceptionText(Exception e) {
@@ -427,7 +435,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        dispatchEndSubmissionProcessToListeners();
+        dispatchEndSubmissionProcessToListeners(false);
         CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
         clearState();
     }

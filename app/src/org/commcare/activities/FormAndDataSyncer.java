@@ -15,7 +15,6 @@ import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.FormSubmissionProgressBarListener;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;

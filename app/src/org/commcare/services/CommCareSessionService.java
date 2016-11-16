@@ -545,7 +545,7 @@ public class CommCareSessionService extends Service {
             }
 
             @Override
-            public void endSubmissionProcess() {
+            public void endSubmissionProcess(boolean success) {
                 mNM.cancel(notificationId);
                 submissionNotification = null;
                 totalItems = -1;

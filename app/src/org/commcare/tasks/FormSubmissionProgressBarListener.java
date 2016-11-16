@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.os.Build;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ProgressBar;
 
 import org.commcare.activities.SyncCapableCommCareActivity;
@@ -14,7 +15,7 @@ import org.commcare.dalvik.R;
  */
 public class FormSubmissionProgressBarListener implements DataSubmissionListener {
 
-    private static final long MIN_PROGRESS_BAR_DURATION_MS = 1500;
+    private static final long MIN_PROGRESS_BAR_DURATION_MS = 2000;
 
     private long sizeOfCurrentItem;
     private long startTime;
@@ -61,11 +62,11 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
     }
 
     @Override
-    public void endSubmissionProcess() {
+    public void endSubmissionProcess(final boolean success) {
         containingActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (submissionProgressBar.getProgress() != 100) {
+                if (success && submissionProgressBar.getProgress() != 100) {
                     finishAnimatingProgressBar();
                 } else {
                     submissionProgressBar.setVisibility(View.GONE);
@@ -91,7 +92,11 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
                     submissionProgressBar.getProgress(), 100);
             long timeRemaining =
                     MIN_PROGRESS_BAR_DURATION_MS - (System.currentTimeMillis() - startTime);
+            if (timeRemaining < 0) {
+                timeRemaining = 500;
+            }
             animation.setDuration(timeRemaining);
+            animation.setInterpolator(new DecelerateInterpolator());
             animation.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {

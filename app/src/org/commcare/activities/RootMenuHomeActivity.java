@@ -1,22 +1,13 @@
 package org.commcare.activities;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.ProgressBar;
 
 import org.commcare.activities.components.MenuList;
-import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Menu;
-import org.commcare.tasks.DataSubmissionListener;
-import org.commcare.tasks.FormSubmissionProgressBarListener;
 
 /**
  * A version of the CommCare home screen that uses the UI of the root module menu
