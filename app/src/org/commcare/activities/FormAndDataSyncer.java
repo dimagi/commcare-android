@@ -16,6 +16,7 @@ import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DataSubmissionListener;
+import org.commcare.tasks.FormSubmissionProgressBarListener;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
@@ -96,9 +97,8 @@ public class FormAndDataSyncer {
 
         processAndSendTask.addListener(
                 CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
-        DataSubmissionListener progressBarListener = activity.getListenerForSubmissionProgressBar();
-        if (progressBarListener != null) {
-            processAndSendTask.addListener(progressBarListener);
+        if (activity.usesSubmissionProgressBar()) {
+            processAndSendTask.addListener(new FormSubmissionProgressBarListener(activity));
         }
 
         processAndSendTask.connect(activity);
