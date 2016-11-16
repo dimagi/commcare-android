@@ -135,7 +135,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     }
 
     private void onUnzipSuccessful() {
-        ArchiveFileRoot afr = CommCareApplication._().getArchiveFileRoot();
+        ArchiveFileRoot afr = CommCareApplication.instance().getArchiveFileRoot();
         String mGUID = afr.addArchiveFile(getTargetFolder());
 
         String ref = "jr://archive/" + mGUID + "/profile.ccpr";
@@ -152,7 +152,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             // Android versions 4.4 and up sometimes don't return absolute
             // filepaths from the file chooser. So resolve the URI into a
             // valid file path.
-            String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+            String filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(),
                     intent.getData());
             if (filePath != null) {
                 editFileLocation.setText(filePath);
@@ -198,7 +198,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             return targetDirectory;
         }
 
-        targetDirectory = CommCareApplication._().getAndroidFsTemp() + PropertyUtils.genUUID();
+        targetDirectory = CommCareApplication.instance().getAndroidFsTemp() + PropertyUtils.genUUID();
         return targetDirectory;
     }
 

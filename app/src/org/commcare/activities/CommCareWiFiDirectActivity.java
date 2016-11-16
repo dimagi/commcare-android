@@ -407,7 +407,7 @@ public class CommCareWiFiDirectActivity
             return;
         }
 
-        SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(
                 settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, url),
                 receiveFolder) {
@@ -789,7 +789,7 @@ public class CommCareWiFiDirectActivity
     }
 
     private void updateStatusText() {
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
 
         int numUnsyncedForms = ids.size();

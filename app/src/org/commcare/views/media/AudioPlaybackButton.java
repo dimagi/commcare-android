@@ -204,7 +204,7 @@ public class AudioPlaybackButton extends LinearLayout {
         String audioFilename;
         try {
             audioFilename =
-                    ReferenceManager._().DeriveReference(URI).getLocalURI();
+                    ReferenceManager.instance().DeriveReference(URI).getLocalURI();
         } catch (InvalidReferenceException e) {
             Log.e(TAG, "Invalid reference exception");
             e.printStackTrace();

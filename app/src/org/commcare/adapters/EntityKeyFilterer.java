@@ -2,8 +2,8 @@ package org.commcare.adapters;
 
 import android.app.Activity;
 
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.ArrayList;

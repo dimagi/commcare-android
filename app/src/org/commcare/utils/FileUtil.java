@@ -278,7 +278,7 @@ public class FileUtil {
 
     public static void checkReferenceURI(Resource r, String URI, Vector<MissingMediaException> problems) throws IOException {
         try {
-            Reference mRef = ReferenceManager._().DeriveReference(URI);
+            Reference mRef = ReferenceManager.instance().DeriveReference(URI);
 
             if (!mRef.doesBinaryExist()) {
                 String mLocalReference = mRef.getLocalURI();
@@ -293,7 +293,7 @@ public class FileUtil {
     public static boolean referenceFileExists(String uri) {
         if (uri != null && !uri.equals("")) {
             try {
-                return new File(ReferenceManager._().DeriveReference(uri).getLocalURI()).exists();
+                return new File(ReferenceManager.instance().DeriveReference(uri).getLocalURI()).exists();
             } catch (InvalidReferenceException e) {
                 e.printStackTrace();
             }

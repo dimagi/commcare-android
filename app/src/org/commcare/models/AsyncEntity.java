@@ -3,6 +3,7 @@ package org.commcare.models;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.cases.entity.Entity;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.suite.model.DetailField;
@@ -128,7 +129,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         //Get a db handle so we can get an outer lock
         SQLiteDatabase db;
         try {
-            db = CommCareApplication._().getUserDbHandle();
+            db = CommCareApplication.instance().getUserDbHandle();
         } catch (SessionUnavailableException e) {
             return null;
         }

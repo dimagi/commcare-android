@@ -23,13 +23,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.activities.CommCareGraphActivity;
+import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
 import org.commcare.graph.view.GraphLoader;
 import org.commcare.graph.view.GraphView;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.models.Entity;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
@@ -308,7 +308,7 @@ public class EntityDetailView extends FrameLayout {
         } else if (FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
             String localLocation = null;
             try {
-                localLocation = ReferenceManager._().DeriveReference(textField).getLocalURI();
+                localLocation = ReferenceManager.instance().DeriveReference(textField).getLocalURI();
                 if (localLocation.startsWith("/")) {
                     //TODO: This should likely actually be happening with the getLocalURI _anyway_.
                     localLocation = FileUtil.getGlobalStringUri(localLocation);

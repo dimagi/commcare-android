@@ -74,7 +74,7 @@ public class TestAppInstaller {
 
     private static void storageSetup() {
         // needed to resolve "jr://resource" type references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
+        ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
     }
 
     private void installApp() {
@@ -109,17 +109,17 @@ public class TestAppInstaller {
     }
 
     private void buildTestUser() {
-        CommCareApp ccApp = CommCareApplication._().getCurrentApp();
+        CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
         DemoUserBuilder.buildTestUser(RuntimeEnvironment.application,
                 ccApp,
                 username, password);
     }
 
     public static void login(String username, String password) {
-        CommCareApp ccApp = CommCareApplication._().getCurrentApp();
-        ((CommCareTestApplication)CommCareApplication._()).setCachedUserPassword(password);
+        CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
+        ((CommCareTestApplication)CommCareApplication.instance()).setCachedUserPassword(password);
         UserKeyRecord keyRecord =
                 UserKeyRecord.getCurrentValidRecordByPassword(ccApp, username, password, true);
-        CommCareApplication._().startUserSession(keyRecord.unWrapKey(password), keyRecord, false);
+        CommCareApplication.instance().startUserSession(keyRecord.unWrapKey(password), keyRecord, false);
     }
 }

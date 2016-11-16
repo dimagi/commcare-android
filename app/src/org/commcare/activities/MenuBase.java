@@ -101,7 +101,7 @@ public abstract class MenuBase
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == MENU_LOGOUT) {
-            CommCareApplication._().closeUserSession();
+            CommCareApplication.instance().closeUserSession();
             Intent i = new Intent(getIntent());
             setResult(RESULT_CANCELED, i);
             finish();
@@ -116,7 +116,7 @@ public abstract class MenuBase
     @Override
     public boolean isBackEnabled() {
         return !isRootModuleMenu ||
-                (!menuIsBeingUsedAsHomeScreen() && !CommCareApplication._().isConsumerApp());
+                (!menuIsBeingUsedAsHomeScreen() && !CommCareApplication.instance().isConsumerApp());
     }
 
     private boolean menuIsBeingUsedAsHomeScreen() {
