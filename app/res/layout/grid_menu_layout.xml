@@ -20,7 +20,7 @@
             android:id="@+id/submission_progress_bar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/submission_progressbar_height"
             android:layout_alignParentTop="true"
             android:gravity="top"
             android:progressDrawable="@drawable/submission_progressbar_drawable"
