@@ -85,24 +85,28 @@ public class HomeNavDrawerController {
     }
 
     private void determineDrawerItemsToInclude() {
-        boolean shouldShowSavedFormsItem = CommCarePreferences.isSavedFormsEnabled();
-        boolean shouldShowChangeLanguageItem = ChangeLocaleUtil.getLocaleNames().length > 1;
+        boolean hideSavedFormsItem = !CommCarePreferences.isSavedFormsEnabled();
+        boolean hideChangeLanguageItem = ChangeLocaleUtil.getLocaleNames().length <= 1;
         int numItemsToInclude = allDrawerItems.size()
-                - (shouldShowChangeLanguageItem ? 0 : 1)
-                - (shouldShowSavedFormsItem ? 0 : 1);
+                - (hideChangeLanguageItem ? 1 : 0)
+                - (hideSavedFormsItem ? 1 : 0);
 
         drawerItemsShowing = new NavDrawerItem[numItemsToInclude];
         int index = 0;
         for (String id : getAllItemIdsInOrder()) {
             NavDrawerItem item = allDrawerItems.get(id);
-            if ((id.equals(CHANGE_LANGUAGE_DRAWER_ITEM_ID) && !shouldShowChangeLanguageItem) ||
-                    (id.equals(SAVED_FORMS_ITEM_ID) && !shouldShowSavedFormsItem)) {
-                continue;
-            } else {
+            if (!excludeItem(id, hideChangeLanguageItem, hideSavedFormsItem)) {
                 drawerItemsShowing[index] = item;
                 index++;
             }
         }
+    }
+
+    private boolean excludeItem(String itemId,
+                                boolean hideChangeLanguageItem,
+                                boolean hideSavedFormsItem) {
+        return (itemId.equals(CHANGE_LANGUAGE_DRAWER_ITEM_ID) && hideChangeLanguageItem) ||
+                (itemId.equals(SAVED_FORMS_ITEM_ID) && hideSavedFormsItem);
     }
 
     private ListView.OnItemClickListener getNavDrawerClickListener() {
