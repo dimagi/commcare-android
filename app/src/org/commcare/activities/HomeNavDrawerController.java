@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 import android.widget.AdapterView;
@@ -35,12 +36,15 @@ public class HomeNavDrawerController {
     private static final String SAVED_FORMS_ITEM_ID = "saved-forms";
     private static final String LOGOUT_DRAWER_ITEM_ID = "home-logout";
 
+    protected static final String KEY_DRAWER_WAS_OPEN = "drawer-open-before-rotation";
+
     private RootMenuHomeActivity activity;
 
     private DrawerLayout drawerLayout;
     private ListView navDrawerList;
     private Map<String, NavDrawerItem> allDrawerItems;
     private NavDrawerItem[] drawerItemsShowing;
+    private boolean reopenDrawerWhenResumed;
 
     public HomeNavDrawerController(RootMenuHomeActivity activity) {
         this.activity = activity;
@@ -51,7 +55,7 @@ public class HomeNavDrawerController {
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    protected void setupNavDrawer() {
+    protected void setupNavDrawer(Bundle savedInstanceState) {
         initDrawerItemsMap();
         determineDrawerItemsToInclude();
         navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
@@ -62,6 +66,18 @@ public class HomeNavDrawerController {
         actionBar.setDisplayHomeAsUpEnabled(false);
         actionBar.setDisplayUseLogoEnabled(false);
         actionBar.setIcon(R.drawable.ic_menu_bar);
+
+        if (savedInstanceState != null &&
+                savedInstanceState.getBoolean(KEY_DRAWER_WAS_OPEN)) {
+            reopenDrawerWhenResumed = true;
+        }
+    }
+
+    protected void reopenDrawerIfNeeded() {
+        if (reopenDrawerWhenResumed) {
+            openDrawer();
+            reopenDrawerWhenResumed = false;
+        }
     }
 
     protected void refreshItems() {
@@ -207,11 +223,19 @@ public class HomeNavDrawerController {
         return drawerLayout.isDrawerOpen(navDrawerList);
     }
 
-    protected void openDrawer() {
+    protected void toggleDrawer() {
+        if (isDrawerOpen()) {
+            closeDrawer();
+        } else {
+            openDrawer();
+        }
+    }
+
+    private void openDrawer() {
         drawerLayout.openDrawer(navDrawerList);
     }
 
-    protected void closeDrawer() {
+    private void closeDrawer() {
         drawerLayout.closeDrawer(navDrawerList);
     }
 
