@@ -509,8 +509,8 @@ public class CommCareSessionService extends Service {
             }
 
             @Override
-            public void startSubmission(int itemNumber, long length) {
-                currentSize = length;
+            public void startSubmission(int itemNumber, long sizeOfItem) {
+                currentSize = sizeOfItem;
 
                 submissionNotification.setContentInfo(getSubmittedFormCount(itemNumber + 1, totalItems));
                 submissionNotification.setProgress(100, 0, false);

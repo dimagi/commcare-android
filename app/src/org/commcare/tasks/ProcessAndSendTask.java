@@ -319,14 +319,13 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
     @Override
     protected void onProgressUpdate(Long... values) {
-        if (values.length == 1 && values[0] == ProcessAndSendTask.PROGRESS_ALL_PROCESSED) {
+        if (values.length == 1 && values[0] == PROGRESS_ALL_PROCESSED) {
             this.transitionPhase(sendTaskId);
         }
 
         super.onProgressUpdate(values);
 
         if (values.length > 0) {
-            //Parcel updates out
             if (values[0] == SUBMISSION_BEGIN) {
                 dispatchBeginSubmissionProcessToListeners(values[1].intValue());
             } else if (values[0] == SUBMISSION_START) {
@@ -401,9 +400,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     }
 
     @Override
-    public void startSubmission(int itemNumber, long length) {
-        // TODO Auto-generated method stub
-        this.publishProgress(SUBMISSION_START, (long)itemNumber, length);
+    public void startSubmission(int itemNumber, long sizeOfItem) {
+        this.publishProgress(SUBMISSION_START, (long)itemNumber, sizeOfItem);
     }
 
     @Override

@@ -99,7 +99,27 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
 
     @Override
     public DataSubmissionListener getSubmissionListenerForProgressBar() {
-        return null;
+        return new DataSubmissionListener() {
+            @Override
+            public void beginSubmissionProcess(int totalItems) {
+
+            }
+
+            @Override
+            public void startSubmission(int itemNumber, long sizeOfItem) {
+
+            }
+
+            @Override
+            public void notifyProgress(int itemNumber, long progress) {
+
+            }
+
+            @Override
+            public void endSubmissionProcess() {
+
+            }
+        };
     }
 
 }

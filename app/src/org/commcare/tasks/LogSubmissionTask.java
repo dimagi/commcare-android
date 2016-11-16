@@ -328,8 +328,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     }
 
     @Override
-    public void startSubmission(int itemNumber, long length) {
-        this.publishProgress(LogSubmissionTask.SUBMISSION_START, (long)itemNumber, length);
+    public void startSubmission(int itemNumber, long sizeOfItem) {
+        this.publishProgress(LogSubmissionTask.SUBMISSION_START, (long)itemNumber, sizeOfItem);
     }
 
     @Override
