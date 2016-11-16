@@ -72,7 +72,7 @@ public class HomeNavDrawerController {
 
     private void updateItemSubtexts() {
         NavDrawerItem syncItem = allDrawerItems.get(SYNC_DRAWER_ITEM_ID);
-        syncItem.updateSubtext(SyncDetailCalculations.getLastSyncTimeAndMessage().second);
+        syncItem.subtext = SyncDetailCalculations.getLastSyncTimeAndMessage().second;
     }
 
     private void initDrawerItemsMap() {
@@ -128,7 +128,7 @@ public class HomeNavDrawerController {
                         activity.showAboutCommCareDialog();
                         break;
                     case SETTINGS_DRAWER_ITEM_ID:
-                        activity.createPreferencesMenu(activity);
+                        HomeScreenBaseActivity.createPreferencesMenu(activity);
                         break;
                     case ADVANCED_DRAWER_ITEM_ID:
                         activity.startAdvancedActionsActivity();

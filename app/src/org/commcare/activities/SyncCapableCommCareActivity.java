@@ -1,7 +1,5 @@
 package org.commcare.activities;
 
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,7 +15,6 @@ import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
-import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
@@ -209,7 +206,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         return true;
     }
 
-    public void addSyncItemToActionBar(Menu menu) {
+    private void addSyncItemToActionBar(Menu menu) {
         if (shouldShowSyncItemInActionBar() &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuItem item = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");

@@ -9,21 +9,17 @@ import android.support.annotation.DrawableRes;
  */
 public class NavDrawerItem {
 
-    public String id;
-    public String text;
+    public final String id;
+    public final String text;
     public String subtext;
     @DrawableRes
-    public int iconResource;
+    public final int iconResource;
 
     public NavDrawerItem(String id, String text, @DrawableRes int iconResource, String subtext) {
         this.id = id;
         this.text = text;
         this.subtext = subtext;
         this.iconResource = iconResource;
-    }
-
-    public void updateSubtext(String subtext) {
-        this.subtext = subtext;
     }
 
 }

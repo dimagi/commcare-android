@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -20,7 +21,7 @@ import org.commcare.suite.model.Menu;
 public class MenuList implements AdapterView.OnItemClickListener {
 
     protected CommCareActivity activity;
-    protected AdapterView adapterView;
+    protected AdapterView<ListAdapter> adapterView;
     protected MenuAdapter adapter;
     private boolean beingUsedInHomeScreen;
     private TextView header;
@@ -45,7 +46,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
         return R.layout.screen_suite_menu;
     }
 
-    protected void setupMenuInActivity(CommCareActivity activity, String menuId) {
+    private void setupMenuInActivity(CommCareActivity activity, String menuId) {
         this.activity = activity;
         activity.setContentView(getLayoutFileResource());
         initViewAndAdapter(menuId);
