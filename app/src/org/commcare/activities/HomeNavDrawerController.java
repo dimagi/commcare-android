@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 import android.widget.AdapterView;
@@ -35,12 +36,15 @@ public class HomeNavDrawerController {
     private static final String SAVED_FORMS_ITEM_ID = "saved-forms";
     private static final String LOGOUT_DRAWER_ITEM_ID = "home-logout";
 
+    protected static final String KEY_DRAWER_WAS_OPEN = "drawer-open-before-rotation";
+
     private RootMenuHomeActivity activity;
 
     private DrawerLayout drawerLayout;
     private ListView navDrawerList;
     private Map<String, NavDrawerItem> allDrawerItems;
     private NavDrawerItem[] drawerItemsShowing;
+    private boolean reopenDrawerWhenResumed;
 
     public HomeNavDrawerController(RootMenuHomeActivity activity) {
         this.activity = activity;
@@ -51,7 +55,7 @@ public class HomeNavDrawerController {
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    protected void setupNavDrawer() {
+    protected void setupNavDrawer(Bundle savedInstanceState) {
         initDrawerItemsMap();
         determineDrawerItemsToInclude();
         navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
@@ -62,6 +66,18 @@ public class HomeNavDrawerController {
         actionBar.setDisplayHomeAsUpEnabled(false);
         actionBar.setDisplayUseLogoEnabled(false);
         actionBar.setIcon(R.drawable.ic_menu_bar);
+
+        if (savedInstanceState != null &&
+                savedInstanceState.getBoolean(KEY_DRAWER_WAS_OPEN)) {
+            reopenDrawerWhenResumed = true;
+        }
+    }
+
+    protected void reopenDrawerIfNeeded() {
+        if (reopenDrawerWhenResumed) {
+            openDrawer();
+            reopenDrawerWhenResumed = false;
+        }
     }
 
     protected void refreshItems() {
@@ -72,7 +88,7 @@ public class HomeNavDrawerController {
 
     private void updateItemSubtexts() {
         NavDrawerItem syncItem = allDrawerItems.get(SYNC_DRAWER_ITEM_ID);
-        syncItem.updateSubtext(SyncDetailCalculations.getLastSyncTimeAndMessage().second);
+        syncItem.subtext = SyncDetailCalculations.getLastSyncTimeAndMessage().second;
     }
 
     private void initDrawerItemsMap() {
@@ -85,24 +101,28 @@ public class HomeNavDrawerController {
     }
 
     private void determineDrawerItemsToInclude() {
-        boolean shouldShowSavedFormsItem = CommCarePreferences.isSavedFormsEnabled();
-        boolean shouldShowChangeLanguageItem = ChangeLocaleUtil.getLocaleNames().length > 1;
+        boolean hideSavedFormsItem = !CommCarePreferences.isSavedFormsEnabled();
+        boolean hideChangeLanguageItem = ChangeLocaleUtil.getLocaleNames().length <= 1;
         int numItemsToInclude = allDrawerItems.size()
-                - (shouldShowChangeLanguageItem ? 0 : 1)
-                - (shouldShowSavedFormsItem ? 0 : 1);
+                - (hideChangeLanguageItem ? 1 : 0)
+                - (hideSavedFormsItem ? 1 : 0);
 
         drawerItemsShowing = new NavDrawerItem[numItemsToInclude];
         int index = 0;
         for (String id : getAllItemIdsInOrder()) {
             NavDrawerItem item = allDrawerItems.get(id);
-            if ((id.equals(CHANGE_LANGUAGE_DRAWER_ITEM_ID) && !shouldShowChangeLanguageItem) ||
-                    (id.equals(SAVED_FORMS_ITEM_ID) && !shouldShowSavedFormsItem)) {
-                continue;
-            } else {
+            if (!excludeItem(id, hideChangeLanguageItem, hideSavedFormsItem)) {
                 drawerItemsShowing[index] = item;
                 index++;
             }
         }
+    }
+
+    private boolean excludeItem(String itemId,
+                                boolean hideChangeLanguageItem,
+                                boolean hideSavedFormsItem) {
+        return (itemId.equals(CHANGE_LANGUAGE_DRAWER_ITEM_ID) && hideChangeLanguageItem) ||
+                (itemId.equals(SAVED_FORMS_ITEM_ID) && hideSavedFormsItem);
     }
 
     private ListView.OnItemClickListener getNavDrawerClickListener() {
@@ -124,7 +144,7 @@ public class HomeNavDrawerController {
                         activity.showAboutCommCareDialog();
                         break;
                     case SETTINGS_DRAWER_ITEM_ID:
-                        activity.createPreferencesMenu(activity);
+                        HomeScreenBaseActivity.createPreferencesMenu(activity);
                         break;
                     case ADVANCED_DRAWER_ITEM_ID:
                         activity.startAdvancedActionsActivity();
@@ -203,11 +223,19 @@ public class HomeNavDrawerController {
         return drawerLayout.isDrawerOpen(navDrawerList);
     }
 
-    protected void openDrawer() {
+    protected void toggleDrawer() {
+        if (isDrawerOpen()) {
+            closeDrawer();
+        } else {
+            openDrawer();
+        }
+    }
+
+    private void openDrawer() {
         drawerLayout.openDrawer(navDrawerList);
     }
 
-    protected void closeDrawer() {
+    private void closeDrawer() {
         drawerLayout.closeDrawer(navDrawerList);
     }
 

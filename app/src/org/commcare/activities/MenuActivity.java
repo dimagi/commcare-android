@@ -20,7 +20,7 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
         if (menuId == null) {
             menuId = Menu.ROOT_MENU_ID;
         }
-        if (menuId == Menu.ROOT_MENU_ID && DispatchActivity.useRootMenuHomeActivity()) {
+        if (menuId.equals(Menu.ROOT_MENU_ID) && DispatchActivity.useRootMenuHomeActivity()) {
             // Pressing back from any screen immediately after the RootMenuHomeActivity will take
             // us here, so we want to redirect
             finish();
@@ -42,7 +42,6 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
 
     @Override
     public String getActivityTitle() {
-        //return adapter.getMenuTitle();
         return null;
     }
 

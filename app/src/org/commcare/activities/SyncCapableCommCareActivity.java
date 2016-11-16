@@ -207,7 +207,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         return true;
     }
 
-    public void addSyncItemToActionBar(Menu menu) {
+    private void addSyncItemToActionBar(Menu menu) {
         if (shouldShowSyncItemInActionBar() &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuItem item = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");

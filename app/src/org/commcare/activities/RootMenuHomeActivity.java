@@ -26,11 +26,9 @@ import org.commcare.tasks.DataSubmissionListener;
  */
 public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeActivity> {
 
-    private static final String KEY_DRAWER_WAS_OPEN = "drawer-open-before-rotation";
     private static final long MIN_PROGRESS_BAR_DURATION_MS = 1500;
 
     private HomeNavDrawerController navDrawerController;
-    private boolean reopenDrawerInOnResume;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -42,31 +40,20 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
         MenuList.setupMenuViewInActivity(this, menuId, true, true);
         navDrawerController = new HomeNavDrawerController(this);
         if (usingNavDrawer()) {
-            navDrawerController.setupNavDrawer();
-            if (savedInstanceState != null && savedInstanceState.getBoolean(KEY_DRAWER_WAS_OPEN)) {
-                // Necessary because opening the drawer here does not work for some unknown reason
-                reopenDrawerInOnResume = true;
-            }
+            navDrawerController.setupNavDrawer(savedInstanceState);
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (reopenDrawerInOnResume) {
-            navDrawerController.openDrawer();
-            reopenDrawerInOnResume = false;
-        }
+        navDrawerController.reopenDrawerIfNeeded();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (usingNavDrawer() && item.getItemId() == android.R.id.home) {
-            if (navDrawerController.isDrawerOpen()) {
-                navDrawerController.closeDrawer();
-            } else {
-                navDrawerController.openDrawer();
-            }
+            navDrawerController.toggleDrawer();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -75,7 +62,8 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(KEY_DRAWER_WAS_OPEN, navDrawerController.isDrawerOpen());
+        outState.putBoolean(HomeNavDrawerController.KEY_DRAWER_WAS_OPEN,
+                navDrawerController.isDrawerOpen());
     }
 
     private boolean usingNavDrawer() {
