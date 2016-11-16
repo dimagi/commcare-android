@@ -446,7 +446,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return false;
     }
 
-    private boolean processReturnFromGetCommand(int resultCode, Intent intent) {
+    public boolean processReturnFromGetCommand(int resultCode, Intent intent) {
         if (resultCode == RESULT_CANCELED) {
             return processCanceledGetCommandOrCase();
         } else if (resultCode == RESULT_OK) {
@@ -770,11 +770,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_CASE_AUTOSELECT_USED);
                 break;
         }
-    }
-
-    public void setCommandAndProceed(String commandId) {
-        CommCareApplication.instance().getCurrentSessionWrapper().getSession().setCommand(commandId);
-        startNextSessionStepSafe();
     }
 
     @Override
