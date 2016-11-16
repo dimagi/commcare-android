@@ -25,7 +25,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -50,7 +52,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     public static final long SUBMISSION_NOTIFY = 64;
     public static final long SUBMISSION_DONE = 128;
 
-    private DataSubmissionListener formSubmissionListener;
+    private List<DataSubmissionListener> formSubmissionListeners;
     private final FormRecordProcessor processor;
 
     private static final int SUBMISSION_ATTEMPTS = 2;
@@ -68,6 +70,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         this.c = c;
         this.url = url;
         this.processor = new FormRecordProcessor(c);
+        this.formSubmissionListeners = new ArrayList<>();
         if (inSyncMode) {
             this.sendTaskId = SEND_PHASE_ID;
             this.taskId = PROCESSING_PHASE_ID;
@@ -122,9 +125,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             }
 
             // Ok, all forms are now processed. Time to focus on sending
-            if (formSubmissionListener != null) {
-                formSubmissionListener.beginSubmissionProcess(records.length);
-            }
+            dispatchBeginSubmissionProcessToListeners(records.length);
             sendForms(records);
 
             return FormUploadResult.getWorstResult(results);
@@ -325,27 +326,49 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         super.onProgressUpdate(values);
 
         if (values.length > 0) {
-            if (formSubmissionListener != null) {
-                //Parcel updates out
-                if (values[0] == SUBMISSION_BEGIN) {
-                    formSubmissionListener.beginSubmissionProcess(values[1].intValue());
-                } else if (values[0] == SUBMISSION_START) {
-                    int item = values[1].intValue();
-                    long size = values[2];
-                    formSubmissionListener.startSubmission(item, size);
-                } else if (values[0] == SUBMISSION_NOTIFY) {
-                    int item = values[1].intValue();
-                    long progress = values[2];
-                    formSubmissionListener.notifyProgress(item, progress);
-                } else if (values[0] == SUBMISSION_DONE) {
-                    formSubmissionListener.endSubmissionProcess();
-                }
+            //Parcel updates out
+            if (values[0] == SUBMISSION_BEGIN) {
+                dispatchBeginSubmissionProcessToListeners(values[1].intValue());
+            } else if (values[0] == SUBMISSION_START) {
+                int item = values[1].intValue();
+                long size = values[2];
+                dispatchStartSubmissionToListeners(item, size);
+            } else if (values[0] == SUBMISSION_NOTIFY) {
+                int item = values[1].intValue();
+                long progress = values[2];
+                dispatchNotifyProgressToListeners(item, progress);
+            } else if (values[0] == SUBMISSION_DONE) {
+                dispatchEndSubmissionProcessToListeners();
             }
         }
     }
 
-    public void setListener(DataSubmissionListener submissionListener) {
-        this.formSubmissionListener = submissionListener;
+    public void addListener(DataSubmissionListener submissionListener) {
+        formSubmissionListeners.add(submissionListener);
+    }
+
+    private void dispatchBeginSubmissionProcessToListeners(int totalItems) {
+        for (DataSubmissionListener listener : formSubmissionListeners) {
+            listener.beginSubmissionProcess(totalItems);
+        }
+    }
+
+    private void dispatchStartSubmissionToListeners(int itemNumber, long length) {
+        for (DataSubmissionListener listener : formSubmissionListeners) {
+            listener.startSubmission(itemNumber, length);
+        }
+    }
+
+    private void dispatchNotifyProgressToListeners(int itemNumber, long progress) {
+        for (DataSubmissionListener listener : formSubmissionListeners) {
+            listener.notifyProgress(itemNumber, progress);
+        }
+    }
+
+    private void dispatchEndSubmissionProcessToListeners() {
+        for (DataSubmissionListener listener : formSubmissionListeners) {
+            listener.endSubmissionProcess();
+        }
     }
 
     @Override
@@ -406,9 +429,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        if (this.formSubmissionListener != null) {
-            formSubmissionListener.endSubmissionProcess();
-        }
+        dispatchEndSubmissionProcessToListeners();
         CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
         clearState();
     }

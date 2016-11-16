@@ -15,6 +15,7 @@ import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
@@ -93,7 +94,13 @@ public class FormAndDataSyncer {
             }
         };
 
-        processAndSendTask.setListener(CommCareApplication.instance().getSession().getSubmissionListenerForNotificationManager());
+        processAndSendTask.addListener(
+                CommCareApplication.instance().getSession().getSubmissionListenerForNotifications());
+        DataSubmissionListener progressBarListener = activity.getSubmissionListenerForProgressBar();
+        if (progressBarListener != null) {
+            processAndSendTask.addListener(progressBarListener);
+        }
+
         processAndSendTask.connect(activity);
         processAndSendTask.executeParallel(records);
     }

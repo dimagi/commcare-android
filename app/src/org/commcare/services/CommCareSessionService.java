@@ -468,11 +468,11 @@ public class CommCareSessionService extends Service {
                 .read(this.userKeyRecordID);
     }
 
-    public DataSubmissionListener getSubmissionListenerForNotificationManager() {
-        return this.getSubmissionListenerForNotificationManager(SUBMISSION_NOTIFICATION);
+    public DataSubmissionListener getSubmissionListenerForNotifications() {
+        return this.getSubmissionListenerForNotifications(SUBMISSION_NOTIFICATION);
     }
 
-    public DataSubmissionListener getSubmissionListenerForNotificationManager(final int notificationId) {
+    public DataSubmissionListener getSubmissionListenerForNotifications(final int notificationId) {
         return new DataSubmissionListener() {
             int totalItems = -1;
             long currentSize = -1;

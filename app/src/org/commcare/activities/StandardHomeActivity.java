@@ -228,10 +228,5 @@ public class StandardHomeActivity
     public void refreshUI() {
         uiController.refreshView();
     }
-
-    @Override
-    boolean usingFormSubmissionProgressBar() {
-        return false;
-    }
-
+    
 }

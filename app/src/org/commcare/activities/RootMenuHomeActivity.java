@@ -98,8 +98,8 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     }
 
     @Override
-    boolean usingFormSubmissionProgressBar() {
-        return true;
+    public DataSubmissionListener getSubmissionListenerForProgressBar() {
+        return null;
     }
-    
+
 }

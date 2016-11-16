@@ -12,6 +12,7 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
@@ -218,5 +219,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     }
 
     public abstract boolean shouldShowSyncItemInActionBar();
+
+    public DataSubmissionListener getSubmissionListenerForProgressBar() {
+        return null;
+    }
 
 }

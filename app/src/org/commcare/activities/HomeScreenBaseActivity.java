@@ -1136,6 +1136,4 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     abstract void refreshUI();
 
-    abstract boolean usingFormSubmissionProgressBar();
-
 }
