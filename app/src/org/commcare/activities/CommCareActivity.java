@@ -739,6 +739,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        AudioController.INSTANCE.releaseCurrentMediaEntity();
+    }
+
+    @Override
     public void onLongPress(MotionEvent arg0) {
         // ignore
     }

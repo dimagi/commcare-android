@@ -81,17 +81,14 @@ public enum AudioController {
 
     /**
      * Start audio playback of current media resource.
-     *
-     * @return the current playback position and total playback duration
      */
-    public Pair<Integer, Integer> playCurrentMediaEntity() {
+    public void playCurrentMediaEntity() {
         if (currentEntity != null) {
             MediaPlayer player = currentEntity.getPlayer();
             player.start();
             currentEntity.setState(MediaState.Playing);
-            return new Pair<>(player.getCurrentPosition(), player.getDuration());
+            currentAudioButton.startProgressBar(player.getCurrentPosition(), player.getDuration());
         }
-        return null;
     }
 
     /**

@@ -113,6 +113,7 @@ public class MediaLayout extends RelativeLayout {
 
         if (audioURI != null) {
             audioButton = new AudioPlaybackButton(getContext(), audioURI, true);
+
             // random ID to be used by the relative layout.
             audioButton.setId(AUDIO_BUTTON_ID);
         }

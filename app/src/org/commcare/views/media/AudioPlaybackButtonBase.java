@@ -101,14 +101,10 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
     }
 
     private void startPlaying() {
-        Pair<Integer, Integer> posAndDuration = AudioController.INSTANCE.playCurrentMediaEntity();
+        AudioController.INSTANCE.playCurrentMediaEntity();
 
         currentState = MediaState.Playing;
         refreshAppearance();
-
-        if (posAndDuration != null) {
-            startProgressBar(posAndDuration.first, posAndDuration.second);
-        }
     }
 
     public void endPlaying() {
@@ -282,13 +278,4 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
     protected abstract void pauseProgressBar();
 
     protected abstract int getLayout();
-
-    @Override
-    protected void onWindowVisibilityChanged(int visibility) {
-        super.onWindowVisibilityChanged(visibility);
-
-        if (visibility != View.VISIBLE) {
-            endPlaying();
-        }
-    }
 }

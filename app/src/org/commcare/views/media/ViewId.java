@@ -35,16 +35,16 @@ public class ViewId {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        } else if (obj == null || !(obj instanceof ViewId)) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ViewId other = (ViewId)obj;
+        } else {
+            ViewId other = (ViewId)obj;
 
-        return colId == other.colId
-                && isDetail == other.isDetail
-                && rowId == other.rowId;
+            return colId == other.colId
+                    && isDetail == other.isDetail
+                    && rowId == other.rowId;
+        }
     }
 }

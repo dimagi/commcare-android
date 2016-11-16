@@ -48,6 +48,7 @@ public class AudioPlaybackButton extends AudioPlaybackButtonBase {
     @Override
     protected void startProgressBar(int milliPosition, int milliDuration) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            resetProgressBar();
             ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
             final int startPosition = 0;
             final int progressBarMax = 500;
