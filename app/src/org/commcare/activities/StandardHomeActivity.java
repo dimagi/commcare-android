@@ -105,8 +105,8 @@ public class StandardHomeActivity
 
     @Override
     protected void updateUiAfterDataPullOrSend(String message, boolean success) {
-        uiController.updateSyncButtonMessage(message);
         displayToast(message);
+        uiController.updateSyncButtonMessage(message);
     }
 
     @Override

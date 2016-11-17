@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.annotation.AnimRes;
 import android.support.annotation.LayoutRes;
 import android.view.LayoutInflater;
@@ -32,15 +33,25 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     protected static final int MENU_SYNC = Menu.FIRST;
     private static final int MENU_GROUP_SYNC_ACTION = Menu.FIRST;
+
     private static final boolean SUCCESS = true;
     private static final boolean FAIL = false;
+
+    private static final int TRIGGER_START_DATA_PULL = 0;
+    private static final int TRIGGER_END_DATA_PULL = 1;
+    private static final int TRIGGER_START_SEND_FORMS = 2;
+    private static final int TRIGGER_END_SEND_FORMS = 3;
+    private static final int TRIGGER_NONE = 4;
 
     protected boolean isSyncUserLaunched = false;
     protected FormAndDataSyncer formAndDataSyncer;
 
+    private CommCareSyncState syncStateForIcon;
+
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         formAndDataSyncer = new FormAndDataSyncer();
+        computeSyncState(TRIGGER_NONE);
     }
 
     /**
@@ -131,24 +142,59 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         updateUiAfterDataPullOrSend(message, success);
     }
 
-    protected void updateUiAfterDataPullOrSend(String message, boolean success) {
-        displayToast(message);
-        if (shouldShowSyncItemInActionBar()) {
-            refreshSyncIcon();
-        }
-    }
-
-    private void refreshSyncIcon() {
-        if (SyncDetailCalculations.getNumUnsentForms() > 0) {
-            CommCareApplication.instance().updateSyncState(CommCareSyncState.FORMS_PENDING);
-        } else {
-            CommCareApplication.instance().updateSyncState(CommCareSyncState.UP_TO_DATE);
-        }
-        rebuildOptionsMenu();
-    }
+    abstract void updateUiAfterDataPullOrSend(String message, boolean success);
 
     protected void displayToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void startBlockingForTask(int id) {
+        super.startBlockingForTask(id);
+        if (id == ProcessAndSendTask.SEND_PHASE_ID_NO_DIALOG ||
+                id == ProcessAndSendTask.PROCESSING_PHASE_ID_NO_DIALOG) {
+            refreshSyncIcon(TRIGGER_START_SEND_FORMS);
+        } else if (id == DataPullTask.DATA_PULL_TASK_ID) {
+            refreshSyncIcon(TRIGGER_START_DATA_PULL);
+        }
+    }
+
+    @Override
+    public void stopBlockingForTask(int id) {
+        super.stopBlockingForTask(id);
+        if (id == ProcessAndSendTask.SEND_PHASE_ID_NO_DIALOG ||
+                id == ProcessAndSendTask.PROCESSING_PHASE_ID_NO_DIALOG) {
+            refreshSyncIcon(TRIGGER_END_SEND_FORMS);
+        } else if (id == DataPullTask.DATA_PULL_TASK_ID) {
+            refreshSyncIcon(TRIGGER_END_DATA_PULL);
+        }
+    }
+
+    private void refreshSyncIcon(int trigger) {
+        if (shouldShowSyncItemInActionBar()) {
+            computeSyncState(trigger);
+            rebuildOptionsMenu();
+        }
+    }
+
+    private void computeSyncState(int trigger) {
+        switch(trigger) {
+            case TRIGGER_END_DATA_PULL:
+            case TRIGGER_END_SEND_FORMS:
+            case TRIGGER_NONE:
+                if (SyncDetailCalculations.getNumUnsentForms() > 0) {
+                    syncStateForIcon = CommCareSyncState.FORMS_PENDING;
+                } else {
+                    syncStateForIcon = CommCareSyncState.UP_TO_DATE;
+                }
+                break;
+            case TRIGGER_START_DATA_PULL:
+                syncStateForIcon = CommCareSyncState.PULLING_DATA;
+                break;
+            case TRIGGER_START_SEND_FORMS:
+                syncStateForIcon = CommCareSyncState.SENDING_FORMS;
+                break;
+        }
     }
 
     public static void handleSyncUpdate(CommCareActivity activity,
@@ -241,7 +287,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuItem item = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-            switch(CommCareApplication.instance().getSyncState()) {
+            switch(syncStateForIcon) {
                 case PULLING_DATA:
                     addDataPullAnimation(item);
                     break;

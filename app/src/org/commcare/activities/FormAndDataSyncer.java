@@ -14,7 +14,6 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.suite.model.OfflineUserRestore;
-import org.commcare.tasks.CommCareSyncState;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormSubmissionProgressBarListener;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -120,7 +119,6 @@ public class FormAndDataSyncer {
 
         processAndSendTask.connect(activity);
         processAndSendTask.executeParallel(records);
-        refreshSyncIcon(activity, CommCareSyncState.SENDING_FORMS);
     }
 
     private static String getFormPostURL(final Context context) {
@@ -226,8 +224,4 @@ public class FormAndDataSyncer {
         dataPullTask.executeParallel();
     }
 
-    private static void refreshSyncIcon(CommCareActivity activity, CommCareSyncState syncState) {
-        CommCareApplication.instance().updateSyncState(syncState);
-        activity.rebuildOptionsMenu();
-    }
 }

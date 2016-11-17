@@ -84,7 +84,6 @@ import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
-import org.commcare.tasks.CommCareSyncState;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
@@ -155,10 +154,12 @@ public class CommCareApplication extends Application {
 
     private static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
 
-    private CommCareSyncState currentSyncState;
     private int dbState;
+
     private static CommCareApplication app;
+
     private CommCareApp currentApp;
+
     // stores current state of application: the session, form
     private AndroidSessionWrapper sessionWrapper;
 
@@ -184,6 +185,7 @@ public class CommCareApplication extends Application {
      * Handler to receive notifications and show them the user using toast.
      */
     private final PopupHandler toaster = new PopupHandler(this);
+
 
     private GoogleAnalytics analyticsInstance;
     private Tracker analyticsTracker;
@@ -934,8 +936,7 @@ public class CommCareApplication extends Application {
 
         DataSubmissionListener dataListener;
 
-        dataListener =
-                CommCareApplication.this.getSession().getListenerForSubmissionNotification(R.string.submission_logs_title);
+        dataListener = getSession().getListenerForSubmissionNotification(R.string.submission_logs_title);
 
         LogSubmissionTask task = new LogSubmissionTask(
                 force || isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
@@ -1371,14 +1372,6 @@ public class CommCareApplication extends Application {
 
     public PrototypeFactory getPrototypeFactory(Context c) {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
-    }
-
-    public void updateSyncState(CommCareSyncState syncState) {
-        this.currentSyncState = syncState;
-    }
-
-    public CommCareSyncState getSyncState() {
-        return currentSyncState;
     }
 
 }

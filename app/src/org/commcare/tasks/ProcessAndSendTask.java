@@ -45,6 +45,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
     public static final int PROCESSING_PHASE_ID = 8;
     public static final int SEND_PHASE_ID = 9;
+    public static final int PROCESSING_PHASE_ID_NO_DIALOG = -8;
+    public static final int SEND_PHASE_ID_NO_DIALOG = -9;
+
     public static final long PROGRESS_ALL_PROCESSED = 8;
 
     public static final long SUBMISSION_BEGIN = 16;
@@ -78,8 +81,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             this.sendTaskId = SEND_PHASE_ID;
             this.taskId = PROCESSING_PHASE_ID;
         } else {
-            this.sendTaskId = -1;
-            this.taskId = -1;
+            this.sendTaskId = SEND_PHASE_ID_NO_DIALOG;
+            this.taskId = PROCESSING_PHASE_ID_NO_DIALOG;
         }
     }
 
