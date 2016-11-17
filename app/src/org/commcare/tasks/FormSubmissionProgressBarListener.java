@@ -15,8 +15,11 @@ import org.commcare.dalvik.R;
  */
 public class FormSubmissionProgressBarListener implements DataSubmissionListener {
 
-    private static final long MIN_PROGRESS_BAR_DURATION_MS = 2000;
+    private static final long MIN_PROGRESS_BAR_DURATION_PER_ITEM = 1000;
+    private static final long MAX_TOTAL_PROGRESS_BAR_DURATION = 5000;
 
+    private int totalItems;
+    private int maxProgress;
     private long sizeOfCurrentItem;
     private long startTime;
     private ProgressBar submissionProgressBar;
@@ -28,37 +31,52 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
 
     @Override
     public void beginSubmissionProcess(int totalItems) {
-        startTime = System.currentTimeMillis();
-        containingActivity.runOnUiThread(new Runnable() {
+        this.totalItems = totalItems;
+        // Give each item 100 units of progress to use
+        this.maxProgress = totalItems * 100;
+        this.startTime = System.currentTimeMillis();
+        this.containingActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 submissionProgressBar =
                         (ProgressBar)containingActivity.findViewById(R.id.submission_progress_bar);
                 submissionProgressBar.setVisibility(View.VISIBLE);
-            }
-        });
-    }
-
-    @Override
-    public void startSubmission(int itemNumber, long sizeOfItem) {
-        sizeOfCurrentItem = sizeOfItem;
-        containingActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                submissionProgressBar.setMax(100);
+                submissionProgressBar.setMax(maxProgress);
                 submissionProgressBar.setProgress(0);
             }
         });
     }
 
+
     @Override
-    public void notifyProgress(int itemNumber, final long progress) {
+    public void startSubmission(int itemNumber, long sizeOfItem) {
+        sizeOfCurrentItem = sizeOfItem;
+    }
+
+    @Override
+    public void notifyProgress(final int itemNumber, final long progress) {
         containingActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                submissionProgressBar.setProgress(getProgressToReport(progress));
+                int nextProgress = getProgressToReport(itemNumber, progress);
+                if (nextProgress > submissionProgressBar.getProgress()) {
+                    submissionProgressBar.setProgress(nextProgress);
+                }
             }
         });
+    }
+
+    private int getProgressToReport(int itemNumber, long progressForCurrentItem) {
+        int progressPercentForPriorItems = 100 * itemNumber;
+        int progressPercentForCurrentItem =
+                (int)Math.floor((progressForCurrentItem * 1.0 / sizeOfCurrentItem) * 100);
+        int actualProgressPercent = progressPercentForPriorItems + progressPercentForCurrentItem;
+
+        long timeElapsed = System.currentTimeMillis() - startTime;
+        final int maxAllowedProgressByTime =
+                (int)Math.floor((timeElapsed * 1.0 / getIdealDuration()) * maxProgress);
+
+        return Math.min(actualProgressPercent, maxAllowedProgressByTime);
     }
 
     @Override
@@ -66,7 +84,7 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
         containingActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (success && submissionProgressBar.getProgress() != 100) {
+                if (success && submissionProgressBar.getProgress() < maxProgress) {
                     finishAnimatingProgressBar();
                 } else {
                     submissionProgressBar.setVisibility(View.GONE);
@@ -75,32 +93,15 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
         });
     }
 
-    private int getProgressToReport(long progressForCurrentItem) {
-        final int actualProgressPercent =
-                (int)Math.floor((progressForCurrentItem * 1.0 / sizeOfCurrentItem) * 100);
-
-        long timeElapsed = System.currentTimeMillis() - startTime;
-        final int maxAllowedProgressByTime =
-                (int)Math.floor((timeElapsed * 1.0 / MIN_PROGRESS_BAR_DURATION_MS) * 100);
-
-        return Math.min(actualProgressPercent, maxAllowedProgressByTime);
-    }
-
     private void finishAnimatingProgressBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ObjectAnimator animation = ObjectAnimator.ofInt(submissionProgressBar, "progress",
-                    submissionProgressBar.getProgress(), 100);
-            long timeRemaining =
-                    MIN_PROGRESS_BAR_DURATION_MS - (System.currentTimeMillis() - startTime);
-            if (timeRemaining < 0) {
-                timeRemaining = 500;
-            }
-            animation.setDuration(timeRemaining);
+                    submissionProgressBar.getProgress(), maxProgress);
+            animation.setDuration(getFinishAnimationDuration());
             animation.setInterpolator(new DecelerateInterpolator());
             animation.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {
-
                 }
 
                 @Override
@@ -115,19 +116,27 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
 
                 @Override
                 public void onAnimationCancel(Animator animation) {
-
                 }
 
                 @Override
                 public void onAnimationRepeat(Animator animation) {
-
                 }
             });
             animation.start();
         } else {
-            submissionProgressBar.setProgress(100);
+            submissionProgressBar.setProgress(maxProgress);
             submissionProgressBar.setVisibility(View.GONE);
         }
+    }
+
+    private int getFinishAnimationDuration() {
+        int progressRemaining = maxProgress - submissionProgressBar.getProgress();
+        double proportionRemaining = progressRemaining * 1.0 / maxProgress;
+        return (int)Math.floor(getIdealDuration() * proportionRemaining);
+    }
+
+    private long getIdealDuration() {
+        return Math.min(MIN_PROGRESS_BAR_DURATION_PER_ITEM * totalItems, MAX_TOTAL_PROGRESS_BAR_DURATION);
     }
 
 }
