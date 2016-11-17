@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.HomeButtons;
 import org.commcare.dalvik.R;
 import org.commcare.views.CustomBanner;
@@ -33,7 +33,7 @@ public class HomeScreenAdapter
     private final int syncButtonPosition;
     private final HashMap<Integer, String> messagePayload = new HashMap<>();
 
-    public HomeScreenAdapter(CommCareHomeActivity activity,
+    public HomeScreenAdapter(StandardHomeActivity activity,
                              Vector<String> buttonsToHide,
                              boolean isDemoUser) {
         super(activity);

@@ -49,8 +49,8 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     private final static int REPORT_PROBLEM_ACTIVITY = 3;
     private final static int VALIDATE_MEDIA_ACTIVITY = 4;
 
-    public final static int RESULT_DATA_RESET = CommCareHomeActivity.RESULT_RESTART + 1;
-    public final static int RESULT_FORMS_PROCESSED = CommCareHomeActivity.RESULT_RESTART + 2;
+    public final static int RESULT_DATA_RESET = HomeScreenBaseActivity.RESULT_RESTART + 1;
+    public final static int RESULT_FORMS_PROCESSED = HomeScreenBaseActivity.RESULT_RESTART + 2;
 
     public final static String FORM_PROCESS_COUNT_KEY = "forms-processed-count";
     public final static String FORM_PROCESS_MESSAGE_KEY = "forms-processed-message";
