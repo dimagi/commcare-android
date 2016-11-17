@@ -38,8 +38,8 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.File;
@@ -110,7 +110,7 @@ public class MenuAdapter implements ListAdapter {
         if (m.getMenuRelevance() != null) {
             errorXpathException = m.getMenuRelevanceRaw();
             EvaluationContext ec = asw.getEvaluationContext(m.getId());
-            return XPathFuncExpr.toBoolean(relevance.eval(ec));
+            return FunctionUtils.toBoolean(relevance.eval(ec));
         }
         return true;
     }
@@ -126,7 +126,7 @@ public class MenuAdapter implements ListAdapter {
                 errorXpathException = m.getCommandRelevanceRaw(m.indexOfCommand(command));
                 Object ret = mRelevantCondition.eval(ec);
                 try {
-                    if (!XPathFuncExpr.toBoolean(ret)) {
+                    if (!FunctionUtils.toBoolean(ret)) {
                         continue;
                     }
                 } catch (XPathTypeMismatchException e) {
