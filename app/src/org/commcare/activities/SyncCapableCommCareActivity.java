@@ -1,22 +1,29 @@
 package org.commcare.activities;
 
-import android.graphics.drawable.Drawable;
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.AnimRes;
+import android.support.annotation.LayoutRes;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.tasks.CommCareSyncState;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.DataSubmissionListener;
-import org.commcare.tasks.FormSubmissionProgressBarListener;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
@@ -25,6 +32,8 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     protected static final int MENU_SYNC = Menu.FIRST;
     private static final int MENU_GROUP_SYNC_ACTION = Menu.FIRST;
+    private static final boolean SUCCESS = true;
+    private static final boolean FAIL = false;
 
     protected boolean isSyncUserLaunched = false;
     protected FormAndDataSyncer formAndDataSyncer;
@@ -62,11 +71,11 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
         switch (result) {
             case AUTH_FAILED:
-                reportSyncResult(Localization.get("sync.fail.auth.loggedin"), false);
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
                 break;
             case BAD_DATA:
             case BAD_DATA_REQUIRES_INTERVENTION:
-                reportSyncResult(Localization.get("sync.fail.bad.data"), false);
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.data"), FAIL);
                 break;
             case DOWNLOAD_SUCCESS:
                 if (formsToSend) {
@@ -74,22 +83,22 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 } else {
                     reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
                 }
-                reportSyncResult(Localization.get("sync.success.synced"), true);
+                updateUiAfterDataPullOrSend(Localization.get("sync.success.synced"), SUCCESS);
                 break;
             case SERVER_ERROR:
-                reportSyncResult(Localization.get("sync.fail.server.error"), false);
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.server.error"), FAIL);
                 break;
             case UNREACHABLE_HOST:
-                reportSyncResult(Localization.get("sync.fail.bad.network"), false);
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.network"), FAIL);
                 break;
             case CONNECTION_TIMEOUT:
-                reportSyncResult(Localization.get("sync.fail.timeout"), false);
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.timeout"), FAIL);
                 break;
             case UNKNOWN_FAILURE:
-                reportSyncResult(Localization.get("sync.fail.unknown"), false);
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.unknown"), FAIL);
                 break;
             case ACTIONABLE_FAILURE:
-                reportSyncResult(resultAndError.errorMessage, false);
+                updateUiAfterDataPullOrSend(resultAndError.errorMessage, FAIL);
                 break;
         }
 
@@ -111,16 +120,35 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     @Override
     public void handlePullTaskError() {
-        reportSyncResult(Localization.get("sync.fail.unknown"), false);
+        updateUiAfterDataPullOrSend(Localization.get("sync.fail.unknown"), FAIL);
     }
 
-    public void reportSyncResult(String message, boolean success) {
+    public void handleSyncNotAttempted(String message) {
+        displayToast(message);
+    }
+
+    public void handleFormSendResult(String message, boolean success) {
+        updateUiAfterDataPullOrSend(message, success);
+    }
+
+    protected void updateUiAfterDataPullOrSend(String message, boolean success) {
+        displayToast(message);
         if (shouldShowSyncItemInActionBar()) {
-            if (success) {
-                rebuildOptionsMenu();
-            }
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            refreshSyncIcon();
         }
+    }
+
+    private void refreshSyncIcon() {
+        if (SyncDetailCalculations.getNumUnsentForms() > 0) {
+            CommCareApplication.instance().updateSyncState(CommCareSyncState.FORMS_PENDING);
+        } else {
+            CommCareApplication.instance().updateSyncState(CommCareSyncState.UP_TO_DATE);
+        }
+        rebuildOptionsMenu();
+    }
+
+    protected void displayToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     public static void handleSyncUpdate(CommCareActivity activity,
@@ -212,11 +240,47 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         if (shouldShowSyncItemInActionBar() &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuItem item = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");
-            Drawable syncDrawable =
-                    getResources().getDrawable(R.drawable.ic_sync_action_bar);
-            item.setIcon(syncDrawable);
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            switch(CommCareApplication.instance().getSyncState()) {
+                case PULLING_DATA:
+                    addDataPullAnimation(item);
+                    break;
+                case SENDING_FORMS:
+                    addFormSendAnimation(item);
+                    break;
+                case FORMS_PENDING:
+                    item.setIcon(R.drawable.ic_forms_pending_action_bar);
+                    break;
+                case UP_TO_DATE:
+                    item.setIcon(R.drawable.ic_sync_action_bar);
+                    break;
+            }
         }
+    }
+
+    private void addDataPullAnimation(MenuItem menuItem) {
+
+    }
+
+    private void addFormSendAnimation(MenuItem menuItem) {
+        //addAnimationToMenuItem(menuItem, R.layout.data_pull_action_view, R.anim.fade_in);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void addAnimationToMenuItem(MenuItem menuItem, @LayoutRes int layoutResource,
+                                        @AnimRes int animationId) {
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ImageView iv = (ImageView)inflater.inflate(layoutResource, null);
+        Animation animation = AnimationUtils.loadAnimation(this, animationId);
+        animation.setRepeatCount(Animation.INFINITE);
+        iv.startAnimation(animation);
+        menuItem.setActionView(iv);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void clearCurrentAnimations(MenuItem item) {
+        item.getActionView().clearAnimation();
+        item.setActionView(null);
     }
 
     public abstract boolean shouldShowSyncItemInActionBar();

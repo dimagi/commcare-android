@@ -71,8 +71,8 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     }
 
     @Override
-    public void reportSyncResult(String message, boolean success) {
-        super.reportSyncResult(message, success);
+    protected void updateUiAfterDataPullOrSend(String message, boolean success) {
+        super.updateUiAfterDataPullOrSend(message, success);
         if (usingNavDrawer()) {
             navDrawerController.refreshItems();
         }

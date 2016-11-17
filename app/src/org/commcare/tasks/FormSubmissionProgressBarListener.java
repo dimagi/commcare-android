@@ -47,7 +47,6 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
         });
     }
 
-
     @Override
     public void startSubmission(int itemNumber, long sizeOfItem) {
         sizeOfCurrentItem = sizeOfItem;

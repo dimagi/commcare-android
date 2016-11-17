@@ -14,6 +14,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.suite.model.OfflineUserRestore;
+import org.commcare.tasks.CommCareSyncState;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormSubmissionProgressBarListener;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -34,6 +35,23 @@ import java.io.IOException;
 public class FormAndDataSyncer {
 
     public FormAndDataSyncer() {
+    }
+
+    /**
+     * @return Were forms sent to the server by this method invocation?
+     */
+    public boolean checkAndStartUnsentFormsTask(SyncCapableCommCareActivity activity,
+                                                final boolean syncAfterwards,
+                                                boolean userTriggered) {
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
+        FormRecord[] records = StorageUtils.getUnsentRecords(storage);
+
+        if (records.length > 0) {
+            processAndSendForms(activity, records, syncAfterwards, userTriggered);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @SuppressLint("NewApi")
@@ -71,16 +89,16 @@ public class FormAndDataSyncer {
                         label = Localization.get("sync.success.sent",
                                 new String[]{String.valueOf(successfulSends)});
                     }
-                    receiver.reportSyncResult(label, true);
+                    receiver.handleFormSendResult(label, true);
 
                     if (syncAfterwards) {
                         syncDataForLoggedInUser(receiver, true, userTriggered);
                     }
                 } else if (result == FormUploadResult.AUTH_FAILURE) {
-                    receiver.reportSyncResult(Localization.get("sync.fail.auth.loggedin"), false);
+                    receiver.handleFormSendResult(Localization.get("sync.fail.auth.loggedin"), false);
                 } else if (result != FormUploadResult.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
-                    receiver.reportSyncResult(Localization.get("sync.fail.unsent"), false);
+                    receiver.handleFormSendResult(Localization.get("sync.fail.unsent"), false);
                 }
             }
 
@@ -90,7 +108,7 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverError(SyncCapableCommCareActivity receiver, Exception e) {
-                receiver.reportSyncResult(Localization.get("sync.fail.unsent"), false);
+                receiver.handleFormSendResult(Localization.get("sync.fail.unsent"), false);
             }
         };
 
@@ -102,6 +120,7 @@ public class FormAndDataSyncer {
 
         processAndSendTask.connect(activity);
         processAndSendTask.executeParallel(records);
+        refreshSyncIcon(activity, CommCareSyncState.SENDING_FORMS);
     }
 
     private static String getFormPostURL(final Context context) {
@@ -118,9 +137,9 @@ public class FormAndDataSyncer {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.reportSyncResult(Localization.get("main.sync.demo.has.forms"), false);
+                    activity.handleSyncNotAttempted(Localization.get("main.sync.demo.has.forms"));
                 } else {
-                    activity.reportSyncResult(Localization.get("main.sync.demo.no.forms"), false);
+                    activity.handleSyncNotAttempted(Localization.get("main.sync.demo.no.forms"));
                 }
             }
             return;
@@ -130,23 +149,6 @@ public class FormAndDataSyncer {
         syncData(activity, formsToSend, userTriggeredSync,
                 prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
                 u.getUsername(), u.getCachedPwd());
-    }
-
-    /**
-     * @return Were forms sent to the server by this method invocation?
-     */
-    public boolean checkAndStartUnsentFormsTask(SyncCapableCommCareActivity activity,
-                                                final boolean syncAfterwards,
-                                                boolean userTriggered) {
-        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        FormRecord[] records = StorageUtils.getUnsentRecords(storage);
-
-        if (records.length > 0) {
-            processAndSendForms(activity, records, syncAfterwards, userTriggered);
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public void performOtaRestore(LoginActivity context, String username, String password) {
@@ -222,5 +224,10 @@ public class FormAndDataSyncer {
 
         dataPullTask.connect(activity);
         dataPullTask.executeParallel();
+    }
+
+    private static void refreshSyncIcon(CommCareActivity activity, CommCareSyncState syncState) {
+        CommCareApplication.instance().updateSyncState(syncState);
+        activity.rebuildOptionsMenu();
     }
 }
