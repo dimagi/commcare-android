@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Process;
 import android.support.annotation.AnimRes;
 import android.support.annotation.LayoutRes;
 import android.view.LayoutInflater;
@@ -19,7 +18,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.tasks.CommCareSyncState;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
@@ -46,7 +44,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     protected boolean isSyncUserLaunched = false;
     protected FormAndDataSyncer formAndDataSyncer;
 
-    private CommCareSyncState syncStateForIcon;
+    private SyncState syncStateForIcon;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -183,16 +181,16 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             case TRIGGER_END_SEND_FORMS:
             case TRIGGER_NONE:
                 if (SyncDetailCalculations.getNumUnsentForms() > 0) {
-                    syncStateForIcon = CommCareSyncState.FORMS_PENDING;
+                    syncStateForIcon = SyncState.FORMS_PENDING;
                 } else {
-                    syncStateForIcon = CommCareSyncState.UP_TO_DATE;
+                    syncStateForIcon = SyncState.UP_TO_DATE;
                 }
                 break;
             case TRIGGER_START_DATA_PULL:
-                syncStateForIcon = CommCareSyncState.PULLING_DATA;
+                syncStateForIcon = SyncState.PULLING_DATA;
                 break;
             case TRIGGER_START_SEND_FORMS:
-                syncStateForIcon = CommCareSyncState.SENDING_FORMS;
+                syncStateForIcon = SyncState.SENDING_FORMS;
                 break;
         }
     }
@@ -333,6 +331,10 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     public boolean usesSubmissionProgressBar() {
         return false;
+    }
+
+    private enum SyncState {
+        UP_TO_DATE, PULLING_DATA, SENDING_FORMS, FORMS_PENDING
     }
 
 }
