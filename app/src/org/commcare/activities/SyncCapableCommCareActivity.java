@@ -45,6 +45,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     protected FormAndDataSyncer formAndDataSyncer;
 
     private SyncState syncStateForIcon;
+    private MenuItem currentSyncMenuItem;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -188,9 +189,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         super.startBlockingForTask(id);
         if (id == ProcessAndSendTask.SEND_PHASE_ID_NO_DIALOG ||
                 id == ProcessAndSendTask.PROCESSING_PHASE_ID_NO_DIALOG) {
-            refreshSyncIcon(TRIGGER_START_SEND_FORMS);
+            triggerSyncIconRefresh(TRIGGER_START_SEND_FORMS);
         } else if (id == DataPullTask.DATA_PULL_TASK_ID) {
-            refreshSyncIcon(TRIGGER_START_DATA_PULL);
+            triggerSyncIconRefresh(TRIGGER_START_DATA_PULL);
         }
     }
 
@@ -199,13 +200,13 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         super.stopBlockingForTask(id);
         if (id == ProcessAndSendTask.SEND_PHASE_ID_NO_DIALOG ||
                 id == ProcessAndSendTask.PROCESSING_PHASE_ID_NO_DIALOG) {
-            refreshSyncIcon(TRIGGER_END_SEND_FORMS);
+            triggerSyncIconRefresh(TRIGGER_END_SEND_FORMS);
         } else if (id == DataPullTask.DATA_PULL_TASK_ID) {
-            refreshSyncIcon(TRIGGER_END_DATA_PULL);
+            triggerSyncIconRefresh(TRIGGER_END_DATA_PULL);
         }
     }
 
-    private void refreshSyncIcon(int trigger) {
+    private void triggerSyncIconRefresh(int trigger) {
         if (shouldShowSyncItemInActionBar()) {
             computeSyncState(trigger);
             rebuildOptionsMenu();
@@ -251,31 +252,37 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     private void addSyncItemToActionBar(Menu menu) {
         if (shouldShowSyncItemInActionBar() &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            MenuItem item = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-            switch(syncStateForIcon) {
+            currentSyncMenuItem = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");
+            currentSyncMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            switch (syncStateForIcon) {
                 case PULLING_DATA:
-                    addDataPullAnimation(item);
+                    addDataPullAnimation(currentSyncMenuItem);
                     break;
                 case SENDING_FORMS:
-                    addFormSendAnimation(item);
+                    addFormSendAnimation(currentSyncMenuItem);
                     break;
                 case FORMS_PENDING:
-                    item.setIcon(R.drawable.ic_forms_pending_action_bar);
+                    currentSyncMenuItem.setIcon(R.drawable.ic_forms_pending_action_bar);
                     break;
                 case UP_TO_DATE:
-                    item.setIcon(R.drawable.ic_sync_action_bar);
+                    currentSyncMenuItem.setIcon(R.drawable.ic_sync_action_bar);
                     break;
             }
         }
     }
 
-    private void addDataPullAnimation(MenuItem menuItem) {
+    @Override
+    public void rebuildOptionsMenu() {
+        clearCurrentAnimation(currentSyncMenuItem);
+        super.rebuildOptionsMenu();
+    }
 
+    private void addDataPullAnimation(MenuItem menuItem) {
+        addAnimationToMenuItem(menuItem, R.layout.data_pull_action_view, R.anim.slide_down_repeat);
     }
 
     private void addFormSendAnimation(MenuItem menuItem) {
-        //addAnimationToMenuItem(menuItem, R.layout.data_pull_action_view, R.anim.fade_in);
+        addAnimationToMenuItem(menuItem, R.layout.send_forms_action_view, R.anim.slide_up_repeat);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -284,15 +291,16 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ImageView iv = (ImageView)inflater.inflate(layoutResource, null);
         Animation animation = AnimationUtils.loadAnimation(this, animationId);
-        animation.setRepeatCount(Animation.INFINITE);
         iv.startAnimation(animation);
         menuItem.setActionView(iv);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void clearCurrentAnimations(MenuItem item) {
-        item.getActionView().clearAnimation();
-        item.setActionView(null);
+    private void clearCurrentAnimation(MenuItem item) {
+        if (item.getActionView() != null) {
+            item.getActionView().clearAnimation();
+            item.setActionView(null);
+        }
     }
 
     public abstract boolean shouldShowSyncItemInActionBar();
