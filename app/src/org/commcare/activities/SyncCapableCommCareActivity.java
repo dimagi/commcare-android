@@ -127,6 +127,43 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         handleSyncUpdate(this, update);
     }
 
+    public static void handleSyncUpdate(CommCareActivity activity,
+                                        Integer... update) {
+        int progressCode = update[0];
+        if (progressCode == DataPullTask.PROGRESS_STARTED) {
+            activity.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (progressCode == DataPullTask.PROGRESS_CLEANED) {
+            activity.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
+            activity.updateProgressBarVisibility(false);
+        } else if (progressCode == DataPullTask.PROGRESS_AUTHED) {
+            activity.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
+            activity.updateProgressBarVisibility(false);
+        } else if (progressCode == DataPullTask.PROGRESS_DOWNLOADING) {
+            activity.updateProgress(
+                    Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}),
+                    Localization.get("sync.downloading.title"),
+                    DataPullTask.DATA_PULL_TASK_ID);
+        } else if (progressCode == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
+            activity.hideTaskCancelButton();
+        } else if (progressCode == DataPullTask.PROGRESS_PROCESSING) {
+            activity.updateProgress(
+                    Localization.get("sync.progress", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}),
+                    Localization.get("sync.processing.title"),
+                    DataPullTask.DATA_PULL_TASK_ID);
+            activity.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
+        } else if (progressCode == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
+            activity.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (progressCode == DataPullTask.PROGRESS_RECOVERY_STARTED) {
+            activity.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (progressCode == DataPullTask.PROGRESS_SERVER_PROCESSING) {
+            activity.updateProgress(
+                    Localization.get("sync.progress", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}),
+                    Localization.get("sync.waiting.title"),
+                    DataPullTask.DATA_PULL_TASK_ID);
+            activity.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
+        }
+    }
+
     @Override
     public void handlePullTaskError() {
         updateUiAfterDataPullOrSend(Localization.get("sync.fail.unknown"), FAIL);
@@ -193,75 +230,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 syncStateForIcon = SyncState.SENDING_FORMS;
                 break;
         }
-    }
-
-    public static void handleSyncUpdate(CommCareActivity activity,
-                                        Integer... update) {
-        int progressCode = update[0];
-        if (progressCode == DataPullTask.PROGRESS_STARTED) {
-            activity.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (progressCode == DataPullTask.PROGRESS_CLEANED) {
-            activity.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
-            activity.updateProgressBarVisibility(false);
-        } else if (progressCode == DataPullTask.PROGRESS_AUTHED) {
-            activity.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-            activity.updateProgressBarVisibility(false);
-        } else if (progressCode == DataPullTask.PROGRESS_DOWNLOADING) {
-            activity.updateProgress(
-                    Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}),
-                    Localization.get("sync.downloading.title"),
-                    DataPullTask.DATA_PULL_TASK_ID);
-        } else if (progressCode == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
-            activity.hideTaskCancelButton();
-        } else if (progressCode == DataPullTask.PROGRESS_PROCESSING) {
-            activity.updateProgress(
-                    Localization.get("sync.progress", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}),
-                    Localization.get("sync.processing.title"),
-                    DataPullTask.DATA_PULL_TASK_ID);
-            activity.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-        } else if (progressCode == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-            activity.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (progressCode == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-            activity.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (progressCode == DataPullTask.PROGRESS_SERVER_PROCESSING) {
-            activity.updateProgress(
-                    Localization.get("sync.progress", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}),
-                    Localization.get("sync.waiting.title"),
-                    DataPullTask.DATA_PULL_TASK_ID);
-            activity.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-        }
-    }
-
-    @Override
-    public CustomProgressDialog generateProgressDialog(int taskId) {
-        String title, message;
-        CustomProgressDialog dialog;
-        switch (taskId) {
-            case ProcessAndSendTask.SEND_PHASE_ID:
-                title = Localization.get("sync.progress.submitting.title");
-                message = Localization.get("sync.progress.submitting");
-                dialog = CustomProgressDialog.newInstance(title, message, taskId);
-                break;
-            case ProcessAndSendTask.PROCESSING_PHASE_ID:
-                title = Localization.get("form.entry.processing.title");
-                message = Localization.get("form.entry.processing");
-                dialog = CustomProgressDialog.newInstance(title, message, taskId);
-                dialog.addProgressBar();
-                break;
-            case DataPullTask.DATA_PULL_TASK_ID:
-                title = Localization.get("sync.communicating.title");
-                message = Localization.get("sync.progress.purge");
-                dialog = CustomProgressDialog.newInstance(title, message, taskId);
-                if (isSyncUserLaunched) {
-                    // allow users to cancel syncs that they launched
-                    dialog.addCancelButton();
-                }
-                isSyncUserLaunched = false;
-                break;
-            default:
-                return null;
-        }
-        return dialog;
     }
 
     @Override
@@ -335,6 +303,38 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     private enum SyncState {
         UP_TO_DATE, PULLING_DATA, SENDING_FORMS, FORMS_PENDING
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        String title, message;
+        CustomProgressDialog dialog;
+        switch (taskId) {
+            case ProcessAndSendTask.SEND_PHASE_ID:
+                title = Localization.get("sync.progress.submitting.title");
+                message = Localization.get("sync.progress.submitting");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                break;
+            case ProcessAndSendTask.PROCESSING_PHASE_ID:
+                title = Localization.get("form.entry.processing.title");
+                message = Localization.get("form.entry.processing");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                dialog.addProgressBar();
+                break;
+            case DataPullTask.DATA_PULL_TASK_ID:
+                title = Localization.get("sync.communicating.title");
+                message = Localization.get("sync.progress.purge");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                if (isSyncUserLaunched) {
+                    // allow users to cancel syncs that they launched
+                    dialog.addCancelButton();
+                }
+                isSyncUserLaunched = false;
+                break;
+            default:
+                return null;
+        }
+        return dialog;
     }
 
 }
