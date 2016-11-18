@@ -30,6 +30,7 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.media.AudioPlaybackButton;
+import org.commcare.views.media.ViewId;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -222,7 +223,7 @@ public class MenuAdapter implements ListAdapter {
         setupTextView(rowText, menuDisplayable);
 
         AudioPlaybackButton audioPlaybackButton = (AudioPlaybackButton)menuListItem.findViewById(R.id.row_soundicon);
-        setupAudioButton(audioPlaybackButton, menuDisplayable);
+        setupAudioButton(i, audioPlaybackButton, menuDisplayable);
 
         // set up the image, if available
         ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
@@ -230,7 +231,7 @@ public class MenuAdapter implements ListAdapter {
         return menuListItem;
     }
 
-    private void setupAudioButton(AudioPlaybackButton audioPlaybackButton, MenuDisplayable menuDisplayable) {
+    private void setupAudioButton(int rowId, AudioPlaybackButton audioPlaybackButton, MenuDisplayable menuDisplayable) {
         final String audioURI = menuDisplayable.getAudioURI();
         String audioFilename = "";
         if (audioURI != null && !audioURI.equals("")) {
@@ -244,11 +245,12 @@ public class MenuAdapter implements ListAdapter {
 
         File audioFile = new File(audioFilename);
         // First set up the audio button
+        ViewId viewId = new ViewId(rowId, 0, false);
         if (!"".equals(audioFilename) && audioFile.exists()) {
-            audioPlaybackButton.resetButton(audioURI, true);
+            audioPlaybackButton.modifyButtonForNewView(viewId, audioURI, true);
         } else {
             if (audioPlaybackButton != null) {
-                audioPlaybackButton.resetButton(audioURI, false);
+                audioPlaybackButton.modifyButtonForNewView(viewId,audioURI, false);
                 ((LinearLayout)audioPlaybackButton.getParent()).removeView(audioPlaybackButton);
             }
         }

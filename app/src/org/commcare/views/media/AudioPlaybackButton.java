@@ -41,6 +41,18 @@ public class AudioPlaybackButton extends AudioPlaybackButtonBase {
     }
 
     @Override
+    protected void setupView(Context context) {
+        super.setupView(context);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
+            final int startPosition = 0;
+            final int progressBarMax = 500;
+            animation = ObjectAnimator.ofInt(progressBar, "progress", startPosition, progressBarMax);
+        }
+    }
+
+    @Override
     protected int getLayout() {
         return R.layout.small_audio_playback;
     }
@@ -49,10 +61,6 @@ public class AudioPlaybackButton extends AudioPlaybackButtonBase {
     protected void startProgressBar(int milliPosition, int milliDuration) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             resetProgressBar();
-            ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
-            final int startPosition = 0;
-            final int progressBarMax = 500;
-            animation = ObjectAnimator.ofInt(progressBar, "progress", startPosition, progressBarMax);
             animation.setDuration(milliDuration);
             animation.setCurrentPlayTime(milliPosition);
             animation.setInterpolator(new LinearInterpolator());
@@ -63,12 +71,10 @@ public class AudioPlaybackButton extends AudioPlaybackButtonBase {
     @Override
     protected void resetProgressBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            animation.removeAllListeners();
+            animation.end();
+            animation.cancel();
             ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
-            if (animation != null) {
-                animation.removeAllListeners();
-                animation.end();
-                animation.cancel();
-            }
             progressBar.clearAnimation();
             progressBar.setProgress(0);
         }

@@ -1,7 +1,6 @@
 package org.commcare.views.media;
 
 import android.media.MediaPlayer;
-import android.support.v4.util.Pair;
 import android.util.Log;
 
 /**
@@ -35,24 +34,34 @@ public enum AudioController {
      * Set the media to be played and store the playback button attached to
      * that media, enableing button display state to mirror playback state.
      *
-     * @param newMedia      New media to be controlled
-     * @param newAudioReset Button that corresponds to the new media, needed so
-     *                      we can update the button's display state to mirror
-     *                      the media's playback state
+     * @param newMedia       New media to be controlled
+     * @param newAudioButton Button that corresponds to the new media, needed so
+     *                       we can update the button's display state to mirror
+     *                       the media's playback state
      */
     public void setCurrentMediaAndButton(MediaEntity newMedia,
-                                         AudioPlaybackButtonBase newAudioReset) {
-        if (currentAudioButton != null && currentAudioButton != newAudioReset) {
+                                         final AudioPlaybackButtonBase newAudioButton) {
+        if (currentAudioButton != null && currentAudioButton != newAudioButton) {
             // reset the old button to not be playing
             currentAudioButton.resetPlaybackState();
         }
-        currentAudioButton = newAudioReset;
+        currentAudioButton = newAudioButton;
 
         if (newMedia != currentEntity) {
             // newMedia is actually new, so release old media
             releaseCurrentMediaEntity();
             currentEntity = newMedia;
         }
+        registerPlaybackFinishedCallback();
+    }
+
+    private void registerPlaybackFinishedCallback() {
+        currentEntity.getPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                currentAudioButton.endPlaying();
+            }
+        });
     }
 
     /**
@@ -64,8 +73,8 @@ public enum AudioController {
      */
     public void registerPlaybackButton(AudioPlaybackButtonBase button) {
         currentAudioButton = button;
+        registerPlaybackFinishedCallback();
     }
-
 
     /**
      * Release current media resources.
@@ -129,7 +138,7 @@ public enum AudioController {
         if (currentEntity != null) {
             switch (currentEntity.getState()) {
                 case PausedForRenewal:
-                    playCurrentMediaEntity();
+                    currentAudioButton.startPlaying();
                     break;
                 case Paused:
                     break;
@@ -159,6 +168,14 @@ public enum AudioController {
             return -1;
         } else {
             return currentEntity.getPlayer().getCurrentPosition();
+        }
+    }
+
+    int getDuration() {
+        if (currentEntity == null) {
+            return -1;
+        } else {
+            return currentEntity.getPlayer().getDuration();
         }
     }
 

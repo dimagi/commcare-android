@@ -1,8 +1,6 @@
 package org.commcare.views.media;
 
 import android.content.Context;
-import android.media.MediaPlayer;
-import android.support.v4.util.Pair;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,10 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -43,6 +38,14 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
 
     private ImageButton playButton;
 
+    public AudioPlaybackButtonBase(Context context) {
+        super(context);
+        setupView(context);
+    }
+
+    /**
+     * Used by media inflater.
+     */
     public AudioPlaybackButtonBase(Context context, AttributeSet attrs) {
         super(context, attrs);
         setupView(context);
@@ -52,15 +55,15 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
                                    ViewId viewId, boolean visible) {
         super(context);
         setupView(context);
-        resetButton(URI, viewId, visible);
+
+        if (viewId == null) {
+            viewId = new ViewId(URI.hashCode(), 0, false);
+        }
+
+        modifyButtonForNewView(viewId, URI, visible);
     }
 
-    public AudioPlaybackButtonBase(Context context) {
-        super(context);
-        setupView(context);
-    }
-
-    private void setupView(Context context) {
+    protected void setupView(Context context) {
         LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = vi.inflate(getLayout(), null);
         addView(view);
@@ -91,6 +94,9 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
                 playButton.setSelected(false);
                 break;
             case Playing:
+                startProgressBar(
+                        AudioController.INSTANCE.getCurrentPosition(),
+                        AudioController.INSTANCE.getDuration());
                 playButton.setSelected(true);
                 break;
             case Paused:
@@ -100,7 +106,7 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
         }
     }
 
-    private void startPlaying() {
+    public void startPlaying() {
         AudioController.INSTANCE.playCurrentMediaEntity();
 
         currentState = MediaState.Playing;
@@ -125,25 +131,13 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
         return new OnClickListener() {
             @Override
             public void onClick(View view) {
-                String audioFilename = getAudioFilename();
-                if ("".equals(audioFilename)) {
-                    return;
-                }
-
                 switch (currentState) {
                     case Ready:
-                        MediaPlayer player = new MediaPlayer();
                         try {
-                            player.setDataSource(audioFilename);
-                            player.prepare();
-                            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                                @Override
-                                public void onCompletion(MediaPlayer mediaPlayer) {
-                                    endPlaying();
-                                }
-
-                            });
-                            AudioController.INSTANCE.setCurrentMediaAndButton(new MediaEntity(URI, player, residingViewId, currentState), AudioPlaybackButtonBase.this);
+                            MediaEntity mediaEntity = new MediaEntity(URI, residingViewId, currentState);
+                            AudioController.INSTANCE.setCurrentMediaAndButton(
+                                    mediaEntity,
+                                    AudioPlaybackButtonBase.this);
                             startPlaying();
                         } catch (IOException e) {
                             String errorMsg =
@@ -166,44 +160,6 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
                 }
             }
         };
-    }
-
-    /**
-     * Gets the audio source filename from the URI.
-     *
-     * @return Filepath of audio source stored in local URI. Returns an empty
-     * string if no audio source is found.
-     */
-    private String getAudioFilename() {
-        if (URI == null) {
-            // No audio file specified
-            Log.e(TAG, "No audio file was specified");
-            Toast.makeText(getContext(),
-                    getContext().getString(R.string.audio_file_error),
-                    Toast.LENGTH_LONG).show();
-            return "";
-        }
-
-        String audioFilename;
-        try {
-            audioFilename =
-                    ReferenceManager.instance().DeriveReference(URI).getLocalURI();
-        } catch (InvalidReferenceException e) {
-            Log.e(TAG, "Invalid reference exception");
-            e.printStackTrace();
-            return "";
-        }
-
-        File audioFile = new File(audioFilename);
-        if (!audioFile.exists()) {
-            // We should have an audio clip, but the file doesn't exist.
-            String errorMsg =
-                    getContext().getString(R.string.file_missing, audioFile);
-            Log.e(TAG, errorMsg);
-            Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
-            return "";
-        }
-        return audioFilename;
     }
 
     /**

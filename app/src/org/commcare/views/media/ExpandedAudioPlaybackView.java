@@ -27,6 +27,9 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
     private TextView progressText;
     private int playbackDurationMillis;
 
+    /**
+     * Used by media inflater.
+     */
     public ExpandedAudioPlaybackView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -130,7 +133,7 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
     @Override
     protected void pauseProgressBar() {
         handler.removeCallbacksAndMessages(null);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && animation != null) {
             animation.cancel();
         }
     }
