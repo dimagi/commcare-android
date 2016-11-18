@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,7 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
@@ -33,7 +33,7 @@ import org.commcare.views.widgets.GeoPointWidget;
 import java.text.DecimalFormat;
 import java.util.List;
 
-public class GeoPointMapActivity extends MapActivity implements LocationListener {
+public class GeoPointMapActivity extends Activity implements LocationListener {
 
     private MapView mMapView;
     private TextView mLocationStatus;
@@ -45,7 +45,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
     private GeoPoint mGeoPoint;
     private Location mLocation;
 
-    private boolean mCaptureLocation = true;
+    private boolean inViewMode = false;
 
     private boolean mGPSOn = false;
     private boolean mNetworkOn = false;
@@ -57,31 +57,28 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
 
         setContentView(R.layout.geopoint_layout);
 
-        Intent intent = getIntent();
-        if (intent != null && intent.getExtras() != null) {
-            double[] location = intent.getDoubleArrayExtra(GeoPointWidget.LOCATION);
-            mGeoPoint = new GeoPoint((int)(location[0] * 1E6), (int)(location[1] * 1E6));
-            mCaptureLocation = false;
-        }
-
-        mMapView = (MapView)findViewById(R.id.mapview);
-        Button mCancelLocation = (Button)findViewById(R.id.cancel_location);
-        mCancelLocation.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-        mMapController = mMapView.getController();
         mLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
-        mMapView.setBuiltInZoomControls(true);
-        mMapView.setSatellite(false);
-        mMapController.setZoom(16);
+        loadViewModeState();
+        setupButtons();
 
-        // make sure we have a good location provider before continuing
+        loadMapView();
+
+        mLocationStatus = (TextView)findViewById(R.id.location_status);
+        if (inViewMode) {
+            findViewById(R.id.location_status).setVisibility(View.GONE);
+        }
+
+        loadProviders();
+        if (!mGPSOn && !mNetworkOn) {
+            Toast.makeText(getBaseContext(), getString(R.string.provider_disabled_error),
+                    Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+    }
+
+    private void loadProviders() {
         List<String> providers = mLocationManager.getProviders(true);
         for (String provider : providers) {
             if (provider.equalsIgnoreCase(LocationManager.GPS_PROVIDER)) {
@@ -91,18 +88,34 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
                 mNetworkOn = true;
             }
         }
-        if (!mGPSOn && !mNetworkOn) {
-            Toast.makeText(getBaseContext(), getString(R.string.provider_disabled_error),
-                    Toast.LENGTH_SHORT).show();
-            finish();
-        }
+    }
 
+    private void loadMapView() {
+        mMapView = (MapView)findViewById(R.id.mapview);
+        mMapController = mMapView.getController();
+
+        mMapView.setBuiltInZoomControls(true);
+        mMapView.setSatellite(false);
+        mMapController.setZoom(16);
         mLocationOverlay = new MyLocationOverlay(this, mMapView);
         mMapView.getOverlays().add(mLocationOverlay);
+        if (inViewMode) {
+            Overlay mGeoPointOverlay = new Marker(mGeoPoint);
+            mMapView.getOverlays().add(mGeoPointOverlay);
+        }
+    }
 
-        if (mCaptureLocation) {
-            mLocationStatus = (TextView)findViewById(R.id.location_status);
-            Button mAcceptLocation = (Button)findViewById(R.id.accept_location);
+    private void setupButtons() {
+        Button mCancelLocation = (Button)findViewById(R.id.cancel_location);
+        mCancelLocation.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        Button mAcceptLocation = (Button)findViewById(R.id.accept_location);
+        if (!inViewMode) {
             mAcceptLocation.setOnClickListener(new OnClickListener() {
 
                 @Override
@@ -111,11 +124,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
                 }
             });
         } else {
-            Overlay mGeoPointOverlay = new Marker(mGeoPoint);
-            mMapView.getOverlays().add(mGeoPointOverlay);
-
-            findViewById(R.id.accept_location).setVisibility(View.GONE);
-            findViewById(R.id.location_status).setVisibility(View.GONE);
+            mAcceptLocation.setVisibility(View.GONE);
             Button mShowLocation = ((Button)findViewById(R.id.show_location));
             mShowLocation.setVisibility(View.VISIBLE);
             mShowLocation.setOnClickListener(new OnClickListener() {
@@ -124,6 +133,16 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
                     mMapController.animateTo(mGeoPoint);
                 }
             });
+        }
+
+    }
+
+    private void loadViewModeState() {
+        Intent intent = getIntent();
+        if (intent != null && intent.getExtras() != null) {
+            double[] location = intent.getDoubleArrayExtra(GeoPointWidget.LOCATION);
+            mGeoPoint = new GeoPoint((int)(location[0] * 1E6), (int)(location[1] * 1E6));
+            inViewMode = true;
         }
     }
 
@@ -166,13 +185,8 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
     }
 
     @Override
-    protected boolean isRouteDisplayed() {
-        return false;
-    }
-
-    @Override
     public void onLocationChanged(Location location) {
-        if (mCaptureLocation) {
+        if (!inViewMode) {
             mLocation = location;
             if (mLocation != null) {
                 mLocationStatus.setText(getString(R.string.location_provider_accuracy,
