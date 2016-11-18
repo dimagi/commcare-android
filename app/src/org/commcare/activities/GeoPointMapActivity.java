@@ -110,9 +110,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
                     returnLocation();
                 }
             });
-
         } else {
-
             Overlay mGeoPointOverlay = new Marker(mGeoPoint);
             mMapView.getOverlays().add(mGeoPointOverlay);
 
@@ -121,16 +119,13 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
             Button mShowLocation = ((Button)findViewById(R.id.show_location));
             mShowLocation.setVisibility(View.VISIBLE);
             mShowLocation.setOnClickListener(new OnClickListener() {
-
                 @Override
                 public void onClick(View v) {
                     mMapController.animateTo(mGeoPoint);
                 }
             });
-
         }
     }
-
 
     private void returnLocation() {
         if (mLocation != null) {
@@ -141,11 +136,9 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
         finish();
     }
 
-
-    private String truncateFloat(float f) {
+    private static String truncateFloat(float f) {
         return new DecimalFormat("#.##").format(f);
     }
-
 
     @Override
     protected void onPause() {
@@ -157,7 +150,6 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
         ((MyLocationOverlay)mLocationOverlay).disableMyLocation();
 
     }
-
 
     @Override
     protected void onResume() {
@@ -173,12 +165,10 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
         // TODO PLM: warn user and ask for permissions if the user has disabled them
     }
 
-
     @Override
     protected boolean isRouteDisplayed() {
         return false;
     }
-
 
     @Override
     public void onLocationChanged(Location location) {
@@ -200,16 +190,13 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
         }
     }
 
-
     @Override
     public void onProviderDisabled(String provider) {
     }
 
-
     @Override
     public void onProviderEnabled(String provider) {
     }
-
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -218,12 +205,9 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
     class Marker extends Overlay {
         GeoPoint gp = null;
 
-
-        public Marker(GeoPoint gp) {
-            super();
+        Marker(GeoPoint gp) {
             this.gp = gp;
         }
-
 
         @Override
         public void draw(Canvas canvas, MapView mapView, boolean shadow) {
