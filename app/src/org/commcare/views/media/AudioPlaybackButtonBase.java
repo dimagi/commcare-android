@@ -56,10 +56,6 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
         super(context);
         setupView(context);
 
-        if (viewId == null) {
-            viewId = new ViewId(URI.hashCode(), 0, false);
-        }
-
         modifyButtonForNewView(viewId, URI, visible);
     }
 
@@ -94,9 +90,7 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
                 playButton.setSelected(false);
                 break;
             case Playing:
-                startProgressBar(
-                        AudioController.INSTANCE.getCurrentPosition(),
-                        AudioController.INSTANCE.getDuration());
+                //startProgressBar( AudioController.INSTANCE.getCurrentPosition(), AudioController.INSTANCE.getDuration());
                 playButton.setSelected(true);
                 break;
             case Paused:

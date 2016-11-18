@@ -35,8 +35,8 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
 
     }
 
-    public ExpandedAudioPlaybackView(Context context, String URI) {
-        super(context, URI, null, true);
+    public ExpandedAudioPlaybackView(Context context, String URI, int questionIndex) {
+        super(context, URI, new ViewId(questionIndex, 0, false), true);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
                 // make sure we are playing this audio
                 if (AudioController.INSTANCE.doesCurrentMediaCorrespondToButton(ExpandedAudioPlaybackView.this)) {
                     int pos = AudioController.INSTANCE.getCurrentPosition();
-                    updateProgressText(pos, seekBar.getMax());
+                    updateProgressText(pos, playbackDurationMillis);
                     handler.postDelayed(this, 20);
                 }
             }

@@ -14,6 +14,7 @@ import org.commcare.dalvik.R;
  */
 public class AudioPlaybackButton extends AudioPlaybackButtonBase {
 
+    private ProgressBar progressBar;
     private ObjectAnimator animation;
 
     /**
@@ -21,13 +22,6 @@ public class AudioPlaybackButton extends AudioPlaybackButtonBase {
      */
     public AudioPlaybackButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-    }
-
-    /**
-     * @param URI audio to load when play button pressed
-     */
-    public AudioPlaybackButton(Context context, final String URI, boolean visible) {
-        this(context, URI, null, visible);
     }
 
     /**
@@ -45,7 +39,7 @@ public class AudioPlaybackButton extends AudioPlaybackButtonBase {
         super.setupView(context);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
+            progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
             final int startPosition = 0;
             final int progressBarMax = 500;
             animation = ObjectAnimator.ofInt(progressBar, "progress", startPosition, progressBarMax);
@@ -74,7 +68,6 @@ public class AudioPlaybackButton extends AudioPlaybackButtonBase {
             animation.removeAllListeners();
             animation.end();
             animation.cancel();
-            ProgressBar progressBar = (ProgressBar)findViewById(R.id.circular_progress_bar);
             progressBar.clearAnimation();
             progressBar.setProgress(0);
         }
