@@ -33,13 +33,19 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
     public ExpandedAudioPlaybackView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        progressText = (TextView)findViewById(R.id.duration_info);
     }
 
     public ExpandedAudioPlaybackView(Context context, String URI) {
         super(context, URI, null, true);
+    }
 
+    @Override
+    protected void setupView(Context context) {
+        super.setupView(context);
         progressText = (TextView)findViewById(R.id.duration_info);
+
+        setupProgressBar();
+        setupProgressAnimation();
     }
 
     @Override
@@ -50,15 +56,17 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
     @Override
     protected void startProgressBar(int currentPositionMillis, int milliDuration) {
         playbackDurationMillis = milliDuration;
-        setupProgressBar();
-        setupProgressAnimation(currentPositionMillis);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            animation.setCurrentPlayTime(currentPositionMillis);
+            animation.setDuration(playbackDurationMillis);
+            animation.start();
+        }
         launchElapseTextUpdaterThread();
     }
 
     private void setupProgressBar() {
         seekBar = (ProgressBar)findViewById(R.id.seek_bar);
         seekBar.setEnabled(true);
-        seekBar.setMax(playbackDurationMillis);
         seekBar.setOnTouchListener(
                 new OnTouchListener() {
                     @Override
@@ -80,14 +88,11 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
         return true;
     }
 
-    private void setupProgressAnimation(int currentPositionMillis) {
+    private void setupProgressAnimation() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             final int startPosition = 0;
-            animation = ObjectAnimator.ofInt(seekBar, "progress", startPosition, playbackDurationMillis);
-            animation.setDuration(playbackDurationMillis);
-            animation.setCurrentPlayTime(currentPositionMillis);
+            animation = ObjectAnimator.ofInt(seekBar, "progress", startPosition, seekBar.getMax());
             animation.setInterpolator(new LinearInterpolator());
-            animation.start();
         }
     }
 
@@ -125,14 +130,15 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
         if (seekBar != null) {
             seekBar.clearAnimation();
             seekBar.setProgress(0);
-            seekBar.setEnabled(false);
             updateProgressText(0, seekBar.getMax());
         }
     }
 
     @Override
     protected void pauseProgressBar() {
-        handler.removeCallbacksAndMessages(null);
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && animation != null) {
             animation.cancel();
         }
