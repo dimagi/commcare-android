@@ -36,7 +36,7 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
     }
 
     public ExpandedAudioPlaybackView(Context context, String URI, int questionIndex) {
-        super(context, URI, new ViewId(questionIndex, 0, false), true);
+        super(context, URI, ViewId.buildListViewId(questionIndex), true);
     }
 
     @Override

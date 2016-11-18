@@ -118,7 +118,7 @@ public class EntityDetailView extends FrameLayout {
         valuePane = detailRow.findViewById(R.id.detail_value_pane);
         videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
 
-        ViewId uniqueId = new ViewId(detailNumber, index, true);
+        ViewId uniqueId = ViewId.buildTableViewId(detailNumber, index, true);
         String audioText = e.getFieldString(index);
         audioButton = new AudioPlaybackButton(context, audioText, uniqueId, false);
         detailRow.addView(audioButton);
@@ -302,7 +302,7 @@ public class EntityDetailView extends FrameLayout {
                 updateCurrentView(GRAPH, graphLayout);
             }
         } else if (FORM_AUDIO.equals(form)) {
-            ViewId uniqueId = new ViewId(detailNumber, index, true);
+            ViewId uniqueId = ViewId.buildTableViewId(detailNumber, index, true);
             audioButton.modifyButtonForNewView(uniqueId, textField, true);
             updateCurrentView(AUDIO, audioButton);
         } else if (FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?

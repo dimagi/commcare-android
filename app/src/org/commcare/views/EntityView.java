@@ -171,7 +171,7 @@ public class EntityView extends LinearLayout {
                          int textColor, boolean shouldRefresh) {
         View view = null;
         if (isNonZeroWidth(hint)) {
-            ViewId uniqueId = new ViewId(rowId, columnIndex, false);
+            ViewId uniqueId = ViewId.buildTableViewId(rowId, columnIndex, false);
             view = initView(data, form, uniqueId, sortField);
             view.setId(AndroidUtil.generateViewId());
             if (textColor != -1) {
@@ -277,7 +277,7 @@ public class EntityView extends LinearLayout {
                                          String form, String sortField,
                                          int columnIndex, long rowId) {
         if (FORM_AUDIO.equals(form)) {
-            ViewId uniqueId = new ViewId(rowId, columnIndex, false);
+            ViewId uniqueId = ViewId.buildTableViewId(rowId, columnIndex, false);
             setupAudioLayout(view, (String)field, uniqueId);
         } else if (FORM_IMAGE.equals(form)) {
             setupImageLayout(view, (String)field);

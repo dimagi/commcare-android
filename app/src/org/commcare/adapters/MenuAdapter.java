@@ -245,7 +245,7 @@ public class MenuAdapter implements ListAdapter {
 
         File audioFile = new File(audioFilename);
         // First set up the audio button
-        ViewId viewId = new ViewId(rowId, 0, false);
+        ViewId viewId = ViewId.buildListViewId(rowId);
         if (!"".equals(audioFilename) && audioFile.exists()) {
             audioPlaybackButton.modifyButtonForNewView(viewId, audioURI, true);
         } else {

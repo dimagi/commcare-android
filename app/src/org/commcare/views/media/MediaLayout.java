@@ -113,7 +113,7 @@ public class MediaLayout extends RelativeLayout {
         questionTextPane.setId(QUESTION_TEXT_PANE_ID);
 
         if (audioURI != null) {
-            audioButton = new AudioPlaybackButton(getContext(), audioURI, new ViewId(questionIndex, 0, false), true);
+            audioButton = new AudioPlaybackButton(getContext(), audioURI, ViewId.buildListViewId(questionIndex), true);
 
             // random ID to be used by the relative layout.
             audioButton.setId(AUDIO_BUTTON_ID);
