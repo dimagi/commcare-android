@@ -10,6 +10,8 @@ import android.widget.ProgressBar;
 import org.commcare.dalvik.R;
 
 /**
+ * Small audio playback button that shows progress via a circular progress bar
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class AudioPlaybackButton extends AudioPlaybackButtonBase {

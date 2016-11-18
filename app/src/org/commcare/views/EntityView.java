@@ -122,13 +122,13 @@ public class EntityView extends LinearLayout {
 
         if (calloutResponseDetailField != null) {
             mHints.add(calloutResponseDetailField.getHeaderWidthHint());
-            headerForms[columnCount-1] = calloutResponseDetailField.getHeaderForm();
+            headerForms[columnCount - 1] = calloutResponseDetailField.getHeaderForm();
         }
 
         int[] colors = AndroidUtil.getThemeColorIDs(getContext(),
                 new int[]{R.attr.entity_view_header_background_color,
                         R.attr.entity_view_header_text_color});
-        
+
         if (colors[0] != -1) {
             this.setBackgroundColor(colors[0]);
         }
@@ -175,7 +175,7 @@ public class EntityView extends LinearLayout {
             view = initView(data, form, uniqueId, sortField);
             view.setId(AndroidUtil.generateViewId());
             if (textColor != -1) {
-                TextView tv = (TextView) view.findViewById(R.id.entity_view_text);
+                TextView tv = (TextView)view.findViewById(R.id.entity_view_text);
                 if (tv != null) tv.setTextColor(textColor);
             }
 
@@ -197,7 +197,7 @@ public class EntityView extends LinearLayout {
         if (FORM_IMAGE.equals(form)) {
             return View.inflate(getContext(), R.layout.entity_item_image, null);
         } else if (FORM_AUDIO.equals(form)) {
-            String text = (String) data;
+            String text = (String)data;
             boolean isVisible = (text != null && text.length() > 0);
             return new AudioPlaybackButton(getContext(), text, uniqueId, isVisible);
         } else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
@@ -206,7 +206,7 @@ public class EntityView extends LinearLayout {
             return View.inflate(getContext(), R.layout.entity_item_graph, null);
         } else {
             View layout = View.inflate(getContext(), R.layout.component_text, null);
-            setupText(layout, (String) data, sortField);
+            setupText(layout, (String)data, sortField);
             return layout;
         }
     }
@@ -278,9 +278,9 @@ public class EntityView extends LinearLayout {
                                          int columnIndex, long rowId) {
         if (FORM_AUDIO.equals(form)) {
             ViewId uniqueId = new ViewId(rowId, columnIndex, false);
-            setupAudioLayout(view, (String) field, uniqueId);
+            setupAudioLayout(view, (String)field, uniqueId);
         } else if (FORM_IMAGE.equals(form)) {
-            setupImageLayout(view, (String) field);
+            setupImageLayout(view, (String)field);
         } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
             int orientation = getResources().getConfiguration().orientation;
             GraphView g = new GraphView(getContext(), "", false);
@@ -292,18 +292,18 @@ public class EntityView extends LinearLayout {
             }
             if (rendered == null) {
                 try {
-                    rendered = g.getView(g.getHTML((GraphData) field));
+                    rendered = g.getView(g.getHTML((GraphData)field));
                 } catch (GraphException ex) {
                     rendered = new TextView(getContext());
-                    ((TextView) rendered).setText(ex.getMessage());
+                    ((TextView)rendered).setText(ex.getMessage());
                 }
                 renderedGraphsCache.get(rowId).put(orientation, rendered);
             }
-            ((LinearLayout) view).removeAllViews();
-            ((LinearLayout) view).addView(rendered, GraphView.getLayoutParams());
+            ((LinearLayout)view).removeAllViews();
+            ((LinearLayout)view).addView(rendered, GraphView.getLayoutParams());
             view.setVisibility(VISIBLE);
         } else {
-            setupText(view, (String) field, sortField);
+            setupText(view, (String)field, sortField);
         }
     }
 
@@ -312,7 +312,7 @@ public class EntityView extends LinearLayout {
      * new id and source
      */
     private void setupAudioLayout(View layout, String source, ViewId uniqueId) {
-        AudioPlaybackButton b = (AudioPlaybackButton) layout;
+        AudioPlaybackButton b = (AudioPlaybackButton)layout;
         if (source != null && source.length() > 0) {
             b.modifyButtonForNewView(uniqueId, source, true);
         } else {
@@ -324,7 +324,7 @@ public class EntityView extends LinearLayout {
      * Updates the text layout that is passed in, based on the new text
      */
     private void setupText(View layout, final String text, String searchField) {
-        TextView tv = (TextView) layout.findViewById(R.id.entity_view_text);
+        TextView tv = (TextView)layout.findViewById(R.id.entity_view_text);
         tv.setVisibility(View.VISIBLE);
         Spannable rawText = new SpannableString(text == null ? "" : text);
         tv.setText(highlightSearches(searchTerms, rawText, searchField, mFuzzySearchEnabled, mIsAsynchronous));
@@ -345,7 +345,7 @@ public class EntityView extends LinearLayout {
      * Updates the ImageView layout that is passed in, based on the new id and source
      */
     private void setupImageLayout(View layout, final String source) {
-        ImageView iv = (ImageView) layout;
+        ImageView iv = (ImageView)layout;
         if (source.equals("")) {
             iv.setImageDrawable(getResources().getDrawable(R.color.transparent));
             return;
@@ -428,7 +428,7 @@ public class EntityView extends LinearLayout {
                     //grab the display offset for actually displaying things
                     int displayIndex = index + offset;
 
-                    raw.setSpan(new BackgroundColorSpan(Color.parseColor(Localization.get("odk_perfect_match_color"))) , displayIndex, displayIndex
+                    raw.setSpan(new BackgroundColorSpan(Color.parseColor(Localization.get("odk_perfect_match_color"))), displayIndex, displayIndex
                             + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                     matches.add(new int[]{index, index + searchText.length()});
@@ -524,7 +524,7 @@ public class EntityView extends LinearLayout {
         for (View view : views) {
             if (view != null) {
                 adjustPadding(view, widths[i]);
-                LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
+                LayoutParams params = (LinearLayout.LayoutParams)view.getLayoutParams();
                 params.width = widths[i];
                 view.setLayoutParams(params);
             }

@@ -48,6 +48,26 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
         setupProgressAnimation();
     }
 
+    private void setupProgressBar() {
+        seekBar = (ProgressBar)findViewById(R.id.seek_bar);
+        seekBar.setEnabled(true);
+        seekBar.setOnTouchListener(
+                new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        return performProgressBarTouch(v, event);
+                    }
+                });
+    }
+
+    private void setupProgressAnimation() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            final int startPosition = 0;
+            animation = ObjectAnimator.ofInt(seekBar, "progress", startPosition, seekBar.getMax());
+            animation.setInterpolator(new LinearInterpolator());
+        }
+    }
+
     @Override
     protected int getLayout() {
         return R.layout.expanded_audio_playback;
@@ -64,18 +84,6 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
         launchElapseTextUpdaterThread();
     }
 
-    private void setupProgressBar() {
-        seekBar = (ProgressBar)findViewById(R.id.seek_bar);
-        seekBar.setEnabled(true);
-        seekBar.setOnTouchListener(
-                new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        return performProgressBarTouch(v, event);
-                    }
-                });
-    }
-
     private boolean performProgressBarTouch(View v, MotionEvent event) {
         int progress = (int)(playbackDurationMillis * (event.getX() / v.getWidth()));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -86,14 +94,6 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
             AudioController.INSTANCE.seekTo(progress);
         }
         return true;
-    }
-
-    private void setupProgressAnimation() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            final int startPosition = 0;
-            animation = ObjectAnimator.ofInt(seekBar, "progress", startPosition, seekBar.getMax());
-            animation.setInterpolator(new LinearInterpolator());
-        }
     }
 
     private void launchElapseTextUpdaterThread() {

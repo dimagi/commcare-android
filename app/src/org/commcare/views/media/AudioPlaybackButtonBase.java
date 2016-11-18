@@ -31,8 +31,7 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
     private MediaState currentState;
 
     /**
-     * The id of the ListAdapter view that contains this button. Should be null
-     * if the button resides in a form entry question.
+     * Unique ID used to re-attach button to currently playing media
      */
     private ViewId residingViewId;
 
@@ -90,7 +89,9 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
                 playButton.setSelected(false);
                 break;
             case Playing:
-                //startProgressBar( AudioController.INSTANCE.getCurrentPosition(), AudioController.INSTANCE.getDuration());
+                startProgressBar(
+                        AudioController.INSTANCE.getCurrentPosition(),
+                        AudioController.INSTANCE.getDuration());
                 playButton.setSelected(true);
                 break;
             case Paused:
