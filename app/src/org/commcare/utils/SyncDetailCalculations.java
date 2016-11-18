@@ -6,7 +6,7 @@ import android.text.format.DateUtils;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
@@ -27,20 +27,11 @@ public class SyncDetailCalculations {
     private final static String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
     private final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
 
-    public static void updateSubText(final CommCareHomeActivity activity,
+    public static void updateSubText(final StandardHomeActivity activity,
                                      SquareButtonViewHolder squareButtonViewHolder,
                                      HomeCardDisplayData cardDisplayData) {
 
-        SqlStorage<FormRecord> formsStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        int numUnsentForms;
-        try {
-            numUnsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
-        } catch (SessionUnavailableException e) {
-            // Addresses unexpected issue where this db lookup occurs after session ends.
-            // If possible, replace this with fix that addresses root issue
-            numUnsentForms = 0;
-        }
-
+        int numUnsentForms = getNumUnsentForms();
         Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
 
         if (numUnsentForms > 0) {
@@ -56,7 +47,18 @@ public class SyncDetailCalculations {
                 activity.getResources().getColor(R.color.cc_dark_warm_accent_color));
     }
 
-    private static Pair<Long, String> getLastSyncTimeAndMessage() {
+    public static int getNumUnsentForms() {
+        SqlStorage<FormRecord> formsStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
+        try {
+            return formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+        } catch (SessionUnavailableException e) {
+            // Addresses unexpected issue where this db lookup occurs after session ends.
+            // If possible, replace this with fix that addresses root issue
+            return 0;
+        }
+    }
+
+    public static Pair<Long, String> getLastSyncTimeAndMessage() {
         CharSequence syncTimeMessage;
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         long lastSyncTime = prefs.getLong("last-succesful-sync", 0);

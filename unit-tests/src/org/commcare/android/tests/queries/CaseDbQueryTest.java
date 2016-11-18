@@ -5,8 +5,8 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,7 +80,7 @@ public class CaseDbQueryTest {
         XPathExpression expr;
         try {
             expr = XPathParseTool.parseXPath(xpath);
-            String result = XPathFuncExpr.toString(expr.eval(ec));
+            String result = FunctionUtils.toString(expr.eval(ec));
             assertEquals("XPath: " + xpath, expectedValue, result);
         } catch (XPathSyntaxException e) {
             TestUtils.wrapError(e, "XPath: " + xpath);

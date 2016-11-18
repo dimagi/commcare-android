@@ -28,8 +28,8 @@ import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -126,10 +126,10 @@ public class IntentCallout implements Externalizable {
 
                 if (INTENT_EXTRA_CAN_AGGREGATE.equals(key)) {
                     if(key != null && !"".equals(key)) {
-                        i.putExtra(INTENT_EXTRA_CAN_AGGREGATE, XPathFuncExpr.toBoolean(xpathResult));
+                        i.putExtra(INTENT_EXTRA_CAN_AGGREGATE, FunctionUtils.toBoolean(xpathResult));
                     }
                 } else{
-                    String extraVal = XPathFuncExpr.toString(xpathResult);
+                    String extraVal = FunctionUtils.toString(xpathResult);
                     if (extraVal != null && !"".equals(extraVal)) {
                         i.putExtra(key, extraVal);
                     }
