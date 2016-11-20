@@ -197,6 +197,10 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             url = url.buildUpon().appendQueryParameter("last_issued", DateUtils.formatTime(lastRequest, DateUtils.FORMAT_ISO8601)).build();
         }
 
+        // include IMEI in key fetch request for auditing large deployments
+        url = url.buildUpon().appendQueryParameter("device_id",
+                CommCareApplication.instance().getPhoneId()).build();
+
         HttpGet get = new HttpGet(url.toString());
 
         return execute(client, get);
