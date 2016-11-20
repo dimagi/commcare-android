@@ -72,6 +72,8 @@ public class CommCarePreferences
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
 
+    public final static String SHOW_PASSWORD_OPTION = "cc-password-entry-show-behavior";
+
     public final static String RESIZING_METHOD = "cc-resize-images";
 
     private static final String KEY_TARGET_DENSITY = "cc-inflation-target-density";
@@ -355,6 +357,30 @@ public class CommCarePreferences
         }
 
         return true;
+    }
+
+    public static PasswordShowOption getPasswordDisplayOption() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return PasswordShowOption.fromString(properties.getString(SHOW_PASSWORD_OPTION, ""));
+    }
+
+    public enum PasswordShowOption {
+        ALWAYS_HIDDEN,
+        DEFAULT_SHOW,
+        DEFAULT_HIDE;
+
+        public static PasswordShowOption fromString(String optionAsString) {
+            switch (optionAsString) {
+                case "always_hidden":
+                    return ALWAYS_HIDDEN;
+                case "default_show":
+                    return DEFAULT_SHOW;
+                case "default_hide":
+                    return DEFAULT_HIDE;
+                default:
+                    return ALWAYS_HIDDEN;
+            }
+        }
     }
 
     public static boolean isSavedFormsEnabled() {
