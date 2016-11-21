@@ -40,8 +40,6 @@ import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -341,7 +339,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         manuallySwitchedToPasswordMode = true;
     }
 
-    public boolean userManuallySwitchedToPasswordMode() {
+    protected boolean userManuallySwitchedToPasswordMode() {
         return manuallySwitchedToPasswordMode;
     }
 
