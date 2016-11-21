@@ -2,7 +2,6 @@ package org.commcare;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
@@ -32,9 +31,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
-import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.LoginActivity;
-import org.commcare.activities.UnrecoverableErrorActivity;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.core.network.ModernHttpRequester;
@@ -227,42 +224,6 @@ public class CommCareApplication extends Application {
         if (!GoogleAnalyticsUtils.versionIncompatible()) {
             analyticsInstance = GoogleAnalytics.getInstance(this);
             GoogleAnalyticsUtils.reportAndroidApiLevelAtStartup();
-        }
-    }
-
-    public void triggerHandledAppExit(Context c, String message, String title) {
-        triggerHandledAppExit(c, message, title, true);
-    }
-
-    public void triggerHandledAppExit(Context c, String message, String title,
-                                      boolean useExtraMessage) {
-        Intent i = new Intent(c, UnrecoverableErrorActivity.class);
-        i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_TITLE, title);
-        i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_MESSAGE, message);
-        i.putExtra(UnrecoverableErrorActivity.EXTRA_USE_MESSAGE, useExtraMessage);
-
-        // start a new stack and forget where we were (so we don't restart the app from there)
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        c.startActivity(i);
-    }
-
-    public static void restartCommCare(Activity originActivity, boolean systemExit) {
-        restartCommCare(originActivity, DispatchActivity.class, systemExit);
-    }
-
-    public static void restartCommCare(Activity originActivity, Class c, boolean systemExit) {
-        Intent intent = new Intent(originActivity, c);
-
-        // Make sure that the new stack starts with the given class, and clear everything between.
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-
-        originActivity.moveTaskToBack(true);
-        originActivity.startActivity(intent);
-        originActivity.finish();
-
-        if (systemExit) {
-            System.exit(0);
         }
     }
 
@@ -1041,7 +1002,7 @@ public class CommCareApplication extends Application {
                 params, userAndDomain.first, userAndDomain.second, isAuthenticatedRequest, isPostRequest);
     }
 
-    public DataPullRequester getDataPullRequester(){
+    public DataPullRequester getDataPullRequester() {
         return DataPullResponseFactory.INSTANCE;
     }
 

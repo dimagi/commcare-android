@@ -15,6 +15,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.AndroidShortcuts;
+import org.commcare.utils.LifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFragment;
@@ -177,12 +178,12 @@ public class DispatchActivity extends FragmentActivity {
     private boolean isDbInBadState() {
         int dbState = CommCareApplication.instance().getDatabaseState();
         if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
-            CommCareApplication.instance().triggerHandledAppExit(this,
+            LifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_definite_failure),
                     getString(R.string.migration_failure_title), false);
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
-            CommCareApplication.instance().triggerHandledAppExit(this,
+            LifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_possible_failure),
                     getString(R.string.migration_failure_title), false);
             return true;
@@ -210,7 +211,7 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void createNoStorageDialog() {
-        CommCareApplication.instance().triggerHandledAppExit(this,
+        LifecycleUtils.triggerHandledAppExit(this,
                 Localization.get("app.storage.missing.message"),
                 Localization.get("app.storage.missing.title"));
     }
@@ -287,7 +288,7 @@ public class DispatchActivity extends FragmentActivity {
         } else {
             // Means that there are no usable apps, but there are multiple apps who all don't have
             // MM verified -- show an error message and shut down
-            CommCareApplication.instance().triggerHandledAppExit(this,
+            LifecycleUtils.triggerHandledAppExit(this,
                     Localization.get("multiple.apps.unverified.message"),
                     Localization.get("multiple.apps.unverified.title"));
         }
