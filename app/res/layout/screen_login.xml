@@ -102,6 +102,7 @@
                                 <requestFocus/>
                             </AutoCompleteTextView>
 
+                          <RelativeLayout>
                             <EditText
                                 android:id="@+id/edit_password"
                                 style="@style/LoginEditTextV2"
@@ -115,6 +116,23 @@
                                 android:nextFocusUp="@+id/edit_username"
                                 android:imeOptions="actionDone"
                                 android:textSize="@dimen/text_medium"/>
+
+                              <Button
+                                    android:id="@+id/show_password"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignBottom="@+id/edit_password"
+                                    android:layout_alignRight="@+id/edit_password"
+                                    android:layout_alignTop="@+id/edit_password"
+                                    android:background="@android:color/transparent"
+                                    android:padding="@dimen/spacer_small"
+                                    android:src="@drawable/close_cross_icon"
+                                    android:textColor="@color/cc_brand_color"
+                                    android:textSize="@dimen/font_size_dp_medium"
+                                    android:visibility="invisible"/>
+
+                          </RelativeLayout>
+
 
                             <TextView
                                 android:id="@+id/screen_login_bad_password"
