@@ -49,6 +49,8 @@ public class CommCarePreferences
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
 
+    public final static String SHOW_PASSWORD_OPTION = "cc-password-entry-show-behavior";
+
     /**
      * Stores boolean flag that tells of if an auto-update is in progress, that
      * is, actively checking or with a retry check queued up.
@@ -310,6 +312,12 @@ public class CommCarePreferences
         //otherwise, see if we're in sense mode
         return !isInSenseMode();
     }
+
+    public static PasswordShow.PasswordShowOption getPasswordDisplayOption() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return PasswordShow.PasswordShowOption.fromString(properties.getString(SHOW_PASSWORD_OPTION, ""));
+    }
+
 
     public static boolean isSavedFormsEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();

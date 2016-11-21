@@ -157,6 +157,8 @@ login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!
 login.welcome.single=Welcome back! Please log in.
 login.welcome.multiple=Welcome back! Please select an app and log in.
+login.show.password=SHOW
+login.hide.password=HIDE
 
 login.update.install.success=App update successfully applied!
 login.update.install.failure=App update failed to apply!
