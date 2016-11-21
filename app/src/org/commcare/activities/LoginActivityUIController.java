@@ -35,6 +35,7 @@ import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.ManagedUiFramework;
+import org.commcare.views.PasswordShow;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
@@ -59,6 +60,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.edit_password)
     private EditText passwordOrPin;
+
+    @UiElement(value = R.id.show_password)
+    private Button showPasswordButton;
 
     @UiElement(R.id.screen_login_banner_pane)
     private View banner;
@@ -327,6 +331,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         passwordOrPin.setVisibility(View.VISIBLE);
         passwordOrPin.setHint(Localization.get("login.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        new PasswordShow(showPasswordButton, passwordOrPin).setupPasswordVisibility();
         manuallySwitchedToPasswordMode = false;
     }
 

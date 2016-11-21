@@ -29,6 +29,7 @@ import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.commcare.utils.UriToFilePath;
+import org.commcare.views.PasswordShow;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
@@ -159,7 +160,7 @@ public class CommCarePreferences
     }
 
     public static void setupLocalizedText(PreferenceActivity activity,
-                                             Map<String, String> prefToTitleMap) {
+                                          Map<String, String> prefToTitleMap) {
         PreferenceScreen screen = activity.getPreferenceScreen();
         for (int i = 0; i < screen.getPreferenceCount(); i++) {
             String key = screen.getPreference(i).getKey();
@@ -359,28 +360,9 @@ public class CommCarePreferences
         return true;
     }
 
-    public static PasswordShowOption getPasswordDisplayOption() {
+    public static PasswordShow.PasswordShowOption getPasswordDisplayOption() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return PasswordShowOption.fromString(properties.getString(SHOW_PASSWORD_OPTION, ""));
-    }
-
-    public enum PasswordShowOption {
-        ALWAYS_HIDDEN,
-        DEFAULT_SHOW,
-        DEFAULT_HIDE;
-
-        public static PasswordShowOption fromString(String optionAsString) {
-            switch (optionAsString) {
-                case "always_hidden":
-                    return ALWAYS_HIDDEN;
-                case "default_show":
-                    return DEFAULT_SHOW;
-                case "default_hide":
-                    return DEFAULT_HIDE;
-                default:
-                    return ALWAYS_HIDDEN;
-            }
-        }
+        return PasswordShow.PasswordShowOption.fromString(properties.getString(SHOW_PASSWORD_OPTION, ""));
     }
 
     public static boolean isSavedFormsEnabled() {
