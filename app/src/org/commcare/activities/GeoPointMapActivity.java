@@ -10,12 +10,12 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.view.DragEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,8 +24,8 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.maps.GeoPoint;
 
 import org.commcare.dalvik.R;
 import org.commcare.utils.GeoUtils;
@@ -41,11 +41,10 @@ public class GeoPointMapActivity extends Activity implements LocationListener, O
 
     private MapView mMapView;
     private GoogleMap map;
+    private Marker marker;
     private TextView mLocationStatus;
 
     private LocationManager mLocationManager;
-
-    private GeoPoint mGeoPoint;
     private Location mLocation;
 
     private boolean inViewMode = false;
@@ -56,8 +55,8 @@ public class GeoPointMapActivity extends Activity implements LocationListener, O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.geopoint_layout);
 
         mLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
@@ -73,19 +72,12 @@ public class GeoPointMapActivity extends Activity implements LocationListener, O
         }
 
         loadProviders();
-        if (!mGPSOn && !mNetworkOn) {
-            Toast.makeText(getBaseContext(), getString(R.string.provider_disabled_error),
-                    Toast.LENGTH_SHORT).show();
-            finish();
-        }
     }
 
     private void loadMapView(Bundle savedInstanceState) {
-        // Gets the MapView from the XML layout and creates it
         mMapView = (MapView)findViewById(R.id.mapview);
         mMapView.onCreate(savedInstanceState);
 
-        // Gets to GoogleMap from the MapView and does initialization stuff
         mMapView.getMapAsync(this);
     }
 
@@ -99,22 +91,21 @@ public class GeoPointMapActivity extends Activity implements LocationListener, O
         });
 
         Button mAcceptLocation = (Button)findViewById(R.id.accept_location);
-        if (!inViewMode) {
-            mAcceptLocation.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    returnLocation();
-                }
-            });
-        } else {
+        if (inViewMode) {
             mAcceptLocation.setVisibility(View.GONE);
             Button mShowLocation = ((Button)findViewById(R.id.show_location));
             mShowLocation.setVisibility(View.VISIBLE);
             mShowLocation.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    animateToPoint(mGeoPoint.getLatitudeE6(), mGeoPoint.getLongitudeE6());
+                    animateToPoint(mLocation.getLatitude(), mLocation.getLongitude());
+                }
+            });
+        } else {
+            mAcceptLocation.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    returnLocation();
                 }
             });
         }
@@ -124,7 +115,9 @@ public class GeoPointMapActivity extends Activity implements LocationListener, O
         Intent intent = getIntent();
         if (intent != null && intent.getExtras() != null) {
             double[] location = intent.getDoubleArrayExtra(GeoPointWidget.LOCATION);
-            mGeoPoint = new GeoPoint((int)(location[0] * 1E6), (int)(location[1] * 1E6));
+            mLocation = new Location("XForm");
+            mLocation.setLatitude(location[0]);
+            mLocation.setLatitude(location[1]);
             inViewMode = true;
         }
     }
@@ -150,13 +143,10 @@ public class GeoPointMapActivity extends Activity implements LocationListener, O
         finish();
     }
 
-    private static String truncateFloat(float f) {
-        return new DecimalFormat("#.##").format(f);
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mLocationManager.removeUpdates(this);
@@ -179,23 +169,38 @@ public class GeoPointMapActivity extends Activity implements LocationListener, O
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        mMapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+
+        mMapView.onLowMemory();
+    }
+
+    @Override
     public void onLocationChanged(Location location) {
         if (!inViewMode) {
             mLocation = location;
             if (mLocation != null) {
                 mLocationStatus.setText(getString(R.string.location_provider_accuracy,
-                        mLocation.getProvider(), truncateFloat(mLocation.getAccuracy())));
-                mGeoPoint =
-                        new GeoPoint((int)(mLocation.getLatitude() * 1E6),
-                                (int)(mLocation.getLongitude() * 1E6));
+                        truncateFloat(mLocation.getAccuracy())));
 
-                animateToPoint(mGeoPoint.getLatitudeE6(), mGeoPoint.getLongitudeE6());
+                drawMarker();
 
                 if (mLocation.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
                     returnLocation();
                 }
             }
         }
+    }
+
+    private static String truncateFloat(float f) {
+        return new DecimalFormat("#.##").format(f);
     }
 
     @Override
@@ -213,34 +218,41 @@ public class GeoPointMapActivity extends Activity implements LocationListener, O
     @Override
     public void onMapReady(GoogleMap map) {
         this.map = map;
-        map.getUiSettings().setMyLocationButtonEnabled(false);
+        map.getUiSettings().setMyLocationButtonEnabled(true);
         map.setMyLocationEnabled(true);
 
         MapsInitializer.initialize(this);
 
         if (inViewMode) {
-            map.addMarker(new MarkerOptions().position(new LatLng(mGeoPoint.getLatitudeE6(), mGeoPoint.getLongitudeE6())).title("Marker"));
-        } else {
-            map.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+            map.addMarker(new MarkerOptions().position(new LatLng(mLocation.getLatitude(), mLocation.getLongitude())).title("Marker"));
         }
+        setupMapListeners();
     }
 
-    private void animateToPoint(long lat, long lng) {
-        // Updates the location and zoom of the MapView
+    private void animateToPoint(double lat, double lng) {
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), 10);
         map.animateCamera(cameraUpdate);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mMapView.onDestroy();
+    private void setupMapListeners() {
+        map.setOnMapClickListener(
+                new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng point) {
+                        mLocation.setLongitude(point.longitude);
+                        mLocation.setLatitude(point.latitude);
+                        drawMarker();
+                    }
+                }
+        );
     }
 
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mMapView.onLowMemory();
+    private void drawMarker() {
+        if (marker != null) {
+            marker.remove();
+        }
+        marker = map.addMarker(new MarkerOptions().position(new LatLng(mLocation.getLatitude(), mLocation.getLongitude())).title("Marker"));
+        animateToPoint(mLocation.getLatitude(), mLocation.getLongitude());
     }
 
 }
