@@ -13,6 +13,7 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
@@ -188,7 +189,7 @@ public class CommCareSessionService extends Service {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
 
         String notificationText;
-        if (CommCareApplication.instance().getInstalledAppRecords().size() > 1) {
+        if (AppUtils.getInstalledAppRecords().size() > 1) {
             try {
                 notificationText = Localization.get("notification.logged.in",
                         new String[]{Localization.get("app.display.name")});

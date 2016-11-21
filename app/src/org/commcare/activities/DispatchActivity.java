@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
@@ -128,7 +129,7 @@ public class DispatchActivity extends FragmentActivity {
 
         if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
-                CommCareApplication.instance().initFirstUsableAppRecord();
+                AppUtils.initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
                 dispatch();
             } else {
@@ -259,14 +260,14 @@ public class DispatchActivity extends FragmentActivity {
         if (record.isArchived()) {
             // If the app is archived, unseat it and try to seat another one
             CommCareApplication.instance().unseat(record);
-            CommCareApplication.instance().initFirstUsableAppRecord();
+            AppUtils.initFirstUsableAppRecord();
             return true;
         } else {
             // This app has unvalidated MM
             if (MultipleAppsUtil.usableAppsPresent()) {
                 // If there are other usable apps, unseat it and seat another one
                 CommCareApplication.instance().unseat(record);
-                CommCareApplication.instance().initFirstUsableAppRecord();
+                AppUtils.initFirstUsableAppRecord();
                 return true;
             } else {
                 handleUnvalidatedApp();

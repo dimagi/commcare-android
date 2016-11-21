@@ -95,25 +95,18 @@ import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.PendingCalcs;
 import org.javarosa.core.model.User;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.crypto.SecretKey;
 
@@ -225,7 +218,7 @@ public class CommCareApplication extends Application {
         intializeDefaultLocalizerData();
 
         if (dbState != STATE_MIGRATION_FAILED && dbState != STATE_MIGRATION_QUESTIONABLE) {
-            checkForIncompletelyUninstalledApps();
+            AppUtils.checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
         }
 
@@ -431,23 +424,6 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Check if any existing apps were left in a partially deleted state, and finish
-     * uninstalling them if so.
-     */
-    private void checkForIncompletelyUninstalledApps() {
-        for (ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
-            if (record.getStatus() == ApplicationRecord.STATUS_DELETE_REQUESTED) {
-                try {
-                    uninstall(record);
-                } catch (RuntimeException e) {
-                    Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Unable to uninstall an app " +
-                            "during startup that was previously left partially-deleted");
-                }
-            }
-        }
-    }
-
-    /**
      * Performs the appropriate initialization of an application when this CommCareApplication is
      * first launched
      */
@@ -457,23 +433,12 @@ public class CommCareApplication extends Application {
         if (!"".equals(lastAppId)) {
             ApplicationRecord lastApp = MultipleAppsUtil.getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
-                initFirstUsableAppRecord();
+                AppUtils.initFirstUsableAppRecord();
             } else {
                 initializeAppResources(new CommCareApp(lastApp));
             }
         } else {
-            initFirstUsableAppRecord();
-        }
-    }
-
-    /**
-     * Initializes the first "usable" application from the list of globally installed app records,
-     * if there is one
-     */
-    public void initFirstUsableAppRecord() {
-        for (ApplicationRecord record : MultipleAppsUtil.getUsableAppRecords()) {
-            initializeAppResources(new CommCareApp(record));
-            break;
+            AppUtils.initFirstUsableAppRecord();
         }
     }
 
@@ -501,39 +466,6 @@ public class CommCareApplication extends Application {
             resourceState = STATE_CORRUPTED;
         }
         app.setAppResourceState(resourceState);
-    }
-
-    /**
-     * @return all ApplicationRecords in storage, regardless of their status, in alphabetical order
-     */
-    public ArrayList<ApplicationRecord> getInstalledAppRecords() {
-        ArrayList<ApplicationRecord> records = new ArrayList<>();
-        for (ApplicationRecord r : getGlobalStorage(ApplicationRecord.class)) {
-            records.add(r);
-        }
-        Collections.sort(records, new Comparator<ApplicationRecord>() {
-
-            @Override
-            public int compare(ApplicationRecord lhs, ApplicationRecord rhs) {
-                return lhs.getDisplayName().compareTo(rhs.getDisplayName());
-            }
-
-        });
-        return records;
-    }
-
-    /**
-     * @param uniqueId - the uniqueId of the ApplicationRecord being sought
-     * @return the ApplicationRecord corresponding to the given id, if it exists. Otherwise,
-     * return null
-     */
-    public ApplicationRecord getAppById(String uniqueId) {
-        for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (r.getUniqueId().equals(uniqueId)) {
-                return r;
-            }
-        }
-        return null;
     }
 
     /**
@@ -720,42 +652,6 @@ public class CommCareApplication extends Application {
         return app;
     }
 
-    /**
-     * Assumes that there is an active session when it is called, and wipes out all local user
-     * data (users, referrals, etc) for the user with an active session, but leaves application
-     * resources in place.
-     *
-     * It makes no attempt to make sure this is a safe operation when called, so
-     * it shouldn't be used lightly.
-     */
-    public void clearUserData() {
-        wipeSandboxForUser(this.getSession().getLoggedInUser().getUsername());
-        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(CommCarePreferences.LAST_LOGGED_IN_USER, null).commit();
-        CommCareApplication.instance().closeUserSession();
-    }
-
-    public void wipeSandboxForUser(final String username) {
-        // manually clear file-backed fixture storage to ensure files are removed
-        CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
-
-        // wipe the user's db
-        final Set<String> dbIdsToRemove = new HashSet<>();
-        CommCareApplication.instance().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
-            @Override
-            public boolean matches(UserKeyRecord ukr) {
-                if (ukr.getUsername().equalsIgnoreCase(username.toLowerCase())) {
-                    dbIdsToRemove.add(ukr.getUuid());
-                    return true;
-                }
-                return false;
-            }
-        });
-        for (String id : dbIdsToRemove) {
-            CommCareApplication.instance().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
-        }
-    }
-
     public String getCurrentUserId() {
         try {
             return this.getSession().getLoggedInUser().getUniqueId();
@@ -935,20 +831,22 @@ public class CommCareApplication extends Application {
      * update has elapsed or we logged out while an auto-update was downlaoding
      * or queued for retry.
      */
-    private boolean shouldAutoUpdate() {
+    private static boolean shouldAutoUpdate() {
+        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+
         return (!areAutomatedActionsInvalid() &&
-                (ResourceInstallUtils.shouldAutoUpdateResume(getCurrentApp()) ||
-                        PendingCalcs.isUpdatePending(getCurrentApp().getAppPreferences())));
+                (ResourceInstallUtils.shouldAutoUpdateResume(currentApp) ||
+                        PendingCalcs.isUpdatePending(currentApp.getAppPreferences())));
     }
 
-    private void startAutoUpdate() {
+    private static void startAutoUpdate() {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
 
         String ref = ResourceInstallUtils.getDefaultProfileRef();
 
         try {
             UpdateTask updateTask = UpdateTask.getNewInstance();
-            updateTask.startPinnedNotification(this);
+            updateTask.startPinnedNotification(CommCareApplication.instance());
             updateTask.setAsAutoUpdate();
             updateTask.executeParallel(ref);
         } catch (IllegalStateException e) {
@@ -961,9 +859,9 @@ public class CommCareApplication extends Application {
      * Whether automated stuff like auto-updates/syncing are valid and should
      * be triggered.
      */
-    private boolean areAutomatedActionsInvalid() {
+    private static boolean areAutomatedActionsInvalid() {
         try {
-            return User.TYPE_DEMO.equals(getSession().getLoggedInUser().getUserType());
+            return User.TYPE_DEMO.equals(CommCareApplication.instance().getSession().getLoggedInUser().getUserType());
         } catch (SessionUnavailableException sue) {
             return true;
         }
@@ -1105,19 +1003,20 @@ public class CommCareApplication extends Application {
         titleForUserMessage = null;
     }
 
-    private void setupLoggerStorage(boolean userStorageAvailable) {
+    private static void setupLoggerStorage(boolean userStorageAvailable) {
+        CommCareApplication app = CommCareApplication.instance();
         if (userStorageAvailable) {
-            Logger.registerLogger(new AndroidLogger(getUserStorage(AndroidLogEntry.STORAGE_KEY,
+            Logger.registerLogger(new AndroidLogger(app.getUserStorage(AndroidLogEntry.STORAGE_KEY,
                     AndroidLogEntry.class)));
-            ForceCloseLogger.registerStorage(getUserStorage(ForceCloseLogEntry.STORAGE_KEY,
+            ForceCloseLogger.registerStorage(app.getUserStorage(ForceCloseLogEntry.STORAGE_KEY,
                     ForceCloseLogEntry.class));
-            XPathErrorLogger.registerStorage(getUserStorage(XPathErrorEntry.STORAGE_KEY,
+            XPathErrorLogger.registerStorage(app.getUserStorage(XPathErrorEntry.STORAGE_KEY,
                     XPathErrorEntry.class));
         } else {
             Logger.registerLogger(new AndroidLogger(
-                    this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+                    app.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
             ForceCloseLogger.registerStorage(
-                    this.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+                    app.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
         }
     }
 

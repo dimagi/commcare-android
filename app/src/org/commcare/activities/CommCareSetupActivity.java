@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.BuildConfig;
@@ -232,7 +233,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * @return if installation is not allowed due to multiple apps limitations
      */
     private boolean checkForMultipleAppsViolation() {
-        if (CommCareApplication.instance().getInstalledAppRecords().size() >= 2
+        if (AppUtils.getInstalledAppRecords().size() >= 2
                 && !GlobalPrivilegesManager.isMultipleAppsPrivilegeEnabled()
                 && !BuildConfig.DEBUG) {
             Intent i = new Intent(this, MultipleAppsLimitWarningActivity.class);
