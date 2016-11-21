@@ -26,7 +26,7 @@ public class PendingCalcs {
         return false;
     }
 
-    private static boolean isTimeForAutoUpdateCheck(long lastUpdateCheck, String autoUpdateFreq) {
+    public static boolean isTimeForAutoUpdateCheck(long lastUpdateCheck, String autoUpdateFreq) {
         int checkEveryNDays;
         if (CommCarePreferences.FREQUENCY_DAILY.equals(autoUpdateFreq)) {
             checkEveryNDays = 1;
