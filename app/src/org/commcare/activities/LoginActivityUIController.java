@@ -258,16 +258,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
     }
 
-    private static String[] getExistingUsernames() {
-        SqlStorage<UserKeyRecord> existingUsers =
-                CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class);
-        Set<String> uniqueUsernames = new HashSet<>();
-        for (UserKeyRecord ukr : existingUsers) {
-            uniqueUsernames.add(ukr.getUsername());
-        }
-        return uniqueUsernames.toArray(new String[uniqueUsernames.size()]);
-    }
-
     private void checkEnteredUsernameForMatch() {
         UserKeyRecord matchingRecord = getActiveRecordForUsername(getEnteredUsername());
         if (matchingRecord != null) {
@@ -486,5 +476,4 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private Resources getResources() {
         return activity.getResources();
     }
-
 }
