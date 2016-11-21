@@ -33,7 +33,6 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     private ListView listView;
 
     public EntitySubnodeDetailFragment() {
-        super();
     }
 
     @Override

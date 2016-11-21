@@ -29,6 +29,7 @@ import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.commcare.utils.UriToFilePath;
+import org.commcare.views.PasswordShow;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
@@ -71,6 +72,8 @@ public class CommCarePreferences
 
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
+
+    public final static String SHOW_PASSWORD_OPTION = "cc-password-entry-show-behavior";
 
     public final static String RESIZING_METHOD = "cc-resize-images";
 
@@ -157,7 +160,7 @@ public class CommCarePreferences
     }
 
     public static void setupLocalizedText(PreferenceActivity activity,
-                                             Map<String, String> prefToTitleMap) {
+                                          Map<String, String> prefToTitleMap) {
         PreferenceScreen screen = activity.getPreferenceScreen();
         for (int i = 0; i < screen.getPreferenceCount(); i++) {
             String key = screen.getPreference(i).getKey();
@@ -355,6 +358,11 @@ public class CommCarePreferences
         }
 
         return true;
+    }
+
+    public static PasswordShow.PasswordShowOption getPasswordDisplayOption() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return PasswordShow.PasswordShowOption.fromString(properties.getString(SHOW_PASSWORD_OPTION, ""));
     }
 
     public static boolean isSavedFormsEnabled() {
