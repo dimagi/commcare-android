@@ -24,6 +24,7 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.FormUploadResult;
+import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
@@ -108,7 +109,6 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             tryLocalLogin(context, username, password);
         } else if ("sync".equals(b.getString("commcareaction"))) {
             boolean formsToSend = checkAndStartUnsentTask(context);
-
             if (!formsToSend) {
                 //No unsent forms, just sync
                 syncData(context);
@@ -117,91 +117,101 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
 
     private boolean checkAndStartUnsentTask(final Context context) {
-        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
+        try {
+            SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
+            Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
+            if (ids.size() > 0) {
+                FormRecord[] records = new FormRecord[ids.size()];
+                for (int i = 0; i < ids.size(); ++i) {
+                    records[i] = storage.read(ids.elementAt(i));
+                }
+                SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+                ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(
+                        context,
+                        settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
+                                context.getString(R.string.PostURL))) {
+                    @Override
+                    protected void deliverResult(Object receiver, FormUploadResult result) {
+                        if (result == FormUploadResult.FULL_SUCCESS) {
+                            //OK, all forms sent, sync time
+                            syncData(context);
 
-        if (ids.size() > 0) {
-            FormRecord[] records = new FormRecord[ids.size()];
-            for (int i = 0; i < ids.size(); ++i) {
-                records[i] = storage.read(ids.elementAt(i));
-            }
-            SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(
-                    context,
-                    settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
-                            context.getString(R.string.PostURL))) {
-                @Override
-                protected void deliverResult(Object receiver, FormUploadResult result) {
-                    if (result == FormUploadResult.FULL_SUCCESS) {
-                        //OK, all forms sent, sync time 
-                        syncData(context);
-
-                    } else if (result == FormUploadResult.FAILURE) {
-                        Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
+                        } else if (result == FormUploadResult.FAILURE) {
+                            Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
+                        }
                     }
-                }
 
-                @Override
-                protected void deliverUpdate(Object receiver, Long... update) {
-                }
+                    @Override
+                    protected void deliverUpdate(Object receiver, Long... update) {
+                    }
 
-                @Override
-                protected void deliverError(Object receiver, Exception e) {
-                }
-            };
+                    @Override
+                    protected void deliverError(Object receiver, Exception e) {
+                    }
+                };
 
-            mProcess.setListeners(CommCareApplication.instance().getSession().startDataSubmissionListener());
-            mProcess.connect(dummyconnector);
-            mProcess.execute(records);
-            return true;
-        } else {
-            //Nothing.
+                mProcess.setListeners(CommCareApplication.instance().getSession().startDataSubmissionListener());
+                mProcess.connect(dummyconnector);
+                mProcess.execute(records);
+                return true;
+            } else {
+                //Nothing.
+                return false;
+            }
+        } catch (SessionUnavailableException e) {
+            Toast.makeText(context, "Couldn't open the database handle. Ensure that your " +
+                    "mobile worker is logged into CommCare.", Toast.LENGTH_LONG).show();
             return false;
         }
     }
 
     private void syncData(final Context context) {
-        User u = CommCareApplication.instance().getSession().getLoggedInUser();
+        try {
+            User u = CommCareApplication.instance().getSession().getLoggedInUser();
 
-        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
-        DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(
-                u.getUsername(),
-                u.getCachedPwd(),
-                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY,
-                        context.getString(R.string.ota_restore_url)),
-                context) {
+            DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(
+                    u.getUsername(),
+                    u.getCachedPwd(),
+                    prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY,
+                            context.getString(R.string.ota_restore_url)),
+                    context) {
 
-            @Override
-            protected void deliverResult(Object receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
-                PullTaskResult result = resultAndErrorMessage.data;
-                if (result != PullTaskResult.DOWNLOAD_SUCCESS) {
-                    Toast.makeText(context, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(context, "CommCare synced!", Toast.LENGTH_LONG).show();
+                @Override
+                protected void deliverResult(Object receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
+                    PullTaskResult result = resultAndErrorMessage.data;
+                    if (result != PullTaskResult.DOWNLOAD_SUCCESS) {
+                        Toast.makeText(context, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(context, "CommCare synced!", Toast.LENGTH_LONG).show();
+                    }
                 }
-            }
 
-            @Override
-            protected void deliverUpdate(Object receiver, Integer... update) {
-            }
+                @Override
+                protected void deliverUpdate(Object receiver, Integer... update) {
+                }
 
-            @Override
-            protected void deliverError(Object receiver, Exception e) {
-            }
+                @Override
+                protected void deliverError(Object receiver, Exception e) {
+                }
 
-        };
-        mDataPullTask.connect(dummyconnector);
-        mDataPullTask.execute();
+            };
+            mDataPullTask.connect(dummyconnector);
+            mDataPullTask.execute();
+        } catch(SessionUnavailableException e) {
+            Toast.makeText(context, "Couldn't open the database handle. Ensure that your" +
+                    "mobile worker is logged into CommCare.", Toast.LENGTH_LONG).show();
+        }
     }
 
-    private boolean tryLocalLogin(Context context, String uname, String password) {
+    private boolean tryLocalLogin(Context context, String username, String password) {
         try {
             UserKeyRecord matchingRecord = null;
             for (UserKeyRecord record : CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class)) {
-                if (!record.getUsername().equals(uname)) {
+                if (!record.getUsername().equals(username)) {
                     continue;
                 }
                 String hash = record.getPasswordHash();
@@ -224,6 +234,9 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             }
 
             if (matchingRecord == null) {
+                Toast.makeText(context, "Couldn't log in with username " + username + ". " +
+                        "Please confirm your credentials and try again.",
+                        Toast.LENGTH_LONG).show();
                 return false;
             }
             //TODO: Extract this
@@ -240,9 +253,11 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
             mKeyRecordTask.connect(dummyconnector);
             mKeyRecordTask.execute();
+            Toast.makeText(context, "Successfully logged in as user " + username + ".", Toast.LENGTH_LONG).show();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
+            Toast.makeText(context, "Failed to login with exception " + e + ".", Toast.LENGTH_LONG).show();
             return false;
         }
     }
