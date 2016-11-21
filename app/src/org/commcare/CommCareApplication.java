@@ -4,9 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -17,14 +14,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.telephony.TelephonyManager;
@@ -40,7 +34,6 @@ import net.sqlcipher.database.SQLiteException;
 import org.acra.annotation.ReportsCrashes;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.LoginActivity;
-import org.commcare.activities.MessageActivity;
 import org.commcare.activities.UnrecoverableErrorActivity;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
@@ -97,13 +90,10 @@ import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.DummyPropertyManager;
-import org.commcare.utils.PopupHandler;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.PendingCalcs;
-import org.commcare.views.notifications.NotificationClearReceiver;
-import org.commcare.views.notifications.NotificationMessage;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
@@ -124,13 +114,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Vector;
 
 import javax.crypto.SecretKey;
 
-/**
- * @author ctsims
- */
 @ReportsCrashes(
         formUri = "https://your/cloudant/report",
         formUriBasicAuthLogin = "your_username",
@@ -150,8 +136,6 @@ public class CommCareApplication extends Application {
     public static final int STATE_CORRUPTED = 4;
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
-
-    private static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
 
     private int dbState;
 
@@ -180,12 +164,6 @@ public class CommCareApplication extends Application {
 
     private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
-    /**
-     * Handler to receive notifications and show them the user using toast.
-     */
-    private final PopupHandler toaster = new PopupHandler(this);
-
-
     private GoogleAnalytics analyticsInstance;
     private Tracker analyticsTracker;
 
@@ -196,6 +174,7 @@ public class CommCareApplication extends Application {
     private boolean latestBuildRefreshPending;
 
     private boolean invalidateCacheOnRestore;
+    private CommCareNoficationManager noficationManager;
 
     @Override
     public void onCreate() {
@@ -206,6 +185,7 @@ public class CommCareApplication extends Application {
         AndroidClassHasher.registerAndroidClassHashStrategy();
 
         CommCareApplication.app = this;
+        noficationManager = new CommCareNoficationManager(this);
 
         //TODO: Make this robust
         PreInitLogger pil = new PreInitLogger();
@@ -1028,102 +1008,8 @@ public class CommCareApplication extends Application {
         }
     }
 
-
     public UserKeyRecord getRecordForCurrentUser() {
         return getSession().getUserKeyRecord();
-    }
-
-    public static final int MESSAGE_NOTIFICATION = R.string.notification_message_title;
-
-    private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<>();
-
-    public void reportNotificationMessage(NotificationMessage message) {
-        reportNotificationMessage(message, false);
-    }
-
-    public void reportNotificationMessage(final NotificationMessage message, boolean showToast) {
-        synchronized (pendingMessages) {
-            // Make sure there is no matching message pending
-            for (NotificationMessage msg : pendingMessages) {
-                if (msg.equals(message)) {
-                    // If so, bail.
-                    return;
-                }
-            }
-            if (showToast) {
-                Bundle b = new Bundle();
-                b.putParcelable("message", message);
-                Message m = Message.obtain(toaster);
-                m.setData(b);
-                toaster.sendMessage(m);
-            }
-
-            // Otherwise, add it to the queue, and update the notification
-            pendingMessages.add(message);
-            updateMessageNotification();
-        }
-    }
-
-    private void updateMessageNotification() {
-        NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        synchronized (pendingMessages) {
-            if (pendingMessages.size() == 0) {
-                mNM.cancel(MESSAGE_NOTIFICATION);
-                return;
-            }
-
-            String title = pendingMessages.get(0).getTitle();
-
-            // The PendingIntent to launch our activity if the user selects this notification
-            Intent i = new Intent(this, MessageActivity.class);
-
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
-
-            String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
-
-            Notification messageNotification = new NotificationCompat.Builder(this)
-                    .setContentTitle(title)
-                    .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
-                    .setSmallIcon(R.drawable.notification)
-                    .setNumber(pendingMessages.size())
-                    .setContentIntent(contentIntent)
-                    .setDeleteIntent(PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0))
-                    .setOngoing(true)
-                    .setWhen(System.currentTimeMillis())
-                    .build();
-
-            mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
-        }
-    }
-
-    public ArrayList<NotificationMessage> purgeNotifications() {
-        synchronized (pendingMessages) {
-            this.sendBroadcast(new Intent(ACTION_PURGE_NOTIFICATIONS));
-            ArrayList<NotificationMessage> cloned = (ArrayList<NotificationMessage>)pendingMessages.clone();
-            clearNotifications(null);
-            return cloned;
-        }
-    }
-
-    public void clearNotifications(String category) {
-        synchronized (pendingMessages) {
-            NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-            Vector<NotificationMessage> toRemove = new Vector<>();
-            for (NotificationMessage message : pendingMessages) {
-                if (category == null || category.equals(message.getCategory())) {
-                    toRemove.add(message);
-                }
-            }
-
-            for (NotificationMessage message : toRemove) {
-                pendingMessages.remove(message);
-            }
-            if (pendingMessages.size() == 0) {
-                mNM.cancel(MESSAGE_NOTIFICATION);
-            } else {
-                updateMessageNotification();
-            }
-        }
     }
 
     private boolean syncPending = false;
@@ -1281,4 +1167,7 @@ public class CommCareApplication extends Application {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
 
+    public static CommCareNoficationManager noficationManager() {
+        return app.noficationManager;
+    }
 }

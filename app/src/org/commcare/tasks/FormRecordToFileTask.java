@@ -224,7 +224,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+        CommCareApplication.noficationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 
 }

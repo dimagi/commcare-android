@@ -609,7 +609,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 resultInstanceURI = intent.getData();
             }
             if (resultInstanceURI == null) {
-                CommCareApplication.instance().reportNotificationMessage(
+                CommCareApplication.noficationManager().reportNotificationMessage(
                         NotificationMessageFactory.message(
                                 NotificationMessageFactory.StockMessages.FormEntry_Unretrievable));
                 Toast.makeText(this,

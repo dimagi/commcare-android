@@ -362,9 +362,9 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         super.onPostExecute(result);
         listener.endSubmissionProcess();
         if (result != LogSubmitOutcomes.Submitted) {
-            CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(result));
+            CommCareApplication.noficationManager().reportNotificationMessage(NotificationMessageFactory.message(result));
         } else {
-            CommCareApplication.instance().clearNotifications(result.getCategory());
+            CommCareApplication.noficationManager().clearNotifications(result.getCategory());
         }
     }
 }
