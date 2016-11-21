@@ -10,7 +10,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.view.DragEvent;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -37,20 +37,24 @@ import java.util.List;
 /**
  * Allows location to be chosen using a map instead of current gps coordinates
  */
-public class GeoPointMapActivity extends Activity implements LocationListener, OnMapReadyCallback {
+public class GeoPointMapActivity extends Activity
+        implements LocationListener, OnMapReadyCallback,
+        GoogleMap.OnMyLocationButtonClickListener {
 
-    private MapView mMapView;
+    private MapView mapView;
     private GoogleMap map;
     private Marker marker;
-    private TextView mLocationStatus;
+    private TextView locationText;
 
-    private LocationManager mLocationManager;
-    private Location mLocation;
+    private LocationManager locationManager;
+    private Location location = new Location("XForm");
 
     private boolean inViewMode = false;
+    // don't reset marker to current GPS location if we manually selected a location
+    private boolean isManualSelectedLocation = false;
 
-    private boolean mGPSOn = false;
-    private boolean mNetworkOn = false;
+    private boolean isGPSOn = false;
+    private boolean isNetworkOn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,88 +63,174 @@ public class GeoPointMapActivity extends Activity implements LocationListener, O
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.geopoint_layout);
 
-        mLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-
         loadViewModeState();
-        setupButtons();
-
+        setupUI();
         loadMapView(savedInstanceState);
-
-        mLocationStatus = (TextView)findViewById(R.id.location_status);
-        if (inViewMode) {
-            findViewById(R.id.location_status).setVisibility(View.GONE);
-        }
-
         loadProviders();
-    }
-
-    private void loadMapView(Bundle savedInstanceState) {
-        mMapView = (MapView)findViewById(R.id.mapview);
-        mMapView.onCreate(savedInstanceState);
-
-        mMapView.getMapAsync(this);
-    }
-
-    private void setupButtons() {
-        Button mCancelLocation = (Button)findViewById(R.id.cancel_location);
-        mCancelLocation.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-        Button mAcceptLocation = (Button)findViewById(R.id.accept_location);
-        if (inViewMode) {
-            mAcceptLocation.setVisibility(View.GONE);
-            Button mShowLocation = ((Button)findViewById(R.id.show_location));
-            mShowLocation.setVisibility(View.VISIBLE);
-            mShowLocation.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    animateToPoint(mLocation.getLatitude(), mLocation.getLongitude());
-                }
-            });
-        } else {
-            mAcceptLocation.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    returnLocation();
-                }
-            });
-        }
     }
 
     private void loadViewModeState() {
         Intent intent = getIntent();
         if (intent != null && intent.getExtras() != null) {
             double[] location = intent.getDoubleArrayExtra(GeoPointWidget.LOCATION);
-            mLocation = new Location("XForm");
-            mLocation.setLatitude(location[0]);
-            mLocation.setLatitude(location[1]);
+            this.location.setLatitude(location[0]);
+            this.location.setLongitude(location[1]);
             inViewMode = true;
         }
     }
 
-    private void loadProviders() {
-        List<String> providers = mLocationManager.getProviders(true);
-        for (String provider : providers) {
-            if (provider.equalsIgnoreCase(LocationManager.GPS_PROVIDER)) {
-                mGPSOn = true;
+    private void setupUI() {
+        Button cancelButton = (Button)findViewById(R.id.cancel_location);
+        cancelButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
-            if (provider.equalsIgnoreCase(LocationManager.NETWORK_PROVIDER)) {
-                mNetworkOn = true;
+        });
+
+        Button acceptButton = (Button)findViewById(R.id.accept_location);
+        acceptButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                returnLocation();
             }
+        });
+
+        Button showLocationButton = ((Button)findViewById(R.id.show_location));
+        showLocationButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                animateToPoint(location.getLatitude(), location.getLongitude(), location.getAccuracy());
+            }
+        });
+
+        locationText = (TextView)findViewById(R.id.location_status);
+
+        if (inViewMode) {
+            acceptButton.setVisibility(View.GONE);
+            showLocationButton.setVisibility(View.VISIBLE);
+            findViewById(R.id.location_status).setVisibility(View.GONE);
         }
     }
 
     private void returnLocation() {
-        if (mLocation != null) {
+        if (location != null) {
             Intent i = new Intent();
-            i.putExtra(FormEntryActivity.LOCATION_RESULT, GeoUtils.locationToString(mLocation));
+            i.putExtra(FormEntryActivity.LOCATION_RESULT, GeoUtils.locationToString(location));
             setResult(RESULT_OK, i);
         }
         finish();
+    }
+
+    private void loadMapView(Bundle savedInstanceState) {
+        mapView = (MapView)findViewById(R.id.mapview);
+        mapView.onCreate(savedInstanceState);
+
+        mapView.getMapAsync(this);
+    }
+
+    private void loadProviders() {
+        locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+        List<String> providers = locationManager.getProviders(true);
+        for (String provider : providers) {
+            if (provider.equalsIgnoreCase(LocationManager.GPS_PROVIDER)) {
+                isGPSOn = true;
+            }
+            if (provider.equalsIgnoreCase(LocationManager.NETWORK_PROVIDER)) {
+                isNetworkOn = true;
+            }
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (!inViewMode && !isManualSelectedLocation) {
+            this.location = location;
+            if (this.location != null) {
+
+                drawMarker();
+            }
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        this.map = map;
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            map.getUiSettings().setMyLocationButtonEnabled(true);
+            map.setMyLocationEnabled(true);
+            map.setOnMyLocationButtonClickListener(this);
+        }
+
+        MapsInitializer.initialize(this);
+
+        if (inViewMode) {
+            drawMarker();
+        }
+        setupMapListeners();
+    }
+
+    private void setupMapListeners() {
+        if (!inViewMode) {
+            map.setOnMapClickListener(
+                    new GoogleMap.OnMapClickListener() {
+                        @Override
+                        public void onMapClick(LatLng point) {
+                            isManualSelectedLocation = true;
+                            location.setLongitude(point.longitude);
+                            location.setLatitude(point.latitude);
+                            location.setAccuracy(10);
+                            drawMarker();
+                        }
+                    }
+            );
+        }
+    }
+
+    private void drawMarker() {
+        locationText.setText(getString(R.string.location_provider_accuracy,
+                truncateFloat(location.getAccuracy())));
+
+        if (marker != null) {
+            marker.remove();
+        }
+
+        marker = map.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude())).title("Selected location"));
+        animateToPoint(location.getLatitude(), location.getLongitude(), location.getAccuracy());
+    }
+
+    private static String truncateFloat(float f) {
+        return new DecimalFormat("#.##").format(f);
+    }
+
+
+    private void animateToPoint(double lat, double lng, float accuracy) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int screenSize = Math.min(metrics.widthPixels, metrics.heightPixels);
+        int zoomLevel = calculateZoomLevel(screenSize, accuracy);
+
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), zoomLevel);
+        map.animateCamera(cameraUpdate);
+    }
+
+    // via http://stackoverflow.com/a/25143326
+    private static int calculateZoomLevel(int screenWidth, float accuracy) {
+        // don't zoom in too much
+        final int MAX_ZOOM_LEVEL = 16;
+
+        double equatorLength = 40075004; // in meters
+        double metersPerPixel = equatorLength / 256;
+        int zoomLevel = 1;
+        while ((metersPerPixel * (double)screenWidth) > accuracy && zoomLevel < MAX_ZOOM_LEVEL) {
+            metersPerPixel /= 2;
+            zoomLevel++;
+        }
+
+        return zoomLevel;
     }
 
     @Override
@@ -149,21 +239,21 @@ public class GeoPointMapActivity extends Activity implements LocationListener, O
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mLocationManager.removeUpdates(this);
+            locationManager.removeUpdates(this);
         }
     }
 
     @Override
     protected void onResume() {
-        mMapView.onResume();
+        mapView.onResume();
 
         super.onResume();
 
-        if (mGPSOn && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        if (isGPSOn && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         }
-        if (mNetworkOn && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+        if (isNetworkOn && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
         }
         // TODO PLM: warn user and ask for permissions if the user has disabled them
     }
@@ -172,35 +262,14 @@ public class GeoPointMapActivity extends Activity implements LocationListener, O
     public void onDestroy() {
         super.onDestroy();
 
-        mMapView.onDestroy();
+        mapView.onDestroy();
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
 
-        mMapView.onLowMemory();
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if (!inViewMode) {
-            mLocation = location;
-            if (mLocation != null) {
-                mLocationStatus.setText(getString(R.string.location_provider_accuracy,
-                        truncateFloat(mLocation.getAccuracy())));
-
-                drawMarker();
-
-                if (mLocation.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
-                    returnLocation();
-                }
-            }
-        }
-    }
-
-    private static String truncateFloat(float f) {
-        return new DecimalFormat("#.##").format(f);
+        mapView.onLowMemory();
     }
 
     @Override
@@ -216,43 +285,9 @@ public class GeoPointMapActivity extends Activity implements LocationListener, O
     }
 
     @Override
-    public void onMapReady(GoogleMap map) {
-        this.map = map;
-        map.getUiSettings().setMyLocationButtonEnabled(true);
-        map.setMyLocationEnabled(true);
-
-        MapsInitializer.initialize(this);
-
-        if (inViewMode) {
-            map.addMarker(new MarkerOptions().position(new LatLng(mLocation.getLatitude(), mLocation.getLongitude())).title("Marker"));
-        }
-        setupMapListeners();
-    }
-
-    private void animateToPoint(double lat, double lng) {
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), 10);
-        map.animateCamera(cameraUpdate);
-    }
-
-    private void setupMapListeners() {
-        map.setOnMapClickListener(
-                new GoogleMap.OnMapClickListener() {
-                    @Override
-                    public void onMapClick(LatLng point) {
-                        mLocation.setLongitude(point.longitude);
-                        mLocation.setLatitude(point.latitude);
-                        drawMarker();
-                    }
-                }
-        );
-    }
-
-    private void drawMarker() {
-        if (marker != null) {
-            marker.remove();
-        }
-        marker = map.addMarker(new MarkerOptions().position(new LatLng(mLocation.getLatitude(), mLocation.getLongitude())).title("Marker"));
-        animateToPoint(mLocation.getLatitude(), mLocation.getLongitude());
+    public boolean onMyLocationButtonClick() {
+        isManualSelectedLocation = false;
+        return false;
     }
 
 }
