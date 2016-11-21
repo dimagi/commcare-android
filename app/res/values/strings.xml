@@ -104,6 +104,11 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
         <item>Enabled</item>
         <item>Disabled</item>
     </string-array>
+    <string-array name="pref_password_show_options_labels">
+        <item>Always Hidden</item>
+        <item>Default Show</item>
+        <item>Default Hide</item>
+    </string-array>
     <string-array name="pref_load_form_payload_as_vals">
         <item>incomplete</item>
         <item>unsent</item>
@@ -113,6 +118,11 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
         <item>Incomplete</item>
         <item>Unsent</item>
         <item>Saved</item>
+    </string-array>
+    <string-array name="pref_password_show_options">
+        <item>always_hidden</item>
+        <item>default_show</item>
+        <item>default_hide</item>
     </string-array>
     <string-array name="target_density_labels">
         <item>DENSITY_LOW</item>
