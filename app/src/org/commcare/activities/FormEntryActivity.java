@@ -34,6 +34,7 @@ import android.widget.VideoView;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
+import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.activities.components.FormFileSystemHelpers;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.ImageCaptureProcessing;
@@ -83,21 +84,14 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.form.api.FormEntryController;
-import org.javarosa.form.api.FormEntrySession;
-import org.javarosa.form.api.FormEntrySessionReplayer;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -124,7 +118,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
-    public static final String KEY_FORM_ENTRY_SESSION = "form_entry_session";
     public static final String KEY_RECORD_FORM_ENTRY_SESSION = "record_form_entry_session";
     private static final String KEY_WIDGET_WITH_VIDEO_PLAYING = "index-of-widget-with-video-playing-on-pause";
     private static final String KEY_POSITION_OF_VIDEO_PLAYING = "position-of-video-playing-on-pause";
@@ -137,6 +130,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static final String KEY_LOC_ERROR_PATH = "location-based-xpath-error";
 
     private FormEntryInstanceState instanceState;
+    private FormEntrySessionWrapper formEntryRestoreSession = new FormEntrySessionWrapper();
 
     private SecretKeySpec symetricKey = null;
 
@@ -170,7 +164,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // database & key session are expiring. Being set causes savingComplete to
     // broadcast a form saving intent.
     private boolean savingFormOnKeySessionExpiration = false;
-    private FormEntrySession formEntryRestoreSession;
     private boolean recordEntrySession;
     private FormEntryActivityUIController uiController;
 
@@ -194,8 +187,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mGestureDetector = new GestureDetector(this);
 
         // needed to override rms property manager
-        org.javarosa.core.services.PropertyManager.setPropertyManager(new AndroidPropertyManager(
-                getApplicationContext()));
+        PropertyManager.setPropertyManager(new AndroidPropertyManager(getApplicationContext()));
 
         if (savedInstanceState == null) {
             GoogleAnalyticsUtils.reportLanguageAtPointOfFormEntry(Localization.getCurrentLocale());
@@ -276,7 +268,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
-        saveFormEntrySession(outState);
+        formEntryRestoreSession.saveFormEntrySession(outState);
         outState.putBoolean(KEY_RECORD_FORM_ENTRY_SESSION, recordEntrySession);
 
         if (indexOfWidgetWithVideoPlaying != -1) {
@@ -293,24 +285,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
         uiController.saveInstanceState(outState);
-    }
-
-    private void saveFormEntrySession(Bundle outState) {
-        if (formEntryRestoreSession != null) {
-            ByteArrayOutputStream objectSerialization = new ByteArrayOutputStream();
-            try {
-                formEntryRestoreSession.writeExternal(new DataOutputStream(objectSerialization));
-                outState.putByteArray(KEY_FORM_ENTRY_SESSION, objectSerialization.toByteArray());
-            } catch (IOException e) {
-                outState.putByteArray(KEY_FORM_ENTRY_SESSION, null);
-            } finally {
-                try {
-                    objectSerialization.close();
-                } catch (IOException e) {
-                    Log.w(TAG, "failed to store form entry session in instance bundle");
-                }
-            }
-        }
     }
 
     @Override
@@ -1129,13 +1103,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         reportFormEntry();
 
-        try {
-            FormEntrySessionReplayer.tryReplayingFormEntry(mFormController.getFormEntryController(),
-                    formEntryRestoreSession);
-            formEntryRestoreSession = null;
-        } catch (FormEntrySessionReplayer.ReplayError e) {
-            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
-        }
+        formEntryRestoreSession.replaySession(this);
 
         uiController.refreshView();
         FormNavigationUI.updateNavigationCues(this, mFormController, uiController.questionsView);
@@ -1555,7 +1523,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
             }
 
-            restoreFormEntrySession(savedInstanceState);
+            formEntryRestoreSession.restoreFormEntrySession(savedInstanceState,
+                    CommCareApplication.instance().getPrototypeFactory(this));
 
             recordEntrySession = savedInstanceState.getBoolean(KEY_RECORD_FORM_ENTRY_SESSION, false);
             if (savedInstanceState.containsKey(KEY_WIDGET_WITH_VIDEO_PLAYING)) {
@@ -1563,25 +1532,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 positionOfVideoProgress = savedInstanceState.getInt(KEY_POSITION_OF_VIDEO_PLAYING);
             }
             uiController.restoreSavedState(savedInstanceState);
-        }
-    }
-
-    private void restoreFormEntrySession(Bundle savedInstanceState) {
-        byte[] serializedObject = savedInstanceState.getByteArray(KEY_FORM_ENTRY_SESSION);
-        if (serializedObject != null) {
-            formEntryRestoreSession = new FormEntrySession();
-            DataInputStream objectInputStream = new DataInputStream(new ByteArrayInputStream(serializedObject));
-            try {
-                formEntryRestoreSession.readExternal(objectInputStream, CommCareApplication.instance().getPrototypeFactory(this));
-            } catch (IOException | DeserializationException e) {
-                Log.e(TAG, "failed to deserialize form entry session during saved instance restore");
-            } finally {
-                try {
-                    objectInputStream.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "failed to close deserialization stream for form entry session during saved instance restore");
-                }
-            }
         }
     }
 
@@ -1670,10 +1620,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (intent.hasExtra(KEY_RESIZING_ENABLED)) {
             ResizingImageView.resizeMethod = intent.getStringExtra(KEY_RESIZING_ENABLED);
         }
-        if (intent.hasExtra(KEY_FORM_ENTRY_SESSION)) {
-            formEntryRestoreSession =
-                    FormEntrySession.fromString(intent.getStringExtra(KEY_FORM_ENTRY_SESSION));
-        }
+        formEntryRestoreSession.loadFromIntent(intent);
         recordEntrySession = intent.getBooleanExtra(KEY_RECORD_FORM_ENTRY_SESSION, false);
     }
 

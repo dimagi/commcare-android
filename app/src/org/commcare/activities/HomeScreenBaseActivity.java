@@ -18,6 +18,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
+import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -974,7 +975,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     CommCareApplication.instance().getCurrentApp().getAppPreferences();
             String formEntrySession = prefs.getString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, "");
             if (!"".equals(formEntrySession)) {
-                i.putExtra(FormEntryActivity.KEY_FORM_ENTRY_SESSION, formEntrySession);
+                i.putExtra(FormEntrySessionWrapper.KEY_FORM_ENTRY_SESSION, formEntrySession);
             }
         }
 
