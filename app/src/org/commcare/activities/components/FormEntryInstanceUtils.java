@@ -2,6 +2,7 @@ package org.commcare.activities.components;
 
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Pair;
@@ -106,5 +107,31 @@ public class FormEntryInstanceUtils {
             }
         }
         return new Pair<>(formUri, isInstanceReadOnly);
+    }
+
+    /**
+     * Get the default title for ODK's "Form title" field
+     */
+    public static String getDefaultFormTitle(Context context, Intent intent) {
+        String saveName = FormEntryActivity.mFormController.getFormTitle();
+        if (InstanceProviderAPI.InstanceColumns.CONTENT_ITEM_TYPE.equals(context.getContentResolver().getType(intent.getData()))) {
+            Uri instanceUri = intent.getData();
+
+            Cursor instance = null;
+            try {
+                instance = context.getContentResolver().query(instanceUri, null, null, null, null);
+                if (instance != null && instance.getCount() == 1) {
+                    instance.moveToFirst();
+                    saveName =
+                            instance.getString(instance
+                                    .getColumnIndex(InstanceProviderAPI.InstanceColumns.DISPLAY_NAME));
+                }
+            } finally {
+                if (instance != null) {
+                    instance.close();
+                }
+            }
+        }
+        return saveName;
     }
 }

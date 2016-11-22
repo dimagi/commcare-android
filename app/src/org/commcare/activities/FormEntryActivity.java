@@ -922,7 +922,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     protected void onPause() {
         super.onPause();
 
-
         if (!isFinishing() && uiController.questionsView != null && currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         }
@@ -1151,39 +1150,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     /**
-     * Get the default title for ODK's "Form title" field
-     */
-    private String getDefaultFormTitle() {
-        String saveName = mFormController.getFormTitle();
-        if (InstanceColumns.CONTENT_ITEM_TYPE.equals(getContentResolver().getType(getIntent().getData()))) {
-            Uri instanceUri = getIntent().getData();
-
-            Cursor instance = null;
-            try {
-                instance = getContentResolver().query(instanceUri, null, null, null, null);
-                if (instance != null && instance.getCount() == 1) {
-                    instance.moveToFirst();
-                    saveName =
-                            instance.getString(instance
-                                    .getColumnIndex(InstanceColumns.DISPLAY_NAME));
-                }
-            } finally {
-                if (instance != null) {
-                    instance.close();
-                }
-            }
-        }
-        return saveName;
-    }
-
-    /**
      * Call when the user is ready to save and return the current form as complete
      */
     protected void triggerUserFormComplete() {
         if (mFormController.isFormReadOnly()) {
             finishReturnInstance(false);
         } else {
-            saveCompletedFormToDisk(getDefaultFormTitle());
+            saveCompletedFormToDisk(FormEntryInstanceUtils.getDefaultFormTitle(this, getIntent()));
         }
     }
 
