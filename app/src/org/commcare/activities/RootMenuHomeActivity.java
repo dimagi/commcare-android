@@ -72,7 +72,7 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
 
     @Override
     protected void updateUiAfterDataPullOrSend(String message, boolean success) {
-        displayToast(message); //TODO: maybe remove this
+        displayToast(message);
         if (usingNavDrawer()) {
             navDrawerController.refreshItems();
         }
