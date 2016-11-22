@@ -26,9 +26,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.activities.GeoPointMapActivity;
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
@@ -110,7 +110,7 @@ public class GeoPointWidget extends QuestionWidget {
                 } else {
                     i = new Intent(getContext(), GeoPointActivity.class);
                 }
-                ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.LOCATION_CAPTURE);
+                ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.LOCATION_CAPTURE);
                 pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
             }
         });

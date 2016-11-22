@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Toast;
 
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormLayoutHelpers;
 import org.commcare.activities.components.FormNavigationController;
 import org.commcare.activities.components.FormNavigationUI;
@@ -114,7 +115,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!FormEntryActivity.NAV_STATE_QUIT.equals(v.getTag())) {
+                if (!FormEntryConstants.NAV_STATE_QUIT.equals(v.getTag())) {
                     GoogleAnalyticsUtils.reportFormNavBackward(GoogleAnalyticsFields.LABEL_ARROW);
                     showPreviousView(true);
                 } else {
@@ -277,7 +278,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
         // The answer is saved on a back swipe, but question constraints are ignored.
         if (activity.currentPromptIsQuestion()) {
-            activity.saveAnswersForCurrentScreen(FormEntryActivity.DO_NOT_EVALUATE_CONSTRAINTS);
+            activity.saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         }
 
         // Any info stored about the last changed widget is useless when we move to a new view
@@ -347,7 +348,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             Log.i(TAG, "created view for group");
         } catch (RuntimeException e) {
             Logger.exception(e);
-            UserfacingErrorHandling.createErrorDialog(activity, e.getMessage(), FormEntryActivity.EXIT);
+            UserfacingErrorHandling.createErrorDialog(activity, e.getMessage(), FormEntryConstants.EXIT);
             // this is badness to avoid a crash.
             // really a next view should increment the formcontroller, create the view
             // if the view is null, then keep the current view and pop an error.
@@ -386,7 +387,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         }
 
         if (activity.currentPromptIsQuestion()) {
-            if (!activity.saveAnswersForCurrentScreen(FormEntryActivity.EVALUATE_CONSTRAINTS)) {
+            if (!activity.saveAnswersForCurrentScreen(FormEntryConstants.EVALUATE_CONSTRAINTS)) {
                 // A constraint was violated so a dialog should be showing.
                 return;
             }
@@ -451,7 +452,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                     }
                 } while (event != FormEntryController.EVENT_END_OF_FORM);
             } catch (XPathTypeMismatchException | XPathArityException e) {
-                UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryActivity.EXIT);
+                UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
             }
         }
     }
@@ -468,7 +469,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         try {
             details = FormNavigationController.calculateNavigationStatus(FormEntryActivity.mFormController, questionsView);
         } catch (XPathTypeMismatchException | XPathArityException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryActivity.EXIT);
+            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
             return;
         }
         final boolean backExitsForm = !details.relevantBeforeCurrentScreen;
@@ -522,7 +523,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                     FormEntryActivity.mFormController.newRepeat();
                 } catch (XPathUnhandledException | XPathTypeMismatchException | XPathArityException e) {
                     Logger.exception(e);
-                    UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryActivity.EXIT);
+                    UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
                     return;
                 }
                 showNextView();
@@ -706,13 +707,13 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         ArrayList<String> oldQuestionTexts =
                 FormRelevancyUpdating.getOldQuestionTextsForEachWidget(oldWidgets);
 
-        activity.saveAnswersForCurrentScreen(FormEntryActivity.DO_NOT_EVALUATE_CONSTRAINTS);
+        activity.saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
 
         FormEntryPrompt[] newValidPrompts;
         try {
             newValidPrompts = FormEntryActivity.mFormController.getQuestionPrompts();
         } catch (XPathException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryActivity.EXIT);
+            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
             return;
         }
         Set<FormEntryPrompt> promptsLeftInView = new HashSet<>();

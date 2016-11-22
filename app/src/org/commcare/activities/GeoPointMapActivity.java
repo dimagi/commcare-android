@@ -26,6 +26,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.utils.GeoUtils;
 import org.commcare.views.widgets.GeoPointWidget;
@@ -135,7 +136,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
     private void returnLocation() {
         if (mLocation != null) {
             Intent i = new Intent();
-            i.putExtra(FormEntryActivity.LOCATION_RESULT, GeoUtils.locationToString(mLocation));
+            i.putExtra(FormEntryConstants.LOCATION_RESULT, GeoUtils.locationToString(mLocation));
             setResult(RESULT_OK, i);
         }
         finish();

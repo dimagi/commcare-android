@@ -18,7 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
@@ -95,7 +95,7 @@ public class ImageWidget extends QuestionWidget {
                         Uri.fromFile(TEMP_FILE_FOR_IMAGE_CAPTURE));
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryActivity.IMAGE_CAPTURE);
+                            FormEntryConstants.IMAGE_CAPTURE);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
@@ -123,7 +123,7 @@ public class ImageWidget extends QuestionWidget {
 
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryActivity.IMAGE_CHOOSER);
+                            FormEntryConstants.IMAGE_CHOOSER);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
