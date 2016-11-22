@@ -23,13 +23,17 @@ import static org.commcare.activities.FormEntryActivity.mFormController;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FormEntrySessionWrapper {
+    public static final String KEY_RECORD_FORM_ENTRY_SESSION = "record_form_entry_session";
     private static final String TAG = FormEntrySessionWrapper.class.getSimpleName();
 
     public static final String KEY_FORM_ENTRY_SESSION = "form_entry_session";
 
     private FormEntrySession formEntryRestoreSession = new FormEntrySession();
+    private boolean recordEntrySession;
 
     public void restoreFormEntrySession(Bundle savedInstanceState, PrototypeFactory prototypeFactory) {
+        recordEntrySession = savedInstanceState.getBoolean(KEY_RECORD_FORM_ENTRY_SESSION, false);
+
         byte[] serializedObject = savedInstanceState.getByteArray(KEY_FORM_ENTRY_SESSION);
         if (serializedObject != null) {
             formEntryRestoreSession = new FormEntrySession();
@@ -48,7 +52,12 @@ public class FormEntrySessionWrapper {
         }
     }
 
+    public boolean isRecording() {
+        return recordEntrySession;
+    }
+
     public void saveFormEntrySession(Bundle outState) {
+        outState.putBoolean(KEY_RECORD_FORM_ENTRY_SESSION, recordEntrySession);
         if (formEntryRestoreSession != null) {
             ByteArrayOutputStream objectSerialization = new ByteArrayOutputStream();
             try {
@@ -82,5 +91,6 @@ public class FormEntrySessionWrapper {
             formEntryRestoreSession =
                     FormEntrySession.fromString(intent.getStringExtra(KEY_FORM_ENTRY_SESSION));
         }
+        recordEntrySession = intent.getBooleanExtra(KEY_RECORD_FORM_ENTRY_SESSION, false);
     }
 }
