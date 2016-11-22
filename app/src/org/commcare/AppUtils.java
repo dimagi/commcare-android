@@ -1,13 +1,20 @@
 package org.commcare;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.suite.model.Profile;
 import org.commcare.utils.MultipleAppsUtil;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 
 import java.util.ArrayList;
@@ -112,5 +119,35 @@ public class AppUtils {
         for (String id : dbIdsToRemove) {
             CommCareApplication.instance().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
         }
+    }
+
+    public static String getCurrentVersionString() {
+        CommCareApplication application = CommCareApplication.instance();
+        PackageManager pm = application.getPackageManager();
+        PackageInfo pi;
+        try {
+            pi = pm.getPackageInfo(application.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return "ERROR! Incorrect package version requested";
+        }
+        int[] versions = application.getCommCareVersion();
+        String ccv = "";
+        for (int vn : versions) {
+            if (!"".equals(ccv)) {
+                ccv += ".";
+            }
+            ccv += vn;
+        }
+
+        Profile p = CommCareApplication.instance().getCurrentApp() == null ? null : CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
+        String profileVersion = "";
+        if (p != null) {
+            profileVersion = String.valueOf(p.getVersion());
+        }
+        String buildDate = BuildConfig.BUILD_DATE;
+        String buildNumber = BuildConfig.BUILD_NUMBER;
+
+        return Localization.get(application.getString(R.string.app_version_string), new String[]{pi.versionName, String.valueOf(pi.versionCode), ccv, buildNumber, buildDate, profileVersion});
     }
 }

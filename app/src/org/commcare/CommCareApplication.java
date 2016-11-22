@@ -8,9 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
@@ -73,7 +71,6 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
-import org.commcare.suite.model.Profile;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
@@ -630,35 +627,6 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public String getCurrentVersionString() {
-        PackageManager pm = this.getPackageManager();
-        PackageInfo pi;
-        try {
-            pi = pm.getPackageInfo(getPackageName(), 0);
-        } catch (NameNotFoundException e) {
-            e.printStackTrace();
-            return "ERROR! Incorrect package version requested";
-        }
-        int[] versions = this.getCommCareVersion();
-        String ccv = "";
-        for (int vn : versions) {
-            if (!"".equals(ccv)) {
-                ccv += ".";
-            }
-            ccv += vn;
-        }
-
-        Profile p = this.currentApp == null ? null : this.getCommCarePlatform().getCurrentProfile();
-        String profileVersion = "";
-        if (p != null) {
-            profileVersion = String.valueOf(p.getVersion());
-        }
-        String buildDate = BuildConfig.BUILD_DATE;
-        String buildNumber = BuildConfig.BUILD_NUMBER;
-
-        return Localization.get(getString(R.string.app_version_string), new String[]{pi.versionName, String.valueOf(pi.versionCode), ccv, buildNumber, buildDate, profileVersion});
-    }
-
     /**
      * Allows something within the current service binding to update the app to let it
      * know that the bind may take longer than the current timeout can allow
@@ -758,7 +726,6 @@ public class CommCareApplication extends Application {
 
     @SuppressLint("NewApi")
     private void doReportMaintenance(boolean force) {
-
         // Create a new submission task no matter what. If nothing is pending, it'll see if there
         // are unsent reports and try to send them. Otherwise, it'll create the report
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
@@ -769,9 +736,7 @@ public class CommCareApplication extends Application {
             return;
         }
 
-        DataSubmissionListener dataListener;
-
-        dataListener =
+        DataSubmissionListener dataListener =
                 CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
 
         LogSubmissionTask task = new LogSubmissionTask(
