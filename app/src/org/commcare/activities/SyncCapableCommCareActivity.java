@@ -303,7 +303,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void clearCurrentAnimation(MenuItem item) {
-        if (item.getActionView() != null) {
+        if (item != null && item.getActionView() != null) {
             item.getActionView().clearAnimation();
             item.setActionView(null);
         }
