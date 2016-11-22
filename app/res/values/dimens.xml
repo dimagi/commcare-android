@@ -94,4 +94,8 @@
     <dimen name="entity_select_divider_left_inset">120dp</dimen>
 
     <dimen name="min_button_padding">20dp</dimen>
+
+    <!-- audio playback -->
+    <dimen name="expanded_audio_playback_margin_bottom">24dp</dimen>
+    <dimen name="expanded_audio_playback_margin">21dp</dimen>
 </resources>
