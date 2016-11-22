@@ -32,6 +32,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormFileSystemHelpers;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.ImageCaptureProcessing;
@@ -53,7 +54,6 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.logging.analytics.TimedStatsTracker;
-import org.javarosa.form.api.FormController;
 import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
@@ -63,7 +63,6 @@ import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.utils.Base64Wrapper;
-import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.SessionUnavailableException;
@@ -98,9 +97,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -140,9 +137,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // Extra returned from gp activity
     public static final String LOCATION_RESULT = "LOCATION_RESULT";
 
-    // Identifies the gp of the form used to launch form entry
-    private static final String KEY_FORMPATH = "formpath";
-    public static final String KEY_INSTANCEDESTINATION = "instancedestination";
     public static final String KEY_FORM_CONTENT_URI = "form_content_uri";
     public static final String KEY_INSTANCE_CONTENT_URI = "instance_content_uri";
     public static final String KEY_AES_STORAGE_KEY = "key_aes_storage";
@@ -179,10 +173,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String NAV_STATE_QUIT = "quit";
     public static final String NAV_STATE_BACK = "back";
 
-    private String mFormPath;
-    // Path to a particular form instance
-    public static String mInstancePath;
-    private String mInstanceDestination;
+    private FormEntryInstanceState instanceState;
 
     private SecretKeySpec symetricKey = null;
 
@@ -224,6 +215,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @SuppressLint("NewApi")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        instanceState = new FormEntryInstanceState();
 
         // must be at the beginning of any activity that can be called from an external intent
         try {
@@ -308,7 +301,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(KEY_FORMPATH, mFormPath);
+        instanceState.saveState(outState);
+
         outState.putBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, hasFormLoadBeenTriggered);
         outState.putBoolean(KEY_FORM_LOAD_FAILED, hasFormLoadFailed);
         outState.putString(KEY_LOC_ERROR, locationRecieverErrorAction);
@@ -316,7 +310,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         outState.putString(KEY_FORM_CONTENT_URI, formProviderContentURI.toString());
         outState.putString(KEY_INSTANCE_CONTENT_URI, instanceProviderContentURI.toString());
-        outState.putString(KEY_INSTANCEDESTINATION, mInstanceDestination);
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
@@ -419,7 +412,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private String getInstanceFolder() {
-        return mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
+        return FormEntryInstanceState.mInstancePath.substring(0, FormEntryInstanceState.mInstancePath.lastIndexOf("/") + 1);
     }
 
     public void saveImageWidgetAnswer(ContentValues values) {
@@ -501,7 +494,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 } else {
                     // Set our instance destination for binary data if needed
-                    String destination = mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
+                    String destination = FormEntryInstanceState.mInstancePath.substring(0, FormEntryInstanceState.mInstancePath.lastIndexOf("/") + 1);
                     wasAnswerSet = ic.processResponse(response, context, new File(destination));
                 }
             }
@@ -871,7 +864,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void discardChangesAndExit() {
-        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this, mInstancePath, instanceProviderContentURI);
+        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this, FormEntryInstanceState.mInstancePath, instanceProviderContentURI);
 
         finishReturnInstance(false);
     }
@@ -931,7 +924,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     values.put(FormsColumns.LANGUAGE, languages[index]);
                     String selection = FormsColumns.FORM_FILE_PATH + "=?";
                     String selectArgs[] = {
-                            mFormPath
+                           instanceState.getFormPath()
                     };
                     int updated =
                             getContentResolver().update(formProviderContentURI, values,
@@ -1074,7 +1067,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void loadForm() {
         mFormController = null;
-        mInstancePath = null;
+        FormEntryInstanceState.mInstancePath = null;
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -1100,7 +1093,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         break;
                     case FormsColumns.CONTENT_ITEM_TYPE:
                         formUri = uri;
-                        mFormPath = FormFileSystemHelpers.getFormPath(this, uri);
+                        instanceState.setFormPath(FormFileSystemHelpers.getFormPath(this, uri));
                         break;
                     default:
                         Log.e(TAG, "unrecognized URI");
@@ -1162,17 +1155,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         registerSessionFormSaveCallback();
 
         // Set saved answer path
-        if (mInstancePath == null) {
-            // Create new answer folder.
-            String time =
-                    new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
-                            .format(Calendar.getInstance().getTime());
-            String file =
-                    mFormPath.substring(mFormPath.lastIndexOf('/') + 1, mFormPath.lastIndexOf('.'));
-            String path = mInstanceDestination + file + "_" + time;
-            if (FileUtil.createFolder(path)) {
-                mInstancePath = path + "/" + file + "_" + time + ".xml";
-            }
+        if (FormEntryInstanceState.mInstancePath == null) {
+            instanceState.initInstancePath();
         } else {
             // we've just loaded a saved form, so start in the hierarchy view
             Intent i = new Intent(this, FormHierarchyActivity.class);
@@ -1423,7 +1407,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // Then see if we've already marked this form as complete before
         String selection = InstanceColumns.INSTANCE_FILE_PATH + "=?";
         String[] selectionArgs = {
-                mInstancePath
+                FormEntryInstanceState.mInstancePath
         };
 
         Cursor c = null;
@@ -1461,7 +1445,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // caller is waiting on a picked form
             String selection = InstanceColumns.INSTANCE_FILE_PATH + "=?";
             String[] selectionArgs = {
-                    mInstancePath
+                    FormEntryInstanceState.mInstancePath
             };
 
             Cursor c = null;
@@ -1569,9 +1553,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void loadStateFromBundle(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(KEY_FORMPATH)) {
-                mFormPath = savedInstanceState.getString(KEY_FORMPATH);
-            }
+            instanceState.loadState(savedInstanceState);
             if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
                 hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
             }
@@ -1587,9 +1569,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             if (savedInstanceState.containsKey(KEY_INSTANCE_CONTENT_URI)) {
                 instanceProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_INSTANCE_CONTENT_URI));
-            }
-            if (savedInstanceState.containsKey(KEY_INSTANCEDESTINATION)) {
-                mInstanceDestination = savedInstanceState.getString(KEY_INSTANCEDESTINATION);
             }
             if (savedInstanceState.containsKey(KEY_INCOMPLETE_ENABLED)) {
                 mIncompleteEnabled = savedInstanceState.getBoolean(KEY_INCOMPLETE_ENABLED);
@@ -1656,7 +1635,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 throw new FormQueryException("Bad URI: " + uri);
             } else {
                 instanceCursor.moveToFirst();
-                mInstancePath =
+                FormEntryInstanceState.mInstancePath =
                         instanceCursor.getString(instanceCursor
                                 .getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
 
@@ -1681,9 +1660,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     throw new FormQueryException("Parent form does not exist");
                 } else if (formCursor.getCount() == 1) {
                     formCursor.moveToFirst();
-                    mFormPath =
+                    instanceState.setFormPath(
                             formCursor.getString(formCursor
-                                    .getColumnIndex(FormsColumns.FORM_FILE_PATH));
+                                    .getColumnIndex(FormsColumns.FORM_FILE_PATH)));
                     formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
                 } else if (formCursor.getCount() > 1) {
                     throw new FormQueryException("More than one possible parent form");
@@ -1707,11 +1686,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (intent.hasExtra(KEY_INSTANCE_CONTENT_URI)) {
             this.instanceProviderContentURI = Uri.parse(intent.getStringExtra(KEY_INSTANCE_CONTENT_URI));
         }
-        if (intent.hasExtra(KEY_INSTANCEDESTINATION)) {
-            this.mInstanceDestination = intent.getStringExtra(KEY_INSTANCEDESTINATION);
-        } else {
-            mInstanceDestination = ODKStorage.INSTANCES_PATH;
-        }
+        instanceState.loadFromIntent(intent);
         if (intent.hasExtra(KEY_AES_STORAGE_KEY)) {
             String base64Key = intent.getStringExtra(KEY_AES_STORAGE_KEY);
             try {
