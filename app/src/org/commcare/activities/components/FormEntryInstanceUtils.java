@@ -6,10 +6,17 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Pair;
+import android.view.View;
 
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.dalvik.R;
+import org.commcare.logging.analytics.GoogleAnalyticsFields;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI;
+import org.commcare.utils.StringUtils;
+import org.commcare.views.dialogs.DialogChoiceItem;
+import org.commcare.views.dialogs.PaneledChoiceDialog;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -134,4 +141,5 @@ public class FormEntryInstanceUtils {
         }
         return saveName;
     }
+
 }

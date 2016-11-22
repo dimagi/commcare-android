@@ -32,6 +32,7 @@ import android.widget.VideoView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
+import org.commcare.activities.components.FormEntryDialogs;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntryInstanceUtils;
 import org.commcare.activities.components.FormEntrySessionWrapper;
@@ -74,8 +75,6 @@ import org.commcare.views.ResizingImageView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.commcare.views.dialogs.DialogChoiceItem;
-import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.widgets.BarcodeWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
@@ -492,7 +491,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 menuIdToAnalyticsEventLabel.get(item.getItemId()));
         switch (item.getItemId()) {
             case FormEntryConstants.MENU_LANGUAGES:
-                createLanguageDialog();
+                FormEntryDialogs.createLanguageDialog(this);
                 return true;
             case FormEntryConstants.MENU_SAVE:
                 saveFormToDisk(FormEntryConstants.DO_NOT_EXIT);
@@ -682,7 +681,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         this.startActivityForResult(i.getCompoundedIntent(), FormEntryConstants.INTENT_COMPOUND_CALLOUT);
     }
 
-    private void saveFormToDisk(boolean exit) {
+    public void saveFormToDisk(boolean exit) {
         if (formHasLoaded()) {
             boolean isFormComplete = FormEntryInstanceUtils.isInstanceComplete(this, instanceProviderContentURI);
             saveDataToDisk(exit, isFormComplete, null, false);
@@ -745,61 +744,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mSaveToDiskTask.executeParallel();
     }
 
-    /**
-     * Create a dialog with options to save and exit, save, or quit without saving
-     */
-    private void createQuitDialog() {
-        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this,
-                StringUtils.getStringRobust(this, R.string.quit_form_title));
-
-        View.OnClickListener stayInFormListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_BACK_TO_FORM);
-                dismissAlertDialog();
-            }
-        };
-        DialogChoiceItem stayInFormItem = new DialogChoiceItem(
-                StringUtils.getStringRobust(this, R.string.do_not_exit),
-                R.drawable.ic_blue_forward,
-                stayInFormListener);
-
-        View.OnClickListener exitFormListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
-                discardChangesAndExit();
-                dismissAlertDialog();
-            }
-        };
-        DialogChoiceItem quitFormItem = new DialogChoiceItem(
-                StringUtils.getStringRobust(this, R.string.do_not_save),
-                R.drawable.icon_exit_form,
-                exitFormListener);
-
-        DialogChoiceItem[] items;
-        if (mIncompleteEnabled) {
-            View.OnClickListener saveIncompleteListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_SAVE_AND_EXIT);
-                    saveFormToDisk(FormEntryConstants.EXIT);
-                    dismissAlertDialog();
-                }
-            };
-            DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
-                    StringUtils.getStringRobust(this, R.string.keep_changes),
-                    R.drawable.ic_incomplete_orange,
-                    saveIncompleteListener);
-            items = new DialogChoiceItem[]{stayInFormItem, quitFormItem, saveIncompleteItem};
-        } else {
-            items = new DialogChoiceItem[]{stayInFormItem, quitFormItem};
-        }
-        dialog.setChoiceItems(items);
-        showAlertDialog(dialog);
-    }
-
-    private void discardChangesAndExit() {
+    public void discardChangesAndExit() {
         FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this, FormEntryInstanceState.mInstancePath, instanceProviderContentURI);
 
         finishReturnInstance(false);
@@ -840,56 +785,27 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         showAlertDialog(d);
     }
 
-    /**
-     * Creates and displays a dialog allowing the user to set the language for the form.
-     */
-    private void createLanguageDialog() {
-        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this,
-                StringUtils.getStringRobust(this, R.string.choose_language));
+    public void setFormLanguage(String[] languages, int index) {
+        // Update the language in the content provider when selecting a new
+        // language
+        ContentValues values = new ContentValues();
+        values.put(FormsColumns.LANGUAGE, languages[index]);
+        String selection = FormsColumns.FORM_FILE_PATH + "=?";
+        String selectArgs[] = {
+                instanceState.getFormPath()
+        };
+        int updated =
+                getContentResolver().update(formProviderContentURI, values,
+                        selection, selectArgs);
+        Log.i(TAG, "Updated language to: " + languages[index] + " in "
+                + updated + " rows");
 
-        final String[] languages = mFormController.getLanguages();
-        DialogChoiceItem[] choiceItems = new DialogChoiceItem[languages.length];
-        for (int i = 0; i < languages.length; i++) {
-            final int index = i;
-            View.OnClickListener listener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Update the language in the content provider when selecting a new
-                    // language
-                    ContentValues values = new ContentValues();
-                    values.put(FormsColumns.LANGUAGE, languages[index]);
-                    String selection = FormsColumns.FORM_FILE_PATH + "=?";
-                    String selectArgs[] = {
-                           instanceState.getFormPath()
-                    };
-                    int updated =
-                            getContentResolver().update(formProviderContentURI, values,
-                                    selection, selectArgs);
-                    Log.i(TAG, "Updated language to: " + languages[index] + " in "
-                            + updated + " rows");
-
-                    mFormController.setLanguage(languages[index]);
-                    dismissAlertDialog();
-                    if (currentPromptIsQuestion()) {
-                        saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
-                    }
-                    uiController.refreshView();
-                }
-            };
-            choiceItems[i] = new DialogChoiceItem(languages[i], -1, listener);
+        mFormController.setLanguage(languages[index]);
+        dismissAlertDialog();
+        if (currentPromptIsQuestion()) {
+            saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         }
-
-        dialog.addButton(StringUtils.getStringSpannableRobust(this, R.string.cancel).toString(),
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dismissAlertDialog();
-                    }
-                }
-        );
-
-        dialog.setChoiceItems(choiceItems);
-        showAlertDialog(dialog);
+        uiController.refreshView();
     }
 
     @Override
@@ -1143,7 +1059,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // I don't really wanna break any c compatibility
             finishReturnInstance(false);
         } else {
-            createQuitDialog();
+            FormEntryDialogs.createQuitDialog(this, mIncompleteEnabled);
             return;
         }
         GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_NO_DIALOG);
