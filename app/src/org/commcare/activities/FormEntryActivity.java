@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.content.BroadcastReceiver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,6 +33,7 @@ import android.widget.VideoView;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
+import org.commcare.activities.components.FormEntryInstanceUtils;
 import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.activities.components.FormFileSystemHelpers;
 import org.commcare.activities.components.FormNavigationUI;
@@ -60,7 +60,6 @@ import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
-import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
@@ -685,7 +684,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void saveFormToDisk(boolean exit) {
         if (formHasLoaded()) {
-            boolean isFormComplete = isInstanceComplete();
+            boolean isFormComplete = FormEntryInstanceUtils.isInstanceComplete(this, instanceProviderContentURI);
             saveDataToDisk(exit, isFormComplete, null, false);
         } else if (exit) {
             showSaveErrorAndExit();
@@ -1024,7 +1023,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             try {
                 switch (contentType) {
                     case InstanceColumns.CONTENT_ITEM_TYPE:
-                        Pair<Uri, Boolean> instanceAndStatus = getInstanceUri(uri);
+                        Pair<Uri, Boolean> instanceAndStatus = FormEntryInstanceUtils.getInstanceUri(this, uri, formProviderContentURI, instanceState);
                         formUri = instanceAndStatus.first;
                         isInstanceReadOnly = instanceAndStatus.second;
                         break;
@@ -1325,40 +1324,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    /**
-     * Checks the database to determine if the current instance being edited has already been
-     * 'marked completed'. A form can be 'unmarked' complete and then resaved.
-     *
-     * @return true if form has been marked completed, false otherwise.
-     */
-    private boolean isInstanceComplete() {
-        // default to false if we're mid form
-        boolean complete = false;
-
-        // Then see if we've already marked this form as complete before
-        String selection = InstanceColumns.INSTANCE_FILE_PATH + "=?";
-        String[] selectionArgs = {
-                FormEntryInstanceState.mInstancePath
-        };
-
-        Cursor c = null;
-        try {
-            c = getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
-            if (c != null && c.getCount() > 0) {
-                c.moveToFirst();
-                String status = c.getString(c.getColumnIndex(InstanceColumns.STATUS));
-                if (InstanceProviderAPI.STATUS_COMPLETE.compareTo(status) == 0) {
-                    complete = true;
-                }
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-        return complete;
-    }
-
     private void finishReturnInstance() {
         finishReturnInstance(true);
     }
@@ -1533,63 +1498,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             uiController.restoreSavedState(savedInstanceState);
         }
-    }
-
-    private Pair<Uri, Boolean> getInstanceUri(Uri uri) throws FormQueryException {
-        Cursor instanceCursor = null;
-        Cursor formCursor = null;
-        Boolean isInstanceReadOnly = false;
-        Uri formUri = null;
-        try {
-            instanceCursor = getContentResolver().query(uri, null, null, null, null);
-            if (instanceCursor == null) {
-                throw new FormQueryException("Bad URI: resolved to null");
-            } else if (instanceCursor.getCount() != 1) {
-                throw new FormQueryException("Bad URI: " + uri);
-            } else {
-                instanceCursor.moveToFirst();
-                FormEntryInstanceState.mInstancePath =
-                        instanceCursor.getString(instanceCursor
-                                .getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-
-                final String jrFormId =
-                        instanceCursor.getString(instanceCursor
-                                .getColumnIndex(InstanceColumns.JR_FORM_ID));
-
-
-                //If this form is both already completed
-                if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.STATUS)))) {
-                    if (!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
-                        isInstanceReadOnly = true;
-                    }
-                }
-                final String[] selectionArgs = {
-                        jrFormId
-                };
-                final String selection = FormsColumns.JR_FORM_ID + " like ?";
-
-                formCursor = getContentResolver().query(formProviderContentURI, null, selection, selectionArgs, null);
-                if (formCursor == null || formCursor.getCount() < 1) {
-                    throw new FormQueryException("Parent form does not exist");
-                } else if (formCursor.getCount() == 1) {
-                    formCursor.moveToFirst();
-                    instanceState.setFormPath(
-                            formCursor.getString(formCursor
-                                    .getColumnIndex(FormsColumns.FORM_FILE_PATH)));
-                    formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
-                } else if (formCursor.getCount() > 1) {
-                    throw new FormQueryException("More than one possible parent form");
-                }
-            }
-        } finally {
-            if (instanceCursor != null) {
-                instanceCursor.close();
-            }
-            if (formCursor != null) {
-                formCursor.close();
-            }
-        }
-        return new Pair<>(formUri, isInstanceReadOnly);
     }
 
     private void loadIntentFormData(Intent intent) {
