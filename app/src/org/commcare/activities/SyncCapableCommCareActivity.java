@@ -187,12 +187,18 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     @Override
     public void startBlockingForTask(int id) {
         super.startBlockingForTask(id);
-        if (id == ProcessAndSendTask.SEND_PHASE_ID_NO_DIALOG ||
-                id == ProcessAndSendTask.PROCESSING_PHASE_ID_NO_DIALOG) {
+        if (isProcessAndSendTaskId(id)) {
             triggerSyncIconRefresh(TRIGGER_START_SEND_FORMS);
         } else if (id == DataPullTask.DATA_PULL_TASK_ID) {
             triggerSyncIconRefresh(TRIGGER_START_DATA_PULL);
         }
+    }
+
+    private static boolean isProcessAndSendTaskId(int id) {
+        return id == ProcessAndSendTask.SEND_PHASE_ID_NO_DIALOG ||
+                id == ProcessAndSendTask.PROCESSING_PHASE_ID_NO_DIALOG ||
+                id == ProcessAndSendTask.PROCESSING_PHASE_ID ||
+                id == ProcessAndSendTask.SEND_PHASE_ID;
     }
 
     @Override
