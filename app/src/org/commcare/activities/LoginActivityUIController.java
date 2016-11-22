@@ -35,12 +35,11 @@ import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.ManagedUiFramework;
+import org.commcare.views.PasswordShow;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -59,6 +58,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.edit_password)
     private EditText passwordOrPin;
+
+    @UiElement(value = R.id.show_password)
+    private Button showPasswordButton;
 
     @UiElement(R.id.screen_login_banner_pane)
     private View banner;
@@ -254,16 +256,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
     }
 
-    private static String[] getExistingUsernames() {
-        SqlStorage<UserKeyRecord> existingUsers =
-                CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class);
-        Set<String> uniqueUsernames = new HashSet<>();
-        for (UserKeyRecord ukr : existingUsers) {
-            uniqueUsernames.add(ukr.getUsername());
-        }
-        return uniqueUsernames.toArray(new String[uniqueUsernames.size()]);
-    }
-
     private void checkEnteredUsernameForMatch() {
         UserKeyRecord matchingRecord = getActiveRecordForUsername(getEnteredUsername());
         if (matchingRecord != null) {
@@ -327,6 +319,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         passwordOrPin.setVisibility(View.VISIBLE);
         passwordOrPin.setHint(Localization.get("login.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        new PasswordShow(showPasswordButton, passwordOrPin).setupPasswordVisibility();
         manuallySwitchedToPasswordMode = false;
     }
 
@@ -346,7 +339,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         manuallySwitchedToPasswordMode = true;
     }
 
-    public boolean userManuallySwitchedToPasswordMode() {
+    protected boolean userManuallySwitchedToPasswordMode() {
         return manuallySwitchedToPasswordMode;
     }
 
@@ -481,5 +474,4 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private Resources getResources() {
         return activity.getResources();
     }
-
 }

@@ -298,7 +298,7 @@ public class EntityViewTile extends GridLayout {
             return;
         }
 
-        ViewId uniqueId = new ViewId(coordinateData.getX(), coordinateData.getY(), false);
+        ViewId uniqueId = ViewId.buildTableViewId(coordinateData.getX(), coordinateData.getY(), false);
         GridLayout.LayoutParams gridParams = getLayoutParamsForField(coordinateData);
 
         View view = getView(context, style, form, fieldString, uniqueId, sortField,
