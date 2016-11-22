@@ -5,12 +5,10 @@ import android.app.ActionBar;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Rect;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -73,7 +71,6 @@ import org.commcare.utils.UriToFilePath;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.ResizingImageView;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.widgets.BarcodeWidget;
 import org.commcare.views.widgets.IntentWidget;
@@ -96,7 +93,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -533,7 +529,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 .getEvent() == FormEntryController.EVENT_GROUP);
     }
 
-    protected boolean saveAnswersForCurrentScreen(boolean evaluateConstraints) {
+    public boolean saveAnswersForCurrentScreen(boolean evaluateConstraints) {
         return saveAnswersForCurrentScreen(evaluateConstraints, true, false);
     }
 
@@ -602,7 +598,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     /**
      * Clears the answer on the screen.
      */
-    private void clearAnswer(QuestionWidget qw) {
+    public void clearAnswer(QuestionWidget qw) {
         qw.clearAnswer();
     }
 
@@ -620,7 +616,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // clicked on.
         for (QuestionWidget qw : uiController.questionsView.getWidgets()) {
             if (item.getItemId() == qw.getId()) {
-                createClearDialog(qw);
+                FormEntryDialogs.createClearDialog(this, qw);
             }
         }
 
@@ -646,7 +642,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         return null;
     }
-
 
     @SuppressLint("NewApi")
     @Override
@@ -748,41 +743,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this, FormEntryInstanceState.mInstancePath, instanceProviderContentURI);
 
         finishReturnInstance(false);
-    }
-
-    /**
-     * Confirm clear answer dialog
-     */
-    private void createClearDialog(final QuestionWidget qw) {
-        String title = StringUtils.getStringRobust(this, R.string.clear_answer_ask);
-        String question = qw.getPrompt().getLongText();
-        if (question == null) {
-            question = "";
-        } else if (question.length() > 50) {
-            question = question.substring(0, 50) + "...";
-        }
-        String msg = StringUtils.getStringSpannableRobust(this, R.string.clearanswer_confirm, question).toString();
-        StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
-        d.setIcon(android.R.drawable.ic_dialog_info);
-
-        DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        clearAnswer(qw);
-                        saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        break;
-                }
-                dismissAlertDialog();
-            }
-        };
-        d.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
-        d.setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
-        showAlertDialog(d);
     }
 
     public void setFormLanguage(String[] languages, int index) {
@@ -992,7 +952,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void handleFormLoadCompletion(AndroidFormController fc) {
         if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(locationRecieverErrorAction)) {
-            handleNoGpsBroadcast();
+            FormEntryDialogs.handleNoGpsBroadcast(this);
         } else if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
             handleXpathErrorBroadcast();
         }
@@ -1021,24 +981,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         uiController.refreshView();
         FormNavigationUI.updateNavigationCues(this, mFormController, uiController.questionsView);
-    }
-
-    private void handleNoGpsBroadcast() {
-        LocationManager manager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        Set<String> providers = GeoUtils.evaluateProviders(manager);
-        if (providers.isEmpty()) {
-            DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int i) {
-                    if (i == DialogInterface.BUTTON_POSITIVE) {
-                        Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivity(intent);
-                    }
-                    dismissAlertDialog();
-                }
-            };
-            GeoUtils.showNoGpsDialog(this, onChangeListener);
-        }
     }
 
     private void handleXpathErrorBroadcast() {

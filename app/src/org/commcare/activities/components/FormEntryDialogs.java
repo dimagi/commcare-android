@@ -1,14 +1,23 @@
 package org.commcare.activities.components;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.LocationManager;
 import android.view.View;
 
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.utils.GeoUtils;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.widgets.QuestionWidget;
+
+import java.util.Set;
 
 public class FormEntryDialogs {
     /**
@@ -96,5 +105,59 @@ public class FormEntryDialogs {
 
         dialog.setChoiceItems(choiceItems);
         activity.showAlertDialog(dialog);
+    }
+
+    /**
+     * Confirm clear answer dialog
+     */
+    public static void createClearDialog(final FormEntryActivity activity,
+                                         final QuestionWidget qw) {
+        String title = StringUtils.getStringRobust(activity, R.string.clear_answer_ask);
+        String question = qw.getPrompt().getLongText();
+        if (question == null) {
+            question = "";
+        } else if (question.length() > 50) {
+            question = question.substring(0, 50) + "...";
+        }
+        String msg = StringUtils.getStringSpannableRobust(activity, R.string.clearanswer_confirm, question).toString();
+        StandardAlertDialog d = new StandardAlertDialog(activity, title, msg);
+        d.setIcon(android.R.drawable.ic_dialog_info);
+
+        DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        activity.clearAnswer(qw);
+                        activity.saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        break;
+                }
+                activity.dismissAlertDialog();
+            }
+        };
+        d.setPositiveButton(StringUtils.getStringSpannableRobust(activity, R.string.discard_answer), quitListener);
+        d.setNegativeButton(StringUtils.getStringSpannableRobust(activity, R.string.clear_answer_no), quitListener);
+        activity.showAlertDialog(d);
+    }
+
+    public static void handleNoGpsBroadcast(final FormEntryActivity activity) {
+        LocationManager manager = (LocationManager)activity.getSystemService(Context.LOCATION_SERVICE);
+        Set<String> providers = GeoUtils.evaluateProviders(manager);
+        if (providers.isEmpty()) {
+            DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int i) {
+                    if (i == DialogInterface.BUTTON_POSITIVE) {
+                        Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        activity.startActivity(intent);
+                    }
+                    activity.dismissAlertDialog();
+                }
+            };
+            GeoUtils.showNoGpsDialog(activity, onChangeListener);
+        }
     }
 }
