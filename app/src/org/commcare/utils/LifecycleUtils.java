@@ -7,10 +7,6 @@ import android.content.Intent;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.UnrecoverableErrorActivity;
 
-/**
- * @author Phillip Mates (pmates@dimagi.com)
- */
-
 public class LifecycleUtils {
     public static void triggerHandledAppExit(Context c, String message, String title) {
         triggerHandledAppExit(c, message, title, true);

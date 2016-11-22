@@ -21,9 +21,6 @@ import java.util.Vector;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
-/**
- * @author Phillip Mates (pmates@dimagi.com)
- */
 public class CommCareNoficationManager {
     private static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
     private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<>();
