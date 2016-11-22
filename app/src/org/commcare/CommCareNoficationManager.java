@@ -21,6 +21,9 @@ import java.util.Vector;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
+/**
+ * Handles displaying and clearing pinned notifications for CommCare
+ */
 public class CommCareNoficationManager {
     private static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
     private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<>();

@@ -23,6 +23,9 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Utils for getting info about installed apps, initializing them, and uninstalling them.
+ */
 public class AppUtils {
     /**
      * @return all ApplicationRecords in storage, regardless of their status, in alphabetical order

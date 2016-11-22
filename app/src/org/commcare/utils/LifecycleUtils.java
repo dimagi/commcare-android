@@ -7,6 +7,9 @@ import android.content.Intent;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.UnrecoverableErrorActivity;
 
+/**
+ * Utils for exiting and restarting the app
+ */
 public class LifecycleUtils {
     public static void triggerHandledAppExit(Context c, String message, String title) {
         triggerHandledAppExit(c, message, title, true);
