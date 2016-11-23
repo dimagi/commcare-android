@@ -58,7 +58,7 @@ public class GridMenuAdapter extends MenuAdapter {
         if (count == -1) {
             badgeCountView.setVisibility(View.GONE);
         } else {
-            badgeCountView.setText(count);
+            badgeCountView.setText("" + count);
             badgeCountView.setVisibility(View.VISIBLE);
         }
     }
