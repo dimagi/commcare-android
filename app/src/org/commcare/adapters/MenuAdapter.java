@@ -54,7 +54,7 @@ import java.util.Vector;
  */
 public class MenuAdapter implements ListAdapter {
 
-    private final AndroidSessionWrapper asw;
+    protected final AndroidSessionWrapper asw;
     private Exception loadError;
     private String errorXpathException = "";
     final Context context;
@@ -257,7 +257,7 @@ public class MenuAdapter implements ListAdapter {
     }
 
     public void setupTextView(TextView textView, MenuDisplayable menuDisplayable) {
-        String mQuestionText = textViewHelper(menuDisplayable);
+        String mQuestionText = menuDisplayable.getDisplayText();
 
         //Final change, remove any numeric context requests. J2ME uses these to
         //help with numeric navigation.
@@ -311,10 +311,6 @@ public class MenuAdapter implements ListAdapter {
                     break;
             }
         }
-    }
-
-    private static String textViewHelper(MenuDisplayable e) {
-        return e.getDisplayText();
     }
 
     @Override

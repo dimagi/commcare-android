@@ -11,6 +11,7 @@ import android.widget.TextView;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.util.CommCarePlatform;
+import org.javarosa.core.model.condition.EvaluationContext;
 
 /**
  * Overrides MenuAdapter to provide a different tile (MenuGridEntryView)
@@ -37,17 +38,29 @@ public class GridMenuAdapter extends MenuAdapter {
             menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_grid_item, vg, false);
         }
 
-        MenuDisplayable mObject = displayableData[i];
+        MenuDisplayable menuDisplayable = displayableData[i];
 
         TextView rowText = (TextView)menuListItem.findViewById(R.id.row_txt);
-        setupTextView(rowText, mObject);
+        setupTextView(rowText, menuDisplayable);
 
         // set up the image, if available
         ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
-        setupImageView(mIconView, mObject);
+        setupImageView(mIconView, menuDisplayable);
+
+        TextView badgeCountView = (TextView)menuListItem.findViewById(R.id.badge_count_view);
+        setupNumericBadgeView(badgeCountView, menuDisplayable);
 
         return menuListItem;
+    }
 
+    private void setupNumericBadgeView(TextView badgeCountView, MenuDisplayable menuDisplayable) {
+        int count = menuDisplayable.getCountForNumericBadge(asw.getEvaluationContext());
+        if (count == -1) {
+            badgeCountView.setVisibility(View.GONE);
+        } else {
+            badgeCountView.setText(count);
+            badgeCountView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
