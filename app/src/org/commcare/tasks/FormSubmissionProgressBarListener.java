@@ -11,7 +11,9 @@ import org.commcare.activities.SyncCapableCommCareActivity;
 import org.commcare.dalvik.R;
 
 /**
- * Created by amstone326 on 11/16/16.
+ * A DataSubmissionListener that updates a progress bar in the given activity
+ *
+ * @author Aliza Stone
  */
 public class FormSubmissionProgressBarListener implements DataSubmissionListener {
 
