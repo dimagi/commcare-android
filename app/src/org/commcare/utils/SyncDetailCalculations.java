@@ -26,7 +26,7 @@ import java.util.Date;
 public class SyncDetailCalculations {
     private final static String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
     private final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
-    public final static String LAST_SYNC_KEY_BASE = "last-succesful-sync-";
+    private final static String LAST_SYNC_KEY_BASE = "last-succesful-sync-";
 
     public static void updateSubText(final StandardHomeActivity activity,
                                      SquareButtonViewHolder squareButtonViewHolder,
