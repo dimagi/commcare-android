@@ -83,8 +83,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
      */
     private void refreshView() {
         ListView lv = (ListView)findViewById(R.id.apps_list_view);
-        lv.setAdapter(new AppManagerAdapter(this, android.R.layout.simple_list_item_1,
-                MultipleAppsUtil.appRecordArray()));
+        lv.setAdapter(new AppManagerAdapter(this));
     }
 
     /**

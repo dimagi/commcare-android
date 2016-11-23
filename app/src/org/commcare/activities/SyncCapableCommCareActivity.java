@@ -1,8 +1,14 @@
 package org.commcare.activities;
 
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.tasks.DataPullTask;
@@ -12,8 +18,11 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
-public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCareActivity<R>
+public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
         implements PullTaskResultReceiver {
+
+    protected static final int MENU_SYNC = Menu.FIRST;
+    private static final int MENU_GROUP_SYNC_ACTION = Menu.FIRST;
 
     protected boolean isSyncUserLaunched = false;
     protected FormAndDataSyncer formAndDataSyncer;
@@ -103,7 +112,14 @@ public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCar
         reportSyncResult(Localization.get("sync.fail.unknown"), false);
     }
 
-    public abstract void reportSyncResult(String message, boolean success);
+    public void reportSyncResult(String message, boolean success) {
+        if (shouldShowSyncItemInActionBar()) {
+            if (success) {
+                rebuildOptionsMenu();
+            }
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public static void handleSyncUpdate(CommCareActivity activity,
                                         Integer... update) {
@@ -173,5 +189,34 @@ public abstract class SyncCapableCommCareActivity<R> extends SessionAwareCommCar
         }
         return dialog;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == MENU_SYNC) {
+            sendFormsOrSync(true);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        addSyncItemToActionBar(menu);
+        return true;
+    }
+
+    private void addSyncItemToActionBar(Menu menu) {
+        if (shouldShowSyncItemInActionBar() &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            MenuItem item = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");
+            Drawable syncDrawable =
+                    getResources().getDrawable(R.drawable.ic_sync_action_bar);
+            item.setIcon(syncDrawable);
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
+    }
+
+    public abstract boolean shouldShowSyncItemInActionBar();
 
 }

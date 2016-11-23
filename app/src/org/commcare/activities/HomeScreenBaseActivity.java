@@ -11,9 +11,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
@@ -26,7 +23,6 @@ import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
@@ -40,33 +36,29 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.EntityDatum;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.PostRequest;
+import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.suite.model.RemoteRequestEntry;
-import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.Text;
-import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
-import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.ChangeLocaleUtil;
-import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationMessageFactory;
-import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -76,86 +68,64 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Vector;
 
-public class CommCareHomeActivity
-        extends SyncCapableCommCareActivity<CommCareHomeActivity>
-        implements SessionNavigationResponder, WithUIController {
-
-    private static final String TAG = CommCareHomeActivity.class.getSimpleName();
+/**
+ * Manages all of the shared (mostly non-UI) components of a CommCare home screen:
+ * activity lifecycle, implementation of available actions, session navigation, etc.
+ */
+public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActivity<T>
+        implements SessionNavigationResponder {
 
     /**
      * Request code for launching a menu list or menu grid
      */
-    private static final int GET_COMMAND = 1;
-
+    public static final int GET_COMMAND = 1;
     /**
      * Request code for launching EntitySelectActivity (to allow user to select a case),
      * or EntityDetailActivity (to allow user to confirm an auto-selected case)
      */
-    private static final int GET_CASE = 2;
-    private static final int GET_REMOTE_DATA = 3;
-    private static final int MAKE_REMOTE_POST = 5;
-
+    protected static final int GET_CASE = 2;
+    protected static final int GET_REMOTE_DATA = 3;
+    protected static final int MAKE_REMOTE_POST = 5;
     /**
      * Request code for launching FormEntryActivity
      */
-    private static final int MODEL_RESULT = 4;
-
+    protected static final int MODEL_RESULT = 4;
     public static final int GET_INCOMPLETE_FORM = 16;
-    public static final int REPORT_PROBLEM_ACTIVITY = 64;
-
-    private static final int PREFERENCES_ACTIVITY=512;
-    private static final int ADVANCED_ACTIONS_ACTIVITY=1024;
-
-    private static final int CREATE_PIN = 16384;
-    private static final int AUTHENTICATION_FOR_PIN = 32768;
-
-    private static final int MENU_UPDATE = Menu.FIRST;
-    private static final int MENU_SAVED_FORMS = Menu.FIRST + 1;
-    private static final int MENU_CHANGE_LANGUAGE = Menu.FIRST + 2;
-    private static final int MENU_PREFERENCES = Menu.FIRST + 3;
-    private static final int MENU_ADVANCED = Menu.FIRST + 4;
-    private static final int MENU_ABOUT = Menu.FIRST + 5;
-    private static final int MENU_PIN = Menu.FIRST + 6;
-
-    /**
-     * Restart is a special CommCare return code which means that the session was invalidated in the
-     * calling activity and that the current session should be resynced
-     */
-    public static final int RESULT_RESTART = 3;
+    protected static final int PREFERENCES_ACTIVITY = 512;
+    protected static final int ADVANCED_ACTIONS_ACTIVITY = 1024;
+    protected static final int CREATE_PIN = 16384;
+    protected static final int AUTHENTICATION_FOR_PIN = 32768;
 
     private static final String KEY_PENDING_SESSION_DATA = "pending-session-data-id";
     private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
 
-    private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
-    private static final String MENU_STYLE_GRID = "grid";
+    /**
+     * Restart is a special CommCare activity result code which means that the session was
+     * invalidated in the calling activity and that the current session should be resynced
+     */
+    public static final int RESULT_RESTART = 3;
+
+    private int mDeveloperModeClicks = 0;
+
+    private SessionNavigator sessionNavigator;
+    private boolean sessionNavigationProceedingAfterOnResume;
+
+    private boolean loginExtraWasConsumed;
+    private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
+    private boolean isRestoringSession = false;
 
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
     private boolean wasExternal = false;
     private static final String WAS_EXTERNAL_KEY = "was_external";
 
-    private int mDeveloperModeClicks = 0;
-
-    private HomeActivityUIController uiController;
-    private SessionNavigator sessionNavigator;
-
-    private boolean loginExtraWasConsumed;
-    private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
-    private boolean isRestoringSession = false;
-
-    private boolean sessionNavigationProceedingAfterOnResume;
-
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-
         loadInstanceState(savedInstanceState);
-
         ACRAUtil.registerAppData();
-        uiController.setupUI();
         sessionNavigator = new SessionNavigator(this);
 
         processFromExternalLaunch(savedInstanceState);
@@ -217,21 +187,20 @@ public class CommCareHomeActivity
         }
     }
 
-    // See if we should launch either the pin choice dialog, or the create pin activity directly
+    /**
+     * See if we should launch either the pin choice dialog, or the create pin activity directly
+     */
     private void checkForPinLaunchConditions() {
         LoginMode loginMode = (LoginMode)getIntent().getSerializableExtra(LoginActivity.LOGIN_MODE);
-
         if (loginMode == LoginMode.PRIMED) {
             launchPinCreateScreen(loginMode);
             return;
         }
-
         if (loginMode == LoginMode.PASSWORD) {
             boolean pinCreationEnabledForApp = DeveloperPreferences.shouldOfferPinForLogin();
             if (!pinCreationEnabledForApp) {
                 return;
             }
-
             boolean userManuallyEnteredPasswordMode = getIntent()
                     .getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
             boolean alreadyDismissedPinCreation =
@@ -256,33 +225,33 @@ public class CommCareHomeActivity
 
         DialogChoiceItem createPinChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.yes"), -1, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dismissAlertDialog();
-                        launchPinCreateScreen(loginMode);
-                    }
-                });
+            @Override
+            public void onClick(View v) {
+                dismissAlertDialog();
+                launchPinCreateScreen(loginMode);
+            }
+        });
 
         DialogChoiceItem nextTimeChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.not.now"), -1, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dismissAlertDialog();
-                    }
-                });
+            @Override
+            public void onClick(View v) {
+                dismissAlertDialog();
+            }
+        });
 
         DialogChoiceItem notAgainChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.never"), -1, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dismissAlertDialog();
-                        CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                                .edit()
-                                .putBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, true)
-                                .commit();
-                        showPinFutureAccessDialog();
-                    }
-                });
+            @Override
+            public void onClick(View v) {
+                dismissAlertDialog();
+                CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                        .edit()
+                        .putBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, true)
+                        .commit();
+                showPinFutureAccessDialog();
+            }
+        });
 
 
         dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
@@ -296,7 +265,7 @@ public class CommCareHomeActivity
                 Localization.get("pin.dialog.set.later.message"), null).showNonPersistentDialog();
     }
 
-    private void launchPinAuthentication() {
+    protected void launchPinAuthentication() {
         Intent i = new Intent(this, PinAuthenticationActivity.class);
         startActivityForResult(i, AUTHENTICATION_FOR_PIN);
     }
@@ -307,11 +276,7 @@ public class CommCareHomeActivity
         startActivityForResult(i, CREATE_PIN);
     }
 
-    protected void goToFormArchive(boolean incomplete) {
-        goToFormArchive(incomplete, null);
-    }
-
-    private void showLocaleChangeMenu() {
+    protected void showLocaleChangeMenu(final CommCareActivityUIController uiController) {
         final PaneledChoiceDialog dialog =
                 new PaneledChoiceDialog(this, Localization.get("home.menu.locale.select"));
 
@@ -325,8 +290,10 @@ public class CommCareHomeActivity
                     Localization.setLocale(localeCodes[position]);
                 }
                 // rebuild home buttons in case language changed;
-                uiController.setupUI();
-                rebuildOptionMenu();
+                if (uiController != null) {
+                    uiController.setupUI();
+                }
+                rebuildOptionsMenu();
                 dismissAlertDialog();
             }
         };
@@ -337,14 +304,18 @@ public class CommCareHomeActivity
 
     private static DialogChoiceItem[] buildLocaleChoices() {
         String[] locales = ChangeLocaleUtil.getLocaleNames();
-        DialogChoiceItem[] choices =new DialogChoiceItem[locales.length];
+        DialogChoiceItem[] choices = new DialogChoiceItem[locales.length];
         for (int i = 0; i < choices.length; i++) {
             choices[i] = DialogChoiceItem.nonListenerItem(locales[i]);
         }
         return choices;
     }
 
-    private void goToFormArchive(boolean incomplete, FormRecord record) {
+    protected void goToFormArchive(boolean incomplete) {
+        goToFormArchive(incomplete, null);
+    }
+
+    protected void goToFormArchive(boolean incomplete, FormRecord record) {
         if (incomplete) {
             GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_INCOMPLETE);
         } else {
@@ -360,32 +331,8 @@ public class CommCareHomeActivity
         startActivityForResult(i, GET_INCOMPLETE_FORM);
     }
 
-    void enterRootModule() {
-        Intent i;
-        if (useGridMenu(org.commcare.suite.model.Menu.ROOT_MENU_ID)) {
-            i = new Intent(this, MenuGrid.class);
-        } else {
-            i = new Intent(this, MenuList.class);
-        }
-        addPendingDataExtra(i, CommCareApplication.instance().getCurrentSessionWrapper().getSession());
-        startActivityForResult(i, GET_COMMAND);
-    }
-
-    private boolean useGridMenu(String menuId) {
-        // first check if this is enabled in profile
-        if(CommCarePreferences.isGridMenuEnabled()) {
-            return true;
-        }
-        // if not, check style attribute for this particular menu block
-        if(menuId == null) {
-            menuId = org.commcare.suite.model.Menu.ROOT_MENU_ID;
-        }
-        AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
-        String commonDisplayStyle = platform.getMenuDisplayStyle(menuId);
-        return MENU_STYLE_GRID.equals(commonDisplayStyle);
-    }
-
-    void userTriggeredLogout() {
+    protected void userTriggeredLogout() {
+        CommCareApplication.instance().closeUserSession();
         setResult(RESULT_OK);
         finish();
     }
@@ -414,12 +361,12 @@ public class CommCareHomeActivity
                     return;
                 case GET_INCOMPLETE_FORM:
                     //TODO: We might need to load this from serialized state?
-                    if(resultCode == RESULT_CANCELED) {
-                        uiController.refreshView();
+                    if (resultCode == RESULT_CANCELED) {
+                        refreshUI();
                         return;
                     } else if(resultCode == RESULT_OK) {
                         int record = intent.getIntExtra("FORMRECORDS", -1);
-                        if(record == -1) {
+                        if (record == -1) {
                             //Hm, what to do here?
                             break;
                         }
@@ -430,7 +377,7 @@ public class CommCareHomeActivity
                         Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
                         AndroidSessionWrapper currentState =
                                 CommCareApplication.instance().getCurrentSessionWrapper();
-                        if(ssds.size() == 1) {
+                        if (ssds.size() == 1) {
                             currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
                         } else {
                             currentState.setFormRecordId(r.getID());
@@ -442,50 +389,19 @@ public class CommCareHomeActivity
                     }
                     break;
                 case GET_COMMAND:
-                    //TODO: We might need to load this from serialized state?
-                    AndroidSessionWrapper currentState =
-                            CommCareApplication.instance().getCurrentSessionWrapper();
-                    if (resultCode == RESULT_CANCELED) {
-                        if (currentState.getSession().getCommand() == null) {
-                            //Needed a command, and didn't already have one. Stepping back from
-                            //an empty state, Go home!
-                            currentState.reset();
-                            uiController.refreshView();
-                            return;
-                        } else {
-                            currentState.getSession().stepBack(currentState.getEvaluationContext());
-                        }
-                    } else if (resultCode == RESULT_OK) {
-                        CommCareSession session = currentState.getSession();
-                        if (sessionStateUnchangedSinceCallout(session, intent)) {
-                            //Get our command, set it, and continue forward
-                            String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
-                            session.setCommand(command);
-                        } else {
-                            clearSessionAndExit(currentState, true);
-                            return;
-                        }
+                    boolean fetchNext = processReturnFromGetCommand(resultCode, intent);
+                    if (!fetchNext) {
+                        return;
                     }
                     break;
                 case GET_CASE:
-                    //TODO: We might need to load this from serialized state?
-                    AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
-                    CommCareSession currentSession = asw.getSession();
-                    if (resultCode == RESULT_CANCELED) {
-                        currentSession.stepBack(asw.getEvaluationContext());
-                    } else if (resultCode == RESULT_OK) {
-                        if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
-                            String sessionDatumId = currentSession.getNeededDatum().getDataId();
-                            String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
-                            currentSession.setDatum(sessionDatumId, chosenCaseId);
-                        } else {
-                            clearSessionAndExit(asw, true);
-                            return;
-                        }
+                    fetchNext = processReturnFromGetCase(resultCode, intent);
+                    if (!fetchNext) {
+                        return;
                     }
                     break;
                 case MODEL_RESULT:
-                    boolean fetchNext = processReturnFromFormEntry(resultCode, intent);
+                    fetchNext = processReturnFromFormEntry(resultCode, intent);
                     if (!fetchNext) {
                         return;
                     }
@@ -521,14 +437,79 @@ public class CommCareHomeActivity
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
+    private boolean processReturnFromGetCase(int resultCode, Intent intent) {
+        if (resultCode == RESULT_CANCELED) {
+            return processCanceledGetCommandOrCase();
+        } else if (resultCode == RESULT_OK) {
+            return processSuccessfulGetCase(intent);
+        }
+        return false;
+    }
+
+    public boolean processReturnFromGetCommand(int resultCode, Intent intent) {
+        if (resultCode == RESULT_CANCELED) {
+            return processCanceledGetCommandOrCase();
+        } else if (resultCode == RESULT_OK) {
+            return processSuccessfulGetCommand(intent);
+        }
+        return true;
+    }
+
+    private boolean processSuccessfulGetCommand(Intent intent) {
+        AndroidSessionWrapper currentState =
+                CommCareApplication.instance().getCurrentSessionWrapper();
+        CommCareSession session = currentState.getSession();
+        if (sessionStateUnchangedSinceCallout(session, intent)) {
+            // Get our command, set it, and continue forward
+            String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
+            session.setCommand(command);
+            return true;
+        } else {
+            clearSessionAndExit(currentState, true);
+            return false;
+        }
+    }
+
+    private boolean processSuccessfulGetCase(Intent intent) {
+        AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
+        CommCareSession currentSession = asw.getSession();
+        if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
+            String sessionDatumId = currentSession.getNeededDatum().getDataId();
+            String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
+            currentSession.setDatum(sessionDatumId, chosenCaseId);
+            return true;
+        } else {
+            clearSessionAndExit(asw, true);
+            return false;
+        }
+    }
+
+    private boolean processCanceledGetCommandOrCase() {
+        AndroidSessionWrapper currentState =
+                CommCareApplication.instance().getCurrentSessionWrapper();
+        if (currentState.getSession().getCommand() == null) {
+            // Needed a command, and didn't already have one. Stepping back from
+            // an empty state, Go home!
+            currentState.reset();
+            refreshUI();
+            return false;
+        } else {
+            currentState.getSession().stepBack(currentState.getEvaluationContext());
+            return true;
+        }
+    }
+
     private void handleAdvancedActionResult(int resultCode, Intent intent) {
         if (resultCode == AdvancedActionsActivity.RESULT_FORMS_PROCESSED) {
             int formProcessCount = intent.getIntExtra(AdvancedActionsActivity.FORM_PROCESS_COUNT_KEY, 0);
             String localizationKey = intent.getStringExtra(AdvancedActionsActivity.FORM_PROCESS_MESSAGE_KEY);
-            displayMessage(Localization.get(localizationKey, new String[]{"" + formProcessCount}), false);
-
-            uiController.refreshView();
+            displayToast(Localization.get(localizationKey, new String[]{"" + formProcessCount}));
+            refreshUI();
         }
+    }
+
+    protected void displayToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     private static void stepBackIfCancelled(int resultCode) {
@@ -539,7 +520,7 @@ public class CommCareHomeActivity
         }
     }
 
-    private void startNextSessionStepSafe() {
+    public void startNextSessionStepSafe() {
         try {
             sessionNavigator.startNextSessionStep();
         } catch (CommCareInstanceInitializer.FixtureInitializationException e) {
@@ -628,7 +609,9 @@ public class CommCareHomeActivity
                 resultInstanceURI = intent.getData();
             }
             if (resultInstanceURI == null) {
-                CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
+                CommCareApplication.instance().reportNotificationMessage(
+                        NotificationMessageFactory.message(
+                                NotificationMessageFactory.StockMessages.FormEntry_Unretrievable));
                 Toast.makeText(this,
                         "Error while trying to read the form! See the notification",
                         Toast.LENGTH_LONG).show();
@@ -660,7 +643,7 @@ public class CommCareHomeActivity
                 // submission cycle
                 checkAndStartUnsentFormsTask(false, false);
 
-                uiController.refreshView();
+                refreshUI();
 
                 if (wasExternal) {
                     setResult(RESULT_CANCELED);
@@ -727,7 +710,7 @@ public class CommCareHomeActivity
             setResult(RESULT_CANCELED);
             this.finish();
         }
-        uiController.refreshView();
+        refreshUI();
         if (shouldWarnUser) {
             showSessionRefreshWarning();
         }
@@ -750,28 +733,6 @@ public class CommCareHomeActivity
                 Localization.get("app.handled.error.title"), errorMsg,
                 android.R.drawable.ic_dialog_info, errorListener));
     }
-
-    @Override
-    public String getActivityTitle() {
-        String userName;
-
-        try {
-            userName = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
-            if (userName != null) {
-                return Localization.get("home.logged.in.message", new String[]{userName});
-            }
-        } catch (Exception e) {
-            //TODO: Better catch, here
-        }
-        return "";
-    }
-
-    @Override
-    protected boolean isTopNavEnabled() {
-        return false;
-    }
-
-    // region - implementing methods for SessionNavigationResponder
 
     @Override
     public void processSessionResponse(int statusCode) {
@@ -821,8 +782,6 @@ public class CommCareHomeActivity
         return CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
     }
 
-    // endregion
-
     private void handleAssertionFailureFromSessionNav(final AndroidSessionWrapper asw) {
         EvaluationContext ec = asw.getEvaluationContext();
         Text text = asw.getSession().getCurrentEntry().getAssertions().getAssertionFailure(ec);
@@ -831,7 +790,7 @@ public class CommCareHomeActivity
             public void onClick(DialogInterface dialog, int i) {
                 dismissAlertDialog();
                 asw.getSession().stepBack(asw.getEvaluationContext());
-                CommCareHomeActivity.this.sessionNavigator.startNextSessionStep();
+                HomeScreenBaseActivity.this.sessionNavigator.startNextSessionStep();
             }
         });
     }
@@ -847,19 +806,13 @@ public class CommCareHomeActivity
         if (terminateSuccesful) {
             sessionNavigator.startNextSessionStep();
         } else {
-            uiController.refreshView();
+            refreshUI();
         }
     }
 
     private void handleGetCommand(AndroidSessionWrapper asw) {
-        Intent i;
+        Intent i = new Intent(this, MenuActivity.class);
         String command = asw.getSession().getCommand();
-
-        if (useGridMenu(command)) {
-            i = new Intent(this, MenuGrid.class);
-        } else {
-            i = new Intent(this, MenuList.class);
-        }
         i.putExtra(SessionFrame.STATE_COMMAND_ID, command);
         addPendingDataExtra(i, asw.getSession());
         startActivityForResult(i, GET_COMMAND);
@@ -903,6 +856,11 @@ public class CommCareHomeActivity
         return i;
     }
 
+    public void launchUpdateActivity() {
+        Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
+        startActivity(i);
+    }
+
     // Launch an intent to load the confirmation screen for the current selection
     private void launchConfirmDetail(AndroidSessionWrapper asw) {
         CommCareSession session = asw.getSession();
@@ -931,7 +889,7 @@ public class CommCareHomeActivity
         }
     }
 
-    private static void addPendingDataExtra(Intent i, CommCareSession session) {
+    protected static void addPendingDataExtra(Intent i, CommCareSession session) {
         EvaluationContext evalContext =
                 CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
         i.putExtra(KEY_PENDING_SESSION_DATA, session.getNeededData(evalContext));
@@ -989,7 +947,7 @@ public class CommCareHomeActivity
         Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra(FormEntryActivity.KEY_INSTANCEDESTINATION, CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
-        
+
         // See if there's existing form data that we want to continue entering
         // (note, this should be stored in the form record as a URI link to
         // the instance provider in the future)
@@ -1022,28 +980,6 @@ public class CommCareHomeActivity
     }
 
     /**
-     * Triggered by a user manually clicking the sync button
-     */
-    void syncButtonPressed() {
-        if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
-            if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
-                displayMessage(Localization.get("notification.sync.airplane.action"), true);
-                CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
-            } else {
-                displayMessage(Localization.get("notification.sync.connections.action"), true);
-                CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
-            }
-            GoogleAnalyticsUtils.reportSyncAttempt(
-                    GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
-                    GoogleAnalyticsFields.LABEL_SYNC_FAILURE,
-                    GoogleAnalyticsFields.VALUE_NO_CONNECTION);
-            return;
-        }
-        CommCareApplication.instance().clearNotifications(AIRPLANE_MODE_CATEGORY);
-        sendFormsOrSync(true);
-    }
-
-    /**
      * Triggered when an automatic sync is pending
      */
     private void handlePendingSync() {
@@ -1051,7 +987,7 @@ public class CommCareHomeActivity
         String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
         Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
 
-        uiController.refreshView();
+        refreshUI();
         sendFormsOrSync(false);
     }
 
@@ -1083,11 +1019,9 @@ public class CommCareHomeActivity
         if (CommCareApplication.instance().isSyncPending(false)) {
             // There is a sync pending
             handlePendingSync();
-        } else if (CommCareApplication.instance().isConsumerApp() || DeveloperPreferences.useRootModuleMenuAsHomeScreen()) {
-            enterRootModule();
         } else {
-            // Display the normal home screen!
-            uiController.refreshView();
+            // Display the home screen!
+            refreshUI();
         }
     }
 
@@ -1107,7 +1041,7 @@ public class CommCareHomeActivity
                         break;
                     case DialogInterface.BUTTON_NEGATIVE:
                         // delete the old incomplete form
-                        FormRecordCleanupTask.wipeRecord(CommCareHomeActivity.this, existing);
+                        FormRecordCleanupTask.wipeRecord(HomeScreenBaseActivity.this, existing);
                         // fallthrough to new now that old record is gone
                     case DialogInterface.BUTTON_NEUTRAL:
                         // create a new form record and begin form entry
@@ -1123,15 +1057,6 @@ public class CommCareHomeActivity
         showAlertDialog(d);
     }
 
-    @Override
-    public void reportSyncResult(String message, boolean success) {
-        displayMessage(message, false);
-    }
-
-    private void displayMessage(String message, boolean suppressToast) {
-        uiController.displayMessage(message, suppressToast);
-    }
-
     protected static boolean isDemoUser() {
         try {
             User u = CommCareApplication.instance().getSession().getLoggedInUser();
@@ -1143,116 +1068,17 @@ public class CommCareHomeActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-
-        menu.add(0, MENU_UPDATE, 0, Localization.get("home.menu.update")).setIcon(
-                android.R.drawable.ic_menu_upload);
-        menu.add(0, MENU_SAVED_FORMS, 0, Localization.get("home.menu.saved.forms")).setIcon(
-                android.R.drawable.ic_menu_save);
-        menu.add(0, MENU_CHANGE_LANGUAGE, 0, Localization.get("home.menu.locale.change")).setIcon(
-                android.R.drawable.ic_menu_set_as);
-        menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
-                android.R.drawable.ic_menu_help);
-        menu.add(0, MENU_ADVANCED, 0, Localization.get("home.menu.advanced")).setIcon(
-                android.R.drawable.ic_menu_edit);
-        menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
-                android.R.drawable.ic_menu_preferences);
-        menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
-        return true;
-    }
-
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-
-        GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN);
-        //In Holo theme this gets called on startup
-        boolean enableMenus = !isDemoUser();
-        menu.findItem(MENU_UPDATE).setVisible(enableMenus);
-        menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
-        menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(enableMenus);
-        menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
-        menu.findItem(MENU_ADVANCED).setVisible(enableMenus);
-        menu.findItem(MENU_ABOUT).setVisible(enableMenus);
-        preparePinMenu(menu, enableMenus);
-        return true;
-    }
-
-    private static void preparePinMenu(Menu menu, boolean enableMenus) {
-        boolean pinEnabled = enableMenus && DeveloperPreferences.shouldOfferPinForLogin();
-        menu.findItem(MENU_PIN).setVisible(pinEnabled);
-        boolean hasPinSet = false;
-
-        try {
-            hasPinSet = CommCareApplication.instance().getRecordForCurrentUser().hasPinSet();
-        } catch (SessionUnavailableException e) {
-            Log.d(TAG, "Session expired and menu is being created before redirect to login screen");
-        }
-
-        if (hasPinSet) {
-            menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
-        } else {
-            menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.set"));
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Map<Integer, String> menuIdToAnalyticsEventLabel = createMenuItemToEventMapping();
-        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                GoogleAnalyticsFields.CATEGORY_HOME_SCREEN,
-                menuIdToAnalyticsEventLabel.get(item.getItemId()));
-        switch (item.getItemId()) {
-            case MENU_UPDATE:
-                Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
-                startActivity(i);
-                return true;
-            case MENU_SAVED_FORMS:
-                goToFormArchive(false);
-                return true;
-            case MENU_CHANGE_LANGUAGE:
-                showLocaleChangeMenu();
-                return true;
-            case MENU_PREFERENCES:
-                createPreferencesMenu(this);
-                return true;
-            case MENU_ADVANCED:
-                startAdvancedActionsActivity();
-                return true;
-            case MENU_ABOUT:
-                showAboutCommCareDialog();
-                return true;
-            case MENU_PIN:
-                launchPinAuthentication();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private static Map<Integer, String> createMenuItemToEventMapping() {
-        Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
-        menuIdToAnalyticsEvent.put(MENU_UPDATE, GoogleAnalyticsFields.LABEL_UPDATE_CC);
-        menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS, GoogleAnalyticsFields.LABEL_SAVED_FORMS);
-        menuIdToAnalyticsEvent.put(MENU_CHANGE_LANGUAGE, GoogleAnalyticsFields.LABEL_LOCALE);
-        menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
-        menuIdToAnalyticsEvent.put(MENU_ADVANCED, GoogleAnalyticsFields.LABEL_ADVANCED_ACTIONS);
-        menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
-        return menuIdToAnalyticsEvent;
-    }
-
     public static void createPreferencesMenu(Activity activity) {
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
     }
 
-    private void startAdvancedActionsActivity() {
-        startActivityForResult(new Intent(this, AdvancedActionsActivity.class), ADVANCED_ACTIONS_ACTIVITY);
+    protected void startAdvancedActionsActivity() {
+        startActivityForResult(new Intent(this, AdvancedActionsActivity.class),
+                ADVANCED_ACTIONS_ACTIVITY);
     }
 
-    private void showAboutCommCareDialog() {
+    protected void showAboutCommCareDialog() {
         CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
         dialog.makeCancelable();
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -1271,8 +1097,7 @@ public class CommCareHomeActivity
                     .edit()
                     .putString(DeveloperPreferences.SUPERUSER_ENABLED, CommCarePreferences.YES)
                     .commit();
-            Toast.makeText(CommCareHomeActivity.this,
-                    Localization.get("home.developer.options.enabled"),
+            Toast.makeText(this, Localization.get("home.developer.options.enabled"),
                     Toast.LENGTH_SHORT).show();
         }
     }
@@ -1304,21 +1129,6 @@ public class CommCareHomeActivity
         }
     }
 
-    @Override
-    public void initUIController() {
-        uiController = new HomeActivityUIController(this);
-    }
-
-    @Override
-    public CommCareActivityUIController getUIController() {
-        return this.uiController;
-    }
-
-    @Override
-    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
-                                     boolean userTriggeredSync, boolean formsToSend) {
-        super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend);
-        getUIController().refreshView();
-    }
+    abstract void refreshUI();
 
 }

@@ -235,7 +235,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         uiController.setupUI();
-        mGestureDetector = new GestureDetector(this);
+        mGestureDetector = new GestureDetector(this, this);
 
         // needed to override rms property manager
         org.javarosa.core.services.PropertyManager.setPropertyManager(new AndroidPropertyManager(

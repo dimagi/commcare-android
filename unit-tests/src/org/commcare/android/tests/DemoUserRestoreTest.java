@@ -4,7 +4,7 @@ import android.content.Intent;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.activities.LoginActivity;
@@ -63,10 +63,10 @@ public class DemoUserRestoreTest {
 
     private static void launchHomeActivityForDemoUser() {
         Intent homeActivityIntent =
-                new Intent(RuntimeEnvironment.application, CommCareHomeActivity.class);
+                new Intent(RuntimeEnvironment.application, StandardHomeActivity.class);
         homeActivityIntent.putExtra(DispatchActivity.START_FROM_LOGIN, true);
-        CommCareHomeActivity homeActivity =
-                Robolectric.buildActivity(CommCareHomeActivity.class)
+        StandardHomeActivity homeActivity =
+                Robolectric.buildActivity(StandardHomeActivity.class)
                         .withIntent(homeActivityIntent).setup().get();
         ShadowActivity shadowActivity = Shadows.shadowOf(homeActivity);
 
