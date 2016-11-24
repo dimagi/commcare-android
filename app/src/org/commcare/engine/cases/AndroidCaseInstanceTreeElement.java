@@ -23,6 +23,7 @@ import java.util.Vector;
  */
 public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement implements CacheHost {
     private static final String TAG = AndroidCaseInstanceTreeElement.class.getSimpleName();
+
     private final CaseIndexTable mCaseIndexTable;
 
     private final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<>();
@@ -33,11 +34,13 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     private String[][] mMostRecentBatchFetch = null;
 
-    public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode) {
+    public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage,
+                                          boolean reportMode) {
         this(instanceRoot, storage, reportMode, new CaseIndexTable());
     }
 
-    public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode, CaseIndexTable caseIndexTable) {
+    public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage,
+                                          boolean reportMode, CaseIndexTable caseIndexTable) {
         super(instanceRoot, storage, reportMode);
         mCaseIndexTable = caseIndexTable;
     }
