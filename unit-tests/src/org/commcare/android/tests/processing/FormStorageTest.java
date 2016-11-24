@@ -120,7 +120,6 @@ public class FormStorageTest {
             , "org.commcare.suite.model.graph.XYSeries"
             , "org.commcare.xml.DummyGraphParser$DummyGraphDetailTemplate"
             , "org.javarosa.core.log.LogEntry"
-            , "org.javarosa.core.model.DataBinding"
             , "org.javarosa.core.model.FormDef"
             , "org.javarosa.core.model.GroupDef"
             , "org.javarosa.core.model.ItemsetBinding"
@@ -269,7 +268,12 @@ public class FormStorageTest {
             // Migrated in 2.28
             , "org.odk.collect.android.jr.extensions.AndroidXFormExtensions"
             , "org.odk.collect.android.jr.extensions.IntentCallout"
-            , "org.odk.collect.android.jr.extensions.PollSensorAction");
+            , "org.odk.collect.android.jr.extensions.PollSensorAction"
+
+            // Removed in 2.32, but doesn't require migration because it was
+            // never actually serialized
+            //, "org.javarosa.core.model.DataBinding"
+            );
 
     @Before
     public void setup() {
