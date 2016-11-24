@@ -7,9 +7,13 @@
 
     <RelativeLayout
         android:layout_width="@dimen/menu_grid_icon_size"
+        android:layout_marginTop="@dimen/content_min_margin"
+        android:layout_marginRight="@dimen/content_min_margin"
+        android:layout_marginLeft="@dimen/content_min_margin"
         android:layout_height="@dimen/menu_grid_icon_with_badge"
         android:layout_gravity="center"
-        style="@style/ListContentV2" >
+        android:colorBackground="@color/cc_core_bg"
+        android:gravity="center_vertical">
 
         <ImageView
             android:id="@+id/row_img"

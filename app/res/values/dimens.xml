@@ -28,7 +28,7 @@
 
     <dimen name="menu_icon_size">60dp</dimen>
     <dimen name="menu_grid_icon_size">120dp</dimen>
-    <dimen name="menu_grid_icon_with_badge">135dp</dimen>
+    <dimen name="menu_grid_icon_with_badge">136dp</dimen>
     <dimen name="badge_count_font_size">15sp</dimen>
     <dimen name="badge_count_width">30sp</dimen>
 
