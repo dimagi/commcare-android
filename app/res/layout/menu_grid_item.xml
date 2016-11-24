@@ -6,14 +6,7 @@
     android:orientation="vertical">
 
     <RelativeLayout
-        android:layout_width="@dimen/menu_grid_icon_size"
-        android:layout_marginTop="@dimen/content_min_margin"
-        android:layout_marginRight="@dimen/content_min_margin"
-        android:layout_marginLeft="@dimen/content_min_margin"
-        android:layout_height="@dimen/menu_grid_icon_with_badge"
-        android:layout_gravity="center"
-        android:colorBackground="@color/cc_core_bg"
-        android:gravity="center_vertical">
+        style="@style/GridViewContentWithBadge" >
 
         <ImageView
             android:id="@+id/row_img"
@@ -21,27 +14,26 @@
             android:layout_height="@dimen/menu_grid_icon_size" />
 
         <RelativeLayout
-            android:id="@+id/badge_count_view"
+            android:id="@+id/numeric_badge_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:visibility="gone">
 
             <ImageView
-                android:layout_width="@dimen/badge_count_width"
-                android:layout_height="@dimen/badge_count_width"
+                android:layout_width="@dimen/numeric_badge_width"
+                android:layout_height="@dimen/numeric_badge_width"
                 android:layout_centerInParent="true"
-                android:src="@drawable/badge_count_circle"
-                android:id="@+id/badge_view_image"/>
+                android:src="@drawable/numeric_badge_circle"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:textColor="@color/cc_attention_positive_text"
-                android:textSize="@dimen/badge_count_font_size"
+                android:textSize="@dimen/numeric_badge_font_size"
                 android:background="@color/transparent"
-                android:id="@+id/badge_view_text"/>
+                android:id="@+id/numeric_badge_text"/>
 
         </RelativeLayout>
 

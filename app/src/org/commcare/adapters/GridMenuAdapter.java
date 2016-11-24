@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
@@ -53,8 +52,8 @@ public class GridMenuAdapter extends MenuAdapter {
     }
 
     private void setupNumericBadgeView(View menuListItem, MenuDisplayable menuDisplayable) {
-        View badgeCountView = menuListItem.findViewById(R.id.badge_count_view);
-        TextView countText = (TextView)menuListItem.findViewById(R.id.badge_view_text);
+        View badgeCountView = menuListItem.findViewById(R.id.numeric_badge_view);
+        TextView countText = (TextView)menuListItem.findViewById(R.id.numeric_badge_text);
 
         int count = menuDisplayable.getCountForNumericBadge(asw.getEvaluationContext());
         if (count == -1) {
