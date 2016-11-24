@@ -521,11 +521,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
-    @Override
-    public void registerIndex(String filterIndex) {
-        // TODO Auto-generated method stub
-    }
-
     public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) {
         return cleanCopy(from, to, null);
     }
