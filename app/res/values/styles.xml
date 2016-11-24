@@ -72,9 +72,6 @@
         <item name="android:textColor">@color/cc_neutral_color</item>
     </style>
 
-    <dimen name="menu_icon_size">60dp</dimen>
-    <dimen name="menu_grid_icon_size">120dp</dimen>
-
     <style name="Animation"/>
 
     <style name="Animation.ScreenAnimations">
