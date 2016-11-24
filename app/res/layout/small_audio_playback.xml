@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:background="@null"
-        android:src="@drawable/play_question_audio"/>
+        android:src="@drawable/audio_playback_selector"/>
 
     <ProgressBar
         android:id="@+id/circular_progress_bar"

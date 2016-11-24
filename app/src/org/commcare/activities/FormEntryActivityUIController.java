@@ -35,6 +35,7 @@ import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.HorizontalPaneledChoiceDialog;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.commcare.views.media.AudioController;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.Constants;
@@ -312,24 +313,21 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                     //NOTE: This needs to be the same as the
                     //exit condition below, in case either changes
                     activity.triggerUserQuitInput();
-                    return;
-                }
-
-                //We might have walked all the way back still, which isn't great, 
-                //so keep moving forward again until we find it
-                if (lastValidIndex.isBeginningOfFormIndex()) {
+                } else if (lastValidIndex.isBeginningOfFormIndex()) {
+                    //We might have walked all the way back still, which isn't great,
+                    //so keep moving forward again until we find it
                     //there must be a repeat between where we started and the beginning of hte form, walk back up to it
                     showNextView(true);
-                    return;
+                }
+            } else {
+                AudioController.INSTANCE.releaseCurrentMediaEntity();
+                QuestionsView next = createView();
+                if (showSwipeAnimation) {
+                    showView(next, AnimationType.LEFT);
+                } else {
+                    showView(next, AnimationType.FADE, false);
                 }
             }
-            QuestionsView next = createView();
-            if (showSwipeAnimation) {
-                showView(next, AnimationType.LEFT);
-            } else {
-                showView(next, AnimationType.FADE, false);
-            }
-
         } else {
             activity.triggerUserQuitInput();
         }
@@ -381,6 +379,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     private void showNextView(boolean resuming) {
+        AudioController.INSTANCE.releaseCurrentMediaEntity();
         if (shouldIgnoreNavigationAction()) {
             isAnimatingSwipe = false;
             return;
