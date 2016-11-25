@@ -81,7 +81,7 @@
             android:listSelector="@drawable/selector"
             android:drawSelectorOnTop="true"
             android:visibility="gone"
-            android:background="@color/black"
+            android:background="@color/cc_light_warm_accent_text"
             android:horizontalSpacing="1dp"
             android:verticalSpacing="1dp"
             android:padding="1dp"/>
