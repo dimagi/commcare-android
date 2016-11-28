@@ -1,7 +1,5 @@
 package org.commcare.android.nsd;
 
-import android.support.v4.util.Pair;
-
 import org.commcare.network.HttpRequestGenerator;
 import org.javarosa.core.io.StreamsUtil;
 import org.json.JSONArray;

@@ -8,7 +8,6 @@ import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -30,8 +29,6 @@ import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
-
-import java.util.ArrayList;
 
 /**
  * Allow user to manage app updating:
