@@ -46,21 +46,21 @@ public class GridMenuAdapter extends MenuAdapter {
         ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
         setupImageView(mIconView, menuDisplayable);
 
-        setupNumericBadgeView(menuListItem, menuDisplayable);
+        setupBadgeView(menuListItem, menuDisplayable);
 
         return menuListItem;
     }
 
-    private void setupNumericBadgeView(View menuListItem, MenuDisplayable menuDisplayable) {
-        View badgeCountView = menuListItem.findViewById(R.id.numeric_badge_view);
-        TextView countText = (TextView)menuListItem.findViewById(R.id.numeric_badge_text);
-
-        int count = menuDisplayable.getCountForNumericBadge(asw.getEvaluationContext());
-        if (count == -1) {
-            badgeCountView.setVisibility(View.GONE);
+    private void setupBadgeView(View menuListItem, MenuDisplayable menuDisplayable) {
+        View badgeView = menuListItem.findViewById(R.id.badge_view);
+        String badgeText = menuDisplayable.getTextForBadge(
+                asw.getEvaluationContext(menuDisplayable.getCommandID()));
+        if (badgeText != null && !"".equals(badgeText)) {
+            TextView badgeTextView = (TextView)menuListItem.findViewById(R.id.badge_text);
+            badgeTextView.setText(badgeText);
+            badgeView.setVisibility(View.VISIBLE);
         } else {
-            countText.setText("" + count);
-            badgeCountView.setVisibility(View.VISIBLE);
+            badgeView.setVisibility(View.GONE);
         }
     }
 

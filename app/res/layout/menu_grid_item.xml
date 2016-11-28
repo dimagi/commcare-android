@@ -14,7 +14,7 @@
             android:layout_height="@dimen/menu_grid_icon_size" />
 
         <RelativeLayout
-            android:id="@+id/numeric_badge_view"
+            android:id="@+id/badge_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -24,7 +24,7 @@
                 android:layout_width="@dimen/numeric_badge_width"
                 android:layout_height="@dimen/numeric_badge_width"
                 android:layout_centerInParent="true"
-                android:src="@drawable/numeric_badge_circle"/>
+                android:src="@drawable/badge_circle"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -33,7 +33,7 @@
                 android:textColor="@color/cc_brand_text"
                 android:textSize="@dimen/numeric_badge_font_size"
                 android:background="@color/transparent"
-                android:id="@+id/numeric_badge_text"/>
+                android:id="@+id/badge_text"/>
 
         </RelativeLayout>
 
