@@ -91,16 +91,6 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
                         return false;
                     }
                 });
-                rightArrow.setOnClickListener(new OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        //r.performClick();
-                        int g = 3;
-                    }
-                });
-
-
 
                 buttons.add(r);
 
