@@ -8,9 +8,13 @@ import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.nsd.MicroNode;
+import org.commcare.android.nsd.NSDDiscoveryTools;
+import org.commcare.android.nsd.NsdServiceListener;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
@@ -27,6 +31,8 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.ArrayList;
+
 /**
  * Allow user to manage app updating:
  * - Check and download the latest update
@@ -36,12 +42,13 @@ import org.javarosa.core.services.locale.Localization;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateActivity extends CommCareActivity<UpdateActivity>
-        implements TaskListener<Integer, ResultAndError<AppInstallStatus>>, WithUIController {
+        implements TaskListener<Integer, ResultAndError<AppInstallStatus>>, WithUIController, NsdServiceListener {
 
     public static final String KEY_FROM_LATEST_BUILD_ACTIVITY = "from-test-latest-build-util";
 
     // Options menu codes
     public static final int MENU_UPDATE_FROM_CCZ = 0;
+    public static final int MENU_UPDATE_FROM_HUB = 1;
 
     // Activity request codes
     private static final int OFFLINE_UPDATE = 0;
@@ -63,6 +70,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private boolean proceedAutomatically;
     private boolean isLocalUpdate;
     private String offlineUpdateRef;
+
+    private MicroNode.AppManifest hubAppRecord;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,12 +123,21 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     protected void onResume() {
         super.onResume();
 
+        NSDDiscoveryTools.registerForNsdServices(this, this);
+
         if (!ConnectivityStatus.isNetworkAvailable(this) && offlineUpdateRef == null) {
             uiController.noConnectivityUiState();
             return;
         }
 
         setUiFromTask();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        NSDDiscoveryTools.unregisterForNsdServices(this);
     }
 
     private void setUiFromTask() {
@@ -265,6 +283,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         }
 
         String profileRef;
+        if (hubAppRecord != null && offlineUpdateRef != null) {
+            updateTask.setLocalAuthority();
+        }
+
         if (offlineUpdateRef != null) {
             profileRef = offlineUpdateRef;
             offlineUpdateRef = null;
@@ -412,6 +434,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_UPDATE_FROM_CCZ, 0, Localization.get("menu.update.from.ccz"));
+        menu.add(0, MENU_UPDATE_FROM_HUB, 1, Localization.get("menu.update.from.hub"));
         return true;
     }
 
@@ -420,6 +443,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_UPDATE_FROM_CCZ).setVisible(BuildConfig.DEBUG ||
                 !getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false));
+
+        menu.findItem(MENU_UPDATE_FROM_HUB).setVisible(hubAppRecord != null);
         return true;
     }
 
@@ -431,13 +456,24 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 i.putExtra(InstallArchiveActivity.FROM_UPDATE, true);
                 startActivityForResult(i, OFFLINE_UPDATE);
                 return true;
+
+            case MENU_UPDATE_FROM_HUB:
+                triggerLocalHubUpdate();
+                return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void triggerLocalHubUpdate() {
+        offlineUpdateRef = hubAppRecord.getLocalUrl();
+
+        this.startUpdateCheck();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        switch(requestCode) {
+        switch (requestCode) {
             case OFFLINE_UPDATE:
                 if (resultCode == Activity.RESULT_OK) {
                     offlineUpdateRef = intent.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
@@ -449,4 +485,35 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 break;
         }
     }
+
+    private void notifyLocalUpdatePathAvailable(MicroNode.AppManifest hubAppRecord) {
+        this.hubAppRecord = hubAppRecord;
+        this.rebuildOptionsMenu();
+    }
+
+
+    @Override
+    public synchronized void onMicronodeDiscovery() {
+        boolean appsAvailable = false;
+
+        //If we aren't staged, don't go down this road
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            return;
+        }
+
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+
+        for (MicroNode node : NSDDiscoveryTools.getAvailableMicronodes()) {
+            final MicroNode.AppManifest appManifest = node.getManifestForAppId(appId);
+            if (appManifest != null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyLocalUpdatePathAvailable(appManifest);
+                    }
+                });
+            }
+        }
+    }
+
 }

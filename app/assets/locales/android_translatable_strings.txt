@@ -68,6 +68,7 @@ home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN
 
 menu.update.from.ccz=Offline Update
+menu.update.from.hub=Update from Local Hub
 
 home.developer.options.enabled=Developer Mode Enabled
 
