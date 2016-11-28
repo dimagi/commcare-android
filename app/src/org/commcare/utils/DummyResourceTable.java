@@ -188,9 +188,8 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public boolean upgradeTable(ResourceTable incoming)
+    public void upgradeTable(ResourceTable incoming)
             throws UnresolvedResourceException {
-        return true;
     }
 
     @Override

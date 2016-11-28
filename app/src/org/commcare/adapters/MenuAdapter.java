@@ -71,12 +71,12 @@ public class MenuAdapter implements ListAdapter {
             for (Menu m : s.getMenus()) {
                 errorXpathException = "";
                 try {
-                    if (menuIsRelevant(m)) {
-                        if (m.getId().equals(menuID)) {
+                    if (m.getId().equals(menuID)) {
+                        if (menuIsRelevant(m)) {
                             addRelevantCommandEntries(m, items, map);
-                        } else {
-                            addUnaddedMenu(menuID, m, items);
                         }
+                    } else {
+                        addUnaddedMenu(menuID, m, items);
                     }
                 } catch (CommCareInstanceInitializer.FixtureInitializationException
                         | XPathSyntaxException | XPathException xpe) {
@@ -152,7 +152,7 @@ public class MenuAdapter implements ListAdapter {
         }
     }
 
-    private static void addUnaddedMenu(String menuID, Menu m, Vector<MenuDisplayable> items) {
+    private void addUnaddedMenu(String menuID, Menu m, Vector<MenuDisplayable> items) throws XPathSyntaxException {
         if (menuID.equals(m.getRoot())) {
             //make sure we didn't already add this ID
             boolean idExists = false;
@@ -165,7 +165,9 @@ public class MenuAdapter implements ListAdapter {
                 }
             }
             if (!idExists) {
-                items.add(m);
+                if (menuIsRelevant(m)) {
+                    items.add(m);
+                }
             }
         }
     }
