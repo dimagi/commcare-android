@@ -7,9 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
@@ -52,7 +52,7 @@ import java.util.Vector;
  *
  * @author wspride
  */
-public class MenuAdapter implements ListAdapter {
+public class MenuAdapter extends BaseAdapter {
 
     protected final AndroidSessionWrapper asw;
     private Exception loadError;
