@@ -231,6 +231,11 @@ public class StandardHomeActivity
     }
 
     @Override
+    public boolean usesSubmissionProgressBar() {
+        return false;
+    }
+
+    @Override
     public void refreshUI() {
         uiController.refreshView();
     }

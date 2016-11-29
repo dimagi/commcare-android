@@ -234,4 +234,9 @@ public class PostRequestActivity
         return false;
     }
 
+    @Override
+    public boolean usesSubmissionProgressBar() {
+        return false;
+    }
+
 }

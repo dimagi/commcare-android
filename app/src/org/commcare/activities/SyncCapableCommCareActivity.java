@@ -308,11 +308,17 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         }
     }
 
+    /**
+     * If true, the action bar of this activity will show an icon or animation at all times
+     * indicating the current sync state of the app (1 of either sending forms, pulling data,
+     * has pending forms to send, or up-to-date)
+     */
     public abstract boolean shouldShowSyncItemInActionBar();
 
-    public boolean usesSubmissionProgressBar() {
-        return false;
-    }
+    /**
+     * If true, a progress bar will show beneath the action bar during form submission
+     */
+    public abstract boolean usesSubmissionProgressBar();
 
     private enum SyncState {
         UP_TO_DATE, PULLING_DATA, SENDING_FORMS, FORMS_PENDING
