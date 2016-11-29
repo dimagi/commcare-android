@@ -151,7 +151,7 @@ public class PostRequestActivity
     }
 
     @Override
-    public void reportSyncResult(String message, boolean success) {
+    protected void updateUiAfterDataPullOrSend(String message, boolean success) {
         if (success) {
             setResult(RESULT_OK);
             finish();
