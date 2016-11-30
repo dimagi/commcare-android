@@ -146,7 +146,7 @@ public class CommCareAudioWidget extends AudioWidget
     }
 
     @Override
-    public String getFileExtension() {
+    public String getFileUniqueIdentifier() {
         return questionIndexText;
     }
 
