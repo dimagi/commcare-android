@@ -35,22 +35,16 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     private static final boolean SUCCESS = true;
     private static final boolean FAIL = false;
 
-    private static final int TRIGGER_START_DATA_PULL = 0;
-    private static final int TRIGGER_END_DATA_PULL = 1;
-    private static final int TRIGGER_START_SEND_FORMS = 2;
-    private static final int TRIGGER_END_SEND_FORMS = 3;
-    private static final int TRIGGER_NONE = 4;
-
     protected boolean isSyncUserLaunched = false;
     protected FormAndDataSyncer formAndDataSyncer;
 
-    private SyncState syncStateForIcon;
+    private SyncIconState syncStateForIcon;
     private MenuItem currentSyncMenuItem;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         formAndDataSyncer = new FormAndDataSyncer();
-        computeSyncState(TRIGGER_NONE);
+        computeSyncState(SyncIconTrigger.NO_ANIMATION);
     }
 
     /**
@@ -188,9 +182,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     public void startBlockingForTask(int id) {
         super.startBlockingForTask(id);
         if (id == ProcessAndSendTask.PROCESSING_PHASE_ID_NO_DIALOG) {
-            triggerSyncIconRefresh(TRIGGER_START_SEND_FORMS);
+            triggerSyncIconRefresh(SyncIconTrigger.ANIMATE_SEND_FORMS);
         } else if (id == DataPullTask.DATA_PULL_TASK_ID) {
-            triggerSyncIconRefresh(TRIGGER_START_DATA_PULL);
+            triggerSyncIconRefresh(SyncIconTrigger.ANIMATE_DATA_PULL);
         }
     }
 
@@ -198,36 +192,33 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     public void stopBlockingForTask(int id) {
         super.stopBlockingForTask(id);
         if (id == ProcessAndSendTask.SEND_PHASE_ID_NO_DIALOG ||
-                id == ProcessAndSendTask.PROCESSING_PHASE_ID_NO_DIALOG) {
-            triggerSyncIconRefresh(TRIGGER_END_SEND_FORMS);
-        } else if (id == DataPullTask.DATA_PULL_TASK_ID) {
-            triggerSyncIconRefresh(TRIGGER_END_DATA_PULL);
+                id == ProcessAndSendTask.PROCESSING_PHASE_ID_NO_DIALOG ||
+                id == DataPullTask.DATA_PULL_TASK_ID) {
+            triggerSyncIconRefresh(SyncIconTrigger.NO_ANIMATION);
         }
     }
 
-    private void triggerSyncIconRefresh(int trigger) {
+    private void triggerSyncIconRefresh(SyncIconTrigger trigger) {
         if (shouldShowSyncItemInActionBar()) {
             computeSyncState(trigger);
             rebuildOptionsMenu();
         }
     }
 
-    private void computeSyncState(int trigger) {
+    private void computeSyncState(SyncIconTrigger trigger) {
         switch(trigger) {
-            case TRIGGER_END_DATA_PULL:
-            case TRIGGER_END_SEND_FORMS:
-            case TRIGGER_NONE:
+            case NO_ANIMATION:
                 if (SyncDetailCalculations.getNumUnsentForms() > 0) {
-                    syncStateForIcon = SyncState.FORMS_PENDING;
+                    syncStateForIcon = SyncIconState.FORMS_PENDING;
                 } else {
-                    syncStateForIcon = SyncState.UP_TO_DATE;
+                    syncStateForIcon = SyncIconState.UP_TO_DATE;
                 }
                 break;
-            case TRIGGER_START_DATA_PULL:
-                syncStateForIcon = SyncState.PULLING_DATA;
+            case ANIMATE_DATA_PULL:
+                syncStateForIcon = SyncIconState.PULLING_DATA;
                 break;
-            case TRIGGER_START_SEND_FORMS:
-                syncStateForIcon = SyncState.SENDING_FORMS;
+            case ANIMATE_SEND_FORMS:
+                syncStateForIcon = SyncIconState.SENDING_FORMS;
                 break;
         }
     }
@@ -314,10 +305,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
      */
     public abstract boolean usesSubmissionProgressBar();
 
-    private enum SyncState {
-        UP_TO_DATE, PULLING_DATA, SENDING_FORMS, FORMS_PENDING
-    }
-
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;
@@ -348,6 +335,15 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 return null;
         }
         return dialog;
+    }
+
+
+    private enum SyncIconState {
+        UP_TO_DATE, PULLING_DATA, SENDING_FORMS, FORMS_PENDING
+    }
+
+    private enum SyncIconTrigger {
+        ANIMATE_DATA_PULL, ANIMATE_SEND_FORMS, NO_ANIMATION
     }
 
 }
