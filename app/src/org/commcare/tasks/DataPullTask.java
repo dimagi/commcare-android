@@ -28,6 +28,7 @@ import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FormSaveUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.utils.UnknownSyncError;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.xml.AndroidTransactionParserFactory;
@@ -460,7 +461,7 @@ public abstract class DataPullTask<R>
 
     private static void recordSuccessfulSyncTime() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putLong("last-succesful-sync", new Date().getTime()).commit();
+                .putLong(SyncDetailCalculations.getLastSyncKey(), new Date().getTime()).commit();
     }
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
