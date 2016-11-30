@@ -728,7 +728,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             String installProgressText =
                     Localization.getWithDefault("profile.found",
                             new String[]{"" + done, "" + total},
-                            "Application found. Loading resources...");
+                            "Setting up app...");
             updateProgress(installProgressText, DIALOG_INSTALL_PROGRESS);
         }
         updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
