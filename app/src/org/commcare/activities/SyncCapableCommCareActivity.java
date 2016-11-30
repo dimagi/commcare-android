@@ -197,7 +197,8 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     @Override
     public void stopBlockingForTask(int id) {
         super.stopBlockingForTask(id);
-        if (id == ProcessAndSendTask.SEND_PHASE_ID_NO_DIALOG) {
+        if (id == ProcessAndSendTask.SEND_PHASE_ID_NO_DIALOG ||
+                id == ProcessAndSendTask.PROCESSING_PHASE_ID_NO_DIALOG) {
             triggerSyncIconRefresh(TRIGGER_END_SEND_FORMS);
         } else if (id == DataPullTask.DATA_PULL_TASK_ID) {
             triggerSyncIconRefresh(TRIGGER_END_DATA_PULL);
