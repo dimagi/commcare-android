@@ -57,7 +57,6 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
             mTimer = new ODKTimer(millisToWait, this);
         }
         mTimer.start();
-
     }
 
     @Override
@@ -75,7 +74,6 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         if (locationDialog != null && locationDialog.isShowing())
             locationDialog.dismiss();
     }
-
 
     @Override
     protected void onResume() {
@@ -121,7 +119,6 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         }
     }
 
-
     /**
      * Sets up the look and actions for the progress dialog while the GPS is searching.
      */
@@ -153,7 +150,6 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
                 cancelButtonListener);
     }
 
-
     private void returnLocation() {
         if (location != null) {
             Intent i = new Intent();
@@ -162,7 +158,6 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         }
         finish();
     }
-
 
     @Override
     public void onLocationChanged(Location location) {
@@ -186,24 +181,20 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         }
     }
 
-
     private String truncateDouble(float number) {
         DecimalFormat df = new DecimalFormat("#.##");
         return df.format(number);
     }
-
 
     @Override
     public void onProviderDisabled(String provider) {
 
     }
 
-
     @Override
     public void onProviderEnabled(String provider) {
 
     }
-
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -211,7 +202,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
             case LocationProvider.AVAILABLE:
                 if (location != null) {
                     locationDialog.setMessage(StringUtils.getStringRobust(this, R.string.location_accuracy,
-                            "" + (int) location.getAccuracy()));
+                            "" + (int)location.getAccuracy()));
                 }
                 break;
             case LocationProvider.OUT_OF_SERVICE:
