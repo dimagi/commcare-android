@@ -121,7 +121,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                     DataSubmissionListener dataListener;
 
                     dataListener =
-                            CommCareApplication.instance().getSession().startDataSubmissionListener(R.string.submission_logs_title);
+                            CommCareApplication.instance().getSession().getListenerForSubmissionNotification(R.string.submission_logs_title);
                     LogSubmissionTask reportSubmitter =
                             new LogSubmissionTask(
                                     true,

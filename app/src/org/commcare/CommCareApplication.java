@@ -940,8 +940,7 @@ public class CommCareApplication extends Application {
 
         DataSubmissionListener dataListener;
 
-        dataListener =
-                CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
+        dataListener = getSession().getListenerForSubmissionNotification(R.string.submission_logs_title);
 
         LogSubmissionTask task = new LogSubmissionTask(
                 force || isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),

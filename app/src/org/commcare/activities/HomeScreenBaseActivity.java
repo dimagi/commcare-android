@@ -508,10 +508,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
     }
 
-    protected void displayToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-    }
-
     private static void stepBackIfCancelled(int resultCode) {
         if (resultCode == RESULT_CANCELED) {
             AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
