@@ -78,9 +78,6 @@ public class CommCareApp implements AppFilePathBuilder {
     }
 
     public String storageRoot() {
-        // This External Storage Directory will always destroy your data when you upgrade, which is stupid. Unfortunately
-        // it's also largely unavoidable until Froyo's fix for this problem makes it to the phones. For now we're going
-        // to rely on the fact that the phone knows how to fix missing/corrupt directories every time it upgrades.
         return CommCareApplication.instance().getAndroidFsRoot() + "app/" + record.getApplicationId() + "/";
     }
 
