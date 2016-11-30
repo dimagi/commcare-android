@@ -185,7 +185,7 @@ public class HttpRequestGenerator {
 
         // include IMEI in key fetch request for auditing large deployments
         url = url.buildUpon().appendQueryParameter("device_id",
-                CommCareApplication.instance().getPhoneId()).build();
+                CommCareApplication._().getPhoneId()).build();
 
         HttpGet get = new HttpGet(url.toString());
 

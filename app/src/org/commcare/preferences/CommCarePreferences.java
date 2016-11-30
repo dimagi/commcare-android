@@ -314,7 +314,7 @@ public class CommCarePreferences
     }
 
     public static PasswordShow.PasswordShowOption getPasswordDisplayOption() {
-        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return PasswordShow.PasswordShowOption.fromString(properties.getString(SHOW_PASSWORD_OPTION, ""));
     }
 
