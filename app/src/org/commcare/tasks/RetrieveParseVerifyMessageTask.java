@@ -46,7 +46,7 @@ public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<Voi
         // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
 
-        DateTime oneDayAgo = (new DateTime()).minusDays(1);
+        DateTime oneDayAgo = (new DateTime()).minusDays(7);
         Cursor cursor = contentResolver.query(SMS_INBOX,
                 null, "date >? ",
                 new String[]{"" + oneDayAgo.getMillis()},
