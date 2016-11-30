@@ -96,7 +96,7 @@ public class SaveToDiskTask extends
     @Override
     protected ResultAndError<SaveStatus> doTaskBackground(Void... nothing) {
         try{
-            if (hasInvalidAnswers(mMarkCompleted, DeveloperPreferences.shouldFireTriggersOnSave())) {
+            if (hasInvalidAnswers(mMarkCompleted)) {
                 return new ResultAndError<>(SaveStatus.INVALID_ANSWER);
             }
         } catch(XPathException xpe) {
@@ -365,30 +365,17 @@ public class SaveToDiskTask extends
      * with their constraints.  Constraints are ignored on 'jump to', so
      * answers can be outside of constraints. We don't allow saving to disk,
      * though, until all answers conform to their constraints/requirements.
-     * @param fireTriggerables re-fire the triggers associated with the
-     *                         question when checking its constraints?
      */
-    private boolean hasInvalidAnswers(boolean markCompleted, boolean fireTriggerables) {
+    private boolean hasInvalidAnswers(boolean markCompleted) {
         FormIndex i = FormEntryActivity.mFormController.getFormIndex();
         FormEntryActivity.mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
 
         int event;
-        if (!fireTriggerables) {
-            Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Saving form without firing triggers.");
-        }
         while ((event =
             FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
             if (event == FormEntryController.EVENT_QUESTION) {
-                int saveStatus;
-                if (fireTriggerables) {
-                    saveStatus =
-                            FormEntryActivity.mFormController
-                                    .answerQuestion(FormEntryActivity.mFormController.getQuestionPrompt()
-                                            .getAnswerValue());
-                } else {
-                    saveStatus =
+                int saveStatus =
                             FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
-                }
                 if (markCompleted &&
                         (saveStatus == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY ||
                                 saveStatus == FormEntryController.ANSWER_CONSTRAINT_VIOLATED)) {

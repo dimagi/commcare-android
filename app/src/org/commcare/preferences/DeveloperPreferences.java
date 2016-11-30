@@ -47,14 +47,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      * Spacer to distinguish between the saved navigation session and form entry session
      */
     private static final String NAV_AND_FORM_SESSION_SPACER = "@@@@@";
-    /**
-     * The current default for constraint checking during form saving (as of
-     * CommCare 2.24) is to re-answer all the questions, causing a lot of
-     * triggers to fire. We probably don't need to do this, but it is hard to
-     * know, so allow the adventurous to use form saving that doesn't re-fire
-     * triggers.
-     */
-    public final static String FIRE_TRIGGERS_ON_SAVE = "cc-fire-triggers-on-save";
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
 
     public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
@@ -94,7 +86,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(CSS_ENABLED, GoogleAnalyticsFields.LABEL_CSS);
         prefKeyToAnalyticsEvent.put(MARKDOWN_ENABLED, GoogleAnalyticsFields.LABEL_MARKDOWN);
         prefKeyToAnalyticsEvent.put(ALTERNATE_QUESTION_LAYOUT_ENABLED, GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT);
-        prefKeyToAnalyticsEvent.put(FIRE_TRIGGERS_ON_SAVE, GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE);
         prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
         prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
         prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
@@ -240,11 +231,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static boolean isListRefreshEnabled() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
-    }
-
-    public static boolean shouldFireTriggersOnSave() {
-        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(FIRE_TRIGGERS_ON_SAVE, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
     public static boolean isAutoLoginEnabled() {
