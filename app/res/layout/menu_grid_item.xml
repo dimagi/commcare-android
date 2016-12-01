@@ -1,28 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:textAppearance="@style/EntityItemText"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:textAppearance="@style/EntityItemText"
+    android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/row_img"
-        android:layout_gravity="center"
-        android:layout_width="@dimen/menu_grid_icon_size"
-        android:layout_height="@dimen/menu_grid_icon_size"
-        style="@style/ListContentV2"
-        />
+    <RelativeLayout
+        style="@style/GridViewContentWithBadge" >
+
+        <ImageView
+            android:id="@+id/row_img"
+            android:layout_width="@dimen/menu_grid_icon_size"
+            android:layout_height="@dimen/menu_grid_icon_size" />
+
+        <RelativeLayout
+            android:id="@+id/badge_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="@dimen/numeric_badge_width"
+                android:layout_height="@dimen/numeric_badge_width"
+                android:layout_centerInParent="true"
+                android:src="@drawable/badge_circle"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textColor="@color/cc_brand_text"
+                android:textSize="@dimen/numeric_badge_font_size"
+                android:background="@color/transparent"
+                android:id="@+id/badge_text"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:layout_gravity="center"
-              android:gravity="center"
-              android:maxLines="2"
-              android:lines="2"
-              android:ellipsize="end"
-              android:id="@+id/row_txt"
-              style="@style/GridEntityItemTextView"
-              android:textAppearance="@style/GridEntityItemText">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:maxLines="2"
+        android:lines="2"
+        android:ellipsize="end"
+        android:id="@+id/row_txt"
+        style="@style/GridEntityItemTextView"
+        android:textAppearance="@style/GridEntityItemText">
     </TextView>
+
 </LinearLayout>

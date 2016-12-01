@@ -7,9 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
@@ -52,9 +52,9 @@ import java.util.Vector;
  *
  * @author wspride
  */
-public class MenuAdapter implements ListAdapter {
+public class MenuAdapter extends BaseAdapter {
 
-    private final AndroidSessionWrapper asw;
+    protected final AndroidSessionWrapper asw;
     private Exception loadError;
     private String errorXpathException = "";
     final Context context;
@@ -259,7 +259,7 @@ public class MenuAdapter implements ListAdapter {
     }
 
     public void setupTextView(TextView textView, MenuDisplayable menuDisplayable) {
-        String mQuestionText = textViewHelper(menuDisplayable);
+        String mQuestionText = menuDisplayable.getDisplayText();
 
         //Final change, remove any numeric context requests. J2ME uses these to
         //help with numeric navigation.
@@ -313,10 +313,6 @@ public class MenuAdapter implements ListAdapter {
                     break;
             }
         }
-    }
-
-    private static String textViewHelper(MenuDisplayable e) {
-        return e.getDisplayText();
     }
 
     @Override

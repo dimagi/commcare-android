@@ -72,9 +72,6 @@
         <item name="android:textColor">@color/cc_neutral_color</item>
     </style>
 
-    <dimen name="menu_icon_size">60dp</dimen>
-    <dimen name="menu_grid_icon_size">120dp</dimen>
-
     <style name="Animation"/>
 
     <style name="Animation.ScreenAnimations">
@@ -166,6 +163,17 @@
         <item name="android:layout_margin">@dimen/content_min_margin</item>
         <item name="android:colorBackground">@color/cc_core_bg</item>
         <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="GridViewContentWithBadge">
+        <item name="android:layout_width">@dimen/menu_grid_icon_size</item>
+        <item name="android:layout_height">@dimen/menu_grid_icon_size_with_badge</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginTop">@dimen/content_min_margin</item>
+        <item name="android:layout_marginRight">@dimen/content_min_margin</item>
+        <item name="android:layout_marginLeft">@dimen/content_min_margin</item>
+        <item name="android:colorBackground">@color/cc_core_bg</item>
     </style>
 
     <style name="ListViewHeaderV2">
