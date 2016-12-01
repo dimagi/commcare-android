@@ -102,7 +102,9 @@
                                 <requestFocus/>
                             </AutoCompleteTextView>
 
-                          <RelativeLayout>
+                            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content">
                             <EditText
                                 android:id="@+id/edit_password"
                                 style="@style/LoginEditTextV2"
