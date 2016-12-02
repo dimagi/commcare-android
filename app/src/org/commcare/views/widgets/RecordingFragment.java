@@ -64,7 +64,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         prepareButtons();
         prepareText();
         setWindowSize();
-        fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_BASE + listener.getFileExtension() + FILE_EXT;
+        fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_BASE + listener.getFileUniqueIdentifier() + FILE_EXT;
 
         File f = new File(fileName);
         if (f.exists()) {
@@ -236,7 +236,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
     public interface RecordingCompletionListener {
         void onRecordingCompletion();
 
-        String getFileExtension();
+        String getFileUniqueIdentifier();
     }
 
     public void setListener(RecordingCompletionListener listener) {
