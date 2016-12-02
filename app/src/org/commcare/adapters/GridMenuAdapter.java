@@ -37,17 +37,35 @@ public class GridMenuAdapter extends MenuAdapter {
             menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_grid_item, vg, false);
         }
 
-        MenuDisplayable mObject = displayableData[i];
+        MenuDisplayable menuDisplayable = displayableData[i];
 
         TextView rowText = (TextView)menuListItem.findViewById(R.id.row_txt);
-        setupTextView(rowText, mObject);
+        setupTextView(rowText, menuDisplayable);
 
         // set up the image, if available
         ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
-        setupImageView(mIconView, mObject);
+        setupImageView(mIconView, menuDisplayable);
+
+        setupBadgeView(menuListItem, menuDisplayable);
 
         return menuListItem;
+    }
 
+    private void setupBadgeView(View menuListItem, MenuDisplayable menuDisplayable) {
+        View badgeView = menuListItem.findViewById(R.id.badge_view);
+        String badgeText = menuDisplayable.getTextForBadge(
+                asw.getEvaluationContext(menuDisplayable.getCommandID()));
+        if (badgeText != null && !"".equals(badgeText)) {
+            if (badgeText.length() > 2) {
+                // A badge can only fit up to 2 characters
+                badgeText = badgeText.substring(0, 2);
+            }
+            TextView badgeTextView = (TextView)menuListItem.findViewById(R.id.badge_text);
+            badgeTextView.setText(badgeText);
+            badgeView.setVisibility(View.VISIBLE);
+        } else {
+            badgeView.setVisibility(View.GONE);
+        }
     }
 
     @Override

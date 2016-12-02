@@ -26,6 +26,12 @@
     <dimen name="min_button_height">52dp</dimen>
     <dimen name="spacer">10dp</dimen>
 
+    <dimen name="menu_icon_size">60dp</dimen>
+    <dimen name="menu_grid_icon_size">120dp</dimen>
+    <dimen name="menu_grid_icon_size_with_badge">136dp</dimen>
+    <dimen name="numeric_badge_font_size">15dp</dimen>
+    <dimen name="numeric_badge_width">30dp</dimen>
+
     <dimen name="widget_button_padding">10dp</dimen>
 
     <dimen name="login_box_margins">30dp</dimen>

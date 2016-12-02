@@ -30,7 +30,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
      * Injects a list (or grid) of CommCare modules/forms for the given menu id into the UI of
      * the given activity
      */
-    public static void setupMenuViewInActivity(CommCareActivity activity, String menuId,
+    public static MenuList setupMenuViewInActivity(CommCareActivity activity, String menuId,
                                                boolean useGridMenu, boolean beingUsedInHomeScreen) {
         MenuList menuView;
         if (useGridMenu) {
@@ -40,6 +40,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
         }
         menuView.setupMenuInActivity(activity, menuId);
         menuView.beingUsedInHomeScreen = beingUsedInHomeScreen;
+        return menuView;
     }
 
     public int getLayoutFileResource() {
@@ -73,6 +74,11 @@ public class MenuList implements AdapterView.OnItemClickListener {
     protected void setupAdapter() {
         adapter.showAnyLoadErrors(activity);
         adapterView.setOnItemClickListener(this);
+        adapterView.setAdapter(adapter);
+    }
+
+    public void refreshItems() {
+        adapter.notifyDataSetChanged();
         adapterView.setAdapter(adapter);
     }
 
