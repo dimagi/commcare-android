@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:textColor="@color/cc_brand_text"
+                android:textColor="@color/cc_attention_negative_text"
                 android:textSize="@dimen/numeric_badge_font_size"
                 android:background="@color/transparent"
                 android:id="@+id/badge_text"/>
