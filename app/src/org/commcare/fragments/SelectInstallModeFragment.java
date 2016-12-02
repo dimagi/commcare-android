@@ -39,7 +39,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
     private View mFetchHubContainer;
     private TextView mErrorMessageView;
-    private ArrayList<Pair<String, String>> mLocalApps = new ArrayList<>();
+    private ArrayList<MicroNode.AppManifest> mLocalApps = new ArrayList<>();
 
     @Override
     public void onResume() {
@@ -132,13 +132,13 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         DialogChoiceItem[] items = new DialogChoiceItem[mLocalApps.size()];
         int count = 0;
-        for (final Pair<String, String> app : mLocalApps) {
-            DialogChoiceItem item = new DialogChoiceItem(app.first, -1, new View.OnClickListener() {
+        for (final MicroNode.AppManifest app : mLocalApps) {
+            DialogChoiceItem item = new DialogChoiceItem(app.getName(), -1, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Activity currentActivity = getActivity();
                     if (currentActivity instanceof CommCareSetupActivity) {
-                        ((CommCareSetupActivity)currentActivity).onURLChosen(app.second);
+                        ((CommCareSetupActivity)currentActivity).onURLChosen(app.getLocalUrl());
                     }
                     ((CommCareActivity)getActivity()).dismissAlertDialog();
                 }
@@ -155,8 +155,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         boolean appsAvailable = false;
         mLocalApps = new ArrayList<>();
         for (MicroNode node : NSDDiscoveryTools.getAvailableMicronodes()) {
-            for (Pair<String, String> applications : node.getAvailableApplications()) {
-                mLocalApps.add(applications);
+            for (MicroNode.AppManifest application : node.getAvailableApplications()) {
+                mLocalApps.add(application);
                 appsAvailable = true;
             }
         }
