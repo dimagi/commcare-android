@@ -24,6 +24,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
@@ -410,7 +411,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public String getPhoneId() {
+    public @NonNull String getPhoneId() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
             return "000000000000000";
         }
@@ -419,6 +420,9 @@ public class CommCareApplication extends Application {
         String imei = manager.getDeviceId();
         if (imei == null) {
             imei = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+        }
+        if (imei == null) {
+            imei = "----";
         }
         return imei;
     }
@@ -936,8 +940,7 @@ public class CommCareApplication extends Application {
 
         DataSubmissionListener dataListener;
 
-        dataListener =
-                CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
+        dataListener = getSession().getListenerForSubmissionNotification(R.string.submission_logs_title);
 
         LogSubmissionTask task = new LogSubmissionTask(
                 force || isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
