@@ -34,7 +34,7 @@ public class CaseDbQueryTest {
     public void testBasicCaseQueries() {
         TestUtils.processResourceTransaction("/inputs/case_create.xml");
 
-        EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
 
         evaluate("count(instance('casedb')/casedb/case[@case_id = 'test_case_id'])", "1", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/case_name", "Test Case", ec);
@@ -51,7 +51,7 @@ public class CaseDbQueryTest {
         TestUtils.processResourceTransaction("/inputs/case_create.xml");
         TestUtils.processResourceTransaction("/inputs/case_create_and_index.xml");
 
-        EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
 
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id_child']/index/parent", "test_case_id", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/index/missing", "", ec);
@@ -67,7 +67,7 @@ public class CaseDbQueryTest {
     @Test
     public void testCaseOptimizationTriggers() {
         TestUtils.processResourceTransaction("/inputs/case_test_db_optimizations.xml");
-        EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
 
         evaluate("join(',',instance('casedb')/casedb/case[index/parent = 'test_case_parent']/@case_id)", "child_one,child_two,child_three", ec);
         evaluate("join(',',instance('casedb')/casedb/case[index/parent = 'test_case_parent'][@case_id = 'child_two']/@case_id)", "child_two", ec);

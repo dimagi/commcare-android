@@ -55,7 +55,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>32</item>
+        <item>33</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -228,7 +228,7 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="list_failed_with_error" cc:translatable="true">Form listing failed. %s.</string>
     <string name="loading_form" cc:translatable="true">Loading Form</string>
     <string name="load_remote_form_error" cc:translatable="true">Error Getting Form List</string>
-    <string name="location_provider_accuracy" cc:translatable="true">Location found using %1$s. Accuracy is %2$s m.</string>
+    <string name="location_provider_accuracy" cc:translatable="true">Location accuracy: %1$s m.</string>
     <string name="location_provider" cc:translatable="true">Using %1$s provider. Please wait for greater accuracy.</string>
     <string name="location_accuracy" cc:translatable="true">Location found. Accuracy is %1$s m</string>
     <string name="longitude" cc:translatable="true">Longitude</string>

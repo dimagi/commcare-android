@@ -469,11 +469,11 @@ public class CommCareSessionService extends Service {
                 .read(this.userKeyRecordID);
     }
 
-    public DataSubmissionListener startDataSubmissionListener() {
-        return this.startDataSubmissionListener(SUBMISSION_NOTIFICATION);
+    public DataSubmissionListener getListenerForSubmissionNotification() {
+        return this.getListenerForSubmissionNotification(SUBMISSION_NOTIFICATION);
     }
 
-    public DataSubmissionListener startDataSubmissionListener(final int notificationId) {
+    public DataSubmissionListener getListenerForSubmissionNotification(final int notificationId) {
         return new DataSubmissionListener() {
             int totalItems = -1;
             long currentSize = -1;
@@ -510,8 +510,8 @@ public class CommCareSessionService extends Service {
             }
 
             @Override
-            public void startSubmission(int itemNumber, long length) {
-                currentSize = length;
+            public void startSubmission(int itemNumber, long sizeOfItem) {
+                currentSize = sizeOfItem;
 
                 submissionNotification.setContentInfo(getSubmittedFormCount(itemNumber + 1, totalItems));
                 submissionNotification.setProgress(100, 0, false);
@@ -546,7 +546,7 @@ public class CommCareSessionService extends Service {
             }
 
             @Override
-            public void endSubmissionProcess() {
+            public void endSubmissionProcess(boolean success) {
                 mNM.cancel(notificationId);
                 submissionNotification = null;
                 totalItems = -1;

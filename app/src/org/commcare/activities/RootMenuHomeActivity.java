@@ -18,8 +18,8 @@ import org.commcare.suite.model.Menu;
  */
 public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeActivity> {
 
-
     private HomeNavDrawerController navDrawerController;
+    private MenuList menuView;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -28,7 +28,7 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
         if (menuId == null) {
             menuId = Menu.ROOT_MENU_ID;
         }
-        MenuList.setupMenuViewInActivity(this, menuId, true, true);
+        menuView = MenuList.setupMenuViewInActivity(this, menuId, true, true);
         navDrawerController = new HomeNavDrawerController(this);
         if (usingNavDrawer()) {
             navDrawerController.setupNavDrawer(savedInstanceState);
@@ -72,16 +72,22 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     }
 
     @Override
-    public void reportSyncResult(String message, boolean success) {
-        super.reportSyncResult(message, success);
+    protected void updateUiAfterDataPullOrSend(String message, boolean success) {
+        displayToast(message);
         if (usingNavDrawer()) {
             navDrawerController.refreshItems();
         }
+        menuView.refreshItems();
     }
 
     @Override
     public void refreshUI() {
         // empty intentionally
+    }
+
+    @Override
+    public boolean usesSubmissionProgressBar() {
+        return true;
     }
 
 }

@@ -328,8 +328,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     }
 
     @Override
-    public void startSubmission(int itemNumber, long length) {
-        this.publishProgress(LogSubmissionTask.SUBMISSION_START, (long)itemNumber, length);
+    public void startSubmission(int itemNumber, long sizeOfItem) {
+        this.publishProgress(LogSubmissionTask.SUBMISSION_START, (long)itemNumber, sizeOfItem);
     }
 
     @Override
@@ -338,7 +338,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     }
 
     @Override
-    public void endSubmissionProcess() {
+    public void endSubmissionProcess(boolean success) {
         this.publishProgress(LogSubmissionTask.SUBMISSION_DONE);
     }
 
@@ -353,14 +353,14 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         } else if (values[0] == LogSubmissionTask.SUBMISSION_NOTIFY) {
             listener.notifyProgress(values[1].intValue(), values[2]);
         } else if (values[0] == LogSubmissionTask.SUBMISSION_DONE) {
-            listener.endSubmissionProcess();
+            listener.endSubmissionProcess(true);
         }
     }
 
     @Override
     protected void onPostExecute(LogSubmitOutcomes result) {
         super.onPostExecute(result);
-        listener.endSubmissionProcess();
+        listener.endSubmissionProcess(LogSubmitOutcomes.Submitted.equals(result));
         if (result != LogSubmitOutcomes.Submitted) {
             CommCareApplication.noficationManager().reportNotificationMessage(NotificationMessageFactory.message(result));
         } else {

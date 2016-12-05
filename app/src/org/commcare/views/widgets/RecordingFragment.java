@@ -39,8 +39,9 @@ import java.io.IOException;
 public class RecordingFragment extends android.support.v4.app.DialogFragment {
 
     private String fileName;
-    private static final String FILE_EXT =
-            "/Android/data/org.commcare.dalvik/temp/Custom_Recording.mp4";
+    private static final String FILE_BASE =
+            "/Android/data/org.commcare.dalvik/temp/Custom_Recording";
+    private static final String FILE_EXT = ".mp4";
 
     private LinearLayout layout;
     private ImageButton toggleRecording;
@@ -63,7 +64,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         prepareButtons();
         prepareText();
         setWindowSize();
-        fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_EXT + listener.getFileExtension();
+        fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_BASE + listener.getFileUniqueIdentifier() + FILE_EXT;
 
         File f = new File(fileName);
         if (f.exists()) {
@@ -235,7 +236,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
     public interface RecordingCompletionListener {
         void onRecordingCompletion();
 
-        String getFileExtension();
+        String getFileUniqueIdentifier();
     }
 
     public void setListener(RecordingCompletionListener listener) {

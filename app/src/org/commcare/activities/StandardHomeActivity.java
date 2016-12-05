@@ -81,11 +81,17 @@ public class StandardHomeActivity
     void syncButtonPressed() {
         if (!ConnectivityStatus.isNetworkAvailable(StandardHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(StandardHomeActivity.this)) {
-                reportSyncResult(Localization.get("notification.sync.airplane.action"), false);
-                CommCareApplication.noficationManager().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
+                handleSyncNotAttempted(Localization.get("notification.sync.airplane.action"));
+                CommCareApplication.noficationManager().reportNotificationMessage(
+                        NotificationMessageFactory.message(
+                                NotificationMessageFactory.StockMessages.Sync_AirplaneMode,
+                                AIRPLANE_MODE_CATEGORY));
             } else {
-                reportSyncResult(Localization.get("notification.sync.connections.action"), false);
-                CommCareApplication.noficationManager().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
+                handleSyncNotAttempted(Localization.get("notification.sync.connections.action"));
+                CommCareApplication.noficationManager().reportNotificationMessage(
+                        NotificationMessageFactory.message(
+                                NotificationMessageFactory.StockMessages.Sync_NoConnections,
+                                AIRPLANE_MODE_CATEGORY));
             }
             GoogleAnalyticsUtils.reportSyncAttempt(
                     GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
@@ -98,9 +104,9 @@ public class StandardHomeActivity
     }
 
     @Override
-    public void reportSyncResult(String message, boolean success) {
-        uiController.updateSyncButtonMessage(message);
+    protected void updateUiAfterDataPullOrSend(String message, boolean success) {
         displayToast(message);
+        uiController.updateSyncButtonMessage(message);
     }
 
     @Override
@@ -225,8 +231,13 @@ public class StandardHomeActivity
     }
 
     @Override
+    public boolean usesSubmissionProgressBar() {
+        return false;
+    }
+
+    @Override
     public void refreshUI() {
         uiController.refreshView();
     }
-
+    
 }

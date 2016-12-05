@@ -53,23 +53,4 @@ public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement 
             i.nextID();
         }
     }
-
-
-    @Override
-    protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
-        //This is kind of (ok, so really) awkward looking, but we can't use sets in 
-        //ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in
-        //j2me (thanks Sun!) so this is what we get.
-        HashSet<Integer> selected = new HashSet<>(selectedCases);
-        selected.addAll(selectedCases);
-
-        HashSet<Integer> other = new HashSet<>();
-        other.addAll(cases);
-
-        selected.retainAll(other);
-
-        selectedCases.clear();
-        selectedCases.addAll(selected);
-        return selectedCases;
-    }
 }

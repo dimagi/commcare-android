@@ -7,9 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
@@ -30,6 +30,7 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.media.AudioPlaybackButton;
+import org.commcare.views.media.ViewId;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -51,9 +52,9 @@ import java.util.Vector;
  *
  * @author wspride
  */
-public class MenuAdapter implements ListAdapter {
+public class MenuAdapter extends BaseAdapter {
 
-    private final AndroidSessionWrapper asw;
+    protected final AndroidSessionWrapper asw;
     private Exception loadError;
     private String errorXpathException = "";
     final Context context;
@@ -70,12 +71,12 @@ public class MenuAdapter implements ListAdapter {
             for (Menu m : s.getMenus()) {
                 errorXpathException = "";
                 try {
-                    if (menuIsRelevant(m)) {
-                        if (m.getId().equals(menuID)) {
+                    if (m.getId().equals(menuID)) {
+                        if (menuIsRelevant(m)) {
                             addRelevantCommandEntries(m, items, map);
-                        } else {
-                            addUnaddedMenu(menuID, m, items);
                         }
+                    } else {
+                        addUnaddedMenu(menuID, m, items);
                     }
                 } catch (CommCareInstanceInitializer.FixtureInitializationException
                         | XPathSyntaxException | XPathException xpe) {
@@ -151,7 +152,7 @@ public class MenuAdapter implements ListAdapter {
         }
     }
 
-    private static void addUnaddedMenu(String menuID, Menu m, Vector<MenuDisplayable> items) {
+    private void addUnaddedMenu(String menuID, Menu m, Vector<MenuDisplayable> items) throws XPathSyntaxException {
         if (menuID.equals(m.getRoot())) {
             //make sure we didn't already add this ID
             boolean idExists = false;
@@ -164,7 +165,9 @@ public class MenuAdapter implements ListAdapter {
                 }
             }
             if (!idExists) {
-                items.add(m);
+                if (menuIsRelevant(m)) {
+                    items.add(m);
+                }
             }
         }
     }
@@ -222,7 +225,7 @@ public class MenuAdapter implements ListAdapter {
         setupTextView(rowText, menuDisplayable);
 
         AudioPlaybackButton audioPlaybackButton = (AudioPlaybackButton)menuListItem.findViewById(R.id.row_soundicon);
-        setupAudioButton(audioPlaybackButton, menuDisplayable);
+        setupAudioButton(i, audioPlaybackButton, menuDisplayable);
 
         // set up the image, if available
         ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
@@ -230,7 +233,7 @@ public class MenuAdapter implements ListAdapter {
         return menuListItem;
     }
 
-    private void setupAudioButton(AudioPlaybackButton audioPlaybackButton, MenuDisplayable menuDisplayable) {
+    private void setupAudioButton(int rowId, AudioPlaybackButton audioPlaybackButton, MenuDisplayable menuDisplayable) {
         final String audioURI = menuDisplayable.getAudioURI();
         String audioFilename = "";
         if (audioURI != null && !audioURI.equals("")) {
@@ -244,18 +247,19 @@ public class MenuAdapter implements ListAdapter {
 
         File audioFile = new File(audioFilename);
         // First set up the audio button
+        ViewId viewId = ViewId.buildListViewId(rowId);
         if (!"".equals(audioFilename) && audioFile.exists()) {
-            audioPlaybackButton.resetButton(audioURI, true);
+            audioPlaybackButton.modifyButtonForNewView(viewId, audioURI, true);
         } else {
             if (audioPlaybackButton != null) {
-                audioPlaybackButton.resetButton(audioURI, false);
+                audioPlaybackButton.modifyButtonForNewView(viewId,audioURI, false);
                 ((LinearLayout)audioPlaybackButton.getParent()).removeView(audioPlaybackButton);
             }
         }
     }
 
     public void setupTextView(TextView textView, MenuDisplayable menuDisplayable) {
-        String mQuestionText = textViewHelper(menuDisplayable);
+        String mQuestionText = menuDisplayable.getDisplayText();
 
         //Final change, remove any numeric context requests. J2ME uses these to
         //help with numeric navigation.
@@ -309,10 +313,6 @@ public class MenuAdapter implements ListAdapter {
                     break;
             }
         }
-    }
-
-    private static String textViewHelper(MenuDisplayable e) {
-        return e.getDisplayText();
     }
 
     @Override
