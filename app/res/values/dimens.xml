@@ -26,6 +26,12 @@
     <dimen name="min_button_height">52dp</dimen>
     <dimen name="spacer">10dp</dimen>
 
+    <dimen name="menu_icon_size">60dp</dimen>
+    <dimen name="menu_grid_icon_size">120dp</dimen>
+    <dimen name="menu_grid_icon_size_with_badge">136dp</dimen>
+    <dimen name="numeric_badge_font_size">15dp</dimen>
+    <dimen name="numeric_badge_width">30dp</dimen>
+
     <dimen name="widget_button_padding">10dp</dimen>
 
     <dimen name="login_box_margins">30dp</dimen>
@@ -88,6 +94,8 @@
     <dimen name="new_progressbar_button_minheight">48dp</dimen>
     <dimen name="new_progressbar_button_minwidth">32dp</dimen>
     <dimen name="new_progressbar_button_padding">24dp</dimen>
+
+    <dimen name="submission_progressbar_height">10dp</dimen>
 
     <dimen name="form_label_padding">8dp</dimen>
 

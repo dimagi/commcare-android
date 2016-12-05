@@ -69,11 +69,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     }
 
     @Override
-    protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
-        return DataUtil.intersection(selectedCases, cases);
-    }
-
-    @Override
     protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values,
                                                 IStorageUtilityIndexed<?> storage) {
         //If the index object starts with "case-in-" it's actually a case index query and we need to run

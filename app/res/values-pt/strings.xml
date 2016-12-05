@@ -78,7 +78,7 @@
     <string name="list_failed_with_error">Listagem de formulários falhou. %s.</string>
     <string name="loading_form">Carregando Formulário</string>
     <string name="load_remote_form_error">Erro na Listagem de Formulários</string>
-    <string name="location_provider_accuracy">Usando %1$s. Precisão de %2$s m.</string>
+    <string name="location_provider_accuracy">Precisão de %1$s m.</string>
     <string name="location_provider">Usando %1$s provedor. Por favor aguarde por uma melhor precisão.</string>
     <string name="location_accuracy">Accuracy is %1$s m</string>
     <string name="longitude">Longitude</string>

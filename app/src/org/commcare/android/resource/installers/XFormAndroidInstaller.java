@@ -153,7 +153,6 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     public boolean upgrade(Resource r) {
         boolean fileUpgrade = super.upgrade(r);
         return fileUpgrade && updateFilePath();
-
     }
 
     /**

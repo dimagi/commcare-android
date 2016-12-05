@@ -530,7 +530,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }
         } else {
-            scanSMSLinks(installTriggeredManually);
+            scanSMSLinks();
         }
     }
 
@@ -551,10 +551,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * Scan the most recent incoming text messages for a message with a
      * verified link to a commcare app and install it.  Message scanning stops
      * after the number of scanned messages reaches 'SMS_CHECK_COUNT'.
-     *
-     * @param installTriggeredManually don't install the found app link
      */
-    private void scanSMSLinks(final boolean installTriggeredManually) {
+    private void scanSMSLinks() {
+        final boolean installTriggeredManually = manualSMSInstall;
         RetrieveParseVerifyMessageTask<CommCareSetupActivity> smsProcessTask =
                 new RetrieveParseVerifyMessageTask<CommCareSetupActivity>(this, getContentResolver(), installTriggeredManually) {
 
@@ -729,7 +728,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             String installProgressText =
                     Localization.getWithDefault("profile.found",
                             new String[]{"" + done, "" + total},
-                            "Application found. Loading resources...");
+                            "Setting up app...");
             updateProgress(installProgressText, DIALOG_INSTALL_PROGRESS);
         }
         updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
@@ -847,7 +846,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             for (int i = 0; i < permissions.length; i++) {
                 if (Manifest.permission.READ_SMS.equals(permissions[i]) &&
                         grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    scanSMSLinks(manualSMSInstall);
+                    scanSMSLinks();
                 }
             }
         } else if (requestCode == Permissions.ALL_PERMISSIONS_REQUEST) {

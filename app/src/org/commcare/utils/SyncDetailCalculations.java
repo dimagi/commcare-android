@@ -26,6 +26,7 @@ import java.util.Date;
 public class SyncDetailCalculations {
     private final static String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
     private final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
+    private final static String LAST_SYNC_KEY_BASE = "last-succesful-sync-";
 
     public static void updateSubText(final StandardHomeActivity activity,
                                      SquareButtonViewHolder squareButtonViewHolder,
@@ -61,13 +62,17 @@ public class SyncDetailCalculations {
     public static Pair<Long, String> getLastSyncTimeAndMessage() {
         CharSequence syncTimeMessage;
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        long lastSyncTime = prefs.getLong("last-succesful-sync", 0);
+        long lastSyncTime = prefs.getLong(getLastSyncKey(), 0);
         if (lastSyncTime == 0) {
             syncTimeMessage = Localization.get("home.sync.message.last.never");
         } else {
             syncTimeMessage = DateUtils.formatSameDayTime(lastSyncTime, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
         }
         return new Pair<>(lastSyncTime, Localization.get("home.sync.message.last", new String[]{syncTimeMessage.toString()}));
+    }
+
+    public static String getLastSyncKey() {
+        return LAST_SYNC_KEY_BASE + CommCareApplication.instance().getCurrentUserId();
     }
 
     private static void setSyncSubtextColor(TextView subtext, int numUnsentForms, long lastSyncTime,

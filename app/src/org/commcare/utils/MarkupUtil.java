@@ -5,17 +5,36 @@ import android.os.Build;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.UnderlineSpan;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
+import net.nightwhistler.htmlspanner.SpanStack;
+import net.nightwhistler.htmlspanner.TagNodeHandler;
 
 import org.commcare.CommCareApplication;
 import org.commcare.preferences.DeveloperPreferences;
+import org.htmlcleaner.TagNode;
 import org.javarosa.core.services.locale.Localization;
 
 import in.uncod.android.bypass.Bypass;
 
 public class MarkupUtil {
-    private static final HtmlSpanner htmlspanner = new HtmlSpanner();
+
+    public static class UnderlineHandler extends TagNodeHandler {
+
+        @Override
+        public void handleTagNode(TagNode node, SpannableStringBuilder builder,
+                                  int start, int end, SpanStack spanStack) {
+            spanStack.pushSpan(new UnderlineSpan(), start, end);
+        }
+    }
+
+    private static final HtmlSpanner htmlspanner = new HtmlSpanner() {
+        {
+            this.registerHandler("u", new UnderlineHandler());
+        }
+    };
 
     public static Spannable styleSpannable(Context c, String message) {
         if (DeveloperPreferences.isMarkdownEnabled()) {
