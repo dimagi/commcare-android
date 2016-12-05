@@ -66,11 +66,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     }
 
     @Override
-    protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
-        return DataUtil.intersection(selectedCases, cases);
-    }
-
-    @Override
     protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values, IStorageUtilityIndexed<?> storage) {
         String firstKey = keys.elementAt(0);
 
