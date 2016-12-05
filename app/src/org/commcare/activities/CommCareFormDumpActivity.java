@@ -94,7 +94,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                     @Override
                     protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
                         if (result == Boolean.TRUE) {
-                            CommCareApplication.noficationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
+                            CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
                             Intent i = new Intent(getIntent());
                             i.putExtra(AdvancedActionsActivity.KEY_NUMBER_DUMPED, formsOnSD);
                             receiver.setResult(BULK_SEND_ID, i);
@@ -102,7 +102,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                             receiver.finish();
                         } else {
                             //assume that we've already set the error message, but make it look scary
-                            CommCareApplication.noficationManager().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
+                            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
                             receiver.updateCounters();
                             receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                         }

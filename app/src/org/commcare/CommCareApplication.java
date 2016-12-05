@@ -996,7 +996,7 @@ public class CommCareApplication extends Application {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
 
-    public static CommCareNoficationManager noficationManager() {
+    public static CommCareNoficationManager notificationManager() {
         return app.noficationManager;
     }
 }

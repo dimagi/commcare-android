@@ -621,7 +621,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {
         String message;
         if (showAsPinnedNotifcation) {
-            CommCareApplication.noficationManager().reportNotificationMessage(notificationMessage);
+            CommCareApplication.notificationManager().reportNotificationMessage(notificationMessage);
             message = Localization.get("notification.for.details.wrapper",
                     new String[]{notificationMessage.getTitle()});
         } else {
@@ -663,7 +663,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void reportSuccess(boolean newAppInstalled) {
-        CommCareApplication.noficationManager().clearNotifications("install_update");
+        CommCareApplication.notificationManager().clearNotifications("install_update");
 
         if (newAppInstalled) {
             GoogleAnalyticsUtils.reportAppInstall(lastInstallMode);

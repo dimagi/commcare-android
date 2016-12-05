@@ -82,13 +82,13 @@ public class StandardHomeActivity
         if (!ConnectivityStatus.isNetworkAvailable(StandardHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(StandardHomeActivity.this)) {
                 handleSyncNotAttempted(Localization.get("notification.sync.airplane.action"));
-                CommCareApplication.noficationManager().reportNotificationMessage(
+                CommCareApplication.notificationManager().reportNotificationMessage(
                         NotificationMessageFactory.message(
                                 NotificationMessageFactory.StockMessages.Sync_AirplaneMode,
                                 AIRPLANE_MODE_CATEGORY));
             } else {
                 handleSyncNotAttempted(Localization.get("notification.sync.connections.action"));
-                CommCareApplication.noficationManager().reportNotificationMessage(
+                CommCareApplication.notificationManager().reportNotificationMessage(
                         NotificationMessageFactory.message(
                                 NotificationMessageFactory.StockMessages.Sync_NoConnections,
                                 AIRPLANE_MODE_CATEGORY));
@@ -99,7 +99,7 @@ public class StandardHomeActivity
                     GoogleAnalyticsFields.VALUE_NO_CONNECTION);
             return;
         }
-        CommCareApplication.noficationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
+        CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
         sendFormsOrSync(true);
     }
 

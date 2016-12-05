@@ -479,6 +479,6 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
 
     @Override
     public void notifyBadfilter(String[] args) {
-        CommCareApplication.noficationManager().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Case_Filter, args));
+        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Case_Filter, args));
     }
 }

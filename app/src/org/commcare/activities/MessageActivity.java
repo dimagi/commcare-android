@@ -34,7 +34,7 @@ public class MessageActivity extends ListActivity {
         if (savedInstanceState != null && savedInstanceState.containsKey(KEY_MESSAGES)) {
             messages = savedInstanceState.getParcelableArrayList(KEY_MESSAGES);
         } else {
-            messages = CommCareApplication.noficationManager().purgeNotifications();
+            messages = CommCareApplication.notificationManager().purgeNotifications();
         }
     }
 

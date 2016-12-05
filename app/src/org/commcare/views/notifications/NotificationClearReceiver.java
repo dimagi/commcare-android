@@ -15,7 +15,7 @@ public class NotificationClearReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        CommCareApplication.noficationManager().purgeNotifications();
+        CommCareApplication.notificationManager().purgeNotifications();
     }
 
 }

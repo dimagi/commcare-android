@@ -236,7 +236,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             // failed for a specific reason like xml syntax
             if (UpdateTask.isCombinedErrorMessage(result.errorMessage)) {
                 Pair<String, String> resouceAndMessage = UpdateTask.splitCombinedErrorMessage(result.errorMessage);
-                CommCareApplication.noficationManager().reportNotificationMessage(NotificationMessageFactory.message(AppInstallStatus.InvalidResource, new String[]{null, resouceAndMessage.first, resouceAndMessage.second}), true);
+                CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(AppInstallStatus.InvalidResource, new String[]{null, resouceAndMessage.first, resouceAndMessage.second}), true);
             }
             uiController.checkFailedUiState();
             if (proceedAutomatically) {
