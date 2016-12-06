@@ -32,7 +32,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     private final CommCareApp app;
 
     public AndroidCommCarePlatform(int majorVersion, int minorVersion, CommCareApp app) {
-        super(majorVersion, minorVersion);
+        super(majorVersion, minorVersion, app);
         xmlnstable = new Hashtable<>();
         installedSuites = new Vector<>();
         this.app = app;
