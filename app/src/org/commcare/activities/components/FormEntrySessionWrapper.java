@@ -20,6 +20,9 @@ import java.io.IOException;
 import static org.commcare.activities.FormEntryActivity.mFormController;
 
 /**
+ * Wrapper for the form entry action recorder, allowing for saving and
+ * restoring to the form entry activity.
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FormEntrySessionWrapper {
