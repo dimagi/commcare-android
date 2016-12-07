@@ -63,4 +63,8 @@ public class FormEntryInstanceState {
     public void setFormPath(String path) {
         mFormPath = path;
     }
+
+    public static String getInstanceFolder() {
+        return mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
+    }
 }

@@ -307,17 +307,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
                 break;
             case FormEntryConstants.IMAGE_CAPTURE:
-                ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), true);
+                ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), true);
                 break;
             case FormEntryConstants.SIGNATURE_CAPTURE:
-                boolean saved = ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), false);
+                boolean saved = ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), false);
                 if (saved && !uiController.questionsView.isQuestionList()) {
                     // attempt to auto-advance if a signature was captured
                     advance();
                 }
                 break;
             case FormEntryConstants.IMAGE_CHOOSER:
-                ImageCaptureProcessing.processImageChooserResponse(this, getInstanceFolder(), intent);
+                ImageCaptureProcessing.processImageChooserResponse(this, FormEntryInstanceState.getInstanceFolder(), intent);
                 break;
             case FormEntryConstants.AUDIO_VIDEO_FETCH:
                 processChooserResponse(intent);
@@ -337,10 +337,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
                 break;
         }
-    }
-
-    private String getInstanceFolder() {
-        return FormEntryInstanceState.mInstancePath.substring(0, FormEntryInstanceState.mInstancePath.lastIndexOf("/") + 1);
     }
 
     public void saveImageWidgetAnswer(ContentValues values) {
@@ -422,7 +418,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 } else {
                     // Set our instance destination for binary data if needed
-                    String destination = FormEntryInstanceState.mInstancePath.substring(0, FormEntryInstanceState.mInstancePath.lastIndexOf("/") + 1);
+                    String destination = FormEntryInstanceState.getInstanceFolder();
                     wasAnswerSet = ic.processResponse(response, context, new File(destination));
                 }
             }
