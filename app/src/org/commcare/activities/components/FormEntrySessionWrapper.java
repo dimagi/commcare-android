@@ -28,7 +28,7 @@ public class FormEntrySessionWrapper {
 
     public static final String KEY_FORM_ENTRY_SESSION = "form_entry_session";
 
-    private FormEntrySession formEntryRestoreSession = new FormEntrySession();
+    private FormEntrySession formEntryRestoreSession = null;
     private boolean recordEntrySession;
 
     public void restoreFormEntrySession(Bundle savedInstanceState, PrototypeFactory prototypeFactory) {
