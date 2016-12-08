@@ -67,7 +67,7 @@
     </fixture>
     <fixture id="commtrack:products" user_id="a8f5a98c4ce767c35b9132bc75eb225c">
         <products>
-            <product id="f895be4959f9a8a66f57c340aac461b4">
+            <product id="f895be4959f9a8a66f57c340aac461b4" heterogenous_attribute="present">
                 <name>Collier</name>
                 <unit/>
                 <code>col</code>
@@ -85,7 +85,7 @@
                 <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
                 <cost>57</cost>
             </product>
-            <product id="31ab899368d38c2d0207fe80c00fa96c">
+            <product id="31ab899368d38c2d0207fe80c00fa96c" heterogenous_attribute="present">
                 <name>Depo-Provera</name>
                 <unit/>
                 <code>dp</code>
