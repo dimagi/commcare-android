@@ -36,34 +36,44 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/icon"
+                android:layout_toRightOf="@id/icon"
+                android:layout_toLeftOf="@+id/right_aligned_container"
                 android:paddingLeft="@dimen/entity_item_image_margins"
                 android:textSize="@dimen/font_size_large"/>
 
-            <org.commcare.views.media.AudioPlaybackButton
-                android:id="@+id/audio"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/text"
-                android:background="@null"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:paddingLeft="@dimen/min_button_padding"
-                android:paddingRight="@dimen/min_button_padding"
-                android:visibility="gone"/>
+                android:layout_height="match_parent"
+                android:id="@id/right_aligned_container"
+                android:orientation="horizontal"
+                android:layout_alignParentRight="true">
 
-            <ImageView
-                android:id="@+id/launch_action"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:background="@null"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:padding="@dimen/min_button_padding"
-                android:src="@drawable/icon_chevron_right_attnpos"/>
+                <org.commcare.views.media.AudioPlaybackButton
+                    android:id="@+id/audio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:background="@null"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:paddingLeft="@dimen/min_button_padding"
+                    android:paddingRight="@dimen/min_button_padding"
+                    android:visibility="gone"/>
+
+                <ImageView
+                    android:id="@+id/launch_action"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/text"
+                    android:layout_centerVertical="true"
+                    android:background="@null"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:padding="@dimen/min_button_padding"
+                    android:src="@drawable/icon_chevron_right_attnpos"/>
+
+            </LinearLayout>
+
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 </FrameLayout>
