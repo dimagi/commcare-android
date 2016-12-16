@@ -22,6 +22,7 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
 
     private int totalItems;
     private int maxProgress;
+    private int currentProgress;
     private long sizeOfCurrentItem;
     private long startTime;
     private ProgressBar submissionProgressBar;
@@ -31,12 +32,26 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
         this.containingActivity = activityContainingProgressBar;
     }
 
+    /**
+     * Called when the associated ProcessAndSendTask's connecting activity changes
+     */
+    public void attachToNewActivity(SyncCapableCommCareActivity newActivity) {
+        if (newActivity != containingActivity) {
+            this.containingActivity = newActivity;
+            showProgressBarInActivity(this.currentProgress);
+        }
+    }
+
     @Override
     public void beginSubmissionProcess(int totalItems) {
         this.totalItems = totalItems;
         // Give each item 100 units of progress to use
         this.maxProgress = totalItems * 100;
         this.startTime = System.currentTimeMillis();
+        showProgressBarInActivity(0);
+    }
+
+    private void showProgressBarInActivity(final int progressToSet) {
         this.containingActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -44,7 +59,7 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
                         (ProgressBar)containingActivity.findViewById(R.id.submission_progress_bar);
                 submissionProgressBar.setVisibility(View.VISIBLE);
                 submissionProgressBar.setMax(maxProgress);
-                submissionProgressBar.setProgress(0);
+                submissionProgressBar.setProgress(progressToSet);
             }
         });
     }
@@ -60,8 +75,9 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
             @Override
             public void run() {
                 int nextProgress = getProgressToReport(itemNumber, progress);
-                if (nextProgress > submissionProgressBar.getProgress()) {
+                if (nextProgress > FormSubmissionProgressBarListener.this.currentProgress) {
                     submissionProgressBar.setProgress(nextProgress);
+                    FormSubmissionProgressBarListener.this.currentProgress = nextProgress;
                 }
             }
         });

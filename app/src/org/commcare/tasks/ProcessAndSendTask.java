@@ -4,11 +4,13 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.SyncCapableCommCareActivity;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
@@ -58,6 +60,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     private static final long SUBMISSION_SUCCESS = 1;
     private static final long SUBMISSION_FAIL = 0;
 
+    private FormSubmissionProgressBarListener progressBarListener;
     private List<DataSubmissionListener> formSubmissionListeners;
     private final FormRecordProcessor processor;
 
@@ -349,7 +352,12 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
     }
 
-    public void addListener(DataSubmissionListener submissionListener) {
+    public void addProgressBarSubmissionListener(FormSubmissionProgressBarListener listener) {
+        this.progressBarListener = listener;
+        addSubmissionListener(listener);
+    }
+
+    public void addSubmissionListener(DataSubmissionListener submissionListener) {
         formSubmissionListeners.add(submissionListener);
     }
 
@@ -441,6 +449,15 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         dispatchEndSubmissionProcessToListeners(false);
         CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
         clearState();
+    }
+
+    @Override
+    public void connect(CommCareTaskConnector<R> connector) {
+        super.connect(connector);
+        if (progressBarListener != null) {
+            progressBarListener.attachToNewActivity(
+                    (SyncCapableCommCareActivity)connector.getReceiver());
+        }
     }
 
     private static class TaskCancelledException extends Exception {
