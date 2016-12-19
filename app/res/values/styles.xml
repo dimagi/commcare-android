@@ -165,6 +165,12 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
+    <style name="ListContentWithBadge">
+        <item name="android:layout_width">@dimen/list_icon_with_badge</item>
+        <item name="android:layout_height">@dimen/list_icon_with_badge</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
     <style name="GridViewContentWithBadge">
         <item name="android:layout_width">@dimen/menu_grid_icon_size</item>
         <item name="android:layout_height">@dimen/menu_grid_icon_size_with_badge</item>

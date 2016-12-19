@@ -6,10 +6,41 @@
                                           android:textAppearance="@style/EntityItemText"
                                           app:shrinkable_view="@+id/row_txt">
 
-    <ImageView
-        android:id="@+id/row_img"
-        style="@style/ListContentV2"
-        android:layout_width="wrap_content"/>
+    <RelativeLayout
+        style="@style/ListContentWithBadge" >
+
+        <ImageView
+            android:id="@+id/row_img"
+            android:layout_width="@dimen/list_icon_with_badge"
+            android:layout_height="@dimen/list_icon_with_badge"
+            android:padding="@dimen/standard_spacer_half"/>
+
+        <RelativeLayout
+            android:id="@+id/badge_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="@dimen/numeric_badge_width_for_list"
+                android:layout_height="@dimen/numeric_badge_width_for_list"
+                android:layout_centerInParent="true"
+                android:src="@drawable/badge_circle"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textColor="@color/cc_attention_negative_text"
+                android:textSize="@dimen/numeric_badge_font_size_list"
+                android:background="@color/transparent"
+                android:id="@+id/badge_text"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/row_txt"
