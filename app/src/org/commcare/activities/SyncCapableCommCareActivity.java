@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.UiLoadedListener;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.tasks.DataPullTask;
@@ -47,6 +48,8 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     private String lastIconTrigger;
     private MenuItem currentSyncMenuItem;
 
+    private UiLoadedListener uiLoadedListener;
+
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         formAndDataSyncer = new FormAndDataSyncer();
@@ -59,6 +62,14 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_LAST_ICON_TRIGGER, lastIconTrigger);
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (uiLoadedListener != null) {
+            uiLoadedListener.onUiLoaded();
+        }
     }
 
     /**
@@ -321,9 +332,19 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     public abstract boolean shouldShowSyncItemInActionBar();
 
     /**
-     * If true, a progress bar will show beneath the action bar during form submission
+     * If true, a progress bar will show beneath the action bar during form submission. In order
+     * to successfully enable this for an activity, the layout file for that activity must also
+     * contain the progress bar element that FormSubmissionProgressBarListener expects.
      */
     public abstract boolean usesSubmissionProgressBar();
+
+    public void setUiLoadedListener(UiLoadedListener listener) {
+        this.uiLoadedListener = listener;
+    }
+
+    public void removeUiLoadedListener() {
+        this.uiLoadedListener = null;
+    }
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {

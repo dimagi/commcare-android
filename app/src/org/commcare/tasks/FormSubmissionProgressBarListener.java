@@ -9,13 +9,14 @@ import android.widget.ProgressBar;
 
 import org.commcare.activities.SyncCapableCommCareActivity;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.UiLoadedListener;
 
 /**
  * A DataSubmissionListener that updates a progress bar in the given activity
  *
  * @author Aliza Stone
  */
-public class FormSubmissionProgressBarListener implements DataSubmissionListener {
+public class FormSubmissionProgressBarListener implements DataSubmissionListener, UiLoadedListener {
 
     private static final long MIN_PROGRESS_BAR_DURATION_PER_ITEM = 1000;
     private static final long MAX_TOTAL_PROGRESS_BAR_DURATION = 5000;
@@ -57,9 +58,14 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
             public void run() {
                 submissionProgressBar =
                         (ProgressBar)containingActivity.findViewById(R.id.submission_progress_bar);
-                submissionProgressBar.setVisibility(View.VISIBLE);
-                submissionProgressBar.setMax(maxProgress);
-                submissionProgressBar.setProgress(progressToSet);
+                if (submissionProgressBar == null) {
+                    // Means that the activity has not finished loading its UI yet, so we have to wait
+                    containingActivity.setUiLoadedListener(FormSubmissionProgressBarListener.this);
+                } else {
+                    submissionProgressBar.setVisibility(View.VISIBLE);
+                    submissionProgressBar.setMax(maxProgress);
+                    submissionProgressBar.setProgress(progressToSet);
+                }
             }
         });
     }
@@ -156,4 +162,10 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
         return Math.min(MIN_PROGRESS_BAR_DURATION_PER_ITEM * totalItems, MAX_TOTAL_PROGRESS_BAR_DURATION);
     }
 
+    @Override
+    public void onUiLoaded() {
+        showProgressBarInActivity(this.currentProgress);
+        // we only want to trigger this once
+        this.containingActivity.removeUiLoadedListener();
+    }
 }
