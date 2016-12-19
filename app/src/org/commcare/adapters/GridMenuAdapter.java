@@ -55,7 +55,7 @@ public class GridMenuAdapter extends MenuAdapter {
         View badgeView = menuListItem.findViewById(R.id.badge_view);
         String badgeText = menuDisplayable.getTextForBadge(
                 asw.getEvaluationContext(menuDisplayable.getCommandID()));
-        if (badgeText != null && !"".equals(badgeText)) {
+        if (badgeText != null && !"".equals(badgeText) && !"0".equals(badgeText)) {
             if (badgeText.length() > 2) {
                 // A badge can only fit up to 2 characters
                 badgeText = badgeText.substring(0, 2);
