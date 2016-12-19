@@ -103,7 +103,6 @@ public class SyncDetailCalculations {
         int secs_ago = (int)((lastSyncTime - now) / 1000);
         int days_ago = secs_ago / 86400;
 
-        return ((-days_ago) > unsentFormTimeLimit) &&
-                prefs.getString("server-tether", "push-only").equals("sync");
+        return (-days_ago) > unsentFormTimeLimit;
     }
 }
