@@ -33,12 +33,13 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     private String[][] mMostRecentBatchFetch = null;
 
-    public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode) {
-        this(instanceRoot, storage, reportMode, new CaseIndexTable());
+    public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage) {
+        this(instanceRoot, storage, new CaseIndexTable());
     }
 
-    public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode, CaseIndexTable caseIndexTable) {
-        super(instanceRoot, storage, reportMode);
+    public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage,
+                                          CaseIndexTable caseIndexTable) {
+        super(instanceRoot, storage);
         mCaseIndexTable = caseIndexTable;
     }
 

@@ -210,7 +210,7 @@ public class TestUtils {
             @Override
             public AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
                 SqlStorage<ACase> storage = getCaseStorage(db);
-                AndroidCaseInstanceTreeElement casebase = new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false, new CaseIndexTable(db));
+                AndroidCaseInstanceTreeElement casebase = new AndroidCaseInstanceTreeElement(instance.getBase(), storage, new CaseIndexTable(db));
                 instance.setCacheHost(casebase);
                 return casebase;
             }
