@@ -166,8 +166,8 @@
     </style>
 
     <style name="ListContentWithBadge">
-        <item name="android:layout_width">@dimen/list_icon_with_badge</item>
-        <item name="android:layout_height">@dimen/list_icon_with_badge</item>
+        <item name="android:layout_width">@dimen/list_height_with_badge</item>
+        <item name="android:layout_height">@dimen/list_height_with_badge</item>
         <item name="android:gravity">center_vertical</item>
     </style>
 

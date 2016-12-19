@@ -29,13 +29,18 @@
     <dimen name="menu_icon_size">60dp</dimen>
     <dimen name="menu_grid_icon_size">120dp</dimen>
     <dimen name="menu_grid_icon_size_with_badge">136dp</dimen>
+
     <dimen name="numeric_badge_font_size_grid">15dp</dimen>
     <dimen name="numeric_badge_font_size_list">10dp</dimen>
+
     <dimen name="numeric_badge_width_for_grid">30dp</dimen>
     <dimen name="numeric_badge_width_for_list">20dp</dimen>
+
     <dimen name="list_height">48dp</dimen>
     <dimen name="list_height_tall">52dp</dimen>
-    <dimen name="list_icon_with_badge">53dp</dimen>
+
+    <dimen name="menu_list_icon_size">44dp</dimen>
+    <dimen name="list_height_with_badge">58dp</dimen>
 
     <dimen name="widget_button_padding">10dp</dimen>
 

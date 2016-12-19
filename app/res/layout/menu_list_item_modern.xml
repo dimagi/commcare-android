@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.commcare.views.ShrinkingLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                          xmlns:app="http://schemas.android.com/apk/res-auto"
-                                          android:layout_width="fill_parent"
-                                          android:layout_height="fill_parent"
-                                          android:textAppearance="@style/EntityItemText"
-                                          app:shrinkable_view="@+id/row_txt">
+<org.commcare.views.ShrinkingLinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:textAppearance="@style/EntityItemText"
+    app:shrinkable_view="@+id/row_txt"
+    android:layout_gravity="center_vertical">
 
     <RelativeLayout
-        style="@style/ListContentWithBadge" >
+        style="@style/ListContentWithBadge">
 
         <ImageView
             android:id="@+id/row_img"
-            android:layout_width="@dimen/list_icon_with_badge"
-            android:layout_height="@dimen/list_icon_with_badge"
-            android:padding="@dimen/standard_spacer_half"/>
+            android:layout_height="@dimen/menu_list_icon_size"
+            android:layout_width="@dimen/menu_list_icon_size"
+            android:layout_centerInParent="true"/>
 
         <RelativeLayout
             android:id="@+id/badge_view"
