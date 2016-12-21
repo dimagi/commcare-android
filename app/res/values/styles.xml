@@ -158,8 +158,8 @@
     </style>
 
     <style name="ListContentWithBadge">
-        <item name="android:layout_width">@dimen/list_height</item>
-        <item name="android:layout_height">@dimen/list_height</item>
+        <item name="android:layout_width">@dimen/list_content_with_space_for_badge</item>
+        <item name="android:layout_height">@dimen/list_content_with_space_for_badge</item>
         <item name="android:gravity">center_vertical</item>
     </style>
 
