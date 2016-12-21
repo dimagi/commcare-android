@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:textAppearance="@style/EntityItemText"
     app:shrinkable_view="@+id/row_txt"
-    android:layout_gravity="center_vertical">
+    android:gravity="center_vertical">
 
     <RelativeLayout
         style="@style/ListContentWithBadge">
