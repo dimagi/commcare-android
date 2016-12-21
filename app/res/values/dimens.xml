@@ -26,7 +26,7 @@
     <dimen name="min_button_height">52dp</dimen>
     <dimen name="spacer">10dp</dimen>
 
-    <dimen name="menu_icon_size">60dp</dimen>
+    <dimen name="action_icon_size">60dp</dimen>
     <dimen name="menu_list_icon_size">48dp</dimen>
     <dimen name="menu_grid_icon_size">120dp</dimen>
     <dimen name="menu_grid_icon_size_with_badge">136dp</dimen>
