@@ -272,7 +272,7 @@ public class MenuAdapter extends BaseAdapter {
 
     public void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable) {
         if (mIconView != null) {
-            int iconDimension = (int)context.getResources().getDimension(R.dimen.menu_list_icon_size);
+            int iconDimension = (int)context.getResources().getDimension(R.dimen.list_icon_bounding_dimen);
             Bitmap image = MediaUtil.inflateDisplayImage(context, menuDisplayable.getImageURI(),
                     iconDimension, iconDimension);
             if (image != null) {

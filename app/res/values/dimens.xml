@@ -31,7 +31,9 @@
     <dimen name="list_text_height">48dp</dimen>
     <dimen name="list_audio_height">52dp</dimen>
     <dimen name="list_content_with_space_for_badge">58dp</dimen>
-    <dimen name="menu_list_icon_size">48dp</dimen>
+    <dimen name="list_icon_size">48dp</dimen>
+    <dimen name="list_icon_bounding_dimen">60dp</dimen>
+
     <dimen name="numeric_badge_width_for_list">20dp</dimen>
     <dimen name="numeric_badge_font_size_list">10dp</dimen>
 

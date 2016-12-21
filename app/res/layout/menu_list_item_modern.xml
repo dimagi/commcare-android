@@ -13,8 +13,8 @@
 
         <ImageView
             android:id="@+id/row_img"
-            android:layout_height="@dimen/menu_list_icon_size"
-            android:layout_width="@dimen/menu_list_icon_size"
+            android:layout_height="@dimen/list_icon_size"
+            android:layout_width="@dimen/list_icon_size"
             android:layout_centerInParent="true"/>
 
         <RelativeLayout
