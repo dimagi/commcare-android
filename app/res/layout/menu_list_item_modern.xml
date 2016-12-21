@@ -14,7 +14,7 @@
         <ImageView
             android:id="@+id/row_img"
             android:layout_height="@dimen/list_icon_size"
-            android:layout_width="@dimen/list_icon_size"
+            android:layout_width="wrap_content"
             android:layout_centerInParent="true"/>
 
         <RelativeLayout
