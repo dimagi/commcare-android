@@ -2,7 +2,6 @@ package org.commcare.engine.cases;
 
 import android.util.Log;
 
-import org.commcare.cases.instance.CaseChildElement;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
 import org.commcare.models.database.SqlStorage;

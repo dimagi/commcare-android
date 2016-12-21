@@ -3,6 +3,7 @@ package org.commcare.models.database;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
+import org.commcare.cases.model.StorageBackedModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.utils.SessionUnavailableException;
@@ -37,6 +38,11 @@ public class AndroidSandbox extends UserSandbox {
     @Override
     public IStorageUtilityIndexed<User> getUserStorage() {
         return app.getUserStorage("USER", User.class);
+    }
+
+    @Override
+    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage() {
+        return app.getUserStorage(StorageBackedModel.STORAGE_KEY, StorageBackedModel.class);
     }
 
     @Override
