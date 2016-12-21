@@ -46,7 +46,8 @@
 
     <TextView
         android:id="@+id/row_txt"
-        style="@style/ListContentV2"
+        style="@style/ListContentWithoutBadge"
+        android:layout_height="@dimen/list_text_height"
         android:layout_width="wrap_content"
         android:layout_weight="1"
         android:ellipsize="end"
@@ -54,7 +55,8 @@
 
     <org.commcare.views.media.AudioPlaybackButton
         android:id="@+id/row_soundicon"
-        style="@style/ListContentTall"
+        style="@style/ListContentWithoutBadge"
+        android:layout_height="@dimen/list_audio_height"
         android:layout_width="wrap_content"
         android:background="@color/transparent_background"/>
 
