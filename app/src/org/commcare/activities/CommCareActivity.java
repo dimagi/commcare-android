@@ -133,7 +133,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         persistManagedUiState(fm);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && shouldShowBreadcrumbBar()) {
             getActionBar().setDisplayShowCustomEnabled(true);
 
             // Add breadcrumb bar
@@ -817,9 +817,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void refreshActionBar() {
-        FragmentManager fm = this.getSupportFragmentManager();
-        BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
-        bar.refresh(this);
+        if (shouldShowBreadcrumbBar()) {
+            FragmentManager fm = this.getSupportFragmentManager();
+            BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+            bar.refresh(this);
+        }
     }
 
     /**
@@ -858,7 +860,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return lastQueryString;
     }
 
-    protected  void setLastQueryString(String lastQueryString) {
+    protected void setLastQueryString(String lastQueryString) {
         this.lastQueryString = lastQueryString;
+    }
+
+    protected boolean shouldShowBreadcrumbBar() {
+        return true;
     }
 }
