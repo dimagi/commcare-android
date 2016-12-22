@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.view.MenuItem;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -237,7 +238,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
             public void onClick(DialogInterface dialog,
                                 int which) {
                 if (which == AlertDialog.BUTTON_POSITIVE) {
-                    CommCareApplication.instance().clearUserData();
+                    AppUtils.clearUserData();
                     activity.setResult(RESULT_DATA_RESET);
                     activity.finish();
                 }

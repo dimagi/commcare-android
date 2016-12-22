@@ -542,7 +542,7 @@ public class InstanceProvider extends ContentProvider {
                     NotificationMessage message =
                             NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Save_Error,
                                     new String[]{null, null, e.getMessage()});
-                    CommCareApplication.instance().reportNotificationMessage(message);
+                    CommCareApplication.notificationManager().reportNotificationMessage(message);
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                             "Error processing form. Should be recaptured during async processing: " + e.getMessage());
                     throw new RuntimeException(e);

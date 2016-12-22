@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.LoginActivity;
@@ -55,7 +56,7 @@ public class DebugControlsReceiver extends BroadcastReceiver {
     }
 
     private static void uninstallApp(String appId) {
-        ApplicationRecord appRecord = CommCareApplication.instance().getAppById(appId);
+        ApplicationRecord appRecord = AppUtils.getAppById(appId);
         if (appRecord != null) {
             CommCareApplication.instance().expireUserSession();
             CommCareApplication.instance().uninstall(appRecord);

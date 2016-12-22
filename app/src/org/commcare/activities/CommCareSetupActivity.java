@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.BuildConfig;
@@ -232,7 +233,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * @return if installation is not allowed due to multiple apps limitations
      */
     private boolean checkForMultipleAppsViolation() {
-        if (CommCareApplication.instance().getInstalledAppRecords().size() >= 2
+        if (AppUtils.getInstalledAppRecords().size() >= 2
                 && !GlobalPrivilegesManager.isMultipleAppsPrivilegeEnabled()
                 && !BuildConfig.DEBUG) {
             Intent i = new Intent(this, MultipleAppsLimitWarningActivity.class);
@@ -620,7 +621,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {
         String message;
         if (showAsPinnedNotifcation) {
-            CommCareApplication.instance().reportNotificationMessage(notificationMessage);
+            CommCareApplication.notificationManager().reportNotificationMessage(notificationMessage);
             message = Localization.get("notification.for.details.wrapper",
                     new String[]{notificationMessage.getTitle()});
         } else {
@@ -662,7 +663,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void reportSuccess(boolean newAppInstalled) {
-        CommCareApplication.instance().clearNotifications("install_update");
+        CommCareApplication.notificationManager().clearNotifications("install_update");
 
         if (newAppInstalled) {
             GoogleAnalyticsUtils.reportAppInstall(lastInstallMode);
