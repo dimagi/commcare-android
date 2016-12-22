@@ -1,5 +1,6 @@
 package org.commcare.utils;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.process.CommCareInstanceInitializer;
@@ -56,7 +57,7 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
 
     @Override
     public String getVersionString() {
-        return CommCareApplication.instance().getCurrentVersionString();
+        return AppUtils.getCurrentVersionString();
     }
 
     @Override

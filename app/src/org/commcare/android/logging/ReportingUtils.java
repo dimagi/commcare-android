@@ -2,6 +2,7 @@ package org.commcare.android.logging;
 
 import android.content.SharedPreferences;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.network.HttpRequestGenerator;
@@ -84,7 +85,7 @@ public class ReportingUtils {
 
     public static String getVersion() {
         try {
-            return CommCareApplication.instance().getCurrentVersionString();
+            return AppUtils.getCurrentVersionString();
         } catch (Exception e) {
             return "Version not set.";
         }
