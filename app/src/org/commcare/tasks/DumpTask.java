@@ -240,7 +240,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
                                 } else {
                                     //Otherwise, the SD card just got removed, and we need to bail anyway.
-                                    CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+                                    CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
                                     break;
                                 }
                                 continue;
@@ -284,7 +284,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     protected void onCancelled() {
         super.onCancelled();
 
-        CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 
 }
