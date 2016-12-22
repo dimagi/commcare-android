@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareNoficationManager;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.UpdateActivity;
@@ -66,7 +67,7 @@ public class UpdateActivityTest {
         // make sure there are no pinned notifications
         NotificationManager notificationManager =
                 (NotificationManager)RuntimeEnvironment.application.getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notification = Shadows.shadowOf(notificationManager).getNotification(CommCareApplication.MESSAGE_NOTIFICATION);
+        Notification notification = Shadows.shadowOf(notificationManager).getNotification(CommCareNoficationManager.MESSAGE_NOTIFICATION);
         assertNull(notification);
 
         // mock receiving the offline app reference and start the update
@@ -83,7 +84,7 @@ public class UpdateActivityTest {
 
         // check that a pinned notification was created for invalid update
         // NOTE: it is way more work to assert the notification body is correct, so skip over that
-        notification = Shadows.shadowOf(notificationManager).getNotification(CommCareApplication.MESSAGE_NOTIFICATION);
+        notification = Shadows.shadowOf(notificationManager).getNotification(CommCareNoficationManager.MESSAGE_NOTIFICATION);
         assertNotNull(notification);
     }
 }

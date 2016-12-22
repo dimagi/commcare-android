@@ -3,8 +3,8 @@ package org.commcare.android.resource.installers;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
-import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.resources.model.Resource;
@@ -99,7 +99,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     // Check that this app is not already installed on the phone
     private void checkDuplicate(Profile p) throws UnfullfilledRequirementsException {
         String newAppId = p.getUniqueId();
-        ArrayList<ApplicationRecord> installedApps = CommCareApplication.instance().
+        ArrayList<ApplicationRecord> installedApps = AppUtils.
                 getInstalledAppRecords();
         for (ApplicationRecord record : installedApps) {
             if (record.getUniqueId().equals(newAppId)) {

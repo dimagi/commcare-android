@@ -96,34 +96,15 @@ public class GridWidget extends QuestionWidget {
 
             if (imageURI != null) {
                 choices[i] = imageURI;
-
-                String imageFilename;
-                try {
-                    imageFilename = ReferenceManager.instance().DeriveReference(imageURI).getLocalURI();
-                    final File imageFile = new File(imageFilename);
-                    if (imageFile.exists()) {
-                        Display display =
-                                ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
-                                        .getDefaultDisplay();
-                        int screenWidth = display.getWidth();
-                        int screenHeight = display.getHeight();
-                        Bitmap b =
-                                MediaUtil
-                                        .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
-                        if (b != null) {
-                            if (b.getWidth() > maxImageWidth) {
-                                maxImageWidth = b.getWidth();
-                            }
-                            if (b.getHeight() > maxImageHeight) {
-                                maxImageHeight = b.getHeight();
-                            }
-                        }
+                Bitmap b = MediaUtil.inflateDisplayImage(context, imageURI);
+                if (b != null) {
+                    if (b.getWidth() > maxImageWidth) {
+                        maxImageWidth = b.getWidth();
                     }
-                } catch (InvalidReferenceException e) {
-                    Log.e("GridWidget", "image invalid reference exception");
-                    e.printStackTrace();
+                    if (b.getHeight() > maxImageHeight) {
+                        maxImageHeight = b.getHeight();
+                    }
                 }
-
             }
         }
 
