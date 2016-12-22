@@ -26,6 +26,21 @@ public class CaseIndexTable {
     private static final String COL_INDEX_TYPE = "type";
     private static final String COL_INDEX_TARGET = "target";
 
+    private final SQLiteDatabase db;
+
+    //TODO: We should do some synchronization to make it the case that nothing can hold
+    //an object for the same cache at once and let us manage the lifecycle
+
+    public CaseIndexTable() {
+        // TODO PLM: remove this constructor and have callers pass in result
+        // from getUserDbHandle()
+        this.db = CommCareApplication.instance().getUserDbHandle();
+    }
+
+    public CaseIndexTable(SQLiteDatabase dbHandle) {
+        this.db = dbHandle;
+    }
+
     public static String getTableDefinition() {
         return "CREATE TABLE " + TABLE_NAME + "(" +
                 DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY, " +
@@ -39,21 +54,6 @@ public class CaseIndexTable {
     public static void createIndexes(SQLiteDatabase db) {
         String columns = COL_CASE_RECORD_ID + ", " + COL_INDEX_NAME + ", " + COL_INDEX_TARGET;
         db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("RECORD_NAME_ID_TARGET", TABLE_NAME, columns));
-    }
-
-    //TODO: We should do some synchronization to make it the case that nothing can hold
-    //an object for the same cache at once and let us manage the lifecycle
-
-    public CaseIndexTable() {
-        // TODO PLM: remove this constructor and have callers pass in result
-        // from getUserDbHandle()
-        this.db = CommCareApplication.instance().getUserDbHandle();
-    }
-
-    private final SQLiteDatabase db;
-
-    public CaseIndexTable(SQLiteDatabase dbHandle) {
-        this.db = dbHandle;
     }
 
     /**
