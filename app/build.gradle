@@ -1,5 +1,5 @@
-import com.android.builder.core.DefaultManifestParser
 import org.apache.tools.ant.filters.ReplaceTokens
+
 
 ////////////
 // README //
@@ -10,8 +10,6 @@ import org.apache.tools.ant.filters.ReplaceTokens
 // -- commcare-android (github: https://github.com/dimagi/commcare-android/)
 // -- commcare-core (github: https://github.com/dimagi/commcare-core/)
 // these directories MUST be named like this, or it won't work
-
-apply plugin: 'com.android.application'
 
 repositories {
     mavenCentral()
@@ -37,6 +35,7 @@ dependencies {
     // release build type expects commcare jars to be in app/libs
     debugCompile project(':commcare-core')
     compile project(':commcare-core')
+    classpath 'com.android.tools.build:gradle:2.1.3'
     compile fileTree(include: '*.jar', dir: 'app/libs')
     compile(name: 'htmlspanner-custom', ext: 'aar')
     compile(name: 'android-zebra-interface-1.1', ext: 'aar')
@@ -60,6 +59,7 @@ dependencies {
     }
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
+    compile 'com.google.gms:google-services:3.0.0'
 }
 
 ext {
@@ -249,11 +249,13 @@ android {
             // next to play store version
 
             // grab commcare version from manifest
-            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile)
-            def ccVersion = manifestParser.getVersionName()
+            //def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile)
+            //def ccVersion = manifestParser.getVersionName()
             // convert numbers to words to use in app id
-            def ccVersionSafe = numbersToLetters(ccVersion)
+            //def ccVersionSafe = numbersToLetters(ccVersion)
 
+            def ccVersion = "2.33"
+            def ccVersionSafe = "twothreethree"
 
             applicationId "org.commcare.${ccVersionSafe}"
             project.ext.QA_BETA_APP_ID = applicationId
