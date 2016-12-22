@@ -32,7 +32,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryDialogs;
 import org.commcare.activities.components.FormEntryInstanceState;
-import org.commcare.activities.components.FormEntryInstanceUtils;
 import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.activities.components.FormFileSystemHelpers;
 import org.commcare.activities.components.FormNavigationUI;
@@ -671,7 +670,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public void saveFormToDisk(boolean exit) {
         if (formHasLoaded()) {
-            boolean isFormComplete = FormEntryInstanceUtils.isInstanceComplete(this, instanceProviderContentURI);
+            boolean isFormComplete = FormEntryInstanceState.isInstanceComplete(this, instanceProviderContentURI);
             saveDataToDisk(exit, isFormComplete, null, false);
         } else if (exit) {
             showSaveErrorAndExit();
@@ -891,7 +890,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             try {
                 switch (contentType) {
                     case InstanceColumns.CONTENT_ITEM_TYPE:
-                        Pair<Uri, Boolean> instanceAndStatus = FormEntryInstanceUtils.getInstanceUri(this, uri, formProviderContentURI, instanceState);
+                        Pair<Uri, Boolean> instanceAndStatus = FormEntryInstanceState.getInstanceUri(this, uri, formProviderContentURI, instanceState);
                         formUri = instanceAndStatus.first;
                         isInstanceReadOnly = instanceAndStatus.second;
                         break;
@@ -1007,7 +1006,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (mFormController.isFormReadOnly()) {
             finishReturnInstance(false);
         } else {
-            saveCompletedFormToDisk(FormEntryInstanceUtils.getDefaultFormTitle(this, getIntent()));
+            saveCompletedFormToDisk(FormEntryInstanceState.getDefaultFormTitle(this, getIntent()));
         }
     }
 
