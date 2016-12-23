@@ -8,6 +8,8 @@ import org.commcare.tasks.ResourceEngineTask;
 import org.javarosa.core.util.PropertyUtils;
 
 /**
+ * Install CC app from the APK's asset directory
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class SingleAppInstallation {
