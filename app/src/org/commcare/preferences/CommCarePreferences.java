@@ -106,10 +106,10 @@ public class CommCarePreferences
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
     public final static String LOGIN_DURATION = "cc-login-duration-seconds";
     public final static String GPS_AUTO_CAPTURE_ACCURACY = "cc-gps-auto-capture-accuracy";
-    public final static String GPS_AUTO_CAPTURE_TIMEOUT = "cc-gps-auto-capture-timeout";
+    public final static String GPS_AUTO_CAPTURE_TIMEOUT_MINS = "cc-gps-auto-capture-timeout";
     public final static String GPS_WIDGET_GOOD_ACCURACY = "cc-gps-widget-good-accuracy";
     public final static String GPS_WIDGET_ACCEPTABLE_ACCURACY = "cc-gps-widget-acceptable-accuracy";
-    public final static String GPS_WIDGET_TIMEOUT = "cc-gps-widget-timeout";
+    public final static String GPS_WIDGET_TIMEOUT_SECS = "cc-gps-widget-timeout-secs";
     public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
@@ -434,7 +434,7 @@ public class CommCarePreferences
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         try {
             return (int)TimeUnit.MINUTES.toMillis(Long.parseLong(
-                    properties.getString(GPS_AUTO_CAPTURE_TIMEOUT,
+                    properties.getString(GPS_AUTO_CAPTURE_TIMEOUT_MINS,
                             Integer.toString(GeoUtils.AUTO_CAPTURE_MAX_WAIT_IN_MINUTES))));
         } catch (NumberFormatException e) {
             return (int)TimeUnit.MINUTES.toMillis(GeoUtils.AUTO_CAPTURE_MAX_WAIT_IN_MINUTES);
@@ -475,7 +475,7 @@ public class CommCarePreferences
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         try {
             return (int)TimeUnit.SECONDS.toMillis(Long.parseLong(
-                    properties.getString(GPS_WIDGET_TIMEOUT,
+                    properties.getString(GPS_WIDGET_TIMEOUT_SECS,
                             Integer.toString(GeoPointActivity.DEFAULT_MAX_WAIT_IN_SECS))));
         } catch (NumberFormatException e) {
             return (int)TimeUnit.SECONDS.toMillis(GeoPointActivity.DEFAULT_MAX_WAIT_IN_SECS);
