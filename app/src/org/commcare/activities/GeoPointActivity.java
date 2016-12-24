@@ -17,23 +17,27 @@ import android.view.View.OnClickListener;
 
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.TimerListener;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.utils.GeoUtils;
-import org.commcare.utils.ODKTimer;
+import org.commcare.utils.TimeoutTimer;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.GeoProgressDialog;
 
 import java.text.DecimalFormat;
 import java.util.Set;
 
+/**
+ * Activity that blocks user until the current GPS location is captured
+ */
 public class GeoPointActivity extends Activity implements LocationListener, TimerListener {
     private GeoProgressDialog locationDialog;
     private LocationManager locationManager;
     private Location location;
     private Set<String> providers;
 
-    private final static int millisToWait = 60000; //allow to accept location after 60 seconds
+    public final static int DEFAULT_MAX_WAIT_IN_SECS = 60;
 
-    private ODKTimer mTimer;
+    private TimeoutTimer mTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +56,9 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
             mLong = savedInstanceState.getLong("millisRemaining", -1);
         }
         if (mLong > 0) {
-            mTimer = new ODKTimer(mLong, this);
+            mTimer = new TimeoutTimer(mLong, this);
         } else {
-            mTimer = new ODKTimer(millisToWait, this);
+            mTimer = new TimeoutTimer(CommCarePreferences.getGpsWidgetTimeoutInMilliseconds(), this);
         }
         mTimer.start();
     }
@@ -71,8 +75,9 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
 
         // We're not using managed dialogs, so we have to dismiss the dialog to prevent it from
         // leaking memory.
-        if (locationDialog != null && locationDialog.isShowing())
+        if (locationDialog != null && locationDialog.isShowing()) {
             locationDialog.dismiss();
+        }
     }
 
     @Override
@@ -168,14 +173,14 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
                     R.string.location_provider_accuracy, args));
 
             // If location is accurate, we're done
-            if (this.location.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
+            if (this.location.getAccuracy() <= CommCarePreferences.getGpsWidgetGoodAccuracy()) {
                 returnLocation();
             }
 
             // If location isn't great but might be acceptable, notify
             // the user and let them decide whether or not to record it
             locationDialog.setLocationFound(
-                    this.location.getAccuracy() < GeoUtils.ACCEPTABLE_ACCURACY
+                    this.location.getAccuracy() < CommCarePreferences.getGpsWidgetAcceptableAccuracy()
                             || mTimer.getMillisUntilFinished() == 0
             );
         }

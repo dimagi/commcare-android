@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.GeoPointActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -106,6 +107,9 @@ public class CommCarePreferences
     public final static String LOGIN_DURATION = "cc-login-duration-seconds";
     public final static String GPS_AUTO_CAPTURE_ACCURACY = "cc-gps-auto-capture-accuracy";
     public final static String GPS_AUTO_CAPTURE_TIMEOUT = "cc-gps-auto-capture-timeout";
+    public final static String GPS_WIDGET_GOOD_ACCURACY = "cc-gps-widget-good-accuracy";
+    public final static String GPS_WIDGET_ACCEPTABLE_ACCURACY = "cc-gps-widget-acceptable-accuracy";
+    public final static String GPS_WIDGET_TIMEOUT = "cc-gps-widget-timeout";
     public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
@@ -422,6 +426,10 @@ public class CommCarePreferences
         }
     }
 
+    /**
+     * Time to wait in milliseconds before stopping GPS auto-capture if it
+     * hasn't already obtained an accurate reading
+     */
     public static int getGpsAutoCaptureTimeoutInMilliseconds() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         try {
@@ -430,6 +438,47 @@ public class CommCarePreferences
                             Integer.toString(GeoUtils.AUTO_CAPTURE_MAX_WAIT_IN_MINUTES))));
         } catch (NumberFormatException e) {
             return (int)TimeUnit.MINUTES.toMillis(GeoUtils.AUTO_CAPTURE_MAX_WAIT_IN_MINUTES);
+        }
+    }
+
+    /**
+     * Accuracy in meters needed for the GPS question widget to auto-close
+     */
+    public static double getGpsWidgetGoodAccuracy() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        try {
+            return Double.parseDouble(properties.getString(GPS_WIDGET_GOOD_ACCURACY,
+                    Double.toString(GeoUtils.DEFAULT_GOOD_ACCURACY)));
+        } catch (NumberFormatException e) {
+            return GeoUtils.DEFAULT_GOOD_ACCURACY;
+        }
+    }
+
+    /**
+     * Accuracy in meters needed for the GPS question widget to begin storing location.
+     */
+    public static double getGpsWidgetAcceptableAccuracy() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        try {
+            return Double.parseDouble(properties.getString(GPS_WIDGET_ACCEPTABLE_ACCURACY,
+                    Double.toString(GeoUtils.DEFAULT_ACCEPTABLE_ACCURACY)));
+        } catch (NumberFormatException e) {
+            return GeoUtils.DEFAULT_ACCEPTABLE_ACCURACY;
+        }
+    }
+
+    /**
+     * Duration in milliseconds before GPS question widget starts storing the
+     * current GPS location, no matter how accurate.
+     */
+    public static int getGpsWidgetTimeoutInMilliseconds() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        try {
+            return (int)TimeUnit.SECONDS.toMillis(Long.parseLong(
+                    properties.getString(GPS_WIDGET_TIMEOUT,
+                            Integer.toString(GeoPointActivity.DEFAULT_MAX_WAIT_IN_SECS))));
+        } catch (NumberFormatException e) {
+            return (int)TimeUnit.SECONDS.toMillis(GeoPointActivity.DEFAULT_MAX_WAIT_IN_SECS);
         }
     }
 
