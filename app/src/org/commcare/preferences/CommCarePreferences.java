@@ -412,7 +412,7 @@ public class CommCarePreferences
     /**
      * @return Accuracy needed for GPS auto-capture to stop polling during form entry
      */
-    public static double getGpsCaptureAccuracy() {
+    public static double getGpsAutoCaptureAccuracy() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         try {
             return Double.parseDouble(properties.getString(GPS_AUTO_CAPTURE_ACCURACY,
