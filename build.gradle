@@ -18,7 +18,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.2'
+        classpath 'com.android.tools.build:gradle:2.3.0-beta1'
         classpath 'com.google.gms:google-services:3.0.0'
     }
 }
@@ -48,7 +48,6 @@ dependencies {
     testCompile 'org.robolectric:robolectric:3.1.4'
     testCompile 'org.robolectric:shadows-multidex:3.1.4'
     testCompile 'org.robolectric:shadows-core:3.1.4'
-
     testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
     debugCompile project(':commcare-core')
@@ -128,7 +127,7 @@ def getDate() {
 }
 
 android {
-    compileSdkVersion "Google Inc.:Google APIs:24"
+    compileSdkVersion 'Google Inc.:Google APIs:24'
     buildToolsVersion "25.0.0"
 
     useLibrary 'org.apache.http.legacy'

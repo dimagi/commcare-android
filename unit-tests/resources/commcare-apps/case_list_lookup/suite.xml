@@ -12,9 +12,10 @@
             </text>
         </title>
         <lookup name="Scan fingerprint" action="com.simprints.id.IDENTIFY" type="text/plain">
-            <extra key="deviceId" value="123"/>
-            <extra key="apiKey" value="000"/>
-            <extra key="packageName" value="foo"/>
+            <extra key="deviceId" value="'123'"/>
+            <extra key="apiKey" value="'000'"/>
+            <extra key="packageName" value="'foo'"/>
+            <extra key="username" value="instance('commcaresession')/session/context/username"/>
             <response key="fake"/>
             <field>
                 <header>
@@ -73,9 +74,10 @@
             </text>
         </title>
         <lookup name="Scan fingerprint" action="com.simprints.id.IDENTIFY" type="text/plain">
-            <extra key="deviceId" value="123"/>
-            <extra key="apiKey" value="000"/>
-            <extra key="packageName" value="foo"/>
+            <extra key="deviceId" value="'123'"/>
+            <extra key="apiKey" value="'000'"/>
+            <extra key="packageName" value="'foo'"/>
+            <extra key="username" value="instance('commcaresession')/session/context/username"/>
             <response key="fake"/>
             <field>
                 <header width="0">

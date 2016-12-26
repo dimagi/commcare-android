@@ -23,6 +23,7 @@ import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.views.EntityView;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -114,7 +115,13 @@ public class EntityListCalloutDataTest {
 
         // receive the (faked) callout result
         Callout identificationScanCallout = getEntitySelectCallout();
-        Intent calloutIntent = EntitySelectCalloutSetup.buildCalloutIntent(identificationScanCallout);
+        EvaluationContext evaluationContext =
+                CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
+        Intent calloutIntent = EntitySelectCalloutSetup.buildCalloutIntent(identificationScanCallout, evaluationContext);
+        System.out.println("*********************");
+        System.out.println(calloutIntent.getStringExtra("username"));
+        System.out.println("*********************");
+        assertEquals("test", calloutIntent.getStringExtra("username"));
         Intent responseIntent = buildIdentificationResultIntent();
         ShadowActivity shadowEntitySelect = Shadows.shadowOf(entitySelectActivity);
         shadowEntitySelect.receiveResult(calloutIntent, Activity.RESULT_OK, responseIntent);
