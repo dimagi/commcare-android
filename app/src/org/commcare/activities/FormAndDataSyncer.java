@@ -111,10 +111,11 @@ public class FormAndDataSyncer {
             }
         };
 
-        processAndSendTask.addListener(
+        processAndSendTask.addSubmissionListener(
                 CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
         if (activity.usesSubmissionProgressBar()) {
-            processAndSendTask.addListener(new FormSubmissionProgressBarListener(activity));
+            processAndSendTask.addProgressBarSubmissionListener(
+                    new FormSubmissionProgressBarListener(activity));
         }
 
         processAndSendTask.connect(activity);

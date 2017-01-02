@@ -33,9 +33,6 @@ public class DataPullTaskTest {
 
     /**
      * Stores the result of the data pull task
-     *
-     * TODO PLM: refactor from static setter to allow parallel execution.
-     * requires making a smarter task connector
      */
     private static ResultAndError<DataPullTask.PullTaskResult> dataPullResult;
     private static DataPullTask pullTask;

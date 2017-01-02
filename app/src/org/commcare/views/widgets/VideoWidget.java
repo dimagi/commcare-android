@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.FileUtil;
@@ -55,7 +55,7 @@ public class VideoWidget extends MediaWidget {
                         Video.Media.EXTERNAL_CONTENT_URI.toString());
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryActivity.AUDIO_VIDEO_FETCH);
+                            FormEntryConstants.AUDIO_VIDEO_FETCH);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
@@ -81,7 +81,7 @@ public class VideoWidget extends MediaWidget {
                 i.setType("video/*");
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryActivity.AUDIO_VIDEO_FETCH);
+                            FormEntryConstants.AUDIO_VIDEO_FETCH);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),

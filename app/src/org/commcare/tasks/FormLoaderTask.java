@@ -8,7 +8,7 @@ import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.core.process.CommCareInstanceInitializer;
@@ -19,7 +19,6 @@ import org.javarosa.xpath.XPathException;
 import org.commcare.engine.extensions.XFormExtensionUtils;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logic.FileReferenceFactory;
-import org.javarosa.form.api.FormController;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.tasks.templates.CommCareTask;
@@ -196,10 +195,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
         //TODO: Get a reasonable IIF object
 
-        boolean isNewFormInstance = FormEntryActivity.mInstancePath == null;
+        boolean isNewFormInstance = FormEntryInstanceState.mInstancePath == null;
 
         if (!isNewFormInstance) {
-            importData(FormEntryActivity.mInstancePath, fec);
+            importData(FormEntryInstanceState.mInstancePath, fec);
         }
 
         try {
