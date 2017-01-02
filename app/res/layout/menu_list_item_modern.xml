@@ -1,19 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.commcare.views.ShrinkingLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                          xmlns:app="http://schemas.android.com/apk/res-auto"
-                                          android:layout_width="fill_parent"
-                                          android:layout_height="fill_parent"
-                                          android:textAppearance="@style/EntityItemText"
-                                          app:shrinkable_view="@+id/row_txt">
+<org.commcare.views.ShrinkingLinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:textAppearance="@style/EntityItemText"
+    app:shrinkable_view="@+id/row_txt"
+    android:gravity="center_vertical">
 
-    <ImageView
-        android:id="@+id/row_img"
-        style="@style/ListContentV2"
-        android:layout_width="wrap_content"/>
+    <RelativeLayout
+        style="@style/ListContentWithBadge">
+
+        <ImageView
+            android:id="@+id/row_img"
+            android:layout_height="@dimen/list_icon_size"
+            android:layout_width="wrap_content"
+            android:layout_centerInParent="true"/>
+
+        <RelativeLayout
+            android:id="@+id/badge_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="@dimen/numeric_badge_width_for_list"
+                android:layout_height="@dimen/numeric_badge_width_for_list"
+                android:layout_centerInParent="true"
+                android:src="@drawable/badge_circle"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textColor="@color/cc_attention_negative_text"
+                android:textSize="@dimen/numeric_badge_font_size_list"
+                android:background="@color/transparent"
+                android:id="@+id/badge_text"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/row_txt"
-        style="@style/ListContentV2"
+        style="@style/ListContentWithoutBadge"
+        android:layout_height="@dimen/list_text_height"
         android:layout_width="wrap_content"
         android:layout_weight="1"
         android:ellipsize="end"
@@ -21,7 +55,8 @@
 
     <org.commcare.views.media.AudioPlaybackButton
         android:id="@+id/row_soundicon"
-        style="@style/ListContentTall"
+        style="@style/ListContentWithoutBadge"
+        android:layout_height="@dimen/list_audio_height"
         android:layout_width="wrap_content"
         android:background="@color/transparent_background"/>
 

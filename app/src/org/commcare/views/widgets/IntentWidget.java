@@ -16,7 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.CompoundIntentList;
@@ -129,7 +129,7 @@ public class IntentWidget extends QuestionWidget {
     private void performCallout() {
         try {
             loadCurrentAnswerToIntent();
-            ((Activity)getContext()).startActivityForResult(intent, FormEntryActivity.INTENT_CALLOUT);
+            ((Activity)getContext()).startActivityForResult(intent, FormEntryConstants.INTENT_CALLOUT);
             pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),

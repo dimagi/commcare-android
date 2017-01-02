@@ -18,7 +18,7 @@ public class ChangeLocaleUtil {
         return output;
     }
 
-    private static String[] translateLocales(String[] raw) {
+    public static String[] translateLocales(String[] raw) {
         String[] translated = new String[raw.length];
         for (int i = 0; i < raw.length; i++) {
             try {

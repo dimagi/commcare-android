@@ -655,12 +655,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return errorMessageToDisplay;
     }
 
-    // All final paths from the Update are handled here (Important! Some
-    // interaction modes should always auto-exit this activity) Everything here
-    // should call one of: fail() or reportSuccess()
-    
-    /* All methods for implementation of ResourceEngineListener */
-
     @Override
     public void reportSuccess(boolean newAppInstalled) {
         CommCareApplication.notificationManager().clearNotifications("install_update");
@@ -758,11 +752,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         String title = Localization.get("updates.resources.initialization");
         String message = Localization.get("updates.resources.profile");
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-        dialog.setCancelable(false);
-        String checkboxText = Localization.get("install.keep.trying");
+
         CustomProgressDialog lastDialog = getCurrentProgressDialog();
         boolean isChecked = (lastDialog != null) && lastDialog.isChecked();
+        String checkboxText = Localization.get("install.keep.trying");
         dialog.addCheckbox(checkboxText, isChecked);
+
+        dialog.setCancelable(false);
         dialog.addProgressBar();
         return dialog;
     }
