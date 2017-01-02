@@ -37,15 +37,12 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     private static final boolean FAIL = false;
 
     private static final String KEY_LAST_ICON_TRIGGER = "last-icon-trigger";
-    private static final String TRIGGER_ANIMATE_DATA_PULL = "animate-data-pull";
-    private static final String TRIGGER_ANIMATE_SEND_FORMS = "animate-send-forms";
-    private static final String TRIGGER_NO_ANIMATION = "no-animation";
 
     protected boolean isSyncUserLaunched = false;
     protected FormAndDataSyncer formAndDataSyncer;
 
     private SyncIconState syncStateForIcon;
-    private String lastIconTrigger;
+    private SyncIconTrigger lastIconTrigger;
     private MenuItem currentSyncMenuItem;
 
     private UiLoadedListener uiLoadedListener;
@@ -54,14 +51,14 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         formAndDataSyncer = new FormAndDataSyncer();
         computeSyncState(savedInstanceState == null ?
-                TRIGGER_NO_ANIMATION :
-                savedInstanceState.getString(KEY_LAST_ICON_TRIGGER));
+                SyncIconTrigger.NO_ANIMATION :
+                (SyncIconTrigger)savedInstanceState.getSerializable(KEY_LAST_ICON_TRIGGER));
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(KEY_LAST_ICON_TRIGGER, lastIconTrigger);
+        outState.putSerializable(KEY_LAST_ICON_TRIGGER, lastIconTrigger);
     }
 
     @Override
@@ -207,9 +204,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     public void startBlockingForTask(int id) {
         super.startBlockingForTask(id);
         if (isProcessAndSendTaskId(id)) {
-            triggerSyncIconRefresh(TRIGGER_ANIMATE_SEND_FORMS);
+            triggerSyncIconRefresh(SyncIconTrigger.ANIMATE_SEND_FORMS);
         } else if (id == DataPullTask.DATA_PULL_TASK_ID) {
-            triggerSyncIconRefresh(TRIGGER_ANIMATE_DATA_PULL);
+            triggerSyncIconRefresh(SyncIconTrigger.ANIMATE_DATA_PULL);
         }
     }
 
@@ -217,7 +214,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     public void stopBlockingForTask(int id) {
         super.stopBlockingForTask(id);
         if (isProcessAndSendTaskId(id) || id == DataPullTask.DATA_PULL_TASK_ID) {
-            triggerSyncIconRefresh(TRIGGER_NO_ANIMATION);
+            triggerSyncIconRefresh(SyncIconTrigger.NO_ANIMATION);
         }
     }
 
@@ -228,27 +225,27 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 id == ProcessAndSendTask.SEND_PHASE_ID;
     }
 
-    private void triggerSyncIconRefresh(String trigger) {
+    private void triggerSyncIconRefresh(SyncIconTrigger trigger) {
         if (shouldShowSyncItemInActionBar()) {
             computeSyncState(trigger);
             rebuildOptionsMenu();
         }
     }
 
-    private void computeSyncState(String trigger) {
+    private void computeSyncState(SyncIconTrigger trigger) {
         lastIconTrigger = trigger;
         switch(trigger) {
-            case TRIGGER_NO_ANIMATION:
+            case NO_ANIMATION:
                 if (SyncDetailCalculations.getNumUnsentForms() > 0) {
                     syncStateForIcon = SyncIconState.FORMS_PENDING;
                 } else {
                     syncStateForIcon = SyncIconState.UP_TO_DATE;
                 }
                 break;
-            case TRIGGER_ANIMATE_DATA_PULL:
+            case ANIMATE_DATA_PULL:
                 syncStateForIcon = SyncIconState.PULLING_DATA;
                 break;
-            case TRIGGER_ANIMATE_SEND_FORMS:
+            case ANIMATE_SEND_FORMS:
                 syncStateForIcon = SyncIconState.SENDING_FORMS;
                 break;
         }
@@ -381,6 +378,10 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     private enum SyncIconState {
         UP_TO_DATE, PULLING_DATA, SENDING_FORMS, FORMS_PENDING
+    }
+
+    private enum SyncIconTrigger {
+        ANIMATE_DATA_PULL, ANIMATE_SEND_FORMS, NO_ANIMATION
     }
 
 }
