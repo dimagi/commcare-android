@@ -168,8 +168,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (!askingForPerms) {
             if (isSingleAppBuild()) {
                 SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
-            } else {
-                // With basic perms satisfied, ask user to allow SMS reading for sms app install code
+            } else if (uiState == UiState.CHOOSE_INSTALL_ENTRY_METHOD) {
+                // Don't perform SMS install if we aren't on base setup state
+                // (i.e. in the middle of an install)
+
+                // With basic perms satisfied, ask user to allow SMS reading
+                // for sms app install code
                 performSMSInstall(false);
             }
         }
@@ -409,14 +413,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
-    private CommCareApp getCommCareApp() {
-        ApplicationRecord newRecord =
-                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
-                        ApplicationRecord.STATUS_UNINITIALIZED);
-
-        return new CommCareApp(newRecord);
-    }
-
     @Override
     public void startBlockingForTask(int id) {
         super.startBlockingForTask(id);
@@ -498,6 +494,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
+    }
+
+    public static CommCareApp getCommCareApp() {
+        ApplicationRecord newRecord =
+                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
+                        ApplicationRecord.STATUS_UNINITIALIZED);
+
+        return new CommCareApp(newRecord);
     }
 
     @Override
