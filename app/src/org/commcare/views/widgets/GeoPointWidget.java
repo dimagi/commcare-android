@@ -218,7 +218,6 @@ public class GeoPointWidget extends QuestionWidget {
                         StringUtils.getStringSpannableRobust(getContext(), R.string.accuracy) +
                         ": " + truncateDouble(sa[3]) + "m");
         // update form relevancies and such
-        // TODO PLM: probably want to call this for every class that overrides setBinaryData
         widgetEntryChanged();
     }
 

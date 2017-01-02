@@ -18,7 +18,6 @@ import org.commcare.views.ViewUtil;
 
 import java.util.List;
 
-
 /**
  * Inflation and binding of square cards used on home screen and other places.
  *

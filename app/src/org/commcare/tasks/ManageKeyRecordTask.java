@@ -611,7 +611,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         return HttpCalloutOutcomes.BadResponse;
     }
 
-    // XXX PLM: getCurrentValidRecord is called w/ acceptExpired set to
+    // NOTE PLM: getCurrentValidRecord is called w/ acceptExpired set to
     // true. Eventually we will enforce user key record expiration, but
     // can't do so until we proactively refresh records that are going to
     // expire in the next few months. Otherwise, devices that haven't
