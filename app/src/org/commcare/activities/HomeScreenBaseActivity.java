@@ -574,7 +574,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         if (current == null) {
             // somehow we lost the form record for the current session
-            // TODO: how should this be handled? -- PLM
             Toast.makeText(this,
                     "Error while trying to save the form!",
                     Toast.LENGTH_LONG).show();

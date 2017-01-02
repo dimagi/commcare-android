@@ -15,8 +15,7 @@ public interface FormRecordLoadListener {
      * FormRecordLoaderTask.
      *
      * @param record   The form record that was processed.
-     * @param isLoaded Currently unused. TODO PLM: figure out how to use this
-     *                 or remove it.
+     * @param isLoaded Currently unused.
      */
     void notifyPriorityLoaded(FormRecord record, boolean isLoaded);
 

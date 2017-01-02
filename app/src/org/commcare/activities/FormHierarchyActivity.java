@@ -187,8 +187,6 @@ public class FormHierarchyActivity extends ListActivity {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
 
             final String errorMsg = "Encounted xpath error: " + e.getMessage();
-            // TODO PLM: show blocking dialog with error; requires
-            // making this implement DialogController & use Fragments
             Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
             setResult(RESULT_XPATH_ERROR);
             finish();

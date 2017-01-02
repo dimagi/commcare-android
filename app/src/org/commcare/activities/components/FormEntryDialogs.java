@@ -10,12 +10,14 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.widgets.QuestionWidget;
+import org.javarosa.core.services.locale.Localization;
 
 import java.util.Set;
 
@@ -79,29 +81,22 @@ public class FormEntryDialogs {
      */
     public static void createLanguageDialog(final FormEntryActivity activity) {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(activity,
-                StringUtils.getStringRobust(activity, R.string.choose_language));
+                Localization.get("home.menu.locale.select"));
 
-        final String[] languages = FormEntryActivity.mFormController.getLanguages();
-        DialogChoiceItem[] choiceItems = new DialogChoiceItem[languages.length];
-        for (int i = 0; i < languages.length; i++) {
+        final String[] languageCodes = FormEntryActivity.mFormController.getLanguages();
+        final String[] localizedLanguages = ChangeLocaleUtil.translateLocales(languageCodes);
+
+        DialogChoiceItem[] choiceItems = new DialogChoiceItem[languageCodes.length];
+        for (int i = 0; i < languageCodes.length; i++) {
             final int index = i;
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    activity.setFormLanguage(languages, index);
+                    activity.setFormLanguage(languageCodes, index);
                 }
             };
-            choiceItems[i] = new DialogChoiceItem(languages[i], -1, listener);
+            choiceItems[i] = new DialogChoiceItem(localizedLanguages[i], -1, listener);
         }
-
-        dialog.addButton(StringUtils.getStringSpannableRobust(activity, R.string.cancel).toString(),
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        activity.dismissAlertDialog();
-                    }
-                }
-        );
 
         dialog.setChoiceItems(choiceItems);
         activity.showAlertDialog(dialog);

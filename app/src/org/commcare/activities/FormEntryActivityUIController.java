@@ -56,9 +56,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
-/**
- * @author Phillip Mates (pmates@dimagi.com)
- */
 public class FormEntryActivityUIController implements CommCareActivityUIController,
         Animation.AnimationListener {
     private static final String TAG = FormEntryActivityUIController.class.getSimpleName();

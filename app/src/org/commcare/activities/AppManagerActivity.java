@@ -18,7 +18,6 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.services.CommCareSessionService;
-import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
@@ -189,5 +188,10 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
         d.setPositiveButton(getString(R.string.ok), listener);
         d.setNegativeButton(getString(R.string.cancel), listener);
         showAlertDialog(d);
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 }
