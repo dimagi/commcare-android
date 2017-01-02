@@ -44,7 +44,6 @@ public class HybridFileBackedStorageIterator<T extends Persistable>
                         ((HybridFileBackedSqlStorage<T>)storage).getInputStreamFromFile(filename, aesKeyBlob);
                 return storage.newObject(fileInputStream, nextID());
             } catch (FileNotFoundException e) {
-                // TODO PLM: throw runtime or return null?
                 throw new RuntimeException(e);
             }
         }

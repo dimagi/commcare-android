@@ -4,7 +4,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-import org.commcare.CommCareApplication;
+import org.commcare.utils.LifecycleUtils;
 import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
@@ -39,7 +39,7 @@ public class UnrecoverableErrorActivity extends FragmentActivity {
         DialogInterface.OnClickListener buttonListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
-                CommCareApplication.restartCommCare(UnrecoverableErrorActivity.this, true);
+                LifecycleUtils.restartCommCare(UnrecoverableErrorActivity.this, true);
             }
         };
         d.setPositiveButton(Localization.get("app.storage.missing.button"), buttonListener);

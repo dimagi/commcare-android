@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.logging.ReportingUtils;
@@ -264,7 +265,7 @@ public class GoogleAnalyticsUtils {
     public static void reportAppInstall(int lastInstallModeCode) {
         reportEvent(GoogleAnalyticsFields.CATEGORY_APP_INSTALL,
                 CommCareSetupActivity.getAnalyticsActionFromInstallMode(lastInstallModeCode),
-                CommCareApplication.instance().getCurrentVersionString());
+                AppUtils.getCurrentVersionString());
     }
 
     /**

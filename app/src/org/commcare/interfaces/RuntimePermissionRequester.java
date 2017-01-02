@@ -1,6 +1,8 @@
 package org.commcare.interfaces;
 
 /**
+ * Ask user for permissions at runtime (for Android 6 and above)
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public interface RuntimePermissionRequester {

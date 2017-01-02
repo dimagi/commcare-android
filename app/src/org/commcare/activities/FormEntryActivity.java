@@ -41,6 +41,7 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.AndroidFormController;
+import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.views.media.MediaLayout;
 import org.commcare.android.javarosa.IntentCallout;
@@ -53,7 +54,6 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.logging.analytics.TimedStatsTracker;
-import org.javarosa.form.api.FormController;
 import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
@@ -916,11 +916,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      */
     private void createLanguageDialog() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this,
-                StringUtils.getStringRobust(this, R.string.choose_language));
+                Localization.get("home.menu.locale.select"));
 
-        final String[] languages = mFormController.getLanguages();
-        DialogChoiceItem[] choiceItems = new DialogChoiceItem[languages.length];
-        for (int i = 0; i < languages.length; i++) {
+        final String[] languageCodes = mFormController.getLanguages();
+        final String[] localizedLanguages = ChangeLocaleUtil.translateLocales(languageCodes);
+        DialogChoiceItem[] choiceItems = new DialogChoiceItem[languageCodes.length];
+        for (int i = 0; i < languageCodes.length; i++) {
             final int index = i;
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
@@ -928,7 +929,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     // Update the language in the content provider when selecting a new
                     // language
                     ContentValues values = new ContentValues();
-                    values.put(FormsColumns.LANGUAGE, languages[index]);
+                    values.put(FormsColumns.LANGUAGE, languageCodes[index]);
                     String selection = FormsColumns.FORM_FILE_PATH + "=?";
                     String selectArgs[] = {
                             mFormPath
@@ -936,10 +937,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     int updated =
                             getContentResolver().update(formProviderContentURI, values,
                                     selection, selectArgs);
-                    Log.i(TAG, "Updated language to: " + languages[index] + " in "
+                    Log.i(TAG, "Updated language to: " + languageCodes[index] + " in "
                             + updated + " rows");
 
-                    mFormController.setLanguage(languages[index]);
+                    mFormController.setLanguage(languageCodes[index]);
                     dismissAlertDialog();
                     if (currentPromptIsQuestion()) {
                         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
@@ -947,17 +948,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     uiController.refreshView();
                 }
             };
-            choiceItems[i] = new DialogChoiceItem(languages[i], -1, listener);
+            choiceItems[i] = new DialogChoiceItem(localizedLanguages[i], -1, listener);
         }
-
-        dialog.addButton(StringUtils.getStringSpannableRobust(this, R.string.cancel).toString(),
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dismissAlertDialog();
-                    }
-                }
-        );
 
         dialog.setChoiceItems(choiceItems);
         showAlertDialog(dialog);

@@ -266,11 +266,6 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         } else {
             // notify the loader that we need access to this record immediately
             loader.registerPriority(r);
-            // TODO: PLM: once the priority item is reloaded in the async task,
-            // there is no hook to explicitly re-set the title. That is, the
-            // local notifyPriorityLoaded method should probably be defined to
-            // reset the params of this record. It will eventually get reset,
-            // once this method is called again...
             ifrv.setParams(r, "Loading...", r.lastModified().getTime(), names);
         }
 

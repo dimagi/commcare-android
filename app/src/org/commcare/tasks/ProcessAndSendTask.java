@@ -170,17 +170,17 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 try {
                     records[i] = processor.process(record);
                 } catch (InvalidStructureException e) {
-                    CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+                    CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
                     FormRecordCleanupTask.wipeRecord(c, record);
                     needToSendLogs = true;
                 } catch (XmlPullParserException e) {
-                    CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+                    CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
                     FormRecordCleanupTask.wipeRecord(c, record);
                     needToSendLogs = true;
                 } catch (UnfullfilledRequirementsException e) {
-                    CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+                    CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
                     FormRecordCleanupTask.wipeRecord(c, record);
                     needToSendLogs = true;
@@ -190,7 +190,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
                         FormRecordCleanupTask.wipeRecord(c, record);
                     } else {
-                        CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+                        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
                         //Otherwise, the SD card just got removed, and we need to bail anyway.
                         throw e;
                     }
@@ -283,7 +283,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             //This implies that something is wrong with the current record, and we need to quarantine it.
                             processor.updateRecordStatus(record, FormRecord.STATUS_LIMBO);
                             Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Quarantined Form Record");
-                            CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
+                            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
                         }
                     } catch (FileNotFoundException e) {
                         if (CommCareApplication.instance().isStorageAvailable()) {
@@ -292,7 +292,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             FormRecordCleanupTask.wipeRecord(c, record);
                         } else {
                             //Otherwise, the SD card just got removed, and we need to bail anyway.
-                            CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+                            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
                             break;
                         }
                         continue;
@@ -446,8 +446,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     @Override
     protected void onCancelled() {
         super.onCancelled();
+
         dispatchEndSubmissionProcessToListeners(false);
-        CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+
         clearState();
     }
 
