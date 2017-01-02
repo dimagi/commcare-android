@@ -21,8 +21,8 @@
             android:visibility="gone">
 
             <ImageView
-                android:layout_width="@dimen/numeric_badge_width"
-                android:layout_height="@dimen/numeric_badge_width"
+                android:layout_width="@dimen/numeric_badge_width_for_grid"
+                android:layout_height="@dimen/numeric_badge_width_for_grid"
                 android:layout_centerInParent="true"
                 android:src="@drawable/badge_circle"/>
 
@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:textColor="@color/cc_attention_negative_text"
-                android:textSize="@dimen/numeric_badge_font_size"
+                android:textSize="@dimen/numeric_badge_font_size_grid"
                 android:background="@color/transparent"
                 android:id="@+id/badge_text"/>
 
