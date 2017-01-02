@@ -16,6 +16,9 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.components.FormEntryConstants;
+import org.commcare.activities.components.FormEntryInstanceState;
+import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -581,7 +584,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
 
         // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
-        if ((intent != null && intent.getBooleanExtra(FormEntryActivity.IS_ARCHIVED_FORM, false)) ||
+        if ((intent != null && intent.getBooleanExtra(FormEntryConstants.IS_ARCHIVED_FORM, false)) ||
                 FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
                 FormRecord.STATUS_SAVED.equals(current.getStatus())) {
             // Viewing an old form, so don't change the historical record
@@ -941,7 +944,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         // Create our form entry activity callout
         Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
-        i.putExtra(FormEntryActivity.KEY_INSTANCEDESTINATION, CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
+        i.putExtra(FormEntryInstanceState.KEY_INSTANCEDESTINATION, CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
 
         // See if there's existing form data that we want to continue entering
         // (note, this should be stored in the form record as a URI link to
@@ -957,7 +960,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         i.putExtra(FormEntryActivity.KEY_AES_STORAGE_KEY, Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
         i.putExtra(FormEntryActivity.KEY_FORM_CONTENT_URI, FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
         i.putExtra(FormEntryActivity.KEY_INSTANCE_CONTENT_URI, InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
-        i.putExtra(FormEntryActivity.KEY_RECORD_FORM_ENTRY_SESSION, DeveloperPreferences.isSessionSavingEnabled());
+        i.putExtra(FormEntrySessionWrapper.KEY_RECORD_FORM_ENTRY_SESSION, DeveloperPreferences.isSessionSavingEnabled());
         if (headerTitle != null) {
             i.putExtra(FormEntryActivity.KEY_HEADER_STRING, headerTitle);
         }
@@ -967,7 +970,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     CommCareApplication.instance().getCurrentApp().getAppPreferences();
             String formEntrySession = prefs.getString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, "");
             if (!"".equals(formEntrySession)) {
-                i.putExtra(FormEntryActivity.KEY_FORM_ENTRY_SESSION, formEntrySession);
+                i.putExtra(FormEntrySessionWrapper.KEY_FORM_ENTRY_SESSION, formEntrySession);
             }
         }
 
