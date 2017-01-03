@@ -24,6 +24,7 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
+import org.commcare.suite.model.MenuLoader;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
@@ -62,39 +63,16 @@ public class MenuAdapter extends BaseAdapter {
 
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
         this.context = context;
-
-        Vector<MenuDisplayable> items = new Vector<>();
-
-        Hashtable<String, Entry> map = platform.getMenuMap();
         asw = CommCareApplication.instance().getCurrentSessionWrapper();
-        for (Suite s : platform.getInstalledSuites()) {
-            for (Menu m : s.getMenus()) {
-                errorXpathException = "";
-                try {
-                    if (m.getId().equals(menuID)) {
-                        if (menuIsRelevant(m)) {
-                            addRelevantCommandEntries(m, items, map);
-                        }
-                    } else {
-                        addUnaddedMenu(menuID, m, items);
-                    }
-                } catch (CommCareInstanceInitializer.FixtureInitializationException
-                        | XPathSyntaxException | XPathException xpe) {
-                    loadError = xpe;
-                    displayableData = new MenuDisplayable[0];
-                    return;
-                }
-            }
-        }
-
-        displayableData = new MenuDisplayable[items.size()];
-        items.copyInto(displayableData);
+        MenuLoader menuLoader = new MenuLoader(platform, asw, menuID);
+        this.displayableData = menuLoader.getMenus();
+        this.errorXpathException = menuLoader.getxPathErrorMessage();
+        this.loadError = menuLoader.getLoadException();
     }
 
     public void showAnyLoadErrors(CommCareActivity activity) {
         if (loadError != null) {
             String errorMessage = loadError.getMessage();
-
             if (loadError instanceof XPathSyntaxException) {
                 XPathErrorLogger.INSTANCE.logErrorToCurrentApp(errorXpathException, loadError.getMessage());
                 errorMessage = Localization.get("app.menu.display.cond.bad.xpath", new String[]{errorXpathException, loadError.getMessage()});
@@ -103,72 +81,6 @@ public class MenuAdapter extends BaseAdapter {
                 errorMessage = Localization.get("app.menu.display.cond.xpath.err", new String[]{errorXpathException, loadError.getMessage()});
             }
             UserfacingErrorHandling.createErrorDialog(activity, errorMessage, true);
-        }
-    }
-
-    private boolean menuIsRelevant(Menu m) throws XPathSyntaxException {
-        XPathExpression relevance = m.getMenuRelevance();
-        if (m.getMenuRelevance() != null) {
-            errorXpathException = m.getMenuRelevanceRaw();
-            EvaluationContext ec = asw.getEvaluationContext(m.getId());
-            return FunctionUtils.toBoolean(relevance.eval(ec));
-        }
-        return true;
-    }
-
-    private void addRelevantCommandEntries(Menu m, Vector<MenuDisplayable> items,
-                                           Hashtable<String, Entry> map)
-            throws XPathSyntaxException {
-        EvaluationContext ec = asw.getEvaluationContext();
-        for (String command : m.getCommandIds()) {
-            errorXpathException = "";
-            XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
-            if (mRelevantCondition != null) {
-                errorXpathException = m.getCommandRelevanceRaw(m.indexOfCommand(command));
-                Object ret = mRelevantCondition.eval(ec);
-                try {
-                    if (!FunctionUtils.toBoolean(ret)) {
-                        continue;
-                    }
-                } catch (XPathTypeMismatchException e) {
-                    final String msg = "relevancy condition for menu item returned non-boolean value : " + ret;
-                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e.getSource(), msg);
-                    Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, msg);
-                    throw new RuntimeException(msg);
-                }
-            }
-
-            Entry e = map.get(command);
-            if (e.isView()) {
-                //If this is a "view", not an "entry"
-                //we only want to display it if all of its
-                //datums are not already present
-                if (asw.getSession().getNeededDatum(e) == null) {
-                    continue;
-                }
-            }
-
-            items.add(e);
-        }
-    }
-
-    private void addUnaddedMenu(String menuID, Menu m, Vector<MenuDisplayable> items) throws XPathSyntaxException {
-        if (menuID.equals(m.getRoot())) {
-            //make sure we didn't already add this ID
-            boolean idExists = false;
-            for (Object o : items) {
-                if (o instanceof Menu) {
-                    if (((Menu)o).getId().equals(m.getId())) {
-                        idExists = true;
-                        break;
-                    }
-                }
-            }
-            if (!idExists) {
-                if (menuIsRelevant(m)) {
-                    items.add(m);
-                }
-            }
         }
     }
 
