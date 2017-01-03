@@ -7,9 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
@@ -30,6 +30,7 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.media.AudioPlaybackButton;
+import org.commcare.views.media.ViewId;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -38,8 +39,8 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.File;
@@ -51,9 +52,9 @@ import java.util.Vector;
  *
  * @author wspride
  */
-public class MenuAdapter implements ListAdapter {
+public class MenuAdapter extends BaseAdapter {
 
-    private final AndroidSessionWrapper asw;
+    protected final AndroidSessionWrapper asw;
     private Exception loadError;
     private String errorXpathException = "";
     final Context context;
@@ -65,17 +66,17 @@ public class MenuAdapter implements ListAdapter {
         Vector<MenuDisplayable> items = new Vector<>();
 
         Hashtable<String, Entry> map = platform.getMenuMap();
-        asw = CommCareApplication._().getCurrentSessionWrapper();
+        asw = CommCareApplication.instance().getCurrentSessionWrapper();
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 errorXpathException = "";
                 try {
-                    if (menuIsRelevant(m)) {
-                        if (m.getId().equals(menuID)) {
+                    if (m.getId().equals(menuID)) {
+                        if (menuIsRelevant(m)) {
                             addRelevantCommandEntries(m, items, map);
-                        } else {
-                            addUnaddedMenu(menuID, m, items);
                         }
+                    } else {
+                        addUnaddedMenu(menuID, m, items);
                     }
                 } catch (CommCareInstanceInitializer.FixtureInitializationException
                         | XPathSyntaxException | XPathException xpe) {
@@ -110,7 +111,7 @@ public class MenuAdapter implements ListAdapter {
         if (m.getMenuRelevance() != null) {
             errorXpathException = m.getMenuRelevanceRaw();
             EvaluationContext ec = asw.getEvaluationContext(m.getId());
-            return XPathFuncExpr.toBoolean(relevance.eval(ec));
+            return FunctionUtils.toBoolean(relevance.eval(ec));
         }
         return true;
     }
@@ -126,7 +127,7 @@ public class MenuAdapter implements ListAdapter {
                 errorXpathException = m.getCommandRelevanceRaw(m.indexOfCommand(command));
                 Object ret = mRelevantCondition.eval(ec);
                 try {
-                    if (!XPathFuncExpr.toBoolean(ret)) {
+                    if (!FunctionUtils.toBoolean(ret)) {
                         continue;
                     }
                 } catch (XPathTypeMismatchException e) {
@@ -151,7 +152,7 @@ public class MenuAdapter implements ListAdapter {
         }
     }
 
-    private static void addUnaddedMenu(String menuID, Menu m, Vector<MenuDisplayable> items) {
+    private void addUnaddedMenu(String menuID, Menu m, Vector<MenuDisplayable> items) throws XPathSyntaxException {
         if (menuID.equals(m.getRoot())) {
             //make sure we didn't already add this ID
             boolean idExists = false;
@@ -164,7 +165,9 @@ public class MenuAdapter implements ListAdapter {
                 }
             }
             if (!idExists) {
-                items.add(m);
+                if (menuIsRelevant(m)) {
+                    items.add(m);
+                }
             }
         }
     }
@@ -222,20 +225,21 @@ public class MenuAdapter implements ListAdapter {
         setupTextView(rowText, menuDisplayable);
 
         AudioPlaybackButton audioPlaybackButton = (AudioPlaybackButton)menuListItem.findViewById(R.id.row_soundicon);
-        setupAudioButton(audioPlaybackButton, menuDisplayable);
+        setupAudioButton(i, audioPlaybackButton, menuDisplayable);
 
         // set up the image, if available
         ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
         setupImageView(mIconView, menuDisplayable);
+        setupBadgeView(menuListItem, menuDisplayable);
         return menuListItem;
     }
 
-    private void setupAudioButton(AudioPlaybackButton audioPlaybackButton, MenuDisplayable menuDisplayable) {
+    private void setupAudioButton(int rowId, AudioPlaybackButton audioPlaybackButton, MenuDisplayable menuDisplayable) {
         final String audioURI = menuDisplayable.getAudioURI();
         String audioFilename = "";
         if (audioURI != null && !audioURI.equals("")) {
             try {
-                audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
+                audioFilename = ReferenceManager.instance().DeriveReference(audioURI).getLocalURI();
             } catch (InvalidReferenceException e) {
                 Log.e("AVTLayout", "Invalid reference exception");
                 e.printStackTrace();
@@ -244,18 +248,19 @@ public class MenuAdapter implements ListAdapter {
 
         File audioFile = new File(audioFilename);
         // First set up the audio button
+        ViewId viewId = ViewId.buildListViewId(rowId);
         if (!"".equals(audioFilename) && audioFile.exists()) {
-            audioPlaybackButton.resetButton(audioURI, true);
+            audioPlaybackButton.modifyButtonForNewView(viewId, audioURI, true);
         } else {
             if (audioPlaybackButton != null) {
-                audioPlaybackButton.resetButton(audioURI, false);
+                audioPlaybackButton.modifyButtonForNewView(viewId,audioURI, false);
                 ((LinearLayout)audioPlaybackButton.getParent()).removeView(audioPlaybackButton);
             }
         }
     }
 
     public void setupTextView(TextView textView, MenuDisplayable menuDisplayable) {
-        String mQuestionText = textViewHelper(menuDisplayable);
+        String mQuestionText = menuDisplayable.getDisplayText();
 
         //Final change, remove any numeric context requests. J2ME uses these to
         //help with numeric navigation.
@@ -267,7 +272,7 @@ public class MenuAdapter implements ListAdapter {
 
     public void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable) {
         if (mIconView != null) {
-            int iconDimension = (int)context.getResources().getDimension(R.dimen.menu_icon_size);
+            int iconDimension = (int)context.getResources().getDimension(R.dimen.list_icon_bounding_dimen);
             Bitmap image = MediaUtil.inflateDisplayImage(context, menuDisplayable.getImageURI(),
                     iconDimension, iconDimension);
             if (image != null) {
@@ -276,6 +281,23 @@ public class MenuAdapter implements ListAdapter {
             } else {
                 setupDefaultIcon(mIconView, getIconState(menuDisplayable));
             }
+        }
+    }
+
+    protected void setupBadgeView(View menuListItem, MenuDisplayable menuDisplayable) {
+        View badgeView = menuListItem.findViewById(R.id.badge_view);
+        String badgeText = menuDisplayable.getTextForBadge(
+                asw.getEvaluationContext(menuDisplayable.getCommandID()));
+        if (badgeText != null && !"".equals(badgeText) && !"0".equals(badgeText)) {
+            if (badgeText.length() > 2) {
+                // A badge can only fit up to 2 characters
+                badgeText = badgeText.substring(0, 2);
+            }
+            TextView badgeTextView = (TextView)menuListItem.findViewById(R.id.badge_text);
+            badgeTextView.setText(badgeText);
+            badgeView.setVisibility(View.VISIBLE);
+        } else {
+            badgeView.setVisibility(View.GONE);
         }
     }
 
@@ -309,10 +331,6 @@ public class MenuAdapter implements ListAdapter {
                     break;
             }
         }
-    }
-
-    private static String textViewHelper(MenuDisplayable e) {
-        return e.getDisplayText();
     }
 
     @Override

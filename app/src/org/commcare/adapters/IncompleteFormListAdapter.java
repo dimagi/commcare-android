@@ -150,7 +150,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
             loader = loader.spawn();
         }
 
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
 
         // choose a default filter if none set
         if (filter == null) {
@@ -158,7 +158,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         }
 
         records.clear();
-        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+        String currentAppId = CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
         // Grab all form records that satisfy ANY of the statuses in the filter, AND belong to the
         // currently seated app
         for (String status : filter.getStatus()) {
@@ -266,11 +266,6 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         } else {
             // notify the loader that we need access to this record immediately
             loader.registerPriority(r);
-            // TODO: PLM: once the priority item is reloaded in the async task,
-            // there is no hook to explicitly re-set the title. That is, the
-            // local notifyPriorityLoaded method should probably be defined to
-            // reset the params of this record. It will eventually get reset,
-            // once this method is called again...
             ifrv.setParams(r, "Loading...", r.lastModified().getTime(), names);
         }
 

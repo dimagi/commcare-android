@@ -1,10 +1,10 @@
 package org.commcare.utils;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
 
-import org.commcare.CommCareApplication;
 import org.commcare.views.notifications.NotificationMessage;
 import org.javarosa.core.services.locale.Localization;
 
@@ -18,13 +18,13 @@ public class PopupHandler extends Handler {
      * Reference to the context used to show pop-ups (the parent class).
      * Reference is weak to avoid memory leaks.
      */
-    private final WeakReference<CommCareApplication> mActivity;
+    private final WeakReference<Context> context;
 
     /**
      * @param activity Is the context used to pop-up the toast message.
      */
-    public PopupHandler(CommCareApplication activity) {
-        mActivity = new WeakReference<>(activity);
+    public PopupHandler(Context activity) {
+        context = new WeakReference<>(activity);
     }
 
     /**
@@ -36,7 +36,7 @@ public class PopupHandler extends Handler {
     public void handleMessage(Message m) {
         NotificationMessage message = m.getData().getParcelable("message");
 
-        CommCareApplication activity = mActivity.get();
+        Context activity = context.get();
 
         if (activity != null && message != null) {
             Toast.makeText(activity,

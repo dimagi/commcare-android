@@ -1,5 +1,6 @@
 package org.commcare.android.resource.installers;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -62,9 +63,9 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
 
         if (upgrade) {
             OfflineUserRestore currentOfflineUserRestore =
-                    CommCareApplication._().getCommCarePlatform().getDemoUserRestore();
+                    CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
             if (currentOfflineUserRestore != null) {
-                CommCareApplication._().wipeSandboxForUser(currentOfflineUserRestore.getUsername());
+                AppUtils.wipeSandboxForUser(currentOfflineUserRestore.getUsername());
             }
             return Resource.RESOURCE_STATUS_UPGRADE;
         } else {

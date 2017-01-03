@@ -2,29 +2,21 @@ package org.commcare;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Application;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
-import android.support.v4.app.NotificationCompat;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.telephony.TelephonyManager;
@@ -38,10 +30,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
-import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.LoginActivity;
-import org.commcare.activities.MessageActivity;
-import org.commcare.activities.UnrecoverableErrorActivity;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.core.network.ModernHttpRequester;
@@ -83,7 +72,6 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
-import org.commcare.suite.model.Profile;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
@@ -96,43 +84,28 @@ import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MultipleAppsUtil;
-import org.commcare.utils.ODKPropertyManager;
-import org.commcare.utils.PopupHandler;
+import org.commcare.utils.DummyPropertyManager;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
-import org.commcare.views.notifications.NotificationClearReceiver;
-import org.commcare.views.notifications.NotificationMessage;
+import org.commcare.utils.PendingCalcs;
 import org.javarosa.core.model.User;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Vector;
 
 import javax.crypto.SecretKey;
 
-/**
- * @author ctsims
- */
 @ReportsCrashes(
         formUri = "https://your/cloudant/report",
         formUriBasicAuthLogin = "your_username",
@@ -152,8 +125,6 @@ public class CommCareApplication extends Application {
     public static final int STATE_CORRUPTED = 4;
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
-
-    private static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
 
     private int dbState;
 
@@ -182,12 +153,6 @@ public class CommCareApplication extends Application {
 
     private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
-    /**
-     * Handler to receive notifications and show them the user using toast.
-     */
-    private final PopupHandler toaster = new PopupHandler(this);
-
-
     private GoogleAnalytics analyticsInstance;
     private Tracker analyticsTracker;
 
@@ -198,6 +163,7 @@ public class CommCareApplication extends Application {
     private boolean latestBuildRefreshPending;
 
     private boolean invalidateCacheOnRestore;
+    private CommCareNoficationManager noficationManager;
 
     @Override
     public void onCreate() {
@@ -208,6 +174,7 @@ public class CommCareApplication extends Application {
         AndroidClassHasher.registerAndroidClassHashStrategy();
 
         CommCareApplication.app = this;
+        noficationManager = new CommCareNoficationManager(this);
 
         //TODO: Make this robust
         PreInitLogger pil = new PreInitLogger();
@@ -219,7 +186,7 @@ public class CommCareApplication extends Application {
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
-        PropertyManager.setPropertyManager(new ODKPropertyManager());
+        PropertyManager.setPropertyManager(new DummyPropertyManager());
 
         SQLiteDatabase.loadLibs(this);
 
@@ -247,7 +214,7 @@ public class CommCareApplication extends Application {
         intializeDefaultLocalizerData();
 
         if (dbState != STATE_MIGRATION_FAILED && dbState != STATE_MIGRATION_QUESTIONABLE) {
-            checkForIncompletelyUninstalledApps();
+            AppUtils.checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
         }
 
@@ -256,42 +223,6 @@ public class CommCareApplication extends Application {
         if (!GoogleAnalyticsUtils.versionIncompatible()) {
             analyticsInstance = GoogleAnalytics.getInstance(this);
             GoogleAnalyticsUtils.reportAndroidApiLevelAtStartup();
-        }
-    }
-
-    public void triggerHandledAppExit(Context c, String message, String title) {
-        triggerHandledAppExit(c, message, title, true);
-    }
-
-    public void triggerHandledAppExit(Context c, String message, String title,
-                                      boolean useExtraMessage) {
-        Intent i = new Intent(c, UnrecoverableErrorActivity.class);
-        i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_TITLE, title);
-        i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_MESSAGE, message);
-        i.putExtra(UnrecoverableErrorActivity.EXTRA_USE_MESSAGE, useExtraMessage);
-
-        // start a new stack and forget where we were (so we don't restart the app from there)
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        c.startActivity(i);
-    }
-
-    public static void restartCommCare(Activity originActivity, boolean systemExit) {
-        restartCommCare(originActivity, DispatchActivity.class, systemExit);
-    }
-
-    public static void restartCommCare(Activity originActivity, Class c, boolean systemExit) {
-        Intent intent = new Intent(originActivity, c);
-
-        // Make sure that the new stack starts with the given class, and clear everything between.
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-
-        originActivity.moveTaskToBack(true);
-        originActivity.startActivity(intent);
-        originActivity.finish();
-
-        if (systemExit) {
-            System.exit(0);
         }
     }
 
@@ -337,9 +268,9 @@ public class CommCareApplication extends Application {
     }
 
     public void releaseUserResourcesAndServices() {
-        String userBeingLoggedOut = CommCareApplication._().getCurrentUserId();
+        String userBeingLoggedOut = CommCareApplication.instance().getCurrentUserId();
         try {
-            CommCareApplication._().getSession().closeServiceResources();
+            CommCareApplication.instance().getSession().closeServiceResources();
         } catch (SessionUnavailableException e) {
             Log.w(TAG, "User's session services have unexpectedly already " +
                     "been closed down. Proceeding to close the session.");
@@ -411,7 +342,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public String getPhoneId() {
+    public @NonNull String getPhoneId() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
             return "000000000000000";
         }
@@ -420,6 +351,9 @@ public class CommCareApplication extends Application {
         String imei = manager.getDeviceId();
         if (imei == null) {
             imei = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+        }
+        if (imei == null) {
+            imei = "----";
         }
         return imei;
     }
@@ -445,28 +379,11 @@ public class CommCareApplication extends Application {
 
         mArchiveFileRoot = arfr;
 
-        ReferenceManager._().addReferenceFactory(http);
-        ReferenceManager._().addReferenceFactory(afr);
-        ReferenceManager._().addReferenceFactory(arfr);
-        ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/",
+        ReferenceManager.instance().addReferenceFactory(http);
+        ReferenceManager.instance().addReferenceFactory(afr);
+        ReferenceManager.instance().addReferenceFactory(arfr);
+        ReferenceManager.instance().addRootTranslator(new RootTranslator("jr://media/",
                 GlobalConstants.MEDIA_REF));
-    }
-
-    /**
-     * Check if any existing apps were left in a partially deleted state, and finish
-     * uninstalling them if so.
-     */
-    private void checkForIncompletelyUninstalledApps() {
-        for (ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
-            if (record.getStatus() == ApplicationRecord.STATUS_DELETE_REQUESTED) {
-                try {
-                    uninstall(record);
-                } catch (RuntimeException e) {
-                    Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Unable to uninstall an app " +
-                            "during startup that was previously left partially-deleted");
-                }
-            }
-        }
     }
 
     /**
@@ -479,23 +396,12 @@ public class CommCareApplication extends Application {
         if (!"".equals(lastAppId)) {
             ApplicationRecord lastApp = MultipleAppsUtil.getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
-                initFirstUsableAppRecord();
+                AppUtils.initFirstUsableAppRecord();
             } else {
                 initializeAppResources(new CommCareApp(lastApp));
             }
         } else {
-            initFirstUsableAppRecord();
-        }
-    }
-
-    /**
-     * Initializes the first "usable" application from the list of globally installed app records,
-     * if there is one
-     */
-    public void initFirstUsableAppRecord() {
-        for (ApplicationRecord record : MultipleAppsUtil.getUsableAppRecords()) {
-            initializeAppResources(new CommCareApp(record));
-            break;
+            AppUtils.initFirstUsableAppRecord();
         }
     }
 
@@ -523,39 +429,6 @@ public class CommCareApplication extends Application {
             resourceState = STATE_CORRUPTED;
         }
         app.setAppResourceState(resourceState);
-    }
-
-    /**
-     * @return all ApplicationRecords in storage, regardless of their status, in alphabetical order
-     */
-    public ArrayList<ApplicationRecord> getInstalledAppRecords() {
-        ArrayList<ApplicationRecord> records = new ArrayList<>();
-        for (ApplicationRecord r : getGlobalStorage(ApplicationRecord.class)) {
-            records.add(r);
-        }
-        Collections.sort(records, new Comparator<ApplicationRecord>() {
-
-            @Override
-            public int compare(ApplicationRecord lhs, ApplicationRecord rhs) {
-                return lhs.getDisplayName().compareTo(rhs.getDisplayName());
-            }
-
-        });
-        return records;
-    }
-
-    /**
-     * @param uniqueId - the uniqueId of the ApplicationRecord being sought
-     * @return the ApplicationRecord corresponding to the given id, if it exists. Otherwise,
-     * return null
-     */
-    public ApplicationRecord getAppById(String uniqueId) {
-        for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (r.getUniqueId().equals(uniqueId)) {
-                return r;
-            }
-        }
-        return null;
     }
 
     /**
@@ -709,7 +582,7 @@ public class CommCareApplication extends Application {
 
     public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
         return new HybridFileBackedSqlStorage<>(storage, c, buildUserDbHandle(),
-                getUserKeyRecordId(), CommCareApplication._().getCurrentApp());
+                getUserKeyRecordId(), CommCareApplication.instance().getCurrentApp());
     }
 
     public String getUserKeyRecordId() {
@@ -738,44 +611,8 @@ public class CommCareApplication extends Application {
         });
     }
 
-    public static CommCareApplication _() {
+    public static CommCareApplication instance() {
         return app;
-    }
-
-    /**
-     * Assumes that there is an active session when it is called, and wipes out all local user
-     * data (users, referrals, etc) for the user with an active session, but leaves application
-     * resources in place.
-     *
-     * It makes no attempt to make sure this is a safe operation when called, so
-     * it shouldn't be used lightly.
-     */
-    public void clearUserData() {
-        wipeSandboxForUser(this.getSession().getLoggedInUser().getUsername());
-        CommCareApplication._().getCurrentApp().getAppPreferences().edit()
-                .putString(CommCarePreferences.LAST_LOGGED_IN_USER, null).commit();
-        CommCareApplication._().closeUserSession();
-    }
-
-    public void wipeSandboxForUser(final String username) {
-        // manually clear file-backed fixture storage to ensure files are removed
-        CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
-
-        // wipe the user's db
-        final Set<String> dbIdsToRemove = new HashSet<>();
-        CommCareApplication._().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
-            @Override
-            public boolean matches(UserKeyRecord ukr) {
-                if (ukr.getUsername().equalsIgnoreCase(username.toLowerCase())) {
-                    dbIdsToRemove.add(ukr.getUuid());
-                    return true;
-                }
-                return false;
-            }
-        });
-        for (String id : dbIdsToRemove) {
-            CommCareApplication._().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
-        }
     }
 
     public String getCurrentUserId() {
@@ -793,37 +630,6 @@ public class CommCareApplication extends Application {
         if (!success) {
             Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Couldn't create temp folder");
         }
-    }
-
-    public String getCurrentVersionString() {
-        PackageManager pm = this.getPackageManager();
-        PackageInfo pi;
-        try {
-            pi = pm.getPackageInfo(getPackageName(), 0);
-        } catch (NameNotFoundException e) {
-            e.printStackTrace();
-            return "ERROR! Incorrect package version requested";
-        }
-        int[] versions = this.getCommCareVersion();
-        String ccv = "";
-        for (int vn : versions) {
-            if (!"".equals(ccv)) {
-                ccv += ".";
-            }
-            ccv += vn;
-        }
-
-        Profile p = this.currentApp == null ? null : this.getCommCarePlatform().getCurrentProfile();
-        String profileVersion = "";
-        if (p != null) {
-            profileVersion = String.valueOf(p.getVersion());
-        }
-        String buildDate = BuildConfig.BUILD_DATE;
-        String buildNumber = BuildConfig.BUILD_NUMBER;
-
-        return Localization.get(StringUtils.getNativeString(this, R.string.app_version_string),
-                new String[]{pi.versionName, String.valueOf(pi.versionCode), ccv,
-                        buildNumber, buildDate, profileVersion});
     }
 
     /**
@@ -885,7 +691,7 @@ public class CommCareApplication extends Application {
                         if (shouldAutoUpdate()) {
                             startAutoUpdate();
                         }
-                        syncPending = getPendingSyncStatus();
+                        syncPending = PendingCalcs.getPendingSyncStatus();
 
                         doReportMaintenance(false);
 
@@ -903,7 +709,6 @@ public class CommCareApplication extends Application {
                     TimedStatsTracker.registerStartSession();
                 }
             }
-
 
             @Override
             public void onServiceDisconnected(ComponentName className) {
@@ -926,10 +731,9 @@ public class CommCareApplication extends Application {
 
     @SuppressLint("NewApi")
     private void doReportMaintenance(boolean force) {
-
         // Create a new submission task no matter what. If nothing is pending, it'll see if there
         // are unsent reports and try to send them. Otherwise, it'll create the report
-        SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         String url = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null);
 
         if (url == null) {
@@ -937,13 +741,10 @@ public class CommCareApplication extends Application {
             return;
         }
 
-        DataSubmissionListener dataListener;
-
-        dataListener =
-                CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
+        DataSubmissionListener dataListener = getSession().getListenerForSubmissionNotification(R.string.submission_logs_title);
 
         LogSubmissionTask task = new LogSubmissionTask(
-                force || isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
+                force || PendingCalcs.isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
                 dataListener,
                 url);
 
@@ -960,20 +761,22 @@ public class CommCareApplication extends Application {
      * update has elapsed or we logged out while an auto-update was downlaoding
      * or queued for retry.
      */
-    private boolean shouldAutoUpdate() {
+    private static boolean shouldAutoUpdate() {
+        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+
         return (!areAutomatedActionsInvalid() &&
-                (ResourceInstallUtils.shouldAutoUpdateResume(getCurrentApp()) ||
-                        isUpdatePending()));
+                (ResourceInstallUtils.shouldAutoUpdateResume(currentApp) ||
+                        PendingCalcs.isUpdatePending(currentApp.getAppPreferences())));
     }
 
-    private void startAutoUpdate() {
+    private static void startAutoUpdate() {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
 
         String ref = ResourceInstallUtils.getDefaultProfileRef();
 
         try {
             UpdateTask updateTask = UpdateTask.getNewInstance();
-            updateTask.startPinnedNotification(this);
+            updateTask.startPinnedNotification(CommCareApplication.instance());
             updateTask.setAsAutoUpdate();
             updateTask.executeParallel(ref);
         } catch (IllegalStateException e) {
@@ -982,76 +785,13 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public boolean isUpdatePending() {
-        SharedPreferences preferences = getCurrentApp().getAppPreferences();
-        // Establish whether or not an AutoUpdate is Pending
-        String autoUpdateFreq =
-                preferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY,
-                        CommCarePreferences.FREQUENCY_NEVER);
-
-        // See if auto update is even turned on
-        if (!autoUpdateFreq.equals(CommCarePreferences.FREQUENCY_NEVER)) {
-            long lastUpdateCheck =
-                    preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
-            return isTimeForAutoUpdateCheck(lastUpdateCheck, autoUpdateFreq);
-        }
-        return false;
-    }
-
-    public boolean isTimeForAutoUpdateCheck(long lastUpdateCheck, String autoUpdateFreq) {
-        int checkEveryNDays;
-        if (CommCarePreferences.FREQUENCY_DAILY.equals(autoUpdateFreq)) {
-            checkEveryNDays = 1;
-        } else {
-            checkEveryNDays = 7;
-        }
-        long duration = DateUtils.DAY_IN_MILLIS * checkEveryNDays;
-
-        return isPending(lastUpdateCheck, duration);
-    }
-
-    /**
-     * Used to check if an update, sync, or log submission is pending, based upon the last time
-     * it occurred and the expected period between occurrences
-     */
-    private boolean isPending(long last, long period) {
-        long now = new Date().getTime();
-
-        // 1) Straightforward - Time is greater than last + duration
-        long diff = now - last;
-        if (diff > period) {
-            return true;
-        }
-
-        // 2) For daily stuff, we want it to be the case that if the last time you synced was the day prior,
-        // you still sync, so people can get into the cycle of doing it once in the morning, which
-        // is more valuable than syncing mid-day.
-        if (isDifferentDayInPast(now, last, period)) {
-            return true;
-        }
-
-        // 3) Major time change - (Phone might have had its calendar day manipulated).
-        // for now we'll simply say that if last was more than a day in the future (timezone blur)
-        // we should also trigger
-        return (now < (last - DateUtils.DAY_IN_MILLIS));
-    }
-
-    private boolean isDifferentDayInPast(long now, long last, long period) {
-        Calendar lastRestoreCalendar = Calendar.getInstance();
-        lastRestoreCalendar.setTimeInMillis(last);
-
-        return period == DateUtils.DAY_IN_MILLIS &&
-                lastRestoreCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.getInstance().get(Calendar.DAY_OF_WEEK) &&
-                now > last;
-    }
-
     /**
      * Whether automated stuff like auto-updates/syncing are valid and should
      * be triggered.
      */
-    private boolean areAutomatedActionsInvalid() {
+    private static boolean areAutomatedActionsInvalid() {
         try {
-            return User.TYPE_DEMO.equals(getSession().getLoggedInUser().getUserType());
+            return User.TYPE_DEMO.equals(CommCareApplication.instance().getSession().getLoggedInUser().getUserType());
         } catch (SessionUnavailableException sue) {
             return true;
         }
@@ -1096,134 +836,11 @@ public class CommCareApplication extends Application {
         }
     }
 
-
     public UserKeyRecord getRecordForCurrentUser() {
         return getSession().getUserKeyRecord();
     }
 
-    public static final int MESSAGE_NOTIFICATION = R.string.notification_message_title;
-
-    private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<>();
-
-    public void reportNotificationMessage(NotificationMessage message) {
-        reportNotificationMessage(message, false);
-    }
-
-    public void reportNotificationMessage(final NotificationMessage message, boolean showToast) {
-        synchronized (pendingMessages) {
-            // Make sure there is no matching message pending
-            for (NotificationMessage msg : pendingMessages) {
-                if (msg.equals(message)) {
-                    // If so, bail.
-                    return;
-                }
-            }
-            if (showToast) {
-                Bundle b = new Bundle();
-                b.putParcelable("message", message);
-                Message m = Message.obtain(toaster);
-                m.setData(b);
-                toaster.sendMessage(m);
-            }
-
-            // Otherwise, add it to the queue, and update the notification
-            pendingMessages.add(message);
-            updateMessageNotification();
-        }
-    }
-
-    private void updateMessageNotification() {
-        NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        synchronized (pendingMessages) {
-            if (pendingMessages.size() == 0) {
-                mNM.cancel(MESSAGE_NOTIFICATION);
-                return;
-            }
-
-            String title = pendingMessages.get(0).getTitle();
-
-            // The PendingIntent to launch our activity if the user selects this notification
-            Intent i = new Intent(this, MessageActivity.class);
-
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
-
-            String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
-
-            Notification messageNotification = new NotificationCompat.Builder(this)
-                    .setContentTitle(title)
-                    .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
-                    .setSmallIcon(R.drawable.notification)
-                    .setNumber(pendingMessages.size())
-                    .setContentIntent(contentIntent)
-                    .setDeleteIntent(PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0))
-                    .setOngoing(true)
-                    .setWhen(System.currentTimeMillis())
-                    .build();
-
-            mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
-        }
-    }
-
-    public ArrayList<NotificationMessage> purgeNotifications() {
-        synchronized (pendingMessages) {
-            this.sendBroadcast(new Intent(ACTION_PURGE_NOTIFICATIONS));
-            ArrayList<NotificationMessage> cloned = (ArrayList<NotificationMessage>)pendingMessages.clone();
-            clearNotifications(null);
-            return cloned;
-        }
-    }
-
-    public void clearNotifications(String category) {
-        synchronized (pendingMessages) {
-            NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-            Vector<NotificationMessage> toRemove = new Vector<>();
-            for (NotificationMessage message : pendingMessages) {
-                if (category == null || category.equals(message.getCategory())) {
-                    toRemove.add(message);
-                }
-            }
-
-            for (NotificationMessage message : toRemove) {
-                pendingMessages.remove(message);
-            }
-            if (pendingMessages.size() == 0) {
-                mNM.cancel(MESSAGE_NOTIFICATION);
-            } else {
-                updateMessageNotification();
-            }
-        }
-    }
-
     private boolean syncPending = false;
-
-    /**
-     * @return True if there is a sync action pending.
-     */
-    private boolean getPendingSyncStatus() {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-        long period = -1;
-
-        // Old flag, use a day by default
-        if ("true".equals(prefs.getString("cc-auto-update", "false"))) {
-            period = DateUtils.DAY_IN_MILLIS;
-        }
-
-        // new flag, read what it is.
-        String periodic = prefs.getString(CommCarePreferences.AUTO_SYNC_FREQUENCY, CommCarePreferences.FREQUENCY_NEVER);
-
-        if (!periodic.equals(CommCarePreferences.FREQUENCY_NEVER)) {
-            period = DateUtils.DAY_IN_MILLIS * (periodic.equals(CommCarePreferences.FREQUENCY_DAILY) ? 1 : 7);
-        }
-
-        // If we didn't find a period, bail
-        if (period == -1) {
-            return false;
-        }
-
-        long lastRestore = prefs.getLong(CommCarePreferences.LAST_SYNC_ATTEMPT, 0);
-        return (isPending(lastRestore, period));
-    }
 
     public synchronized boolean isSyncPending(boolean clearFlag) {
         if (areAutomatedActionsInvalid()) {
@@ -1231,7 +848,7 @@ public class CommCareApplication extends Application {
         }
         // We only set this to true occasionally, but in theory it could be set to false
         // from other factors, so turn it off if it is.
-        if (!getPendingSyncStatus()) {
+        if (!PendingCalcs.getPendingSyncStatus()) {
             syncPending = false;
         }
         if (!syncPending) {
@@ -1316,19 +933,20 @@ public class CommCareApplication extends Application {
         titleForUserMessage = null;
     }
 
-    private void setupLoggerStorage(boolean userStorageAvailable) {
+    private static void setupLoggerStorage(boolean userStorageAvailable) {
+        CommCareApplication app = CommCareApplication.instance();
         if (userStorageAvailable) {
-            Logger.registerLogger(new AndroidLogger(getUserStorage(AndroidLogEntry.STORAGE_KEY,
+            Logger.registerLogger(new AndroidLogger(app.getUserStorage(AndroidLogEntry.STORAGE_KEY,
                     AndroidLogEntry.class)));
-            ForceCloseLogger.registerStorage(getUserStorage(ForceCloseLogEntry.STORAGE_KEY,
+            ForceCloseLogger.registerStorage(app.getUserStorage(ForceCloseLogEntry.STORAGE_KEY,
                     ForceCloseLogEntry.class));
-            XPathErrorLogger.registerStorage(getUserStorage(XPathErrorEntry.STORAGE_KEY,
+            XPathErrorLogger.registerStorage(app.getUserStorage(XPathErrorEntry.STORAGE_KEY,
                     XPathErrorEntry.class));
         } else {
             Logger.registerLogger(new AndroidLogger(
-                    this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+                    app.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
             ForceCloseLogger.registerStorage(
-                    this.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+                    app.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
         }
     }
 
@@ -1353,7 +971,7 @@ public class CommCareApplication extends Application {
                 params, userAndDomain.first, userAndDomain.second, isAuthenticatedRequest, isPostRequest);
     }
 
-    public DataPullRequester getDataPullRequester(){
+    public DataPullRequester getDataPullRequester() {
         return DataPullResponseFactory.INSTANCE;
     }
 
@@ -1378,4 +996,7 @@ public class CommCareApplication extends Application {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
 
+    public static CommCareNoficationManager notificationManager() {
+        return app.noficationManager;
+    }
 }

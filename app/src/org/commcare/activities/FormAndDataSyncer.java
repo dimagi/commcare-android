@@ -15,6 +15,7 @@ import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.FormSubmissionProgressBarListener;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
@@ -36,6 +37,23 @@ public class FormAndDataSyncer {
     public FormAndDataSyncer() {
     }
 
+    /**
+     * @return Were forms sent to the server by this method invocation?
+     */
+    public boolean checkAndStartUnsentFormsTask(SyncCapableCommCareActivity activity,
+                                                final boolean syncAfterwards,
+                                                boolean userTriggered) {
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
+        FormRecord[] records = StorageUtils.getUnsentRecords(storage);
+
+        if (records.length > 0) {
+            processAndSendForms(activity, records, syncAfterwards, userTriggered);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @SuppressLint("NewApi")
     public void processAndSendForms(final SyncCapableCommCareActivity activity,
                                     FormRecord[] records,
@@ -47,7 +65,7 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverResult(SyncCapableCommCareActivity receiver, FormUploadResult result) {
-                if (CommCareApplication._().isConsumerApp()) {
+                if (CommCareApplication.instance().isConsumerApp()) {
                     // if this is a consumer app we don't want to show anything in the UI about
                     // sending forms, or do a sync afterward
                     return;
@@ -71,16 +89,16 @@ public class FormAndDataSyncer {
                         label = Localization.get("sync.success.sent",
                                 new String[]{String.valueOf(successfulSends)});
                     }
-                    receiver.reportSyncResult(label, true);
+                    receiver.handleFormSendResult(label, true);
 
                     if (syncAfterwards) {
                         syncDataForLoggedInUser(receiver, true, userTriggered);
                     }
                 } else if (result == FormUploadResult.AUTH_FAILURE) {
-                    receiver.reportSyncResult(Localization.get("sync.fail.auth.loggedin"), false);
+                    receiver.handleFormSendResult(Localization.get("sync.fail.auth.loggedin"), false);
                 } else if (result != FormUploadResult.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
-                    receiver.reportSyncResult(Localization.get("sync.fail.unsent"), false);
+                    receiver.handleFormSendResult(Localization.get("sync.fail.unsent"), false);
                 }
             }
 
@@ -90,63 +108,52 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverError(SyncCapableCommCareActivity receiver, Exception e) {
-                receiver.reportSyncResult(Localization.get("sync.fail.unsent"), false);
+                receiver.handleFormSendResult(Localization.get("sync.fail.unsent"), false);
             }
         };
 
-        processAndSendTask.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+        processAndSendTask.addSubmissionListener(
+                CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
+        if (activity.usesSubmissionProgressBar()) {
+            processAndSendTask.addProgressBarSubmissionListener(
+                    new FormSubmissionProgressBarListener(activity));
+        }
+
         processAndSendTask.connect(activity);
         processAndSendTask.executeParallel(records);
     }
 
     private static String getFormPostURL(final Context context) {
-        SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                 StringUtils.getNativeString(context, R.string.PostURL));
     }
 
     public void syncDataForLoggedInUser(final SyncCapableCommCareActivity activity,
                                         final boolean formsToSend, final boolean userTriggeredSync) {
-        User u = CommCareApplication._().getSession().getLoggedInUser();
+        User u = CommCareApplication.instance().getSession().getLoggedInUser();
 
         if (User.TYPE_DEMO.equals(u.getUserType())) {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.reportSyncResult(Localization.get("main.sync.demo.has.forms"), false);
+                    activity.handleSyncNotAttempted(Localization.get("main.sync.demo.has.forms"));
                 } else {
-                    activity.reportSyncResult(Localization.get("main.sync.demo.no.forms"), false);
+                    activity.handleSyncNotAttempted(Localization.get("main.sync.demo.no.forms"));
                 }
             }
             return;
         }
 
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         syncData(activity, formsToSend, userTriggeredSync,
                 prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY,
                         StringUtils.getNativeString(activity, R.string.ota_restore_url)),
                 u.getUsername(), u.getCachedPwd());
     }
 
-    /**
-     * @return Were forms sent to the server by this method invocation?
-     */
-    public boolean checkAndStartUnsentFormsTask(SyncCapableCommCareActivity activity,
-                                                final boolean syncAfterwards,
-                                                boolean userTriggered) {
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
-        FormRecord[] records = StorageUtils.getUnsentRecords(storage);
-
-        if (records.length > 0) {
-            processAndSendForms(activity, records, syncAfterwards, userTriggered);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public void performOtaRestore(LoginActivity context, String username, String password) {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         syncData(context, false, false,
                 prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY,
                        StringUtils.getNativeString(context, R.string.ota_restore_url)),
@@ -160,7 +167,7 @@ public class FormAndDataSyncer {
             String password) {
 
         try {
-            ReferenceManager._().DeriveReference(
+            ReferenceManager.instance().DeriveReference(
                     SingleAppInstallation.LOCAL_RESTORE_REFERENCE).getStream();
         } catch (InvalidReferenceException | IOException e) {
             throw new RuntimeException("Local restore file missing");
@@ -187,7 +194,7 @@ public class FormAndDataSyncer {
             String username, String password) {
 
         syncData(activity, formsToSend, userTriggeredSync, server, username, password,
-                CommCareApplication._().getDataPullRequester(), false);
+                CommCareApplication.instance().getDataPullRequester(), false);
     }
 
     private <I extends CommCareActivity & PullTaskResultReceiver> void syncData(
@@ -220,4 +227,5 @@ public class FormAndDataSyncer {
         dataPullTask.connect(activity);
         dataPullTask.executeParallel();
     }
+
 }

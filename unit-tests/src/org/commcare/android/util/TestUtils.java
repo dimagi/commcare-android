@@ -4,10 +4,12 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
+import org.commcare.cases.ledger.Ledger;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.engine.cases.AndroidCaseInstanceTreeElement;
+import org.commcare.engine.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
@@ -16,6 +18,7 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.FormSaveUtil;
 import org.commcare.utils.GlobalConstants;
@@ -23,6 +26,7 @@ import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.FormInstanceXmlParser;
+import org.commcare.xml.LedgerXmlParsers;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -70,8 +74,8 @@ public class TestUtils {
      */
     private static TransactionParserFactory getFactory(final SQLiteDatabase db) {
         final Hashtable<String, String> formInstanceNamespaces;
-        if (CommCareApplication._().getCurrentApp() != null) {
-            formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication._());
+        if (CommCareApplication.instance().getCurrentApp() != null) {
+            formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance());
         } else {
             formInstanceNamespaces = null;
         }
@@ -80,9 +84,9 @@ public class TestUtils {
             public TransactionParser getParser(KXmlParser parser) {
                 String namespace = parser.getNamespace();
                 if (namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
-                    return new FormInstanceXmlParser(parser, CommCareApplication._(),
+                    return new FormInstanceXmlParser(parser, CommCareApplication.instance(),
                             Collections.unmodifiableMap(formInstanceNamespaces),
-                            CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
+                            CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
                 } else if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
                     return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new CaseIndexTable(db)) {
                         @Override
@@ -90,12 +94,12 @@ public class TestUtils {
                             return db;
                         }
                     };
-                } 
+                }  else if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
+                    return new LedgerXmlParsers(parser, getLedgerStorage(db));
+                }
                 return null;
             }
-            
         };
-        
     }
 
     /**
@@ -128,11 +132,11 @@ public class TestUtils {
         DataModelPullParser parser;
 
         AndroidTransactionParserFactory androidTransactionFactory =
-                new AndroidTransactionParserFactory(CommCareApplication._().getApplicationContext(), null);
+                new AndroidTransactionParserFactory(CommCareApplication.instance().getApplicationContext(), null);
 
-        if (CommCareApplication._().getCurrentApp() != null) {
+        if (CommCareApplication.instance().getCurrentApp() != null) {
             Hashtable<String, String> formInstanceNamespaces =
-                    FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication._());
+                    FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance());
             androidTransactionFactory.initFormInstanceParser(formInstanceNamespaces);
         }
 
@@ -163,7 +167,7 @@ public class TestUtils {
     }
 
     public static PrototypeFactory getStaticPrototypeFactory(){
-        return CommCareTestApplication._().getPrototypeFactory(RuntimeEnvironment.application);
+        return CommCareTestApplication.instance().getPrototypeFactory(RuntimeEnvironment.application);
     }
     
     /**
@@ -177,22 +181,29 @@ public class TestUtils {
      * @return The case storage object for the provided db
      */
     private static SqlStorage<ACase> getCaseStorage(SQLiteDatabase db) {
-
             return new SqlStorage<>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
                 @Override
                 public PrototypeFactory getPrototypeFactory() {
                     return getStaticPrototypeFactory();
                 }
-
             });
     }
-    
+
+    private static SqlStorage<Ledger> getLedgerStorage(SQLiteDatabase db) {
+        return new SqlStorage<>(Ledger.STORAGE_KEY, Ledger.class, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
+            @Override
+            public PrototypeFactory getPrototypeFactory() {
+                return getStaticPrototypeFactory();
+            }
+        });
+    }
+
     //TODO: Make this work natively with the CommCare Android IIF
     /**
      * @return An evaluation context which is capable of evaluating against
      * the connected storage instances: casedb is the only one supported for now
      */
-    public static EvaluationContext getInstanceBackedEvaluationContext() {
+    public static EvaluationContext getEvaluationContextWithoutSession() {
         final SQLiteDatabase db = getTestDb();
         
         AndroidInstanceInitializer iif = new AndroidInstanceInitializer() {
@@ -203,25 +214,32 @@ public class TestUtils {
                 instance.setCacheHost(casebase);
                 return casebase;
             }
+
+            @Override
+            protected AbstractTreeElement setupLedgerData(ExternalDataInstance instance) {
+                SqlStorage<Ledger> storage = getLedgerStorage(db);
+                return new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
+            }
         };
 
-        ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
-        DataInstance specializedDataInstance = edi.initialize(iif, "casedb");
-        
-        Hashtable<String, DataInstance> formInstances = new Hashtable<>();
-        formInstances.put("casedb", specializedDataInstance);
-        
-        TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
-        return new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
+        return buildEvaluationContext(iif);
     }
 
     public static EvaluationContext getEvaluationContextWithAndroidIIF() {
-        AndroidInstanceInitializer iif = new AndroidInstanceInitializer(CommCareApplication._().getCurrentSession());
-        ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
+        AndroidInstanceInitializer iif = new AndroidInstanceInitializer(CommCareApplication.instance().getCurrentSession());
+        return buildEvaluationContext(iif);
+    }
+
+    private static EvaluationContext buildEvaluationContext(AndroidInstanceInitializer iif) {
+        ExternalDataInstance edi = new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, "casedb");
         DataInstance specializedDataInstance = edi.initialize(iif, "casedb");
+
+        ExternalDataInstance ledgerDataInstanceRaw = new ExternalDataInstance(CaseTestUtils.LEDGER_INSTANCE, "ledgerdb");
+        DataInstance ledgerDataInstance = ledgerDataInstanceRaw.initialize(iif, "ledger");
 
         Hashtable<String, DataInstance> formInstances = new Hashtable<>();
         formInstances.put("casedb", specializedDataInstance);
+        formInstances.put("ledger", ledgerDataInstance);
 
         TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
         return new EvaluationContext(new EvaluationContext(null), formInstances, dummy);

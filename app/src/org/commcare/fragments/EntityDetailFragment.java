@@ -14,11 +14,11 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.adapters.EntityDetailAdapter;
 import org.commcare.adapters.ListItemViewModifier;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ModifiableEntityDetailAdapter;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.SerializationUtil;
@@ -42,7 +42,7 @@ public class EntityDetailFragment extends Fragment {
     ModifiableEntityDetailAdapter adapter;
 
     public EntityDetailFragment() {
-        this.asw = CommCareApplication._().getCurrentSessionWrapper();
+        this.asw = CommCareApplication.instance().getCurrentSessionWrapper();
     }
 
     public void setModifier(ListItemViewModifier modifier) {

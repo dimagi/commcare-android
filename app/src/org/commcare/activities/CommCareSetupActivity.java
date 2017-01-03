@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.BuildConfig;
@@ -167,8 +168,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (!askingForPerms) {
             if (isSingleAppBuild()) {
                 SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
-            } else {
-                // With basic perms satisfied, ask user to allow SMS reading for sms app install code
+            } else if (uiState == UiState.CHOOSE_INSTALL_ENTRY_METHOD) {
+                // Don't perform SMS install if we aren't on base setup state
+                // (i.e. in the middle of an install)
+
+                // With basic perms satisfied, ask user to allow SMS reading
+                // for sms app install code
                 performSMSInstall(false);
             }
         }
@@ -232,7 +237,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * @return if installation is not allowed due to multiple apps limitations
      */
     private boolean checkForMultipleAppsViolation() {
-        if (CommCareApplication._().getInstalledAppRecords().size() >= 2
+        if (AppUtils.getInstalledAppRecords().size() >= 2
                 && !GlobalPrivilegesManager.isMultipleAppsPrivilegeEnabled()
                 && !BuildConfig.DEBUG) {
             Intent i = new Intent(this, MultipleAppsLimitWarningActivity.class);
@@ -396,7 +401,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         this.uiState = UiState.READY_TO_INSTALL;
 
         try {
-            ReferenceManager._().DeriveReference(incomingRef);
+            ReferenceManager.instance().DeriveReference(incomingRef);
             if (lastInstallMode == INSTALL_MODE_OFFLINE) {
                 onStartInstallClicked();
             } else {
@@ -406,14 +411,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             incomingRef = null;
             fail(Localization.get("install.bad.ref"));
         }
-    }
-
-    private CommCareApp getCommCareApp() {
-        ApplicationRecord newRecord =
-                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
-                        ApplicationRecord.STATUS_UNINITIALIZED);
-
-        return new CommCareApp(newRecord);
     }
 
     @Override
@@ -499,6 +496,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
+    public static CommCareApp getCommCareApp() {
+        ApplicationRecord newRecord =
+                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
+                        ApplicationRecord.STATUS_UNINITIALIZED);
+
+        return new CommCareApp(newRecord);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -530,7 +535,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }
         } else {
-            scanSMSLinks(installTriggeredManually);
+            scanSMSLinks();
         }
     }
 
@@ -551,10 +556,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * Scan the most recent incoming text messages for a message with a
      * verified link to a commcare app and install it.  Message scanning stops
      * after the number of scanned messages reaches 'SMS_CHECK_COUNT'.
-     *
-     * @param installTriggeredManually don't install the found app link
      */
-    private void scanSMSLinks(final boolean installTriggeredManually) {
+    private void scanSMSLinks() {
+        final boolean installTriggeredManually = manualSMSInstall;
         RetrieveParseVerifyMessageTask<CommCareSetupActivity> smsProcessTask =
                 new RetrieveParseVerifyMessageTask<CommCareSetupActivity>(this, getContentResolver(), installTriggeredManually) {
 
@@ -621,7 +625,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {
         String message;
         if (showAsPinnedNotifcation) {
-            CommCareApplication._().reportNotificationMessage(notificationMessage);
+            CommCareApplication.notificationManager().reportNotificationMessage(notificationMessage);
             message = Localization.get("notification.for.details.wrapper",
                     new String[]{notificationMessage.getTitle()});
         } else {
@@ -655,15 +659,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return errorMessageToDisplay;
     }
 
-    // All final paths from the Update are handled here (Important! Some
-    // interaction modes should always auto-exit this activity) Everything here
-    // should call one of: fail() or reportSuccess()
-    
-    /* All methods for implementation of ResourceEngineListener */
-
     @Override
     public void reportSuccess(boolean newAppInstalled) {
-        CommCareApplication._().clearNotifications("install_update");
+        CommCareApplication.notificationManager().clearNotifications("install_update");
 
         if (newAppInstalled) {
             GoogleAnalyticsUtils.reportAppInstall(lastInstallMode);
@@ -723,13 +721,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void updateResourceProgress(int done, int total, int phase) {
         // perform safe localization because the localization dictionary might
         // be the resource currently being installed.
-        if (!CommCareApplication._().isConsumerApp()) {
+        if (!CommCareApplication.instance().isConsumerApp()) {
             // Don't change the text on the progress dialog if we are showing the generic consumer
             // apps startup dialog
             String installProgressText =
                     Localization.getWithDefault("profile.found",
                             new String[]{"" + done, "" + total},
-                            "Application found. Loading resources...");
+                            "Setting up app...");
             updateProgress(installProgressText, DIALOG_INSTALL_PROGRESS);
         }
         updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
@@ -758,11 +756,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         String title = Localization.get("updates.resources.initialization");
         String message = Localization.get("updates.resources.profile");
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-        dialog.setCancelable(false);
-        String checkboxText = Localization.get("install.keep.trying");
+
         CustomProgressDialog lastDialog = getCurrentProgressDialog();
         boolean isChecked = (lastDialog != null) && lastDialog.isChecked();
+        String checkboxText = Localization.get("install.keep.trying");
         dialog.addCheckbox(checkboxText, isChecked);
+
+        dialog.setCancelable(false);
         dialog.addProgressBar();
         return dialog;
     }
@@ -847,7 +847,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             for (int i = 0; i < permissions.length; i++) {
                 if (Manifest.permission.READ_SMS.equals(permissions[i]) &&
                         grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    scanSMSLinks(manualSMSInstall);
+                    scanSMSLinks();
                 }
             }
         } else if (requestCode == Permissions.ALL_PERMISSIONS_REQUEST) {
@@ -864,7 +864,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
             // external storage perms were enabled, so setup temp storage,
             // which fails in application setup without external storage perms.
-            CommCareApplication._().prepareTemporaryStorage();
+            CommCareApplication.instance().prepareTemporaryStorage();
             if (!isSingleAppBuild()) {
                 uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
                 uiStateScreenTransition();

@@ -28,8 +28,8 @@ import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -126,10 +126,10 @@ public class IntentCallout implements Externalizable {
 
                 if (INTENT_EXTRA_CAN_AGGREGATE.equals(key)) {
                     if(key != null && !"".equals(key)) {
-                        i.putExtra(INTENT_EXTRA_CAN_AGGREGATE, XPathFuncExpr.toBoolean(xpathResult));
+                        i.putExtra(INTENT_EXTRA_CAN_AGGREGATE, FunctionUtils.toBoolean(xpathResult));
                     }
                 } else{
-                    String extraVal = XPathFuncExpr.toString(xpathResult);
+                    String extraVal = FunctionUtils.toString(xpathResult);
                     if (extraVal != null && !"".equals(extraVal)) {
                         i.putExtra(key, extraVal);
                     }
@@ -282,12 +282,12 @@ public class IntentCallout implements Externalizable {
         className = ExtUtil.readString(in);
         refs = (Hashtable<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
         responseToRefMap = (Hashtable<String, Vector<TreeReference>>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapList(TreeReference.class)), pf);
-        appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        component = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        updateButtonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        type = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        data = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        component = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        updateButtonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        type = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        data = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
     }
 
     @Override

@@ -27,12 +27,12 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.activities.components.EntitySelectViewSetup;
 import org.commcare.adapters.EntityListAdapter;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.session.CommCareSession;
@@ -161,7 +161,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         refreshTimer = new EntitySelectRefreshTimer();
-        asw = CommCareApplication._().getCurrentSessionWrapper();
+        asw = CommCareApplication.instance().getCurrentSessionWrapper();
         session = asw.getSession();
 
         // avoid session dependent when there is no command
@@ -665,7 +665,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
         // hide sorting menu when using async loading strategy
         menu.findItem(MENU_SORT).setVisible((shortSelect == null || !shortSelect.useAsyncStrategy()));
-        menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication._().isConsumerApp());
+        menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -690,7 +690,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 return true;
             // this is needed because superclasses do not implement the menu_settings click
             case R.id.menu_settings:
-                CommCareHomeActivity.createPreferencesMenu(this);
+                HomeScreenBaseActivity.createPreferencesMenu(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -704,13 +704,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     public static void triggerDetailAction(Action action, CommCareActivity activity) {
         try {
-            CommCareApplication._().getCurrentSessionWrapper().executeStackActions(action.getStackOperations());
+            CommCareApplication.instance().getCurrentSessionWrapper().executeStackActions(action.getStackOperations());
         } catch (XPathTypeMismatchException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(activity, e, true);
             return;
         }
 
-        activity.setResult(CommCareHomeActivity.RESULT_RESTART);
+        activity.setResult(HomeScreenBaseActivity.RESULT_RESTART);
         activity.finish();
     }
 

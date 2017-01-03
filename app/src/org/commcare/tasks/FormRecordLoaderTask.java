@@ -176,7 +176,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
                 asw.loadFromStateDescription(ssd);
                 try {
                     dataTitle =
-                            FormDataUtil.getTitleFromSession(new AndroidSandbox(CommCareApplication._()),
+                            FormDataUtil.getTitleFromSession(new AndroidSandbox(CommCareApplication.instance()),
                                     asw.getSession(), asw.getEvaluationContext());
                 } catch (RuntimeException e) {
                     dataTitle = "[Unavailable]";
@@ -242,7 +242,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
 
         for (FormRecordLoadListener listener : this.listeners) {
             if (listener != null) {
-                // XXX: PLM: pretty sure loaded.contains(values[0].first) is
+                // TODO PLM: pretty sure loaded.contains(values[0].first) is
                 // always true at this point.
                 listener.notifyPriorityLoaded(values[0].first,
                         loaded.contains(values[0].first.getID()));

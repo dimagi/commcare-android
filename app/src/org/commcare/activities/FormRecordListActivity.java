@@ -141,7 +141,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        platform = CommCareApplication._().getCommCarePlatform();
+        platform = CommCareApplication.instance().getCommCarePlatform();
         setContentView(R.layout.entity_select_layout);
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
@@ -168,7 +168,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         searchLabel.setText(this.localize("select.search.label"));
 
         searchbox.addTextChangedListener(this);
-        FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);
+        FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class), platform);
         task.addListener(this);
 
         adapter = new IncompleteFormListAdapter(this, platform, task);
@@ -409,7 +409,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     returnItem(info.position);
                     return true;
                 case DELETE_RECORD:
-                    FormRecordCleanupTask.wipeRecord(this, CommCareApplication._().getUserStorage(FormRecord.class).read((int)info.id));
+                    FormRecordCleanupTask.wipeRecord(this, CommCareApplication.instance().getUserStorage(FormRecord.class).read((int)info.id));
                     listView.post(new Runnable() {
                         @Override
                         public void run() {
@@ -502,10 +502,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             }
         });
         if (!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
             String source = prefs.getString(FORM_RECORD_URL,
                     StringUtils.getNativeString(this, R.string.form_record_url));
-
             //If there's nowhere to fetch forms from, we can't really go fetch them
             if (!source.equals("")) {
                 menu.add(0, DOWNLOAD_FORMS, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
@@ -534,9 +533,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS:
-                SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-                String source = prefs.getString(FORM_RECORD_URL,
-                        StringUtils.getNativeString(this, R.string.form_record_url));
+                SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+                String source = prefs.getString(FORM_RECORD_URL, StringUtils.getNativeString(this, R.string.form_record_url));
                 ArchivedFormRemoteRestore.pullArchivedFormsFromServer(source, this, platform);
                 return true;
             case MENU_SUBMIT_QUARANTINE_REPORT:
@@ -546,7 +544,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 barcodeScanOnClickListener.onClick(null);
                 return true;
             case R.id.menu_settings:
-                CommCareHomeActivity.createPreferencesMenu(this);
+                HomeScreenBaseActivity.createPreferencesMenu(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);

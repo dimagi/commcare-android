@@ -18,9 +18,13 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.1'
+        classpath 'com.android.tools.build:gradle:2.2.2'
         classpath 'com.google.gms:google-services:3.0.0'
     }
+}
+
+plugins {
+    id "com.github.hierynomus.license" version "0.13.1"
 }
 
 apply plugin: 'com.android.application'
@@ -41,7 +45,10 @@ configurations {
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    testCompile 'org.robolectric:robolectric:3.1.2'
+    testCompile 'org.robolectric:robolectric:3.1.4'
+    testCompile 'org.robolectric:shadows-multidex:3.1.4'
+    testCompile 'org.robolectric:shadows-core:3.1.4'
+
     testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
     debugCompile project(':commcare-core')
@@ -49,17 +56,17 @@ dependencies {
     compile fileTree(include: '*.jar', dir: 'app/libs')
     compile(name: 'htmlspanner-custom', ext: 'aar')
     compile(name: 'android-zebra-interface-1.1', ext: 'aar')
-    compile(name: 'simprints-lib', ext: 'aar')
-    compile 'com.android.support:cardview-v7:24.2.1'
-    compile 'com.android.support:recyclerview-v7:24.2.1'
-    compile 'com.android.support:support-v4:24.2.1'
-    compile 'com.android.support:gridlayout-v7:24.2.1'
+    compile 'com.simprints:LibSimprints:1.0.5'
+    compile 'com.android.support:cardview-v7:25.0.1'
+    compile 'com.android.support:recyclerview-v7:25.0.1'
+    compile 'com.android.support:support-v4:25.0.1'
+    compile 'com.android.support:gridlayout-v7:25.0.1'
     compile 'com.madgag.spongycastle:core:1.54.0.0'
     compile 'com.madgag.spongycastle:prov:1.54.0.0'
-    compile 'com.google.android.gms:play-services-maps:9.6.1'
-    compile 'com.google.android.gms:play-services-analytics:9.6.1'
+    compile 'com.google.android.gms:play-services-maps:9.8.0'
+    compile 'com.google.android.gms:play-services-analytics:9.8.0'
     compile 'com.google.zxing:core:3.3.0'
-    compile 'ch.acra:acra:4.9.0@aar'
+    compile 'ch.acra:acra:4.9.1@aar'
     compile 'joda-time:joda-time:2.9.4'
     compile 'net.sf.kxml:kxml2:2.3.0'
     compile 'net.zetetic:android-database-sqlcipher:3.5.4@aar'
@@ -122,7 +129,7 @@ def getDate() {
 
 android {
     compileSdkVersion "Google Inc.:Google APIs:24"
-    buildToolsVersion "24.0.3"
+    buildToolsVersion "25.0.0"
 
     useLibrary 'org.apache.http.legacy'
 
@@ -145,7 +152,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 24
+        targetSdkVersion 25
         applicationId "org.commcare.dalvik"
         project.ext.COMMCARE_APP_ID = applicationId
         resValue "string", "application_name", "CommCare"
@@ -580,3 +587,8 @@ def isBelowGradleThree() {
 
 // must be at bottom of file to fix some stupid google bug
 apply plugin: 'com.google.gms.google-services'
+
+downloadLicenses {
+    includeProjectDependencies = true
+    dependencyConfiguration = 'compile'
+}

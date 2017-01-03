@@ -6,7 +6,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.logic.PendingCalloutInterface;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
@@ -41,8 +41,8 @@ public abstract class MediaWidget extends QuestionWidget {
         this.pendingCalloutInterface = pendingCalloutInterface;
 
         mInstanceFolder =
-                FormEntryActivity.mInstancePath.substring(0,
-                        FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
+                FormEntryInstanceState.mInstancePath.substring(0,
+                        FormEntryInstanceState.mInstancePath.lastIndexOf("/") + 1);
 
         setOrientation(LinearLayout.VERTICAL);
         initializeButtons();

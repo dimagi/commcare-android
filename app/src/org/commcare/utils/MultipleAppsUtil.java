@@ -1,6 +1,6 @@
 package org.commcare.utils;
 
-import org.commcare.CommCareApplication;
+import org.commcare.AppUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class MultipleAppsUtil {
      */
     private static ArrayList<ApplicationRecord> getVisibleAppRecords() {
         ArrayList<ApplicationRecord> visible = new ArrayList<>();
-        for (ApplicationRecord r : CommCareApplication._().getInstalledAppRecords()) {
+        for (ApplicationRecord r : AppUtils.getInstalledAppRecords()) {
             if (r.isVisible()) {
                 visible.add(r);
             }
@@ -30,7 +30,7 @@ public class MultipleAppsUtil {
      */
     public static ArrayList<ApplicationRecord> getUsableAppRecords() {
         ArrayList<ApplicationRecord> ready = new ArrayList<>();
-        for (ApplicationRecord r : CommCareApplication._().getInstalledAppRecords()) {
+        for (ApplicationRecord r : AppUtils.getInstalledAppRecords()) {
             if (r.isUsable()) {
                 ready.add(r);
             }
@@ -55,7 +55,7 @@ public class MultipleAppsUtil {
      * @return the list of all installed apps as an array
      */
     public static ApplicationRecord[] appRecordArray() {
-        ArrayList<ApplicationRecord> appList = CommCareApplication._().getInstalledAppRecords();
+        ArrayList<ApplicationRecord> appList = AppUtils.getInstalledAppRecords();
         ApplicationRecord[] appArray = new ApplicationRecord[appList.size()];
         int index = 0;
         for (ApplicationRecord r : appList) {
@@ -70,7 +70,7 @@ public class MultipleAppsUtil {
      * return null
      */
     public static ApplicationRecord getAppById(String uniqueId) {
-        for (ApplicationRecord r : CommCareApplication._().getInstalledAppRecords()) {
+        for (ApplicationRecord r : AppUtils.getInstalledAppRecords()) {
             if (r.getUniqueId().equals(uniqueId)) {
                 return r;
             }

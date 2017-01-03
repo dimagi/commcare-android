@@ -104,7 +104,7 @@ public class InstanceProvider extends ContentProvider {
         String appId = ProviderUtils.getSandboxedAppId();
         if (mDbHelper == null || !appId.equals(mDbHelper.getAppId())) {
             String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.INSTANCES, appId);
-            mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName, appId);
+            mDbHelper = new DatabaseHelper(CommCareApplication.instance(), dbName, appId);
         }
     }
 
@@ -236,11 +236,11 @@ public class InstanceProvider extends ContentProvider {
         String xmlns = values.getAsString(InstanceProviderAPI.InstanceColumns.JR_FORM_ID);
 
         SecretKey key;
-        key = CommCareApplication._().createNewSymmetricKey();
+        key = CommCareApplication.instance().createNewSymmetricKey();
         FormRecord r = new FormRecord(instanceUri.toString(), FormRecord.STATUS_UNINDEXED,
                 xmlns, key.getEncoded(), null, new Date(0), mDbHelper.getAppId());
         IStorageUtilityIndexed<FormRecord> storage =
-                CommCareApplication._().getUserStorage(FormRecord.class);
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
         storage.write(r);
     }
 
@@ -468,7 +468,7 @@ public class InstanceProvider extends ContentProvider {
      * @param instanceUri points to a concrete instance we want to register
      */
     private void linkToSessionFormRecord(Uri instanceUri) {
-        AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
+        AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
         if (instanceUri == null) {
             raiseFormEntryError("Form Entry did not return a form", currentState);
             return;
@@ -542,7 +542,7 @@ public class InstanceProvider extends ContentProvider {
                     NotificationMessage message =
                             NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Save_Error,
                                     new String[]{null, null, e.getMessage()});
-                    CommCareApplication._().reportNotificationMessage(message);
+                    CommCareApplication.notificationManager().reportNotificationMessage(message);
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                             "Error processing form. Should be recaptured during async processing: " + e.getMessage());
                     throw new RuntimeException(e);
@@ -581,8 +581,8 @@ public class InstanceProvider extends ContentProvider {
 
         // save the updated form record
         try {
-            return FormRecordCleanupTask.updateAndWriteRecord(CommCareApplication._(),
-                    record, CommCareApplication._().getUserStorage(FormRecord.class));
+            return FormRecordCleanupTask.updateAndWriteRecord(CommCareApplication.instance(),
+                    record, CommCareApplication.instance().getUserStorage(FormRecord.class));
         } catch (InvalidStructureException e1) {
             e1.printStackTrace();
             throw new InvalidStateException("Invalid data structure found while parsing form. There's something wrong with the application structure, please contact your supervisor.");

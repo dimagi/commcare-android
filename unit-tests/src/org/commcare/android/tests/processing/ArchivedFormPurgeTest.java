@@ -66,7 +66,7 @@ public class ArchivedFormPurgeTest {
 
     @Test
     public void testPurgeDateLoading() {
-        CommCareApp ccApp = CommCareApplication._().getCurrentApp();
+        CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
         int daysFormValidFor = PurgeStaleArchivedFormsTask.getArchivedFormsValidityInDays(ccApp);
         assertEquals("App should try to keep forms for 31 days", 31, daysFormValidFor);
     }

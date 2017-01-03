@@ -11,6 +11,7 @@
         android:layout_alignParentLeft="true"
         android:id="@+id/quick_select_question"
         android:orientation="horizontal"
+        android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/quick_select_right_arrow"/>
 
     <ImageView

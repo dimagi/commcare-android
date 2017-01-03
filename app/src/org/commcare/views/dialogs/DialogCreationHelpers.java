@@ -9,7 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import org.commcare.CommCareApplication;
+import org.commcare.AppUtils;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.utils.MarkupUtil;
@@ -46,7 +46,7 @@ public class DialogCreationHelpers {
     }
 
     private static Spannable buildAboutMessage(Context context) {
-        String commcareVersion = CommCareApplication._().getCurrentVersionString();
+        String commcareVersion = AppUtils.getCurrentVersionString();
         String customAcknowledgment = Localization.getWithDefault("custom.acknowledgement", "");
         String message = context.getString(R.string.about_dialog, commcareVersion, customAcknowledgment);
         return MarkupUtil.returnMarkdown(context, message);

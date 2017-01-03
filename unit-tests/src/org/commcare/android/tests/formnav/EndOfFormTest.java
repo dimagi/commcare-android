@@ -8,6 +8,7 @@ import android.widget.ImageButton;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.ActivityLaunchUtils;
@@ -82,7 +83,7 @@ public class EndOfFormTest {
         QuestionsView questionsView = formEntryActivity.getODKView();
         IntegerWidget favoriteNumber = (IntegerWidget)questionsView.getWidgets().get(0);
         favoriteNumber.setAnswer("2");
-        assertTrue(nextButton.getTag().equals(FormEntryActivity.NAV_STATE_NEXT));
+        assertTrue(nextButton.getTag().equals(FormEntryConstants.NAV_STATE_NEXT));
         // Finish off the form even by clicking next.
         // The form progress meter thinks there is more to do, but that is a bug.
         nextButton.performClick();
@@ -97,7 +98,7 @@ public class EndOfFormTest {
 
     private void assertStoredForms() {
         SqlStorage<FormRecord> formsStorage =
-                CommCareApplication._().getUserStorage(FormRecord.class);
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
 
         int unsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS,
                 FormRecord.STATUS_UNSENT).size();

@@ -20,9 +20,9 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
+import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
 import org.commcare.models.AsyncEntity;
-import org.commcare.models.Entity;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
@@ -298,7 +298,7 @@ public class EntityViewTile extends GridLayout {
             return;
         }
 
-        ViewId uniqueId = new ViewId(coordinateData.getX(), coordinateData.getY(), false);
+        ViewId uniqueId = ViewId.buildTableViewId(coordinateData.getX(), coordinateData.getY(), false);
         GridLayout.LayoutParams gridParams = getLayoutParamsForField(coordinateData);
 
         View view = getView(context, style, form, fieldString, uniqueId, sortField,

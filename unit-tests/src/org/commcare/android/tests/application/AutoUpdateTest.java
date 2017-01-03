@@ -15,6 +15,7 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
+import org.commcare.utils.PendingCalcs;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class AutoUpdateTest {
     @Test
     public void testAppAutoUpdateLogoutRetry() {
         installBaseApp();
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        CommCareApp app = CommCareApplication.instance().getCurrentApp();
         Assert.assertFalse(ResourceInstallUtils.shouldAutoUpdateResume(app));
 
         String profileOfInvalidApp = buildResourceRef("invalid_update", "profile.ccpr");
@@ -76,11 +77,11 @@ public class AutoUpdateTest {
         Assert.assertTrue(ResourceInstallUtils.shouldAutoUpdateResume(app));
 
         updateTask.clearTaskInstance();
-        CommCareApplication._().closeUserSession();
+        CommCareApplication.instance().closeUserSession();
     }
 
     private void setAppsDefaultProfile(String ref) {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        CommCareApp app = CommCareApplication.instance().getCurrentApp();
         ResourceInstallUtils.updateProfileRef(app.getAppPreferences(), ref, null);
     }
 
@@ -89,7 +90,7 @@ public class AutoUpdateTest {
                 buildResourceRef("base_app", "profile.ccpr"),
                 username, password);
 
-        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 6);
     }
 
@@ -116,7 +117,7 @@ public class AutoUpdateTest {
     }
 
     private void logoutAndIntoApp() {
-        CommCareApplication._().closeUserSession();
+        CommCareApplication.instance().closeUserSession();
 
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
@@ -132,16 +133,16 @@ public class AutoUpdateTest {
     public void testAutoUpdateCalc() {
         // should be ready for update if last check was 3 days ago
         long checkedThreeDaysAgo = DateTime.now().minusDays(3).getMillis();
-        Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(checkedThreeDaysAgo,
+        Assert.assertTrue(PendingCalcs.isTimeForAutoUpdateCheck(checkedThreeDaysAgo,
                 CommCarePreferences.FREQUENCY_DAILY));
 
         // shouldn't be ready for update if last check was 3 hours ago
         long checkedThreeHoursAgo = DateTime.now().minusHours(3).getMillis();
         if (isSameDayAsNow(checkedThreeHoursAgo)) {
-            Assert.assertFalse(CommCareApplication._().isTimeForAutoUpdateCheck(checkedThreeHoursAgo,
+            Assert.assertFalse(PendingCalcs.isTimeForAutoUpdateCheck(checkedThreeHoursAgo,
                     CommCarePreferences.FREQUENCY_DAILY));
         } else {
-            Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(checkedThreeHoursAgo,
+            Assert.assertTrue(PendingCalcs.isTimeForAutoUpdateCheck(checkedThreeHoursAgo,
                     CommCarePreferences.FREQUENCY_DAILY));
         }
 
@@ -153,23 +154,23 @@ public class AutoUpdateTest {
         DateTime now = new DateTime();
         long diff = yesterdayNearMidnight.minus(now.getMillis()).getMillis();
         Assert.assertTrue(diff < DateUtils.DAY_IN_MILLIS);
-        Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(yesterdayNearMidnight.getMillis(),
+        Assert.assertTrue(PendingCalcs.isTimeForAutoUpdateCheck(yesterdayNearMidnight.getMillis(),
                 CommCarePreferences.FREQUENCY_DAILY));
 
         // test timeshift a couple of hours in the future, shouldn't be enough
         // to warrant a update trigger
         long hoursInTheFuture = DateTime.now().plusHours(2).getMillis();
-        Assert.assertFalse(CommCareApplication._().isTimeForAutoUpdateCheck(hoursInTheFuture,
+        Assert.assertFalse(PendingCalcs.isTimeForAutoUpdateCheck(hoursInTheFuture,
                 CommCarePreferences.FREQUENCY_DAILY));
 
         // test timeshift where if we last checked more than one day in the
         // future then we trigger
         long daysLater = DateTime.now().plusDays(2).getMillis();
-        Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(daysLater,
+        Assert.assertTrue(PendingCalcs.isTimeForAutoUpdateCheck(daysLater,
                 CommCarePreferences.FREQUENCY_DAILY));
 
         long weekLater = DateTime.now().plusWeeks(1).getMillis();
-        Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(weekLater,
+        Assert.assertTrue(PendingCalcs.isTimeForAutoUpdateCheck(weekLater,
                 CommCarePreferences.FREQUENCY_DAILY));
     }
 

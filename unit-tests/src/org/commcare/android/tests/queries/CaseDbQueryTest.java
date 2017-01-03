@@ -5,8 +5,8 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class CaseDbQueryTest {
     public void testBasicCaseQueries() {
         TestUtils.processResourceTransaction("/inputs/case_create.xml");
 
-        EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
 
         evaluate("count(instance('casedb')/casedb/case[@case_id = 'test_case_id'])", "1", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/case_name", "Test Case", ec);
@@ -51,7 +51,7 @@ public class CaseDbQueryTest {
         TestUtils.processResourceTransaction("/inputs/case_create.xml");
         TestUtils.processResourceTransaction("/inputs/case_create_and_index.xml");
 
-        EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
 
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id_child']/index/parent", "test_case_id", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/index/missing", "", ec);
@@ -67,7 +67,7 @@ public class CaseDbQueryTest {
     @Test
     public void testCaseOptimizationTriggers() {
         TestUtils.processResourceTransaction("/inputs/case_test_db_optimizations.xml");
-        EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
 
         evaluate("join(',',instance('casedb')/casedb/case[index/parent = 'test_case_parent']/@case_id)", "child_one,child_two,child_three", ec);
         evaluate("join(',',instance('casedb')/casedb/case[index/parent = 'test_case_parent'][@case_id = 'child_two']/@case_id)", "child_two", ec);
@@ -80,7 +80,7 @@ public class CaseDbQueryTest {
         XPathExpression expr;
         try {
             expr = XPathParseTool.parseXPath(xpath);
-            String result = XPathFuncExpr.toString(expr.eval(ec));
+            String result = FunctionUtils.toString(expr.eval(ec));
             assertEquals("XPath: " + xpath, expectedValue, result);
         } catch (XPathSyntaxException e) {
             TestUtils.wrapError(e, "XPath: " + xpath);

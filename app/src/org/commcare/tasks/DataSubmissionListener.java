@@ -6,9 +6,10 @@ package org.commcare.tasks;
 public interface DataSubmissionListener {
     void beginSubmissionProcess(int totalItems);
 
-    void startSubmission(int itemNumber, long length);
+    void startSubmission(int itemNumber, long sizeOfItem);
 
     void notifyProgress(int itemNumber, long progress);
 
-    void endSubmissionProcess();
+    void endSubmissionProcess(boolean success);
+
 }

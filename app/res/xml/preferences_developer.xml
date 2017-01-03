@@ -61,13 +61,6 @@
         android:key="cc-alternate-question-text-format"
         android:title="Image Above Question Text Enabled"/>
     <ListPreference
-        android:defaultValue="no"
-        android:enabled="true"
-        android:entries="@array/pref_enabled_labels"
-        android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-fire-triggers-on-save"
-        android:title="Fire triggers on form save"/>
-    <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
@@ -106,4 +99,11 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-use-root-menu-as-home-screen"
         android:title="Use root module menu as home screen"/>
+    <ListPreference
+        android:enabled="true"
+        android:defaultValue="no"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-update-to-latest-saved"
+        android:title="Enable Updating to Latest Saved Version"/>
 </PreferenceScreen>

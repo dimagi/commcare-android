@@ -26,6 +26,22 @@
     <dimen name="min_button_height">52dp</dimen>
     <dimen name="spacer">10dp</dimen>
 
+    <dimen name="action_icon_size">60dp</dimen>
+
+    <dimen name="list_text_height">48dp</dimen>
+    <dimen name="list_audio_height">52dp</dimen>
+    <dimen name="list_content_with_space_for_badge">58dp</dimen>
+    <dimen name="list_icon_size">48dp</dimen>
+    <dimen name="list_icon_bounding_dimen">60dp</dimen>
+
+    <dimen name="numeric_badge_width_for_list">20dp</dimen>
+    <dimen name="numeric_badge_font_size_list">10dp</dimen>
+
+    <dimen name="menu_grid_icon_size">120dp</dimen>
+    <dimen name="menu_grid_icon_size_with_badge">136dp</dimen>
+    <dimen name="numeric_badge_font_size_grid">15dp</dimen>
+    <dimen name="numeric_badge_width_for_grid">30dp</dimen>
+
     <dimen name="widget_button_padding">10dp</dimen>
 
     <dimen name="login_box_margins">30dp</dimen>
@@ -78,8 +94,6 @@
 
     <dimen name="content_start">8dp</dimen>
     <dimen name="content_start_quadruple">32dp</dimen>
-    <dimen name="list_height">48dp</dimen>
-    <dimen name="list_height_tall">52dp</dimen>
 
     <dimen name="help_text_padding">16dp</dimen>
 
@@ -89,9 +103,15 @@
     <dimen name="new_progressbar_button_minwidth">32dp</dimen>
     <dimen name="new_progressbar_button_padding">24dp</dimen>
 
+    <dimen name="submission_progressbar_height">10dp</dimen>
+
     <dimen name="form_label_padding">8dp</dimen>
 
     <dimen name="entity_select_divider_left_inset">120dp</dimen>
 
     <dimen name="min_button_padding">20dp</dimen>
+
+    <!-- audio playback -->
+    <dimen name="expanded_audio_playback_margin_bottom">24dp</dimen>
+    <dimen name="expanded_audio_playback_margin">21dp</dimen>
 </resources>

@@ -6,7 +6,7 @@ import android.text.format.DateUtils;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
@@ -26,21 +26,13 @@ import java.util.Date;
 public class SyncDetailCalculations {
     private final static String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
     private final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
+    private final static String LAST_SYNC_KEY_BASE = "last-succesful-sync-";
 
-    public static void updateSubText(final CommCareHomeActivity activity,
+    public static void updateSubText(final StandardHomeActivity activity,
                                      SquareButtonViewHolder squareButtonViewHolder,
                                      HomeCardDisplayData cardDisplayData) {
 
-        SqlStorage<FormRecord> formsStorage = CommCareApplication._().getUserStorage(FormRecord.class);
-        int numUnsentForms;
-        try {
-            numUnsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
-        } catch (SessionUnavailableException e) {
-            // Addresses unexpected issue where this db lookup occurs after session ends.
-            // If possible, replace this with fix that addresses root issue
-            numUnsentForms = 0;
-        }
-
+        int numUnsentForms = getNumUnsentForms();
         Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
 
         if (numUnsentForms > 0) {
@@ -56,16 +48,31 @@ public class SyncDetailCalculations {
                 activity.getResources().getColor(R.color.cc_dark_warm_accent_color));
     }
 
-    private static Pair<Long, String> getLastSyncTimeAndMessage() {
+    public static int getNumUnsentForms() {
+        SqlStorage<FormRecord> formsStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
+        try {
+            return formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+        } catch (SessionUnavailableException e) {
+            // Addresses unexpected issue where this db lookup occurs after session ends.
+            // If possible, replace this with fix that addresses root issue
+            return 0;
+        }
+    }
+
+    public static Pair<Long, String> getLastSyncTimeAndMessage() {
         CharSequence syncTimeMessage;
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        long lastSyncTime = prefs.getLong("last-succesful-sync", 0);
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        long lastSyncTime = prefs.getLong(getLastSyncKey(), 0);
         if (lastSyncTime == 0) {
             syncTimeMessage = Localization.get("home.sync.message.last.never");
         } else {
             syncTimeMessage = DateUtils.formatSameDayTime(lastSyncTime, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
         }
         return new Pair<>(lastSyncTime, Localization.get("home.sync.message.last", new String[]{syncTimeMessage.toString()}));
+    }
+
+    public static String getLastSyncKey() {
+        return LAST_SYNC_KEY_BASE + CommCareApplication.instance().getCurrentUserId();
     }
 
     private static void setSyncSubtextColor(TextView subtext, int numUnsentForms, long lastSyncTime,
@@ -83,20 +90,19 @@ public class SyncDetailCalculations {
     }
 
     private static boolean unsentFormNumberLimitExceeded(int numUnsentForms) {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         int unsentFormNumberLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_NUMBER_KEY, "5"));
         return numUnsentForms > unsentFormNumberLimit;
     }
 
     private static boolean unsentFormTimeLimitExceeded(long lastSyncTime) {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         int unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY, "5"));
 
         long now = new Date().getTime();
         int secs_ago = (int)((lastSyncTime - now) / 1000);
         int days_ago = secs_ago / 86400;
 
-        return ((-days_ago) > unsentFormTimeLimit) &&
-                prefs.getString("server-tether", "push-only").equals("sync");
+        return (-days_ago) > unsentFormTimeLimit;
     }
 }

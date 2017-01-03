@@ -21,7 +21,7 @@ public class SessionStateDescriptorTests {
         MockApp app = new MockApp("/commcare-apps/case_search_and_claim/");
         SessionWrapper session = app.getSession();
         session.setCommand("patient-search");
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote("foo", new TreeElement()));
+        session.setQueryDatum(ExternalDataInstance.buildFromRemote("foo", new TreeElement(), false));
         session.setDatum("case_id", "case_two");
         serializeSessionOutToDescriptor(session);
 

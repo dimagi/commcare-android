@@ -3,7 +3,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="org.commcare.dalvik"
           android:versionCode="106"
-          android:versionName="2.32">
+          android:versionName="2.33">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -93,9 +93,9 @@
             android:label="CommCare Forced Closure">
         </activity>
 
-        <activity android:name="org.commcare.activities.CommCareHomeActivity"/>
-        <activity android:name="org.commcare.activities.MenuList"/>
-        <activity android:name="org.commcare.activities.MenuGrid"/>
+        <activity android:name="org.commcare.activities.StandardHomeActivity"/>
+        <activity android:name="org.commcare.activities.RootMenuHomeActivity"/>
+        <activity android:name="org.commcare.activities.MenuActivity"/>
 
         <provider
             android:name="org.commcare.provider.FormsProvider"

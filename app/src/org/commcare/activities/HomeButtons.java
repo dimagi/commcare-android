@@ -27,7 +27,7 @@ public class HomeButtons {
     private final static String[] buttonNames =
             new String[]{"start", "saved", "incomplete", "sync", "report", "logout"};
 
-    public static HomeCardDisplayData[] buildButtonData(CommCareHomeActivity activity,
+    public static HomeCardDisplayData[] buildButtonData(StandardHomeActivity activity,
                                                         Vector<String> buttonsToHide,
                                                         boolean isDemoUser) {
         String syncKey, homeMessageKey, logoutMessageKey;
@@ -91,7 +91,7 @@ public class HomeButtons {
         return buttons;
     }
 
-    private static View.OnClickListener getViewOldFormsListener(final CommCareHomeActivity activity) {
+    private static View.OnClickListener getViewOldFormsListener(final StandardHomeActivity activity) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,7 +101,7 @@ public class HomeButtons {
         };
     }
 
-    private static View.OnClickListener getSyncButtonListener(final CommCareHomeActivity activity) {
+    private static View.OnClickListener getSyncButtonListener(final StandardHomeActivity activity) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,7 +111,7 @@ public class HomeButtons {
         };
     }
 
-    private static TextSetter getSyncButtonTextSetter(final CommCareHomeActivity activity) {
+    private static TextSetter getSyncButtonTextSetter(final StandardHomeActivity activity) {
         return new TextSetter() {
             @Override
             public void update(HomeCardDisplayData cardDisplayData,
@@ -131,7 +131,7 @@ public class HomeButtons {
         };
     }
 
-    private static View.OnClickListener getStartButtonListener(final CommCareHomeActivity activity) {
+    private static View.OnClickListener getStartButtonListener(final StandardHomeActivity activity) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,7 +141,7 @@ public class HomeButtons {
         };
     }
 
-    private static View.OnClickListener getIncompleteButtonListener(final CommCareHomeActivity activity) {
+    private static View.OnClickListener getIncompleteButtonListener(final StandardHomeActivity activity) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,7 +151,7 @@ public class HomeButtons {
         };
     }
 
-    private static TextSetter getIncompleteButtonTextSetter(final CommCareHomeActivity activity) {
+    private static TextSetter getIncompleteButtonTextSetter(final StandardHomeActivity activity) {
         return new TextSetter() {
             @Override
             public void update(HomeCardDisplayData cardDisplayData,
@@ -182,18 +182,17 @@ public class HomeButtons {
         };
     }
 
-    private static View.OnClickListener getLogoutButtonListener(final CommCareHomeActivity activity) {
+    private static View.OnClickListener getLogoutButtonListener(final StandardHomeActivity activity) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_LOGOUT_BUTTON);
-                CommCareApplication._().closeUserSession();
                 activity.userTriggeredLogout();
             }
         };
     }
 
-    private static TextSetter getLogoutButtonTextSetter(final CommCareHomeActivity activity) {
+    private static TextSetter getLogoutButtonTextSetter(final StandardHomeActivity activity) {
         return new TextSetter() {
             @Override
             public void update(HomeCardDisplayData cardDisplayData,
@@ -209,7 +208,7 @@ public class HomeButtons {
         };
     }
 
-    private static View.OnClickListener getReportButtonListener(final CommCareHomeActivity activity) {
+    private static View.OnClickListener getReportButtonListener(final StandardHomeActivity activity) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {

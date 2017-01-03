@@ -18,7 +18,6 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.services.CommCareSessionService;
-import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
@@ -83,8 +82,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
      */
     private void refreshView() {
         ListView lv = (ListView)findViewById(R.id.apps_list_view);
-        lv.setAdapter(new AppManagerAdapter(this, android.R.layout.simple_list_item_1,
-                MultipleAppsUtil.appRecordArray()));
+        lv.setAdapter(new AppManagerAdapter(this));
     }
 
     /**
@@ -94,7 +92,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
      */
     public void installAppClicked(View v) {
         try {
-            CommCareSessionService s = CommCareApplication._().getSession();
+            CommCareSessionService s = CommCareApplication.instance().getSession();
             if (s.isActive()) {
                 triggerLogoutWarning();
             } else {
@@ -123,7 +121,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                     GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_INSTALL_FROM_MANAGER);
                     // If we have just returned from installation and the currently-seated app's
                     // resources are not validated, launch the MM verification activity
-                    if (!CommCareApplication._().getCurrentApp().areMMResourcesValidated()) {
+                    if (!CommCareApplication.instance().getCurrentApp().areMMResourcesValidated()) {
                         Intent i = new Intent(this, CommCareVerificationActivity.class);
                         i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
                         this.startActivityForResult(i, DispatchActivity.MISSING_MEDIA_ACTIVITY);
@@ -181,7 +179,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
             public void onClick(DialogInterface dialog, int which) {
                 dismissAlertDialog();
                 if (which == AlertDialog.BUTTON_POSITIVE) {
-                    CommCareApplication._().expireUserSession();
+                    CommCareApplication.instance().expireUserSession();
                     installApp();
                 }
             }
@@ -190,5 +188,10 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
         d.setPositiveButton(Localization.get("odk_ok"), listener);
         d.setNegativeButton(Localization.get("odk_cancel"), listener);
         showAlertDialog(d);
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 }

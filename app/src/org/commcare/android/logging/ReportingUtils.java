@@ -2,6 +2,7 @@ package org.commcare.android.logging;
 
 import android.content.SharedPreferences;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.network.HttpRequestGenerator;
@@ -15,7 +16,7 @@ import org.commcare.utils.SessionStateUninitException;
 public class ReportingUtils {
 
     public static int getAppBuildNumber() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        CommCareApp app = CommCareApplication.instance().getCurrentApp();
         if (app != null) {
             Profile profile = app.getCommCarePlatform().getCurrentProfile();
             if (profile != null) {
@@ -26,20 +27,25 @@ public class ReportingUtils {
     }
 
     public static String getAppId() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-        if (app != null) {
-            Profile profile = app.getCommCarePlatform().getCurrentProfile();
-            if (profile != null) {
-                return profile.getUniqueId();
+        try {
+            CommCareApp app = CommCareApplication.instance().getCurrentApp();
+            if (app != null) {
+                Profile profile = app.getCommCarePlatform().getCurrentProfile();
+                if (profile != null) {
+                    return profile.getUniqueId();
+                }
             }
+            return "";
+        } catch (NullPointerException npe) {
+            // don't fail hard, return empty string
+            return "";
         }
-        return "";
     }
 
     public static String getCurrentSession() {
         CommCareSession currentSession;
         try {
-            currentSession = CommCareApplication._().getCurrentSession();
+            currentSession = CommCareApplication.instance().getCurrentSession();
             return currentSession.getFrame().toString();
         } catch (SessionStateUninitException e) {
             return "";
@@ -53,7 +59,7 @@ public class ReportingUtils {
 
     public static String getDomain() {
         try {
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
             return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
         } catch (Exception e) {
             return "Domain not set.";
@@ -62,7 +68,7 @@ public class ReportingUtils {
 
     public static String getPostURL() {
         try {
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
             return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
         } catch (Exception e) {
             return "PostURL not set.";
@@ -71,7 +77,7 @@ public class ReportingUtils {
 
     public static String getUser() {
         try {
-            return CommCareApplication._().getSession().getLoggedInUser().getUsername();
+            return CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
         } catch (Exception e) {
             return "User not logged in.";
         }
@@ -79,7 +85,7 @@ public class ReportingUtils {
 
     public static String getVersion() {
         try {
-            return CommCareApplication._().getCurrentVersionString();
+            return AppUtils.getCurrentVersionString();
         } catch (Exception e) {
             return "Version not set.";
         }

@@ -5,7 +5,7 @@ import android.os.Environment;
 import android.widget.ListView;
 
 import org.commcare.CommCareTestApplication;
-import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.FormRecordListActivity;
 import org.commcare.adapters.IncompleteFormListAdapter;
@@ -73,11 +73,11 @@ public class FormRecordListActivityTest {
     }
 
     private static ShadowActivity prepSavedFormsActivity(Intent savedFormsIntent) {
-        CommCareHomeActivity homeActivity =
-                Robolectric.buildActivity(CommCareHomeActivity.class).create().get();
+        StandardHomeActivity homeActivity =
+                Robolectric.buildActivity(StandardHomeActivity.class).create().get();
         ShadowActivity homeActivityShadow = Shadows.shadowOf(homeActivity);
         homeActivityShadow.startActivityForResult(savedFormsIntent,
-                CommCareHomeActivity.GET_INCOMPLETE_FORM);
+                StandardHomeActivity.GET_INCOMPLETE_FORM);
 
         // Call this to remove activity from stack, so we can access future activities...
         homeActivityShadow.getNextStartedActivityForResult();

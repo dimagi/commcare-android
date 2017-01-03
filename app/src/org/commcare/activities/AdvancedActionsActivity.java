@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.view.MenuItem;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -49,8 +50,8 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     private final static int REPORT_PROBLEM_ACTIVITY = 3;
     private final static int VALIDATE_MEDIA_ACTIVITY = 4;
 
-    public final static int RESULT_DATA_RESET = CommCareHomeActivity.RESULT_RESTART + 1;
-    public final static int RESULT_FORMS_PROCESSED = CommCareHomeActivity.RESULT_RESTART + 2;
+    public final static int RESULT_DATA_RESET = HomeScreenBaseActivity.RESULT_RESTART + 1;
+    public final static int RESULT_FORMS_PROCESSED = HomeScreenBaseActivity.RESULT_RESTART + 2;
 
     public final static String FORM_PROCESS_COUNT_KEY = "forms-processed-count";
     public final static String FORM_PROCESS_MESSAGE_KEY = "forms-processed-message";
@@ -208,7 +209,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
 
     private void startFormDump() {
         Intent i = new Intent(this, CommCareFormDumpActivity.class);
-        i.putExtra(CommCareFormDumpActivity.EXTRA_FILE_DESTINATION, CommCareApplication._().getCurrentApp().storageRoot());
+        i.putExtra(CommCareFormDumpActivity.EXTRA_FILE_DESTINATION, CommCareApplication.instance().getCurrentApp().storageRoot());
         startActivityForResult(i, DUMP_FORMS_ACTIVITY);
     }
 
@@ -237,7 +238,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
             public void onClick(DialogInterface dialog,
                                 int which) {
                 if (which == AlertDialog.BUTTON_POSITIVE) {
-                    CommCareApplication._().clearUserData();
+                    AppUtils.clearUserData();
                     activity.setResult(RESULT_DATA_RESET);
                     activity.finish();
                 }

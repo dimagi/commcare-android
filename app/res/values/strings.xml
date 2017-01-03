@@ -57,7 +57,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>32</item>
+        <item>33</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -105,6 +105,11 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
         <item>Enabled</item>
         <item>Disabled</item>
     </string-array>
+    <string-array name="pref_password_show_options_labels">
+        <item>Always Hidden</item>
+        <item>Default Show</item>
+        <item>Default Hide</item>
+    </string-array>
     <string-array name="pref_load_form_payload_as_vals">
         <item>incomplete</item>
         <item>unsent</item>
@@ -114,6 +119,11 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
         <item>Incomplete</item>
         <item>Unsent</item>
         <item>Saved</item>
+    </string-array>
+    <string-array name="pref_password_show_options">
+        <item>always_hidden</item>
+        <item>default_show</item>
+        <item>default_hide</item>
     </string-array>
     <string-array name="target_density_labels">
         <item>DENSITY_LOW</item>
@@ -166,7 +176,6 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="capture_image" cc:translatable="true">Take Picture</string>
     <string name="capture_video" cc:translatable="true">Record Video</string>
     <string name="change_language" cc:translatable="true">Change Language</string>
-    <string name="choose_language" cc:translatable="true">Choose Language</string>
     <string name="clearanswer_confirm" cc:translatable="true">Remove the response to \"%s\"?</string>
     <string name="clear_answer" cc:translatable="true">Remove response</string>
     <string name="clear_answer_ask" cc:translatable="true">Remove This Response?</string>
@@ -214,7 +223,7 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="list_failed_with_error" cc:translatable="true">Form listing failed. %s.</string>
     <string name="loading_form" cc:translatable="true">Loading Form</string>
     <string name="load_remote_form_error" cc:translatable="true">Error Getting Form List</string>
-    <string name="location_provider_accuracy" cc:translatable="true">Location found using %1$s. Accuracy is %2$s m.</string>
+    <string name="location_provider_accuracy" cc:translatable="true">Location accuracy: %1$s m.</string>
     <string name="location_provider" cc:translatable="true">Using %1$s provider. Please wait for greater accuracy.</string>
     <string name="location_accuracy" cc:translatable="true">Location found. Accuracy is %1$s m</string>
     <string name="longitude" cc:translatable="true">Longitude</string>

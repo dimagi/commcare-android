@@ -5,6 +5,7 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.suite.model.Profile;
+import org.commcare.utils.PendingCalcs;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +32,9 @@ public class AppInitializationTest {
 
     @Test
     public void testAppInit() {
-        Assert.assertFalse(CommCareApplication._().isUpdatePending());
+        Assert.assertFalse(PendingCalcs.isUpdatePending(CommCareApplication.instance().getCurrentApp().getAppPreferences()));
 
-        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 8);
     }
 }

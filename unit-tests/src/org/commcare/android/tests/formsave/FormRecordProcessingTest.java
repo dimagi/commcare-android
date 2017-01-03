@@ -7,7 +7,7 @@ import android.widget.ImageButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
@@ -89,7 +89,7 @@ public class FormRecordProcessingTest {
     }
 
     private void fillOutFormWithCaseUpdate() {
-        CommCareHomeActivity homeActivity = buildHomeActivityForFormEntryLaunch();
+        StandardHomeActivity homeActivity = buildHomeActivityForFormEntryLaunch();
 
         ShadowActivity shadowActivity = Shadows.shadowOf(homeActivity);
         Intent formEntryIntent = shadowActivity.getNextStartedActivity();
@@ -108,14 +108,14 @@ public class FormRecordProcessingTest {
         assertStoredFroms();
     }
 
-    private CommCareHomeActivity buildHomeActivityForFormEntryLaunch() {
+    private StandardHomeActivity buildHomeActivityForFormEntryLaunch() {
         AndroidSessionWrapper sessionWrapper =
-                CommCareApplication._().getCurrentSessionWrapper();
+                CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand("m0-f0");
 
-        CommCareHomeActivity homeActivity =
-                Robolectric.buildActivity(CommCareHomeActivity.class).create().get();
+        StandardHomeActivity homeActivity =
+                Robolectric.buildActivity(StandardHomeActivity.class).create().get();
         // make sure we don't actually submit forms by using a fake form submitter
         homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake());
         SessionNavigator sessionNavigator = homeActivity.getSessionNavigator();
@@ -154,7 +154,7 @@ public class FormRecordProcessingTest {
 
     private void assertStoredFroms() {
         SqlStorage<FormRecord> formsStorage =
-                CommCareApplication._().getUserStorage(FormRecord.class);
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
 
         int unsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS,
                 FormRecord.STATUS_UNSENT).size();

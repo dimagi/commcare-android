@@ -67,7 +67,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
     protected void onCancelled() {
         super.onCancelled();
 
-        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 
     @Override
@@ -100,7 +100,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
 
             if (!(formFolder.isDirectory())) {
                 Log.e(TAG, "Encountered non form entry in file dump folder at path: " + formFolder.getAbsolutePath());
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[]{null, formFolder.getName()}, MALFORMED_FILE_CATEGORY));
+                CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[]{null, formFolder.getName()}, MALFORMED_FILE_CATEGORY));
                 continue;
             }
             try {
@@ -108,12 +108,12 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
             } catch(IOException e){
                 Log.e(TAG, "Could not load properties file in folder: " + formFolder +
                         " with error: " + e.getMessage());
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[]{null, formFolder.getName()}, MALFORMED_FILE_CATEGORY));
+                CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[]{null, formFolder.getName()}, MALFORMED_FILE_CATEGORY));
                 continue;
             }
 
             try {
-                User user = CommCareApplication._().getSession().getLoggedInUser();
+                User user = CommCareApplication.instance().getSession().getLoggedInUser();
                 results[i] = FormUploadUtil.sendInstance(counter, formFolder, postUrl, user);
 
                 if (results[i] == FormUploadResult.FULL_SUCCESS) {
@@ -124,7 +124,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
                     return false;
                 } else {
                     allSuccessful = false;
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[]{null, formFolder.getName()}, MALFORMED_FILE_CATEGORY));
+                    CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[]{null, formFolder.getName()}, MALFORMED_FILE_CATEGORY));
                     publishProgress(Localization.get("bulk.send.file.error", new String[]{formFolder.getAbsolutePath()}));
                 }
                 counter++;

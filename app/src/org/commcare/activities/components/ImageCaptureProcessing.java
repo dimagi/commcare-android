@@ -36,7 +36,6 @@ public class ImageCaptureProcessing {
         String finalFilePath = instanceFolder + imageFilename;
 
         boolean savedScaledImage = false;
-        // TODO PLM: this scale flag should be decoupled such that getPendingWidget doesn't need to be called
         if (shouldScale) {
             ImageWidget currentWidget = (ImageWidget)formEntryActivity.getPendingWidget();
             if (currentWidget != null) {

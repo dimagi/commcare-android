@@ -15,7 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.PendingCalloutInterface;
@@ -75,7 +75,7 @@ public class CommCareAudioWidget extends AudioWidget
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("audio/*");
                 try {
-                    ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
+                    ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
                     recordingNameText.setTextColor(getResources().getColor(R.color.black));
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
@@ -146,7 +146,7 @@ public class CommCareAudioWidget extends AudioWidget
     }
 
     @Override
-    public String getFileExtension() {
+    public String getFileUniqueIdentifier() {
         return questionIndexText;
     }
 

@@ -67,7 +67,7 @@ public class EntityDetailActivity
         AndroidSessionWrapper asw;
         CommCareSession session;
         try {
-            asw = CommCareApplication._().getCurrentSessionWrapper();
+            asw = CommCareApplication.instance().getCurrentSessionWrapper();
             session = asw.getSession();
         } catch (SessionStateUninitException sue) {
             // The user isn't logged in! bounce this back to where we came from

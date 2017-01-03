@@ -120,7 +120,6 @@ public class FormStorageTest {
             , "org.commcare.suite.model.graph.XYSeries"
             , "org.commcare.xml.DummyGraphParser$DummyGraphDetailTemplate"
             , "org.javarosa.core.log.LogEntry"
-            , "org.javarosa.core.model.DataBinding"
             , "org.javarosa.core.model.FormDef"
             , "org.javarosa.core.model.GroupDef"
             , "org.javarosa.core.model.ItemsetBinding"
@@ -198,11 +197,83 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathUnaryOpExpr"
             , "org.javarosa.xpath.expr.XPathUnionExpr"
             , "org.javarosa.xpath.expr.XPathVariableReference"
+            , "org.javarosa.xpath.expr.XPathAbsFunc"
+            , "org.javarosa.xpath.expr.XPathAcosFunc"
+            , "org.javarosa.xpath.expr.XPathAsinFunc"
+            , "org.javarosa.xpath.expr.XPathAtanFunc"
+            , "org.javarosa.xpath.expr.XPathAtanTwoFunc"
+            , "org.javarosa.xpath.expr.XPathBooleanFromStringFunc"
+            , "org.javarosa.xpath.expr.XPathBooleanFunc"
+            , "org.javarosa.xpath.expr.XPathCeilingFunc"
+            , "org.javarosa.xpath.expr.XPathChecklistFunc"
+            , "org.javarosa.xpath.expr.XPathConcatFunc"
+            , "org.javarosa.xpath.expr.XPathCondFunc"
+            , "org.javarosa.xpath.expr.XPathContainsFunc"
+            , "org.javarosa.xpath.expr.XPathCosFunc"
+            , "org.javarosa.xpath.expr.XPathCountFunc"
+            , "org.javarosa.xpath.expr.XPathCountSelectedFunc"
+            , "org.javarosa.xpath.expr.XPathCustomRuntimeFunc"
+            , "org.javarosa.xpath.expr.XPathDateFunc"
+            , "org.javarosa.xpath.expr.XPathDependFunc"
+            , "org.javarosa.xpath.expr.XPathDistanceFunc"
+            , "org.javarosa.xpath.expr.XPathDoubleFunc"
+            , "org.javarosa.xpath.expr.XPathEndsWithFunc"
+            , "org.javarosa.xpath.expr.XPathExpFunc"
+            , "org.javarosa.xpath.expr.XPathExpression"
+            , "org.javarosa.xpath.expr.XPathFalseFunc"
+            , "org.javarosa.xpath.expr.XPathFloorFunc"
+            , "org.javarosa.xpath.expr.XPathFormatDateForCalendarFunc"
+            , "org.javarosa.xpath.expr.XPathFormatDateFunc"
+            , "org.javarosa.xpath.expr.XPathFuncExpr"
+            , "org.javarosa.xpath.expr.XPathIfFunc"
+            , "org.javarosa.xpath.expr.XPathIntFunc"
+            , "org.javarosa.xpath.expr.XPathJoinFunc"
+            , "org.javarosa.xpath.expr.XPathLogFunc"
+            , "org.javarosa.xpath.expr.XPathLogTenFunc"
+            , "org.javarosa.xpath.expr.XPathLowerCaseFunc"
+            , "org.javarosa.xpath.expr.XPathMaxFunc"
+            , "org.javarosa.xpath.expr.XPathMinFunc"
+            , "org.javarosa.xpath.expr.XPathNotFunc"
+            , "org.javarosa.xpath.expr.XPathNowFunc"
+            , "org.javarosa.xpath.expr.XPathNumberFunc"
+            , "org.javarosa.xpath.expr.XPathPathExpr"
+            , "org.javarosa.xpath.expr.XPathPiFunc"
+            , "org.javarosa.xpath.expr.XPathPositionFunc"
+            , "org.javarosa.xpath.expr.XPathPowFunc"
+            , "org.javarosa.xpath.expr.XPathRandomFunc"
+            , "org.javarosa.xpath.expr.XPathRegexFunc"
+            , "org.javarosa.xpath.expr.XPathReplaceFunc"
+            , "org.javarosa.xpath.expr.XPathRoundFunc"
+            , "org.javarosa.xpath.expr.XPathSelectedAtFunc"
+            , "org.javarosa.xpath.expr.XPathSelectedFunc"
+            , "org.javarosa.xpath.expr.XPathSinFunc"
+            , "org.javarosa.xpath.expr.XPathSqrtFunc"
+            , "org.javarosa.xpath.expr.XPathStartsWithFunc"
+            , "org.javarosa.xpath.expr.XPathStringFunc"
+            , "org.javarosa.xpath.expr.XPathStringLengthFunc"
+            , "org.javarosa.xpath.expr.XPathSubstrFunc"
+            , "org.javarosa.xpath.expr.XPathSubstringAfterFunc"
+            , "org.javarosa.xpath.expr.XPathSubstringBeforeFunc"
+            , "org.javarosa.xpath.expr.XPathSumFunc"
+            , "org.javarosa.xpath.expr.XPathTanFunc"
+            , "org.javarosa.xpath.expr.XPathTodayFunc"
+            , "org.javarosa.xpath.expr.XPathTranslateFunc"
+            , "org.javarosa.xpath.expr.XPathTrueFunc"
+            , "org.javarosa.xpath.expr.XPathUpperCaseFunc"
+            , "org.javarosa.xpath.expr.XPathUuidFunc"
+            , "org.javarosa.xpath.expr.XPathWeightedChecklistFunc"
+            , "org.javarosa.xpath.expr.XpathCoalesceFunc"
+
 
             // Migrated in 2.28
             , "org.odk.collect.android.jr.extensions.AndroidXFormExtensions"
             , "org.odk.collect.android.jr.extensions.IntentCallout"
-            , "org.odk.collect.android.jr.extensions.PollSensorAction");
+            , "org.odk.collect.android.jr.extensions.PollSensorAction"
+
+            // Removed in 2.32, but doesn't require migration because it was
+            // never actually serialized
+            //, "org.javarosa.core.model.DataBinding"
+            );
 
     @Before
     public void setup() {
@@ -276,9 +347,13 @@ public class FormStorageTest {
         Thread t1 = new BulkFormRecordSerializer();
         Thread t2 = new BulkFormRecordSerializer();
         Thread t3 = new BulkFormRecordSerializer();
-        t1.start(); t2.start(); t3.start();
+        t1.start();
+        t2.start();
+        t3.start();
         try {
-            t1.join(); t2.join(); t3.join();
+            t1.join();
+            t2.join();
+            t3.join();
         } catch (InterruptedException e) {
             fail(e.getMessage());
         }

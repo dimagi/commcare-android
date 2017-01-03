@@ -6,8 +6,8 @@ import android.util.Pair;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.instance.TreeReference;
@@ -71,7 +71,7 @@ public class EntityStringFilterer extends EntityFiltererBase {
         //anything else from processing
         SQLiteDatabase db;
         try {
-            db = CommCareApplication._().getUserDbHandle();
+            db = CommCareApplication.instance().getUserDbHandle();
         } catch (SessionUnavailableException e) {
             this.cancelSearch();
             return;

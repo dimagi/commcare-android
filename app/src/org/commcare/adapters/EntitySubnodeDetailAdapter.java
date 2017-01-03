@@ -6,8 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
+import org.commcare.cases.entity.Entity;
 import org.commcare.interfaces.ModifiableEntityDetailAdapter;
-import org.commcare.models.Entity;
 import org.commcare.suite.model.Detail;
 import org.commcare.views.EntityView;
 import org.javarosa.core.model.instance.TreeReference;
@@ -29,7 +29,10 @@ public class EntitySubnodeDetailAdapter implements ListAdapter, ModifiableEntity
     private List<Entity<TreeReference>> entities;
     private ListItemViewModifier modifier;
 
-    public EntitySubnodeDetailAdapter(Context context, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> entities, ListItemViewModifier modifier) {
+    public EntitySubnodeDetailAdapter(Context context, Detail detail,
+                                      List<TreeReference> references,
+                                      List<Entity<TreeReference>> entities,
+                                      ListItemViewModifier modifier) {
         this.context = context;
         this.detail = detail;
         this.modifier = modifier;
@@ -40,11 +43,12 @@ public class EntitySubnodeDetailAdapter implements ListAdapter, ModifiableEntity
      * Populate entities and references. Will ignore any entities (and their
      * associated references) without any valid fields.
      */
-    private void initializeData(List<TreeReference> referenceList, List<Entity<TreeReference>> entityList) {
+    private void initializeData(List<TreeReference> referenceList,
+                                List<Entity<TreeReference>> entityList) {
         this.references = new ArrayList<>(referenceList.size());
         this.entities = new ArrayList<>(entityList.size());
         int entityIndex = 0;
-        for (Entity e : entityList) {
+        for (Entity<TreeReference> e : entityList) {
             for (int i = 0; i < e.getNumFields(); i++) {
                 if (e.isValidField(i)) {
                     this.entities.add(e);

@@ -31,6 +31,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static final String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
     public static final String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
     public static final String USE_ROOT_MENU_AS_HOME_SCREEN = "cc-use-root-menu-as-home-screen";
+    public static final String UPDATE_TO_LATEST_SAVED_ENABLED = "cc-update-to-latest-saved";
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -46,17 +47,10 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      * Spacer to distinguish between the saved navigation session and form entry session
      */
     private static final String NAV_AND_FORM_SESSION_SPACER = "@@@@@";
-    /**
-     * The current default for constraint checking during form saving (as of
-     * CommCare 2.24) is to re-answer all the questions, causing a lot of
-     * triggers to fire. We probably don't need to do this, but it is hard to
-     * know, so allow the adventurous to use form saving that doesn't re-fire
-     * triggers.
-     */
-    public final static String FIRE_TRIGGERS_ON_SAVE = "cc-fire-triggers-on-save";
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
 
     public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
+
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
     private Preference savedSessionEditTextPreference;
@@ -68,7 +62,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
 
         PreferenceManager prefMgr = getPreferenceManager();
-        prefMgr.setSharedPreferencesName((CommCareApplication._().getCurrentApp().getPreferencesFilename()));
+        prefMgr.setSharedPreferencesName((CommCareApplication.instance().getCurrentApp().getPreferencesFilename()));
 
         addPreferencesFromResource(R.xml.preferences_developer);
         setTitle("Developer Preferences");
@@ -92,7 +86,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(CSS_ENABLED, GoogleAnalyticsFields.LABEL_CSS);
         prefKeyToAnalyticsEvent.put(MARKDOWN_ENABLED, GoogleAnalyticsFields.LABEL_MARKDOWN);
         prefKeyToAnalyticsEvent.put(ALTERNATE_QUESTION_LAYOUT_ENABLED, GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT);
-        prefKeyToAnalyticsEvent.put(FIRE_TRIGGERS_ON_SAVE, GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE);
         prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
         prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
         prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
@@ -124,7 +117,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 break;
             case EDIT_SAVE_SESSION:
                 String sessionString =
-                        CommCareApplication._().getCurrentApp().getAppPreferences().getString(EDIT_SAVE_SESSION, "");
+                        CommCareApplication.instance().getCurrentApp().getAppPreferences().getString(EDIT_SAVE_SESSION, "");
                 if (!"".equals(sessionString)) {
                     setSessionStateFromEditText(sessionString);
                 }
@@ -139,7 +132,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
             case LOAD_FORM_PAYLOAD_AS:
                 if (!formLoadPayloadStatus().equals(FormRecord.STATUS_SAVED)) {
                     // clear submission server so that 'unsent' forms that are loaded don't get sent to HQ
-                    CommCareApplication._().getCurrentApp().getAppPreferences().edit()
+                    CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                             .putString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, "")
                             .apply();
                 }
@@ -148,7 +141,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
     private static String getSavedSessionStateAsString() {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         String navSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, "");
         String formEntrySession = prefs.getString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, "");
         if ("".equals(navSession) && "".equals(formEntrySession)) {
@@ -160,7 +153,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     private static void setSessionStateFromEditText(String sessionString) {
         SharedPreferences.Editor editor =
-                CommCareApplication._().getCurrentApp().getAppPreferences().edit();
+                CommCareApplication.instance().getCurrentApp().getAppPreferences().edit();
         String[] sessionParts = sessionString.split(NAV_AND_FORM_SESSION_SPACER);
 
         editor.putString(CommCarePreferences.CURRENT_SESSION, sessionParts[0]);
@@ -169,7 +162,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
     private static int getEditPrefValue(String key) {
-        if (CommCareApplication._().getCurrentApp().getAppPreferences().
+        if (CommCareApplication.instance().getCurrentApp().getAppPreferences().
                 getString(key, CommCarePreferences.NO).equals(CommCarePreferences.YES)) {
             return GoogleAnalyticsFields.VALUE_ENABLED;
         } else {
@@ -204,7 +197,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      * @return boolean
      */
     private static boolean doesPropertyMatch(String key, String defaultValue, String matchingValue) {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        CommCareApp app = CommCareApplication.instance().getCurrentApp();
         if (app == null) {
             return defaultValue.equals(matchingValue);
         }
@@ -227,7 +220,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
     public static boolean isNewNavEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(NAV_UI_ENABLED, CommCarePreferences.YES).equals(CommCarePreferences.YES);
     }
 
@@ -236,33 +229,28 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
     public static boolean isListRefreshEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
-    public static boolean shouldFireTriggersOnSave() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(FIRE_TRIGGERS_ON_SAVE, CommCarePreferences.NO).equals(CommCarePreferences.YES);
-    }
-
     public static boolean isAutoLoginEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(ENABLE_AUTO_LOGIN, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
     public static boolean isSessionSavingEnabled() {
-        if (CommCareApplication._().getCurrentApp() == null) {
+        if (CommCareApplication.instance().getCurrentApp() == null) {
             // null check needed for corner case in robolectric tests
             return false;
         } else {
-            SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+            SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
             return properties.getString(ENABLE_SAVE_SESSION, CommCarePreferences.NO).
                     equals(CommCarePreferences.YES);
         }
     }
 
     public static void enableSessionSaving() {
-        CommCareApplication._().getCurrentApp().getAppPreferences()
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
                 .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, CommCarePreferences.YES)
                 .apply();
@@ -293,7 +281,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
     public static String formLoadPayloadStatus() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(LOAD_FORM_PAYLOAD_AS, FormRecord.STATUS_SAVED);
     }
 
@@ -307,5 +295,17 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static boolean useRootModuleMenuAsHomeScreen() {
         return doesPropertyMatch(USE_ROOT_MENU_AS_HOME_SCREEN, CommCarePreferences.NO, CommCarePreferences.YES);
+    }
+
+    public static boolean updateToLatestSavedEnabled() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(UPDATE_TO_LATEST_SAVED_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
+    public static void enableUpdateToLatestSavedVersion() {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(UPDATE_TO_LATEST_SAVED_ENABLED, CommCarePreferences.YES)
+                .apply();
     }
 }
