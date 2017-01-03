@@ -28,6 +28,7 @@ import org.commcare.suite.model.MenuLoader;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LoggerInterface;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.media.AudioPlaybackButton;
@@ -57,29 +58,36 @@ public class MenuAdapter extends BaseAdapter {
 
     protected final AndroidSessionWrapper asw;
     private Exception loadError;
-    private String errorXpathException = "";
+    private String errorMessage = "";
     final Context context;
     final MenuDisplayable[] displayableData;
+
+    class MenuLogger implements LoggerInterface {
+
+        @Override
+        public void logError(String message, XPathException cause) {
+            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(cause.getSource(), message);
+            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, message);
+        }
+
+        @Override
+        public void logError(String message) {
+            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(message);
+            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, message);
+        }
+    }
 
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
         this.context = context;
         asw = CommCareApplication.instance().getCurrentSessionWrapper();
-        MenuLoader menuLoader = new MenuLoader(platform, asw, menuID);
+        MenuLoader menuLoader = new MenuLoader(platform, asw, menuID, new MenuLogger());
         this.displayableData = menuLoader.getMenus();
-        this.errorXpathException = menuLoader.getxPathErrorMessage();
+        this.errorMessage = menuLoader.getErrorMessage();
         this.loadError = menuLoader.getLoadException();
     }
 
     public void showAnyLoadErrors(CommCareActivity activity) {
         if (loadError != null) {
-            String errorMessage = loadError.getMessage();
-            if (loadError instanceof XPathSyntaxException) {
-                XPathErrorLogger.INSTANCE.logErrorToCurrentApp(errorXpathException, loadError.getMessage());
-                errorMessage = Localization.get("app.menu.display.cond.bad.xpath", new String[]{errorXpathException, loadError.getMessage()});
-            } else if (loadError instanceof XPathException) {
-                XPathErrorLogger.INSTANCE.logErrorToCurrentApp((XPathException)loadError);
-                errorMessage = Localization.get("app.menu.display.cond.xpath.err", new String[]{errorXpathException, loadError.getMessage()});
-            }
             UserfacingErrorHandling.createErrorDialog(activity, errorMessage, true);
         }
     }
