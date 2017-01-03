@@ -1,9 +1,11 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -23,7 +25,7 @@ import java.util.Vector;
 public class ComboboxWidget extends QuestionWidget {
 
     private Vector<SelectChoice> choices;
-    private String[] choiceValues;
+    private Vector<String> choiceValues;
     private AutoCompleteTextView comboBox;
 
     public ComboboxWidget(Context context, FormEntryPrompt prompt) {
@@ -33,13 +35,14 @@ public class ComboboxWidget extends QuestionWidget {
         setupChoices(prompt);
         comboBox.setAdapter(new ArrayAdapter<>(context,
                 android.R.layout.simple_dropdown_item_1line,
-                SpinnerWidget.getChoicesWithEmptyFirstSlot(choiceValues)));
+                SpinnerWidget.getChoicesWithEmptyFirstSlot(choiceValues.toArray(new String[]{}))));
 
         comboBox.setThreshold(0);
         comboBox.setEnabled(!prompt.isReadOnly());
         comboBox.setFocusable(!prompt.isReadOnly());
         comboBox.requestFocus();
-        comboBox.addTextChangedListener(getTextValidator());
+        comboBox.addTextChangedListener(getWhileTypingValidator());
+        comboBox.setValidator(getAfterTextEnteredValidator());
 
         fillInPreviousAnswer(prompt);
         setListeners();
@@ -49,17 +52,17 @@ public class ComboboxWidget extends QuestionWidget {
 
     private void setupChoices(FormEntryPrompt prompt) {
         choices = prompt.getSelectChoices();
-        choiceValues = new String[choices.size()];
-        for (int i = 0; i < choiceValues.length; i++) {
-            choiceValues[i] = prompt.getSelectChoiceText(choices.get(i));
+        choiceValues = new Vector<>();
+        for (int i = 0; i < choices.size(); i++) {
+            choiceValues.add(prompt.getSelectChoiceText(choices.get(i)));
         }
     }
 
     private void fillInPreviousAnswer(FormEntryPrompt prompt) {
         if (prompt.getAnswerValue() != null) {
             String previousAnswer = ((Selection)prompt.getAnswerValue().getValue()).getValue();
-            for (int i = 0; i < choiceValues.length; i++) {
-                String choiceValue = choiceValues[i];
+            for (int i = 0; i < choiceValues.size(); i++) {
+                String choiceValue = choiceValues.get(i);
                 if (choiceValue.equals(previousAnswer)) {
                     comboBox.setSelection(i+1);
                 }
@@ -86,13 +89,35 @@ public class ComboboxWidget extends QuestionWidget {
                 comboBox.showDropDown();
             }
         });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            comboBox.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    comboBox.performValidation();
+                }
+            });
+        }
     }
 
-    private TextWatcher getTextValidator() {
+    private AutoCompleteTextView.Validator getAfterTextEnteredValidator() {
+        return new AutoCompleteTextView.Validator() {
+            @Override
+            public boolean isValid(CharSequence text) {
+                return choiceValues.contains(text.toString());
+            }
+
+            @Override
+            public CharSequence fixText(CharSequence invalidText) {
+                return "";
+            }
+        };
+    }
+
+    private TextWatcher getWhileTypingValidator() {
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                System.out.println("before text changed: " + s.toString());
             }
 
             @Override
@@ -101,7 +126,6 @@ public class ComboboxWidget extends QuestionWidget {
 
             @Override
             public void afterTextChanged(Editable s) {
-                System.out.println("after text changed: " + s.toString());
                 if (!isPrefixOfSomeChoiceValue(s.toString())) {
                     //s.delete(s.length()-1, s.length());
                     comboBox.setText(s.subSequence(0, s.length()-1));
@@ -138,6 +162,10 @@ public class ComboboxWidget extends QuestionWidget {
 
     @Override
     public void setFocus(Context context) {
+        comboBox.requestFocus();
+        InputMethodManager inputManager =
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.showSoftInput(comboBox, 0);
     }
 
     @Override
