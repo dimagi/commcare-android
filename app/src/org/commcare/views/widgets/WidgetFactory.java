@@ -162,6 +162,8 @@ public class WidgetFactory {
             }
         } else if (appearance != null && appearance.equals("minimal")) {
             return new SpinnerWidget(context, fep);
+        } else if (appearance != null && appearance.equals("combo-box")) {
+            return new ComboboxWidget(context, fep);
         } else if (appearance != null && appearance.equals("quick")) {
             return new SelectOneAutoAdvanceWidget(context, fep);
         } else if (appearance != null && appearance.equals("list")) {

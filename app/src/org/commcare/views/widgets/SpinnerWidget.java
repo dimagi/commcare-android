@@ -88,7 +88,7 @@ public class SpinnerWidget extends QuestionWidget {
 
     }
 
-    private static String[] getChoicesWithEmptyFirstSlot(String[] originalChoices) {
+    public static String[] getChoicesWithEmptyFirstSlot(String[] originalChoices) {
         //Creates an empty option to be displayed the first time the widget is shown
         String[] newChoicesList = new String[originalChoices.length+1];
         newChoicesList[0] = "";
