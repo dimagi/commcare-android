@@ -22,6 +22,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.Persistable;
 
 /**
  * The helper for opening/updating the user (encrypted) db space for
@@ -171,5 +172,21 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
         }
         new UserDatabaseUpgrader(context, mUserId, inSenseMode, fileMigrationKeySeed).upgrade(db, oldVersion, newVersion);
+    }
+
+    public static void buildTable(SQLiteDatabase database,
+                                  String tableName,
+                                  Persistable dataObject) {
+        try {
+            database.beginTransaction();
+
+            AndroidTableBuilder builder = new AndroidTableBuilder(tableName);
+            builder.addData(dataObject);
+            database.execSQL(builder.getTableCreateString());
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+
     }
 }

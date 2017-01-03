@@ -6,11 +6,13 @@ import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageBackedModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.Persistable;
 
 /**
  * Basically just a useful abstraction that allows us to use an Android
@@ -42,8 +44,12 @@ public class AndroidSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName) {
+    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName,
+                                                                            Persistable exampleEntry) {
         String tableName = StorageBackedModel.STORAGE_KEY + TableBuilder.cleanTableName(fixtureName);
+        if (exampleEntry != null) {
+            DatabaseUserOpenHelper.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
+        }
         return app.getUserStorage(tableName, StorageBackedModel.class);
     }
 

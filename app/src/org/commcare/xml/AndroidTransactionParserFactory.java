@@ -32,7 +32,6 @@ import java.util.Hashtable;
  *
  * @author ctsims
  */
-
 public class AndroidTransactionParserFactory extends CommCareTransactionParserFactory {
 
     final private Context context;
@@ -111,7 +110,6 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
     public ArrayList<String> getCreatedAndUpdatedCases() {
         return createdAndUpdatedCases;
     }
-
 
     /**
      * Used to load Saved Forms from HQ into our local file system
