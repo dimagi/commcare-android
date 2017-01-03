@@ -1,5 +1,6 @@
 package org.commcare.views.widgets;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.text.Editable;
@@ -21,11 +22,12 @@ import java.util.Vector;
 /**
  * Created by amstone326 on 1/3/17.
  */
-
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class ComboboxWidget extends QuestionWidget {
 
     private Vector<SelectChoice> choices;
-    private Vector<String> choiceValues;
+    private Vector<String> choiceTexts;
+    private Vector<String> choiceTextsLowerCase;
     private AutoCompleteTextView comboBox;
 
     public ComboboxWidget(Context context, FormEntryPrompt prompt) {
@@ -35,7 +37,7 @@ public class ComboboxWidget extends QuestionWidget {
         setupChoices(prompt);
         comboBox.setAdapter(new ArrayAdapter<>(context,
                 android.R.layout.simple_dropdown_item_1line,
-                SpinnerWidget.getChoicesWithEmptyFirstSlot(choiceValues.toArray(new String[]{}))));
+                SpinnerWidget.getChoicesWithEmptyFirstSlot(choiceTexts.toArray(new String[]{}))));
 
         comboBox.setThreshold(0);
         comboBox.setEnabled(!prompt.isReadOnly());
@@ -52,17 +54,20 @@ public class ComboboxWidget extends QuestionWidget {
 
     private void setupChoices(FormEntryPrompt prompt) {
         choices = prompt.getSelectChoices();
-        choiceValues = new Vector<>();
+        choiceTexts = new Vector<>();
+        choiceTextsLowerCase = new Vector<>();
         for (int i = 0; i < choices.size(); i++) {
-            choiceValues.add(prompt.getSelectChoiceText(choices.get(i)));
+            String choiceText = prompt.getSelectChoiceText(choices.get(i));
+            choiceTexts.add(choiceText);
+            choiceTextsLowerCase.add(choiceText.toLowerCase());
         }
     }
 
     private void fillInPreviousAnswer(FormEntryPrompt prompt) {
         if (prompt.getAnswerValue() != null) {
             String previousAnswer = ((Selection)prompt.getAnswerValue().getValue()).getValue();
-            for (int i = 0; i < choiceValues.size(); i++) {
-                String choiceValue = choiceValues.get(i);
+            for (int i = 0; i < choiceTexts.size(); i++) {
+                String choiceValue = choiceTexts.get(i);
                 if (choiceValue.equals(previousAnswer)) {
                     comboBox.setSelection(i+1);
                 }
@@ -79,7 +84,6 @@ public class ComboboxWidget extends QuestionWidget {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                //do nothing here
             }
         });
 
@@ -90,26 +94,35 @@ public class ComboboxWidget extends QuestionWidget {
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            comboBox.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
-                @Override
-                public void onDismiss() {
-                    comboBox.performValidation();
-                }
-            });
-        }
+        comboBox.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                comboBox.performValidation();
+                widgetEntryChanged();
+            }
+        });
     }
 
     private AutoCompleteTextView.Validator getAfterTextEnteredValidator() {
         return new AutoCompleteTextView.Validator() {
+
             @Override
             public boolean isValid(CharSequence text) {
-                return choiceValues.contains(text.toString());
+                return choiceTexts.contains(text.toString());
             }
 
             @Override
             public CharSequence fixText(CharSequence invalidText) {
-                return "";
+                if (choiceTextsLowerCase.contains(invalidText.toString().toLowerCase())) {
+                    // If the user has entered a valid answer but with different case,
+                    // just change the case for them
+                    int index = choiceTextsLowerCase.indexOf(invalidText.toString().toLowerCase());
+                    return choiceTexts.get(index);
+                } else {
+                    // Otherwise delete their answer
+                    return "";
+                }
+
             }
         };
     }
@@ -136,8 +149,8 @@ public class ComboboxWidget extends QuestionWidget {
     }
 
     private boolean isPrefixOfSomeChoiceValue(String text) {
-        for (String choice : choiceValues) {
-            if (choice.toLowerCase().startsWith(text.toLowerCase())) {
+        for (String choice : choiceTextsLowerCase) {
+            if (choice.startsWith(text.toLowerCase())) {
                 return true;
             }
         }
