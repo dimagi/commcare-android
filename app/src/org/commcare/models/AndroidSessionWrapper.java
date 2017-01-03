@@ -205,6 +205,11 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         return session.getNeededData(getEvaluationContext());
     }
 
+    @Override
+    public SessionDatum getNeededDatum(Entry entry) {
+        return session.getNeededDatum(entry);
+    }
+
     public static AndroidSessionWrapper mockEasiestRoute(CommCarePlatform platform, String formNamespace, String selectedValue) {
         AndroidSessionWrapper wrapper = null;
         int curPredicates = -1;
