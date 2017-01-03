@@ -1,0 +1,115 @@
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+    <message nature="ota_restore_success">Successfully restored account test!</message>
+    <Sync xmlns="http://commcarehq.org/sync">
+        <restore_id>2837795451fb8620bbffc00fe8c14135</restore_id>
+    </Sync>
+    <Registration xmlns="http://openrosa.org/user/registration">
+        <username>test</username>
+        <password>sha1$88rUXppT9kj8$7d146054b5bf79fc4ec7f618a1b4aead1ba1d706</password>
+        <uuid>a8f5a98c4ce767c35b9132bc75eb225c</uuid>
+        <date>2014-03-22</date>
+    </Registration>
+    <fixture id="flat:commtrack:products" user_id="a8f5a98c4ce767c35b9132bc75eb225c">
+        <products>
+            <product id="f895be4959f9a8a66f57c340aac461b4">
+                <name>Collier</name>
+                <unit/>
+                <code>col</code>
+                <description>Collier du cycle mensuel</description>
+                <category/>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>152</cost>
+            </product>
+            <product id="a6d16035b98f6f962a6538bd927cefb3">
+                <name>CU</name>
+                <unit/>
+                <code>pd</code>
+                <description>La contraception d'urgence</description>
+                <category/>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>57</cost>
+            </product>
+            <product id="31ab899368d38c2d0207fe80c00fa96c">
+                <name>Depo-Provera</name>
+                <unit/>
+                <code>dp</code>
+                <description>Injectable</description>
+                <category/>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>152</cost>
+            </product>
+            <product id="31ab899368d38c2d0207fe80c00fb8c1">
+                <name>DIU</name>
+                <unit/>
+                <code>diu</code>
+                <description>TCU 380A</description>
+                <category/>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>380</cost>
+            </product>
+            <product id="c7bd1f35a48e1e8daaad6bf61cc2874d">
+                <name>IMPLANON</name>
+                <unit/>
+                <code>implanon</code>
+                <description>Implant contracepif</description>
+                <category/>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>380</cost>
+            </product>
+            <product id="31ab899368d38c2d0207fe80c00fb3ff">
+                <name>Jadelle</name>
+                <unit/>
+                <code>jad</code>
+                <description>Implant contracepif</description>
+                <category/>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>380</cost>
+            </product>
+            <product id="f895be4959f9a8a66f57c340aa795758">
+                <name>Microgynon/Lof.</name>
+                <unit/>
+                <code>ml</code>
+                <description>Pilule</description>
+                <category/>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>76</cost>
+            </product>
+            <product id="a6d16035b98f6f962a6538bd924fed4c">
+                <name>Microlut/Ovrette</name>
+                <unit/>
+                <code>mo</code>
+                <description>Pilule</description>
+                <category/>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>76</cost>
+            </product>
+            <product id="a6d16035b98f6f962a6538bd924fdf4e">
+                <name>Preservatif Feminin</name>
+                <unit/>
+                <code>pf</code>
+                <description>Préservatif</description>
+                <category/>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>0</cost>
+            </product>
+            <product id="57cf5fe4da3c034262099ea418831118">
+                <name>Preservatif Masculin</name>
+                <unit/>
+                <code>pm</code>
+                <description>Préservatif</description>
+                <category/>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>0</cost>
+            </product>
+            <product id="a49f5098fe378f2bb0b684e90435a8e6">
+                <name>Sayana Press</name>
+                <unit/>
+                <code>say</code>
+                <description/>
+                <category/>
+                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <cost>152</cost>
+            </product>
+        </products>
+    </fixture>
+</OpenRosaResponse>
