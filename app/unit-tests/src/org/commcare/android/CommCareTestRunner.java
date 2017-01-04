@@ -4,6 +4,8 @@ import org.junit.runners.model.InitializationError;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.internal.bytecode.InstrumentationConfiguration;
+import org.robolectric.manifest.AndroidManifest;
+import org.robolectric.res.Fs;
 
 /**
  * Register sqlcipher SQLiteDatabase to be shadowed globally.
@@ -21,5 +23,25 @@ public class CommCareTestRunner extends RobolectricTestRunner {
         builder.addInstrumentedPackage("net.sqlcipher.database.SQLiteDatabase");
         builder.addInstrumentedPackage("org.commcare.models.encryption");
         return builder.build();
+    }
+
+    @Override
+    protected AndroidManifest getAppManifest(Config config) {
+
+        String manifestPath = "app/AndroidManifest.xml";
+        String resPath = "app/res";
+        String assetsPath = "app/assets";
+
+        return new AndroidManifest(Fs.fileFromPath(manifestPath), Fs.fileFromPath(resPath), Fs.fileFromPath(assetsPath)) {
+            @Override
+            public int getTargetSdkVersion() {
+                return 25;
+            }
+
+            @Override
+            public int getMinSdkVersion() {
+                return 9;
+            }
+        };
     }
 }
