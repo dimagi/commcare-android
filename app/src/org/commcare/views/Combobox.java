@@ -23,6 +23,8 @@ public class Combobox extends AutoCompleteTextView {
     private Vector<String> choices;
     private Vector<String> choicesAllLowerCase;
 
+    private CharSequence lastAcceptableStringEntered = "";
+
     public Combobox(Context context, Vector<String> choices, boolean addEmptyFirstChoice) {
         super(context);
 
@@ -74,6 +76,7 @@ public class Combobox extends AutoCompleteTextView {
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
             }
 
             @Override
@@ -83,9 +86,12 @@ public class Combobox extends AutoCompleteTextView {
             @Override
             public void afterTextChanged(Editable s) {
                 if (!isPrefixOfSomeChoiceValue(s.toString())) {
-                    //s.delete(s.length()-1, s.length());
-                    setText(s.subSequence(0, s.length()-1));
+                    // Re-set the entered text to be what it was before this change was made
+                    setText(lastAcceptableStringEntered);
+                    // Move the cursor to the end of the text
                     setSelection(getText().length());
+                } else {
+                    lastAcceptableStringEntered = s.toString();
                 }
             }
         };
