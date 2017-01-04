@@ -16,7 +16,6 @@ commcare-odk-test/gen/*
 *.swp
 *.iml
 *.db
-*.properties
 .hg*
 .svn*
 /app/.cache
@@ -28,7 +27,6 @@ app/.settings/*
 app/app.iml
 out/
 test-app/test-app.iml
-**/.settings/
 app/libs/commcare-libraries.jar
 app/libs/javarosa-libraries.jar
 **/local.properties
