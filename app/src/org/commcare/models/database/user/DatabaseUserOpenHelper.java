@@ -48,9 +48,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.12 - Drop old GeocodeCacheModel table
      * V.13 - Add tables for storing normal device logs and force close logs in user storage
      * V.14 - Change format of last modified date in form record to canonical SQLite form
+     * V.15 - Add table to store path info about storage-backed fixture tables
      */
 
-    private static final int USER_DB_VERSION = 14;
+    private static final int USER_DB_VERSION = 15;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
@@ -113,6 +114,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createOrphanedFileTable(database);
+
+            DbUtil.createStorageBackedFixtureIndexTable(database);
 
             builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
             builder.addData(new Ledger());

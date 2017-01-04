@@ -127,6 +127,12 @@ class UserDatabaseUpgrader {
                 oldVersion = 14;
             }
         }
+
+        if (oldVersion == 14) {
+            if (upgradeFourteenFifteen(db)) {
+                oldVersion = 15;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -403,6 +409,17 @@ class UserDatabaseUpgrader {
                 formRecordSqlStorage.write(formRecord);
             }
 
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeFourteenFifteen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            DbUtil.createStorageBackedFixtureIndexTable(db);
             db.setTransactionSuccessful();
             return true;
         } finally {
