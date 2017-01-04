@@ -7,7 +7,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 
 import org.commcare.adapters.SpinnerAdapter;

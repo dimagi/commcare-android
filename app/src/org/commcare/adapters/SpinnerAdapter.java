@@ -22,7 +22,7 @@ public class SpinnerAdapter extends ArrayAdapter<String> {
 
     public SpinnerAdapter(final Context context, final int textViewResourceId,
                           final String[] objects, int textUnit, float textSize) {
-        super(context, textViewResourceId, objects);
+        super(context, textViewResourceId, getChoicesWithEmptyFirstSlot(objects));
         this.items = getChoicesWithEmptyFirstSlot(objects);
         this.context = context;
         this.textUnit = textUnit;
