@@ -5,18 +5,19 @@ import android.content.Context;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 
-import org.commcare.views.widgets.SpinnerWidget;
+import org.commcare.adapters.SpinnerAdapter;
 
+import java.lang.reflect.Method;
 import java.util.Vector;
 
 /**
  * Created by amstone326 on 1/4/17.
  */
-
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class Combobox extends AutoCompleteTextView {
 
@@ -25,8 +26,9 @@ public class Combobox extends AutoCompleteTextView {
 
     private CharSequence lastAcceptableStringEntered = "";
 
-    public Combobox(Context context, Vector<String> choices, boolean addEmptyFirstChoice) {
+    public Combobox(Context context, Vector<String> choices, int fontSize) {
         super(context);
+        setTextSize(fontSize);
 
         this.choices = choices;
         this.choicesAllLowerCase = new Vector<>();
@@ -34,15 +36,24 @@ public class Combobox extends AutoCompleteTextView {
             choicesAllLowerCase.add(s.toLowerCase());
         }
 
-        String[] items = this.choices.toArray(new String[]{});
-        if (addEmptyFirstChoice) {
-            items = SpinnerWidget.getChoicesWithEmptyFirstSlot(items);
-        }
-        setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, items));
+        setAdapter(new SpinnerAdapter(context, android.R.layout.simple_spinner_item,
+                this.choices.toArray(new String[]{}), TypedValue.COMPLEX_UNIT_DIP, fontSize));
 
         setThreshold(0);
         setListeners();
-        setValidator(getAfterTextEnteredValidator());
+        setForceIgnoreOutsideTouchWithReflection();
+
+        //setValidator(getAfterTextEnteredValidator());
+    }
+
+    private boolean setForceIgnoreOutsideTouchWithReflection() {
+        try {
+            Method method = android.widget.AutoCompleteTextView.class.getMethod("setForceIgnoreOutsideTouch", boolean.class);
+            method.invoke(this, true);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private boolean isPrefixOfSomeChoiceValue(String text) {
@@ -70,6 +81,13 @@ public class Combobox extends AutoCompleteTextView {
                 performValidation();
             }
         });
+
+        /*setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                performCompletion();
+            }
+        });*/
     }
 
     private TextWatcher getWhileTypingValidator() {

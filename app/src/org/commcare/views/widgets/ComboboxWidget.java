@@ -31,7 +31,7 @@ public class ComboboxWidget extends QuestionWidget {
         super(context, prompt);
         initChoices(prompt);
 
-        comboBox = new Combobox(context, choiceTexts, true);
+        comboBox = new Combobox(context, choiceTexts, mQuestionFontSize);
         addView(comboBox);
         comboBox.setEnabled(!prompt.isReadOnly());
         comboBox.setFocusable(!prompt.isReadOnly());
@@ -61,13 +61,13 @@ public class ComboboxWidget extends QuestionWidget {
     }
 
     private void setListeners() {
-        comboBox.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
+        /*comboBox.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
             @Override
             public void onDismiss() {
                 comboBox.performValidation();
                 widgetEntryChanged();
             }
-        });
+        });*/
 
         comboBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

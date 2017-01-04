@@ -2,17 +2,13 @@ package org.commcare.views.widgets;
 
 import android.content.Context;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 
-import org.commcare.dalvik.R;
+import org.commcare.adapters.SpinnerAdapter;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
@@ -48,8 +44,7 @@ public class SpinnerWidget extends QuestionWidget {
         // The spinner requires a custom adapter. It is defined below
         SpinnerAdapter adapter =
                 new SpinnerAdapter(getContext(), android.R.layout.simple_spinner_item,
-                        getChoicesWithEmptyFirstSlot(choices),
-                        TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+                        choices, TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
 
         spinner.setAdapter(adapter);
         spinner.setPrompt(prompt.getQuestionText());
@@ -88,15 +83,6 @@ public class SpinnerWidget extends QuestionWidget {
 
     }
 
-    public static String[] getChoicesWithEmptyFirstSlot(String[] originalChoices) {
-        //Creates an empty option to be displayed the first time the widget is shown
-        String[] newChoicesList = new String[originalChoices.length+1];
-        newChoicesList[0] = "";
-        System.arraycopy(originalChoices, 0, newChoicesList, 1, originalChoices.length);
-        return newChoicesList;
-    }
-
-
     @Override
     public IAnswerData getAnswer() {
         int i = spinner.getSelectedItemPosition();
@@ -125,59 +111,6 @@ public class SpinnerWidget extends QuestionWidget {
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
 
     }
-
-    // Defines how to display the select answers
-    private class SpinnerAdapter extends ArrayAdapter<String> {
-        final Context context;
-        final String[] items;
-        final int textUnit;
-        final float textSize;
-
-
-        public SpinnerAdapter(final Context context, final int textViewResourceId,
-                              final String[] objects, int textUnit, float textSize) {
-            super(context, textViewResourceId, objects);
-            this.items = objects;
-            this.context = context;
-            this.textUnit = textUnit;
-            this.textSize = textSize;
-        }
-
-
-        @Override
-        // Defines the text view parameters for the drop down list entries
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
-
-            if (convertView == null) {
-                LayoutInflater inflater = LayoutInflater.from(context);
-                convertView = inflater.inflate(R.layout.custom_spinner_item, parent, false);
-            }
-
-            TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
-
-            tv.setText(items[position]);
-            tv.setTextSize(textUnit, textSize);
-            tv.setPadding(10, 10, 10, 10);
-
-            return convertView;
-        }
-
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                LayoutInflater inflater = LayoutInflater.from(context);
-                convertView = inflater.inflate(android.R.layout.simple_spinner_item, parent, false);
-            }
-
-            TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
-            tv.setText(items[position]);
-            tv.setTextSize(textUnit, textSize);
-            return convertView;
-        }
-
-    }
-
 
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
