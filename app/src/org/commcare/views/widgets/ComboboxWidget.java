@@ -3,14 +3,12 @@ package org.commcare.views.widgets;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
+import org.commcare.views.Combobox;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
@@ -27,39 +25,26 @@ public class ComboboxWidget extends QuestionWidget {
 
     private Vector<SelectChoice> choices;
     private Vector<String> choiceTexts;
-    private Vector<String> choiceTextsLowerCase;
-    private AutoCompleteTextView comboBox;
+    private Combobox comboBox;
 
     public ComboboxWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
+        initChoices(prompt);
 
-        comboBox = new AutoCompleteTextView(context);
-        setupChoices(prompt);
-        comboBox.setAdapter(new ArrayAdapter<>(context,
-                android.R.layout.simple_dropdown_item_1line,
-                SpinnerWidget.getChoicesWithEmptyFirstSlot(choiceTexts.toArray(new String[]{}))));
-
-        comboBox.setThreshold(0);
+        comboBox = new Combobox(context, choiceTexts, true);
+        addView(comboBox);
         comboBox.setEnabled(!prompt.isReadOnly());
         comboBox.setFocusable(!prompt.isReadOnly());
         comboBox.requestFocus();
-        comboBox.addTextChangedListener(getWhileTypingValidator());
-        comboBox.setValidator(getAfterTextEnteredValidator());
-
-        fillInPreviousAnswer(prompt);
         setListeners();
-
-        addView(comboBox);
+        fillInPreviousAnswer(prompt);
     }
 
-    private void setupChoices(FormEntryPrompt prompt) {
+    private void initChoices(FormEntryPrompt prompt) {
         choices = prompt.getSelectChoices();
         choiceTexts = new Vector<>();
-        choiceTextsLowerCase = new Vector<>();
         for (int i = 0; i < choices.size(); i++) {
-            String choiceText = prompt.getSelectChoiceText(choices.get(i));
-            choiceTexts.add(choiceText);
-            choiceTextsLowerCase.add(choiceText.toLowerCase());
+            choiceTexts.add(prompt.getSelectChoiceText(choices.get(i)));
         }
     }
 
@@ -76,6 +61,14 @@ public class ComboboxWidget extends QuestionWidget {
     }
 
     private void setListeners() {
+        comboBox.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                comboBox.performValidation();
+                widgetEntryChanged();
+            }
+        });
+
         comboBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -86,75 +79,6 @@ public class ComboboxWidget extends QuestionWidget {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-
-        comboBox.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                comboBox.showDropDown();
-            }
-        });
-
-        comboBox.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                comboBox.performValidation();
-                widgetEntryChanged();
-            }
-        });
-    }
-
-    private AutoCompleteTextView.Validator getAfterTextEnteredValidator() {
-        return new AutoCompleteTextView.Validator() {
-
-            @Override
-            public boolean isValid(CharSequence text) {
-                return choiceTexts.contains(text.toString());
-            }
-
-            @Override
-            public CharSequence fixText(CharSequence invalidText) {
-                if (choiceTextsLowerCase.contains(invalidText.toString().toLowerCase())) {
-                    // If the user has entered a valid answer but with different case,
-                    // just change the case for them
-                    int index = choiceTextsLowerCase.indexOf(invalidText.toString().toLowerCase());
-                    return choiceTexts.get(index);
-                } else {
-                    // Otherwise delete their answer
-                    return "";
-                }
-
-            }
-        };
-    }
-
-    private TextWatcher getWhileTypingValidator() {
-        return new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (!isPrefixOfSomeChoiceValue(s.toString())) {
-                    //s.delete(s.length()-1, s.length());
-                    comboBox.setText(s.subSequence(0, s.length()-1));
-                    comboBox.setSelection(comboBox.getText().length());
-                }
-            }
-        };
-    }
-
-    private boolean isPrefixOfSomeChoiceValue(String text) {
-        for (String choice : choiceTextsLowerCase) {
-            if (choice.startsWith(text.toLowerCase())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
