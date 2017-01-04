@@ -109,8 +109,6 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
     }
 
     public void endPlaying() {
-        AudioController.INSTANCE.releaseCurrentMediaEntity();
-
         currentState = MediaState.Ready;
         refreshAppearance();
     }

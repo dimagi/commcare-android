@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
@@ -14,6 +15,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.AndroidShortcuts;
+import org.commcare.utils.LifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFragment;
@@ -128,7 +130,7 @@ public class DispatchActivity extends FragmentActivity {
 
         if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
-                CommCareApplication.instance().initFirstUsableAppRecord();
+                AppUtils.initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
                 dispatch();
             } else {
@@ -176,12 +178,12 @@ public class DispatchActivity extends FragmentActivity {
     private boolean isDbInBadState() {
         int dbState = CommCareApplication.instance().getDatabaseState();
         if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
-            CommCareApplication.instance().triggerHandledAppExit(this,
+            LifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_definite_failure),
                     getString(R.string.migration_failure_title), false);
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
-            CommCareApplication.instance().triggerHandledAppExit(this,
+            LifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_possible_failure),
                     getString(R.string.migration_failure_title), false);
             return true;
@@ -209,7 +211,7 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void createNoStorageDialog() {
-        CommCareApplication.instance().triggerHandledAppExit(this,
+        LifecycleUtils.triggerHandledAppExit(this,
                 Localization.get("app.storage.missing.message"),
                 Localization.get("app.storage.missing.title"));
     }
@@ -259,14 +261,14 @@ public class DispatchActivity extends FragmentActivity {
         if (record.isArchived()) {
             // If the app is archived, unseat it and try to seat another one
             CommCareApplication.instance().unseat(record);
-            CommCareApplication.instance().initFirstUsableAppRecord();
+            AppUtils.initFirstUsableAppRecord();
             return true;
         } else {
             // This app has unvalidated MM
             if (MultipleAppsUtil.usableAppsPresent()) {
                 // If there are other usable apps, unseat it and seat another one
                 CommCareApplication.instance().unseat(record);
-                CommCareApplication.instance().initFirstUsableAppRecord();
+                AppUtils.initFirstUsableAppRecord();
                 return true;
             } else {
                 handleUnvalidatedApp();
@@ -286,7 +288,7 @@ public class DispatchActivity extends FragmentActivity {
         } else {
             // Means that there are no usable apps, but there are multiple apps who all don't have
             // MM verified -- show an error message and shut down
-            CommCareApplication.instance().triggerHandledAppExit(this,
+            LifecycleUtils.triggerHandledAppExit(this,
                     Localization.get("multiple.apps.unverified.message"),
                     Localization.get("multiple.apps.unverified.title"));
         }

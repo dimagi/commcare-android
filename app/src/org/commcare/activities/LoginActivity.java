@@ -346,7 +346,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void dataPullCompleted() {
         ACRAUtil.registerUserData();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
-        CommCareApplication.instance().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
+        CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
         Intent i = new Intent();
         i.putExtra(LOGIN_MODE, uiController.getLoginMode());
@@ -432,7 +432,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void raiseMessage(NotificationMessage message, boolean showTop) {
         String toastText = message.getTitle();
         if (showTop) {
-            CommCareApplication.instance().reportNotificationMessage(message);
+            CommCareApplication.notificationManager().reportNotificationMessage(message);
             toastText = Localization.get("notification.for.details.wrapper",
                     new String[]{toastText});
         }
@@ -534,7 +534,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                     Localization.get("login.update.install.success"),
                                     Toast.LENGTH_LONG).show();
                         } else {
-                            CommCareApplication.instance().reportNotificationMessage(NotificationMessageFactory.message(result));
+                            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(result));
                         }
 
                         localLoginOrPullAndLogin(uiController.isRestoreSessionChecked());

@@ -7,6 +7,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
+ * Timer to refresh the case list every once in a while. Used in special cases
+ * (and has to be manually enabled) when case lists contain scheduling info
+ * that needs updating.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class EntitySelectRefreshTimer {
