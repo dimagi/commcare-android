@@ -138,4 +138,12 @@ public class Combobox extends AutoCompleteTextView {
         };
     }
 
+    public String getSelection() {
+        String enteredText = getText().toString();
+        if (choices.contains(enteredText)) {
+            return enteredText;
+        }
+        return null;
+    }
+
 }

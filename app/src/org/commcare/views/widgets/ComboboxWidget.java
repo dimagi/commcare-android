@@ -6,7 +6,6 @@ import android.os.Build;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
 
 import org.commcare.views.Combobox;
 import org.javarosa.core.model.SelectChoice;
@@ -50,11 +49,13 @@ public class ComboboxWidget extends QuestionWidget {
 
     private void fillInPreviousAnswer(FormEntryPrompt prompt) {
         if (prompt.getAnswerValue() != null) {
-            String previousAnswer = ((Selection)prompt.getAnswerValue().getValue()).getValue();
-            for (int i = 0; i < choiceTexts.size(); i++) {
-                String choiceValue = choiceTexts.get(i);
-                if (choiceValue.equals(previousAnswer)) {
-                    comboBox.setSelection(i+1);
+            String previousAnswerValue = ((Selection)prompt.getAnswerValue().getValue()).getValue();
+            for (int i = 0; i < choices.size(); i++) {
+                String choiceValue = choices.get(i).getValue();
+                if (choiceValue.equals(previousAnswerValue)) {
+                    comboBox.setText(choiceTexts.get(i));
+                    comboBox.performCompletion();
+                    break;
                 }
             }
         }
@@ -72,6 +73,7 @@ public class ComboboxWidget extends QuestionWidget {
         comboBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                comboBox.performCompletion();
                 widgetEntryChanged();
             }
 
@@ -83,12 +85,12 @@ public class ComboboxWidget extends QuestionWidget {
 
     @Override
     public IAnswerData getAnswer() {
-        int i = comboBox.getListSelection();
-        if (i < 1) {
+        String selected = comboBox.getSelection();
+        if (selected == null) {
             return null;
         } else {
-            SelectChoice sc = choices.elementAt(i-1);
-            return new SelectOneData(new Selection(sc));
+            int i = choiceTexts.indexOf(selected);
+            return new SelectOneData(new Selection(choices.elementAt(i)));
         }
     }
 
