@@ -42,8 +42,9 @@ public class FlatFixtureLoadingTest {
         EvaluationContext evalContext =
                 MockDataUtils.buildContextWithInstance(sandbox, "flat:commtrack:products", "jr://fixture/flat:commtrack:products");
 
+        String expr = "count(instance('flat:commtrack:products')/products/product)";
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
-                        "count(instance('commtrack:products')/products/product)",
+                        expr,
                         11.0));
     }
 }
