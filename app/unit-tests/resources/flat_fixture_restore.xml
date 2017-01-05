@@ -17,7 +17,7 @@
                 <code>col</code>
                 <description>Collier du cycle mensuel</description>
                 <category/>
-                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
                 <cost>152</cost>
             </product>
             <product id="a6d16035b98f6f962a6538bd927cefb3">
@@ -26,7 +26,7 @@
                 <code>pd</code>
                 <description>La contraception d'urgence</description>
                 <category/>
-                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
                 <cost>57</cost>
             </product>
             <product id="31ab899368d38c2d0207fe80c00fa96c">
@@ -35,7 +35,7 @@
                 <code>dp</code>
                 <description>Injectable</description>
                 <category/>
-                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
                 <cost>152</cost>
             </product>
             <product id="31ab899368d38c2d0207fe80c00fb8c1">
@@ -44,7 +44,7 @@
                 <code>diu</code>
                 <description>TCU 380A</description>
                 <category/>
-                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
                 <cost>380</cost>
             </product>
             <product id="c7bd1f35a48e1e8daaad6bf61cc2874d">
@@ -53,7 +53,7 @@
                 <code>implanon</code>
                 <description>Implant contracepif</description>
                 <category/>
-                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
                 <cost>380</cost>
             </product>
             <product id="31ab899368d38c2d0207fe80c00fb3ff">
@@ -62,7 +62,7 @@
                 <code>jad</code>
                 <description>Implant contracepif</description>
                 <category/>
-                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
                 <cost>380</cost>
             </product>
             <product id="f895be4959f9a8a66f57c340aa795758">
@@ -71,7 +71,7 @@
                 <code>ml</code>
                 <description>Pilule</description>
                 <category/>
-                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
                 <cost>76</cost>
             </product>
             <product id="a6d16035b98f6f962a6538bd924fed4c">
@@ -80,7 +80,7 @@
                 <code>mo</code>
                 <description>Pilule</description>
                 <category/>
-                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
                 <cost>76</cost>
             </product>
             <product id="a6d16035b98f6f962a6538bd924fdf4e">
@@ -89,7 +89,7 @@
                 <code>pf</code>
                 <description>Préservatif</description>
                 <category/>
-                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
                 <cost>0</cost>
             </product>
             <product id="57cf5fe4da3c034262099ea418831118">
@@ -98,7 +98,7 @@
                 <code>pm</code>
                 <description>Préservatif</description>
                 <category/>
-                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
                 <cost>0</cost>
             </product>
             <product id="a49f5098fe378f2bb0b684e90435a8e6">
@@ -107,7 +107,7 @@
                 <code>say</code>
                 <description/>
                 <category/>
-                <program_id>31ab899368d38c2d0207fe80c00fc3f3</program_id>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
                 <cost>152</cost>
             </product>
         </products>
