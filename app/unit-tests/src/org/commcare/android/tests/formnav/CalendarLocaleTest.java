@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
@@ -71,7 +72,7 @@ public class CalendarLocaleTest {
         assertEquals(monthText.getText(), "Ashadh");
         assertEquals(dayText.getText(), "19");
         assertEquals(yearText.getText(), "2073");
-        assertTrue(nextButton.getTag().equals(FormEntryActivity.NAV_STATE_NEXT));
+        assertTrue(nextButton.getTag().equals(FormEntryConstants.NAV_STATE_NEXT));
 
         nextButton.performClick();
 

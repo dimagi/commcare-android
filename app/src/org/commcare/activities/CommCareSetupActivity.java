@@ -168,8 +168,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (!askingForPerms) {
             if (isSingleAppBuild()) {
                 SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
-            } else {
-                // With basic perms satisfied, ask user to allow SMS reading for sms app install code
+            } else if (uiState == UiState.CHOOSE_INSTALL_ENTRY_METHOD) {
+                // Don't perform SMS install if we aren't on base setup state
+                // (i.e. in the middle of an install)
+
+                // With basic perms satisfied, ask user to allow SMS reading
+                // for sms app install code
                 performSMSInstall(false);
             }
         }
@@ -409,14 +413,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
-    private CommCareApp getCommCareApp() {
-        ApplicationRecord newRecord =
-                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
-                        ApplicationRecord.STATUS_UNINITIALIZED);
-
-        return new CommCareApp(newRecord);
-    }
-
     @Override
     public void startBlockingForTask(int id) {
         super.startBlockingForTask(id);
@@ -498,6 +494,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
+    }
+
+    public static CommCareApp getCommCareApp() {
+        ApplicationRecord newRecord =
+                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
+                        ApplicationRecord.STATUS_UNINITIALIZED);
+
+        return new CommCareApp(newRecord);
     }
 
     @Override
@@ -655,12 +659,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return errorMessageToDisplay;
     }
 
-    // All final paths from the Update are handled here (Important! Some
-    // interaction modes should always auto-exit this activity) Everything here
-    // should call one of: fail() or reportSuccess()
-    
-    /* All methods for implementation of ResourceEngineListener */
-
     @Override
     public void reportSuccess(boolean newAppInstalled) {
         CommCareApplication.notificationManager().clearNotifications("install_update");
@@ -758,11 +756,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         String title = Localization.get("updates.resources.initialization");
         String message = Localization.get("updates.resources.profile");
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-        dialog.setCancelable(false);
-        String checkboxText = Localization.get("install.keep.trying");
+
         CustomProgressDialog lastDialog = getCurrentProgressDialog();
         boolean isChecked = (lastDialog != null) && lastDialog.isChecked();
+        String checkboxText = Localization.get("install.keep.trying");
         dialog.addCheckbox(checkboxText, isChecked);
+
+        dialog.setCancelable(false);
         dialog.addProgressBar();
         return dialog;
     }

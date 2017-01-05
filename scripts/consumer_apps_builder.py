@@ -6,7 +6,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 # Script to build the .apks for all consumer apps, off of the latest release build of CommCare on jenkins
-# All paths are written assuming this script will be run from the PARENT directory of commcare-odk/,
+# All paths are written assuming this script will be run from the PARENT directory of commcare-android/,
 # unless otherwise specified 
 
 # Path to the directory where all user-provided information and files for each consumer app lives. 
@@ -18,15 +18,15 @@ PATH_TO_STATIC_RESOURCES_DIR = "./consumer-apps-resources"
 CONFIG_FILE_NAME = "config.txt"
 ZIP_FILE_NAME = "ic_launcher.zip"
 
-# Path to the commcare-odk app directory
+# Path to the commcare-android app directory
 PATH_TO_ANDROID_DIR = "./commcare-android/"
 
 # Path to the standalone directory
 PATH_TO_STANDALONE_DIR = PATH_TO_ANDROID_DIR + "app/standalone/"
 
-# Path to the directory where all app assets should be placed, RELATIVE to the commcare-odk/
+# Path to the directory where all app assets should be placed, RELATIVE to the commcare-android/
 # directory, since we have cd'ed into that directory at the time this is used
-PATH_TO_ASSETS_DIR_FROM_ODK = "./app/standalone/assets/"
+PATH_TO_ASSETS_DIR_FROM_ANDROID = "./app/standalone/assets/"
 
 
 def checkout_or_update_static_resources_repo():
@@ -82,11 +82,11 @@ def get_app_fields(config_filename):
 
 
 def download_ccz(app_id, domain, build_number):
-    subprocess.call(["./scripts/download_app_into_standalone_asset.sh", domain, app_id, PATH_TO_ASSETS_DIR_FROM_ODK, build_number])
+    subprocess.call(["./scripts/download_app_into_standalone_asset.sh", domain, app_id, PATH_TO_ASSETS_DIR_FROM_ANDROID, build_number])
 
 
 def download_restore_file(domain, username, password):
-    subprocess.call(["./scripts/download_restore_into_standalone_asset.sh", domain, username, password, PATH_TO_ASSETS_DIR_FROM_ODK])
+    subprocess.call(["./scripts/download_restore_into_standalone_asset.sh", domain, username, password, PATH_TO_ASSETS_DIR_FROM_ANDROID])
 
 
 def assemble_apk(domain, build_number, username, password, build_type):
@@ -94,18 +94,18 @@ def assemble_apk(domain, build_number, username, password, build_type):
         gradle_directive = "assembleStandaloneDebug"
     else:
         gradle_directive = "assembleStandaloneRelease"
-    subprocess.call(["gradle", gradle_directive, 
+    subprocess.call(["gradle", gradle_directive,
         "-Pcc_domain={}".format(domain), 
         "-Papplication_name={}".format(get_app_name_from_profile()), 
         "-Pis_consumer_app=true", 
         "-Prun_download_scripts=false",
         "-PversionCode={}".format(build_number),
         "-Pusername={}".format(username),
-        "-Ppassword={}".format(password), "--stacktrace"])
+        "-Ppassword={}".format(password)])
 
 
 def get_app_name_from_profile():
-    tree = ET.parse(PATH_TO_ASSETS_DIR_FROM_ODK + '/direct_install/profile.ccpr')
+    tree = ET.parse(PATH_TO_ASSETS_DIR_FROM_ANDROID + '/direct_install/profile.ccpr')
     return escape_apostrophes(tree.getroot().get("name").encode('utf-8'))
 
 
@@ -116,13 +116,13 @@ def escape_apostrophes(s):
 
 
 def move_apk(app_id, build_type):
-    CONSUMER_APKS_DIR = "./build/outputs/consumer_apks"
+    CONSUMER_APKS_DIR = "./app/build/outputs/consumer_apks"
     if not os.path.exists(CONSUMER_APKS_DIR):
         os.mkdir(CONSUMER_APKS_DIR) 
     if build_type == 'd':
-        original_apk_filename = "./build/outputs/apk/commcare-android-standalone-debug.apk"
+        original_apk_filename = "./app/build/outputs/apk/app-standalone-debug.apk"
     else:
-        original_apk_filename = "./build/outputs/apk/commcare-android-standalone-release.apk"
+        original_apk_filename = "./app/build/outputs/apk/app-standalone-release.apk"
     shutil.move(original_apk_filename, os.path.join(CONSUMER_APKS_DIR, "{}.apk".format(app_id)))
 
 

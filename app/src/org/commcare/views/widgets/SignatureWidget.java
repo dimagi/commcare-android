@@ -33,7 +33,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.DrawActivity;
-import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.FormEntryConstants;
+import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.ODKStorage;
@@ -69,8 +70,8 @@ public class SignatureWidget extends QuestionWidget {
         this.pendingCalloutInterface = pic;
 
         mInstanceFolder =
-                FormEntryActivity.mInstancePath.substring(0,
-                        FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
+                FormEntryInstanceState.mInstancePath.substring(0,
+                        FormEntryInstanceState.mInstancePath.lastIndexOf("/") + 1);
 
         setOrientation(LinearLayout.VERTICAL);
 
@@ -156,7 +157,7 @@ public class SignatureWidget extends QuestionWidget {
                 Uri.fromFile(new File(ODKStorage.TMPFILE_PATH)));
 
         try {
-            ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.SIGNATURE_CAPTURE);
+            ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.SIGNATURE_CAPTURE);
             pendingCalloutInterface.setPendingCalloutFormIndex(questionIndex);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
