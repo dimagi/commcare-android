@@ -32,8 +32,6 @@ public class CaseIndexTable {
     //an object for the same cache at once and let us manage the lifecycle
 
     public CaseIndexTable() {
-        // TODO PLM: remove this constructor and have callers pass in result
-        // from getUserDbHandle()
         this.db = CommCareApplication.instance().getUserDbHandle();
     }
 

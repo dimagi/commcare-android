@@ -351,4 +351,9 @@ public class SingleAppManagerActivity extends CommCareActivity {
         d.setNegativeButton(getString(R.string.cancel), listener);
         showAlertDialog(d);
     }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
+    }
 }

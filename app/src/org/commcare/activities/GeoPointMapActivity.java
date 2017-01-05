@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.utils.GeoUtils;
 import org.commcare.views.widgets.GeoPointWidget;
@@ -116,7 +117,7 @@ public class GeoPointMapActivity extends Activity
     private void returnLocation() {
         if (location != null) {
             Intent i = new Intent();
-            i.putExtra(FormEntryActivity.LOCATION_RESULT, GeoUtils.locationToString(location));
+            i.putExtra(FormEntryConstants.LOCATION_RESULT, GeoUtils.locationToString(location));
             setResult(RESULT_OK, i);
         }
         finish();

@@ -15,6 +15,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.TimerListener;
 import org.commcare.utils.GeoUtils;
@@ -153,7 +154,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     private void returnLocation() {
         if (location != null) {
             Intent i = new Intent();
-            i.putExtra(FormEntryActivity.LOCATION_RESULT, GeoUtils.locationToString(location));
+            i.putExtra(FormEntryConstants.LOCATION_RESULT, GeoUtils.locationToString(location));
             setResult(RESULT_OK, i);
         }
         finish();

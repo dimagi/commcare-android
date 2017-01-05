@@ -15,8 +15,9 @@ import org.javarosa.core.model.instance.TreeReference;
 public class EntityDetailUtils {
 
     /**
-     * Get an intent for displaying the confirm detail screen for an element (either just populates
-     * the given intent with the necessary information, or creates a new one if it is null)
+     * Get an intent for displaying the confirm detail screen for an element
+     * (either just populates the given intent with the necessary information,
+     * or creates a new one if it is null)
      *
      * @param contextRef reference to the selected element for which to display
      *                   detailed view

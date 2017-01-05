@@ -59,7 +59,7 @@ public enum AudioController {
         currentEntity.getPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                currentAudioButton.endPlaying();
+                releaseCurrentMediaEntity();
             }
         });
     }
@@ -80,6 +80,9 @@ public enum AudioController {
      * Release current media resources.
      */
     public void releaseCurrentMediaEntity() {
+        if (currentAudioButton != null) {
+            currentAudioButton.endPlaying();
+        }
         if (currentEntity != null) {
             MediaPlayer mp = currentEntity.getPlayer();
             mp.reset();
