@@ -45,12 +45,14 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
     /**
      * Column selection used for reading file data:
-     * - Id column needed to correctly set the id of objects read from db, which isn't set at write time for efficiency.
+     * - Id column needed to correctly set the id of objects read from db,
+     *   which isn't set at write time for efficiency.
      * - Data column holds serialized objects under 1mb
      * - File column points to file holding serialized object over 1mb
      * - Aes column holds encryption key for objects saved to filesystem
      *
-     * Constraint: we never expect both data and file/aes columns to contain data at the same time
+     * Constraint: we never expect both data and file/aes columns to contain
+     * data at the same time
      */
     protected final static String[] dataColumns =
             {DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL,

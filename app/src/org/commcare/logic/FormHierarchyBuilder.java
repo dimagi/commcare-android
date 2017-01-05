@@ -51,25 +51,26 @@ public class FormHierarchyBuilder {
         FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
         enclosingGroupIndex = null;
 
-        // If we're not at the first level, we're inside a repeated group so we want to only display
-        // everything enclosed within that group.
+        // If we're not at the first level, we're inside a repeated group so we
+        // want to only display everything enclosed within that group.
 
-        // If we're currently at a repeat node, record the name of the node and step to the next
-        // node to display.
+        // If we're currently at a repeat node, record the name of the node and
+        // step to the next node to display.
         if (FormEntryActivity.mFormController.getEvent() == FormEntryController.EVENT_REPEAT) {
             enclosingGroupIndex = FormEntryActivity.mFormController.getFormIndex();
             FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
         } else {
             FormIndex startTest = FormHierarchyActivity.stepIndexOut(currentIndex);
-            // If we have a 'group' tag, we want to step back until we hit a repeat or the
-            // beginning.
+            // If we have a 'group' tag, we want to step back until we hit a
+            // repeat or the beginning.
             while (startTest != null
                     && FormEntryActivity.mFormController.getEvent(startTest) == FormEntryController.EVENT_GROUP) {
                 startTest = FormHierarchyActivity.stepIndexOut(startTest);
             }
             if (startTest == null) {
-                // check to see if the question is at the first level of the hierarchy. If it is,
-                // display the root level from the beginning.
+                // check to see if the question is at the first level of the
+                // hierarchy. If it is, display the root level from the
+                // beginning.
                 FormEntryActivity.mFormController.jumpToIndex(FormIndex
                         .createBeginningOfFormIndex());
             } else {
@@ -77,8 +78,8 @@ public class FormHierarchyBuilder {
                 FormEntryActivity.mFormController.jumpToIndex(startTest);
             }
 
-            // now test again for repeat. This should be true at this point or we're at the
-            // beginning
+            // now test again for repeat. This should be true at this point or
+            // we're at the beginning
             if (FormEntryActivity.mFormController.getEvent() == FormEntryController.EVENT_REPEAT) {
                 enclosingGroupIndex = FormEntryActivity.mFormController.getFormIndex();
                 FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);

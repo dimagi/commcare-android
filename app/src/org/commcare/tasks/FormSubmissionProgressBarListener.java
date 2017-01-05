@@ -9,19 +9,21 @@ import android.widget.ProgressBar;
 
 import org.commcare.activities.SyncCapableCommCareActivity;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.UiLoadedListener;
 
 /**
  * A DataSubmissionListener that updates a progress bar in the given activity
  *
  * @author Aliza Stone
  */
-public class FormSubmissionProgressBarListener implements DataSubmissionListener {
+public class FormSubmissionProgressBarListener implements DataSubmissionListener, UiLoadedListener {
 
     private static final long MIN_PROGRESS_BAR_DURATION_PER_ITEM = 1000;
     private static final long MAX_TOTAL_PROGRESS_BAR_DURATION = 5000;
 
     private int totalItems;
     private int maxProgress;
+    private int currentProgress;
     private long sizeOfCurrentItem;
     private long startTime;
     private ProgressBar submissionProgressBar;
@@ -31,20 +33,39 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
         this.containingActivity = activityContainingProgressBar;
     }
 
+    /**
+     * Called when the associated ProcessAndSendTask's connecting activity changes
+     */
+    public void attachToNewActivity(SyncCapableCommCareActivity newActivity) {
+        if (newActivity != containingActivity) {
+            this.containingActivity = newActivity;
+            showProgressBarInActivity(this.currentProgress);
+        }
+    }
+
     @Override
     public void beginSubmissionProcess(int totalItems) {
         this.totalItems = totalItems;
         // Give each item 100 units of progress to use
         this.maxProgress = totalItems * 100;
         this.startTime = System.currentTimeMillis();
+        showProgressBarInActivity(0);
+    }
+
+    private void showProgressBarInActivity(final int progressToSet) {
         this.containingActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 submissionProgressBar =
                         (ProgressBar)containingActivity.findViewById(R.id.submission_progress_bar);
-                submissionProgressBar.setVisibility(View.VISIBLE);
-                submissionProgressBar.setMax(maxProgress);
-                submissionProgressBar.setProgress(0);
+                if (submissionProgressBar == null) {
+                    // Means that the activity has not finished loading its UI yet, so we have to wait
+                    containingActivity.setUiLoadedListener(FormSubmissionProgressBarListener.this);
+                } else {
+                    submissionProgressBar.setVisibility(View.VISIBLE);
+                    submissionProgressBar.setMax(maxProgress);
+                    submissionProgressBar.setProgress(progressToSet);
+                }
             }
         });
     }
@@ -60,8 +81,9 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
             @Override
             public void run() {
                 int nextProgress = getProgressToReport(itemNumber, progress);
-                if (nextProgress > submissionProgressBar.getProgress()) {
+                if (nextProgress > FormSubmissionProgressBarListener.this.currentProgress) {
                     submissionProgressBar.setProgress(nextProgress);
+                    FormSubmissionProgressBarListener.this.currentProgress = nextProgress;
                 }
             }
         });
@@ -140,4 +162,10 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
         return Math.min(MIN_PROGRESS_BAR_DURATION_PER_ITEM * totalItems, MAX_TOTAL_PROGRESS_BAR_DURATION);
     }
 
+    @Override
+    public void onUiLoaded() {
+        showProgressBarInActivity(this.currentProgress);
+        // we only want to trigger this once
+        this.containingActivity.removeUiLoadedListener();
+    }
 }

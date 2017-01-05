@@ -124,9 +124,6 @@ public abstract class CustomButtonWithText extends RelativeLayout {
 
         button.setEnabled(enabled);
 
-        // NOTE PLM: ideally we would use a setTintList with a ColorStateList
-        // when setting up the image. Unfortunately I wasn't able to figure out
-        // how to only apply a tint when the button was disabled
         if (!enabled) {
             // add gray tint to button's image
             Drawable wrapDrawable = DrawableCompat.wrap(button.getDrawable());

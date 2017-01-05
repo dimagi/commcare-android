@@ -51,23 +51,6 @@ public class GridMenuAdapter extends MenuAdapter {
         return menuListItem;
     }
 
-    private void setupBadgeView(View menuListItem, MenuDisplayable menuDisplayable) {
-        View badgeView = menuListItem.findViewById(R.id.badge_view);
-        String badgeText = menuDisplayable.getTextForBadge(
-                asw.getEvaluationContext(menuDisplayable.getCommandID()));
-        if (badgeText != null && !"".equals(badgeText) && !"0".equals(badgeText)) {
-            if (badgeText.length() > 2) {
-                // A badge can only fit up to 2 characters
-                badgeText = badgeText.substring(0, 2);
-            }
-            TextView badgeTextView = (TextView)menuListItem.findViewById(R.id.badge_text);
-            badgeTextView.setText(badgeText);
-            badgeView.setVisibility(View.VISIBLE);
-        } else {
-            badgeView.setVisibility(View.GONE);
-        }
-    }
-
     @Override
     protected void setupDefaultIcon(ImageView mIconView, NavIconState iconChoice) {
         if (mIconView != null) {

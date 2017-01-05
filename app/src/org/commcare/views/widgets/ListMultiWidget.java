@@ -89,7 +89,7 @@ public class ListMultiWidget extends QuestionWidget {
                 c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        // XXX PLM: hmmm, the conditional below is always false...
+                        // TODO PLM: hmmm, the conditional below is always false...
                         if (!mCheckboxInit && mPrompt.isReadOnly()) {
                             if (buttonView.isChecked()) {
                                 buttonView.setChecked(false);
