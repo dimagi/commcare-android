@@ -1,5 +1,7 @@
 package org.commcare.models.database;
 
+import android.content.ContentValues;
+
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -79,34 +81,25 @@ public class AndroidSandbox extends UserSandbox {
     @Override
     public void setFlatFixturePathBases(String fixtureName, String baseName, String childName) {
         SQLiteDatabase db = app.getUserDbHandle();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DbUtil.FLAT_FIXTURE_INDEX_COL_BASE, baseName);
+        contentValues.put(DbUtil.FLAT_FIXTURE_INDEX_COL_CHILD, childName);
+        contentValues.put(DbUtil.FLAT_FIXTURE_INDEX_COL_NAME, fixtureName);
+
         try {
             db.beginTransaction();
+
             long ret = db.insertOrThrow(DbUtil.FLAT_FIXTURE_INDEX_TABLE,
-                    DatabaseHelper.DATA_COL, helper.getContentValues(e));
+                    DbUtil.FLAT_FIXTURE_INDEX_COL_BASE,
+                    contentValues);
 
             if (ret > Integer.MAX_VALUE) {
                 throw new RuntimeException("Waaaaaaaaaay too many values");
             }
 
-            i = (int)ret;
-
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-        }
-        Cursor c = db.query(
-                new String[]{DbUtil.FLAT_FIXTURE_INDEX_COL_BASE, DbUtil.FLAT_FIXTURE_INDEX_COL_CHILD},
-                DbUtil.FLAT_FIXTURE_INDEX_COL_NAME + "=?", new String[]{fixtureName}, null, null, null);
-        try {
-            if (c.getCount() == 0) {
-                throw new RuntimeException("no entry for " + fixtureName);
-            }
-            c.moveToFirst();
-            return Pair.create(
-                    c.getString(c.getColumnIndexOrThrow(DbUtil.FLAT_FIXTURE_INDEX_COL_BASE)),
-                    c.getString(c.getColumnIndexOrThrow(DbUtil.FLAT_FIXTURE_INDEX_COL_CHILD)));
-        } finally {
-            c.close();
         }
     }
 
