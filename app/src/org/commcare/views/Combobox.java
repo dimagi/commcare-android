@@ -8,6 +8,7 @@ import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
@@ -25,10 +26,13 @@ import java.util.Vector;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class Combobox extends AutoCompleteTextView {
 
+    private static int TEXT_UNIT = TypedValue.COMPLEX_UNIT_DIP;
+
     private Vector<String> choices;
     private Vector<String> choicesAllLowerCase;
-
     private CharSequence lastAcceptableStringEntered = "";
+    private int lastValidCursorLocation;
+    private boolean fixingInvalidEntry;
 
     public Combobox(Context context, Vector<String> choices, boolean addEmptyFirstChoice, int fontSize) {
         super(context);
@@ -43,9 +47,9 @@ public class Combobox extends AutoCompleteTextView {
         if (addEmptyFirstChoice) {
             items = SpinnerWidget.getChoicesWithEmptyFirstSlot(items);
         }
-        setAdapter(new ComboboxAdapter(context, R.layout.custom_spinner_item, items,
-                TypedValue.COMPLEX_UNIT_DIP, fontSize));
+        setAdapter(new ComboboxAdapter(context, R.layout.custom_spinner_item, items, fontSize));
 
+        setTextSize(TEXT_UNIT, fontSize);
         setForceIgnoreOutsideTouchWithReflection();
         setThreshold(0);
         setListeners();
@@ -85,7 +89,9 @@ public class Combobox extends AutoCompleteTextView {
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                if (!fixingInvalidEntry) {
+                    lastValidCursorLocation = getSelectionStart();
+                }
             }
 
             @Override
@@ -94,11 +100,13 @@ public class Combobox extends AutoCompleteTextView {
 
             @Override
             public void afterTextChanged(Editable s) {
+                fixingInvalidEntry = false;
                 if (!isPrefixOfSomeChoiceValue(s.toString())) {
+                    fixingInvalidEntry = true;
                     // Re-set the entered text to be what it was before this change was made
                     setText(lastAcceptableStringEntered);
-                    // Move the cursor to the end of the text
-                    setSelection(getText().length());
+                    // Put the cursor back where it was
+                    setSelection(lastValidCursorLocation);
                 } else {
                     lastAcceptableStringEntered = s.toString();
                 }
@@ -140,13 +148,11 @@ public class Combobox extends AutoCompleteTextView {
     }
 
     private class ComboboxAdapter extends ArrayAdapter<String> {
-        final int textUnit;
         final float textSize;
 
         public ComboboxAdapter(final Context context, final int textViewResourceId,
-                              final String[] objects, int textUnit, float textSize) {
+                              final String[] objects, float textSize) {
             super(context, textViewResourceId, objects);
-            this.textUnit = textUnit;
             this.textSize = textSize;
         }
 
@@ -155,7 +161,7 @@ public class Combobox extends AutoCompleteTextView {
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = super.getView(position, convertView, parent);
             TextView tv = (TextView)view.findViewById(android.R.id.text1);
-            tv.setTextSize(textUnit, textSize);
+            tv.setTextSize(TEXT_UNIT, textSize);
             tv.setPadding(10, 10, 10, 10);
             return view;
         }
