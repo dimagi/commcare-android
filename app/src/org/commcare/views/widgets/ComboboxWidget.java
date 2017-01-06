@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import org.commcare.views.Combobox;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -72,12 +73,18 @@ public class ComboboxWidget extends QuestionWidget {
 
     @Override
     public IAnswerData getAnswer() {
-        String selected = comboBox.getSelection();
-        if (selected == null) {
+        // So that we can see any error message that gets shown as a result of this
+        comboBox.dismissDropDown();
+
+        String enteredText = comboBox.getText().toString();
+        if (choiceTexts.contains(enteredText)) {
+            int i = choiceTexts.indexOf(enteredText);
+            return new SelectOneData(new Selection(choices.elementAt(i)));
+        } else if ("".equals(enteredText)) {
             return null;
         } else {
-            int i = choiceTexts.indexOf(selected);
-            return new SelectOneData(new Selection(choices.elementAt(i)));
+            return new InvalidData("The text entered is not a valid answer choice",
+                    new SelectOneData(new Selection(0)));
         }
     }
 

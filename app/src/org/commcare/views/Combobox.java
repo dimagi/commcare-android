@@ -48,18 +48,10 @@ public class Combobox extends AutoCompleteTextView {
         setAdapter(new ComboboxAdapter(context, R.layout.custom_spinner_item, items, fontSize));
 
         setTextSize(TEXT_UNIT, fontSize);
-        setForceIgnoreOutsideTouchWithReflection();
+        //setForceIgnoreOutsideTouchWithReflection();
         setThreshold(0);
         setListeners();
         //setValidator(getAfterTextEnteredValidator());
-    }
-
-    public String getSelection() {
-        String enteredText = getText().toString();
-        if (choices.contains(enteredText)) {
-            return enteredText;
-        }
-        return null;
     }
 
     private boolean setForceIgnoreOutsideTouchWithReflection() {
