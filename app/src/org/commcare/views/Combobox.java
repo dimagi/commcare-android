@@ -5,10 +5,14 @@ import android.content.Context;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.TextView;
 
+import org.commcare.dalvik.R;
 import org.commcare.views.widgets.SpinnerWidget;
 
 import java.lang.reflect.Method;
@@ -26,7 +30,7 @@ public class Combobox extends AutoCompleteTextView {
 
     private CharSequence lastAcceptableStringEntered = "";
 
-    public Combobox(Context context, Vector<String> choices, boolean addEmptyFirstChoice) {
+    public Combobox(Context context, Vector<String> choices, boolean addEmptyFirstChoice, int fontSize) {
         super(context);
 
         this.choices = choices;
@@ -39,7 +43,8 @@ public class Combobox extends AutoCompleteTextView {
         if (addEmptyFirstChoice) {
             items = SpinnerWidget.getChoicesWithEmptyFirstSlot(items);
         }
-        setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, items));
+        setAdapter(new ComboboxAdapter(context, R.layout.custom_spinner_item, items,
+                TypedValue.COMPLEX_UNIT_DIP, fontSize));
 
         setForceIgnoreOutsideTouchWithReflection();
         setThreshold(0);
@@ -132,6 +137,28 @@ public class Combobox extends AutoCompleteTextView {
 
             }
         };
+    }
+
+    private class ComboboxAdapter extends ArrayAdapter<String> {
+        final int textUnit;
+        final float textSize;
+
+        public ComboboxAdapter(final Context context, final int textViewResourceId,
+                              final String[] objects, int textUnit, float textSize) {
+            super(context, textViewResourceId, objects);
+            this.textUnit = textUnit;
+            this.textSize = textSize;
+        }
+
+        @Override
+        // Defines the text view parameters for the drop down list entries
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = super.getView(position, convertView, parent);
+            TextView tv = (TextView)view.findViewById(android.R.id.text1);
+            tv.setTextSize(textUnit, textSize);
+            tv.setPadding(10, 10, 10, 10);
+            return view;
+        }
     }
 
 }

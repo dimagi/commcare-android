@@ -6,7 +6,6 @@ import android.os.Build;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
 
 import org.commcare.views.Combobox;
 import org.javarosa.core.model.SelectChoice;
@@ -30,7 +29,7 @@ public class ComboboxWidget extends QuestionWidget {
     public ComboboxWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
         initChoices(prompt);
-        comboBox = new Combobox(context, choiceTexts, true);
+        comboBox = new Combobox(context, choiceTexts, true, mQuestionFontsize);
         addView(comboBox);
 
         comboBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -62,9 +61,10 @@ public class ComboboxWidget extends QuestionWidget {
         if (prompt.getAnswerValue() != null) {
             String previousAnswerValue = ((Selection)prompt.getAnswerValue().getValue()).getValue();
             for (int i = 0; i < choices.size(); i++) {
-                String choiceValue = choices.get(i).getValue();
-                if (choiceValue.equals(previousAnswerValue)) {
+                if (choices.get(i).getValue().equals(previousAnswerValue)) {
                     comboBox.setText(choiceTexts.get(i));
+                    // setting this text will cause the dropdown to open up, which we don't want
+                    comboBox.dismissDropDown();
                     break;
                 }
             }
@@ -84,7 +84,7 @@ public class ComboboxWidget extends QuestionWidget {
 
     @Override
     public void clearAnswer() {
-        comboBox.setSelection(0);
+        comboBox.setText("");
     }
 
     @Override

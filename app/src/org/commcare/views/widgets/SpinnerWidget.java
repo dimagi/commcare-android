@@ -143,7 +143,6 @@ public class SpinnerWidget extends QuestionWidget {
             this.textSize = textSize;
         }
 
-
         @Override
         // Defines the text view parameters for the drop down list entries
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
