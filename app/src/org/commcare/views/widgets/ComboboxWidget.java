@@ -29,7 +29,7 @@ public class ComboboxWidget extends QuestionWidget {
     public ComboboxWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
         initChoices(prompt);
-        comboBox = new Combobox(context, choiceTexts, true, mQuestionFontsize);
+        comboBox = new Combobox(context, choiceTexts, true, mQuestionFontSize);
         addView(comboBox);
 
         comboBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

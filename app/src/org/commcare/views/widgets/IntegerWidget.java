@@ -30,7 +30,7 @@ public class IntegerWidget extends StringWidget {
     public IntegerWidget(Context context, FormEntryPrompt prompt, boolean secret, int num_type) {
         super(context, prompt, secret);
 
-        mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+        mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);
 
         this.number_type = num_type;

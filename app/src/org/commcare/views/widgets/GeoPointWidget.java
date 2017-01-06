@@ -62,7 +62,7 @@ public class GeoPointWidget extends QuestionWidget {
 
         mStringAnswer = new TextView(getContext());
         mAnswerDisplay = new TextView(getContext());
-        mAnswerDisplay.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+        mAnswerDisplay.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswerDisplay.setGravity(Gravity.CENTER);
 
         Spannable locButtonText;
@@ -84,7 +84,7 @@ public class GeoPointWidget extends QuestionWidget {
         mGetLocationButton = new Button(getContext());
         WidgetUtils.setupButton(mGetLocationButton,
                 locButtonText,
-                mAnswerFontsize,
+                mAnswerFontSize,
                 !prompt.isReadOnly());
 
         mGetLocationButton.setOnClickListener(new View.OnClickListener() {
@@ -105,7 +105,7 @@ public class GeoPointWidget extends QuestionWidget {
         mViewButton = new Button(getContext());
         WidgetUtils.setupButton(mViewButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.show_location),
-                mAnswerFontsize,
+                mAnswerFontSize,
                 viewButtonEnabled);
 
         // launch appropriate map viewer

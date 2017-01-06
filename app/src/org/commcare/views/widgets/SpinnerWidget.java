@@ -49,7 +49,7 @@ public class SpinnerWidget extends QuestionWidget {
         SpinnerAdapter adapter =
                 new SpinnerAdapter(getContext(), android.R.layout.simple_spinner_item,
                         getChoicesWithEmptyFirstSlot(choices),
-                        TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+                        TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
 
         spinner.setAdapter(adapter);
         spinner.setPrompt(prompt.getQuestionText());

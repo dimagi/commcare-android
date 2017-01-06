@@ -39,7 +39,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     public StringWidget(Context context, FormEntryPrompt prompt, boolean secret) {
         super(context, prompt);
         mAnswer = (EditText)LayoutInflater.from(getContext()).inflate(R.layout.edit_text_question_widget, this, false);
-        mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+        mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswer.setOnClickListener(this);
 
         mAnswer.addTextChangedListener(this);
