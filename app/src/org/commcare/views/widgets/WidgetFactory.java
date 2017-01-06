@@ -164,11 +164,7 @@ public class WidgetFactory {
         } else if (appearance != null && appearance.equals("minimal")) {
             return new SpinnerWidget(context, fep);
         } else if (appearance != null && appearance.equals("combo-box")) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                return new ComboboxWidget(context, fep);
-            } else {
-                return new SpinnerWidget(context, fep);
-            }
+            return new ComboboxWidget(context, fep);
         } else if (appearance != null && appearance.equals("quick")) {
             return new SelectOneAutoAdvanceWidget(context, fep);
         } else if (appearance != null && appearance.equals("list")) {

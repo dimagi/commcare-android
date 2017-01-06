@@ -44,7 +44,6 @@ public class ComboboxWidget extends QuestionWidget {
         });
         comboBox.setEnabled(!prompt.isReadOnly());
         comboBox.setFocusable(!prompt.isReadOnly());
-        comboBox.requestFocus();
 
         fillInPreviousAnswer(prompt);
     }
@@ -89,10 +88,6 @@ public class ComboboxWidget extends QuestionWidget {
 
     @Override
     public void setFocus(Context context) {
-        comboBox.requestFocus();
-        InputMethodManager inputManager =
-                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.showSoftInput(comboBox, 0);
     }
 
     @Override

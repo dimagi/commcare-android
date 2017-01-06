@@ -8,7 +8,6 @@ import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
@@ -23,7 +22,6 @@ import java.util.Vector;
  * Created by amstone326 on 1/4/17.
  */
 
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class Combobox extends AutoCompleteTextView {
 
     private static int TEXT_UNIT = TypedValue.COMPLEX_UNIT_DIP;
@@ -81,6 +79,15 @@ public class Combobox extends AutoCompleteTextView {
             @Override
             public void onClick(View v) {
                 showDropDown();
+            }
+        });
+
+        setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    showDropDown();
+                }
             }
         });
     }
