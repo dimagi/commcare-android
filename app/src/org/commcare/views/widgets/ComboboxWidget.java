@@ -30,13 +30,23 @@ public class ComboboxWidget extends QuestionWidget {
     public ComboboxWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
         initChoices(prompt);
-
         comboBox = new Combobox(context, choiceTexts, true);
         addView(comboBox);
+
+        comboBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                widgetEntryChanged();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
         comboBox.setEnabled(!prompt.isReadOnly());
         comboBox.setFocusable(!prompt.isReadOnly());
         comboBox.requestFocus();
-        setListeners();
+
         fillInPreviousAnswer(prompt);
     }
 
@@ -55,33 +65,10 @@ public class ComboboxWidget extends QuestionWidget {
                 String choiceValue = choices.get(i).getValue();
                 if (choiceValue.equals(previousAnswerValue)) {
                     comboBox.setText(choiceTexts.get(i));
-                    comboBox.performCompletion();
                     break;
                 }
             }
         }
-    }
-
-    private void setListeners() {
-        comboBox.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                comboBox.performValidation();
-                widgetEntryChanged();
-            }
-        });
-
-        comboBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                comboBox.performCompletion();
-                widgetEntryChanged();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
     }
 
     @Override

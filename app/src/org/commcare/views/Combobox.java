@@ -11,6 +11,7 @@ import android.widget.AutoCompleteTextView;
 
 import org.commcare.views.widgets.SpinnerWidget;
 
+import java.lang.reflect.Method;
 import java.util.Vector;
 
 /**
@@ -40,9 +41,10 @@ public class Combobox extends AutoCompleteTextView {
         }
         setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, items));
 
+        setForceIgnoreOutsideTouchWithReflection();
         setThreshold(0);
         setListeners();
-        setValidator(getAfterTextEnteredValidator());
+        //setValidator(getAfterTextEnteredValidator());
     }
 
     public String getSelection() {
@@ -53,6 +55,16 @@ public class Combobox extends AutoCompleteTextView {
         return null;
     }
 
+    private boolean setForceIgnoreOutsideTouchWithReflection() {
+        try {
+            Method method = android.widget.AutoCompleteTextView.class.getMethod("setForceIgnoreOutsideTouch", boolean.class);
+            method.invoke(this, true);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private void setListeners() {
         addTextChangedListener(getWhileTypingValidator());
 
@@ -60,13 +72,6 @@ public class Combobox extends AutoCompleteTextView {
             @Override
             public void onClick(View v) {
                 showDropDown();
-            }
-        });
-
-        setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                performValidation();
             }
         });
     }
