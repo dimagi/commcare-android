@@ -77,7 +77,7 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
                 } else {
                     r.setText(prompt.getSelectChoiceText(mItems.get(i)));
                 }
-                r.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
+                r.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
                 r.setId(i + buttonIdBase);
                 r.setEnabled(!prompt.isReadOnly());
                 r.setFocusable(!prompt.isReadOnly());

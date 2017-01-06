@@ -59,7 +59,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     private final LinearLayout.LayoutParams mLayout;
     protected final FormEntryPrompt mPrompt;
 
-    protected final int mQuestionFontSize;
+    protected final int mQuestionFontsize;
     protected final int mAnswerFontsize;
     protected final static String ACQUIREFIELD = "acquire";
 
@@ -101,8 +101,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         String question_font =
                 settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
-        mQuestionFontSize = Integer.valueOf(question_font);
-        mAnswerFontsize = mQuestionFontSize + 2;
+        mQuestionFontsize = Integer.valueOf(question_font);
+        mAnswerFontsize = mQuestionFontsize + 2;
 
         setOrientation(LinearLayout.VERTICAL);
         setGravity(Gravity.TOP);
@@ -385,7 +385,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      */
     protected void addQuestionText() {
         mQuestionText = (TextView)LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, this, false);
-        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
+        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         mQuestionText.setId(38475483); // assign random id
 
         setQuestionText(mQuestionText, mPrompt);
@@ -478,7 +478,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         } else {
             text.setText(mPrompt.getHelpText());
         }
-        text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
+        text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
         text.setPadding(0, 0, 0, 7);
         text.setId(38475483); // assign random id
@@ -562,7 +562,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
         if (s != null && !s.equals("")) {
             mHintText = new ShrinkingTextView(getContext(),this.getMaxHintHeight());
-            mHintText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize - 3);
+            mHintText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize - 3);
             mHintText.setPadding(0, -5, 0, 7);
             // wrap to the widget of view
             mHintText.setHorizontallyScrolling(false);

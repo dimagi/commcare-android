@@ -6,6 +6,7 @@ import android.os.Build;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 
 import org.commcare.views.Combobox;
 import org.javarosa.core.model.SelectChoice;
@@ -30,7 +31,7 @@ public class ComboboxWidget extends QuestionWidget {
         super(context, prompt);
         initChoices(prompt);
 
-        comboBox = new Combobox(context, choiceTexts, mQuestionFontSize);
+        comboBox = new Combobox(context, choiceTexts, true);
         addView(comboBox);
         comboBox.setEnabled(!prompt.isReadOnly());
         comboBox.setFocusable(!prompt.isReadOnly());
@@ -62,13 +63,13 @@ public class ComboboxWidget extends QuestionWidget {
     }
 
     private void setListeners() {
-        /*comboBox.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
+        comboBox.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
             @Override
             public void onDismiss() {
                 comboBox.performValidation();
                 widgetEntryChanged();
             }
-        });*/
+        });
 
         comboBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
