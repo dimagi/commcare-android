@@ -51,7 +51,7 @@ public class AndroidSandbox extends UserSandbox {
 
     @Override
     public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName,
-                                                                            Persistable exampleEntry) {
+                                                                            StorageBackedModel exampleEntry) {
         String tableName = StorageBackedModel.getTableName(fixtureName);
         if (exampleEntry != null) {
             DatabaseUserOpenHelper.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
