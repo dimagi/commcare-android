@@ -50,7 +50,7 @@ public class FlatFixtureLoadingTest {
     public void loadInvalidFlatFixtureTest() throws XPathSyntaxException {
         AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "invalid_flat_fixture_restore.xml");
 
-        String tableName = StorageBackedModel.STORAGE_KEY_PREFIX + TableBuilder.cleanTableName("commtrack:products");
+        String tableName = StorageBackedModel.getTableName("commtrack:products");
         SqlStorage<StorageBackedModel> storage = CommCareApplication.instance().getUserStorage(tableName, StorageBackedModel.class);
 
         EvaluationContext evalContext =

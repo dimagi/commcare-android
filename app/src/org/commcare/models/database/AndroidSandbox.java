@@ -52,7 +52,7 @@ public class AndroidSandbox extends UserSandbox {
     @Override
     public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName,
                                                                             Persistable exampleEntry) {
-        String tableName = StorageBackedModel.STORAGE_KEY_PREFIX + TableBuilder.cleanTableName(fixtureName);
+        String tableName = StorageBackedModel.getTableName(fixtureName);
         if (exampleEntry != null) {
             DatabaseUserOpenHelper.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
         }
@@ -67,12 +67,13 @@ public class AndroidSandbox extends UserSandbox {
                 DbUtil.FLAT_FIXTURE_INDEX_COL_NAME + "=?", new String[]{fixtureName}, null, null, null);
         try {
             if (c.getCount() == 0) {
-                throw new RuntimeException("no entry for " + fixtureName);
+                return null;
+            } else {
+                c.moveToFirst();
+                return Pair.create(
+                        c.getString(c.getColumnIndexOrThrow(DbUtil.FLAT_FIXTURE_INDEX_COL_BASE)),
+                        c.getString(c.getColumnIndexOrThrow(DbUtil.FLAT_FIXTURE_INDEX_COL_CHILD)));
             }
-            c.moveToFirst();
-            return Pair.create(
-                    c.getString(c.getColumnIndexOrThrow(DbUtil.FLAT_FIXTURE_INDEX_COL_BASE)),
-                    c.getString(c.getColumnIndexOrThrow(DbUtil.FLAT_FIXTURE_INDEX_COL_CHILD)));
         } finally {
             c.close();
         }
