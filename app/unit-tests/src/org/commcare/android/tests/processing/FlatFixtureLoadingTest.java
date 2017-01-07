@@ -30,19 +30,19 @@ public class FlatFixtureLoadingTest {
         AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "flat_fixture_restore.xml");
 
         EvaluationContext evalContext =
-                MockDataUtils.buildContextWithInstance(sandbox, "flat:commtrack:products", "jr://fixture/flat:commtrack:products");
+                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", "jr://fixture/commtrack:products");
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
-                        "count(instance('flat:commtrack:products')/products/product)",
+                        "count(instance('commtrack:products')/products/product)",
                         11.0));
 
         // check that the '@id' attribute and the 'id' element are treated differently
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
-                "count(instance('flat:commtrack:products')/products/product[@id = 'f895be4959f9a8a66f57c340aac461b4']/name)",
+                "count(instance('commtrack:products')/products/product[@id = 'f895be4959f9a8a66f57c340aac461b4']/name)",
                 "Collier"));
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
-                "count(instance('flat:commtrack:products')/products/product[id = '31ab899368d38c2d0207fe80c00fc3f3']/name)",
+                "count(instance('commtrack:products')/products/product[id = '31ab899368d38c2d0207fe80c00fc3f3']/name)",
                 "Collier"));
     }
 
@@ -50,13 +50,13 @@ public class FlatFixtureLoadingTest {
     public void loadInvalidFlatFixtureTest() throws XPathSyntaxException {
         AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "invalid_flat_fixture_restore.xml");
 
-        String tableName = StorageBackedModel.STORAGE_KEY_PREFIX + TableBuilder.cleanTableName("flat:commtrack:products");
+        String tableName = StorageBackedModel.STORAGE_KEY_PREFIX + TableBuilder.cleanTableName("commtrack:products");
         SqlStorage<StorageBackedModel> storage = CommCareApplication.instance().getUserStorage(tableName, StorageBackedModel.class);
 
         EvaluationContext evalContext =
-                MockDataUtils.buildContextWithInstance(sandbox, "flat:commtrack:products", "jr://fixture/flat:commtrack:products");
+                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", "jr://fixture/commtrack:products");
 
-        String expr = "count(instance('flat:commtrack:products')/products/product)";
+        String expr = "count(instance('commtrack:products')/products/product)";
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
                 expr,
                 11.0));

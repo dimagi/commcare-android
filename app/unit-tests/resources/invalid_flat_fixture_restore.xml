@@ -1,0 +1,30 @@
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+    <message nature="ota_restore_success">Successfully restored account test!</message>
+    <Sync xmlns="http://commcarehq.org/sync">
+        <restore_id>2837795451fb8620bbffc00fe8c14135</restore_id>
+    </Sync>
+    <Registration xmlns="http://openrosa.org/user/registration">
+        <username>test</username>
+        <password>sha1$88rUXppT9kj8$7d146054b5bf79fc4ec7f618a1b4aead1ba1d706</password>
+        <uuid>a8f5a98c4ce767c35b9132bc75eb225c</uuid>
+        <date>2014-03-22</date>
+    </Registration>
+    <fixture id="commtrack:products" user_id="a8f5a98c4ce767c35b9132bc75eb225c" flat="true">
+        <products>
+            <product id="f895be4959f9a8a66f57c340aac461b4">
+                <category/>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
+                <cost>152</cost>
+            </product>
+            <product id="a6d16035b98f6f962a6538bd927cefb3">
+                <name>CU</name>
+                <unit/>
+                <code>pd</code>
+                <description>La contraception d'urgence</description>
+                <category/>
+                <id>31ab899368d38c2d0207fe80c00fc3f3</id>
+                <cost>57</cost>
+            </product>
+        </products>
+    </fixture>
+</OpenRosaResponse>
