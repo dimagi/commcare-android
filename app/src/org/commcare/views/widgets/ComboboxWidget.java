@@ -3,6 +3,8 @@ package org.commcare.views.widgets;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -33,18 +35,9 @@ public class ComboboxWidget extends QuestionWidget {
         comboBox = new Combobox(context, choiceTexts, true, mQuestionFontSize);
         addView(comboBox);
 
-        comboBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                widgetEntryChanged();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
         comboBox.setEnabled(!prompt.isReadOnly());
         comboBox.setFocusable(!prompt.isReadOnly());
+        addListeners();
 
         fillInPreviousAnswer(prompt);
     }
@@ -55,6 +48,36 @@ public class ComboboxWidget extends QuestionWidget {
         for (int i = 0; i < choices.size(); i++) {
             choiceTexts.add(prompt.getSelectChoiceText(choices.get(i)));
         }
+    }
+
+    private void addListeners() {
+        comboBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                widgetEntryChanged();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        comboBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                clearWarningMessage();
+            }
+        });
     }
 
     private void fillInPreviousAnswer(FormEntryPrompt prompt) {

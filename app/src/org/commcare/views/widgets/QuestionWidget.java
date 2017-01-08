@@ -638,12 +638,16 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     public void widgetEntryChanged() {
+        clearWarningMessage();
+        if (hasListener()) {
+            widgetChangedListener.widgetEntryChanged(this);
+        }
+    }
+
+    public void clearWarningMessage() {
         if (this.warningView != null) {
             this.warningView.setVisibility(View.GONE);
             ViewUtil.setBackgroundRetainPadding(this, null);
-        }
-        if (hasListener()) {
-            widgetChangedListener.widgetEntryChanged(this);
         }
     }
 
