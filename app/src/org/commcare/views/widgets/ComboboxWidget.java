@@ -6,7 +6,6 @@ import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
 import org.commcare.views.Combobox;
@@ -29,10 +28,10 @@ public class ComboboxWidget extends QuestionWidget {
     private Vector<String> choiceTexts;
     private Combobox comboBox;
 
-    public ComboboxWidget(Context context, FormEntryPrompt prompt) {
+    public ComboboxWidget(Context context, FormEntryPrompt prompt, boolean permissive) {
         super(context, prompt);
         initChoices(prompt);
-        comboBox = new Combobox(context, choiceTexts, true, mQuestionFontSize);
+        comboBox = new Combobox(context, choiceTexts, true, permissive, mQuestionFontSize);
         addView(comboBox);
 
         comboBox.setEnabled(!prompt.isReadOnly());

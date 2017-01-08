@@ -1,21 +1,17 @@
 package org.commcare.views;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.TextView;
 
+import org.commcare.adapters.ComboboxAdapter;
+import org.commcare.adapters.PermissiveComboboxAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.views.widgets.SpinnerWidget;
 
-import java.lang.reflect.Method;
 import java.util.Vector;
 
 /**
@@ -24,44 +20,48 @@ import java.util.Vector;
 
 public class Combobox extends AutoCompleteTextView {
 
-    private static int TEXT_UNIT = TypedValue.COMPLEX_UNIT_DIP;
-
     private Vector<String> choices;
     private Vector<String> choicesAllLowerCase;
     private CharSequence lastAcceptableStringEntered = "";
     private int lastValidCursorLocation;
     private boolean fixingInvalidEntry;
+    private ComboboxAdapter customAdapter;
 
-    public Combobox(Context context, Vector<String> choices, boolean addEmptyFirstChoice, int fontSize) {
+    public Combobox(Context context, Vector<String> choices, boolean addEmptyFirstChoice,
+                    boolean permissive, int fontSize) {
         super(context);
-
-        this.choices = choices;
-        this.choicesAllLowerCase = new Vector<>();
-        for (String s : this.choices) {
-            choicesAllLowerCase.add(s.toLowerCase());
-        }
-
-        String[] items = this.choices.toArray(new String[]{});
-        if (addEmptyFirstChoice) {
-            items = SpinnerWidget.getChoicesWithEmptyFirstSlot(items);
-        }
-        setAdapter(new ComboboxAdapter(context, R.layout.custom_spinner_item, items, fontSize));
-
-        setTextSize(TEXT_UNIT, fontSize);
-        //setForceIgnoreOutsideTouchWithReflection();
+        setupChoices(choices);
+        setupAdapter(context, fontSize, addEmptyFirstChoice, permissive);
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         setThreshold(0);
         setListeners();
         //setValidator(getAfterTextEnteredValidator());
     }
 
-    private boolean setForceIgnoreOutsideTouchWithReflection() {
-        try {
-            Method method = android.widget.AutoCompleteTextView.class.getMethod("setForceIgnoreOutsideTouch", boolean.class);
-            method.invoke(this, true);
-            return true;
-        } catch (Exception e) {
-            return false;
+    private void setupChoices(Vector<String> choices) {
+        this.choices = choices;
+        this.choicesAllLowerCase = new Vector<>();
+        for (String s : this.choices) {
+            choicesAllLowerCase.add(s.toLowerCase());
         }
+    }
+
+    private void setupAdapter(Context context, int fontSize, boolean addEmptyFirstChoice,
+                              boolean permissive) {
+        String[] itemsForAdapter = this.choices.toArray(new String[]{});
+        if (addEmptyFirstChoice) {
+            itemsForAdapter = SpinnerWidget.getChoicesWithEmptyFirstSlot(itemsForAdapter);
+        }
+
+        if (permissive) {
+            customAdapter = new PermissiveComboboxAdapter(context, R.layout.custom_spinner_item,
+                    itemsForAdapter, fontSize);
+        } else {
+            customAdapter = new StandardComboboxAdapter(context, R.layout.custom_spinner_item,
+                    itemsForAdapter, fontSize);
+        }
+
+        setAdapter(customAdapter);
     }
 
     private void setListeners() {
@@ -100,7 +100,7 @@ public class Combobox extends AutoCompleteTextView {
             @Override
             public void afterTextChanged(Editable s) {
                 fixingInvalidEntry = false;
-                if (!isPrefixOfSomeChoiceValue(s.toString())) {
+                if (!customAdapter.isValidUserEntry(s.toString())) {
                     fixingInvalidEntry = true;
                     // Re-set the entered text to be what it was before this change was made
                     setText(lastAcceptableStringEntered);
@@ -111,6 +111,19 @@ public class Combobox extends AutoCompleteTextView {
                 }
             }
         };
+    }
+
+    private class StandardComboboxAdapter extends ComboboxAdapter {
+
+        StandardComboboxAdapter(final Context context, final int textViewResourceId,
+                                final String[] objects, float textSize) {
+            super(context, textViewResourceId, objects, textSize);
+        }
+
+        @Override
+        public boolean isValidUserEntry (String enteredText){
+            return isPrefixOfSomeChoiceValue(enteredText);
+        }
     }
 
     private boolean isPrefixOfSomeChoiceValue(String text) {
@@ -146,24 +159,5 @@ public class Combobox extends AutoCompleteTextView {
         };
     }
 
-    private class ComboboxAdapter extends ArrayAdapter<String> {
-        final float textSize;
-
-        public ComboboxAdapter(final Context context, final int textViewResourceId,
-                              final String[] objects, float textSize) {
-            super(context, textViewResourceId, objects);
-            this.textSize = textSize;
-        }
-
-        @Override
-        // Defines the text view parameters for the drop down list entries
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View view = super.getView(position, convertView, parent);
-            TextView tv = (TextView)view.findViewById(android.R.id.text1);
-            tv.setTextSize(TEXT_UNIT, textSize);
-            tv.setPadding(10, 10, 10, 10);
-            return view;
-        }
-    }
 
 }
