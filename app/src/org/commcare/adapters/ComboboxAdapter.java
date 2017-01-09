@@ -8,6 +8,9 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 /**
+ * A custom adapter for use by a Combobox view. Implementations of ComboboxAdapter require a
+ * custom definition for isValidUserEntry(), which defines what strings can be entered into the
+ * associated combobox's edittext field.
  *
  * @author Aliza Stone
  */
@@ -31,11 +34,9 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
     }
 
     /**
-     *
-     * @param enteredText
-     * @return Whether the given text entered by the user should be considered a viable entry,
-     * which is defined as there being at least 1 answer option in the dropdown list when this
-     * string is entered
+     * @param enteredText - the text entered by the user in the combobox's edittext field
+     * @return Whether enteredText should be considered a viable entry, which is defined as
+     * there being at least 1 answer option in the dropdown list when this string is entered.
      */
     public abstract boolean isValidUserEntry(String enteredText);
 

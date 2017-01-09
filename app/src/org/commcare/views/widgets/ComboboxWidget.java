@@ -41,7 +41,6 @@ public class ComboboxWidget extends QuestionWidget {
         comboBox.setEnabled(!prompt.isReadOnly());
         comboBox.setFocusable(!prompt.isReadOnly());
         addListeners();
-
         fillInPreviousAnswer(prompt);
     }
 
@@ -64,12 +63,10 @@ public class ComboboxWidget extends QuestionWidget {
         comboBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
 
             @Override
@@ -121,6 +118,6 @@ public class ComboboxWidget extends QuestionWidget {
 
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
-
     }
+
 }

@@ -6,7 +6,11 @@ import android.widget.Filter;
 import java.util.ArrayList;
 
 /**
- * Created by amstone326 on 1/8/17.
+ * An implementation of ComboboxAdapter that permits a wider range of strings to be entered
+ * into the combobox's edittext field. SEE implementation of  isValidUserEntry() for precise
+ * definition of accepted strings.
+ *
+ * @author Aliza Stone
  */
 public class PermissiveComboboxAdapter extends ComboboxAdapter {
 

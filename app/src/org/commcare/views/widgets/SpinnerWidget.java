@@ -177,7 +177,6 @@ public class SpinnerWidget extends QuestionWidget {
 
     }
 
-
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         spinner.setOnLongClickListener(l);
@@ -186,7 +185,6 @@ public class SpinnerWidget extends QuestionWidget {
     @Override
     public void unsetListeners() {
         super.unsetListeners();
-
         spinner.setOnLongClickListener(null);
     }
 
