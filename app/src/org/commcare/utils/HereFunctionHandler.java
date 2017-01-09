@@ -95,7 +95,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         this.location = updatedLocation;
         Log.i("HereFunctionHandler", "location has been set to " + this.location);
 
-        if (this.location.getAccuracy() <= GeoUtils.ACCEPTABLE_ACCURACY) {
+        if (this.location.getAccuracy() <= GeoUtils.DEFAULT_ACCEPTABLE_ACCURACY) {
             locationGoodEnough = true;
             forbidGpsUse();
         }

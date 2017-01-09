@@ -5,16 +5,15 @@ import android.os.CountDownTimer;
 import org.commcare.interfaces.TimerListener;
 
 /**
- * simple class that calls back to a TimerListener after a set amount of time
+ * Calls back to a TimerListener after a set amount of time
  *
  * @author wspride
  */
-
-public class ODKTimer extends CountDownTimer {
+public class TimeoutTimer extends CountDownTimer {
     private final TimerListener mTimerListener;
     private long mUntilFinished;
 
-    public ODKTimer(long millisInFuture, TimerListener tl) {
+    public TimeoutTimer(long millisInFuture, TimerListener tl) {
         super(millisInFuture, 1000);
         mTimerListener = tl;
     }
