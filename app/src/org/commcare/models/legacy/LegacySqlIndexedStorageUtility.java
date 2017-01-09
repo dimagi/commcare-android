@@ -390,9 +390,4 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
             db.endTransaction();
         }
     }
-
-    @Override
-    public void registerIndex(String filterIndex) {
-        // TODO Auto-generated method stub
-    }
 }
