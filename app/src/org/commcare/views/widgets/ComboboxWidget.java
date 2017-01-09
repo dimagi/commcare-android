@@ -106,7 +106,7 @@ public class ComboboxWidget extends QuestionWidget {
             return null;
         } else {
             return new InvalidData("The text entered is not a valid answer choice",
-                    new SelectOneData(new Selection(0)));
+                    new SelectOneData(new Selection(enteredText)));
         }
     }
 
