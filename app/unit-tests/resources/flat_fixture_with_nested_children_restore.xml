@@ -9,7 +9,31 @@
         <uuid>a8f5a98c4ce767c35b9132bc75eb225c</uuid>
         <date>2014-03-22</date>
     </Registration>
-    <fixture id="commtrack:products" user_id="a8f5a98c4ce767c35b9132bc75eb225c" flat="true">
+    <schema id="commtrack:products">
+        <indices>
+            <entry>@id</entry>
+            <entry>name</entry>
+            <entry>name,unit</entry>
+        </indices>
+        <structure>
+            <products>
+                <product id="">
+                    <name/>
+                    <unit/>
+                    <code/>
+                    <description/>
+                    <category/>
+                    <id/>
+                    <cost/>
+                    <extra_data>
+                        <size/>
+                        <color/>
+                    </extra_data>
+                </product>
+            </products>
+        </structure>
+    </schema>
+    <fixture flat="true" id="commtrack:products" user_id="a8f5a98c4ce767c35b9132bc75eb225c">
         <products>
             <product id="f895be4959f9a8a66f57c340aac461b4">
                 <name>Collier</name>
