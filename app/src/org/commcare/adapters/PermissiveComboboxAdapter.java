@@ -72,8 +72,6 @@ public class PermissiveComboboxAdapter extends ComboboxAdapter {
     private boolean choiceShouldBeShown(String choiceLowerCase, CharSequence textEntered) {
         String[] enteredTextIndividualWords = textEntered.toString().split(" ");
         for (String word : enteredTextIndividualWords) {
-            //TODO: May want to make this more permissive and show a choice if it contains
-            // ANY of the entered words
             if (!choiceLowerCase.contains(word.toLowerCase())) {
                 return false;
             }
