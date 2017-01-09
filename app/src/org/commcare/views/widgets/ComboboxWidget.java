@@ -53,7 +53,6 @@ public class ComboboxWidget extends QuestionWidget {
         comboBox.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                comboBox.onItemClick(view);
                 widgetEntryChanged();
             }
         });

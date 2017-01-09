@@ -30,10 +30,6 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
         return view;
     }
 
-    public void triggerFiltering(CharSequence constraint) {
-        getFilter().filter(constraint);
-    }
-
     /**
      *
      * @param enteredText
