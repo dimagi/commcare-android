@@ -30,5 +30,17 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
         return view;
     }
 
+    public void triggerFiltering(CharSequence constraint) {
+        getFilter().filter(constraint);
+    }
+
+    /**
+     *
+     * @param enteredText
+     * @return Whether the given text entered by the user should be considered a viable entry,
+     * which is defined as there being at least 1 answer option in the dropdown list when this
+     * string is entered
+     */
     public abstract boolean isValidUserEntry(String enteredText);
+
 }

@@ -50,14 +50,11 @@ public class ComboboxWidget extends QuestionWidget {
     }
 
     private void addListeners() {
-        comboBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        comboBox.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                comboBox.onItemClick(view);
                 widgetEntryChanged();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
             }
         });
 

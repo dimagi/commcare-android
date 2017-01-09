@@ -5,7 +5,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.TextView;
 
 import org.commcare.adapters.ComboboxAdapter;
 import org.commcare.adapters.PermissiveComboboxAdapter;
@@ -33,7 +35,7 @@ public class Combobox extends AutoCompleteTextView {
         setupChoices(choices);
         setupAdapter(context, fontSize, addEmptyFirstChoice, permissive);
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
-        setThreshold(0);
+        setThreshold(1);
         setListeners();
         //setValidator(getAfterTextEnteredValidator());
     }
@@ -82,6 +84,17 @@ public class Combobox extends AutoCompleteTextView {
                 }
             }
         });
+
+        setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Combobox.this.onItemClick(view);
+            }
+        });
+    }
+
+    public void onItemClick(View viewClicked) {
+        customAdapter.triggerFiltering(((TextView)viewClicked).getText());
     }
 
     private TextWatcher getWhileTypingValidator() {

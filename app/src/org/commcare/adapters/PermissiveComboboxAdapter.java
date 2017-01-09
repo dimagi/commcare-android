@@ -70,6 +70,9 @@ public class PermissiveComboboxAdapter extends ComboboxAdapter {
     }
 
     private boolean choiceShouldBeShown(String choiceLowerCase, CharSequence textEntered) {
+        if ("".equals(textEntered) || textEntered == null) {
+            return true;
+        }
         String[] enteredTextIndividualWords = textEntered.toString().split(" ");
         for (String word : enteredTextIndividualWords) {
             if (!choiceLowerCase.contains(word.toLowerCase())) {
