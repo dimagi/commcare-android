@@ -73,6 +73,13 @@ public class PermissiveComboboxAdapter extends ComboboxAdapter {
         return false;
     }
 
+    /**
+     *
+     * @param choiceLowerCase - the answer choice to be considered, in all lower case
+     * @param textEntered - the text entered by the user
+     * @return true if choiceLowerCase contains any word within textEntered (the "words" of
+     * textEntered are obtained by splitting textEntered on " ")
+     */
     private boolean choiceShouldBeShown(String choiceLowerCase, CharSequence textEntered) {
         if ("".equals(textEntered) || textEntered == null) {
             return true;
