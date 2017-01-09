@@ -1,13 +1,9 @@
 package org.commcare.android.tests.processing;
 
-import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.cases.model.StorageBackedModel;
 import org.commcare.models.database.AndroidSandbox;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.StoreFixturesOnFilesystemTests;
-import org.commcare.modern.database.TableBuilder;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -38,27 +34,34 @@ public class FlatFixtureLoadingTest {
 
         // check that the '@id' attribute and the 'id' element are treated differently
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
-                "count(instance('commtrack:products')/products/product[@id = 'f895be4959f9a8a66f57c340aac461b4']/name)",
+                "instance('commtrack:products')/products/product[@id = 'f895be4959f9a8a66f57c340aac461b4']/name",
                 "Collier"));
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
-                "count(instance('commtrack:products')/products/product[id = '31ab899368d38c2d0207fe80c00fc3f3']/name)",
+                "instance('commtrack:products')/products/product[id = '31ab899368d38c2d0207fe80c00fc3f3']/name",
                 "Collier"));
     }
 
     @Test
-    public void loadInvalidFlatFixtureTest() throws XPathSyntaxException {
-        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "invalid_flat_fixture_restore.xml");
-
-        String tableName = StorageBackedModel.getTableName("commtrack:products");
-        SqlStorage<StorageBackedModel> storage = CommCareApplication.instance().getUserStorage(tableName, StorageBackedModel.class);
+    public void loadFlatFixtureWithNestedChildrenTest() throws XPathSyntaxException {
+        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "flat_fixture_with_nested_children_restore.xml");
 
         EvaluationContext evalContext =
                 MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", "jr://fixture/commtrack:products");
 
-        String expr = "count(instance('commtrack:products')/products/product)";
+        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext, "count(instance('commtrack:products')/products/product)",
+                3.0));
+
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
-                expr,
-                11.0));
+                "instance('commtrack:products')/products/product[@id = 'f895be4959f9a8a66f57c340aac461b4']/extra_data/color",
+                "vestigial sunrise"));
+        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
+                "instance('commtrack:products')/products/product[@id = '31ab899368d38c2d0207fe80c00fa96c']/extra_data",
+                ""));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void loadInvalidFlatFixtureTest() throws XPathSyntaxException {
+        StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "invalid_flat_fixture_restore.xml");
     }
 }

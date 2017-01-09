@@ -443,7 +443,6 @@ class UserDatabaseUpgrader {
     private void markSenseIncompleteUnsent(final SQLiteDatabase db) {
         //Fix for Bug in 2.7.0/1, forms in sense mode weren't being properly marked as complete after entry.
         if (inSenseMode) {
-
             //Get form record storage
             SqlStorage<FormRecord> storage = new SqlStorage<>(FormRecord.STORAGE_KEY, FormRecord.class, new ConcreteAndroidDbHelper(c, db));
 
