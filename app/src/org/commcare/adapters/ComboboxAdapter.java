@@ -8,9 +8,9 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 /**
- * Created by amstone326 on 1/8/17.
+ *
+ * @author Aliza Stone
  */
-
 public abstract class ComboboxAdapter extends ArrayAdapter<String> {
     final float textSize;
 

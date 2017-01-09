@@ -15,9 +15,15 @@ import org.commcare.views.widgets.SpinnerWidget;
 import java.util.Vector;
 
 /**
- * Created by amstone326 on 1/4/17.
+ * Custom view that builds upon Android's built-in AutoCompleteTextView and adds:
+ * -Validation and auto-correcting of user-entered text to only allow strings that are part of
+ * an available answer choice
+ * -Formatting to make the drop-down view look identical to that of CommCare's SpinnerWidget
+ * -The ability to add a custom adapter that implements custom filtering rules (rather than using
+ * the default filter of AutoCompleteTextView)
+ *
+ * @author Aliza Stone
  */
-
 public class Combobox extends AutoCompleteTextView {
 
     private Vector<String> choices;
@@ -111,11 +117,15 @@ public class Combobox extends AutoCompleteTextView {
         }
 
         @Override
-        public boolean isValidUserEntry (String enteredText){
+        public boolean isValidUserEntry(String enteredText) {
             return isPrefixOfSomeChoiceValue(enteredText);
         }
     }
 
+    /**
+     * This is the logic that the default Filter for an AutoCompleteTextView employs, so this
+     * is what the standard combobox adapter uses to determine if entered text is valid
+     */
     private boolean isPrefixOfSomeChoiceValue(String text) {
         for (String choice : choices) {
             if (choice.toLowerCase().startsWith(text.toLowerCase())) {

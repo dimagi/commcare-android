@@ -19,7 +19,11 @@ import org.javarosa.form.api.FormEntryPrompt;
 import java.util.Vector;
 
 /**
- * Created by amstone326 on 1/3/17.
+ * ComboboxWidget is identical to a SpinnerWidget (a select-one widget formatted as a dropdown
+ * question), but with the added ability to filter the options in the dropdown list by typing into
+ * an EditText box.
+ *
+ * @author Aliza Stone
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class ComboboxWidget extends QuestionWidget {
