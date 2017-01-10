@@ -108,7 +108,7 @@ public enum PollSensorController implements LocationListener {
                     action.updateReference(location);
                 }
 
-                if (location.getAccuracy() <= CommCarePreferences.getGpsCaptureAccuracy()) {
+                if (location.getAccuracy() <= CommCarePreferences.getGpsAutoCaptureAccuracy()) {
                     stopLocationPolling();
                 }
             }

@@ -46,7 +46,7 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
     protected AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
         if (casebase == null) {
             SqlStorage<ACase> storage = (SqlStorage<ACase>)mSandbox.getCaseStorage();
-            casebase = new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false);
+            casebase = new AndroidCaseInstanceTreeElement(instance.getBase(), storage);
         } else {
             //re-use the existing model if it exists.
             casebase.rebase(instance.getBase());

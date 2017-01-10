@@ -26,11 +26,11 @@ import java.util.Set;
  */
 public class GeoUtils {
     // Good enough accuracy to stop pinging the GPS altogether
-    public static final double GOOD_ACCURACY = 5;
+    public static final double DEFAULT_GOOD_ACCURACY = 5;
     public static final double AUTO_CAPTURE_GOOD_ACCURACY = 10;
 
     // Good enough accuracy to ask user if they want to record
-    public static final double ACCEPTABLE_ACCURACY = 1600;
+    public static final double DEFAULT_ACCEPTABLE_ACCURACY = 1600;
 
     // For passive collection, milliseconds to wait for GPS before giving up
     public static final int AUTO_CAPTURE_MAX_WAIT_IN_MINUTES = 2;
