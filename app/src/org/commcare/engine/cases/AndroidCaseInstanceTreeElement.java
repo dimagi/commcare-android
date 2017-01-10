@@ -34,24 +34,23 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     private String[][] mMostRecentBatchFetch = null;
 
-    public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage,
-                                          boolean reportMode) {
-        this(instanceRoot, storage, reportMode, new CaseIndexTable());
+    public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage) {
+        this(instanceRoot, storage, new CaseIndexTable());
     }
 
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage,
-                                          boolean reportMode, CaseIndexTable caseIndexTable) {
-        super(instanceRoot, storage, reportMode);
+                                          CaseIndexTable caseIndexTable) {
+        super(instanceRoot, storage);
         mCaseIndexTable = caseIndexTable;
     }
 
     @Override
-    protected synchronized void getCases() {
-        if (cases != null) {
+    protected synchronized void loadElements() {
+        if (elements != null) {
             return;
         }
         objectIdMapping = new Hashtable<>();
-        cases = new Vector<>();
+        elements = new Vector<>();
         Log.d(TAG, "Getting Cases!");
         long timeInMillis = System.currentTimeMillis();
 
@@ -59,7 +58,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
         for (IStorageIterator i = ((SqlStorage<ACase>)storage).iterate(false); i.hasMore(); ) {
             int id = i.nextID();
-            cases.addElement(new CaseChildElement(this, id, null, mult));
+            elements.add(buildElement(this, id, null, mult));
             objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
             multiplicityIdMapping.put(DataUtil.integer(mult), DataUtil.integer(id));
             mult++;
@@ -160,7 +159,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         //NOTE: there's no evaluation here as to whether the ref is suitable
         //we only follow one pattern for now and it's evaluated below. 
 
-        getCases();
+        loadElements();
 
         //Testing - Don't bother actually seeing whether this fits
         int i = ref.getMultiplicity(1);
