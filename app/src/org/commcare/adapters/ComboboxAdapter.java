@@ -8,7 +8,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.commcare.views.widgets.SpinnerWidget;
 
 /**
  * A custom adapter for use by a Combobox view. Implementations of ComboboxAdapter require a
@@ -21,7 +20,6 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
 
     private float customTextSize;
     protected final String[] allChoices;
-
 
     public static ComboboxAdapter getAdapterForFilterType(Context context,
                                                           String[] choices,
@@ -42,21 +40,6 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
         super(context, textViewResourceId, objects);
         allChoices = objects;
         this.customTextSize = -1;
-    }
-
-    public void setCustomTextSize(float customTextSize) {
-        this.customTextSize = customTextSize;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View view = super.getView(position, convertView, parent);
-        TextView tv = (TextView)view.findViewById(android.R.id.text1);
-        if (customTextSize != -1) {
-            tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, customTextSize);
-        }
-        tv.setPadding(10, 10, 10, 10);
-        return view;
     }
 
     /**
@@ -87,6 +70,21 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
      * field should be restricted in accordance with its adapter's filtering rules
      */
     public abstract boolean shouldRestrictTyping();
+
+    public void setCustomTextSize(float customTextSize) {
+        this.customTextSize = customTextSize;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View view = super.getView(position, convertView, parent);
+        TextView tv = (TextView)view.findViewById(android.R.id.text1);
+        if (customTextSize != -1) {
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, customTextSize);
+        }
+        tv.setPadding(10, 10, 10, 10);
+        return view;
+    }
 
     public enum FilterType {
         STANDARD, MULTI_WORD, FUZZY

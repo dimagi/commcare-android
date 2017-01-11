@@ -38,7 +38,7 @@ public class FuzzyMatchComboboxAdapter extends CustomFilterComboboxAdapter {
         return allEnteredWordsHaveFuzzyMatch(choiceLowerCase, textEnteredLowerCase);
     }
 
-    private boolean allEnteredWordsHaveFuzzyMatch(String choiceLowerCase,
+    private static boolean allEnteredWordsHaveFuzzyMatch(String choiceLowerCase,
                                                   String textEnteredLowerCase) {
         String[] enteredWords = textEnteredLowerCase.split(" ");
         String[] wordsFromChoice = choiceLowerCase.split(" ");
