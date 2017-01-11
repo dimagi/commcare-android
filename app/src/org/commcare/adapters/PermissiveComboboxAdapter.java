@@ -3,6 +3,8 @@ package org.commcare.adapters;
 import android.content.Context;
 import android.widget.Filter;
 
+import org.commcare.views.widgets.SpinnerWidget;
+
 import java.util.ArrayList;
 
 /**
@@ -18,9 +20,16 @@ public class PermissiveComboboxAdapter extends ComboboxAdapter {
     private String[] currentChoices;
 
     public PermissiveComboboxAdapter(final Context context, final int textViewResourceId,
-                                     final String[] objects, float textSize) {
-        super(context, textViewResourceId, objects, textSize);
+                                     final String[] objects) {
+        super(context, textViewResourceId, objects);
         allChoices = currentChoices = objects;
+    }
+
+    public static PermissiveComboboxAdapter AdapterWithBlankFirstChoice(Context context,
+                                                                        int textViewResourceId,
+                                                                        String[] objects) {
+        objects = SpinnerWidget.getChoicesWithEmptyFirstSlot(objects);
+        return new PermissiveComboboxAdapter(context, textViewResourceId, objects);
     }
 
     @Override

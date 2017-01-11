@@ -8,9 +8,6 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 
 import org.commcare.adapters.ComboboxAdapter;
-import org.commcare.adapters.PermissiveComboboxAdapter;
-import org.commcare.dalvik.R;
-import org.commcare.views.widgets.SpinnerWidget;
 
 import java.util.Vector;
 
@@ -18,8 +15,7 @@ import java.util.Vector;
  * Custom view that builds upon Android's built-in AutoCompleteTextView and adds:
  * -Validation and auto-correcting of user-entered text to only allow strings that are part of
  * an available answer choice
- * -Formatting to make the drop-down view look identical to that of CommCare's SpinnerWidget
- * -The ability to add a custom adapter that implements custom filtering rules (rather than using
+ * -The ability to set an adapter that implements custom filtering rules (rather than using
  * the default filter of AutoCompleteTextView)
  *
  * @author Aliza Stone
@@ -33,14 +29,24 @@ public class Combobox extends AutoCompleteTextView {
     private boolean fixingInvalidEntry;
     private ComboboxAdapter customAdapter;
 
-    public Combobox(Context context, Vector<String> choices, boolean addEmptyFirstChoice,
-                    boolean permissive, int fontSize) {
+    public Combobox(Context context, Vector<String> choices, ComboboxAdapter adapter) {
         super(context);
+        this.customAdapter = adapter;
+
+        setAdapter(adapter);
         setupChoices(choices);
-        setupAdapter(context, fontSize, addEmptyFirstChoice, permissive);
-        setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         setThreshold(1);
         setListeners();
+    }
+
+    public static Combobox ComboboxForWidget(Context context, Vector<String> choices,
+                                             boolean permissive, int fontSize) {
+        ComboboxAdapter adapter =
+                ComboboxAdapter.getAdapterForWidget(context, choices.toArray(new String[]{}),
+                        permissive, fontSize);
+        Combobox combobox = new Combobox(context, choices, adapter);
+        combobox.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
+        return combobox;
     }
 
     private void setupChoices(Vector<String> choices) {
@@ -49,24 +55,6 @@ public class Combobox extends AutoCompleteTextView {
         for (String s : this.choices) {
             choicesAllLowerCase.add(s.toLowerCase());
         }
-    }
-
-    private void setupAdapter(Context context, int fontSize, boolean addEmptyFirstChoice,
-                              boolean permissive) {
-        String[] itemsForAdapter = this.choices.toArray(new String[]{});
-        if (addEmptyFirstChoice) {
-            itemsForAdapter = SpinnerWidget.getChoicesWithEmptyFirstSlot(itemsForAdapter);
-        }
-
-        if (permissive) {
-            customAdapter = new PermissiveComboboxAdapter(context, R.layout.custom_spinner_item,
-                    itemsForAdapter, fontSize);
-        } else {
-            customAdapter = new StandardComboboxAdapter(context, R.layout.custom_spinner_item,
-                    itemsForAdapter, fontSize);
-        }
-
-        setAdapter(customAdapter);
     }
 
     private void setListeners() {
@@ -120,35 +108,8 @@ public class Combobox extends AutoCompleteTextView {
         };
     }
 
-    private class StandardComboboxAdapter extends ComboboxAdapter {
-
-        StandardComboboxAdapter(final Context context, final int textViewResourceId,
-                                final String[] objects, float textSize) {
-            super(context, textViewResourceId, objects, textSize);
-        }
-
-        @Override
-        public boolean isValidUserEntry(String enteredText) {
-            return isPrefixOfSomeChoiceValue(enteredText);
-        }
-    }
-
     /**
-     * This is the logic that the default Filter for an AutoCompleteTextView employs, so this
-     * is what the standard combobox adapter uses to determine if entered text is valid
-     */
-    private boolean isPrefixOfSomeChoiceValue(String text) {
-        for (String choice : choicesAllLowerCase) {
-            if (choice.startsWith(text.toLowerCase())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * If the user has entered a valid answer but with different case, automatically change
-     * the case for them
+     * If the user has entered a valid answer but with different case, change the case for them
      */
     public void autoCorrectCapitalization() {
         String enteredText = getText().toString();
@@ -160,6 +121,5 @@ public class Combobox extends AutoCompleteTextView {
             dismissDropDown();
         }
     }
-
 
 }
