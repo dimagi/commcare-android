@@ -53,6 +53,7 @@ public class AndroidSandbox extends UserSandbox {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
         if (exampleEntry != null) {
             DatabaseUserOpenHelper.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
+            DatabaseUserOpenHelper.buildFlatFixtureIndices(app.getUserDbHandle(), tableName, exampleEntry);
         }
         return app.getUserStorage(tableName, StorageIndexedTreeElementModel.class);
     }

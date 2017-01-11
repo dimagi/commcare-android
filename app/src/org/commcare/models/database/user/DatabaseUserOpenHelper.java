@@ -11,6 +11,7 @@ import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
@@ -190,6 +191,22 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         } finally {
             database.endTransaction();
         }
+    }
 
+    public static void buildFlatFixtureIndices(SQLiteDatabase database,
+                                               String tableName,
+                                               StorageIndexedTreeElementModel dataObject) {
+        /*
+        String indiceTableExpr = "";
+        try {
+            database.beginTransaction();
+
+            database.execSQL(indiceTableExpr);
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+        */
+        throw new RuntimeException("implement me");
     }
 }
