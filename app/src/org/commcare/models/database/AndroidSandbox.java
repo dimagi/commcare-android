@@ -18,6 +18,8 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
+import java.util.Set;
+
 /**
  * Basically just a useful abstraction that allows us to use an Android
  * CommCareApplication as a UserDataInterface
@@ -48,14 +50,19 @@ public class AndroidSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName,
-                                                                                        StorageIndexedTreeElementModel exampleEntry) {
+    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName) {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
-        if (exampleEntry != null) {
-            DatabaseUserOpenHelper.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
-            DatabaseUserOpenHelper.buildFlatFixtureIndices(app.getUserDbHandle(), tableName, exampleEntry);
-        }
         return app.getUserStorage(tableName, StorageIndexedTreeElementModel.class);
+    }
+
+    @Override
+    public void setupFlatFixtureStorage(String fixtureName,
+                                        StorageIndexedTreeElementModel exampleEntry,
+                                        Set<String> indices) {
+        String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
+        DatabaseUserOpenHelper.dropTable(app.getUserDbHandle(), tableName);
+        DatabaseUserOpenHelper.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
+        DatabaseUserOpenHelper.buildFlatFixtureIndices(app.getUserDbHandle(), tableName, indices);
     }
 
     @Override

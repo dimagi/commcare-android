@@ -25,6 +25,8 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.Set;
+
 /**
  * The helper for opening/updating the user (encrypted) db space for
  * CommCare. This stores users, cases, fixtures, form records, etc.
@@ -193,20 +195,34 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    public static void buildFlatFixtureIndices(SQLiteDatabase database,
-                                               String tableName,
-                                               StorageIndexedTreeElementModel dataObject) {
-        /*
-        String indiceTableExpr = "";
+    public static void dropTable(SQLiteDatabase database,
+                                 String tableName) {
         try {
             database.beginTransaction();
-
-            database.execSQL(indiceTableExpr);
+            database.execSQL("DROP TABLE IF EXISTS '" + tableName + "'");
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
         }
-        */
-        //throw new RuntimeException("implement me");
+    }
+
+    public static void buildFlatFixtureIndices(SQLiteDatabase database,
+                                               String tableName,
+                                               Set<String> indices) {
+        try {
+            database.beginTransaction();
+
+            for (String index : indices) {
+                String indexName = index + "_index";
+                if (index.contains(",")) {
+                    indexName = index.replaceAll(",", "_") + "_index";
+                }
+                database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand(indexName, tableName, index));
+            }
+
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
     }
 }
