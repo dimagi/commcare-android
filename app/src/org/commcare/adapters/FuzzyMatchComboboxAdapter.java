@@ -5,7 +5,10 @@ import android.content.Context;
 import org.commcare.utils.StringUtils;
 
 /**
- * Created by amstone326 on 1/11/17.
+ * An implementation of ComboboxAdapter whose filter accepts answer choice strings based on either
+ * direct or fuzzy matches to the entered text
+ *
+ * @author Aliza Stone
  */
 
 public class FuzzyMatchComboboxAdapter extends CustomFilterComboboxAdapter {

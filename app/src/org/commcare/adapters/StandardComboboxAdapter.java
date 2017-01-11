@@ -4,6 +4,11 @@ import android.content.Context;
 
 import java.util.Vector;
 
+/**
+ * An implementation of ComboboxAdapter that uses AutoCompleteTextView's default Filter
+ *
+ * @author Aliza Stone
+ */
 public class StandardComboboxAdapter extends ComboboxAdapter {
 
     private Vector<String> choicesAllLowerCase;
