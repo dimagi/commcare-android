@@ -33,22 +33,21 @@ public class FuzzyMatchComboboxAdapter extends CustomFilterComboboxAdapter {
         String choiceLowerCase = choice.toLowerCase();
 
         // Try the easy cases first
-        if (choiceLowerCase.startsWith(textEnteredLowerCase) ||
-                StringUtils.fuzzyMatch(textEnteredLowerCase, choiceLowerCase).first) {
+        if (isSubstringOrFuzzyMatch(choiceLowerCase, textEnteredLowerCase)) {
             return true;
         }
 
-        return allEnteredWordsHaveFuzzyMatch(choiceLowerCase, textEnteredLowerCase);
+        return allEnteredWordsHaveMatchOrFuzzyMatch(choiceLowerCase, textEnteredLowerCase);
     }
 
-    private static boolean allEnteredWordsHaveFuzzyMatch(String choiceLowerCase,
-                                                  String textEnteredLowerCase) {
+    private static boolean allEnteredWordsHaveMatchOrFuzzyMatch(String choiceLowerCase,
+                                                                String textEnteredLowerCase) {
         String[] enteredWords = textEnteredLowerCase.split(" ");
         String[] wordsFromChoice = choiceLowerCase.split(" ");
         for (String enteredWord : enteredWords) {
             boolean foundMatchForWord = false;
             for (String wordFromChoice : wordsFromChoice) {
-                if (StringUtils.fuzzyMatch(enteredWord, wordFromChoice).first) {
+                if (isSubstringOrFuzzyMatch(wordFromChoice, enteredWord)) {
                     foundMatchForWord = true;
                     break;
                 }
@@ -59,6 +58,12 @@ public class FuzzyMatchComboboxAdapter extends CustomFilterComboboxAdapter {
         }
 
         return true;
+    }
+
+    private static boolean isSubstringOrFuzzyMatch(String choiceLowerCase,
+                                                   String textEnteredLowerCase) {
+        return choiceLowerCase.contains(textEnteredLowerCase) ||
+                StringUtils.fuzzyMatch(textEnteredLowerCase, choiceLowerCase).first;
     }
 
 }
