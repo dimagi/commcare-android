@@ -5,7 +5,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.TextView;
 
 import org.commcare.adapters.ComboboxAdapter;
 import org.commcare.adapters.PermissiveComboboxAdapter;
@@ -27,6 +29,7 @@ import java.util.Vector;
 public class Combobox extends AutoCompleteTextView {
 
     private Vector<String> choices;
+    private Vector<String> choicesAllLowerCase;
     private CharSequence lastAcceptableStringEntered = "";
     private int lastValidCursorLocation;
     private boolean fixingInvalidEntry;
@@ -35,11 +38,20 @@ public class Combobox extends AutoCompleteTextView {
     public Combobox(Context context, Vector<String> choices, boolean addEmptyFirstChoice,
                     boolean permissive, int fontSize) {
         super(context);
-        this.choices = choices;
+        setupChoices(choices);
         setupAdapter(context, fontSize, addEmptyFirstChoice, permissive);
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         setThreshold(1);
         setListeners();
+        //setValidator(getAfterTextEnteredValidator());
+    }
+
+    private void setupChoices(Vector<String> choices) {
+        this.choices = choices;
+        this.choicesAllLowerCase = new Vector<>();
+        for (String s : this.choices) {
+            choicesAllLowerCase.add(s.toLowerCase());
+        }
     }
 
     private void setupAdapter(Context context, int fontSize, boolean addEmptyFirstChoice,
@@ -133,12 +145,37 @@ public class Combobox extends AutoCompleteTextView {
      * is what the standard combobox adapter uses to determine if entered text is valid
      */
     private boolean isPrefixOfSomeChoiceValue(String text) {
-        for (String choice : choices) {
-            if (choice.toLowerCase().startsWith(text.toLowerCase())) {
+        for (String choice : choicesAllLowerCase) {
+            if (choice.startsWith(text.toLowerCase())) {
                 return true;
             }
         }
         return false;
     }
+
+    private AutoCompleteTextView.Validator getAfterTextEnteredValidator() {
+        return new AutoCompleteTextView.Validator() {
+
+            @Override
+            public boolean isValid(CharSequence text) {
+                return choices.contains(text.toString());
+            }
+
+            @Override
+            public CharSequence fixText(CharSequence invalidText) {
+                if (choicesAllLowerCase.contains(invalidText.toString().toLowerCase())) {
+                    // If the user has entered a valid answer but with different case,
+                    // just change the case for them
+                    int index = choicesAllLowerCase.indexOf(invalidText.toString().toLowerCase());
+                    return choices.get(index);
+                } else {
+                    // Otherwise delete their answer
+                    return "";
+                }
+
+            }
+        };
+    }
+
 
 }
