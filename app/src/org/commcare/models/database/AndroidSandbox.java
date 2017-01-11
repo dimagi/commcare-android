@@ -8,17 +8,15 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.cases.model.StorageBackedModel;
+import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
-import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.util.Pair;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.Persistable;
 
 /**
  * Basically just a useful abstraction that allows us to use an Android
@@ -50,13 +48,13 @@ public class AndroidSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageBackedModel> getFlatFixtureStorage(String fixtureName,
-                                                                            StorageBackedModel exampleEntry) {
-        String tableName = StorageBackedModel.getTableName(fixtureName);
+    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName,
+                                                                                        StorageIndexedTreeElementModel exampleEntry) {
+        String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
         if (exampleEntry != null) {
             DatabaseUserOpenHelper.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
         }
-        return app.getUserStorage(tableName, StorageBackedModel.class);
+        return app.getUserStorage(tableName, StorageIndexedTreeElementModel.class);
     }
 
     @Override
