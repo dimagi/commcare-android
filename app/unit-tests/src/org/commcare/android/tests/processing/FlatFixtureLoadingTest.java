@@ -59,4 +59,22 @@ public class FlatFixtureLoadingTest {
                 "instance('commtrack:products')/products/product[@id = '31ab899368d38c2d0207fe80c00fa96c']/extra_data",
                 ""));
     }
+
+    @Test
+    public void indexOverNonHomogeneousElementTest() throws XPathSyntaxException {
+        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "flat_fixture_with_index_over_nonhomo_entry.xml");
+
+        EvaluationContext evalContext =
+                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", "jr://fixture/commtrack:products");
+
+        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext, "count(instance('commtrack:products')/products/product)",
+                3.0));
+
+        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
+                "instance('commtrack:products')/products/product[@id = 'has-id']/name",
+                "Normal ID"));
+        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
+                "instance('commtrack:products')/products/product[@id = '']/name",
+                "Empty ID"));
+    }
 }
