@@ -17,6 +17,9 @@ public class FuzzyMatchComboboxAdapter extends CustomFilterComboboxAdapter {
 
     @Override
     public boolean shouldRestrictTyping() {
+        // Since fuzzy match only works once the number of typed letters reaches a certain
+        // threshold and is close to the number of letters in the comparison string, it doesn't
+        // make any sense to restrict typing here
         return false;
     }
 
