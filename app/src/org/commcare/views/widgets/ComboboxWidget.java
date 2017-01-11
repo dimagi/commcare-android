@@ -32,10 +32,10 @@ public class ComboboxWidget extends QuestionWidget {
     private Vector<String> choiceTexts;
     private Combobox comboBox;
 
-    public ComboboxWidget(Context context, FormEntryPrompt prompt, boolean permissive) {
+    public ComboboxWidget(Context context, FormEntryPrompt prompt, Combobox.FilterType type) {
         super(context, prompt);
         initChoices(prompt);
-        comboBox = Combobox.ComboboxForWidget(context, choiceTexts, permissive, mQuestionFontSize);
+        comboBox = Combobox.ComboboxForWidget(context, choiceTexts, type, mQuestionFontSize);
         addView(comboBox);
 
         comboBox.setEnabled(!prompt.isReadOnly());

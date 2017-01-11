@@ -40,10 +40,10 @@ public class Combobox extends AutoCompleteTextView {
     }
 
     public static Combobox ComboboxForWidget(Context context, Vector<String> choices,
-                                             boolean permissive, int fontSize) {
+                                             FilterType type, int fontSize) {
         ComboboxAdapter adapter =
                 ComboboxAdapter.getAdapterForWidget(context, choices.toArray(new String[]{}),
-                        permissive, fontSize);
+                        type, fontSize);
         Combobox combobox = new Combobox(context, choices, adapter);
         combobox.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         return combobox;
@@ -58,7 +58,9 @@ public class Combobox extends AutoCompleteTextView {
     }
 
     private void setListeners() {
-        addTextChangedListener(getWhileTypingValidator());
+        if (customAdapter.shouldRestrictTyping()) {
+            addTextChangedListener(getWhileTypingValidator());
+        }
 
         setOnClickListener(new OnClickListener() {
             @Override
@@ -120,6 +122,10 @@ public class Combobox extends AutoCompleteTextView {
             // setting this text will cause the dropdown to open up, which we don't want
             dismissDropDown();
         }
+    }
+
+    public enum FilterType {
+        STANDARD, MULTI_WORD, FUZZY
     }
 
 }

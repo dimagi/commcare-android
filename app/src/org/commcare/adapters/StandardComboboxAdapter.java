@@ -19,16 +19,14 @@ public class StandardComboboxAdapter extends ComboboxAdapter {
         }
     }
 
-    public static StandardComboboxAdapter AdapterWithBlankFirstChoice(Context context,
-                                                                      int textViewResourceId,
-                                                                      String[] objects) {
-        objects = SpinnerWidget.getChoicesWithEmptyFirstSlot(objects);
-        return new StandardComboboxAdapter(context, textViewResourceId, objects);
-    }
-
     @Override
     public boolean isValidUserEntry(String enteredText) {
         return isPrefixOfSomeChoiceValue(enteredText);
+    }
+
+    @Override
+    public boolean shouldRestrictTyping() {
+        return true;
     }
 
     /**
@@ -42,5 +40,9 @@ public class StandardComboboxAdapter extends ComboboxAdapter {
             }
         }
         return false;
+    }
+
+    private boolean choiceShouldBeShown(String choice, CharSequence textEntered) {
+        return choice.toLowerCase().startsWith(textEntered.toString());
     }
 }

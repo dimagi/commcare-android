@@ -8,8 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-
-import java.util.Vector;
+import org.commcare.views.Combobox;
+import org.commcare.views.widgets.SpinnerWidget;
 
 /**
  * A custom adapter for use by a Combobox view. Implementations of ComboboxAdapter require a
@@ -43,23 +43,31 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
         return view;
     }
 
-    /**
-     * @param enteredText - the text entered by the user in the combobox's edittext field
-     * @return Whether enteredText should be considered a viable entry, which is defined as
-     * there being at least 1 answer option in the dropdown list when this string is entered.
-     */
     public abstract boolean isValidUserEntry(String enteredText);
 
+    /**
+     * @return Whether the text that a user can type into the corresponding combobox's edittext
+     * field should be restricted in accordance with its adapter's filtering rules
+     */
+    public abstract boolean shouldRestrictTyping();
+
     public static ComboboxAdapter getAdapterForWidget(Context context, String[] choices,
-                                                      boolean permissive, int fontSize) {
+                                                      Combobox.FilterType type, int fontSize) {
+        choices = SpinnerWidget.getChoicesWithEmptyFirstSlot(choices);
+
         ComboboxAdapter adapter;
-        if (permissive) {
-            adapter = PermissiveComboboxAdapter.AdapterWithBlankFirstChoice(context,
-                    R.layout.custom_spinner_item, choices);
-        } else {
-            adapter = StandardComboboxAdapter.AdapterWithBlankFirstChoice(context,
-                    R.layout.custom_spinner_item, choices);
+        switch(type) {
+            case MULTI_WORD:
+                adapter = new MultiWordComboboxAdapter(context, R.layout.custom_spinner_item, choices);
+                break;
+            case FUZZY:
+                adapter = new FuzzyMatchComboboxAdapter(context, R.layout.custom_spinner_item, choices);
+                break;
+            case STANDARD:
+            default:
+                adapter = new StandardComboboxAdapter(context, R.layout.custom_spinner_item, choices);
         }
+
         adapter.setCustomTextSize(fontSize);
         return adapter;
     }
