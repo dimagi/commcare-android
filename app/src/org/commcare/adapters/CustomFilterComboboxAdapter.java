@@ -11,13 +11,12 @@ import java.util.ArrayList;
 
 public abstract class CustomFilterComboboxAdapter extends ComboboxAdapter {
 
-    protected final String[] allChoices;
     protected String[] currentChoices;
 
     public CustomFilterComboboxAdapter(final Context context, final int textViewResourceId,
                            final String[] objects) {
         super(context, textViewResourceId, objects);
-        allChoices = currentChoices = objects;
+        currentChoices = allChoices;
     }
 
     @Override
@@ -60,20 +59,4 @@ public abstract class CustomFilterComboboxAdapter extends ComboboxAdapter {
         };
     }
 
-    /**
-     * @param enteredText - the text entered by the user in the combobox's edittext field
-     * @return Whether enteredText should be considered a viable entry, which is defined as
-     * there being at least 1 answer option in the dropdown list when this string is entered.
-     */
-    @Override
-    public boolean isValidUserEntry(String enteredText) {
-        for (String choice : allChoices) {
-            if (choiceShouldBeShown(choice, enteredText)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public abstract boolean choiceShouldBeShown(String choice, CharSequence textEntered);
 }

@@ -21,10 +21,13 @@ import org.commcare.views.widgets.SpinnerWidget;
 public abstract class ComboboxAdapter extends ArrayAdapter<String> {
 
     private float customTextSize;
+    protected final String[] allChoices;
+
 
     public ComboboxAdapter(final Context context, final int textViewResourceId,
                            final String[] objects) {
         super(context, textViewResourceId, objects);
+        allChoices = objects;
         this.customTextSize = -1;
     }
 
@@ -43,7 +46,21 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
         return view;
     }
 
-    public abstract boolean isValidUserEntry(String enteredText);
+    /**
+     * @param enteredText - the text entered by the user in the combobox's edittext field
+     * @return Whether enteredText should be considered a viable entry, which is defined as
+     * there being at least 1 answer option in the dropdown list when this string is entered.
+     */
+    public boolean isValidUserEntry(String enteredText) {
+        for (String choice : allChoices) {
+            if (choiceShouldBeShown(choice, enteredText)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public abstract boolean choiceShouldBeShown(String choice, CharSequence textEntered);
 
     /**
      * @return Whether the text that a user can type into the corresponding combobox's edittext
