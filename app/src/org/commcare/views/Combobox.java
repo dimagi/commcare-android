@@ -5,9 +5,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.TextView;
 
 import org.commcare.adapters.ComboboxAdapter;
 import org.commcare.adapters.PermissiveComboboxAdapter;
@@ -43,7 +41,6 @@ public class Combobox extends AutoCompleteTextView {
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         setThreshold(1);
         setListeners();
-        //setValidator(getAfterTextEnteredValidator());
     }
 
     private void setupChoices(Vector<String> choices) {
@@ -88,14 +85,10 @@ public class Combobox extends AutoCompleteTextView {
                 if (hasFocus) {
                     showDropDown();
                 } else {
-                    autoCorrectCaps();
+                    autoCorrectCapitalization();
                 }
             }
         });
-    }
-
-    private void autoCorrectCaps() {
-        
     }
 
     private TextWatcher getWhileTypingValidator() {
@@ -153,28 +146,19 @@ public class Combobox extends AutoCompleteTextView {
         return false;
     }
 
-    private AutoCompleteTextView.Validator getAfterTextEnteredValidator() {
-        return new AutoCompleteTextView.Validator() {
-
-            @Override
-            public boolean isValid(CharSequence text) {
-                return choices.contains(text.toString());
-            }
-
-            @Override
-            public CharSequence fixText(CharSequence invalidText) {
-                if (choicesAllLowerCase.contains(invalidText.toString().toLowerCase())) {
-                    // If the user has entered a valid answer but with different case,
-                    // just change the case for them
-                    int index = choicesAllLowerCase.indexOf(invalidText.toString().toLowerCase());
-                    return choices.get(index);
-                } else {
-                    // Otherwise delete their answer
-                    return "";
-                }
-
-            }
-        };
+    /**
+     * If the user has entered a valid answer but with different case, automatically change
+     * the case for them
+     */
+    public void autoCorrectCapitalization() {
+        String enteredText = getText().toString();
+        if (enteredText != null && !choices.contains(enteredText) &&
+                choicesAllLowerCase.contains(enteredText.toLowerCase())) {
+            int index = choicesAllLowerCase.indexOf(enteredText.toLowerCase());
+            setText(choices.get(index));
+            // setting this text will cause the dropdown to open up, which we don't want
+            dismissDropDown();
+        }
     }
 
 

@@ -66,6 +66,7 @@ public class ComboboxWidget extends QuestionWidget {
                 if (hasFocus) {
                     comboBox.showDropDown();
                 } else {
+                    comboBox.autoCorrectCapitalization();
                     widgetEntryChanged();
                 }
             }
@@ -106,6 +107,7 @@ public class ComboboxWidget extends QuestionWidget {
         // So that we can see any error message that gets shown as a result of this
         comboBox.dismissDropDown();
 
+        comboBox.autoCorrectCapitalization();
         String enteredText = comboBox.getText().toString();
         if (choiceTexts.contains(enteredText)) {
             int i = choiceTexts.indexOf(enteredText);
