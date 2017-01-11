@@ -207,6 +207,6 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
             database.endTransaction();
         }
         */
-        throw new RuntimeException("implement me");
+        //throw new RuntimeException("implement me");
     }
 }

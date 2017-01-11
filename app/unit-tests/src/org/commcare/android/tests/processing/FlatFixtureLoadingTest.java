@@ -38,7 +38,7 @@ public class FlatFixtureLoadingTest {
                 "Collier"));
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
-                "instance('commtrack:products')/products/product[id = '31ab899368d38c2d0207fe80c00fc3f3']/name",
+                "instance('commtrack:products')/products/product[id = '12345']/name",
                 "Collier"));
     }
 
@@ -58,10 +58,5 @@ public class FlatFixtureLoadingTest {
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
                 "instance('commtrack:products')/products/product[@id = '31ab899368d38c2d0207fe80c00fa96c']/extra_data",
                 ""));
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void loadInvalidFlatFixtureTest() throws XPathSyntaxException {
-        StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "invalid_flat_fixture_restore.xml");
     }
 }
