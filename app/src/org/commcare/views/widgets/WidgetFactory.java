@@ -2,14 +2,13 @@ package org.commcare.views.widgets;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.util.Log;
 
+import org.commcare.adapters.ComboboxAdapter;
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.AndroidArrayDataSource;
-import org.commcare.views.Combobox;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.QuestionDataExtension;
@@ -188,13 +187,13 @@ public class WidgetFactory {
     private static QuestionWidget buildComboboxSelectOne(String appearance,
                                                          FormEntryPrompt fep,
                                                          Context context) {
-        Combobox.FilterType type;
+        ComboboxAdapter.FilterType type;
         if (appearance.contains("multiword")) {
-            type = Combobox.FilterType.MULTI_WORD;
+            type = ComboboxAdapter.FilterType.MULTI_WORD;
         } else if (appearance.contains("fuzzy")) {
-            type = Combobox.FilterType.FUZZY;
+            type = ComboboxAdapter.FilterType.FUZZY;
         } else {
-            type = Combobox.FilterType.STANDARD;
+            type = ComboboxAdapter.FilterType.STANDARD;
         }
         return new ComboboxWidget(context, fep, type);
     }

@@ -8,13 +8,12 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.commcare.views.Combobox;
 import org.commcare.views.widgets.SpinnerWidget;
 
 /**
  * A custom adapter for use by a Combobox view. Implementations of ComboboxAdapter require a
- * custom definition for isValidUserEntry(), which defines what strings can be entered into the
- * associated combobox's edittext field.
+ * custom definition for choiceShouldBeShown(), which defines whether a given answer choice
+ * should be considered a match for the text entered by the user.
  *
  * @author Aliza Stone
  */
@@ -23,6 +22,20 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
     private float customTextSize;
     protected final String[] allChoices;
 
+
+    public static ComboboxAdapter getAdapterForFilterType(Context context,
+                                                          String[] choices,
+                                                          FilterType type) {
+        switch(type) {
+            case MULTI_WORD:
+                return new MultiWordComboboxAdapter(context, R.layout.custom_spinner_item, choices);
+            case FUZZY:
+                return new FuzzyMatchComboboxAdapter(context, R.layout.custom_spinner_item, choices);
+            case STANDARD:
+            default:
+                return new StandardComboboxAdapter(context, R.layout.custom_spinner_item, choices);
+        }
+    }
 
     public ComboboxAdapter(final Context context, final int textViewResourceId,
                            final String[] objects) {
@@ -60,6 +73,13 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
         return false;
     }
 
+    /**
+     *
+     * @param choice - an answer choice available in this adapter
+     * @param textEntered - the text entered by the user in the combobox's edittext field
+     * @return If the given choice should be displayed in combobox's dropdown menu, based upon
+     * the text that the user currently has entered
+     */
     public abstract boolean choiceShouldBeShown(String choice, CharSequence textEntered);
 
     /**
@@ -68,25 +88,8 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
      */
     public abstract boolean shouldRestrictTyping();
 
-    public static ComboboxAdapter getAdapterForWidget(Context context, String[] choices,
-                                                      Combobox.FilterType type, int fontSize) {
-        choices = SpinnerWidget.getChoicesWithEmptyFirstSlot(choices);
-
-        ComboboxAdapter adapter;
-        switch(type) {
-            case MULTI_WORD:
-                adapter = new MultiWordComboboxAdapter(context, R.layout.custom_spinner_item, choices);
-                break;
-            case FUZZY:
-                adapter = new FuzzyMatchComboboxAdapter(context, R.layout.custom_spinner_item, choices);
-                break;
-            case STANDARD:
-            default:
-                adapter = new StandardComboboxAdapter(context, R.layout.custom_spinner_item, choices);
-        }
-
-        adapter.setCustomTextSize(fontSize);
-        return adapter;
+    public enum FilterType {
+        STANDARD, MULTI_WORD, FUZZY
     }
 
 }

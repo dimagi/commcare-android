@@ -5,9 +5,11 @@ import android.content.Context;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.AdapterView;
 
+import org.commcare.adapters.ComboboxAdapter;
 import org.commcare.views.Combobox;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
@@ -32,16 +34,35 @@ public class ComboboxWidget extends QuestionWidget {
     private Vector<String> choiceTexts;
     private Combobox comboBox;
 
-    public ComboboxWidget(Context context, FormEntryPrompt prompt, Combobox.FilterType type) {
+    public ComboboxWidget(Context context, FormEntryPrompt prompt, ComboboxAdapter.FilterType type) {
         super(context, prompt);
         initChoices(prompt);
-        comboBox = Combobox.ComboboxForWidget(context, choiceTexts, type, mQuestionFontSize);
+        comboBox = setUpComboboxForWidget(context, choiceTexts, type, mQuestionFontSize);
         addView(comboBox);
 
         comboBox.setEnabled(!prompt.isReadOnly());
         comboBox.setFocusable(!prompt.isReadOnly());
         addListeners();
         fillInPreviousAnswer(prompt);
+    }
+
+    private static Combobox setUpComboboxForWidget(Context context, Vector<String> choices,
+                                             ComboboxAdapter.FilterType type, int fontSize) {
+        ComboboxAdapter adapter =
+                getAdapterForComboboxWidget(context, choices.toArray(new String[]{}),
+                        type, fontSize);
+        Combobox combobox = new Combobox(context, choices, adapter);
+        combobox.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
+        return combobox;
+    }
+
+    private static ComboboxAdapter getAdapterForComboboxWidget(Context context, String[] choices,
+                                                              ComboboxAdapter.FilterType type,
+                                                               int fontSize) {
+        choices = SpinnerWidget.getChoicesWithEmptyFirstSlot(choices);
+        ComboboxAdapter adapter = ComboboxAdapter.getAdapterForFilterType(context, choices, type);
+        adapter.setCustomTextSize(fontSize);
+        return adapter;
     }
 
     private void initChoices(FormEntryPrompt prompt) {

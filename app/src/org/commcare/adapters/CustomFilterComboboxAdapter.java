@@ -6,9 +6,10 @@ import android.widget.Filter;
 import java.util.ArrayList;
 
 /**
- * Created by amstone326 on 1/11/17.
+ * Base class for any combobox adapter that implements a custom filter
+ *
+ * @author Aliza Stone
  */
-
 public abstract class CustomFilterComboboxAdapter extends ComboboxAdapter {
 
     protected String[] currentChoices;

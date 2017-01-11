@@ -1,11 +1,6 @@
 package org.commcare.adapters;
 
 import android.content.Context;
-import android.widget.Filter;
-
-import org.commcare.views.widgets.SpinnerWidget;
-
-import java.util.ArrayList;
 
 /**
  * An implementation of ComboboxAdapter that uses a more flexible filtering rule intended for when

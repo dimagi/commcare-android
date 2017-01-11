@@ -3,7 +3,6 @@ package org.commcare.views;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 
@@ -37,16 +36,6 @@ public class Combobox extends AutoCompleteTextView {
         setupChoices(choices);
         setThreshold(1);
         setListeners();
-    }
-
-    public static Combobox ComboboxForWidget(Context context, Vector<String> choices,
-                                             FilterType type, int fontSize) {
-        ComboboxAdapter adapter =
-                ComboboxAdapter.getAdapterForWidget(context, choices.toArray(new String[]{}),
-                        type, fontSize);
-        Combobox combobox = new Combobox(context, choices, adapter);
-        combobox.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
-        return combobox;
     }
 
     private void setupChoices(Vector<String> choices) {
@@ -122,10 +111,6 @@ public class Combobox extends AutoCompleteTextView {
             // setting this text will cause the dropdown to open up, which we don't want
             dismissDropDown();
         }
-    }
-
-    public enum FilterType {
-        STANDARD, MULTI_WORD, FUZZY
     }
 
 }
