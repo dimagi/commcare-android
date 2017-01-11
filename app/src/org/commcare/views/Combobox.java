@@ -2,6 +2,7 @@ package org.commcare.views;
 
 import android.content.Context;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -36,6 +37,7 @@ public class Combobox extends AutoCompleteTextView {
         setupChoices(choices);
         setThreshold(1);
         setListeners();
+        setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
     }
 
     private void setupChoices(Vector<String> choices) {
