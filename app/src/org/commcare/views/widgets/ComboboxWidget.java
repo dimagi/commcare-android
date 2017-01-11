@@ -60,6 +60,17 @@ public class ComboboxWidget extends QuestionWidget {
             }
         });
 
+        comboBox.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    comboBox.showDropDown();
+                } else {
+                    widgetEntryChanged();
+                }
+            }
+        });
+
         comboBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -114,6 +125,9 @@ public class ComboboxWidget extends QuestionWidget {
 
     @Override
     public void setFocus(Context context) {
+        // Intentionally does nothing, in order to force user to click on the combobox themselves
+        // and thus bring up the drop-down menu (rather than just starting to type without
+        // realizing there is a dropdown menu available)
     }
 
     @Override

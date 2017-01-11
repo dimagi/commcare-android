@@ -75,9 +75,15 @@ public class Combobox extends AutoCompleteTextView {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     showDropDown();
+                } else {
+                    autoCorrectCaps();
                 }
             }
         });
+    }
+
+    private void autoCorrectCaps() {
+        
     }
 
     private TextWatcher getWhileTypingValidator() {
