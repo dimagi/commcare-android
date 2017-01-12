@@ -15,6 +15,9 @@ import org.robolectric.annotation.Config;
 import static org.junit.Assert.assertTrue;
 
 /**
+ * Processes and queries fixtures whose entries are broken up and stored in a
+ * dedicated DB table that indexes certain entry elements and attributes
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
@@ -23,10 +26,14 @@ public class IndexedFixtureLoadingTest {
 
     @Test
     public void loadIndexedFixtureTest() throws XPathSyntaxException {
-        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "indexed_fixture_restore.xml");
+        AndroidSandbox sandbox =
+                StoreFixturesOnFilesystemTests.installAppWithFixtureData(
+                        this.getClass(),
+                        "indexed_fixture_restore.xml");
 
         EvaluationContext evalContext =
-                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", "jr://fixture/commtrack:products");
+                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products",
+                        "jr://fixture/commtrack:products");
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
                         "count(instance('commtrack:products')/products/product)",
@@ -44,12 +51,16 @@ public class IndexedFixtureLoadingTest {
 
     @Test
     public void loadIndexedFixtureWithNestedChildrenTest() throws XPathSyntaxException {
-        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "indexed_fixture_with_nested_children_restore.xml");
+        AndroidSandbox sandbox =
+                StoreFixturesOnFilesystemTests.installAppWithFixtureData(getClass(),
+                        "indexed_fixture_with_nested_children_restore.xml");
 
         EvaluationContext evalContext =
-                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", "jr://fixture/commtrack:products");
+                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products",
+                        "jr://fixture/commtrack:products");
 
-        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext, "count(instance('commtrack:products')/products/product)",
+        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
+                "count(instance('commtrack:products')/products/product)",
                 3.0));
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
@@ -62,12 +73,16 @@ public class IndexedFixtureLoadingTest {
 
     @Test
     public void indexOverNonHomogeneousElementTest() throws XPathSyntaxException {
-        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "indexed_fixture_with_index_over_nonhomo_entry.xml");
+        AndroidSandbox sandbox =
+                StoreFixturesOnFilesystemTests.installAppWithFixtureData(getClass(),
+                        "indexed_fixture_with_index_over_nonhomo_entry.xml");
 
         EvaluationContext evalContext =
-                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", "jr://fixture/commtrack:products");
+                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products",
+                        "jr://fixture/commtrack:products");
 
-        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext, "count(instance('commtrack:products')/products/product)",
+        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
+                "count(instance('commtrack:products')/products/product)",
                 3.0));
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
