@@ -115,7 +115,7 @@ def getDate() {
 
 android {
     compileSdkVersion "Google Inc.:Google APIs:24"
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "25.0.0"
 
     // This was deprecated so have to explicitly tell Android to use it until we move to the new lib
     useLibrary 'org.apache.http.legacy'
