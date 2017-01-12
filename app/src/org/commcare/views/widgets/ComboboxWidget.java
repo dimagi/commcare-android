@@ -60,7 +60,7 @@ public class ComboboxWidget extends QuestionWidget {
                                                               ComboboxAdapter.FilterType type,
                                                                int fontSize) {
         choices = SpinnerWidget.getChoicesWithEmptyFirstSlot(choices);
-        ComboboxAdapter adapter = ComboboxAdapter.getAdapterForFilterType(context, choices, type);
+        ComboboxAdapter adapter = new ComboboxAdapter(context, choices, type);
         adapter.setCustomTextSize(fontSize);
         return adapter;
     }

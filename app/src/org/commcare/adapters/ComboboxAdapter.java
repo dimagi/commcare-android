@@ -5,41 +5,47 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
+import org.javarosa.core.model.ComboboxFilterRule;
+import org.javarosa.core.model.FuzzyMatchFilterRule;
+import org.javarosa.core.model.MultiWordFilterRule;
+import org.javarosa.core.model.StandardFilterRule;
+
+import java.util.ArrayList;
 
 /**
- * A custom adapter for use by a Combobox view. Implementations of ComboboxAdapter require a
- * custom definition for choiceShouldBeShown(), which defines whether a given answer choice
- * should be considered a match for the text entered by the user.
+ * A custom adapter for use by a Combobox view. The filtering behavior of this adapter is determined
+ * by the implementation of choiceShouldBeShown() in its ComboboxFilterRule, which defines whether
+ * a given answer choice should be considered a match for the text entered by the user.
  *
  * @author Aliza Stone
  */
-public abstract class ComboboxAdapter extends ArrayAdapter<String> {
+public class ComboboxAdapter extends ArrayAdapter<String> {
 
     private float customTextSize;
     protected final String[] allChoices;
+    protected String[] currentChoices;
+    protected ComboboxFilterRule filterRule;
 
-    public static ComboboxAdapter getAdapterForFilterType(Context context,
-                                                          String[] choices,
-                                                          FilterType type) {
+    public ComboboxAdapter(final Context context, final String[] objects, FilterType type) {
+        super(context, R.layout.custom_spinner_item, objects);
+        allChoices = currentChoices = objects;
+        this.customTextSize = -1;
+
         switch(type) {
             case MULTI_WORD:
-                return new MultiWordComboboxAdapter(context, R.layout.custom_spinner_item, choices);
+                filterRule = new MultiWordFilterRule();
+                break;
             case FUZZY:
-                return new FuzzyMatchComboboxAdapter(context, R.layout.custom_spinner_item, choices);
+                filterRule = new FuzzyMatchFilterRule();
+                break;
             case STANDARD:
             default:
-                return new StandardComboboxAdapter(context, R.layout.custom_spinner_item, choices);
+                filterRule = new StandardFilterRule();
         }
-    }
-
-    public ComboboxAdapter(final Context context, final int textViewResourceId,
-                           final String[] objects) {
-        super(context, textViewResourceId, objects);
-        allChoices = objects;
-        this.customTextSize = -1;
     }
 
     /**
@@ -49,27 +55,16 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
      */
     public boolean isValidUserEntry(String enteredText) {
         for (String choice : allChoices) {
-            if (choiceShouldBeShown(choice, enteredText)) {
+            if (filterRule.choiceShouldBeShown(choice, enteredText)) {
                 return true;
             }
         }
         return false;
     }
 
-    /**
-     *
-     * @param choice - an answer choice available in this adapter
-     * @param textEntered - the text entered by the user in the combobox's edittext field
-     * @return If the given choice should be displayed in combobox's dropdown menu, based upon
-     * the text that the user currently has entered
-     */
-    public abstract boolean choiceShouldBeShown(String choice, CharSequence textEntered);
-
-    /**
-     * @return Whether the text that a user can type into the corresponding combobox's edittext
-     * field should be restricted in accordance with its adapter's filtering rules
-     */
-    public abstract boolean shouldRestrictTyping();
+    public boolean shouldRestrictTyping() {
+        return filterRule.shouldRestrictTyping();
+    }
 
     public void setCustomTextSize(float customTextSize) {
         this.customTextSize = customTextSize;
@@ -84,6 +79,48 @@ public abstract class ComboboxAdapter extends ArrayAdapter<String> {
         }
         tv.setPadding(10, 10, 10, 10);
         return view;
+    }
+
+    @Override
+    public int getCount() {
+        return currentChoices.length;
+    }
+
+    @Override
+    public String getItem(int position) {
+        return currentChoices[position];
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                ArrayList<String> matched = new ArrayList<>();
+                for (String choice : allChoices) {
+                    if (filterRule.choiceShouldBeShown(choice, constraint)) {
+                        matched.add(choice);
+                    }
+                }
+
+                FilterResults results = new FilterResults();
+                results.values = matched.toArray(new String[]{});
+                results.count = matched.size();
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                if (constraint != null) {
+                    currentChoices = (String[]) results.values;
+                    if (results.count > 0) {
+                        notifyDataSetChanged();
+                    } else {
+                        notifyDataSetInvalidated();
+                    }
+                }
+            }
+        };
     }
 
     public enum FilterType {
