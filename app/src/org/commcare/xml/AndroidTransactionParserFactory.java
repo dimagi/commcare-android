@@ -82,13 +82,6 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
     }
 
     @Override
-    public FlatFixtureXmlParser buildFlatFixtureParser(KXmlParser parser,
-                                                       String fixtureName,
-                                                       FixtureIndexSchema schema) {
-        return new AndroidFlatFixtureXmlParser(parser, fixtureName, schema, sandbox);
-    }
-
-    @Override
     public void initCaseParser() {
         caseParser = new TransactionParserFactory() {
             CaseXmlParser created = null;
