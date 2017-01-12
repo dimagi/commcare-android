@@ -1,4 +1,3 @@
-import org.apache.tools.ant.filters.ReplaceTokens
 import com.android.builder.core.DefaultManifestParser
 
 
@@ -49,8 +48,8 @@ dependencies {
     compile 'com.android.support:gridlayout-v7:25.0.1'
     compile 'com.madgag.spongycastle:core:1.54.0.0'
     compile 'com.madgag.spongycastle:prov:1.54.0.0'
-    compile 'com.google.android.gms:play-services-maps:9.8.0'
-    compile 'com.google.android.gms:play-services-analytics:9.8.0'
+    compile 'com.google.android.gms:play-services-maps:10.0.1'
+    compile 'com.google.android.gms:play-services-analytics:10.0.1'
     compile 'com.google.zxing:core:3.3.0'
     compile 'ch.acra:acra:4.9.1@aar'
     compile 'joda-time:joda-time:2.9.4'
@@ -62,6 +61,8 @@ dependencies {
     }
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
+    compile 'com.google.firebase:firebase-core:10.0.1'
+    compile 'com.google.firebase:firebase-ads:10.0.1'
 }
 
 ext {
@@ -326,97 +327,6 @@ android {
 }
 
 /**
- * Setup tasks to inject google-services.json file with package name matching
- * the build variant.
-
- * NOTE: My Groovy knowledge is abysmal and Gradle plugins do black magic,
- * hence, the need for an *_APP_ID var for each build variant :(
- */
-afterEvaluate {
-    // Hack to get assets to show up in robolectric tests; try to eventually remove this
-    preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets
-
-    processQabetaDebugGoogleServices.dependsOn switchGoogleServicesQabeta
-    processQabetaReleaseGoogleServices.dependsOn switchGoogleServicesQabeta
-    processStandaloneDebugGoogleServices.dependsOn switchGoogleServicesStandalone
-    processStandaloneReleaseGoogleServices.dependsOn switchGoogleServicesStandalone
-    processLtsDebugGoogleServices.dependsOn switchGoogleServicesLts
-    processLtsReleaseGoogleServices.dependsOn switchGoogleServicesLts
-    processCommcareDebugGoogleServices.dependsOn switchGoogleServicesCommcare
-    processCommcareReleaseGoogleServices.dependsOn switchGoogleServicesCommcare
-}
-
-task switchGoogleServicesCommcare(type: Copy) {
-    description = 'Makes build use normal google-services.json file'
-    println project.ext.COMMCARE_APP_ID
-
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    if (isBelowGradleThree()) {
-        outputs.files.setFrom(file("$projectDir/google-services.json"))
-    }
-
-    from file("templates/google-services.json")
-    filter(ReplaceTokens, tokens: [applicationId: project.ext.COMMCARE_APP_ID])
-    into projectDir
-}
-
-task switchGoogleServicesLts(type: Copy) {
-    description = 'Switches package name in google-services.json to match Lts package name'
-
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    if (isBelowGradleThree()) {
-        outputs.files.setFrom(file("$projectDir/google-services.json"))
-    }
-
-    from file("templates/google-services.json")
-    filter(ReplaceTokens, tokens: [applicationId: project.ext.LTS_APP_ID])
-    into projectDir
-}
-
-task switchGoogleServicesStandalone(type: Copy) {
-    description = 'Switches package name in google-services.json to match Standalone package name'
-    outputs.upToDateWhen { false }
-
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    if (isBelowGradleThree()) {
-        outputs.files.setFrom(file("$projectDir/google-services.json"))
-    }
-
-    from file("templates/google-services.json")
-    filter(ReplaceTokens, tokens: [applicationId: project.ext.STANDALONE_APP_ID])
-    into projectDir
-}
-
-task switchGoogleServicesQabeta(type: Copy) {
-    description = 'Switches package name in google-services.json to match Qabeta package name'
-
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    if (isBelowGradleThree()) {
-        outputs.files.setFrom(file("$projectDir/google-services.json"))
-    }
-
-    from file("templates/google-services.json")
-    filter(ReplaceTokens, tokens: [applicationId: project.ext.QA_BETA_APP_ID])
-    into projectDir
-}
-
-/**
  * Download and unpack commcare app associated with 'cc_app_id' into assets
  * folder
  */
@@ -527,11 +437,9 @@ def getStandalonePackageIdentifier(ccDomainSafe, isConsumerApp) {
     }
 }
 
-
 def cleanseAppNameForPackageIdentifier(appName) {
     return appName.replaceAll("[ '.:]", "").replaceAll("\\\\", "").toLowerCase()
 }
-
 
 def getStandaloneApplicationName(ccDomainSafe, isConsumerApp) {
     if (project.hasProperty('application_name')) {
@@ -563,18 +471,13 @@ def getConsumerAppPassword(isConsumerApp) {
     }
 }
 
-/**
- * @return True if the gradle version being used is below 3.0
- */
-def isBelowGradleThree() {
-    return (gradle.gradleVersion.split("\\.")[0] as double) < 3
+downloadLicenses {
+    includeProjectDependencies = true
+    dependencyConfiguration = 'compile'
 }
 
 // must be at bottom of file to fix some stupid google bug
 apply plugin: 'com.google.gms.google-services'
 
-downloadLicenses {
-    includeProjectDependencies = true
-    dependencyConfiguration = 'compile'
-}
+
 

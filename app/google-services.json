@@ -1,0 +1,76 @@
+{
+  "project_info": {
+    "project_number": "768065119425",
+    "firebase_url": "https://commcare-a57e4.firebaseio.com",
+    "project_id": "commcare-a57e4",
+    "storage_bucket": "commcare-a57e4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:768065119425:android:bf4b2396fb9805b2",
+        "android_client_info": {
+          "package_name": "org.commcare.dalvik"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "768065119425-hg10t0osvjqrt6pne3toaobabn5gobqs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoBKDzl5DZxo-yp__96V3E8jnri17OyTE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-69708208-1"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:768065119425:android:e07510ddb3459ee3",
+        "android_client_info": {
+          "package_name": "org.commcare.lts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "768065119425-hg10t0osvjqrt6pne3toaobabn5gobqs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoBKDzl5DZxo-yp__96V3E8jnri17OyTE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
