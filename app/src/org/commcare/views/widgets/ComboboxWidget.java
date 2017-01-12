@@ -119,8 +119,6 @@ public class ComboboxWidget extends QuestionWidget {
             for (int i = 0; i < choices.size(); i++) {
                 if (choices.get(i).getValue().equals(previousAnswerValue)) {
                     comboBox.setText(choiceTexts.get(i));
-                    // setting this text will cause the dropdown to open up, which we don't want
-                    comboBox.dismissDropDown();
                     break;
                 }
             }

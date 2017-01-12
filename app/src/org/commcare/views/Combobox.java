@@ -110,8 +110,6 @@ public class Combobox extends AutoCompleteTextView {
                 choicesAllLowerCase.contains(enteredText.toLowerCase())) {
             int index = choicesAllLowerCase.indexOf(enteredText.toLowerCase());
             setText(choices.get(index));
-            // setting this text will cause the dropdown to open up, which we don't want
-            dismissDropDown();
         }
     }
 
