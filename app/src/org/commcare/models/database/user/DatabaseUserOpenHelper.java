@@ -11,10 +11,10 @@ import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
-import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
@@ -24,8 +24,6 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.Persistable;
-
-import java.util.Set;
 
 /**
  * The helper for opening/updating the user (encrypted) db space for
@@ -118,7 +116,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
             DbUtil.createOrphanedFileTable(database);
 
-            DbUtil.createStorageBackedFixtureIndexTable(database);
+            IndexedFixturePathUtils.createStorageBackedFixtureIndexTable(database);
 
             builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
             builder.addData(new Ledger());
@@ -206,23 +204,4 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    public static void buildFixtureIndices(SQLiteDatabase database,
-                                           String tableName,
-                                           Set<String> indices) {
-        try {
-            database.beginTransaction();
-
-            for (String index : indices) {
-                String indexName = index + "_index";
-                if (index.contains(",")) {
-                    indexName = index.replaceAll(",", "_") + "_index";
-                }
-                database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand(indexName, tableName, index));
-            }
-
-            database.setTransactionSuccessful();
-        } finally {
-            database.endTransaction();
-        }
-    }
 }

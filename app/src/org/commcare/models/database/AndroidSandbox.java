@@ -1,8 +1,5 @@
 package org.commcare.models.database;
 
-import android.content.ContentValues;
-
-import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
@@ -62,52 +59,19 @@ public class AndroidSandbox extends UserSandbox {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
         DatabaseUserOpenHelper.dropTable(app.getUserDbHandle(), tableName);
         DatabaseUserOpenHelper.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
-        DatabaseUserOpenHelper.buildFixtureIndices(app.getUserDbHandle(), tableName, indices);
+        IndexedFixturePathUtils.buildFixtureIndices(app.getUserDbHandle(), tableName, indices);
     }
 
     @Override
     public Pair<String, String> getIndexedFixturePathBases(String fixtureName) {
         SQLiteDatabase db = app.getUserDbHandle();
-        Cursor c = db.query(DbUtil.INDEXED_FIXTURE_INDEX_TABLE,
-                new String[]{DbUtil.INDEXED_FIXTURE_INDEX_COL_BASE, DbUtil.INDEXED_FIXTURE_INDEX_COL_CHILD},
-                DbUtil.INDEXED_FIXTURE_INDEX_COL_NAME + "=?", new String[]{fixtureName}, null, null, null);
-        try {
-            if (c.getCount() == 0) {
-                return null;
-            } else {
-                c.moveToFirst();
-                return Pair.create(
-                        c.getString(c.getColumnIndexOrThrow(DbUtil.INDEXED_FIXTURE_INDEX_COL_BASE)),
-                        c.getString(c.getColumnIndexOrThrow(DbUtil.INDEXED_FIXTURE_INDEX_COL_CHILD)));
-            }
-        } finally {
-            c.close();
-        }
+        return IndexedFixturePathUtils.lookupIndexedFixturePaths(db, fixtureName);
     }
 
     @Override
     public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName) {
         SQLiteDatabase db = app.getUserDbHandle();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(DbUtil.INDEXED_FIXTURE_INDEX_COL_BASE, baseName);
-        contentValues.put(DbUtil.INDEXED_FIXTURE_INDEX_COL_CHILD, childName);
-        contentValues.put(DbUtil.INDEXED_FIXTURE_INDEX_COL_NAME, fixtureName);
-
-        try {
-            db.beginTransaction();
-
-            long ret = db.insertOrThrow(DbUtil.INDEXED_FIXTURE_INDEX_TABLE,
-                    DbUtil.INDEXED_FIXTURE_INDEX_COL_BASE,
-                    contentValues);
-
-            if (ret > Integer.MAX_VALUE) {
-                throw new RuntimeException("Waaaaaaaaaay too many values");
-            }
-
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
+        IndexedFixturePathUtils.insertIndexedFixturePathBases(db, fixtureName, baseName, childName);
     }
 
     @Override

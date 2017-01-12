@@ -8,7 +8,6 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
 
-import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.DatabaseHelper;
 
 import java.io.File;
@@ -16,10 +15,6 @@ import java.io.File;
 public class DbUtil {
     private static final String TAG = DbUtil.class.getSimpleName();
     public final static String orphanFileTableName = "OrphanedFiles";
-    public final static String INDEXED_FIXTURE_INDEX_TABLE = "IndexedFixtureIndex";
-    public final static String INDEXED_FIXTURE_INDEX_COL_NAME = "name";
-    public final static String INDEXED_FIXTURE_INDEX_COL_BASE = "base";
-    public final static String INDEXED_FIXTURE_INDEX_COL_CHILD = "child";
 
     /**
      * Provides a hook for Sqllite databases to be able to try to migrate themselves in place
@@ -92,14 +87,4 @@ public class DbUtil {
                 AndroidTableBuilder.scrubName(columnName) + " " + dataType;
     }
 
-    public static void createStorageBackedFixtureIndexTable(SQLiteDatabase db) {
-        String createStatement = "CREATE TABLE IF NOT EXISTS " +
-                INDEXED_FIXTURE_INDEX_TABLE +
-                " (" + INDEXED_FIXTURE_INDEX_COL_NAME +
-                ", " + INDEXED_FIXTURE_INDEX_COL_BASE +
-                ", " + INDEXED_FIXTURE_INDEX_COL_CHILD + ");";
-        db.execSQL(createStatement);
-
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("fixture_name_index", INDEXED_FIXTURE_INDEX_TABLE, INDEXED_FIXTURE_INDEX_COL_NAME));
-    }
 }

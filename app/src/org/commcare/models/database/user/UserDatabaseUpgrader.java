@@ -13,6 +13,7 @@ import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
@@ -419,7 +420,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeFourteenFifteen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            DbUtil.createStorageBackedFixtureIndexTable(db);
+            IndexedFixturePathUtils.createStorageBackedFixtureIndexTable(db);
             db.setTransactionSuccessful();
             return true;
         } finally {
