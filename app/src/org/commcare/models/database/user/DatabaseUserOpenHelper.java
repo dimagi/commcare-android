@@ -206,9 +206,9 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    public static void buildFlatFixtureIndices(SQLiteDatabase database,
-                                               String tableName,
-                                               Set<String> indices) {
+    public static void buildFixtureIndices(SQLiteDatabase database,
+                                           String tableName,
+                                           Set<String> indices) {
         try {
             database.beginTransaction();
 

@@ -19,11 +19,11 @@ import static org.junit.Assert.assertTrue;
  */
 @Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
-public class FlatFixtureLoadingTest {
+public class IndexedFixtureLoadingTest {
 
     @Test
-    public void loadFlatFixtureTest() throws XPathSyntaxException {
-        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "flat_fixture_restore.xml");
+    public void loadIndexedFixtureTest() throws XPathSyntaxException {
+        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "indexed_fixture_restore.xml");
 
         EvaluationContext evalContext =
                 MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", "jr://fixture/commtrack:products");
@@ -43,8 +43,8 @@ public class FlatFixtureLoadingTest {
     }
 
     @Test
-    public void loadFlatFixtureWithNestedChildrenTest() throws XPathSyntaxException {
-        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "flat_fixture_with_nested_children_restore.xml");
+    public void loadIndexedFixtureWithNestedChildrenTest() throws XPathSyntaxException {
+        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "indexed_fixture_with_nested_children_restore.xml");
 
         EvaluationContext evalContext =
                 MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", "jr://fixture/commtrack:products");
@@ -62,7 +62,7 @@ public class FlatFixtureLoadingTest {
 
     @Test
     public void indexOverNonHomogeneousElementTest() throws XPathSyntaxException {
-        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "flat_fixture_with_index_over_nonhomo_entry.xml");
+        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "indexed_fixture_with_index_over_nonhomo_entry.xml");
 
         EvaluationContext evalContext =
                 MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products", "jr://fixture/commtrack:products");

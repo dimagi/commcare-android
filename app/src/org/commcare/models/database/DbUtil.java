@@ -16,10 +16,10 @@ import java.io.File;
 public class DbUtil {
     private static final String TAG = DbUtil.class.getSimpleName();
     public final static String orphanFileTableName = "OrphanedFiles";
-    public final static String FLAT_FIXTURE_INDEX_TABLE = "FlatFixtureIndex";
-    public final static String FLAT_FIXTURE_INDEX_COL_NAME = "name";
-    public final static String FLAT_FIXTURE_INDEX_COL_BASE = "base";
-    public final static String FLAT_FIXTURE_INDEX_COL_CHILD = "child";
+    public final static String INDEXED_FIXTURE_INDEX_TABLE = "IndexedFixtureIndex";
+    public final static String INDEXED_FIXTURE_INDEX_COL_NAME = "name";
+    public final static String INDEXED_FIXTURE_INDEX_COL_BASE = "base";
+    public final static String INDEXED_FIXTURE_INDEX_COL_CHILD = "child";
 
     /**
      * Provides a hook for Sqllite databases to be able to try to migrate themselves in place
@@ -94,12 +94,12 @@ public class DbUtil {
 
     public static void createStorageBackedFixtureIndexTable(SQLiteDatabase db) {
         String createStatement = "CREATE TABLE IF NOT EXISTS " +
-                FLAT_FIXTURE_INDEX_TABLE +
-                " (" + FLAT_FIXTURE_INDEX_COL_NAME +
-                ", " + FLAT_FIXTURE_INDEX_COL_BASE +
-                ", " + FLAT_FIXTURE_INDEX_COL_CHILD + ");";
+                INDEXED_FIXTURE_INDEX_TABLE +
+                " (" + INDEXED_FIXTURE_INDEX_COL_NAME +
+                ", " + INDEXED_FIXTURE_INDEX_COL_BASE +
+                ", " + INDEXED_FIXTURE_INDEX_COL_CHILD + ");";
         db.execSQL(createStatement);
 
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("fixture_name_index", FLAT_FIXTURE_INDEX_TABLE, FLAT_FIXTURE_INDEX_COL_NAME));
+        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("fixture_name_index", INDEXED_FIXTURE_INDEX_TABLE, INDEXED_FIXTURE_INDEX_COL_NAME));
     }
 }

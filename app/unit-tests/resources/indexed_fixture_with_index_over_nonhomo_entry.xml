@@ -13,7 +13,7 @@
         <index>@id</index>
         <index>@dashes-break</index>
     </table-indices>
-    <fixture flat="true" id="commtrack:products" user_id="a8f5a98c4ce767c35b9132bc75eb225c">
+    <fixture indexed="true" id="commtrack:products" user_id="a8f5a98c4ce767c35b9132bc75eb225c">
         <products>
             <product>
                 <name>No ID</name>

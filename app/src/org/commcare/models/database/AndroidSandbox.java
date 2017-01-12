@@ -50,35 +50,35 @@ public class AndroidSandbox extends UserSandbox {
     }
 
     @Override
-    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getFlatFixtureStorage(String fixtureName) {
+    public IStorageUtilityIndexed<StorageIndexedTreeElementModel> getIndexedFixtureStorage(String fixtureName) {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
         return app.getUserStorage(tableName, StorageIndexedTreeElementModel.class);
     }
 
     @Override
-    public void setupFlatFixtureStorage(String fixtureName,
-                                        StorageIndexedTreeElementModel exampleEntry,
-                                        Set<String> indices) {
+    public void setupIndexedFixtureStorage(String fixtureName,
+                                           StorageIndexedTreeElementModel exampleEntry,
+                                           Set<String> indices) {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
         DatabaseUserOpenHelper.dropTable(app.getUserDbHandle(), tableName);
         DatabaseUserOpenHelper.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
-        DatabaseUserOpenHelper.buildFlatFixtureIndices(app.getUserDbHandle(), tableName, indices);
+        DatabaseUserOpenHelper.buildFixtureIndices(app.getUserDbHandle(), tableName, indices);
     }
 
     @Override
-    public Pair<String, String> getFlatFixturePathBases(String fixtureName) {
+    public Pair<String, String> getIndexedFixturePathBases(String fixtureName) {
         SQLiteDatabase db = app.getUserDbHandle();
-        Cursor c = db.query(DbUtil.FLAT_FIXTURE_INDEX_TABLE,
-                new String[]{DbUtil.FLAT_FIXTURE_INDEX_COL_BASE, DbUtil.FLAT_FIXTURE_INDEX_COL_CHILD},
-                DbUtil.FLAT_FIXTURE_INDEX_COL_NAME + "=?", new String[]{fixtureName}, null, null, null);
+        Cursor c = db.query(DbUtil.INDEXED_FIXTURE_INDEX_TABLE,
+                new String[]{DbUtil.INDEXED_FIXTURE_INDEX_COL_BASE, DbUtil.INDEXED_FIXTURE_INDEX_COL_CHILD},
+                DbUtil.INDEXED_FIXTURE_INDEX_COL_NAME + "=?", new String[]{fixtureName}, null, null, null);
         try {
             if (c.getCount() == 0) {
                 return null;
             } else {
                 c.moveToFirst();
                 return Pair.create(
-                        c.getString(c.getColumnIndexOrThrow(DbUtil.FLAT_FIXTURE_INDEX_COL_BASE)),
-                        c.getString(c.getColumnIndexOrThrow(DbUtil.FLAT_FIXTURE_INDEX_COL_CHILD)));
+                        c.getString(c.getColumnIndexOrThrow(DbUtil.INDEXED_FIXTURE_INDEX_COL_BASE)),
+                        c.getString(c.getColumnIndexOrThrow(DbUtil.INDEXED_FIXTURE_INDEX_COL_CHILD)));
             }
         } finally {
             c.close();
@@ -86,18 +86,18 @@ public class AndroidSandbox extends UserSandbox {
     }
 
     @Override
-    public void setFlatFixturePathBases(String fixtureName, String baseName, String childName) {
+    public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName) {
         SQLiteDatabase db = app.getUserDbHandle();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DbUtil.FLAT_FIXTURE_INDEX_COL_BASE, baseName);
-        contentValues.put(DbUtil.FLAT_FIXTURE_INDEX_COL_CHILD, childName);
-        contentValues.put(DbUtil.FLAT_FIXTURE_INDEX_COL_NAME, fixtureName);
+        contentValues.put(DbUtil.INDEXED_FIXTURE_INDEX_COL_BASE, baseName);
+        contentValues.put(DbUtil.INDEXED_FIXTURE_INDEX_COL_CHILD, childName);
+        contentValues.put(DbUtil.INDEXED_FIXTURE_INDEX_COL_NAME, fixtureName);
 
         try {
             db.beginTransaction();
 
-            long ret = db.insertOrThrow(DbUtil.FLAT_FIXTURE_INDEX_TABLE,
-                    DbUtil.FLAT_FIXTURE_INDEX_COL_BASE,
+            long ret = db.insertOrThrow(DbUtil.INDEXED_FIXTURE_INDEX_TABLE,
+                    DbUtil.INDEXED_FIXTURE_INDEX_COL_BASE,
                     contentValues);
 
             if (ret > Integer.MAX_VALUE) {
