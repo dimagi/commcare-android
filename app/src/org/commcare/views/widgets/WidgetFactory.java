@@ -9,9 +9,13 @@ import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.AndroidArrayDataSource;
+import org.javarosa.core.model.ComboboxFilterRule;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.FuzzyMatchFilterRule;
+import org.javarosa.core.model.MultiWordFilterRule;
 import org.javarosa.core.model.QuestionDataExtension;
+import org.javarosa.core.model.StandardFilterRule;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -187,15 +191,15 @@ public class WidgetFactory {
     private static QuestionWidget buildComboboxSelectOne(String appearance,
                                                          FormEntryPrompt fep,
                                                          Context context) {
-        ComboboxAdapter.FilterType type;
+        ComboboxFilterRule filterRule;
         if (appearance.contains("multiword")) {
-            type = ComboboxAdapter.FilterType.MULTI_WORD;
+            filterRule = new MultiWordFilterRule();
         } else if (appearance.contains("fuzzy")) {
-            type = ComboboxAdapter.FilterType.FUZZY;
+            filterRule = new FuzzyMatchFilterRule();
         } else {
-            type = ComboboxAdapter.FilterType.STANDARD;
+            filterRule = new StandardFilterRule();
         }
-        return new ComboboxWidget(context, fep, type);
+        return new ComboboxWidget(context, fep, filterRule);
     }
 
     private static QuestionWidget buildSelectMulti(String appearance, FormEntryPrompt fep, Context context) {

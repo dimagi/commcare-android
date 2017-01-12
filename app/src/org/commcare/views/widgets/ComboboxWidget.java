@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 
 import org.commcare.adapters.ComboboxAdapter;
 import org.commcare.views.Combobox;
+import org.javarosa.core.model.ComboboxFilterRule;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.InvalidData;
@@ -34,10 +35,10 @@ public class ComboboxWidget extends QuestionWidget {
     private Vector<String> choiceTexts;
     private Combobox comboBox;
 
-    public ComboboxWidget(Context context, FormEntryPrompt prompt, ComboboxAdapter.FilterType type) {
+    public ComboboxWidget(Context context, FormEntryPrompt prompt, ComboboxFilterRule filterRule) {
         super(context, prompt);
         initChoices(prompt);
-        comboBox = setUpComboboxForWidget(context, choiceTexts, type, mQuestionFontSize);
+        comboBox = setUpComboboxForWidget(context, choiceTexts, filterRule, mQuestionFontSize);
         addView(comboBox);
 
         comboBox.setEnabled(!prompt.isReadOnly());
@@ -47,20 +48,20 @@ public class ComboboxWidget extends QuestionWidget {
     }
 
     private static Combobox setUpComboboxForWidget(Context context, Vector<String> choices,
-                                             ComboboxAdapter.FilterType type, int fontSize) {
+                                             ComboboxFilterRule filterRule, int fontSize) {
         ComboboxAdapter adapter =
                 getAdapterForComboboxWidget(context, choices.toArray(new String[]{}),
-                        type, fontSize);
+                        filterRule, fontSize);
         Combobox combobox = new Combobox(context, choices, adapter);
         combobox.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
         return combobox;
     }
 
     private static ComboboxAdapter getAdapterForComboboxWidget(Context context, String[] choices,
-                                                              ComboboxAdapter.FilterType type,
+                                                               ComboboxFilterRule filterRule,
                                                                int fontSize) {
         choices = SpinnerWidget.getChoicesWithEmptyFirstSlot(choices);
-        ComboboxAdapter adapter = new ComboboxAdapter(context, choices, type);
+        ComboboxAdapter adapter = new ComboboxAdapter(context, choices, filterRule);
         adapter.setCustomTextSize(fontSize);
         return adapter;
     }

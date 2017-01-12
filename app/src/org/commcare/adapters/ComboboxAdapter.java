@@ -30,22 +30,12 @@ public class ComboboxAdapter extends ArrayAdapter<String> {
     protected String[] currentChoices;
     protected ComboboxFilterRule filterRule;
 
-    public ComboboxAdapter(final Context context, final String[] objects, FilterType type) {
+    public ComboboxAdapter(final Context context, final String[] objects,
+                           ComboboxFilterRule filterRule) {
         super(context, R.layout.custom_spinner_item, objects);
         allChoices = currentChoices = objects;
         this.customTextSize = -1;
-
-        switch(type) {
-            case MULTI_WORD:
-                filterRule = new MultiWordFilterRule();
-                break;
-            case FUZZY:
-                filterRule = new FuzzyMatchFilterRule();
-                break;
-            case STANDARD:
-            default:
-                filterRule = new StandardFilterRule();
-        }
+        this.filterRule = filterRule;
     }
 
     /**
@@ -121,10 +111,6 @@ public class ComboboxAdapter extends ArrayAdapter<String> {
                 }
             }
         };
-    }
-
-    public enum FilterType {
-        STANDARD, MULTI_WORD, FUZZY
     }
 
 }
