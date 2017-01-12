@@ -3,6 +3,7 @@ package org.commcare.xml;
 import android.content.Context;
 
 import org.commcare.CommCareApplication;
+import org.commcare.cases.instance.FixtureIndexSchema;
 import org.commcare.cases.model.Case;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.data.xml.TransactionParser;
@@ -78,6 +79,13 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
                 return created;
             }
         };
+    }
+
+    @Override
+    public FlatFixtureXmlParser buildFlatFixtureParser(KXmlParser parser,
+                                                       String fixtureName,
+                                                       FixtureIndexSchema schema) {
+        return new AndroidFlatFixtureXmlParser(parser, fixtureName, schema, sandbox);
     }
 
     @Override
