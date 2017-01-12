@@ -19,7 +19,8 @@ public class IndexedFixturePathUtils {
     private final static String INDEXED_FIXTURE_INDEX_COL_BASE = "base";
     private final static String INDEXED_FIXTURE_INDEX_COL_CHILD = "child";
 
-    public static Pair<String, String> lookupIndexedFixturePaths(SQLiteDatabase db, String fixtureName) {
+    public static Pair<String, String> lookupIndexedFixturePaths(SQLiteDatabase db,
+                                                                 String fixtureName) {
         Cursor c = db.query(INDEXED_FIXTURE_INDEX_TABLE,
                 new String[]{INDEXED_FIXTURE_INDEX_COL_BASE, INDEXED_FIXTURE_INDEX_COL_CHILD},
                 INDEXED_FIXTURE_INDEX_COL_NAME + "=?", new String[]{fixtureName}, null, null, null);
@@ -69,7 +70,8 @@ public class IndexedFixturePathUtils {
                 ", " + INDEXED_FIXTURE_INDEX_COL_CHILD + ");";
         db.execSQL(createStatement);
 
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("fixture_name_index", INDEXED_FIXTURE_INDEX_TABLE, INDEXED_FIXTURE_INDEX_COL_NAME));
+        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("fixture_name_index",
+                INDEXED_FIXTURE_INDEX_TABLE, INDEXED_FIXTURE_INDEX_COL_NAME));
     }
 
     public static void buildFixtureIndices(SQLiteDatabase database,
@@ -83,7 +85,9 @@ public class IndexedFixturePathUtils {
                 if (index.contains(",")) {
                     indexName = index.replaceAll(",", "_") + "_index";
                 }
-                database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand(indexName, tableName, index));
+                String indexStmt =
+                        DatabaseAppOpenHelper.indexOnTableCommand(indexName, tableName, index);
+                database.execSQL(indexStmt);
             }
 
             database.setTransactionSuccessful();
