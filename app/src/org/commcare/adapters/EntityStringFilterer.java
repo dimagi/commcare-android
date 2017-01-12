@@ -1,15 +1,15 @@
 package org.commcare.adapters;
 
 import android.app.Activity;
-import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.cases.util.StringUtils;
+import org.commcare.modern.util.Pair;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 
@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+
 
 /**
  * Filter entity list via all string-representable entity fields
