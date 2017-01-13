@@ -4,13 +4,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import org.commcare.adapters.ComboboxAdapter;
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.AndroidArrayDataSource;
+import org.javarosa.core.model.ComboboxFilterRule;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.FuzzyMatchFilterRule;
+import org.javarosa.core.model.MultiWordFilterRule;
 import org.javarosa.core.model.QuestionDataExtension;
+import org.javarosa.core.model.StandardFilterRule;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -146,22 +151,11 @@ public class WidgetFactory {
 
     private static QuestionWidget buildSelectOne(String appearance, FormEntryPrompt fep, Context context) {
         if (appearance != null && appearance.contains("compact")) {
-            int numColumns = -1;
-            try {
-                numColumns =
-                        Integer.parseInt(appearance.substring(appearance.indexOf('-') + 1));
-            } catch (Exception e) {
-                // Do nothing, leave numColumns as -1
-                Log.e("WidgetFactory", "Exception parsing numColumns");
-            }
-
-            if (appearance.contains("quick")) {
-                return new GridWidget(context, fep, numColumns, true);
-            } else {
-                return new GridWidget(context, fep, numColumns, false);
-            }
+            return buildCompactSelectOne(appearance, fep, context);
         } else if (appearance != null && appearance.equals("minimal")) {
             return new SpinnerWidget(context, fep);
+        } else if (appearance != null && appearance.contains("combobox")) {
+            return buildComboboxSelectOne(appearance, fep, context);
         } else if (appearance != null && appearance.equals("quick")) {
             return new SelectOneAutoAdvanceWidget(context, fep);
         } else if (appearance != null && appearance.equals("list")) {
@@ -173,6 +167,39 @@ public class WidgetFactory {
         } else {
             return new SelectOneWidget(context, fep);
         }
+    }
+
+    private static QuestionWidget buildCompactSelectOne(String appearance,
+                                                        FormEntryPrompt fep,
+                                                        Context context) {
+        int numColumns = -1;
+        try {
+            numColumns =
+                    Integer.parseInt(appearance.substring(appearance.indexOf('-') + 1));
+        } catch (Exception e) {
+            // Do nothing, leave numColumns as -1
+            Log.e("WidgetFactory", "Exception parsing numColumns");
+        }
+
+        if (appearance.contains("quick")) {
+            return new GridWidget(context, fep, numColumns, true);
+        } else {
+            return new GridWidget(context, fep, numColumns, false);
+        }
+    }
+
+    private static QuestionWidget buildComboboxSelectOne(String appearance,
+                                                         FormEntryPrompt fep,
+                                                         Context context) {
+        ComboboxFilterRule filterRule;
+        if (appearance.contains("multiword")) {
+            filterRule = new MultiWordFilterRule();
+        } else if (appearance.contains("fuzzy")) {
+            filterRule = new FuzzyMatchFilterRule();
+        } else {
+            filterRule = new StandardFilterRule();
+        }
+        return new ComboboxWidget(context, fep, filterRule);
     }
 
     private static QuestionWidget buildSelectMulti(String appearance, FormEntryPrompt fep, Context context) {

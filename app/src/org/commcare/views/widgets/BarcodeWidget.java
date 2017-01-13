@@ -30,7 +30,7 @@ public class BarcodeWidget extends IntentWidget implements TextWatcher {
     public void setupTextView() {
         if (isEditable) {
             mStringAnswer.addTextChangedListener(this);
-            mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+            mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
             mStringAnswer.setGravity(Gravity.CENTER);
 
             String s = mPrompt.getAnswerText();
