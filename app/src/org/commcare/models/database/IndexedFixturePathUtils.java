@@ -79,20 +79,20 @@ public class IndexedFixturePathUtils {
                                            Set<String> indices) {
         try {
             database.beginTransaction();
-
             for (String index : indices) {
-                String indexName = index + "_index";
-                if (index.contains(",")) {
-                    indexName = index.replaceAll(",", "_") + "_index";
-                }
-                String indexStmt =
-                        DatabaseAppOpenHelper.indexOnTableCommand(indexName, tableName, index);
-                database.execSQL(indexStmt);
+                database.execSQL(makeIndexingStatement(tableName, index));
             }
-
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
         }
+    }
+
+    private static String makeIndexingStatement(String tableName, String index) {
+        String indexName = index + "_index";
+        if (index.contains(",")) {
+            indexName = index.replaceAll(",", "_") + "_index";
+        }
+        return DatabaseAppOpenHelper.indexOnTableCommand(indexName, tableName, index);
     }
 }

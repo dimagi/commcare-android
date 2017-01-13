@@ -71,6 +71,10 @@ public class IndexedFixtureLoadingTest {
                 ""));
     }
 
+    /**
+     * Test adding an index over the '@id' attribute, which isn't present in
+     * all fixture entries (i.e. entries are non-homogenous)
+     */
     @Test
     public void indexOverNonHomogeneousElementTest() throws XPathSyntaxException {
         AndroidSandbox sandbox =
