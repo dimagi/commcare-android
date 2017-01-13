@@ -9,10 +9,12 @@
         <uuid>a8f5a98c4ce767c35b9132bc75eb225c</uuid>
         <date>2014-03-22</date>
     </Registration>
-    <table-indices id="commtrack:products">
+    <schema id="commtrack:products">
+      <indices>
         <index>@id</index>
         <index>@dashes-break</index>
-    </table-indices>
+      </indices>
+    </schema>
     <fixture indexed="true" id="commtrack:products" user_id="a8f5a98c4ce767c35b9132bc75eb225c">
         <products>
             <product>
