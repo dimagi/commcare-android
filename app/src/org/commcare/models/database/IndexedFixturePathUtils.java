@@ -2,7 +2,7 @@ package org.commcare.models.database;
 
 import android.content.ContentValues;
 
-import org.commcare.models.database.app.DatabaseAppOpenHelper;
+import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.modern.util.Pair;
 
 import net.sqlcipher.Cursor;
@@ -70,7 +70,7 @@ public class IndexedFixturePathUtils {
                 ", " + INDEXED_FIXTURE_INDEX_COL_CHILD + ");";
         db.execSQL(createStatement);
 
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("fixture_name_index",
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("fixture_name_index",
                 INDEXED_FIXTURE_INDEX_TABLE, INDEXED_FIXTURE_INDEX_COL_NAME));
     }
 
@@ -79,20 +79,12 @@ public class IndexedFixturePathUtils {
                                            Set<String> indices) {
         try {
             database.beginTransaction();
-            for (String index : indices) {
-                database.execSQL(makeIndexingStatement(tableName, index));
+            for (String indexStmt : DatabaseIndexingUtils.getIndexStatements(tableName, indices)) {
+                database.execSQL(indexStmt);
             }
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
         }
-    }
-
-    private static String makeIndexingStatement(String tableName, String index) {
-        String indexName = index + "_index";
-        if (index.contains(",")) {
-            indexName = index.replaceAll(",", "_") + "_index";
-        }
-        return DatabaseAppOpenHelper.indexOnTableCommand(indexName, tableName, index);
     }
 }

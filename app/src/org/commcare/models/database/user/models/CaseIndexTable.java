@@ -10,8 +10,8 @@ import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.database.DatabaseIndexingUtils;
 
 import java.util.Vector;
 
@@ -51,7 +51,7 @@ public class CaseIndexTable {
 
     public static void createIndexes(SQLiteDatabase db) {
         String columns = COL_CASE_RECORD_ID + ", " + COL_INDEX_NAME + ", " + COL_INDEX_TARGET;
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("RECORD_NAME_ID_TARGET", TABLE_NAME, columns));
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("RECORD_NAME_ID_TARGET", TABLE_NAME, columns));
     }
 
     /**
