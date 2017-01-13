@@ -18,17 +18,17 @@ public class IndexedFixturePathUtils {
 
     public static Pair<String, String> lookupIndexedFixturePaths(SQLiteDatabase db,
                                                                  String fixtureName) {
-        Cursor c = db.query(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_TABLE,
-                new String[]{IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_BASE, IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_CHILD},
-                IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_NAME + "=?", new String[]{fixtureName}, null, null, null);
+        Cursor c = db.query(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
+                new String[]{IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE, IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_CHILD},
+                IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME + "=?", new String[]{fixtureName}, null, null, null);
         try {
             if (c.getCount() == 0) {
                 return null;
             } else {
                 c.moveToFirst();
                 return Pair.create(
-                        c.getString(c.getColumnIndexOrThrow(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_BASE)),
-                        c.getString(c.getColumnIndexOrThrow(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_CHILD)));
+                        c.getString(c.getColumnIndexOrThrow(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE)),
+                        c.getString(c.getColumnIndexOrThrow(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_CHILD)));
             }
         } finally {
             c.close();
@@ -38,15 +38,15 @@ public class IndexedFixturePathUtils {
     public static void insertIndexedFixturePathBases(SQLiteDatabase db, String fixtureName,
                                                      String baseName, String childName) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_BASE, baseName);
-        contentValues.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_CHILD, childName);
-        contentValues.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_NAME, fixtureName);
+        contentValues.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE, baseName);
+        contentValues.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_CHILD, childName);
+        contentValues.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME, fixtureName);
 
         try {
             db.beginTransaction();
 
-            long ret = db.insertOrThrow(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_TABLE,
-                    IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_COL_BASE,
+            long ret = db.insertOrThrow(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
+                    IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE,
                     contentValues);
 
             if (ret > Integer.MAX_VALUE) {
@@ -60,7 +60,7 @@ public class IndexedFixturePathUtils {
     }
 
     public static void createStorageBackedFixtureIndexTable(SQLiteDatabase db) {
-        db.execSQL(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEX_TABLE_STMT);
+        db.execSQL(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE_STMT);
         db.execSQL(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEXING_STMT);
     }
 
