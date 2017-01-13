@@ -1,4 +1,4 @@
-package org.commcare.logging.analytics;
+package org.commcare.google.services.analytics;
 
 /**
  * Contains the hierarchy of all labels used to send data to google analytics. The hierarchy of

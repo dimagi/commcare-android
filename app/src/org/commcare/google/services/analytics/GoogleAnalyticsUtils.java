@@ -1,4 +1,4 @@
-package org.commcare.logging.analytics;
+package org.commcare.google.services.analytics;
 
 import android.os.Build;
 import android.preference.Preference;
