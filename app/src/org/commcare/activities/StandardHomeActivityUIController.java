@@ -6,10 +6,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.ViewTreeObserver;
 
+import com.google.android.gms.ads.AdView;
+
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.HomeScreenAdapter;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
