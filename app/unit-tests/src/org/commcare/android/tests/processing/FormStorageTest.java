@@ -77,6 +77,7 @@ public class FormStorageTest {
             , "org.commcare.cases.ledger.Ledger"
             , "org.commcare.cases.model.Case"
             , "org.commcare.cases.model.CaseIndex"
+            , "org.commcare.cases.model.StorageIndexedTreeElementModel"
             , "org.commcare.logging.XPathErrorEntry"
             , "org.commcare.resources.model.Resource"
             , "org.commcare.resources.model.ResourceLocation"

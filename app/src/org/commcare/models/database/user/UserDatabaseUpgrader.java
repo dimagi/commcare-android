@@ -13,9 +13,9 @@ import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
-import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
 import org.commcare.android.database.user.models.ACase;
@@ -27,6 +27,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -127,6 +128,12 @@ class UserDatabaseUpgrader {
                 oldVersion = 14;
             }
         }
+
+        if (oldVersion == 14) {
+            if (upgradeFourteenFifteen(db)) {
+                oldVersion = 15;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -166,7 +173,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeFourFive(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("ledger_entity_id", "ledger", "entity_id"));
+            db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("ledger_entity_id", "ledger", "entity_id"));
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -181,7 +188,7 @@ class UserDatabaseUpgrader {
 
         db.beginTransaction();
         try {
-            db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_status_open_index", "AndroidCase", "case_type,case_status"));
+            db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_open_index", "AndroidCase", "case_type,case_status"));
 
             DbUtil.createNumbersTable(db);
             db.execSQL(EntityStorageCache.getTableDefinition());
@@ -410,10 +417,21 @@ class UserDatabaseUpgrader {
         }
     }
 
+    private boolean upgradeFourteenFifteen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            IndexedFixturePathUtils.createStorageBackedFixtureIndexTable(db);
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     private void updateIndexes(SQLiteDatabase db) {
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_type_index", "AndroidCase", "case_type"));
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_status_index", "AndroidCase", "case_status"));
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_type_index", "AndroidCase", "case_type"));
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_index", "AndroidCase", "case_status"));
     }
 
     private void addStockTable(SQLiteDatabase db) {
@@ -426,7 +444,6 @@ class UserDatabaseUpgrader {
     private void markSenseIncompleteUnsent(final SQLiteDatabase db) {
         //Fix for Bug in 2.7.0/1, forms in sense mode weren't being properly marked as complete after entry.
         if (inSenseMode) {
-
             //Get form record storage
             SqlStorage<FormRecord> storage = new SqlStorage<>(FormRecord.STORAGE_KEY, FormRecord.class, new ConcreteAndroidDbHelper(c, db));
 
