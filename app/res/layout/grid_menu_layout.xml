@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"/>
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/universal_frame_tile">
@@ -36,9 +36,19 @@
             android:horizontalSpacing="0dp"
             android:stretchMode="columnWidth"
             android:numColumns="2"
+            android:layout_below="@id/submission_progress_bar"
             style="@style/ListViewV2"/>
 
-    </FrameLayout>
+        <FrameLayout
+            android:id="@+id/ad_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true">
+        </FrameLayout>
+
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/nav_drawer"

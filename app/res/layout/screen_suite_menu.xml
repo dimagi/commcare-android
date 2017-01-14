@@ -27,4 +27,14 @@
             android:layout_height="match_parent"
             android:listSelector="@drawable/selector"/>
     </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/ad_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true">
+    </FrameLayout>
+
 </RelativeLayout>
