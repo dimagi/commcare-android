@@ -94,8 +94,6 @@ public class AdMobManager {
         }
     }
 
-
-
     public static void initAdsForCurrentConsumerApp(Context context) {
         String currentConsumerAppPackageId = getPackageIdentifierForCurrentConsumerApp(context);
         if (hasAdmobId(currentConsumerAppPackageId)) {

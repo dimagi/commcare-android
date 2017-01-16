@@ -28,6 +28,16 @@
 
         <include layout="@layout/component_drop_shadow"/>
 
+        <FrameLayout
+            android:id="@+id/ad_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:paddingBottom="@dimen/standard_spacer"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true">
+        </FrameLayout>
+
         <GridView
             android:id="@+id/grid_menu_grid"
             android:layout_width="match_parent"
@@ -37,16 +47,8 @@
             android:stretchMode="columnWidth"
             android:numColumns="2"
             android:layout_below="@id/submission_progress_bar"
+            android:layout_above="@id/ad_container"
             style="@style/ListViewV2"/>
-
-        <FrameLayout
-            android:id="@+id/ad_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_centerHorizontal="true"
-            android:layout_alignParentBottom="true">
-        </FrameLayout>
 
     </RelativeLayout>
 
