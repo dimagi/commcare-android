@@ -66,11 +66,11 @@ public class SpinnerMultiWidget extends QuestionWidget {
         }
 
         selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected));
-        selectionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        selectionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         selectionText.setVisibility(View.GONE);
 
         button.setText(StringUtils.getStringSpannableRobust(context, R.string.select_answer));
-        button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         button.setPadding(0, 0, 0, 7);
 
         // Give the button a click listener. This defines the alert as well. All the

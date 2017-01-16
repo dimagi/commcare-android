@@ -49,7 +49,7 @@ public class SpinnerWidget extends QuestionWidget {
         SpinnerAdapter adapter =
                 new SpinnerAdapter(getContext(), android.R.layout.simple_spinner_item,
                         getChoicesWithEmptyFirstSlot(choices),
-                        TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+                        TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
 
         spinner.setAdapter(adapter);
         spinner.setPrompt(prompt.getQuestionText());
@@ -88,7 +88,7 @@ public class SpinnerWidget extends QuestionWidget {
 
     }
 
-    private static String[] getChoicesWithEmptyFirstSlot(String[] originalChoices) {
+    public static String[] getChoicesWithEmptyFirstSlot(String[] originalChoices) {
         //Creates an empty option to be displayed the first time the widget is shown
         String[] newChoicesList = new String[originalChoices.length+1];
         newChoicesList[0] = "";
@@ -143,7 +143,6 @@ public class SpinnerWidget extends QuestionWidget {
             this.textSize = textSize;
         }
 
-
         @Override
         // Defines the text view parameters for the drop down list entries
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
@@ -178,7 +177,6 @@ public class SpinnerWidget extends QuestionWidget {
 
     }
 
-
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         spinner.setOnLongClickListener(l);
@@ -187,7 +185,6 @@ public class SpinnerWidget extends QuestionWidget {
     @Override
     public void unsetListeners() {
         super.unsetListeners();
-
         spinner.setOnLongClickListener(null);
     }
 

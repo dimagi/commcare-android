@@ -482,7 +482,8 @@ public class EntityView extends LinearLayout {
                             int indexInDisplay = normalizedDisplayString.indexOf(currentSpan);
                             int length = (curEnd - curStart);
 
-                            if (indexInDisplay != -1 && StringUtils.fuzzyMatch(currentSpan, searchText).first) {
+                            if (indexInDisplay != -1 &&
+                                    org.commcare.cases.util.StringUtils.fuzzyMatch(currentSpan, searchText).first) {
                                 raw.setSpan(new BackgroundColorSpan(Color.parseColor(Localization.get("odk_fuzzy_match_color"))), indexInDisplay,
                                         indexInDisplay + length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                             }

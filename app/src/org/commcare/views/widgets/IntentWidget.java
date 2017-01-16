@@ -74,7 +74,7 @@ public class IntentWidget extends QuestionWidget {
     }
 
     protected void setupTextView() {
-        mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+        mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mStringAnswer.setGravity(Gravity.CENTER);
 
         String s = mPrompt.getAnswerText();
@@ -97,7 +97,7 @@ public class IntentWidget extends QuestionWidget {
 
         WidgetUtils.setupButton(launchIntentButton,
                 getButtonLabel(),
-                mAnswerFontsize,
+                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch barcode capture intent on click

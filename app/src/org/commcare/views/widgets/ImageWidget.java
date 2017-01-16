@@ -75,7 +75,7 @@ public class ImageWidget extends QuestionWidget {
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image),
-                mAnswerFontsize,
+                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
@@ -110,7 +110,7 @@ public class ImageWidget extends QuestionWidget {
         mChooseButton = new Button(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image),
-                mAnswerFontsize,
+                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click

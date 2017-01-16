@@ -55,7 +55,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>33</item>
+        <item>34</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>

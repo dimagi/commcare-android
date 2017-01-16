@@ -77,7 +77,7 @@ public class TriggerWidget extends QuestionWidget {
         mTriggerButton = new CheckBox(getContext());
         WidgetUtils.setupButton(mTriggerButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.trigger),
-                mAnswerFontsize,
+                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         mTriggerButton.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +97,7 @@ public class TriggerWidget extends QuestionWidget {
         // have values. Figure out if anyone actually uses interactive mode,
         // and if not, remove.
         mStringAnswer = new TextView(getContext());
-        mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+        mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mStringAnswer.setGravity(Gravity.CENTER);
 
         String s = mPrompt.getAnswerText();
