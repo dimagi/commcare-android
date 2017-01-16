@@ -28,16 +28,6 @@
 
         <include layout="@layout/component_drop_shadow"/>
 
-        <FrameLayout
-            android:id="@+id/ad_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:padding="@dimen/standard_spacer_double"
-            android:layout_centerHorizontal="true"
-            android:layout_alignParentBottom="true">
-        </FrameLayout>
-
         <GridView
             android:id="@+id/grid_menu_grid"
             android:layout_width="match_parent"
@@ -46,9 +36,23 @@
             android:horizontalSpacing="0dp"
             android:stretchMode="columnWidth"
             android:numColumns="2"
-            android:layout_below="@id/submission_progress_bar"
-            android:layout_above="@id/ad_container"
             style="@style/ListViewV2"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/grid_menu_grid">
+
+            <FrameLayout
+                android:id="@+id/ad_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:padding="@dimen/standard_spacer_double"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true" />
+
+        </RelativeLayout>
 
     </RelativeLayout>
 
