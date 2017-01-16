@@ -8,10 +8,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
@@ -134,6 +136,8 @@ public class EntityDetailActivity
 
         mDetailView.showMenu();
         isFinalSwipeActionEnabled = DeveloperPreferences.isDetailTabSwipeActionEnabled();
+
+        AdMobManager.requestBannerAdForView(this, (FrameLayout)this.findViewById(R.id.ad_container));
     }
 
     @Override
