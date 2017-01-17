@@ -5,54 +5,57 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/universal_frame_tile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"/>
-
+    <!-- Note that a DrawerLayout should only have 2 children: the drawer view itself and then
+         the main layout that contains everything else -->
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/universal_frame_tile">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-        <ProgressBar
-            android:id="@+id/submission_progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/submission_progressbar_height"
-            android:layout_alignParentTop="true"
-            android:gravity="top"
-            android:progressDrawable="@drawable/submission_progressbar_drawable"
-            android:visibility="gone"/>
-
-        <include layout="@layout/component_drop_shadow"/>
-
-        <GridView
-            android:id="@+id/grid_menu_grid"
+        <FrameLayout
+            android:id="@+id/universal_frame_tile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:verticalSpacing="0dp"
-            android:horizontalSpacing="0dp"
-            android:stretchMode="columnWidth"
-            android:numColumns="2"
-            style="@style/ListViewV2"/>
+            android:layout_alignParentTop="true">
+        </FrameLayout>
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/grid_menu_grid">
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@id/universal_frame_tile">
 
-            <FrameLayout
-                android:id="@+id/ad_container"
-                android:layout_width="wrap_content"
+            <ProgressBar
+                android:id="@+id/submission_progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/submission_progressbar_height"
+                android:layout_alignParentTop="true"
+                android:gravity="top"
+                android:progressDrawable="@drawable/submission_progressbar_drawable"
+                android:visibility="gone"/>
+
+            <include layout="@layout/component_drop_shadow"/>
+
+            <GridView
+                android:id="@+id/grid_menu_grid"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:padding="@dimen/standard_spacer_double"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true" />
+                android:verticalSpacing="0dp"
+                android:horizontalSpacing="0dp"
+                android:stretchMode="columnWidth"
+                android:numColumns="2"
+                style="@style/ListViewV2"/>
 
         </RelativeLayout>
+
+        <FrameLayout
+            android:id="@+id/ad_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:padding="@dimen/standard_spacer_double"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true" />
 
     </RelativeLayout>
 
