@@ -6,7 +6,8 @@
     android:layout_height="match_parent">
 
     <!-- Note that a DrawerLayout should only have 2 children: the drawer view itself and then
-         the main layout that contains everything else -->
+         the main layout that contains everything else (which can be anything; in this case it
+         is a RelativeLayout)-->
     <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"

@@ -128,10 +128,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        AdMobManager.initAdsForCurrentConsumerApp(getApplicationContext());
-
         loadInstanceState(savedInstanceState);
         ACRAUtil.registerAppData();
+        AdMobManager.initAdsForCurrentConsumerApp(getApplicationContext());
         sessionNavigator = new SessionNavigator(this);
 
         processFromExternalLaunch(savedInstanceState);
