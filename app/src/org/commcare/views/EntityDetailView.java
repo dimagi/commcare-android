@@ -352,8 +352,7 @@ public class EntityDetailView extends FrameLayout {
         i.putExtra("woman_name", "Jane Doe");
         i.putExtra("village_name", "Cambridge, MA");
 
-        //Adding graph html
-        i.putExtra(GraphView.GRAPH_UNIQUE,graphHTMLMap.get(graphView));
+        i.putExtra(TemplatePrinterActivity.KEY_GRAPH_TO_PRINT, graphHTMLMap.get(graphView));
 
         print.setOnClickListener(new OnClickListener() {
             @Override

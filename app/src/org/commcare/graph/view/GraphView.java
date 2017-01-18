@@ -27,13 +27,13 @@ import java.util.TreeMap;
  *
  * @author jschweers
  */
-public class GraphView{
+public class GraphView {
+
     public static final String HTML = "html";
     public static final String TITLE = "title";
     private final Context mContext;
     private final String mTitle;
     private final boolean mIsFullScreen;
-    public static final String GRAPH_UNIQUE = "GRAPH UNIQUE";
 
     public String myHTML;
 
