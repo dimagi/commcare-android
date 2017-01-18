@@ -31,7 +31,10 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.utils.BlockingActionsManager;
+import org.commcare.utils.DelayedBlockingAction;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ShrinkingTextView;
@@ -43,6 +46,7 @@ import org.javarosa.core.model.QuestionExtensionReceiver;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -55,8 +59,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     private final LinearLayout.LayoutParams mLayout;
     protected final FormEntryPrompt mPrompt;
 
-    protected final int mQuestionFontsize;
-    protected final int mAnswerFontsize;
+    protected final int mQuestionFontSize;
+    protected final int mAnswerFontSize;
     protected final static String ACQUIREFIELD = "acquire";
 
     //the height of the "Frame" available to this widget. The frame
@@ -77,6 +81,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     private boolean focusPending = false;
 
     protected WidgetChangedListener widgetChangedListener;
+    protected BlockingActionsManager blockingActionsManager;
 
     public QuestionWidget(Context context, FormEntryPrompt p) {
         super(context);
@@ -96,8 +101,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         String question_font =
                 settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
-        mQuestionFontsize = Integer.valueOf(question_font);
-        mAnswerFontsize = mQuestionFontsize + 2;
+        mQuestionFontSize = Integer.valueOf(question_font);
+        mAnswerFontSize = mQuestionFontSize + 2;
 
         setOrientation(LinearLayout.VERTICAL);
         setGravity(Gravity.TOP);
@@ -171,6 +176,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     public abstract void setFocus(Context context);
 
+    @Override
     public abstract void setOnLongClickListener(OnLongClickListener l);
 
     @Override
@@ -235,6 +241,19 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     public void notifyInvalid(String text, boolean requestFocus) {
         notifyOnScreen(text, true, requestFocus);
+    }
+
+    protected void checkForOversizedMedia(IAnswerData widgetAnswer) {
+        if (widgetAnswer instanceof InvalidData) {
+            String fileSizeString = widgetAnswer.getValue() + "";
+            showOversizedMediaWarning(fileSizeString);
+        }
+    }
+
+    private void showOversizedMediaWarning(String fileSizeString) {
+        String maxAcceptable = FileUtil.bytesToMeg(FormUploadUtil.MAX_BYTES) + "";
+        String[] args = new String[]{fileSizeString, maxAcceptable};
+        notifyInvalid(StringUtils.getStringRobust(getContext(), R.string.attachment_above_size_limit, args), true);
     }
 
     /**
@@ -311,6 +330,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         child.requestRectangleOnScreen(vitalPortionSaved);
     }
 
+    @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
 
@@ -364,27 +384,17 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * TextView to fit the rest of the space, then the image if applicable.
      */
     protected void addQuestionText() {
-        String imageURI = mPrompt.getImageText();
-        String audioURI = mPrompt.getAudioText();
-        String videoURI = mPrompt.getSpecialFormQuestionText("video");
-        String inlineVideoUri = mPrompt.getSpecialFormQuestionText("video-inline");
-        String qrCodeContent = mPrompt.getSpecialFormQuestionText("qrcode");
-
-        // shown when image is clicked
-        String bigImageURI = mPrompt.getSpecialFormQuestionText("big-image");
-
         mQuestionText = (TextView)LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, this, false);
-        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         mQuestionText.setId(38475483); // assign random id
 
         setQuestionText(mQuestionText, mPrompt);
 
-        if(mPrompt.getLongText()!= null){
-            if(mPrompt.getLongText().contains("\u260E")){
-                if(Linkify.addLinks(mQuestionText,Linkify.PHONE_NUMBERS)){
+        if (mPrompt.getLongText() != null) {
+            if (mPrompt.getLongText().contains("\u260E")) {
+                if (Linkify.addLinks(mQuestionText, Linkify.PHONE_NUMBERS)) {
                     stripUnderlines(mQuestionText);
-                }
-                else{
+                } else {
                     Log.d(TAG, "this should be an error I'm thinking?");
                 }
             }
@@ -395,11 +405,16 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
 
         // Create the layout for audio, image, text
-        MediaLayout mediaLayout = new MediaLayout(getContext());
+        String imageURI = mPrompt.getImageText();
+        String audioURI = mPrompt.getAudioText();
+        String expandedAudioURI = mPrompt.getSpecialFormQuestionText("expanded-audio");
+        String videoURI = mPrompt.getSpecialFormQuestionText("video");
+        String inlineVideoUri = mPrompt.getSpecialFormQuestionText("video-inline");
+        String qrCodeContent = mPrompt.getSpecialFormQuestionText("qrcode");
+        // shown when image is clicked
+        String bigImageURI = mPrompt.getSpecialFormQuestionText("big-image");
 
-        mediaLayout.setAVT(mQuestionText, audioURI, imageURI, videoURI,
-                bigImageURI, qrCodeContent, inlineVideoUri, false);
-
+        MediaLayout mediaLayout = MediaLayout.buildComprehensiveLayout(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri, expandedAudioURI, mPrompt.getIndex().hashCode());
         addView(mediaLayout, mLayout);
     }
 
@@ -463,19 +478,16 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         } else {
             text.setText(mPrompt.getHelpText());
         }
-        text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
         text.setPadding(0, 0, 0, 7);
         text.setId(38475483); // assign random id
-        
-        MediaLayout helpLayout = new MediaLayout(getContext());
-        helpLayout.setAVT(
-                text,
+
+        MediaLayout helpLayout = MediaLayout.buildAudioImageVisualLayout(getContext(), text,
                 mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_AUDIO),
                 mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_IMAGE),
                 mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_VIDEO),
-                null
-        );
+                null);
         helpLayout.setPadding(padding, padding, padding, padding);
 
         return helpLayout;
@@ -550,7 +562,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
         if (s != null && !s.equals("")) {
             mHintText = new ShrinkingTextView(getContext(),this.getMaxHintHeight());
-            mHintText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize - 3);
+            mHintText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize - 3);
             mHintText.setPadding(0, -5, 0, 7);
             // wrap to the widget of view
             mHintText.setHorizontallyScrolling(false);
@@ -569,6 +581,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * Every subclassed widget should override this, adding any views they may contain, and calling
      * super.cancelLongPress()
      */
+    @Override
     public void cancelLongPress() {
         super.cancelLongPress();
         if (mQuestionText != null) {
@@ -597,22 +610,44 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         return mPrompt.getIndex();
     }
 
-    public void setChangedListener(WidgetChangedListener wcl){
+    public void setChangedListeners(WidgetChangedListener wcl,
+                                    BlockingActionsManager blockingActionsManager){
         widgetChangedListener = wcl;
+        this.blockingActionsManager = blockingActionsManager;
     }
+
+    protected void fireDelayed(DelayedBlockingAction delayedBlockingAction) {
+        if (this.blockingActionsManager != null) {
+            blockingActionsManager.queue(delayedBlockingAction);
+        }
+    }
+
+    protected void widgetEntryChangedDelayed() {
+        fireDelayed(new DelayedBlockingAction(System.identityHashCode(this), 400) {
+            @Override
+            protected void runAction() {
+                widgetEntryChanged();
+            }
+        });
+    }
+
 
     public void unsetListeners() {
         setOnLongClickListener(null);
-        setChangedListener(null);
+        setChangedListeners(null, null);
     }
 
-    public void widgetEntryChanged(){
+    public void widgetEntryChanged() {
+        clearWarningMessage();
+        if (hasListener()) {
+            widgetChangedListener.widgetEntryChanged(this);
+        }
+    }
+
+    public void clearWarningMessage() {
         if (this.warningView != null) {
             this.warningView.setVisibility(View.GONE);
             ViewUtil.setBackgroundRetainPadding(this, null);
-        }
-        if (hasListener()) {
-            widgetChangedListener.widgetEntryChanged();
         }
     }
 
@@ -620,10 +655,19 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         return widgetChangedListener != null;
     }
 
-    public void checkFileSize(File file){
-        if (FileUtil.isFileOversized(file)) {
-            notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtil.getFileSize(file) + ""));
+    /**
+     * @return True if file is too big to upload.
+     */
+    protected boolean checkFileSize(File file){
+        if (FileUtil.isFileTooLargeToUpload(file)) {
+            String fileSize = FileUtil.getFileSizeInMegs(file) + "";
+            showOversizedMediaWarning(fileSize);
+            return true;
+        } else if (FileUtil.isFileOversized(file)) {
+            notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized,
+                    FileUtil.getFileSize(file) + ""));
         }
+        return false;
     }
 
     /*

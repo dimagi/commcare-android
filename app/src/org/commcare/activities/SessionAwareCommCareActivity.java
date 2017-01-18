@@ -30,8 +30,16 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
     protected void onResume() {
         super.onResume();
 
-        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+        boolean redirectedToLogin =
+                SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+        if (!redirectedToLogin) {
+            onResumeSessionSafe();
+        }
     }
+
+     protected void onResumeSessionSafe() {
+
+     }
 
     @Override
     protected void onPause() {

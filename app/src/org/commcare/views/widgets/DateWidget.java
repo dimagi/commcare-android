@@ -3,7 +3,6 @@ package org.commcare.views.widgets;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
-import android.os.Handler;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
@@ -34,7 +33,6 @@ public class DateWidget extends QuestionWidget {
 
     private final DatePicker mDatePicker;
     private final DatePicker.OnDateChangedListener mDateListener;
-    private boolean isRelevancyUpdateScheduled = false;
 
     @SuppressLint("NewApi")
     public DateWidget(Context context, FormEntryPrompt prompt) {
@@ -60,15 +58,6 @@ public class DateWidget extends QuestionWidget {
     }
 
     private DatePicker.OnDateChangedListener buildDateListener() {
-        final Handler mainHandler = new Handler(getContext().getMainLooper());
-        final Runnable updateFormRelevancyRunnable = new Runnable() {
-            @Override
-            public void run() {
-                widgetEntryChanged();
-                isRelevancyUpdateScheduled = false;
-            }
-        };
-
         return new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker view, int year, int month, int day) {
@@ -91,10 +80,8 @@ public class DateWidget extends QuestionWidget {
                         }
                     }
                 }
-                if (!isRelevancyUpdateScheduled) {
-                    isRelevancyUpdateScheduled = true;
-                    mainHandler.postDelayed(updateFormRelevancyRunnable, 750);
-                }
+
+                widgetEntryChangedDelayed();
             }
         };
     }

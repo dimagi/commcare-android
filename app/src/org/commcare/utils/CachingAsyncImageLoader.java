@@ -63,10 +63,12 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
             mBoundingHeight = maxHeight;
         }
 
+        @Override
         protected Bitmap doInBackground(String... file) {
             return getImageBitmap(file[0]);
         }
 
+        @Override
         protected void onPostExecute(Bitmap result) {
             if (result != null && mImageView != null) {
                 mImageView.setImageBitmap(result);
@@ -74,7 +76,8 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
         }
 
         public Bitmap getImageBitmap(String filePath) {
-            Bitmap bitmap = MediaUtil.inflateDisplayImage(mContext, filePath, mBoundingWidth, mBoundingHeight);
+            Bitmap bitmap = MediaUtil.inflateDisplayImage(mContext, filePath, mBoundingWidth,
+                    mBoundingHeight, true);
 
             if (bitmap != null) {
                 synchronized (cache) {

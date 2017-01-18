@@ -4,11 +4,11 @@ import android.util.Pair;
 
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.AsyncNodeEntityFactory;
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
 import org.commcare.suite.model.Detail;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -31,6 +31,7 @@ public class EntityLoaderTask
     private final NodeEntityFactory factory;
     private EntityLoaderListener listener;
     private Exception mException = null;
+    private int focusTargetIndex;
 
     public EntityLoaderTask(Detail detail, EvaluationContext evalCtx) {
         evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler());
@@ -47,6 +48,8 @@ public class EntityLoaderTask
             List<TreeReference> references = factory.expandReferenceList(nodeset[0]);
 
             List<Entity<TreeReference>> full = new ArrayList<>();
+            focusTargetIndex = -1;
+            int indexInFullList = 0;
             for (TreeReference ref : references) {
                 if (this.isCancelled()) {
                     return null;
@@ -55,6 +58,10 @@ public class EntityLoaderTask
                 Entity<TreeReference> e = factory.getEntity(ref);
                 if (e != null) {
                     full.add(e);
+                    if (e.shouldReceiveFocus()) {
+                        focusTargetIndex = indexInFullList;
+                    }
+                    indexInFullList++;
                 }
             }
 
@@ -87,7 +94,7 @@ public class EntityLoaderTask
                         return;
                     }
 
-                    listener.deliverLoadResult(result.first, result.second, factory);
+                    listener.deliverLoadResult(result.first, result.second, factory, focusTargetIndex);
 
                     return;
                 }

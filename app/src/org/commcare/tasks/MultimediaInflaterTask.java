@@ -1,8 +1,8 @@
 package org.commcare.tasks;
 
 import org.commcare.tasks.templates.CommCareTask;
-import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.FileUtil;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.BufferedInputStream;
@@ -16,6 +16,7 @@ import java.util.zip.ZipFile;
 
 public abstract class MultimediaInflaterTask<R> extends CommCareTask<String, String, Boolean, R> {
 
+    @Override
     protected Boolean doTaskBackground(String... params) {
         File archive = new File(params[0]);
         File destination = new File(params[1]);
@@ -68,7 +69,7 @@ public abstract class MultimediaInflaterTask<R> extends CommCareTask<String, Str
 
             try {
                 try {
-                    AndroidStreamUtil.writeFromInputToOutput(inputStream, outputStream);
+                    StreamsUtil.writeFromInputToOutputNew(inputStream, outputStream);
                 } catch (IOException ioe) {
                     this.publishProgress(Localization.get("mult.install.progress.errormoving"));
                     return false;

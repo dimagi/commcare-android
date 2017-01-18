@@ -1,14 +1,13 @@
 package org.commcare.engine.resource.installers;
 
 import org.commcare.CommCareApp;
-import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.engine.resource.AppInstallStatus;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.tasks.ResourceEngineTask;
-import org.javarosa.core.util.PropertyUtils;
 
 /**
+ * Install CC app from the APK's asset directory
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class SingleAppInstallation {
@@ -21,11 +20,7 @@ public class SingleAppInstallation {
      * without prompting the user.
      */
     public static void installSingleApp(CommCareSetupActivity activity, int dialogId) {
-        ApplicationRecord newRecord =
-                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
-                        ApplicationRecord.STATUS_UNINITIALIZED);
-
-        CommCareApp app = new CommCareApp(newRecord);
+        CommCareApp app = CommCareSetupActivity.getCommCareApp();
 
         ResourceEngineTask<CommCareSetupActivity> task =
                 new ResourceEngineTask<CommCareSetupActivity>(app, dialogId, false) {
@@ -51,6 +46,9 @@ public class SingleAppInstallation {
                                 // fall through to more general case:
                             case MissingResources:
                                 receiver.failMissingResource(this.missingResourceException, result);
+                                break;
+                            case InvalidResource:
+                                receiver.failInvalidResource(this.invalidResourceException, result);
                                 break;
                             case IncompatibleReqs:
                                 receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
@@ -86,6 +84,6 @@ public class SingleAppInstallation {
                     }
                 };
         task.connect(activity);
-        task.execute(SINGLE_APP_REFERENCE);
+        task.executeParallel(SINGLE_APP_REFERENCE);
     }
 }

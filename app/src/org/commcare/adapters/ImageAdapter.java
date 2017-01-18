@@ -4,10 +4,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,10 +13,6 @@ import android.widget.TextView;
 import org.commcare.dalvik.R;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-
-import java.io.File;
 
 public class ImageAdapter extends BaseAdapter {
     private final String[] choices;
@@ -59,49 +53,22 @@ public class ImageAdapter extends BaseAdapter {
         }
         TextView mMissingImage = null;
 
-        String errorMsg = null;
         if (imageURI != null) {
-            try {
-                String imageFilename =
-                        ReferenceManager._().DeriveReference(imageURI).getLocalURI();
-                final File imageFile = new File(imageFilename);
-                if (imageFile.exists()) {
-                    Display display =
-                            ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE))
-                                    .getDefaultDisplay();
-                    int screenWidth = display.getWidth();
-                    int screenHeight = display.getHeight();
-                    Bitmap b = MediaUtil.getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
-                    if (b != null) {
-
-                        if (mImageView == null) {
-                            mImageView = new ImageView(context);
-                            mImageView.setBackgroundColor(Color.WHITE);
-                        }
-
-                        mImageView.setPadding(3, 3, 3, 3);
-                        mImageView.setImageBitmap(b);
-
-                        imageViews[position] = mImageView;
-                    } else {
-                        // Loading the image failed, so it's likely a bad file.
-                        errorMsg = StringUtils.getStringRobust(context, R.string.file_invalid, imageFile.toString());
-                    }
-                } else {
-                    // We should have an image, but the file doesn't exist.
-                    errorMsg = StringUtils.getStringRobust(context, R.string.file_missing, imageFile.toString());
+            Bitmap b = MediaUtil.inflateDisplayImage(context, imageURI);
+            if (b != null) {
+                if (mImageView == null) {
+                    mImageView = new ImageView(context);
+                    mImageView.setBackgroundColor(Color.WHITE);
                 }
-
-                if (errorMsg != null) {
-                    // errorMsg is only set when an error has occurred
-                    Log.e("GridWidget", errorMsg);
-                    mMissingImage = new TextView(context);
-                    mMissingImage.setText(errorMsg);
-                    mMissingImage.setPadding(10, 10, 10, 10);
-                }
-            } catch (InvalidReferenceException e) {
-                Log.e("GridWidget", "image invalid reference exception");
-                e.printStackTrace();
+                mImageView.setPadding(3, 3, 3, 3);
+                mImageView.setImageBitmap(b);
+                imageViews[position] = mImageView;
+            } else {
+                String errorMsg = StringUtils.getStringRobust(context, R.string.file_invalid, imageURI);
+                Log.e("GridWidget", errorMsg);
+                mMissingImage = new TextView(context);
+                mMissingImage.setText(errorMsg);
+                mMissingImage.setPadding(10, 10, 10, 10);
             }
         }
 

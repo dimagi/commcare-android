@@ -190,11 +190,13 @@
             android:visibility="gone"/>
     </FrameLayout>
 
+
+
     <FrameLayout
         android:id="@+id/form_entry_labels"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/screen_form_entry_bottom_anchor">
+        android:layout_above="@+id/multiple_intent_dispatch_pane">
 
         <LinearLayout
             android:id="@+id/form_entry_label_layout"
@@ -202,6 +204,18 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
         </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/multiple_intent_dispatch_pane"
+        android:layout_above="@+id/screen_form_entry_bottom_anchor">
+        <Button
+            android:id="@+id/multiple_intent_dispatch_button"
+            android:text="Batch Dispatch"
+            android:visibility="gone"
+            style="@style/ScreenPinnedButtonNeutral"/>
     </FrameLayout>
 
     <View

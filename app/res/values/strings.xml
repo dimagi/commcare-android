@@ -11,7 +11,7 @@
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
 
-    <!-- region: All strings for multiple apps -->
+    <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="manager_activity_name">App Manager</string>
     <string name="install_app">Install An App</string>
@@ -41,12 +41,21 @@
     <string name="migration_definite_failure">CommCare was unable to migrate your app data for an upgrade. To resolve this issue, please uninstall CommCare from your device and then relaunch it.</string>
     <string name="migration_possible_failure">CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare in your device\'s Settings menu.</string>
     <string name="migration_failure_title">Migration Error</string>
+    <string name="multiple_apps_limit_message">You have reached your limit of installed apps; you may only have up to 2 apps installed at once.\n\nIf you would like to install a new app, you may uninstall an existing app first, which can be done from the app manager.</string>
+    <string name="back_to_manager">"Back to App Manager"</string>
+    <string name="go_to_manager">Go to App Manager</string>
+    <string name="claim_privilege_button_text">CLAIM PRIVILEGES</string>
+    <string name="privilege_enabled_text">The following privileges are enabled on your device:\n\n %s</string>
+    <string name="privilege_not_enabled_text">Special privileges are not enabled on your device.</string>
+    <string name="privilege_claim_failed">Could not claim privileges</string>
+    <string name="privilege_instructions">If you have a superuser account on HQ, you can enable certain privileges on your device by going to the \'Enable Privileges on Mobile\' tab of your \'My Account Settings\' page, and then scanning the barcode that appears there.</string>
+
 
     <!-- endregion -->
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>28</item>
+        <item>34</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -74,10 +83,7 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
 * “Antenna” symbol by Dima \n
 * “Map Marker” symbol by P.J. Onori \n
 * broken screen by Sam Martin from the Noun Project \n\n
-
-_Android MapView Balloons_ project used under the Apache Software License 2.0. \n
-Author: Jeff Gilfelt \n
-Copyright © 2012 readyState Software Ltd.</string>
+</string>
     <string name="notification_message_title">CommCare Notification</string>
 
     <string-array name="frequency_vals">
@@ -98,6 +104,11 @@ Copyright © 2012 readyState Software Ltd.</string>
         <item>Enabled</item>
         <item>Disabled</item>
     </string-array>
+    <string-array name="pref_password_show_options_labels">
+        <item>Always Hidden</item>
+        <item>Default Show</item>
+        <item>Default Hide</item>
+    </string-array>
     <string-array name="pref_load_form_payload_as_vals">
         <item>incomplete</item>
         <item>unsent</item>
@@ -107,6 +118,11 @@ Copyright © 2012 readyState Software Ltd.</string>
         <item>Incomplete</item>
         <item>Unsent</item>
         <item>Saved</item>
+    </string-array>
+    <string-array name="pref_password_show_options">
+        <item>always_hidden</item>
+        <item>default_show</item>
+        <item>default_hide</item>
     </string-array>
     <string-array name="target_density_labels">
         <item>DENSITY_LOW</item>
@@ -145,14 +161,10 @@ Copyright © 2012 readyState Software Ltd.</string>
     <string name="accept_location" cc:translatable="true">Record Location</string>
     <string name="accuracy" cc:translatable="true">Accuracy</string>
     <string name="activity_not_found" cc:translatable="true">No activity found to handle: %s</string>
-    <string name="add_another" cc:translatable="true">Add Group</string>
-    <string name="add_another_repeat" cc:translatable="true">Add another \"%s\" group?</string>
-    <string name="add_repeat" cc:translatable="true">Add a new \"%s\" group?</string>
-    <string name="add_repeat_no" cc:translatable="true">Do Not Add</string>
-    <string name="add_repeat_no_exits" cc:translatable="true">Do Not Add, I\'m Finished</string>
     <string name="advance" cc:translatable="true">forward to\nnext\nprompt</string>
     <string name="altitude" cc:translatable="true">Altitude</string>
     <string name="attachment_oversized" cc:translatable="true">Warning: attached large file of size %s kb. This could cause problems with submitting to the server depending on your network conditions.</string>
+    <string name="attachment_above_size_limit" formatted="false" cc:translatable="true">Media attachment too large (%s mb). Max allowed size is %s mb.</string>
     <string name="audio_file_error" cc:translatable="true">No audio file was specified.</string>
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
     <string name="backup" cc:translatable="true">back to\nprevious\nprompt</string>
@@ -165,7 +177,6 @@ Copyright © 2012 readyState Software Ltd.</string>
     <string name="capture_image" cc:translatable="true">Take Picture</string>
     <string name="capture_video" cc:translatable="true">Record Video</string>
     <string name="change_language" cc:translatable="true">Change Language</string>
-    <string name="choose_language" cc:translatable="true">Choose Language</string>
     <string name="clearanswer_confirm" cc:translatable="true">Remove the response to \"%s\"?</string>
     <string name="clear_answer" cc:translatable="true">Remove response</string>
     <string name="clear_answer_ask" cc:translatable="true">Remove This Response?</string>
@@ -187,8 +198,6 @@ Copyright © 2012 readyState Software Ltd.</string>
     <string name="do_not_exit" cc:translatable="true">STAY IN FORM</string>
     <string name="do_not_save" cc:translatable="true">EXIT WITHOUT SAVING</string>
     <string name="enter" cc:translatable="true">start</string>
-    <string name="entering_repeat" cc:translatable="true">Add Group</string>
-    <string name="entering_repeat_ask" cc:translatable="true">Add New Group?</string>
     <string name="enter_data" cc:translatable="true">Fill Blank Form</string>
     <string name="enter_data_button" cc:translatable="true">Fill Blank Form</string>
     <string name="enter_data_description" cc:translatable="true">You are at the start of \"%s\". Swipe the screen as shown below to begin.</string>
@@ -213,15 +222,12 @@ Copyright © 2012 readyState Software Ltd.</string>
     <string name="jump_to_end" cc:translatable="true">Go To End</string>
     <string name="jump_to_previous" cc:translatable="true">Go Up</string>
     <string name="latitude" cc:translatable="true">Latitude</string>
-    <string name="leave_repeat_yes" cc:translatable="true">Do Not Add</string>
-    <string name="leave_repeat_yes_exits" cc:translatable="true">Do Not Add. I\'m Finished.</string>
-    <string name="repeat_go_back" cc:translatable="true">Go Back</string>
     <string name="leaving_repeat" cc:translatable="true">Add Group</string>
     <string name="leaving_repeat_ask" cc:translatable="true">And One More Group?</string>
     <string name="list_failed_with_error" cc:translatable="true">Form listing failed. %s.</string>
     <string name="loading_form" cc:translatable="true">Loading Form</string>
     <string name="load_remote_form_error" cc:translatable="true">Error Getting Form List</string>
-    <string name="location_provider_accuracy" cc:translatable="true">Location found using %1$s. Accuracy is %2$s m.</string>
+    <string name="location_provider_accuracy" cc:translatable="true">Location accuracy: %1$s m.</string>
     <string name="location_provider" cc:translatable="true">Using %1$s provider. Please wait for greater accuracy.</string>
     <string name="location_accuracy" cc:translatable="true">Location found. Accuracy is %1$s m</string>
     <string name="longitude" cc:translatable="true">Longitude</string>

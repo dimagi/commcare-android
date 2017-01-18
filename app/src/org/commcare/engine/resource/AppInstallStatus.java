@@ -24,6 +24,7 @@ public enum AppInstallStatus implements MessageTag {
     // Error states shared by both app installation and updating:
     MissingResources("notification.install.missing"),
     MissingResourcesWithMessage("notification.install.missing.withmessage"),
+    InvalidResource("notification.install.invalid"),
     IncompatibleReqs("notification.install.badreqs"),
     UnknownFailure("notification.install.unknown"),
     NoLocalStorage("notification.install.nolocal"),
@@ -36,6 +37,7 @@ public enum AppInstallStatus implements MessageTag {
 
     private final String root;
 
+    @Override
     public String getLocaleKeyBase() {
         return root;
     }
@@ -48,6 +50,7 @@ public enum AppInstallStatus implements MessageTag {
         return (this == UpdateStaged || this == UpToDate);
     }
 
+    @Override
     public String getCategory() {
         return "install_update";
     }

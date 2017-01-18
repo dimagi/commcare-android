@@ -36,7 +36,7 @@ public class DevSessionRestorer {
     public static Pair<String, String> getAutoLoginCreds(boolean force) {
         if (force || autoLoginEnabled()) {
             SharedPreferences prefs =
-                    CommCareApplication._().getCurrentApp().getAppPreferences();
+                    CommCareApplication.instance().getCurrentApp().getAppPreferences();
             String lastUser =
                     prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, "");
             String lastPass =
@@ -50,13 +50,20 @@ public class DevSessionRestorer {
         return null;
     }
 
+    public static void storeAutoLoginCreds(String username, String password) {
+        tryAutoLoginPasswordSave(password, true);
+        SharedPreferences prefs =
+                CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        prefs.edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, username).apply();
+    }
+
     /**
      * Save password into app preferences if auto-login is enabled
      */
     public static void tryAutoLoginPasswordSave(String password, boolean force) {
         if (force || autoLoginEnabled()) {
             SharedPreferences prefs =
-                    CommCareApplication._().getCurrentApp().getAppPreferences();
+                    CommCareApplication.instance().getCurrentApp().getAppPreferences();
             prefs.edit().putString(CommCarePreferences.LAST_PASSWORD, password).commit();
         }
     }
@@ -66,9 +73,16 @@ public class DevSessionRestorer {
     }
 
     public static void enableAutoLogin() {
-        CommCareApplication._().getCurrentApp().getAppPreferences()
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
                 .putString(DeveloperPreferences.ENABLE_AUTO_LOGIN, CommCarePreferences.YES)
+                .apply();
+    }
+
+    public static void enableSessionSaving() {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, CommCarePreferences.YES)
                 .apply();
     }
 
@@ -83,7 +97,7 @@ public class DevSessionRestorer {
      */
     public static AndroidSessionWrapper restoreSessionFromPrefs(CommCarePlatform platform) {
         SharedPreferences prefs =
-                CommCareApplication._().getCurrentApp().getAppPreferences();
+                CommCareApplication.instance().getCurrentApp().getAppPreferences();
         String serializedSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, null);
         if (serializedSession != null) {
             try {
@@ -110,7 +124,7 @@ public class DevSessionRestorer {
      * Save the current session frame to app shared preferences.
      */
     public static void saveSessionToPrefs() {
-        CommCareApp ccApp = CommCareApplication._().getCurrentApp();
+        CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
         if (ccApp == null) {
             return;
         }
@@ -129,7 +143,7 @@ public class DevSessionRestorer {
         DataOutputStream serializedStream = new DataOutputStream(baos);
 
         try {
-            CommCareApplication._().getCurrentSession().serializeSessionState(serializedStream);
+            CommCareApplication.instance().getCurrentSession().serializeSessionState(serializedStream);
         } catch (IOException e) {
             Log.w(TAG, "Failed to serialize session");
             return "";
@@ -150,13 +164,13 @@ public class DevSessionRestorer {
 
     public static boolean savedSessionPresent() {
         SharedPreferences prefs =
-                CommCareApplication._().getCurrentApp().getAppPreferences();
+                CommCareApplication.instance().getCurrentApp().getAppPreferences();
         String serializedSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, null);
         return serializedSession != null;
     }
 
     public static void clearSession() {
-        clearSession(CommCareApplication._().getCurrentApp().getAppPreferences());
+        clearSession(CommCareApplication.instance().getCurrentApp().getAppPreferences());
     }
 
     private static void clearSession(SharedPreferences prefs) {

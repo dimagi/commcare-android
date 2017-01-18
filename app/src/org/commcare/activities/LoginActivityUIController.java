@@ -31,15 +31,15 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.ManagedUiFramework;
+import org.commcare.views.PasswordShow;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -58,6 +58,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.edit_password)
     private EditText passwordOrPin;
+
+    @UiElement(value = R.id.show_password)
+    private Button showPasswordButton;
 
     @UiElement(R.id.screen_login_banner_pane)
     private View banner;
@@ -127,6 +130,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setBannerLayoutLogic();
 
         loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View arg0) {
                 activity.initiateLoginAttempt(isRestoreSessionChecked());
             }
@@ -146,7 +150,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void setBannerLayoutLogic() {
         final View activityRootView = activity.findViewById(R.id.screen_login_main);
-        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        final SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
 
@@ -187,7 +191,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         activity.restoreEnteredTextFromRotation();
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
-        ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
+        ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
 
         if (readyApps.size() == 1) {
             // Set this app as the last selected app, for use in choosing what app to initialize
@@ -222,7 +226,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         // Remove any error content from trying to log into a different app
         setStyleDefault();
 
-        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        final SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
         if (lastUser != null) {
             // If there was a last user for this app, show it
@@ -252,22 +256,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
     }
 
-    private void refreshUsernamesAdapter() {
-        ArrayAdapter<String> usernamesAdapter = new ArrayAdapter<>(activity,
-                android.R.layout.simple_dropdown_item_1line, getExistingUsernames());
-        username.setAdapter(usernamesAdapter);
-    }
-
-    private static String[] getExistingUsernames() {
-        SqlStorage<UserKeyRecord> existingUsers =
-                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class);
-        Set<String> uniqueUsernames = new HashSet<>();
-        for (UserKeyRecord ukr : existingUsers) {
-            uniqueUsernames.add(ukr.getUsername());
-        }
-        return uniqueUsernames.toArray(new String[uniqueUsernames.size()]);
-    }
-
     private void checkEnteredUsernameForMatch() {
         UserKeyRecord matchingRecord = getActiveRecordForUsername(getEnteredUsername());
         if (matchingRecord != null) {
@@ -282,7 +270,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
      */
     private static UserKeyRecord getActiveRecordForUsername(String username) {
         SqlStorage<UserKeyRecord> existingUsers =
-                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class);
+                CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class);
 
         // Even though we don't allow multiple users with same username in a domain, there can be
         // multiple UKRs for 1 user (for ex if password changes)
@@ -331,6 +319,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         passwordOrPin.setVisibility(View.VISIBLE);
         passwordOrPin.setHint(Localization.get("login.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        new PasswordShow(showPasswordButton, passwordOrPin).setupPasswordVisibility();
         manuallySwitchedToPasswordMode = false;
     }
 
@@ -350,7 +339,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         manuallySwitchedToPasswordMode = true;
     }
 
-    public boolean userManuallySwitchedToPasswordMode() {
+    protected boolean userManuallySwitchedToPasswordMode() {
         return manuallySwitchedToPasswordMode;
     }
 
@@ -446,7 +435,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected void restoreLastUser() {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
         if (lastUser != null) {
             username.setText(lastUser);
@@ -485,5 +474,4 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private Resources getResources() {
         return activity.getResources();
     }
-
 }

@@ -16,6 +16,7 @@ import android.util.Pair;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -152,7 +153,7 @@ public class FileUtil {
                 os = new CipherOutputStream(os, newWrite);
             }
 
-            AndroidStreamUtil.writeFromInputToOutputUnmanaged(is, os);
+            StreamsUtil.writeFromInputToOutputUnmanaged(is, os);
         } finally {
             try {
                 if (is != null) {
@@ -277,7 +278,7 @@ public class FileUtil {
 
     public static void checkReferenceURI(Resource r, String URI, Vector<MissingMediaException> problems) throws IOException {
         try {
-            Reference mRef = ReferenceManager._().DeriveReference(URI);
+            Reference mRef = ReferenceManager.instance().DeriveReference(URI);
 
             if (!mRef.doesBinaryExist()) {
                 String mLocalReference = mRef.getLocalURI();
@@ -288,6 +289,18 @@ public class FileUtil {
             //do nothing for now
         }
     }
+
+    public static boolean referenceFileExists(String uri) {
+        if (uri != null && !uri.equals("")) {
+            try {
+                return new File(ReferenceManager.instance().DeriveReference(uri).getLocalURI()).exists();
+            } catch (InvalidReferenceException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Ensure that everything between "localpart" and f exists
@@ -524,7 +537,21 @@ public class FileUtil {
     }
 
     public static double getFileSize(File mf) {
-        return mf.length() / (1024);
+        return mf.length() / 1024;
+    }
+
+    public static double getFileSizeInMegs(File mf) {
+        return bytesToMeg(mf.length());
+    }
+
+    private static final long MEGABYTE_IN_BYTES = 1024L * 1024L;
+
+    public static long bytesToMeg(long bytes) {
+        return bytes / MEGABYTE_IN_BYTES;
+    }
+
+    public static boolean isFileTooLargeToUpload(File mf) {
+        return mf.length() > FormUploadUtil.MAX_BYTES;
     }
 
     /**

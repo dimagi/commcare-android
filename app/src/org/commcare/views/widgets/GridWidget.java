@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -97,34 +96,15 @@ public class GridWidget extends QuestionWidget {
 
             if (imageURI != null) {
                 choices[i] = imageURI;
-
-                String imageFilename;
-                try {
-                    imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
-                    final File imageFile = new File(imageFilename);
-                    if (imageFile.exists()) {
-                        Display display =
-                                ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
-                                        .getDefaultDisplay();
-                        int screenWidth = display.getWidth();
-                        int screenHeight = display.getHeight();
-                        Bitmap b =
-                                MediaUtil
-                                        .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
-                        if (b != null) {
-                            if (b.getWidth() > maxImageWidth) {
-                                maxImageWidth = b.getWidth();
-                            }
-                            if (b.getHeight() > maxImageHeight) {
-                                maxImageHeight = b.getHeight();
-                            }
-                        }
+                Bitmap b = MediaUtil.inflateDisplayImage(context, imageURI);
+                if (b != null) {
+                    if (b.getWidth() > maxImageWidth) {
+                        maxImageWidth = b.getWidth();
                     }
-                } catch (InvalidReferenceException e) {
-                    Log.e("GridWidget", "image invalid reference exception");
-                    e.printStackTrace();
+                    if (b.getHeight() > maxImageHeight) {
+                        maxImageHeight = b.getHeight();
+                    }
                 }
-
             }
         }
 
@@ -132,6 +112,7 @@ public class GridWidget extends QuestionWidget {
         ImageAdapter ia = new ImageAdapter(getContext(), choices, imageViews);
         gridview.setAdapter(ia);
         gridview.setOnItemClickListener(new OnItemClickListener() {
+            @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 // Imitate the behavior of a radio button. Clear all buttons
                 // and then check the one clicked by the user. Update the

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.database.global.models;
 
 import org.commcare.android.storage.framework.Persisted;
@@ -18,7 +15,6 @@ import org.javarosa.core.util.NoLocalizedTextException;
  * @author ctsims
  * @author amstone
  */
-
 @Table(ApplicationRecord.STORAGE_KEY)
 public class ApplicationRecord extends Persisted {
 

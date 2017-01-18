@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
@@ -32,6 +33,7 @@ import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.session.SessionFrame;
+import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.tasks.templates.CommCareTask;
@@ -61,12 +63,12 @@ import org.javarosa.core.util.NoLocalizedTextException;
 public abstract class CommCareActivity<R> extends FragmentActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
 
-    private static String TAG = CommCareActivity.class.getSimpleName();
+    private static final String TAG = CommCareActivity.class.getSimpleName();
 
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
 
-    int invalidTaskIdMessageThrown = -2;
+    private int invalidTaskIdMessageThrown = -2;
     private TaskConnectorFragment<R> stateHolder;
 
 
@@ -83,7 +85,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     private GestureDetector mGestureDetector;
 
-    private static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     protected String lastQueryString;
 
     /**
@@ -132,7 +133,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         persistManagedUiState(fm);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && shouldShowBreadcrumbBar()) {
             getActionBar().setDisplayShowCustomEnabled(true);
 
             // Add breadcrumb bar
@@ -243,11 +244,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * If a message for the user has been set in CommCareApplication, show it and then clear it
      */
     private void showPendingUserMessage() {
-        String[] messageAndTitle = CommCareApplication._().getPendingUserMessage();
+        String[] messageAndTitle = CommCareApplication.instance().getPendingUserMessage();
         if (messageAndTitle != null) {
             showAlertDialog(StandardAlertDialog.getBasicAlertDialog(
                     this, messageAndTitle[1], messageAndTitle[0], null));
-            CommCareApplication._().clearPendingUserMessage();
+            CommCareApplication.instance().clearPendingUserMessage();
         }
     }
 
@@ -380,7 +381,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     /**
      * Display exception details as a pop-up to the user.
      */
-    public void displayException(String title, String message) {
+    private void displayException(String title, String message) {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
@@ -411,11 +412,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     protected void restoreLastQueryString() {
-        lastQueryString = (String)CommCareApplication._().getCurrentSession().getCurrentFrameStepExtra(KEY_LAST_QUERY_STRING);
+        lastQueryString = (String)CommCareApplication.instance().getCurrentSession().getCurrentFrameStepExtra(SessionInstanceBuilder.KEY_LAST_QUERY_STRING);
     }
 
     protected void saveLastQueryString() {
-        CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(KEY_LAST_QUERY_STRING, lastQueryString);
+        CommCareApplication.instance().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_LAST_QUERY_STRING, lastQueryString);
     }
 
     //Graphical stuff below, needs to get modularized
@@ -455,16 +456,16 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         String[] stepTitles = new String[0];
         try {
-            stepTitles = CommCareApplication._().getCurrentSession().getHeaderTitles();
+            stepTitles = CommCareApplication.instance().getCurrentSession().getHeaderTitles();
 
             //See if we can insert any case hacks
             int i = 0;
-            for (StackFrameStep step : CommCareApplication._().getCurrentSession().getFrame().getSteps()) {
+            for (StackFrameStep step : CommCareApplication.instance().getCurrentSession().getFrame().getSteps()) {
                 try {
                     if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                         //Haaack
                         if (step.getId() != null && step.getId().contains("case_id")) {
-                            ACase foundCase = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step.getValue());
+                            ACase foundCase = CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step.getValue());
                             stepTitles[i] = Localization.get("title.datum.wrapper", new String[]{foundCase.getName()});
                         }
                     }
@@ -497,11 +498,23 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     // region - All methods for implementation of DialogController
 
     @Override
-    public void updateProgress(String updateText, int taskId) {
+    public void updateProgress(String newMessage, String newTitle, int taskId) {
+        updateDialogContent(newMessage, newTitle, taskId);
+    }
+
+    @Override
+    public void updateProgress(String newMessage, int taskId) {
+        updateDialogContent(newMessage, null, taskId);
+    }
+
+    private void updateDialogContent(String newMessage, String newTitle, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
         if (mProgressDialog != null && !areFragmentsPaused) {
             if (mProgressDialog.getTaskId() == taskId) {
-                mProgressDialog.updateMessage(updateText);
+                mProgressDialog.updateMessage(newMessage);
+                if (newTitle != null) {
+                    mProgressDialog.updateTitle(newTitle);
+                }
             } else {
                 warnInvalidProgressUpdate(taskId);
             }
@@ -513,6 +526,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
         if (mProgressDialog != null) {
             mProgressDialog.removeCancelButton();
+        }
+    }
+
+    @Override
+    public void updateProgressBarVisibility(boolean visible) {
+        CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
+        if (mProgressDialog != null && !areFragmentsPaused) {
+            mProgressDialog.updateProgressBarVisibility(visible);
         }
     }
 
@@ -582,7 +603,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public void showPendingAlertDialog() {
-        if (alertDialogToShowOnResume != null && getCurrentAlertDialog() == null) {
+        if (alertDialogToShowOnResume != null) {
             alertDialogToShowOnResume.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
             alertDialogToShowOnResume = null;
         } else {
@@ -591,15 +612,23 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
-    public void showAlertDialog(CommCareAlertDialog d) {
-        if (getCurrentAlertDialog() != null) {
-            // Means we already have an alert dialog on screen
-            return;
+    public void dismissAlertDialog() {
+        DialogFragment alertDialog = getCurrentAlertDialog();
+        if (alertDialog != null) {
+            alertDialog.dismiss();
         }
+    }
+
+    @Override
+    public void showAlertDialog(CommCareAlertDialog d) {
         AlertDialogFragment dialog = AlertDialogFragment.fromCommCareAlertDialog(d);
         if (areFragmentsPaused) {
             alertDialogToShowOnResume = dialog;
         } else {
+            if (getCurrentAlertDialog() != null) {
+                // replace existing dialog by dismissing it
+                dismissAlertDialog();
+            }
             dialog.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
         }
     }
@@ -613,34 +642,29 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     /**
      * Interface to perform additional setup code when adding an ActionBar
-     * using the {@link #tryToAddActionSearchBar(android.app.Activity,
-     * android.view.Menu,
-     * CommCareActivity.ActionBarInstantiator)}
-     * tryToAddActionSearchBar} method.
      */
     public interface ActionBarInstantiator {
         void onActionBarFound(MenuItem searchItem, SearchView searchView, MenuItem barcodeItem);
     }
 
     /**
-     * Tries to add actionBar to current Activity and hides the current search
-     * widget and runs ActionBarInstantiator if it exists. Used in
-     * EntitySelectActivity and FormRecordListActivity.
+     * Tries to add a SearchView action to the app bar of the current Activity. If it is added,
+     * the alternative search widget is removed, and ActionBarInstantiator is run, if it exists.
+     * Used in EntitySelectActivity and FormRecordListActivity.
      *
-     * @param act          Current activity
+     * @param activity          Current activity
      * @param menu         Menu passed through onCreateOptionsMenu
-     * @param instantiator Optional ActionBarInstantiator for additional setup
-     *                     code.
+     * @param instantiator Optional ActionBarInstantiator for additional setup code.
      */
-    protected void tryToAddActionSearchBar(Activity act, Menu menu,
-                                           ActionBarInstantiator instantiator) {
+    protected void tryToAddSearchActionToAppBar(Activity activity, Menu menu,
+                                                ActionBarInstantiator instantiator) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            MenuInflater inflater = act.getMenuInflater();
+            MenuInflater inflater = activity.getMenuInflater();
             inflater.inflate(org.commcare.dalvik.R.menu.action_bar_search_view, menu);
 
-            MenuItem searchItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
+            MenuItem searchMenuItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
             SearchView searchView =
-                    (SearchView) searchItem.getActionView();
+                    (SearchView) searchMenuItem.getActionView();
             MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.barcode_scan_action_bar);
             if (searchView != null) {
                 int[] searchViewStyle =
@@ -652,11 +676,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 TextView textView = (TextView) searchView.findViewById(id);
                 textView.setTextColor(searchViewStyle[0]);
                 if (instantiator != null) {
-                    instantiator.onActionBarFound(searchItem, searchView, barcodeItem);
+                    instantiator.onActionBarFound(searchMenuItem, searchView, barcodeItem);
                 }
             }
 
-            View bottomSearchWidget = act.findViewById(org.commcare.dalvik.R.id.searchfooter);
+            View bottomSearchWidget = activity.findViewById(org.commcare.dalvik.R.id.searchfooter);
             if (bottomSearchWidget != null) {
                 bottomSearchWidget.setVisibility(View.GONE);
             }
@@ -715,6 +739,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        AudioController.INSTANCE.releaseCurrentMediaEntity();
+    }
+
+    @Override
     public void onLongPress(MotionEvent arg0) {
         // ignore
     }
@@ -761,8 +792,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Rebuild the activity's menu options based on the current state of the activity.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void rebuildOptionMenu() {
-        if (CommCareApplication._().getCurrentApp() != null) {
+    public void rebuildOptionsMenu() {
+        if (CommCareApplication.instance().getCurrentApp() != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 invalidateOptionsMenu();
             } else {
@@ -786,9 +817,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void refreshActionBar() {
-        FragmentManager fm = this.getSupportFragmentManager();
-        BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
-        bar.refresh(this);
+        if (shouldShowBreadcrumbBar()) {
+            FragmentManager fm = this.getSupportFragmentManager();
+            BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+            bar.refresh(this);
+        }
     }
 
     /**
@@ -821,5 +854,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     public void setStateHolder(TaskConnectorFragment<R> stateHolder) {
         this.stateHolder = stateHolder;
+    }
+
+    protected String getLastQueryString() {
+        return lastQueryString;
+    }
+
+    protected void setLastQueryString(String lastQueryString) {
+        this.lastQueryString = lastQueryString;
+    }
+
+    protected boolean shouldShowBreadcrumbBar() {
+        return true;
     }
 }

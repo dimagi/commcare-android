@@ -4,12 +4,9 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
-import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.graph.model.GraphData;
@@ -22,7 +19,6 @@ import org.commcare.graph.view.c3.LegendConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.SortedMap;
 import java.util.TreeMap;
 

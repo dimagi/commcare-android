@@ -30,10 +30,11 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
-import org.commcare.tasks.PullTaskReceiver;
+import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 
 import org.commcare.utils.ACRAUtil;
@@ -55,14 +56,15 @@ import java.util.ArrayList;
  */
 public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
-        RuntimePermissionRequester, WithUIController, PullTaskReceiver {
+        RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-    private static final int MENU_DEMO = Menu.FIRST;
+    public static final int MENU_DEMO = Menu.FIRST;
     private static final int MENU_ABOUT = Menu.FIRST + 1;
     private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
     private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
+    private static final int MENU_APP_MANAGER = Menu.FIRST + 4;
 
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public final static String KEY_LAST_APP = "id-last-seated-app";
@@ -185,17 +187,28 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
+    @Override
     public String getActivityTitle() {
-        //TODO: "Login"?
         return null;
     }
 
     @Override
-    public void startDataPull() {
-        if (CommCareApplication._().isConsumerApp()) {
-            formAndDataSyncer.performLocalRestore(this, getUniformUsername(), uiController.getEnteredPasswordOrPin());
-        } else {
-            formAndDataSyncer.performOtaRestore(this, getUniformUsername(), uiController.getEnteredPasswordOrPin());
+    public void startDataPull(DataPullMode mode) {
+        switch(mode) {
+            case CONSUMER_APP:
+                formAndDataSyncer.performLocalRestore(this, getUniformUsername(),
+                    uiController.getEnteredPasswordOrPin());
+                break;
+            case CCZ_DEMO:
+                OfflineUserRestore offlineUserRestore = CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
+                uiController.setUsername(offlineUserRestore.getUsername());
+                uiController.setPasswordOrPin(OfflineUserRestore.DEMO_USER_PASSWORD);
+                formAndDataSyncer.performDemoUserRestore(this, offlineUserRestore);
+                break;
+            case NORMAL:
+                formAndDataSyncer.performOtaRestore(this, getUniformUsername(),
+                        uiController.getEnteredPasswordOrPin());
+                break;
         }
     }
 
@@ -214,7 +227,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected boolean checkForSeatedAppChange() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lastSeatedId = prefs.getString(KEY_LAST_APP, "");
-        String currentSeatedId = CommCareApplication._().getCurrentApp().getUniqueId();
+        String currentSeatedId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         if (!lastSeatedId.equals(currentSeatedId)) {
             prefs.edit().putString(KEY_LAST_APP, currentSeatedId).commit();
             return true;
@@ -223,7 +236,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private static boolean shouldFinish() {
-        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         return currentApp == null || !currentApp.getAppRecord().isUsable();
     }
 
@@ -241,7 +254,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             uiController.setUsername(BuildConfig.CONSUMER_APP_USERNAME);
             uiController.setPasswordOrPin(BuildConfig.CONSUMER_APP_PASSWORD);
             localLoginOrPullAndLogin(false);
@@ -276,7 +289,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private boolean forceAutoLogin() {
-        return CommCareApplication._().checkPendingBuildRefresh();
+        return CommCareApplication.instance().checkPendingBuildRefresh();
     }
 
     private String getUniformUsername() {
@@ -286,12 +299,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession) {
         //TODO: check username/password for emptiness
         return tryLocalLogin(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
-                warnMultipleAccounts, restoreSession, uiController.getLoginMode());
+                warnMultipleAccounts, restoreSession, uiController.getLoginMode(), false);
     }
 
     private boolean tryLocalLogin(final String username, String passwordOrPin,
                                   final boolean warnMultipleAccounts, final boolean restoreSession,
-                                  LoginMode loginMode) {
+                                  LoginMode loginMode, boolean forCustomDemoUser) {
         try {
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
@@ -299,8 +312,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             ManageKeyRecordTask<LoginActivity> task =
                     new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username,
                             passwordOrPin, loginMode,
-                            CommCareApplication._().getCurrentApp(), restoreSession,
-                            triggerMultipleUsersWarning) {
+                            CommCareApplication.instance().getCurrentApp(), restoreSession,
+                            triggerMultipleUsersWarning, forCustomDemoUser) {
 
                         @Override
                         protected void deliverUpdate(LoginActivity receiver, String... update) {
@@ -310,7 +323,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     };
 
             task.connect(this);
-            task.execute();
+            task.executeParallel();
 
             return true;
         } catch (Exception e) {
@@ -321,7 +334,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private int getMatchingUsersCount(String username) {
         int count = 0;
-        for (UserKeyRecord record : CommCareApplication._().getAppStorage(UserKeyRecord.class)) {
+        for (UserKeyRecord record : CommCareApplication.instance().getAppStorage(UserKeyRecord.class)) {
             if (record.getUsername().equals(username)) {
                 count++;
             }
@@ -332,7 +345,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void dataPullCompleted() {
         ACRAUtil.registerUserData();
-        CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
+        ViewUtil.hideVirtualKeyboard(LoginActivity.this);
+        CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
         Intent i = new Intent();
         i.putExtra(LOGIN_MODE, uiController.getLoginMode());
@@ -348,6 +362,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
         menu.add(0, MENU_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_PASSWORD_MODE, 1, Localization.get("login.menu.password.mode"));
+        menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
         return true;
     }
 
@@ -364,9 +379,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         boolean otherResult = super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case MENU_DEMO:
-                DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
-                tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
-                        false, LoginMode.PASSWORD);
+                loginDemoUser();
                 return true;
             case MENU_ABOUT:
                 DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog();
@@ -377,8 +390,25 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case MENU_PASSWORD_MODE:
                 uiController.manualSwitchToPasswordMode();
                 return true;
+            case MENU_APP_MANAGER:
+                Intent i = new Intent(this, AppManagerActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+                return true;
             default:
                 return otherResult;
+        }
+    }
+
+    private void loginDemoUser() {
+        OfflineUserRestore offlineUserRestore = CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
+        if (offlineUserRestore != null) {
+            tryLocalLogin(offlineUserRestore.getUsername(), OfflineUserRestore.DEMO_USER_PASSWORD,
+                    false, false, LoginMode.PASSWORD, true);
+        } else {
+            DemoUserBuilder.build(this, CommCareApplication.instance().getCurrentApp());
+            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
+                    false, LoginMode.PASSWORD, false);
         }
     }
 
@@ -402,12 +432,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void raiseMessage(NotificationMessage message, boolean showTop) {
         String toastText = message.getTitle();
         if (showTop) {
-            CommCareApplication._().reportNotificationMessage(message);
+            CommCareApplication.notificationManager().reportNotificationMessage(message);
             toastText = Localization.get("notification.for.details.wrapper",
                     new String[]{toastText});
         }
         uiController.setErrorMessageUI(toastText);
-        Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
     }
 
     /**
@@ -416,7 +445,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, false);
         }
 
@@ -427,7 +456,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         Localization.get("key.manage.start"), taskId);
                 break;
             case DataPullTask.DATA_PULL_TASK_ID:
-                dialog = CustomProgressDialog.newInstance(Localization.get("sync.progress.title"),
+                dialog = CustomProgressDialog.newInstance(Localization.get("sync.communicating.title"),
                         Localization.get("sync.progress.starting"), taskId);
                 dialog.addCancelButton();
                 dialog.addProgressBar();
@@ -464,7 +493,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         // Want to set the spinner's selection to match whatever the currently seated app is
-        String currAppId = CommCareApplication._().getCurrentApp().getUniqueId();
+        String currAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         int position = appIdDropdownList.indexOf(currAppId);
         uiController.setMultipleAppsUIState(appNames, position);
     }
@@ -474,7 +503,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // Retrieve the app record corresponding to the app selected
         String appId = appIdDropdownList.get(position);
 
-        boolean selectedNewApp = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
+        boolean selectedNewApp = !appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
         if (selectedNewApp) {
             // Set the id of the last selected app
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -505,7 +534,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                     Localization.get("login.update.install.success"),
                                     Toast.LENGTH_LONG).show();
                         } else {
-                            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
+                            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(result));
                         }
 
                         localLoginOrPullAndLogin(uiController.isRestoreSessionChecked());
@@ -529,7 +558,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     }
                 };
         task.connect(this);
-        task.execute();
+        task.executeParallel();
     }
 
     private void localLoginOrPullAndLogin(boolean restoreSession) {
@@ -538,12 +567,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         // If local login was not successful
-        startDataPull();
+        startDataPull(CommCareApplication.instance().isConsumerApp() ? DataPullMode.CONSUMER_APP : DataPullMode.NORMAL);
     }
 
     @Override
     public void initUIController() {
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             uiController = new BlankLoginActivityUIController(this);
         } else {
             uiController = new LoginActivityUIController(this);
@@ -594,36 +623,22 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case UNKNOWN_FAILURE:
                 raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
                 break;
+            case ACTIONABLE_FAILURE:
+                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
+                break;
         }
     }
 
     @Override
     public void handlePullTaskUpdate(Integer... update) {
-        if (CommCareApplication._().isConsumerApp()) {
+        if (CommCareApplication.instance().isConsumerApp()) {
             return;
         }
-        if (update[0] == DataPullTask.PROGRESS_STARTED) {
-            updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
-            updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
-            updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
-            updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
-            hideTaskCancelButton();
-        } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
-            updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
-            updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-            updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-            updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
-        }
+        SyncCapableCommCareActivity.handleSyncUpdate(this, update);
     }
 
     @Override
-    public void handlePullTaskError(Exception e) {
+    public void handlePullTaskError() {
         raiseLoginMessage(StockMessages.Restore_Unknown, true);
     }
 }

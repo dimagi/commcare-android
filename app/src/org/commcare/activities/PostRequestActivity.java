@@ -7,13 +7,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
-import org.commcare.interfaces.ConnectorWithResultCallback;
-import org.commcare.network.ModernHttpRequester;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.PullTaskReceiver;
-import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.ManagedUi;
@@ -23,7 +20,6 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -36,10 +32,8 @@ import java.util.HashMap;
  */
 @ManagedUi(R.layout.http_request_layout)
 public class PostRequestActivity
-        extends SaveSessionCommCareActivity<PostRequestActivity>
-        implements ConnectorWithHttpResponseProcessor<PostRequestActivity>,
-        PullTaskReceiver,
-        ConnectorWithResultCallback<PostRequestActivity> {
+        extends SyncCapableCommCareActivity<PostRequestActivity>
+        implements ConnectorWithHttpResponseProcessor<PostRequestActivity> {
     private static final String TAG = PostRequestActivity.class.getSimpleName();
 
     private static final String TASK_LAUNCHED_KEY = "task-launched-key";
@@ -85,12 +79,7 @@ public class PostRequestActivity
 
     private void loadStateFromIntent(Intent intent) {
         if (intent.hasExtra(URL_KEY) && intent.hasExtra(PARAMS_KEY)) {
-            String urlString = intent.getStringExtra(URL_KEY);
-            try {
-                url = new URL(urlString);
-            } catch (MalformedURLException e) {
-                enterErrorState(Localization.get("post.malformed.url", urlString));
-            }
+            url = (URL)intent.getSerializableExtra(URL_KEY);
             Object o = intent.getSerializableExtra(PARAMS_KEY);
             params = (HashMap<String, String>)o;
         } else {
@@ -114,7 +103,7 @@ public class PostRequestActivity
     }
 
     private void performSync() {
-        (new FormAndDataSyncer()).syncDataForLoggedInUser(this, false, false);
+        formAndDataSyncer.syncDataForLoggedInUser(this, false, false);
     }
 
     private void makePostRequest() {
@@ -162,14 +151,13 @@ public class PostRequestActivity
     }
 
     @Override
-    public void reportSuccess(String message) {
-        setResult(RESULT_OK);
-        finish();
-    }
-
-    @Override
-    public void reportFailure(String message, boolean showPopupNotification) {
-        enterErrorState(Localization.get("post.sync.failed"));
+    protected void updateUiAfterDataPullOrSend(String message, boolean success) {
+        if (success) {
+            setResult(RESULT_OK);
+            finish();
+        } else {
+            enterErrorState(message);
+        }
     }
 
     @Override
@@ -226,7 +214,7 @@ public class PostRequestActivity
         String title, message;
         switch (taskId) {
             case DataPullTask.DATA_PULL_TASK_ID:
-                title = Localization.get("sync.progress.title");
+                title = Localization.get("sync.communicating.title");
                 message = Localization.get("sync.progress.purge");
                 break;
             case SimpleHttpTask.SIMPLE_HTTP_TASK_ID:
@@ -242,17 +230,13 @@ public class PostRequestActivity
     }
 
     @Override
-    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError, boolean userTriggeredSync, boolean formsToSend) {
-        SyncUIHandling.handleSyncResult(this, resultAndError, userTriggeredSync, formsToSend);
+    public boolean shouldShowSyncItemInActionBar() {
+        return false;
     }
 
     @Override
-    public void handlePullTaskUpdate(Integer... update) {
-        SyncUIHandling.handleSyncUpdate(this, update);
+    public boolean usesSubmissionProgressBar() {
+        return false;
     }
 
-    @Override
-    public void handlePullTaskError(Exception e) {
-        reportFailure(Localization.get("sync.fail.unknown"), true);
-    }
 }

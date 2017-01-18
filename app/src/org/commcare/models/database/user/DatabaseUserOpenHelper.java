@@ -14,14 +14,16 @@ import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
-import org.commcare.models.database.app.DatabaseAppOpenHelper;
+import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.Persistable;
 
 /**
  * The helper for opening/updating the user (encrypted) db space for
@@ -46,9 +48,11 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.11 - Add table for storing xpath errors for specific cc app versions
      * V.12 - Drop old GeocodeCacheModel table
      * V.13 - Add tables for storing normal device logs and force close logs in user storage
+     * V.14 - Change format of last modified date in form record to canonical SQLite form
+     * V.15 - Add table to store path info about storage-backed fixture tables
      */
 
-    private static final int USER_DB_VERSION = 13;
+    private static final int USER_DB_VERSION = 15;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
@@ -112,19 +116,21 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
             DbUtil.createOrphanedFileTable(database);
 
+            IndexedFixturePathUtils.createStorageBackedFixtureIndexTable(database);
+
             builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
             builder.addData(new Ledger());
             builder.setUnique(Ledger.INDEX_ENTITY_ID);
             database.execSQL(builder.getTableCreateString());
 
             //The uniqueness index should be doing this for us
-            database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));
-            database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_type_index", "AndroidCase", "case_type"));
-            database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_status_index", "AndroidCase", "case_status"));
+            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));
+            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_type_index", "AndroidCase", "case_type"));
+            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_index", "AndroidCase", "case_status"));
 
-            database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_status_open_index", "AndroidCase", "case_type,case_status"));
+            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_open_index", "AndroidCase", "case_type,case_status"));
 
-            database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("ledger_entity_id", "ledger", "entity_id"));
+            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand("ledger_entity_id", "ledger", "entity_id"));
 
             DbUtil.createNumbersTable(database);
 
@@ -160,9 +166,9 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         //TODO: Not a great way to get the current app! Pass this in to the constructor.
         //I am preeeeeety sure that we can't get here without _having_ an app/platform, but not 100%
         try {
-            if (CommCareApplication._().getCommCarePlatform() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null) {
-                if (CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null &&
-                        CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense")) {
+            if (CommCareApplication.instance().getCommCarePlatform() != null && CommCareApplication.instance().getCommCarePlatform().getCurrentProfile() != null) {
+                if (CommCareApplication.instance().getCommCarePlatform().getCurrentProfile() != null &&
+                        CommCareApplication.instance().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense")) {
                     inSenseMode = true;
                 }
             }
@@ -171,4 +177,31 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         }
         new UserDatabaseUpgrader(context, mUserId, inSenseMode, fileMigrationKeySeed).upgrade(db, oldVersion, newVersion);
     }
+
+    public static void buildTable(SQLiteDatabase database,
+                                  String tableName,
+                                  Persistable dataObject) {
+        try {
+            database.beginTransaction();
+
+            AndroidTableBuilder builder = new AndroidTableBuilder(tableName);
+            builder.addData(dataObject);
+            database.execSQL(builder.getTableCreateString());
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+    }
+
+    public static void dropTable(SQLiteDatabase database,
+                                 String tableName) {
+        try {
+            database.beginTransaction();
+            database.execSQL("DROP TABLE IF EXISTS '" + tableName + "'");
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+    }
+
 }

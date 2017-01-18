@@ -119,6 +119,7 @@ public class ShrinkingTextView extends TextView {
     }
 
     private class PanelToggler implements OnClickListener {
+        @Override
         public void onClick(View v) {
             if (!mInteractive || isAnimating()) {
                 return;

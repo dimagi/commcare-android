@@ -1,5 +1,6 @@
 package org.commcare.interfaces;
 
+import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 
 /**

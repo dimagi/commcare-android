@@ -3,6 +3,7 @@ package org.commcare.models;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.cases.entity.Entity;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.suite.model.DetailField;
@@ -12,8 +13,8 @@ import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.Enumeration;
@@ -23,9 +24,9 @@ import java.util.Hashtable;
  * An AsyncEntity is an entity reference which is capable of building its
  * values (evaluating all Text elements/background data elements) lazily
  * rather than upfront when the entity is constructed.
- * <p/>
+ *
  * It is threadsafe.
- * <p/>
+ *
  * It will attempt to Cache its values persistently by a derived entity key rather
  * than evaluating them each time when possible. This can be slow to perform across
  * all entities internally due to the overhead of establishing the db connection, it
@@ -90,7 +91,7 @@ public class AsyncEntity extends Entity<TreeReference> {
                 //in a 1.3 hashtable equivalent
                 for (Enumeration<String> en = mVariableDeclarations.keys(); en.hasMoreElements(); ) {
                     String key = en.nextElement();
-                    context.setVariable(key, XPathFuncExpr.unpack(mVariableDeclarations.get(key).eval(context)));
+                    context.setVariable(key, FunctionUtils.unpack(mVariableDeclarations.get(key).eval(context)));
                 }
                 mVariableContextLoaded = true;
             }
@@ -128,7 +129,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         //Get a db handle so we can get an outer lock
         SQLiteDatabase db;
         try {
-            db = CommCareApplication._().getUserDbHandle();
+            db = CommCareApplication.instance().getUserDbHandle();
         } catch (SessionUnavailableException e) {
             return null;
         }
@@ -139,6 +140,7 @@ public class AsyncEntity extends Entity<TreeReference> {
             //get our second lock.
             synchronized (mAsyncLock) {
                 if (sortData[i] == null) {
+                    // sort data not in search field cache; load and store it
                     Text sortText = fields[i].getSort();
                     if (sortText == null) {
                         db.setTransactionSuccessful();
@@ -156,7 +158,6 @@ public class AsyncEntity extends Entity<TreeReference> {
                             return sortData[i];
                         }
                     }
-
 
                     loadVariableContext();
                     try {
@@ -219,6 +220,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         return data;
     }
 
+    @Override
     public String[] getSortFieldPieces(int i) {
         if (getSortField(i) == null) {
             return new String[0];
@@ -240,7 +242,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         }
     }
 
-    private String[] breakUpField(String input) {
+    private static String[] breakUpField(String input) {
         if (input == null) {
             return new String[0];
         } else {

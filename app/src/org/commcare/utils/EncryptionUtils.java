@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import org.commcare.logic.FormController.InstanceMetadata;
+import org.javarosa.form.api.FormController.InstanceMetadata;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI;
 import org.kxml2.io.KXmlSerializer;
@@ -597,4 +597,16 @@ public class EncryptionUtils {
 
         return true;
     }
+
+    public static String getMD5HashAsString(String plainText) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(plainText.getBytes());
+            byte[] hashInBytes = md.digest();
+            return Base64.encode(hashInBytes);
+        } catch (NoSuchAlgorithmException e) {
+            return "";
+        }
+    }
+
 }

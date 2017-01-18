@@ -2,6 +2,7 @@ package org.commcare.fragments;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +38,8 @@ import java.util.ArrayList;
 public class SelectInstallModeFragment extends Fragment implements NsdServiceListener {
 
     private View mFetchHubContainer;
-    private ArrayList<Pair<String, String>> mLocalApps = new ArrayList<>();
+    private TextView mErrorMessageView;
+    private ArrayList<MicroNode.AppManifest> mLocalApps = new ArrayList<>();
 
     @Override
     public void onResume() {
@@ -67,8 +70,11 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             @Override
             public void onClick(View v) {
                 try {
+                    Activity currentActivity = getActivity();
+                    if (currentActivity instanceof CommCareSetupActivity) {
+                        ((CommCareSetupActivity)currentActivity).clearErrorMessage();
+                    }
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                    //Barcode only
                     i.putExtra("SCAN_FORMATS", "QR_CODE");
                     getActivity().startActivityForResult(i, CommCareSetupActivity.BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
@@ -86,6 +92,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 Activity currentActivity = getActivity();
                 if (currentActivity instanceof CommCareSetupActivity) {
                     ((CommCareSetupActivity)currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
+                    ((CommCareSetupActivity)currentActivity).clearErrorMessage();
                 }
                 // if we use getChildFragmentManager, we're going to have a crash
                 FragmentManager fm = getActivity().getSupportFragmentManager();
@@ -107,7 +114,13 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             }
         });
 
+        mErrorMessageView = (TextView)view.findViewById(R.id.install_error_text);
+        showOrHideErrorMessage();
+
         mFetchHubContainer = view.findViewById(R.id.btn_fetch_hub_container);
+
+        InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
         return view;
     }
@@ -119,15 +132,15 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         DialogChoiceItem[] items = new DialogChoiceItem[mLocalApps.size()];
         int count = 0;
-        for (final Pair<String, String> app : mLocalApps) {
-            DialogChoiceItem item = new DialogChoiceItem(app.first, -1, new View.OnClickListener() {
+        for (final MicroNode.AppManifest app : mLocalApps) {
+            DialogChoiceItem item = new DialogChoiceItem(app.getName(), -1, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Activity currentActivity = getActivity();
                     if (currentActivity instanceof CommCareSetupActivity) {
-                        ((CommCareSetupActivity)currentActivity).onURLChosen(app.second);
+                        ((CommCareSetupActivity)currentActivity).onURLChosen(app.getLocalUrl());
                     }
-                    chooseApp.dismiss();
+                    ((CommCareActivity)getActivity()).dismissAlertDialog();
                 }
             });
             items[count] = item;
@@ -142,8 +155,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         boolean appsAvailable = false;
         mLocalApps = new ArrayList<>();
         for (MicroNode node : NSDDiscoveryTools.getAvailableMicronodes()) {
-            for (Pair<String, String> applications : node.getAvailableApplications()) {
-                mLocalApps.add(applications);
+            for (MicroNode.AppManifest application : node.getAvailableApplications()) {
+                mLocalApps.add(application);
                 appsAvailable = true;
             }
         }
@@ -155,6 +168,19 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                     mFetchHubContainer.setVisibility(View.VISIBLE);
                 }
             });
+        }
+    }
+
+    public void showOrHideErrorMessage() {
+        Activity currentActivity = getActivity();
+        if (currentActivity instanceof CommCareSetupActivity) {
+            String msg = ((CommCareSetupActivity) currentActivity).getErrorMessageToDisplay();
+            if (msg != null && !"".equals(msg)) {
+                mErrorMessageView.setText(msg);
+                mErrorMessageView.setVisibility(View.VISIBLE);
+            } else {
+                mErrorMessageView.setVisibility(View.GONE);
+            }
         }
     }
 }

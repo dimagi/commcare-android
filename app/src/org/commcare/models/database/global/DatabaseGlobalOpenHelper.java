@@ -70,6 +70,7 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
         }
     }
 
+    @Override
     public SQLiteDatabase getWritableDatabase(String key) {
         try {
             return super.getWritableDatabase(key);

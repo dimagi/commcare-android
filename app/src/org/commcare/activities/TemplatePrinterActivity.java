@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
@@ -22,11 +23,13 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.dalvik.R;
 import org.commcare.graph.view.GraphView;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.TemplatePrinterTask;
 import org.commcare.tasks.TemplatePrinterTask.PopulateListener;
+import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -40,6 +43,7 @@ import org.jsoup.nodes.Node;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +55,13 @@ import java.util.List;
  * @author amstone
  */
 public class TemplatePrinterActivity extends Activity implements PopulateListener {
+
+    private static final String KEY_TEMPLATE_STYLE = "PRINT_TEMPLATE_STYLE";
+    private static final String TEMPLATE_STYLE_HTML = "TEMPLATE_HTML";
+    private static final String TEMPLATE_STYLE_ZPL = "TEMPLATE_ZPL";
+
+    private static final int CALLOUT_ZPL = 1;
+
 
     /**
      * The path to the temp file location that is written to in TemplatePrinterTask, and then
@@ -70,41 +81,115 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_template_printer);
 
+        String printStyle = this.getIntent().getExtras().getString(KEY_TEMPLATE_STYLE);
+        if (printStyle == null) {
+            if(CompoundIntentList.isIntentCompound(this.getIntent())) {
+                //Only zebra print jobs can compound
+                //TODO: This still isn't a particularly great way for us to be differentiating
+                printStyle = TEMPLATE_STYLE_ZPL;
+            } else {
+                printStyle = TEMPLATE_STYLE_HTML;
+            }
+        }
+
+        if (TEMPLATE_STYLE_ZPL.equals(printStyle)) {
+
+            //Since this and the callout activities are raised as "dialog" activities, they will
+            //recreate themselves on rotation. If we detect that we need to not "re-kick-off" the
+            //activity, it will result in duplicate activities.
+            if (savedInstanceState != null) {
+                return;
+            } else {
+                doZebraPrint();
+                return;
+            }
+        }
+
+        String path = getPathOrThrowError(getIntent().getExtras());
+
+        //A null return code from the path retriever means that it is displaying a message;
+        if (path == null) {
+            return;
+        }
+
+
+
         //Check to make sure we are targeting API 19 or above, which is where print is supported
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             showErrorDialog(Localization.get("print.not.supported"));
             return;
         }
 
-        Bundle data = getIntent().getExtras();
+
+        this.outputPath = CommCareApplication.instance().getTempFilePath() + ".html";
+
+        preparePrintDoc(path);
+    }
+
+    private void doZebraPrint() {
+        Intent i = new Intent("com.dimagi.android.zebraprinttool.action.PrintTemplate");
+
+        if (CompoundIntentList.isIntentCompound(this.getIntent())) {
+            ArrayList<String> keys = this.getIntent().getStringArrayListExtra(CompoundIntentList.EXTRA_COMPOUND_DATA_INDICES);
+            i.putStringArrayListExtra("zebra:bundle_list", keys);
+            for(String key : keys) {
+                Bundle b = this.getIntent().getBundleExtra(key);
+                prepareZebraBundleFromFile(b);
+                i.putExtra(key, b);
+            }
+        } else {
+            String key = "single_job";
+            Bundle intentBundle = this.getIntent().getExtras();
+            prepareZebraBundleFromFile(intentBundle);
+            i.putExtra(key, intentBundle);
+            ArrayList<String> extraKeys = new ArrayList<>();
+            extraKeys.add(key);
+            i.putStringArrayListExtra("zebra:bundle_list", extraKeys);
+        }
+        this.startActivityForResult(i, CALLOUT_ZPL);
+    }
+
+    private void prepareZebraBundleFromFile(Bundle bundle) {
+        String path = getPathOrThrowError(bundle);
+
+        File destFile = new File(path);
+        bundle.putString("zebra:template_file_path", destFile.getAbsolutePath());
+    }
+
+    /**
+     * Retrieve a valid path that is the template file to be used during printing, or
+     * display an error message to the user. If a message is displayed, the method will
+     * return null and the activity should not continue attempting to print
+     */
+    private String getPathOrThrowError(Bundle data) {
         //Check to make sure key-value data has been passed with the intent
         if (data == null) {
             showErrorDialog(Localization.get("no.print.data"));
-            return;
+            return null;
         }
-
-        this.outputPath = CommCareApplication._().getTempFilePath() + ".html";
 
         //Check if a doc location is coming in from the Intent
         //Will return a reference of format jr://... if it has been set
         String path = data.getString("cc:print_template_reference");
         if (path != null) {
             try {
-                path = ReferenceManager._().DeriveReference(path).getLocalURI();
-                preparePrintDoc(path);
+                path = ReferenceManager.instance().DeriveReference(path).getLocalURI();
+                return path;
             } catch (InvalidReferenceException e) {
                 showErrorDialog(Localization.get("template.invalid"));
+                return null;
             }
         } else {
             //Try to use the document location that was set in Settings menu
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
             path = prefs.getString(CommCarePreferences.PREFS_PRINT_DOC_LOCATION, "");
             if ("".equals(path)) {
                 showErrorDialog(Localization.get("missing.template.file"));
+                return null;
             } else {
-                preparePrintDoc(path);
+                return path;
             }
-        };
+        }
     }
 
     private void preparePrintDoc(String inputPath) {
@@ -178,6 +263,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
         webView.setWebViewClient(new WebViewClient() {
 
+            @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 return false;
             }
@@ -223,6 +309,19 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             showErrorDialog(Localization.get("print.io.error"));
         }
         createWebPrintJob(webView);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == CALLOUT_ZPL) {
+            Intent response = new Intent();
+            if(resultCode != Activity.RESULT_CANCELED) {
+                response.putExtra(IntentCallout.INTENT_RESULT_VALUE, "");
+            }
+            this.setResult(resultCode, response);
+            this.finish();
+        }
     }
 
     /**

@@ -41,6 +41,7 @@ public class ForceCloseLogger {
 
     public static void reportExceptionInBg(final Throwable exception) {
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 sendToServerOrStore(exception);
             }
@@ -106,7 +107,7 @@ public class ForceCloseLogger {
 
         HttpRequestGenerator generator;
         try {
-            User user = CommCareApplication._().getSession().getLoggedInUser();
+            User user = CommCareApplication.instance().getSession().getLoggedInUser();
             generator = new HttpRequestGenerator(user);
         } catch (Exception e) {
             generator = HttpRequestGenerator.buildNoAuthGenerator();
@@ -132,13 +133,13 @@ public class ForceCloseLogger {
     }
 
     private static String getSubmissionUri() {
-        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         if (currentApp != null) {
             return currentApp.getAppPreferences().getString(
                     CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
-                    CommCareApplication._().getString(R.string.PostURL));
+                    CommCareApplication.instance().getString(R.string.PostURL));
         } else {
-            return CommCareApplication._().getString(R.string.PostURL);
+            return CommCareApplication.instance().getString(R.string.PostURL);
         }
     }
 

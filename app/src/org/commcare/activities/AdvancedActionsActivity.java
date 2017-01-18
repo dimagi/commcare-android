@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.view.MenuItem;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -19,6 +21,7 @@ import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
 import org.commcare.utils.CommCareUtil;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
@@ -44,12 +47,15 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
 
     private final static int WIFI_DIRECT_ACTIVITY = 1;
     private final static int DUMP_FORMS_ACTIVITY = 2;
+    private final static int REPORT_PROBLEM_ACTIVITY = 3;
+    private final static int VALIDATE_MEDIA_ACTIVITY = 4;
 
-    public final static int RESULT_DATA_RESET = RESULT_FIRST_USER + 1;
-    public final static int RESULT_FORMS_PROCESSED = RESULT_FIRST_USER + 2;
+    public final static int RESULT_DATA_RESET = HomeScreenBaseActivity.RESULT_RESTART + 1;
+    public final static int RESULT_FORMS_PROCESSED = HomeScreenBaseActivity.RESULT_RESTART + 2;
 
     public final static String FORM_PROCESS_COUNT_KEY = "forms-processed-count";
     public final static String FORM_PROCESS_MESSAGE_KEY = "forms-processed-message";
+    static final String KEY_NUMBER_DUMPED = "num_dumped";
 
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
 
@@ -144,7 +150,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_CLEAR_USER_DATA);
-                clearUserData();
+                clearUserData(AdvancedActionsActivity.this);
                 return true;
             }
         });
@@ -187,13 +193,13 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
 
     private void startReportActivity() {
         Intent i = new Intent(this, ReportProblemActivity.class);
-        startActivity(i);
+        startActivityForResult(i, REPORT_PROBLEM_ACTIVITY);
     }
 
     private void startValidationActivity() {
         Intent i = new Intent(this, CommCareVerificationActivity.class);
         i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_SETTINGS, true);
-        startActivity(i);
+        startActivityForResult(i, VALIDATE_MEDIA_ACTIVITY);
     }
 
     private void startWifiDirect() {
@@ -203,7 +209,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
 
     private void startFormDump() {
         Intent i = new Intent(this, CommCareFormDumpActivity.class);
-        i.putExtra(CommCareFormDumpActivity.EXTRA_FILE_DESTINATION, CommCareApplication._().getCurrentApp().storageRoot());
+        i.putExtra(CommCareFormDumpActivity.EXTRA_FILE_DESTINATION, CommCareApplication.instance().getCurrentApp().storageRoot());
         startActivityForResult(i, DUMP_FORMS_ACTIVITY);
     }
 
@@ -222,9 +228,9 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         startActivity(i);
     }
 
-    private void clearUserData() {
+    public static void clearUserData(final Activity activity) {
         StandardAlertDialog d =
-                new StandardAlertDialog(this,
+                new StandardAlertDialog(activity,
                         Localization.get("clear.user.data.warning.title"),
                         Localization.get("clear.user.data.warning.message"));
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
@@ -232,44 +238,46 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
             public void onClick(DialogInterface dialog,
                                 int which) {
                 if (which == AlertDialog.BUTTON_POSITIVE) {
-                    CommCareApplication._().clearUserData();
-                    setResult(RESULT_DATA_RESET);
-                    finish();
+                    AppUtils.clearUserData();
+                    activity.setResult(RESULT_DATA_RESET);
+                    activity.finish();
                 }
                 dialog.dismiss();
             }
         };
-        d.setPositiveButton(getString(R.string.ok), listener);
-        d.setNegativeButton(getString(R.string.cancel), listener);
+        d.setPositiveButton(StringUtils.getStringRobust(activity, R.string.ok), listener);
+        d.setNegativeButton(StringUtils.getStringRobust(activity, R.string.cancel), listener);
         d.showNonPersistentDialog();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        switch (requestCode) {
-            case WIFI_DIRECT_ACTIVITY:
-                if (resultCode == WipeTask.WIPE_TASK_ID || resultCode == SendTask.BULK_SEND_ID) {
-                    int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
+        if (requestCode == REPORT_PROBLEM_ACTIVITY || requestCode == VALIDATE_MEDIA_ACTIVITY) {
+            finish();
+        } else if (requestCode == WIFI_DIRECT_ACTIVITY || requestCode == DUMP_FORMS_ACTIVITY) {
+            String messageKey = getBulkFormMessageKey(resultCode);
+            if (messageKey == null) {
+                return;
+            }
 
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra(FORM_PROCESS_COUNT_KEY, dumpedCount);
-                    returnIntent.putExtra(FORM_PROCESS_MESSAGE_KEY, "bulk.form.send.success");
-                    setResult(RESULT_FORMS_PROCESSED, returnIntent);
-                    finish();
-                }
-                break;
-            case DUMP_FORMS_ACTIVITY:
-                if (resultCode == DumpTask.BULK_DUMP_ID || resultCode == SendTask.BULK_SEND_ID) {
-                    int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra(FORM_PROCESS_COUNT_KEY, dumpedCount);
-                    returnIntent.putExtra(FORM_PROCESS_MESSAGE_KEY, "bulk.form.dump.success");
-                    setResult(RESULT_FORMS_PROCESSED, returnIntent);
-                    finish();
-                }
-                break;
-            default:
-                break;
+            int dumpedCount = intent.getIntExtra(KEY_NUMBER_DUMPED, -1);
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(FORM_PROCESS_COUNT_KEY, dumpedCount);
+            returnIntent.putExtra(FORM_PROCESS_MESSAGE_KEY, messageKey);
+            setResult(RESULT_FORMS_PROCESSED, returnIntent);
+            finish();
+        }
+    }
+
+    private static String getBulkFormMessageKey(int resultCode) {
+        if (resultCode == DumpTask.BULK_DUMP_ID) {
+            return "bulk.form.dump.success";
+        } else if (resultCode == SendTask.BULK_SEND_ID ||
+                resultCode == WipeTask.WIPE_TASK_ID ||
+                resultCode == SendTask.BULK_SEND_ID) {
+            return "bulk.form.send.success";
+        } else {
+            return null;
         }
     }
 

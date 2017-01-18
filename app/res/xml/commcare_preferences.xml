@@ -27,6 +27,20 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-fuzzy-search-enabled"
         android:title="Fuzzy Search Matches"/>
+    <ListPreference
+        android:enabled="true"
+        android:defaultValue="no"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-update-to-unstarred-builds"
+        android:title="Enable Updating to Un-Starred Builds"/>
+    <ListPreference
+        android:enabled="true"
+        android:defaultValue="always_hidden"
+        android:entries="@array/pref_password_show_options_labels"
+        android:entryValues="@array/pref_password_show_options"
+        android:key="cc-password-entry-show-behavior"
+        android:title="Configure Password Display"/>
     <Preference
         android:key="disable-analytics"/>
     <Preference

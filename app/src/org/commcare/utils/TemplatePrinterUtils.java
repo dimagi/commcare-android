@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import org.commcare.models.encryption.CryptUtil;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
 
 import java.io.BufferedReader;
@@ -147,6 +147,7 @@ public abstract class TemplatePrinterUtils {
     public static void showAlertDialog(final Activity activity, String title, String msg,
                                        final boolean finishActivity) {
         StandardAlertDialog.getBasicAlertDialog(activity, title, msg, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 if (finishActivity) {

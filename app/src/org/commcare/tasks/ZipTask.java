@@ -41,8 +41,8 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
 
     public static final int ZIP_TASK_ID = 72135;
 
-    private File toBeZippedFile;
-    private String zipFilePath;
+    private final File toBeZippedFile;
+    private final String zipFilePath;
 
     public ZipTask(String toBeZippedPath, String zipFilePath) {
         taskId = ZIP_TASK_ID;
@@ -97,7 +97,7 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
 
                 int pathPartsLength = pathParts.length;
 
-                String filePath = pathParts[pathPartsLength -1] + "/" + pathParts[pathPartsLength - 2];
+                String filePath = pathParts[pathPartsLength -2] + "/" + pathParts[pathPartsLength - 1];
                 Log.d(TAG, "Zipping instance folder with path: " + filePath);
 
                 ZipEntry entry = new ZipEntry(filePath);
@@ -117,7 +117,7 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
     protected ZipTaskResult doTaskBackground(Void... params) {
         Log.d(TAG, "Doing UnzipTask");
         try {
-            FileUtil.deleteFileOrDir(toBeZippedFile);
+            FileUtil.deleteFileOrDir(zipFilePath);
             zipParentFolder(toBeZippedFile, zipFilePath);
             FileUtil.deleteFileOrDir(toBeZippedFile);
         } catch (IOException ioe) {
@@ -132,7 +132,7 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
     protected void onCancelled() {
         super.onCancelled();
 
-        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 
 }

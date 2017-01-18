@@ -9,6 +9,7 @@ import android.widget.TextView;
 import org.commcare.activities.AppManagerActivity;
 import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.utils.MultipleAppsUtil;
 
 /**
  * The ArrayAdapter used by AppManagerActivity to display all installed
@@ -20,9 +21,8 @@ public class AppManagerAdapter extends ArrayAdapter<ApplicationRecord> {
 
     private final AppManagerActivity context;
 
-    public AppManagerAdapter(Context context, int resource,
-                             ApplicationRecord[] objects) {
-        super(context, resource, objects);
+    public AppManagerAdapter(Context context) {
+        super(context, android.R.layout.simple_list_item_1, MultipleAppsUtil.appRecordArray());
         this.context = (AppManagerActivity)context;
     }
 

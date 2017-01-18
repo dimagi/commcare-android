@@ -18,7 +18,6 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -29,8 +28,6 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.core.util.PrefixTreeNode;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -44,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -53,9 +51,9 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = XFormAndroidInstaller.class.getSimpleName();
 
     private String namespace;
-
     private String contentUri;
 
+    @SuppressWarnings("unused")
     public XFormAndroidInstaller() {
         // for externalization
     }
@@ -65,7 +63,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
+    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
         instance.registerXmlns(namespace, contentUri);
         return true;
     }
@@ -88,7 +86,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 
 
         //TODO: Where should this context be?
-        ContentResolver cr = CommCareApplication._().getContentResolver();
+        ContentResolver cr = CommCareApplication.instance().getContentResolver();
         ContentProviderClient cpc = cr.acquireContentProviderClient(FormsProviderAPI.FormsColumns.CONTENT_URI);
 
         ContentValues cv = new ContentValues();
@@ -155,7 +153,6 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     public boolean upgrade(Resource r) {
         boolean fileUpgrade = super.upgrade(r);
         return fileUpgrade && updateFilePath();
-
     }
 
     /**
@@ -165,14 +162,14 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     private boolean updateFilePath() {
         String localRawUri;
         try {
-            localRawUri = ReferenceManager._().DeriveReference(this.localLocation).getLocalURI();
+            localRawUri = ReferenceManager.instance().DeriveReference(this.localLocation).getLocalURI();
         } catch (InvalidReferenceException e) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "Installed resource wasn't able to be derived from " + localLocation);
             return false;
         }
 
         //We're maintaining this whole Content setup now, so we've goota update things when we move them.
-        ContentResolver cr = CommCareApplication._().getContentResolver();
+        ContentResolver cr = CommCareApplication.instance().getContentResolver();
 
         ContentValues cv = new ContentValues();
         cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, new File(localRawUri).getAbsolutePath());
@@ -185,10 +182,12 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         return updatedRows != 0;
     }
 
+    @Override
     public boolean revert(Resource r, ResourceTable table) {
         return super.revert(r, table) && updateFilePath();
     }
 
+    @Override
     public int rollback(Resource r) {
         int newStatus = super.rollback(r);
         if (newStatus == Resource.RESOURCE_STATUS_INSTALLED) {
@@ -223,15 +222,16 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(contentUri));
     }
 
+    @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         //Check to see whether the formDef exists and reads correctly
         FormDef formDef;
         try {
-            Reference local = ReferenceManager._().DeriveReference(localLocation);
+            Reference local = ReferenceManager.instance().DeriveReference(localLocation);
             formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
         } catch (Exception e) {
             // something weird/bad happened here. first make sure storage is available
-            if (!CommCareApplication._().isStorageAvailable()) {
+            if (!CommCareApplication.instance().isStorageAvailable()) {
                 problems.addElement(new MissingMediaException(r, "Couldn't access your persisent storage. Please make sure your SD card is connected properly"));
             }
 
@@ -245,13 +245,12 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         //available
         Localizer localizer = formDef.getLocalizer();
         //get this out of the memory ASAP!
-        formDef = null;
         if (localizer == null) {
             //things are fine
             return false;
         }
         for (String locale : localizer.getAvailableLocales()) {
-            OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
+            Hashtable<String, String> localeData = localizer.getLocaleData(locale);
             for (Enumeration en = localeData.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
                 if (key.contains(";")) {
@@ -262,8 +261,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                             form.equals(FormEntryCaption.TEXT_FORM_IMAGE)) {
                         try {
 
-                            String externalMedia = localeData.get(key).render();
-                            Reference ref = ReferenceManager._().DeriveReference(externalMedia);
+                            String externalMedia = localeData.get(key);
+                            Reference ref = ReferenceManager.instance().DeriveReference(externalMedia);
                             String localName = ref.getLocalURI();
                             try {
                                 if (!ref.doesBinaryExist()) {

@@ -24,6 +24,14 @@ public final class InstanceProviderAPI {
      */
     public static final String UNINDEXED_SUBMISSION = "unindexedSubmission";
 
+    /**
+     * If a user sandbox needs to be migrated, instances will be moved by
+     * inserting them into the new sandbox and updating existing form records
+     * to point to the newly inserted data.
+     */
+    public static final String SANDBOX_MIGRATION_SUBMISSION =
+            "sandboxMigrationSubmission";
+
     public static final class InstanceColumns implements BaseColumns {
         // This class cannot be instantiated
         private InstanceColumns() {

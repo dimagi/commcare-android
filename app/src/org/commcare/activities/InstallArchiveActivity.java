@@ -54,12 +54,19 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     public static final String ARCHIVE_FILEPATH = "archive-filepath";
     public static final String ARCHIVE_JR_REFERENCE = "archive-jr-ref";
+    public static final String FROM_UPDATE = "from-update-activity";
 
     private String targetDirectory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        boolean fromUpdateActivity = getIntent().getBooleanExtra(FROM_UPDATE, false);
+        if (fromUpdateActivity) {
+            txtDisplayPrompt.setText(Localization.get("archive.update.prompt"));
+            btnInstallArchive.setText(Localization.get("archive.update.button"));
+        }
 
         btnFetchFiles.setOnClickListener(new OnClickListener() {
             @Override
@@ -124,11 +131,11 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         FileUtil.deleteFileOrDir(targetDirectory);
 
         mUnzipTask.connect(this);
-        mUnzipTask.execute(filepath, targetDirectory);
+        mUnzipTask.executeParallel(filepath, targetDirectory);
     }
 
     private void onUnzipSuccessful() {
-        ArchiveFileRoot afr = CommCareApplication._().getArchiveFileRoot();
+        ArchiveFileRoot afr = CommCareApplication.instance().getArchiveFileRoot();
         String mGUID = afr.addArchiveFile(getTargetFolder());
 
         String ref = "jr://archive/" + mGUID + "/profile.ccpr";
@@ -145,7 +152,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             // Android versions 4.4 and up sometimes don't return absolute
             // filepaths from the file chooser. So resolve the URI into a
             // valid file path.
-            String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+            String filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(),
                     intent.getData());
             if (filePath != null) {
                 editFileLocation.setText(filePath);
@@ -191,7 +198,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             return targetDirectory;
         }
 
-        targetDirectory = CommCareApplication._().getAndroidFsTemp() + PropertyUtils.genUUID();
+        targetDirectory = CommCareApplication.instance().getAndroidFsTemp() + PropertyUtils.genUUID();
         return targetDirectory;
     }
 

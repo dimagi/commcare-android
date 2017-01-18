@@ -13,6 +13,7 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
@@ -22,7 +23,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
-import org.commcare.models.encryption.CryptUtil;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -126,7 +127,7 @@ public class CommCareSessionService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         try {
-            CommCareApplication._().getCurrentSessionWrapper().reset();
+            CommCareApplication.instance().getCurrentSessionWrapper().reset();
         } catch (SessionStateUninitException e) {
             Log.e(AndroidLogger.SOFT_ASSERT,
                     "Trying to wipe uninitialized session in session service tear-down");
@@ -188,7 +189,7 @@ public class CommCareSessionService extends Service {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
 
         String notificationText;
-        if (CommCareApplication._().getInstalledAppRecords().size() > 1) {
+        if (AppUtils.getInstalledAppRecords().size() > 1) {
             try {
                 notificationText = Localization.get("notification.logged.in",
                         new String[]{Localization.get("app.display.name")});
@@ -254,7 +255,7 @@ public class CommCareSessionService extends Service {
                 userDatabase.close();
             }
 
-            userDatabase = new DatabaseUserOpenHelper(CommCareApplication._(), userKeyRecordUUID)
+            userDatabase = new DatabaseUserOpenHelper(CommCareApplication.instance(), userKeyRecordUUID)
                     .getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
         }
     }
@@ -280,19 +281,25 @@ public class CommCareSessionService extends Service {
 
             this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
 
-            // Display a notification about us starting.  We put an icon in the status bar.
-            showLoggedInNotification(user);
-
-            maintenanceTimer = new Timer("CommCareService");
-            maintenanceTimer.schedule(new TimerTask() {
-
-                @Override
-                public void run() {
-                    timeToExpireSession();
-                }
-
-            }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
+            if (!CommCareApplication.instance().isConsumerApp()) {
+                // Put an icon in the status bar for the session, and set up session expiration
+                // (unless this is a consumer app)
+                showLoggedInNotification(user);
+                setUpSessionExpirationTimer();
+            }
         }
+    }
+
+    private void setUpSessionExpirationTimer() {
+        maintenanceTimer = new Timer("CommCareService");
+        maintenanceTimer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                timeToExpireSession();
+            }
+
+        }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
     }
 
     /**
@@ -313,7 +320,7 @@ public class CommCareSessionService extends Service {
                 return;
             }
             try {
-                CommCareApplication._().expireUserSession();
+                CommCareApplication.instance().expireUserSession();
             } finally {
                 CommCareSessionService.sessionAliveLock.unlock();
             }
@@ -347,7 +354,7 @@ public class CommCareSessionService extends Service {
      */
     private void saveFormAndCloseSession() {
         // Remember when we started so that if form saving takes too long, the
-        // maintenance timer will launch CommCareApplication._().expireUserSession
+        // maintenance timer will launch CommCareApplication.instance().expireUserSession
         logoutStartedAt = new Date().getTime();
 
         // save form progress, if any
@@ -355,7 +362,7 @@ public class CommCareSessionService extends Service {
             if (formSaver != null) {
                 formSaver.formSaveCallback();
             } else {
-                CommCareApplication._().expireUserSession();
+                CommCareApplication.instance().expireUserSession();
             }
         }
     }
@@ -458,15 +465,15 @@ public class CommCareSessionService extends Service {
     }
 
     public UserKeyRecord getUserKeyRecord() {
-        return CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)
+        return CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class)
                 .read(this.userKeyRecordID);
     }
 
-    public DataSubmissionListener startDataSubmissionListener() {
-        return this.startDataSubmissionListener(SUBMISSION_NOTIFICATION);
+    public DataSubmissionListener getListenerForSubmissionNotification() {
+        return this.getListenerForSubmissionNotification(SUBMISSION_NOTIFICATION);
     }
 
-    public DataSubmissionListener startDataSubmissionListener(final int notificationId) {
+    public DataSubmissionListener getListenerForSubmissionNotification(final int notificationId) {
         return new DataSubmissionListener() {
             int totalItems = -1;
             long currentSize = -1;
@@ -503,8 +510,8 @@ public class CommCareSessionService extends Service {
             }
 
             @Override
-            public void startSubmission(int itemNumber, long length) {
-                currentSize = length;
+            public void startSubmission(int itemNumber, long sizeOfItem) {
+                currentSize = sizeOfItem;
 
                 submissionNotification.setContentInfo(getSubmittedFormCount(itemNumber + 1, totalItems));
                 submissionNotification.setProgress(100, 0, false);
@@ -539,7 +546,7 @@ public class CommCareSessionService extends Service {
             }
 
             @Override
-            public void endSubmissionProcess() {
+            public void endSubmissionProcess(boolean success) {
                 mNM.cancel(notificationId);
                 submissionNotification = null;
                 totalItems = -1;
@@ -568,6 +575,5 @@ public class CommCareSessionService extends Service {
     public void setCurrentUser(User user, String password) {
         this.user = user;
         this.user.setCachedPwd(password);
-        this.key = user.getWrappedKey();
     }
 }

@@ -6,6 +6,8 @@ import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
@@ -39,7 +41,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     public AsyncNodeEntityFactory(Detail d, EvaluationContext ec) {
         super(d, ec);
 
-        mVariableDeclarations = getDetail().getVariableDeclarations();
+        mVariableDeclarations = detail.getVariableDeclarations();
         mEntityCache = new EntityStorageCache("case");
     }
 
@@ -72,6 +74,10 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         return entity;
     }
 
+    /**
+     * Bulk loads search field cache from db.
+     * Note that the cache is lazily built upon first case list search.
+     */
     private void primeCache() {
         if (mTemplateIsCachable == null || !mTemplateIsCachable || mCacheHost == null) {
             return;
@@ -83,7 +89,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         }
 
         Vector<Integer> sortKeys = new Vector<>();
-        String validKeys = buildValidKeys(sortKeys, getDetail().getFields());
+        String validKeys = buildValidKeys(sortKeys, detail.getFields());
         if ("".equals(validKeys)) {
             return;
         }
@@ -95,7 +101,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         System.arraycopy(cachePrimeKeys[1], 0, args, 0, cachePrimeKeys[1].length);
 
         for (int i = 0; i < sortKeys.size(); ++i) {
-            args[2 + i] = getCacheKey(getDetail().getId(), String.valueOf(sortKeys.get(i)));
+            args[cachePrimeKeys[1].length + i] = getCacheKey(detail.getId(), String.valueOf(sortKeys.get(i)));
         }
 
         String[] names = cachePrimeKeys[0];
@@ -103,7 +109,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
         long now = System.currentTimeMillis();
 
-        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
 
         String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " + whereClause + " AND cache_key IN " + validKeys;
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {

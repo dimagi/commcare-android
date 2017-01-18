@@ -7,6 +7,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionDescriptorUtil;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.EntityDatum;
@@ -47,19 +48,11 @@ public class AndroidSessionWrapper {
         this.session = session;
     }
 
-    /**
-     * Serialize the state of this session so it can be restored
-     * at a later time.
-     */
-    public SessionStateDescriptor getSessionStateDescriptor() {
-        return new SessionStateDescriptor(this);
-    }
-
     public void loadFromStateDescription(SessionStateDescriptor descriptor) {
         this.reset();
         this.sessionStateRecordId = descriptor.getID();
         this.formRecordId = descriptor.getFormRecordId();
-        descriptor.loadSession(this.session);
+        SessionDescriptorUtil.loadSessionFromDescriptor(descriptor.getSessionDescriptor(), session);
     }
 
     /**
@@ -97,7 +90,7 @@ public class AndroidSessionWrapper {
             return null;
         }
 
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         return storage.read(formRecordId);
     }
 
@@ -119,7 +112,7 @@ public class AndroidSessionWrapper {
      * otherwise null.
      */
     public SessionStateDescriptor getExistingIncompleteCaseDescriptor() {
-        SessionStateDescriptor ssd = getSessionStateDescriptor();
+        SessionStateDescriptor ssd = SessionStateDescriptor.buildFromSessionWrapper(this);
 
         if (!ssd.getSessionDescriptor().contains(SessionFrame.STATE_DATUM_VAL)) {
             // don't continue if the current session doesn't use a case
@@ -127,10 +120,10 @@ public class AndroidSessionWrapper {
         }
 
         SqlStorage<FormRecord> storage =
-                CommCareApplication._().getUserStorage(FormRecord.class);
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
 
         SqlStorage<SessionStateDescriptor> sessionStorage =
-                CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+                CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
 
         // TODO: This is really a join situation. Need a way to outline
         // connections between tables to enable joining
@@ -159,20 +152,20 @@ public class AndroidSessionWrapper {
 
     public void commitStub() {
         //TODO: This should now be locked somehow
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
-        SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
+        SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
 
-        SecretKey key = CommCareApplication._().createNewSymmetricKey();
+        SecretKey key = CommCareApplication.instance().createNewSymmetricKey();
 
         //TODO: this has two components which can fail. be able to roll them back
 
         FormRecord r = new FormRecord("", FormRecord.STATUS_UNSTARTED, getSession().getForm(),
                 key.getEncoded(), null, new Date(0),
-                CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId());
+                CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId());
         storage.write(r);
         setFormRecordId(r.getID());
 
-        SessionStateDescriptor ssd = getSessionStateDescriptor();
+        SessionStateDescriptor ssd = SessionStateDescriptor.buildFromSessionWrapper(this);
         sessionStorage.write(ssd);
         sessionStateRecordId = ssd.getID();
     }
@@ -212,7 +205,7 @@ public class AndroidSessionWrapper {
         Hashtable<String, Entry> menuMap = platform.getMenuMap();
         for (String key : menuMap.keySet()) {
             Entry e = menuMap.get(key);
-            if (!(e.isView() || e.isSync()) && formNamespace.equals(((FormEntry)e).getXFormNamespace())) {
+            if (!(e.isView() || e.isRemoteRequest()) && formNamespace.equals(((FormEntry)e).getXFormNamespace())) {
                 //We have an entry. Don't worry too much about how we're supposed to get there for now.
 
                 //The ideal is that we only need one piece of data

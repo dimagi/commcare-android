@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -14,14 +15,17 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.utils.BlockingActionsManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.views.widgets.DateTimeWidget;
+import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
 import org.commcare.views.widgets.StringWidget;
 import org.commcare.views.widgets.TimeWidget;
@@ -51,8 +55,6 @@ public class QuestionsView extends ScrollView
     private final ArrayList<View> dividers;
 
     private final int mQuestionFontsize;
-
-    public final static String FIELD_LIST = "field-list";
     
     private WidgetChangedListener wcListener;
     private boolean hasListener = false;
@@ -62,12 +64,14 @@ public class QuestionsView extends ScrollView
 
     private SpannableStringBuilder mGroupLabel;
 
+    private final BlockingActionsManager blockingActionsManager;
+
     /**
      * If enabled, we use dividers between question prompts
      */
     private static final boolean SEPERATORS_ENABLED = false;
 
-    public QuestionsView(Context context) {
+    public QuestionsView(Context context, BlockingActionsManager blockingActionsManager) {
         super(context);
 
         SharedPreferences settings =
@@ -87,12 +91,13 @@ public class QuestionsView extends ScrollView
                         LinearLayout.LayoutParams.WRAP_CONTENT);
 
         mGroupLabel = null;
+        this.blockingActionsManager = blockingActionsManager;
     }
 
     public QuestionsView(Context context, FormEntryPrompt[] questionPrompts,
                          FormEntryCaption[] groups, WidgetFactory factory,
-                         WidgetChangedListener wcl) {
-        this(context);
+                         WidgetChangedListener wcl, BlockingActionsManager blockingActionsManager) {
+        this(context, blockingActionsManager);
 
         if(wcl !=null){
             hasListener = true;
@@ -136,10 +141,10 @@ public class QuestionsView extends ScrollView
             widgets.add(qw);
             mView.addView(qw, mLayout);
             
-            qw.setChangedListener(this);
+            qw.setChangedListeners(this, blockingActionsManager);
         }
         
-        updateLastQuestion();
+        markLastStringWidget();
 
         addView(mView);
     }
@@ -198,7 +203,7 @@ public class QuestionsView extends ScrollView
         widgets.add(i, qw);
         mView.addView(qw, getViewIndex(2 * i + mViewBannerCount), mLayout);
         
-        qw.setChangedListener(this);
+        qw.setChangedListeners(this, blockingActionsManager);
     }
 
 
@@ -231,9 +236,9 @@ public class QuestionsView extends ScrollView
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
     
-    private void updateConstraintRelevancies(){
-        if(hasListener){
-            wcListener.widgetEntryChanged();
+    private void updateConstraintRelevancies(QuestionWidget changedWidget) {
+        if (hasListener) {
+            wcListener.widgetEntryChanged(changedWidget);
         }
     }
 
@@ -320,10 +325,41 @@ public class QuestionsView extends ScrollView
         }
     }
 
-    public void setFocus(Context context) {
-        if (widgets.size() > 0) {
-            widgets.get(0).setFocus(context);
+    public void setFocus(Context context, int indexOfLastChangedWidget) {
+        QuestionWidget widgetToFocus = null;
+        if (indexOfLastChangedWidget != -1 && indexOfLastChangedWidget < widgets.size()) {
+            widgetToFocus = widgets.get(indexOfLastChangedWidget);
+        } else if (widgets.size() > 0) {
+            widgetToFocus = widgets.get(0);
         }
+        if (widgetToFocus != null) {
+            scrollToWidget(widgetToFocus);
+            widgetToFocus.setFocus(context);
+        }
+    }
+
+    private void scrollToWidget(final QuestionWidget widget) {
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                QuestionsView.this.scrollTo(0, widget.getTop());
+            }
+        });
+    }
+
+    /**
+     * @param pendingIntentWidget - the widget for which a callout from form entry just occurred,
+     *                            if there is one
+     * @return the index of the widget that focus was restored to, or -1 if there was no
+     * widget that just called out
+     */
+    public int restoreFocusToQuestionThatCalledOut(Context context, QuestionWidget pendingIntentWidget) {
+        if (pendingIntentWidget != null) {
+            int index = widgets.indexOf(pendingIntentWidget);
+            setFocus(context, index);
+            return index;
+        }
+        return -1;
     }
 
     /**
@@ -340,7 +376,6 @@ public class QuestionsView extends ScrollView
         for (QuestionWidget q : widgets) {
             if (questionFormIndex.equals(q.getFormId())) {
                 q.setBinaryData(answer);
-                pendingCalloutInterface.setPendingCalloutFormIndex(null);
                 return;
             }
         }
@@ -399,18 +434,16 @@ public class QuestionsView extends ScrollView
     }
 
     @Override
-    public void widgetEntryChanged() {
-        updateConstraintRelevancies();
-        updateLastQuestion();
+    public void widgetEntryChanged(QuestionWidget changedWidget) {
+        updateConstraintRelevancies(changedWidget);
+        markLastStringWidget();
     }
-    
-    private void updateLastQuestion(){
+
+    private void markLastStringWidget() {
         StringWidget last = null;
-        
-        for(QuestionWidget q: widgets){
-            
-            if(q instanceof StringWidget){
-                if(last != null){
+        for (QuestionWidget q: widgets) {
+            if (q instanceof StringWidget) {
+                if (last != null) {
                     last.setLastQuestion(false);
                 }
                 last = (StringWidget)q;
@@ -430,13 +463,13 @@ public class QuestionsView extends ScrollView
 
     /**
      * Takes in a form entry prompt that is obtained generically and if there
-     * is already one on screen (which, for isntance, may have cached some of its data)
+     * is already one on screen (which, for instance, may have cached some of its data)
      * returns the object in use currently.
      */
     public FormEntryPrompt getOnScreenPrompt(FormEntryPrompt prompt) {
         FormIndex index = prompt.getIndex();
-        for(QuestionWidget widget : this.getWidgets()) {
-            if(widget.getFormId().equals(index)) {
+        for (QuestionWidget widget : this.getWidgets()) {
+            if (widget.getFormId().equals(index)) {
                 return widget.getPrompt();
             }
         }
@@ -470,4 +503,20 @@ public class QuestionsView extends ScrollView
         }
     }
 
+    public CompoundIntentList getAggregateIntentCallout() {
+        CompoundIntentList compoundedCallout = null;
+        for (QuestionWidget widget : this.getWidgets()) {
+            if(widget instanceof IntentWidget) {
+                boolean expectResult = compoundedCallout != null;
+                compoundedCallout = ((IntentWidget)widget).addToCompoundIntent(compoundedCallout);
+                if(compoundedCallout == null && expectResult) {
+                    return null;
+                }
+            }
+        }
+        if(compoundedCallout == null || compoundedCallout.getNumberOfCallouts() <= 1) {
+            return null;
+        }
+        return compoundedCallout;
+    }
 }

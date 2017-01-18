@@ -26,7 +26,6 @@ import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.xml.util.InvalidStorageStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -105,7 +104,7 @@ public class InstanceProvider extends ContentProvider {
         String appId = ProviderUtils.getSandboxedAppId();
         if (mDbHelper == null || !appId.equals(mDbHelper.getAppId())) {
             String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.INSTANCES, appId);
-            mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName, appId);
+            mDbHelper = new DatabaseHelper(CommCareApplication.instance(), dbName, appId);
         }
     }
 
@@ -195,13 +194,7 @@ public class InstanceProvider extends ContentProvider {
             values.put(InstanceProviderAPI.InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
         }
 
-        // Should we link this instance to the session's form record, or create
-        // a new, unindexed one?
-        boolean linkToSession = true;
-        if (values.containsKey(InstanceProviderAPI.UNINDEXED_SUBMISSION)) {
-            values.remove(InstanceProviderAPI.UNINDEXED_SUBMISSION);
-            linkToSession = false;
-        }
+        InstanceProviderInsertType insertType = InstanceProviderInsertType.getInsertionType(values);
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         long rowId = db.insert(INSTANCES_TABLE_NAME, null, values);
@@ -211,33 +204,44 @@ public class InstanceProvider extends ContentProvider {
             Uri instanceUri = ContentUris.withAppendedId(InstanceProviderAPI.InstanceColumns.CONTENT_URI, rowId);
             notifyChangeSafe(getContext(), uri);
 
-            if (linkToSession) {
-                try {
-                    linkToSessionFormRecord(instanceUri);
-                } catch (IllegalStateException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new SQLException("Failed to insert row into " + uri);
-                }
-            } else {
-                // Forms with this flag are being loaded onto the phone
-                // manually and hence shouldn't be attached to the FormRecord
-                // in the current session
-                String xmlns = values.getAsString(InstanceProviderAPI.InstanceColumns.JR_FORM_ID);
-
-                SecretKey key;
-                key = CommCareApplication._().createNewSymmetricKey();
-                FormRecord r = new FormRecord(instanceUri.toString(), FormRecord.STATUS_UNINDEXED,
-                        xmlns, key.getEncoded(), null, new Date(0), mDbHelper.getAppId());
-                IStorageUtilityIndexed<FormRecord> storage =
-                        CommCareApplication._().getUserStorage(FormRecord.class);
-                storage.write(r);
+            switch (insertType) {
+                case SESSION_LINKED:
+                    finalizeSessionLinkedInsertion(instanceUri, uri);
+                    break;
+                case UNINDEXED_IMPORT:
+                    finalizeUnindexedInsertion(values, instanceUri);
+                    break;
+                case SANDBOX_MIGRATED:
+                    break;
             }
 
             return instanceUri;
         }
 
         throw new SQLException("Failed to insert row into " + uri);
+    }
+
+    private void finalizeSessionLinkedInsertion(Uri instanceUri, Uri uri) {
+        try {
+            linkToSessionFormRecord(instanceUri);
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+            Logger.exception(e);
+            throw new SQLException("Failed to insert row into " + uri);
+        }
+    }
+
+    private void finalizeUnindexedInsertion(ContentValues values, Uri instanceUri) {
+        String xmlns = values.getAsString(InstanceProviderAPI.InstanceColumns.JR_FORM_ID);
+
+        SecretKey key;
+        key = CommCareApplication.instance().createNewSymmetricKey();
+        FormRecord r = new FormRecord(instanceUri.toString(), FormRecord.STATUS_UNINDEXED,
+                xmlns, key.getEncoded(), null, new Date(0), mDbHelper.getAppId());
+        IStorageUtilityIndexed<FormRecord> storage =
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
+        storage.write(r);
     }
 
     /**
@@ -464,7 +468,7 @@ public class InstanceProvider extends ContentProvider {
      * @param instanceUri points to a concrete instance we want to register
      */
     private void linkToSessionFormRecord(Uri instanceUri) {
-        AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
+        AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
         if (instanceUri == null) {
             raiseFormEntryError("Form Entry did not return a form", currentState);
             return;
@@ -530,7 +534,7 @@ public class InstanceProvider extends ContentProvider {
             if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
                 try {
                     new FormRecordProcessor(getContext()).process(current);
-                } catch (InvalidStructureException | InvalidStorageStructureException e) {
+                } catch (InvalidStructureException e) {
                     // record should be wiped when form entry is exited
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
                     throw new IllegalStateException(e.getMessage());
@@ -538,7 +542,7 @@ public class InstanceProvider extends ContentProvider {
                     NotificationMessage message =
                             NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Save_Error,
                                     new String[]{null, null, e.getMessage()});
-                    CommCareApplication._().reportNotificationMessage(message);
+                    CommCareApplication.notificationManager().reportNotificationMessage(message);
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                             "Error processing form. Should be recaptured during async processing: " + e.getMessage());
                     throw new RuntimeException(e);
@@ -577,8 +581,8 @@ public class InstanceProvider extends ContentProvider {
 
         // save the updated form record
         try {
-            return FormRecordCleanupTask.updateAndWriteRecord(CommCareApplication._(),
-                    record, CommCareApplication._().getUserStorage(FormRecord.class));
+            return FormRecordCleanupTask.updateAndWriteRecord(CommCareApplication.instance(),
+                    record, CommCareApplication.instance().getUserStorage(FormRecord.class));
         } catch (InvalidStructureException e1) {
             e1.printStackTrace();
             throw new InvalidStateException("Invalid data structure found while parsing form. There's something wrong with the application structure, please contact your supervisor.");

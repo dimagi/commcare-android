@@ -54,6 +54,7 @@ public class TabbedDetailView extends RelativeLayout {
 
         mEvenColor = typedArray.getColor(R.styleable.TabbedDetailView_even_row_color, defaults[0]);
         mOddColor = typedArray.getColor(R.styleable.TabbedDetailView_odd_row_color, defaults[1]);
+        typedArray.recycle();
     }
 
     @SuppressLint("NewApi")

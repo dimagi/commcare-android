@@ -11,9 +11,9 @@ import android.widget.ListView;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.EntitySubnodeDetailAdapter;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
 import org.commcare.suite.model.Detail;
 import org.commcare.tasks.EntityLoaderListener;
 import org.commcare.tasks.EntityLoaderTask;
@@ -33,7 +33,6 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     private ListView listView;
 
     public EntitySubnodeDetailFragment() {
-        super();
     }
 
     @Override
@@ -52,7 +51,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
             // Set up task to fetch entity data
             EntityLoaderTask theloader = new EntityLoaderTask(childDetail, this.getFactoryContext(childReference));
             theloader.attachListener(this);
-            theloader.execute(childDetail.getNodeset().contextualize(childReference));
+            theloader.executeParallel(childDetail.getNodeset().contextualize(childReference));
 
             // Add header row
             final LinearLayout headerLayout = ((LinearLayout)rootView.findViewById(R.id.entity_detail_header));
@@ -77,7 +76,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     @Override
     public void deliverLoadResult(List<Entity<TreeReference>> entities,
                                   List<TreeReference> references,
-                                  NodeEntityFactory factory) {
+                                  NodeEntityFactory factory, int focusTargetIndex) {
         Bundle args = getArguments();
         Detail childDetail = asw.getSession().getDetail(args.getString(DETAIL_ID));
         final int thisIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
@@ -89,6 +88,9 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         this.loader = null;
         this.adapter = new EntitySubnodeDetailAdapter(getActivity(), childDetail, references, entities, modifier);
         this.listView.setAdapter((ListAdapter)this.adapter);
+        if (focusTargetIndex != -1) {
+            listView.setSelection(focusTargetIndex);
+        }
     }
 
     @Override

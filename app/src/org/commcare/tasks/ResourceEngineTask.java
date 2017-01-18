@@ -8,6 +8,7 @@ import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.ResourceManager;
+import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -32,21 +33,18 @@ public abstract class ResourceEngineTask<R>
     private static final int PHASE_CHECKING = 0;
     public static final int PHASE_DOWNLOAD = 1;
 
-    /**
-     * Wait time between dialog updates in milliseconds
-     */
-    private static final long STATUS_UPDATE_WAIT_TIME = 1000;
+    private int installedResourceCountWhileUpdating = 0;
+    private int installedResourceCount = 0;
+    private int totalResourceCount = -1;
 
     protected UnresolvedResourceException missingResourceException = null;
+    protected InvalidResourceException invalidResourceException = null;
     protected int badReqCode = -1;
     private int phase = -1;
     // This boolean is set from CommCareSetupActivity -- If we are in keep
     // trying mode for installation, we want to sleep in between attempts to
     // launch this task
     private final boolean shouldSleep;
-
-    // last time in system millis that we updated the status dialog
-    private long lastTime = 0;
 
     protected String vAvailable;
     protected String vRequired;
@@ -108,6 +106,9 @@ public abstract class ResourceEngineTask<R>
                     missingResourceException = e;
                 }
                 return outcome;
+            } catch (InvalidResourceException e) {
+                invalidResourceException = e;
+                return AppInstallStatus.InvalidResource;
             }
 
             ResourceInstallUtils.initAndCommitApp(app, profileRef);
@@ -122,11 +123,11 @@ public abstract class ResourceEngineTask<R>
     }
 
     @Override
-    public void resourceStateUpdated(final ResourceTable table) {
+    public void compoundResourceAdded(final ResourceTable table) {
         synchronized (statusLock) {
             // if last time isn't set or is less than our spacing count, do not
             // perform status update. Also if we are already running one, just skip this.
-            if (statusCheckRunning || System.currentTimeMillis() - lastTime < ResourceEngineTask.STATUS_UPDATE_WAIT_TIME) {
+            if (statusCheckRunning) {
                 return;
             }
 
@@ -146,7 +147,8 @@ public abstract class ResourceEngineTask<R>
                         return;
                     }
 
-                    int score = 0;
+                    installedResourceCount = 0;
+                    totalResourceCount = resources.size();
                     boolean forceClosed = false;
                     for (Resource r : resources) {
                         forceClosed = ResourceEngineTask.this.getStatus() == Status.FINISHED ||
@@ -161,22 +163,21 @@ public abstract class ResourceEngineTask<R>
                                 if (phase == PHASE_CHECKING) {
                                     ResourceEngineTask.this.phase = PHASE_DOWNLOAD;
                                 }
-                                score += 1;
+                                installedResourceCount++;
                                 break;
                             case Resource.RESOURCE_STATUS_INSTALLED:
-                                score += 1;
+                                installedResourceCount++;
                                 break;
                         }
                     }
                     if (!forceClosed) {
-                        incrementProgress(score, resources.size());
+                        incrementProgress(installedResourceCount, totalResourceCount);
                     }
                     signalStatusCheckComplete();
                 }
                 
                 private void signalStatusCheckComplete() {
                     synchronized (statusLock) {
-                        lastTime = System.currentTimeMillis();
                         statusCheckRunning = false;
                     }
 
@@ -185,6 +186,17 @@ public abstract class ResourceEngineTask<R>
             statusCheckRunning = true;
             Thread t = new Thread(statusUpdateCheck);
             t.start();
+        }
+    }
+
+    @Override
+    public void simpleResourceAdded() {
+        if (statusCheckRunning) {
+            installedResourceCountWhileUpdating++;
+        } else {
+            installedResourceCount += installedResourceCountWhileUpdating + 1;
+            installedResourceCountWhileUpdating = 0;
+            incrementProgress(installedResourceCount, totalResourceCount);
         }
     }
 

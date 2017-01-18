@@ -1,7 +1,7 @@
 package org.commcare.network;
 
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
@@ -12,7 +12,8 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 
 /**
- * Makes simple redirect-following GET requests that can be authenticated or not
+ * Makes simple redirect-following GET requests that can be authenticated or
+ * not
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
@@ -88,8 +89,8 @@ class SimpleGetRequest {
     }
 
     private static void setupGetConnection(HttpURLConnection con) throws IOException {
-        con.setConnectTimeout(GlobalConstants.CONNECTION_TIMEOUT);
-        con.setReadTimeout(GlobalConstants.CONNECTION_SO_TIMEOUT);
+        con.setConnectTimeout(ModernHttpRequester.CONNECTION_TIMEOUT);
+        con.setReadTimeout(ModernHttpRequester.CONNECTION_SO_TIMEOUT);
         con.setRequestMethod("GET");
         con.setDoInput(true);
         con.setInstanceFollowRedirects(true);

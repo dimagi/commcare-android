@@ -114,7 +114,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
                 };
 
                 task.connect(MultimediaInflaterActivity.this);
-                task.execute(editFileLocation.getText().toString(), destination);
+                task.executeParallel(editFileLocation.getText().toString(), destination);
             }
 
         });
@@ -148,7 +148,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
                             Toast.LENGTH_SHORT).show();
                 } else {
                     String filePath = 
-                        UriToFilePath.getPathFromUri(CommCareApplication._(), uriPath);
+                        UriToFilePath.getPathFromUri(CommCareApplication.instance(), uriPath);
                     if (filePath != null) {
                         editFileLocation.setText(filePath);
                     }
@@ -158,8 +158,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onResumeSessionSafe() {
         evalState();
     }
 

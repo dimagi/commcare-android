@@ -47,7 +47,7 @@ public abstract class SingletonTask<Params, Progress, Result>
         }
 
         if (taskListener != null) {
-            taskListener.handleTaskCancellation(result);
+            taskListener.handleTaskCancellation();
         }
 
         clearTaskInstance();

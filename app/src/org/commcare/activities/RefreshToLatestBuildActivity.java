@@ -36,7 +36,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
     private static final String SAVING_NOT_ENABLED_ERROR = "session-saving-not-enabled";
 
     // Activity request code
-    private int PERFORM_UPDATE = 0;
+    private final int PERFORM_UPDATE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +52,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
 
         try {
             DevSessionRestorer.tryAutoLoginPasswordSave(getCurrentUserPassword(), true);
-            CommCareApplication._().setPendingRefreshToLatestBuild(true);
+            CommCareApplication.instance().setPendingRefreshToLatestBuild(true);
             DevSessionRestorer.saveSessionToPrefs();
             attemptUpdate();
         } catch (SessionUnavailableException e) {
@@ -79,7 +79,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
 
     private void errorOccurred(String status) {
         // Reset this flag to false, since an error occurred and the refresh process is being halted
-        CommCareApplication._().setPendingRefreshToLatestBuild(false);
+        CommCareApplication.instance().setPendingRefreshToLatestBuild(false);
 
         // Construct an error dialog
         String title = "No Refresh Occurred";
@@ -106,7 +106,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 finish();
             }
         };
@@ -115,7 +115,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
     }
 
     private String getCurrentUserPassword() {
-        return CommCareApplication._().getSession().getLoggedInUser().getCachedPwd();
+        return CommCareApplication.instance().getSession().getLoggedInUser().getCachedPwd();
     }
 
     private void attemptUpdate() {

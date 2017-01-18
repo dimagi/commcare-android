@@ -12,13 +12,11 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.ConnectionDiagnosticTask;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.utils.MarkupUtil;
-import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -31,7 +29,7 @@ import org.javarosa.core.services.locale.Localization;
  * @author srengesh
  */
 @ManagedUi(R.layout.connection_diagnostic)
-public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<ConnectionDiagnosticActivity> {
+public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDiagnosticActivity> {
     private static final String TAG = ConnectionDiagnosticActivity.class.getSimpleName();
 
     public static final String logUnsetPostURLMessage = "CCHQ ping test: post URL not set.";
@@ -100,7 +98,7 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
                         };
 
                 mConnectionDiagnosticTask.connect(ConnectionDiagnosticActivity.this);
-                mConnectionDiagnosticTask.execute();
+                mConnectionDiagnosticTask.executeParallel();
             }
         });
 
@@ -116,14 +114,14 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
             @Override
             public void onClick(View v) {
                 SharedPreferences settings =
-                        CommCareApplication._().getCurrentApp().getAppPreferences();
+                        CommCareApplication.instance().getCurrentApp().getAppPreferences();
                 String url = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null);
 
                 if (url != null) {
                     DataSubmissionListener dataListener;
 
                     dataListener =
-                            CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title);
+                            CommCareApplication.instance().getSession().getListenerForSubmissionNotification(R.string.submission_logs_title);
                     LogSubmissionTask reportSubmitter =
                             new LogSubmissionTask(
                                     true,
@@ -131,7 +129,7 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
                     reportSubmitter.execute();
                     ConnectionDiagnosticActivity.this.finish();
                     Toast.makeText(
-                            CommCareApplication._(),
+                            CommCareApplication.instance(),
                             Localization.get("connection.task.report.commcare.popup"),
                             Toast.LENGTH_LONG).show();
                 } else {

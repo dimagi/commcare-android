@@ -1,21 +1,28 @@
 package org.commcare.views.media;
 
 /**
- * Used to represent the unique id of each view in a ListAdapter
+ * Used to represent the unique id of views in a ListAdapter and form entry
  *
  * @author amstone326
  */
-
 public class ViewId {
 
     private final long rowId;
     private final long colId;
     private final boolean isDetail;
 
-    public ViewId(long rowId, long colId, boolean isDetail) {
+    private ViewId(long rowId, long colId, boolean isDetail) {
         this.rowId = rowId;
         this.colId = colId;
         this.isDetail = isDetail;
+    }
+
+    public static ViewId buildTableViewId(long rowId, long colId, boolean isDetail) {
+        return new ViewId(rowId, colId, isDetail);
+    }
+
+    public static ViewId buildListViewId(long position) {
+        return new ViewId(position, 0, false);
     }
 
     @Override
@@ -35,16 +42,16 @@ public class ViewId {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        } else if (obj == null || !(obj instanceof ViewId)) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ViewId other = (ViewId)obj;
+        } else {
+            ViewId other = (ViewId)obj;
 
-        return colId == other.colId
-                && isDetail == other.isDetail
-                && rowId == other.rowId;
+            return colId == other.colId
+                    && isDetail == other.isDetail
+                    && rowId == other.rowId;
+        }
     }
 }

@@ -8,17 +8,9 @@
 
     <Button
         android:id="@+id/entity_select_button"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/cc_attention_positive_bg"
-        android:drawableRight="@drawable/icon_chevron_right_attnpos"
+        style="@style/ScreenPinnedButton"
         android:text="Continue"
-        android:textColor="@color/cc_attention_positive_text"
-        android:gravity="left|center_vertical"
-        android:paddingLeft="@dimen/content_min_margin"
-        android:paddingRight="@dimen/content_min_margin"
-        android:layout_below="@+id/universal_frame_tile"
-        android:textSize="@dimen/text_large"/>
+        android:layout_below="@+id/universal_frame_tile"/>
 
 
     <FrameLayout

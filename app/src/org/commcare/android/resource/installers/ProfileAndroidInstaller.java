@@ -3,12 +3,11 @@ package org.commcare.android.resource.installers;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
-import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -45,10 +44,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
+    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
         try {
 
-            Reference local = ReferenceManager._().DeriveReference(localLocation);
+            Reference local = ReferenceManager.instance().DeriveReference(localLocation);
 
             ProfileParser parser = new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(), null,
                     Resource.RESOURCE_STATUS_INSTALLED, false);
@@ -66,13 +65,14 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
+    @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, instance, upgrade);
         try {
-            Reference local = ReferenceManager._().DeriveReference(localLocation);
+            Reference local = ReferenceManager.instance().DeriveReference(localLocation);
 
 
             ProfileParser parser = new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(),
@@ -85,7 +85,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                 checkDuplicate(p);
             }
 
-            table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
+            table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
             return true;
         } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
             e.printStackTrace();
@@ -99,7 +99,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     // Check that this app is not already installed on the phone
     private void checkDuplicate(Profile p) throws UnfullfilledRequirementsException {
         String newAppId = p.getUniqueId();
-        ArrayList<ApplicationRecord> installedApps = CommCareApplication._().
+        ArrayList<ApplicationRecord> installedApps = AppUtils.
                 getInstalledAppRecords();
         for (ApplicationRecord record : installedApps) {
             if (record.getUniqueId().equals(newAppId)) {
@@ -127,7 +127,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         }
 
         try {
-            Reference local = ReferenceManager._().DeriveReference(localLocation);
+            Reference local = ReferenceManager.instance().DeriveReference(localLocation);
 
             //Create a parser with no side effects
             ProfileParser parser = new ProfileParser(local.getStream(), null, new DummyResourceTable(), null, Resource.RESOURCE_STATUS_INSTALLED, false);
@@ -157,6 +157,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return true;
     }
 
+    @Override
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         return Resource.RESOURCE_STATUS_LOCAL;
     }

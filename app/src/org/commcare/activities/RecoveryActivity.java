@@ -2,8 +2,6 @@ package org.commcare.activities;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,10 +14,9 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.ProcessAndSendTask;
-import org.commcare.utils.FormUploadUtil;
+import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.ManagedUi;
@@ -62,8 +59,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             @SuppressLint("NewApi")
             @Override
             public void onClick(View v) {
-                FormRecord[] records = StorageUtils.getUnsentRecords(CommCareApplication._().getUserStorage(FormRecord.class));
-                SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+                FormRecord[] records = StorageUtils.getUnsentRecords(CommCareApplication.instance().getUserStorage(FormRecord.class));
+                SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
                 ProcessAndSendTask<RecoveryActivity> mProcess =
                         new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this,
@@ -77,8 +74,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                             }
 
                             @Override
-                            protected void deliverResult(RecoveryActivity receiver, Integer result) {
-                                if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
+                            protected void deliverResult(RecoveryActivity receiver, FormUploadResult result) {
+                                if (result == FormUploadResult.PROGRESS_LOGGED_OUT) {
 
                                     receiver.displayMessage("Log-in expired during send. Please press back and log in again");
                                     return;
@@ -86,12 +83,12 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                                 int successfulSends = this.getSuccessfulSends();
 
-                                if (result == FormUploadUtil.FULL_SUCCESS) {
+                                if (result == FormUploadResult.FULL_SUCCESS) {
                                     receiver.displayMessage("Send succesful. All  " + successfulSends + " forms were submitted");
-                                } else if (result == FormUploadUtil.FAILURE) {
+                                } else if (result == FormUploadResult.FAILURE) {
                                     String remainder = successfulSends > 0 ? " Only " + successfulSends + " were submitted" : "";
                                     receiver.displayMessage("There were errors submitting the forms." + remainder);
-                                } else if (result == FormUploadUtil.TRANSPORT_FAILURE) {
+                                } else if (result == FormUploadResult.TRANSPORT_FAILURE) {
                                     receiver.displayMessage("Unable to contact the remote server.");
                                 }
                             }
@@ -109,17 +106,13 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                         };
 
-                mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+                mProcess.addSubmissionListener(CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
 
                 mProcess.connect(RecoveryActivity.this);
 
                 //Execute on a true multithreaded chain. We should probably replace all of our calls with this
                 //but this is the big one for now.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    mProcess.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, records);
-                } else {
-                    mProcess.execute(records);
-                }
+                mProcess.executeParallel(records);
             }
         });
 
@@ -150,12 +143,12 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
     private void updateRecoverAppState() {
         btnRecoverApp.setEnabled(false);
-        if (!CommCareApplication._().isStorageAvailable()) {
+        if (!CommCareApplication.instance().isStorageAvailable()) {
             appState.setText("app state unavailable.");
             return;
         }
 
-        if (CommCareApplication._().getCurrentApp().getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
+        if (CommCareApplication.instance().getCurrentApp().getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
             appState.setText("App install is corrupt. Make sure forms are sent before attempting recovery.");
             btnRecoverApp.setEnabled(true);
         } else {
@@ -166,19 +159,19 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
     private void updateSendFormsState() {
         sendForms.setEnabled(false);
-        if (!CommCareApplication._().isStorageAvailable()) {
+        if (!CommCareApplication.instance().isStorageAvailable()) {
             txtUnsentForms.setText("unsent forms unavailable.");
             return;
         }
 
         try {
-            CommCareApplication._().getSession();
+            CommCareApplication.instance().getSession();
         } catch (SessionUnavailableException sue) {
             txtUnsentForms.setText("Couldn't read unsent forms. Not Logged in");
             return;
         }
 
-        SqlStorage<FormRecord> recordStorage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> recordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         try {
             FormRecord[] records = StorageUtils.getUnsentRecords(recordStorage);
             if (records.length == 0) {

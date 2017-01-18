@@ -71,8 +71,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 
     @Override
     protected Integer doTaskBackground(Void... params) {
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
-        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
+        String currentAppId = CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
 
         Vector<Integer> recordsToRemove = storage.getIDsForValues(
                 new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
@@ -102,7 +102,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         this.publishProgress(STATUS_CLEANUP);
 
         SqlStorage<SessionStateDescriptor> ssdStorage =
-                CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+                CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
 
         for (int recordID : recordsToRemove) {
             //We don't know anything about the session yet, so give it -1 to flag that
@@ -201,9 +201,9 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             asw.setFormRecordId(updated.getID());
 
             SqlStorage<SessionStateDescriptor> ssdStorage =
-                    CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+                    CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
 
-            ssdStorage.write(asw.getSessionStateDescriptor());
+            ssdStorage.write(SessionStateDescriptor.buildFromSessionWrapper(asw));
         }
 
         storage.write(updated);
@@ -315,8 +315,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 
     private static void wipeRecord(Context c, int sessionId, int formRecordId) {
         wipeRecord(c, sessionId, formRecordId,
-                CommCareApplication._().getUserStorage(FormRecord.class),
-                CommCareApplication._().getUserStorage(SessionStateDescriptor.class));
+                CommCareApplication.instance().getUserStorage(FormRecord.class),
+                CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class));
     }
 
     /**
@@ -340,6 +340,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                             "Inconsistent formRecordId's in session storage");
                 }
             } catch (Exception e) {
+                Logger.exception(e);
                 Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                         "Session ID exists, but with no record (or broken record)");
             }
@@ -355,7 +356,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                     sessionId = loadSSDIDFromFormRecord(ssdStorage, formRecordId);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Logger.exception(e);
                 Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                         "Session ID exists, but with no record (or broken record)");
             }
@@ -422,7 +423,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                                                      final String[] caseIDs) {
         //If we have a proper 2.0 namespace, good.
         if (CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
-            return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
+            return new AndroidCaseXmlParser(parser, CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
                 @Override
                 public void commit(Case parsed) throws IOException {
                     String incoming = parsed.getCaseId();
@@ -432,7 +433,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                 }
 
                 @Override
-                public ACase retrieve(String entityId) {
+                protected ACase retrieve(String entityId) {
                     caseIDs[0] = entityId;
                     ACase c = new ACase("", "");
                     c.setCaseId(entityId);
@@ -443,7 +444,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             // Otherwise, this gets more tricky. Ideally we'd want to
             // skip this block for compatibility purposes, but we can
             // at least try to get a caseID (which is all we want)
-            return new BestEffortBlockParser(parser, null, null, new String[]{"case_id"}) {
+            return new BestEffortBlockParser(parser, new String[]{"case_id"}) {
                 @Override
                 public void commit(Hashtable<String, String> values) {
                     if (values.containsKey("case_id")) {

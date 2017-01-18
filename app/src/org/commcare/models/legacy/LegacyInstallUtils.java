@@ -39,7 +39,6 @@ import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.GlobalConstants;
-import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
@@ -204,7 +203,7 @@ public class LegacyInstallUtils {
         if (legacyLogs.isEmpty()) {
             //old logs are empty, no need to wipe new storage 
         } else {
-            SqlStorage<AndroidLogEntry> newLogs = CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class);
+            SqlStorage<AndroidLogEntry> newLogs = CommCareApplication.instance().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class);
             SqlStorage.cleanCopy(legacyLogs, newLogs);
 
             //logs are copied over, wipe the old ones.
@@ -380,7 +379,7 @@ public class LegacyInstallUtils {
     }
 
     private static String getOldFileSystemRoot() {
-        String filesystemHome = CommCareApplication._().getAndroidFsRoot();
+        String filesystemHome = CommCareApplication.instance().getAndroidFsRoot();
         return filesystemHome + "commcare/";
     }
 
@@ -421,6 +420,7 @@ public class LegacyInstallUtils {
 
         //get the legacy storage
         final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c, new LegacyCommCareDBCursorFactory(getLegacyEncryptedModels()) {
+            @Override
             protected CipherPool getCipherPool() {
                 return pool;
             }
@@ -459,12 +459,12 @@ public class LegacyInstallUtils {
         SQLiteDatabase ourDb;
         //If we were able to iterate over the users, the key was fine, so let's use it to open our db
         try {
-            ourDb = new DatabaseUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
+            ourDb = new DatabaseUserOpenHelper(CommCareApplication.instance(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
         } catch (SQLiteException sle) {
             //Our database got corrupted. Fortunately this represents a new record, so we can't actually need it.
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Attempted migrated database got corrupted. Deleting it and starting over");
             c.getDatabasePath(DatabaseUserOpenHelper.getDbName(ukr.getUuid())).delete();
-            ourDb = new DatabaseUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
+            ourDb = new DatabaseUserOpenHelper(CommCareApplication.instance(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
         }
 
         final SQLiteDatabase currentUserDatabase = ourDb;

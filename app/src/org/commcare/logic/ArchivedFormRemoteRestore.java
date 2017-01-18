@@ -25,7 +25,7 @@ public class ArchivedFormRemoteRestore {
     public static void pullArchivedFormsFromServer(String remoteUrl,
                                                    final FormRecordListActivity activity,
                                                    final CommCarePlatform platform) {
-        User u = CommCareApplication._().getSession().getLoggedInUser();
+        User u = CommCareApplication.instance().getSession().getLoggedInUser();
 
         // We should go digest auth this user on the server and see whether to pull them down.
         DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(),
@@ -39,6 +39,9 @@ public class ArchivedFormRemoteRestore {
                         break;
                     case UNKNOWN_FAILURE:
                         Toast.makeText(receiver, "Failure retrieving or processing data, please try again later...", Toast.LENGTH_LONG).show();
+                        break;
+                    case ACTIONABLE_FAILURE:
+                        Toast.makeText(receiver, statusAndErrorMessage.errorMessage, Toast.LENGTH_LONG).show();
                         break;
                     case AUTH_FAILED:
                         Toast.makeText(receiver, "Authentication failure. Please logout and resync with the server and try again.", Toast.LENGTH_LONG).show();
@@ -76,7 +79,7 @@ public class ArchivedFormRemoteRestore {
             }
         };
         pull.connect(activity);
-        pull.execute();
+        pull.executeParallel();
     }
 
     private static void downloadForms(FormRecordListActivity activity, CommCarePlatform platform) {
@@ -109,6 +112,6 @@ public class ArchivedFormRemoteRestore {
                     }
                 };
         task.connect(activity);
-        task.execute();
+        task.executeParallel();
     }
 }

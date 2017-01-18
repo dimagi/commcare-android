@@ -32,9 +32,11 @@ public class DbUtil {
         //Set up the hook to fire the right pragma ops
         SQLiteDatabaseHook updateHook = new SQLiteDatabaseHook() {
 
+            @Override
             public void preKey(SQLiteDatabase database) {
             }
 
+            @Override
             public void postKey(SQLiteDatabase database) {
                 database.rawExecSQL("PRAGMA cipher_migrate;");
             }
@@ -73,7 +75,10 @@ public class DbUtil {
      * database transactions fail or when file-backed entries are removed.
      */
     public static void createOrphanedFileTable(SQLiteDatabase db) {
-        String createStatement = "CREATE TABLE IF NOT EXISTS " + orphanFileTableName + " (" + DatabaseHelper.FILE_COL + ");";
+        String createStatement =
+                "CREATE TABLE IF NOT EXISTS "
+                        + orphanFileTableName
+                        + " (" + DatabaseHelper.FILE_COL + ");";
         db.execSQL(createStatement);
     }
 

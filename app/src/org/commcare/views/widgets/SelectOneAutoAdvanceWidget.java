@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -56,7 +58,7 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
         }
 
         //Is this safe enough from collisions?
-        buttonIdBase = Math.abs(prompt.getIndex().toString().hashCode());
+        buttonIdBase = Math.abs(prompt.getIndex().hashCode());
 
         if (prompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {
@@ -64,10 +66,10 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
                 RelativeLayout thisParentLayout =
                         (RelativeLayout)inflater.inflate(R.layout.quick_select_layout, null);
 
-                LinearLayout questionLayout = (LinearLayout)thisParentLayout.getChildAt(0);
+                final LinearLayout questionLayout = (LinearLayout)thisParentLayout.getChildAt(0);
                 ImageView rightArrow = (ImageView)thisParentLayout.getChildAt(1);
 
-                RadioButton r = new RadioButton(getContext());
+                final RadioButton r = new RadioButton(getContext());
                 r.setOnCheckedChangeListener(this);
                 String markdownText = prompt.getSelectItemMarkdownText(mItems.get(i));
                 if (markdownText != null) {
@@ -75,13 +77,20 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
                 } else {
                     r.setText(prompt.getSelectChoiceText(mItems.get(i)));
                 }
-                r.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+                r.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
                 r.setId(i + buttonIdBase);
                 r.setEnabled(!prompt.isReadOnly());
                 r.setFocusable(!prompt.isReadOnly());
 
-                Drawable image = getResources().getDrawable(R.drawable.expander_ic_right);
+                Drawable image = getResources().getDrawable(R.drawable.icon_auto_advance_arrow);
                 rightArrow.setImageDrawable(image);
+                rightArrow.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        r.onTouchEvent(event);
+                        return false;
+                    }
+                });
 
                 buttons.add(r);
 
@@ -105,8 +114,8 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
                 String bigImageURI = null;
                 bigImageURI = prompt.getSpecialFormSelectChoiceText(mItems.get(i), "big-image");
 
-                MediaLayout mediaLayout = new MediaLayout(getContext());
-                mediaLayout.setAVT(r, audioURI, imageURI, videoURI, bigImageURI);
+                MediaLayout mediaLayout = MediaLayout.buildAudioImageVisualLayout(getContext(), r, audioURI, imageURI, videoURI, bigImageURI);
+
                 questionLayout.addView(mediaLayout);
 
                 // Last, add the dividing line (except for the last element)

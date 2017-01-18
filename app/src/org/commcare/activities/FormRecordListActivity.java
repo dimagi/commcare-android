@@ -140,7 +140,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        platform = CommCareApplication._().getCommCarePlatform();
+        platform = CommCareApplication.instance().getCommCarePlatform();
         setContentView(R.layout.entity_select_layout);
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
@@ -167,7 +167,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         searchLabel.setText(this.localize("select.search.label"));
 
         searchbox.addTextChangedListener(this);
-        FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);
+        FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class), platform);
         task.addListener(this);
 
         adapter = new IncompleteFormListAdapter(this, platform, task);
@@ -287,6 +287,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
     }
 
+    @Override
     public String getActivityTitle() {
         if (adapter == null) {
             return Localization.get("app.workflow.saved.heading");
@@ -307,9 +308,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         listView.setAdapter(adapter);
     }
 
-    protected void onResume() {
-        super.onResume();
-
+    @Override
+    protected void onResumeSessionSafe() {
         attachToPurgeTask();
 
         if (adapter != null && initialSelection != -1) {
@@ -408,8 +408,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     returnItem(info.position);
                     return true;
                 case DELETE_RECORD:
-                    FormRecordCleanupTask.wipeRecord(this, CommCareApplication._().getUserStorage(FormRecord.class).read((int)info.id));
+                    FormRecordCleanupTask.wipeRecord(this, CommCareApplication.instance().getUserStorage(FormRecord.class).read((int)info.id));
                     listView.post(new Runnable() {
+                        @Override
                         public void run() {
                             adapter.notifyDataSetInvalidated();
                         }
@@ -469,7 +470,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
-        tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
+        tryToAddSearchActionToAppBar(this, menu, new ActionBarInstantiator() {
             // this should be unnecessary...
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
@@ -500,7 +501,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             }
         });
         if (!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
             String source = prefs.getString(FORM_RECORD_URL, this.getString(R.string.form_record_url));
 
             //If there's nowhere to fetch forms from, we can't really go fetch them
@@ -531,7 +532,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS:
-                SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+                SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
                 String source = prefs.getString(FORM_RECORD_URL, this.getString(R.string.form_record_url));
                 ArchivedFormRemoteRestore.pullArchivedFormsFromServer(source, this, platform);
                 return true;
@@ -542,7 +543,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 barcodeScanOnClickListener.onClick(null);
                 return true;
             case R.id.menu_settings:
-                CommCareHomeActivity.createPreferencesMenu(this);
+                HomeScreenBaseActivity.createPreferencesMenu(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -572,6 +573,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         return PowerManager.PARTIAL_WAKE_LOCK;
     }
 
+    @Override
     public void afterTextChanged(Editable s) {
         String filtertext = s.toString();
         if (searchbox.getText() == s) {
@@ -646,7 +648,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
      * Archived form purging task cancelled, stop blocking user
      */
     @Override
-    public void handleTaskCancellation(Void result) {
+    public void handleTaskCancellation() {
         dismissProgressDialog();
     }
 }

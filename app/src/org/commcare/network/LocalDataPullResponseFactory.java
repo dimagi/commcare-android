@@ -19,17 +19,24 @@ public enum LocalDataPullResponseFactory implements DataPullRequester {
 
     // data pull requests will pop off and use the top reference in this list
     private final List<String> xmlPayloadReferences = new ArrayList<>();
+    public int numTries = 0;
 
     public static void setRequestPayloads(String[] payloadReferences) {
         INSTANCE.xmlPayloadReferences.clear();
         Collections.addAll(INSTANCE.xmlPayloadReferences, payloadReferences);
     }
 
+    public static int getNumRequestsMade() {
+        return INSTANCE.numTries;
+    }
+
+    // this is what DataPullTask will call when it's being run in a test
     @Override
     public RemoteDataPullResponse makeDataPullRequest(DataPullTask task,
                                                       HttpRequestEndpoints requestor,
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
+        numTries++;
         HttpResponse response = requestor.makeCaseFetchRequest(server, includeSyncToken);
         return new LocalDataPullResponse(xmlPayloadReferences.remove(0), response);
     }

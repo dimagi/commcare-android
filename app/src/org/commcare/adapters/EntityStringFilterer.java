@@ -1,15 +1,15 @@
 package org.commcare.adapters;
 
 import android.app.Activity;
-import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.cases.util.StringUtils;
+import org.commcare.modern.util.Pair;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 
@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+
 
 /**
  * Filter entity list via all string-representable entity fields
@@ -36,6 +37,7 @@ public class EntityStringFilterer extends EntityFiltererBase {
                                 List<Entity<TreeReference>> fullEntityList,
                                 Activity context) {
         super(context, nodeFactory, adapter, fullEntityList);
+
         this.isAsyncMode = isAsyncMode;
         this.isFuzzySearchEnabled = isFuzzySearchEnabled;
         this.isFilterEmpty = searchTerms == null || searchTerms.length == 0;
@@ -70,7 +72,7 @@ public class EntityStringFilterer extends EntityFiltererBase {
         //anything else from processing
         SQLiteDatabase db;
         try {
-            db = CommCareApplication._().getUserDbHandle();
+            db = CommCareApplication.instance().getUserDbHandle();
         } catch (SessionUnavailableException e) {
             this.cancelSearch();
             return;
@@ -83,7 +85,9 @@ public class EntityStringFilterer extends EntityFiltererBase {
             }
             Entity<TreeReference> e = fullEntityList.get(index);
             if (isCancelled()) {
-                break;
+                db.setTransactionSuccessful();
+                db.endTransaction();
+                return;
             }
 
             boolean add = false;

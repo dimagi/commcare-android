@@ -3,9 +3,9 @@ package org.commcare.tasks;
 import android.content.Context;
 
 import org.commcare.CommCareApplication;
-import org.commcare.interfaces.HttpResponseProcessor;
-import org.commcare.interfaces.ResponseStreamAccessor;
-import org.commcare.network.ModernHttpRequester;
+import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.interfaces.ResponseStreamAccessor;
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.tasks.templates.CommCareTask;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class SimpleHttpTask
                           HashMap<String, String> params,
                           boolean isPostRequest) {
         taskId = SIMPLE_HTTP_TASK_ID;
-        requestor = CommCareApplication._().buildModernHttpRequester(context, url,
+        requestor = CommCareApplication.instance().buildModernHttpRequester(context, url,
                 params, true, isPostRequest);
         requestor.setResponseProcessor(this);
     }

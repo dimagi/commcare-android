@@ -8,19 +8,17 @@ import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
-import org.commcare.engine.extensions.CalendaredDateFormatHandler;
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.logging.XPathErrorLogger;
-import org.commcare.views.UserfacingErrorHandling;
+import org.commcare.logic.AndroidFormController;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathUnhandledException;
 import org.commcare.engine.extensions.XFormExtensionUtils;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logic.FileReferenceFactory;
-import org.commcare.logic.FormController;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.tasks.templates.CommCareTask;
@@ -128,13 +126,13 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         FormEntryController fec = initFormDef(fd);
 
         // Remove previous forms
-        ReferenceManager._().clearSession();
+        ReferenceManager.instance().clearSession();
 
         setupFormMedia(formMediaPath, formXml);
 
-        FormController fc = new FormController(fec, mReadOnly);
+        AndroidFormController formController = new AndroidFormController(fec, mReadOnly);
 
-        data = new FECWrapper(fc);
+        data = new FECWrapper(formController);
         return data;
     }
 
@@ -164,12 +162,12 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         try {
             fis = new FileInputStream(formXmlFile);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException("Error reading XForm file");
+            throw new RuntimeException("Error reading XForm file", e);
         }
         XFormAndroidInstaller.registerAndroidLevelFormParsers();
         FormDef fd = XFormExtensionUtils.getFormFromInputStream(fis);
         if (fd == null) {
-            throw new RuntimeException("Error reading XForm file");
+            throw new RuntimeException("Error reading XForm file: FormDef is null");
         }
         return fd;
     }
@@ -186,7 +184,6 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     }
 
     private FormEntryController initFormDef(FormDef formDef) {
-        formDef.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
         // create FormEntryController from formdef
         FormEntryModel fem = new FormEntryModel(formDef);
         FormEntryController fec;
@@ -198,16 +195,18 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
         //TODO: Get a reasonable IIF object
 
-        boolean isNewFormInstance = FormEntryActivity.mInstancePath == null;
+        boolean isNewFormInstance = FormEntryInstanceState.mInstancePath == null;
 
         if (!isNewFormInstance) {
-            importData(FormEntryActivity.mInstancePath, fec);
+            importData(FormEntryInstanceState.mInstancePath, fec);
         }
 
         try {
             formDef.initialize(isNewFormInstance, iif, getSystemLocale());
         } catch (XPathException e) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
+            throw new UserCausedRuntimeException(e.getMessage(), e);
+        } catch (CommCareInstanceInitializer.FixtureInitializationException e) {
             throw new UserCausedRuntimeException(e.getMessage(), e);
         }
 
@@ -219,17 +218,17 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     private void setupFormMedia(String formMediaPath, File formXmlFile) {
         if (formMediaPath != null) {
-            ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager.instance().addSessionRootTranslator(
                     new RootTranslator("jr://images/", formMediaPath));
-            ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager.instance().addSessionRootTranslator(
                     new RootTranslator("jr://audio/", formMediaPath));
-            ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager.instance().addSessionRootTranslator(
                     new RootTranslator("jr://video/", formMediaPath));
         } else {
             // This should get moved to the Application Class
-            if (ReferenceManager._().getFactories().length == 0) {
+            if (ReferenceManager.instance().getFactories().length == 0) {
                 // this is /sdcard/odk
-                ReferenceManager._().addReferenceFactory(
+                ReferenceManager.instance().addReferenceFactory(
                         new FileReferenceFactory(Environment.getExternalStorageDirectory() + "/odk"));
             }
 
@@ -237,11 +236,11 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             String formFileName = formXmlFile.getName().substring(0, formXmlFile.getName().lastIndexOf("."));
 
             // Set jr://... to point to /sdcard/odk/forms/filename-media/
-            ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager.instance().addSessionRootTranslator(
                     new RootTranslator("jr://images/", "jr://file/forms/" + formFileName + "-media/"));
-            ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager.instance().addSessionRootTranslator(
                     new RootTranslator("jr://audio/", "jr://file/forms/" + formFileName + "-media/"));
-            ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager.instance().addSessionRootTranslator(
                     new RootTranslator("jr://video/", "jr://file/forms/" + formFileName + "-media/"));
         }
     }
@@ -278,15 +277,6 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
             // populated model to current form
             fec.getModel().getForm().getInstance().setRoot(templateRoot);
-
-            // fix any language issues
-            // : http://bitbucket.org/javarosa/main/issue/5/itext-n-appearing-in-restored-instances
-            if (fec.getModel().getLanguages() != null) {
-                fec.getModel()
-                        .getForm()
-                        .localeChanged(fec.getModel().getLanguage(),
-                                fec.getModel().getForm().getLocalizer());
-            }
             return true;
         }
     }
@@ -304,7 +294,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
             // read serialized formdef into new formdef
-            fd.readExternal(dis, CommCareApplication._().getPrototypeFactory(context));
+            fd.readExternal(dis, CommCareApplication.instance().getPrototypeFactory(context));
             dis.close();
         } catch (Throwable e) {
             e.printStackTrace();
@@ -348,7 +338,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     }
 
     private File getCachedForm(String hash) {
-        return new File(CommCareApplication._().getCurrentApp().
+        return new File(CommCareApplication.instance().getCurrentApp().
                 fsPath(GlobalConstants.FILE_CC_CACHE) + "/" + hash + ".formdef");
     }
 
@@ -360,13 +350,13 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     }
 
     protected static class FECWrapper {
-        FormController controller;
+        AndroidFormController controller;
 
-        protected FECWrapper(FormController controller) {
+        protected FECWrapper(AndroidFormController controller) {
             this.controller = controller;
         }
 
-        public FormController getController() {
+        public AndroidFormController getController() {
             return controller;
         }
 

@@ -90,7 +90,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         for (Suite s : platform.getInstalledSuites()) {
             for (Enumeration en = s.getEntries().elements(); en.hasMoreElements(); ) {
                 Entry entry = (Entry) en.nextElement();
-                if (!(entry.isView() || entry.isSync())) {
+                if (!(entry.isView() || entry.isRemoteRequest())) {
                     String namespace = ((FormEntry)entry).getXFormNamespace();
                     //Some of our old definitions for views still come in as entries with dead
                     //namespaces for now, so check. Can clean up when FormEntry's enforce a
@@ -150,7 +150,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
             loader = loader.spawn();
         }
 
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
 
         // choose a default filter if none set
         if (filter == null) {
@@ -158,7 +158,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         }
 
         records.clear();
-        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+        String currentAppId = CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
         // Grab all form records that satisfy ANY of the statuses in the filter, AND belong to the
         // currently seated app
         for (String status : filter.getStatus()) {
@@ -169,6 +169,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
 
         // Sort FormRecords by modification time, most recent first.
         Collections.sort(records, new Comparator<FormRecord>() {
+            @Override
             public int compare(FormRecord left, FormRecord right) {
                 long leftModTime = left.lastModified().getTime();
                 long rightModTime = right.lastModified().getTime();
@@ -190,7 +191,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         // load specific data about the 'records' into the searchCache, such as
         // record title, form name, modified date
         loader.init(searchCache, names);
-        loader.execute(records.toArray(new FormRecord[records.size()]));
+        loader.executeParallel(records.toArray(new FormRecord[records.size()]));
     }
 
     public int findRecordPosition(int formRecordId) {
@@ -265,11 +266,6 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         } else {
             // notify the loader that we need access to this record immediately
             loader.registerPriority(r);
-            // TODO: PLM: once the priority item is reloaded in the async task,
-            // there is no hook to explicitly re-set the title. That is, the
-            // local notifyPriorityLoaded method should probably be defined to
-            // reset the params of this record. It will eventually get reset,
-            // once this method is called again...
             ifrv.setParams(r, "Loading...", r.lastModified().getTime(), names);
         }
 

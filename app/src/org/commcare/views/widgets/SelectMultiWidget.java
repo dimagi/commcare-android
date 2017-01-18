@@ -47,7 +47,7 @@ public class SelectMultiWidget extends QuestionWidget {
         }
 
         //Is this safe enough from collisions?
-        buttonIdBase = Math.abs(mPrompt.getIndex().toString().hashCode());
+        buttonIdBase = Math.abs(mPrompt.getIndex().hashCode());
 
         if (mPrompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {
@@ -61,7 +61,7 @@ public class SelectMultiWidget extends QuestionWidget {
                 } else {
                     c.setText(prompt.getSelectChoiceText(mItems.get(i)));
                 }
-                c.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+                c.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
                 c.setFocusable(!mPrompt.isReadOnly());
                 c.setEnabled(!mPrompt.isReadOnly());
 
@@ -108,8 +108,7 @@ public class SelectMultiWidget extends QuestionWidget {
 
                 String bigImageURI = mPrompt.getSpecialFormSelectChoiceText(mItems.get(i), "big-image");
 
-                MediaLayout mediaLayout = new MediaLayout(getContext());
-                mediaLayout.setAVT(c, audioURI, imageURI, videoURI, bigImageURI);
+                MediaLayout mediaLayout = MediaLayout.buildAudioImageVisualLayout(getContext(), c, audioURI, imageURI, videoURI, bigImageURI);
                 addView(mediaLayout);
 
                 mediaLayout.setPadding(0, padding, 0, padding);

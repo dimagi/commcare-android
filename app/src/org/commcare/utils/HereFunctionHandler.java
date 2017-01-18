@@ -43,7 +43,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     private boolean requestingLocationUpdates;
     private boolean locationGoodEnough;
 
-    private final Context context = CommCareApplication._().getApplicationContext();
+    private final Context context = CommCareApplication.instance().getApplicationContext();
     private final LocationManager mLocationManager = (LocationManager)context.getSystemService(
             Context.LOCATION_SERVICE);
 
@@ -63,6 +63,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     }
 
     // The EntitySelectActivity must subscribe before this method is called if a fresh location is desired.
+    @Override
     public Object eval(Object[] args, EvaluationContext ec) {
         if (entitySelectActivity != null) {
             entitySelectActivity.onHereFunctionEvaluated();
@@ -94,7 +95,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         this.location = updatedLocation;
         Log.i("HereFunctionHandler", "location has been set to " + this.location);
 
-        if (this.location.getAccuracy() <= GeoUtils.ACCEPTABLE_ACCURACY) {
+        if (this.location.getAccuracy() <= GeoUtils.DEFAULT_ACCEPTABLE_ACCURACY) {
             locationGoodEnough = true;
             forbidGpsUse();
         }

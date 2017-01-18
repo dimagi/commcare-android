@@ -7,6 +7,8 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -16,6 +18,7 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.regex.Pattern;
 
 /**
  * A set of helper methods for verifying whether a message was genuinely sent from HQ. Currently we
@@ -33,9 +36,12 @@ import java.security.spec.X509EncodedKeySpec;
  * And we can then verify that the profile link was in fact signed (using SHA256withRSA) by
  * the CommCareHQ private key
  *
- * Created by wpride1 on 9/11/15.
+ * @author Will Pride (wpride@dimagi.com)
  */
 public class SigningUtil {
+
+    private final static Pattern WHITELISTED_URL_HOSTS_REGEX =
+            Pattern.compile("\\.commcarehq\\.org$");
 
     /**
      * Given a trimmed byte[] payload, return the parsed out download link and signature
@@ -50,12 +56,45 @@ public class SigningUtil {
         return new Pair<>(downloadLink, signatureBytes);
     }
 
+    /**
+     * Given a base64 encoded URL, decode the URL, and return first line read
+     * from accessing that URL
+     */
+    public static String convertEncodedUrlToPayload(String baseEncodedUrl)
+            throws IOException, Base64DecoderException {
+        return readURL(decodeUrl(baseEncodedUrl));
+    }
+
+    protected static String decodeUrl(String baseEncodedUrl)
+            throws Base64DecoderException, UnsupportedEncodingException {
+        String decodedUrl;
+        if (baseEncodedUrl.startsWith("http://") || baseEncodedUrl.startsWith("https://")) {
+            // for backwards compatibility, accept non-base64 encoded URLS
+            // once all users have migrated to the new format
+            // (info available on HQ?) we can remove this branch
+            decodedUrl = baseEncodedUrl;
+        } else {
+            decodedUrl = new String(Base64.decode(baseEncodedUrl), "UTF-8");
+        }
+        assertWhitelistedUrlHost(decodedUrl);
+        return decodedUrl;
+    }
 
     /**
-     * Given a URL, return the text at that location as a String
+     * Very basic method to prevent spoofed SMSs from making CommCare hit malicious URLs.
      */
-    public static String convertUrlToPayload(String url) throws IOException {
-        return readURL(url);
+    private static void assertWhitelistedUrlHost(String urlString) {
+        URL url;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(urlString + " is not a valid URL.");
+        }
+
+        String host = url.getHost();
+        if (!WHITELISTED_URL_HOSTS_REGEX.matcher(host).find()) {
+            throw new DisallowedSMSInstallURLException(url + " is not an approved URL.");
+        }
     }
 
     // given the raw trimmed byte paylaod, return the message (everything before the signature)
@@ -162,14 +201,17 @@ public class SigningUtil {
     }
 
     // convert from a key string to a PublicKey object
-    private static PublicKey getPublicKey(String key) throws Base64DecoderException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private static PublicKey getPublicKey(String key)
+            throws Base64DecoderException, NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] derPublicKey = Base64.decode(key);
         X509EncodedKeySpec spec = new X509EncodedKeySpec(derPublicKey);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         return kf.generatePublic(spec);
     }
 
-    private static boolean verifyMessageSignature(PublicKey publicKey, String messageString, byte[] signature) throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
+    private static boolean verifyMessageSignature(PublicKey publicKey,
+                                                  String messageString, byte[] signature)
+            throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
         Signature sign = Signature.getInstance("SHA256withRSA/PSS", new BouncyCastleProvider());
         byte[] message = messageString.getBytes();
         sign.initVerify(publicKey);
@@ -191,5 +233,11 @@ public class SigningUtil {
             acc = inputLine;
         in.close();
         return acc;
+    }
+
+    public static class DisallowedSMSInstallURLException extends RuntimeException {
+        public DisallowedSMSInstallURLException(String message) {
+            super(message);
+        }
     }
 }

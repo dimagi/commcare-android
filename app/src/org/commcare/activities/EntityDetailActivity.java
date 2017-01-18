@@ -66,7 +66,7 @@ public class EntityDetailActivity
         AndroidSessionWrapper asw;
         CommCareSession session;
         try {
-            asw = CommCareApplication._().getCurrentSessionWrapper();
+            asw = CommCareApplication.instance().getCurrentSessionWrapper();
             session = asw.getSession();
         } catch (SessionStateUninitException sue) {
             // The user isn't logged in! bounce this back to where we came from
@@ -117,6 +117,7 @@ public class EntityDetailActivity
         }
 
         next.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 GoogleAnalyticsUtils.reportEntityDetailContinue(false, mDetailView.getTabCount() == 1);
                 select();
@@ -135,6 +136,7 @@ public class EntityDetailActivity
         isFinalSwipeActionEnabled = DeveloperPreferences.isDetailTabSwipeActionEnabled();
     }
 
+    @Override
     public Pair<Detail, TreeReference> requestEntityContext() {
         return mEntityContext;
     }
@@ -224,10 +226,18 @@ public class EntityDetailActivity
      * Move along to form entry.
      */
     private void select() {
+        announceCaseSelect();
+
         Intent i = new Intent(EntityDetailActivity.this.getIntent());
         loadOutgoingIntent(i);
         setResult(RESULT_OK, i);
         finish();
+    }
+
+    private void announceCaseSelect() {
+        Intent selectIntentBroadcast = new Intent("org.commcare.dalvik.api.action.case.selected");
+        selectIntentBroadcast.putExtra("case_id", getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL));
+        sendBroadcast(selectIntentBroadcast, "org.commcare.dalvik.provider.cases.read");
     }
 
     @Override

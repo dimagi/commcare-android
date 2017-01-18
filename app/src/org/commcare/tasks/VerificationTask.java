@@ -16,7 +16,7 @@ import org.javarosa.core.util.SizeBoundVector;
  * @author ctsims
  */
 public abstract class VerificationTask<Reciever>
-        extends CommCareTask<String, int[], SizeBoundVector<MissingMediaException>, Reciever>
+        extends CommCareTask<Void, int[], SizeBoundVector<MissingMediaException>, Reciever>
         implements TableStateListener, InstallCancelled {
 
     public VerificationTask(int taskId) {
@@ -24,27 +24,22 @@ public abstract class VerificationTask<Reciever>
     }
 
     @Override
-    protected SizeBoundVector<MissingMediaException> doTaskBackground(String... profileRefs) {
-        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
+    protected SizeBoundVector<MissingMediaException> doTaskBackground(Void... params) {
+        AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
 
-        try {
-            // This is replicated in the application in a few places.
-            ResourceTable global = platform.getGlobalResourceTable();
-            SizeBoundUniqueVector<MissingMediaException> problems =
-                    new SizeBoundUniqueVector<>(10);
+        // This is replicated in the application in a few places.
+        ResourceTable global = platform.getGlobalResourceTable();
+        SizeBoundUniqueVector<MissingMediaException> problems =
+                new SizeBoundUniqueVector<>(10);
 
-            setTableListeners(global);
-            global.verifyInstallation(problems);
-            unsetTableListeners(global);
+        setTableListeners(global);
+        global.verifyInstallation(problems);
+        unsetTableListeners(global);
 
-            if (problems.size() > 0) {
-                return problems;
-            }
-            return null;
-        } catch (Exception e) {
-            // TODO: make non-resource missing failures have a better exception
-            return null;
+        if (problems.size() > 0) {
+            return problems;
         }
+        return null;
     }
 
     private void setTableListeners(ResourceTable table) {
@@ -63,7 +58,11 @@ public abstract class VerificationTask<Reciever>
     }
 
     @Override
-    public void resourceStateUpdated(ResourceTable table) {
+    public void compoundResourceAdded(ResourceTable table) {
+    }
+
+    @Override
+    public void simpleResourceAdded() {
     }
 
     @Override

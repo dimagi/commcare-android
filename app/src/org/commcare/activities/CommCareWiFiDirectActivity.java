@@ -37,7 +37,6 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.services.WiFiDirectBroadcastReceiver;
 import org.commcare.tasks.FormRecordToFileTask;
@@ -48,6 +47,7 @@ import org.commcare.tasks.WipeTask;
 import org.commcare.tasks.ZipTask;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -73,8 +73,6 @@ public class CommCareWiFiDirectActivity
         implements DeviceActionListener, FileServerListener, WifiDirectManagerListener, WithUIController {
 
     private static final String TAG = CommCareWiFiDirectActivity.class.getSimpleName();
-
-    public static final String KEY_NUMBER_DUMPED = "wd_num_dumped";
 
     private WifiP2pManager mManager;
     private Channel mChannel;
@@ -157,9 +155,8 @@ public class CommCareWiFiDirectActivity
     /**
      * register the broadcast receiver
      */
-    protected void onResume() {
-        super.onResume();
-
+    @Override
+    protected void onResumeSessionSafe() {
         Logger.log(TAG, "resuming wi-fi direct activity");
 
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
@@ -224,7 +221,7 @@ public class CommCareWiFiDirectActivity
                         beSender();
                         break;
                 }
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         };
         d.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
@@ -410,7 +407,7 @@ public class CommCareWiFiDirectActivity
             return;
         }
 
-        SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(
                 settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, url),
                 receiveFolder) {
@@ -419,7 +416,7 @@ public class CommCareWiFiDirectActivity
             protected void deliverResult(CommCareWiFiDirectActivity receiver, Boolean result) {
                 if (result == Boolean.TRUE) {
                     Intent i = new Intent(getIntent());
-                    i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
+                    i.putExtra(AdvancedActionsActivity.KEY_NUMBER_DUMPED, formsOnSD);
                     receiver.setResult(BULK_SEND_ID, i);
                     Logger.log(TAG, "Sucessfully dumped " + formsOnSD);
                     receiver.finish();
@@ -547,6 +544,7 @@ public class CommCareWiFiDirectActivity
         });
     }
 
+    @Override
     public void resetData() {
         DeviceListFragment fragmentList = (DeviceListFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.frag_list);
@@ -658,11 +656,17 @@ public class CommCareWiFiDirectActivity
     }
 
 
-    private void onRecordPullCompleted(Pair<Long, FormRecord[]> result) {
-        // for the time being we're going to ignore the result of the record pull and proceed regardless
+    private void onRecordPullCompleted(Pair<FormUploadResult, FormRecord[]> result, CommCareWiFiDirectActivity receiver) {
         myStatusText.setText(localize("wifi.direct.pull.successful"));
-        if(result != null){
-            // we didn't pull any form records to file system, this is fine.
+        if (result != null) {
+            if (result.first != FormUploadResult.FULL_SUCCESS) {
+                // if we had files but they failed, we should error and block
+                receiver.myStatusText.setText(localize("wifi.direct.pull.unsuccessful",
+                        "Problem transferring forms to file system"));
+                receiver.transplantStyle(receiver.myStatusText,
+                        R.layout.template_text_notification_problem);
+                return;
+            }
             this.cachedRecords = result.second;
         }
         updateStatusText();
@@ -674,8 +678,8 @@ public class CommCareWiFiDirectActivity
         Logger.log(TAG, "Getting records from storage");
         FormRecordToFileTask formRecordToFileTask = new FormRecordToFileTask(this, toBeTransferredDirectory) {
             @Override
-            protected void deliverResult(CommCareWiFiDirectActivity receiver, Pair<Long, FormRecord[]> result) {
-                receiver.onRecordPullCompleted(result);
+            protected void deliverResult(CommCareWiFiDirectActivity receiver, Pair<FormUploadResult, FormRecord[]> result) {
+                receiver.onRecordPullCompleted(result, receiver);
             }
 
             @Override
@@ -785,7 +789,7 @@ public class CommCareWiFiDirectActivity
     }
 
     private void updateStatusText() {
-        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
 
         int numUnsyncedForms = ids.size();

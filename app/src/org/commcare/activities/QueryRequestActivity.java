@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -13,10 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
-import org.commcare.interfaces.HttpResponseProcessor;
+import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.network.ModernHttpRequester;
+import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.suite.model.DisplayUnit;
@@ -28,20 +28,14 @@ import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.media.MediaLayout;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.xml.ElementParser;
-import org.javarosa.xml.TreeElementParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.javarosa.core.util.OrderedHashtable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -50,7 +44,7 @@ import java.util.Map;
  * Collects 'query datum' in the current session. Prompts user for query
  * params, makes query to server and stores xml 'fixture' response into current
  * session. Allows for 'case search and claim' workflow when used inside a
- * 'sync-request' entry in conjuction with entity select datum and sync
+ * 'remote-request' entry in conjuction with entity select datum and sync
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -79,7 +73,7 @@ public class QueryRequestActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        AndroidSessionWrapper sessionWrapper = CommCareApplication._().getCurrentSessionWrapper();
+        AndroidSessionWrapper sessionWrapper = CommCareApplication.instance().getCurrentSessionWrapper();
         remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
                         sessionWrapper.getEvaluationContext());
@@ -114,13 +108,15 @@ public class QueryRequestActivity
 
     private void buildPromptUI() {
         LinearLayout promptsLayout = (LinearLayout)findViewById(R.id.query_prompts);
-        Hashtable<String, DisplayUnit> userInputDisplays =
+        OrderedHashtable<String, DisplayUnit> userInputDisplays =
                 remoteQuerySessionManager.getNeededUserInputDisplays();
         int promptCount = 1;
-        for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
+
+        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
+            String promptId = (String)en.nextElement();
             boolean isLastPrompt = promptCount++ == userInputDisplays.size();
-            buildPromptEntry(promptsLayout, displayEntry.getKey(),
-                    displayEntry.getValue(), isLastPrompt);
+            buildPromptEntry(promptsLayout, promptId,
+                    userInputDisplays.get(promptId), isLastPrompt);
         }
     }
 
@@ -157,8 +153,7 @@ public class QueryRequestActivity
         text.setPadding(0, 0, 0, 7);
         text.setTextColor(Color.BLACK);
 
-        MediaLayout helpLayout = new MediaLayout(this);
-        helpLayout.setAVT(text, displayData.getAudioURI(), displayData.getImageURI(), true);
+        MediaLayout helpLayout = MediaLayout.buildAudioImageLayout(this, text, displayData.getAudioURI(), displayData.getImageURI());
         int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
         helpLayout.setPadding(padding, padding, padding, padding);
 
@@ -178,14 +173,7 @@ public class QueryRequestActivity
 
     private void makeQueryRequest() {
         clearErrorState();
-        URL url;
-        String urlString = remoteQuerySessionManager.getBaseUrl();
-        try {
-            url = new URL(urlString);
-        } catch (MalformedURLException e) {
-            enterErrorState(Localization.get("post.malformed.url", urlString));
-            return;
-        }
+        URL url = remoteQuerySessionManager.getBaseUrl();
 
         SimpleHttpTask httpTask;
         try {
@@ -246,34 +234,17 @@ public class QueryRequestActivity
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
         Pair<ExternalDataInstance, String> instanceOrError =
-                buildExternalDataInstance(responseData,
-                        remoteQuerySessionManager.getStorageInstanceName());
+                remoteQuerySessionManager.buildExternalDataInstance(responseData);
         if (instanceOrError.first == null) {
             enterErrorState(Localization.get("query.response.format.error",
                     instanceOrError.second));
         } else if (isResponseEmpty(instanceOrError.first)) {
             Toast.makeText(this, Localization.get("query.response.empty"), Toast.LENGTH_SHORT).show();
         } else {
-            CommCareApplication._().getCurrentSession().setQueryDatum(instanceOrError.first);
+            CommCareApplication.instance().getCurrentSession().setQueryDatum(instanceOrError.first);
             setResult(RESULT_OK);
             finish();
         }
-    }
-
-    /**
-     * @return Data instance built from xml stream or the error message raised during parsing
-     */
-    public static Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream instanceStream,
-                                                                               String instanceId) {
-        TreeElement root;
-        try {
-            KXmlParser baseParser = ElementParser.instantiateParser(instanceStream);
-            root = new TreeElementParser(baseParser, 0, instanceId).parse();
-        } catch (InvalidStructureException | IOException
-                | XmlPullParserException | UnfullfilledRequirementsException e) {
-            return new Pair<>(null, e.getMessage());
-        }
-        return new Pair<>(ExternalDataInstance.buildFromRemote(instanceId, root), "");
     }
 
     private boolean isResponseEmpty(ExternalDataInstance instance) {

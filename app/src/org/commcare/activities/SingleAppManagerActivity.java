@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -17,6 +16,8 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.UpdateTask;
+import org.commcare.utils.LifecycleUtils;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.StandardAlertDialog;
 
@@ -86,8 +87,8 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * @return the ApplicationRecord corresponding to the app that should be displayed in this
      * activity, based upon the position
      */
-    private ApplicationRecord getAppForPosition(int position) {
-        ApplicationRecord[] currentApps = CommCareApplication._().appRecordArray();
+    private static ApplicationRecord getAppForPosition(int position) {
+        ApplicationRecord[] currentApps = MultipleAppsUtil.appRecordArray();
         if (position < 0 || position >= currentApps.length) {
             return null;
         } else {
@@ -140,6 +141,10 @@ public class SingleAppManagerActivity extends CommCareActivity {
                         Toast.makeText(this, R.string.update_canceled, Toast.LENGTH_LONG).show();
                         task.cancel(true);
                     }
+                } else if (resultCode == RESULT_OK) {
+                    // update activity may have writen to the app record storage, so get new changes
+                    appRecord = MultipleAppsUtil.getAppById(appRecord.getUniqueId());
+                    refresh();
                 }
                 return;
             case MISSING_MEDIA_ACTIVITY:
@@ -170,9 +175,9 @@ public class SingleAppManagerActivity extends CommCareActivity {
      */
     private void uninstall() {
         GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_UNINSTALL_APP);
-        CommCareApplication._().expireUserSession();
-        CommCareApplication._().uninstall(appRecord);
-        CommCareApplication.restartCommCare(
+        CommCareApplication.instance().expireUserSession();
+        CommCareApplication.instance().uninstall(appRecord);
+        LifecycleUtils.restartCommCare(
                 SingleAppManagerActivity.this, AppManagerActivity.class, false);
     }
 
@@ -183,9 +188,9 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * @param v linter sees this as unused, but is required for a button to find its onClick method
      */
     public void toggleArchiveClicked(View v) {
-        if (CommCareApplication._().isSeated(appRecord)) {
+        if (CommCareApplication.instance().isSeated(appRecord)) {
             try {
-                CommCareSessionService s = CommCareApplication._().getSession();
+                CommCareSessionService s = CommCareApplication.instance().getSession();
                 if (s.isActive()) {
                     triggerLogoutWarning(LOGOUT_FOR_ARCHIVE);
                 } else {
@@ -205,9 +210,9 @@ public class SingleAppManagerActivity extends CommCareActivity {
             GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_ARCHIVE_APP);
         }
         appRecord.setArchiveStatus(!appRecord.isArchived());
-        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(appRecord);
-        if (CommCareApplication._().isSeated(appRecord)) {
-            CommCareApplication._().getCurrentApp().refreshAppRecord();
+        CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class).write(appRecord);
+        if (CommCareApplication.instance().isSeated(appRecord)) {
+            CommCareApplication.instance().getCurrentApp().refreshAppRecord();
         }
         refresh();
     }
@@ -219,7 +224,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      */
     public void verifyResourcesClicked(View v) {
         try {
-            CommCareSessionService s = CommCareApplication._().getSession();
+            CommCareSessionService s = CommCareApplication.instance().getSession();
             if (s.isActive()) {
                 triggerLogoutWarning(LOGOUT_FOR_VERIFY_MM);
             } else {
@@ -234,7 +239,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * Opens the MM verification activity for the selected app
      */
     private void verifyResources() {
-        if (!CommCareApplication._().isSeated(appRecord)) {
+        if (!CommCareApplication.instance().isSeated(appRecord)) {
             launchUpdateAfterSeating = false;
             seatApp();
         } else {
@@ -255,7 +260,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      */
     public void updateClicked(View v) {
         try {
-            CommCareSessionService s = CommCareApplication._().getSession();
+            CommCareSessionService s = CommCareApplication.instance().getSession();
             if (s.isActive()) {
                 triggerLogoutWarning(LOGOUT_FOR_UPDATE);
             } else {
@@ -270,7 +275,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * Conducts an update for the selected app
      */
     private void update() {
-        if (!CommCareApplication._().isSeated(appRecord)) {
+        if (!CommCareApplication.instance().isSeated(appRecord)) {
             launchUpdateAfterSeating = true;
             seatApp();
         } else {
@@ -302,7 +307,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 if (which == AlertDialog.BUTTON_POSITIVE) {
                     uninstall();
                 }
@@ -325,9 +330,9 @@ public class SingleAppManagerActivity extends CommCareActivity {
             @Override
             public void onClick(DialogInterface dialog,
                                 int which) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 if (which == AlertDialog.BUTTON_POSITIVE) {
-                    CommCareApplication._().expireUserSession();
+                    CommCareApplication.instance().expireUserSession();
                     switch (actionKey) {
                         case LOGOUT_FOR_UPDATE:
                             update();
@@ -345,5 +350,10 @@ public class SingleAppManagerActivity extends CommCareActivity {
         d.setPositiveButton(getString(R.string.ok), listener);
         d.setNegativeButton(getString(R.string.cancel), listener);
         showAlertDialog(d);
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 }

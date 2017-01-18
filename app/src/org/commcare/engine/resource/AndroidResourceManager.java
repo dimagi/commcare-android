@@ -45,10 +45,10 @@ public class AndroidResourceManager extends ResourceManager {
                 platform.getUpgradeResourceTable(),
                 platform.getRecoveryTable());
 
-        app = CommCareApplication._().getCurrentApp();
+        app = CommCareApplication.instance().getCurrentApp();
 
         tempUpgradeTable =
-                ResourceTable.RetrieveTable(app.getStorage(TEMP_UPGRADE_TABLE_KEY, Resource.class),
+                new AndroidResourceTable(app.getStorage(TEMP_UPGRADE_TABLE_KEY, Resource.class),
                         new AndroidResourceInstallerFactory());
 
         updateStats = UpdateStats.loadUpdateStats(app);
@@ -261,7 +261,7 @@ public class AndroidResourceManager extends ResourceManager {
                 UpdateTask updateTask = UpdateTask.getNewInstance();
                 updateTask.startPinnedNotification(ctx);
                 updateTask.setAsAutoUpdate();
-                updateTask.execute(ref);
+                updateTask.executeParallel(ref);
             }
         } catch (IllegalStateException e) {
             // The user may have started the update process in the meantime
@@ -274,10 +274,10 @@ public class AndroidResourceManager extends ResourceManager {
      */
     private static boolean canUpdateRetryRun() {
         try {
-            CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+            CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
             // NOTE PLM: Doesn't distinguish between two apps currently in the
             // auto-update process.
-            return CommCareApplication._().getSession().isActive() &&
+            return CommCareApplication.instance().getSession().isActive() &&
                     ResourceInstallUtils.shouldAutoUpdateResume(currentApp);
         } catch (SessionUnavailableException e) {
             return false;

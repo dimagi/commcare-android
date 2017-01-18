@@ -28,10 +28,11 @@ import org.apache.http.protocol.HttpContext;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.utils.GlobalConstants;
+import org.commcare.provider.DebugControlsReceiver;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
@@ -104,7 +105,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
     protected static String buildDomainUser(String username) {
         if (username != null) {
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
             if (prefs.contains(USER_DOMAIN_SUFFIX)) {
                 username += "@" + prefs.getString(USER_DOMAIN_SUFFIX, null);
@@ -167,6 +168,14 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         //Add items count to fetch request
         serverUri = serverUri.buildUpon().appendQueryParameter("items", "true").build();
 
+        if (CommCareApplication.instance().shouldInvalidateCacheOnRestore()) {
+            // Currently used for testing purposes only, in order to ensure that a full sync will
+            // occur when we want to test one
+            serverUri = serverUri.buildUpon().appendQueryParameter("overwrite_cache", "true").build();
+            // Always wipe this flag after we have used it once
+            CommCareApplication.instance().setInvalidateCacheFlag(false);
+        }
+
         String uri = serverUri.toString();
         Log.d(TAG, "Fetching from: " + uri);
         currentRequest = new HttpGet(uri);
@@ -188,6 +197,10 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             url = url.buildUpon().appendQueryParameter("last_issued", DateUtils.formatTime(lastRequest, DateUtils.FORMAT_ISO8601)).build();
         }
 
+        // include IMEI in key fetch request for auditing large deployments
+        url = url.buildUpon().appendQueryParameter("device_id",
+                CommCareApplication.instance().getPhoneId()).build();
+
         HttpGet get = new HttpGet(url.toString());
 
         return execute(client, get);
@@ -195,18 +208,18 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
     private void addHeaders(HttpRequestBase base, String lastToken) {
         //base.addHeader("Accept-Language", lang)
-        base.addHeader("X-OpenRosa-Version", "1.0");
+        base.addHeader("X-OpenRosa-Version", "2.0");
         if (lastToken != null) {
             base.addHeader("X-CommCareHQ-LastSyncToken", lastToken);
         }
-        base.addHeader("x-openrosa-deviceid", CommCareApplication._().getPhoneId());
+        base.addHeader("x-openrosa-deviceid", CommCareApplication.instance().getPhoneId());
     }
 
     private String getSyncToken(String username) {
         if (username == null) {
             return null;
         }
-        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.STORAGE_KEY, User.class);
+        SqlStorage<User> storage = CommCareApplication.instance().getUserStorage(User.STORAGE_KEY, User.class);
         Vector<Integer> users = storage.getIDsForValue(User.META_USERNAME, username);
         //should be exactly one user
         if (users.size() != 1) {
@@ -216,8 +229,14 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         return storage.getMetaDataFieldForRecord(users.firstElement(), User.META_SYNC_TOKEN);
     }
 
-    private String getDigest() {
-        return CaseDBUtils.computeHash(CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class));
+    private static String getDigest() {
+        String fakeHash = DebugControlsReceiver.getFakeCaseDbHash();
+        if (fakeHash != null) {
+            // For integration tests, use fake hash to trigger 412 recovery on this sync
+            return fakeHash;
+        } else {
+            return CaseDBUtils.computeCaseDbHash(CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class));
+        }
     }
 
     @Override
@@ -245,8 +264,8 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
     private HttpClient client() {
         HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
-        HttpConnectionParams.setSoTimeout(params, GlobalConstants.CONNECTION_SO_TIMEOUT);
+        HttpConnectionParams.setConnectionTimeout(params, ModernHttpRequester.CONNECTION_TIMEOUT);
+        HttpConnectionParams.setSoTimeout(params, ModernHttpRequester.CONNECTION_SO_TIMEOUT);
         HttpClientParams.setRedirecting(params, true);
 
         DefaultHttpClient client = new DefaultHttpClient(params);
@@ -326,4 +345,5 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             }
         }
     }
+
 }

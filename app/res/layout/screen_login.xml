@@ -94,27 +94,47 @@
                                 android:background="@drawable/login_edit_text"
                                 android:drawableLeft="@drawable/icon_user_neutral50"
                                 android:hint="Username"
-                                android:inputType="text"
                                 android:imeOptions="actionNext"
+                                android:inputType="text"
                                 android:nextFocusDown="@+id/edit_password"
                                 android:textSize="@dimen/text_medium">
 
                                 <requestFocus/>
                             </AutoCompleteTextView>
 
-                            <EditText
-                                android:id="@+id/edit_password"
-                                style="@style/LoginEditTextV2"
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="@dimen/content_start"
-                                android:background="@drawable/login_edit_text"
-                                android:drawableLeft="@drawable/icon_lock_neutral50"
-                                android:hint="Password"
-                                android:inputType="textPassword"
-                                android:nextFocusUp="@+id/edit_username"
-                                android:imeOptions="actionDone"
-                                android:textSize="@dimen/text_medium"/>
+                            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content">
+
+                                <EditText
+                                    android:id="@+id/edit_password"
+                                    style="@style/LoginEditTextV2"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="@dimen/content_start"
+                                    android:background="@drawable/login_edit_text"
+                                    android:drawableLeft="@drawable/icon_lock_neutral50"
+                                    android:hint="Password"
+                                    android:imeOptions="actionDone"
+                                    android:inputType="textPassword"
+                                    android:nextFocusUp="@+id/edit_username"
+                                    android:textSize="@dimen/text_medium"/>
+
+                                <Button
+                                    android:id="@+id/show_password"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignBottom="@+id/edit_password"
+                                    android:layout_alignRight="@+id/edit_password"
+                                    android:layout_alignTop="@+id/edit_password"
+                                    android:background="@android:color/transparent"
+                                    android:padding="@dimen/spacer_small"
+                                    android:src="@drawable/close_cross_icon"
+                                    android:textColor="@color/cc_brand_color"
+                                    android:textSize="@dimen/font_size_dp_medium"
+                                    android:visibility="invisible"/>
+
+                            </RelativeLayout>
 
                             <TextView
                                 android:id="@+id/screen_login_bad_password"
@@ -172,11 +192,11 @@
 
     <!-- Dummy item to give focus to when we want to prevent keyboard from showing -->
     <LinearLayout
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:orientation="horizontal"
         android:id="@+id/dummy_focusable_view"
         android:layout_width="0px"
-        android:layout_height="0px"/>
+        android:layout_height="0px"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal"/>
 
 </LinearLayout>

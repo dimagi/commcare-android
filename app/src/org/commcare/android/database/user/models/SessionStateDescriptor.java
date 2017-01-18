@@ -6,11 +6,8 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
-import org.commcare.session.CommCareSession;
-import org.commcare.session.SessionFrame;
-import org.commcare.suite.model.StackFrameStep;
+import org.commcare.session.SessionDescriptorUtil;
 import org.javarosa.core.util.MD5;
-
 
 /**
  * A Session State Descriptor contains all of the information that can be persisted
@@ -39,23 +36,24 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
         return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
     }
 
-    //Wrapper for serialization (STILL SKETCHY)
     public SessionStateDescriptor() {
 
     }
 
-    public SessionStateDescriptor(AndroidSessionWrapper state) {
-        this.formRecordId = state.getFormRecordId();
-        sessionDescriptor = this.createSessionDescriptor(state.getSession());
+    public static SessionStateDescriptor buildFromSessionWrapper(AndroidSessionWrapper state) {
+        SessionStateDescriptor descriptor = new SessionStateDescriptor();
+        descriptor.formRecordId = state.getFormRecordId();
+        descriptor.sessionDescriptor = SessionDescriptorUtil.createSessionDescriptor(state.getSession());
+        return descriptor;
     }
 
+    @Override
     public boolean isEncrypted(String data) {
-        // TODO Auto-generated method stub
         return false;
     }
 
+    @Override
     public boolean isBlobEncrypted() {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -76,57 +74,5 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
 
     public String getSessionDescriptor() {
         return this.sessionDescriptor;
-    }
-
-    /**
-     * Serializes the session into a string which is unique for a
-     * given path through the application, and which can be deserialzied
-     * back into a live session.
-     * <p/>
-     * TODO: Currently we rely on this state being semantically unique,
-     * but it may change in the future. Rely on the specific format as
-     * little as possible.
-     */
-    private String createSessionDescriptor(CommCareSession session) {
-        //TODO: Serialize into something more useful. I dunno. JSON/XML/Something
-        StringBuilder descriptor = new StringBuilder();
-        for (StackFrameStep step : session.getFrame().getSteps()) {
-            descriptor.append(step.getType());
-            if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
-                descriptor.append(step.getId());
-            } else if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) || SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType())) {
-                descriptor.append(step.getId()).append(" ").append(step.getValue());
-            } else if (SessionFrame.STATE_QUERY_REQUEST.equals(step.getType())) {
-                // for now, don't support restoring sessions that make remote server requests
-                descriptor.append( SessionFrame.STATE_QUERY_REQUEST);
-            } else if (SessionFrame.STATE_SYNC_REQUEST.equals(step.getType())) {
-                // for now, don't support restoring sessions that make remote server requests
-                descriptor.append(SessionFrame.STATE_SYNC_REQUEST);
-            }
-            descriptor.append(" ");
-        }
-        return descriptor.toString().trim();
-    }
-
-    public void loadSession(CommCareSession session) {
-        String[] tokenStream = sessionDescriptor.split(" ");
-
-        int current = 0;
-        while (current < tokenStream.length) {
-            String action = tokenStream[current];
-            if (action.equals(SessionFrame.STATE_COMMAND_ID)) {
-                session.setCommand(tokenStream[++current]);
-            } else if (action.equals(SessionFrame.STATE_DATUM_VAL) || action.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
-                session.setDatum(tokenStream[++current], tokenStream[++current]);
-            } else if (action.equals(SessionFrame.STATE_SYNC_REQUEST)
-                    || action.equals(SessionFrame.STATE_QUERY_REQUEST)) {
-                // Since restoring sessions with remote requests isn't support,
-                // break when encountered and force the user to proceed manually.
-                // Shouldn't come up in practice until we build workflows with
-                // remote query datums that end in form entry
-                break;
-            }
-            current++;
-        }
     }
 }

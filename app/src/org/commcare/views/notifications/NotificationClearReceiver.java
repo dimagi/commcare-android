@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.views.notifications;
 
 import android.content.BroadcastReceiver;
@@ -18,7 +15,7 @@ public class NotificationClearReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        CommCareApplication._().purgeNotifications();
+        CommCareApplication.notificationManager().purgeNotifications();
     }
 
 }

@@ -19,14 +19,6 @@ public class LegacyCommCareDBCursorFactory implements CursorFactory {
 
     private Hashtable<String, EncryptedModel> models;
 
-    /**
-     * Creates a cursor factory which is incapable of dealing with
-     * Encrypted data
-     */
-    public LegacyCommCareDBCursorFactory() {
-
-    }
-
     public LegacyCommCareDBCursorFactory(Hashtable<String, EncryptedModel> models) {
         this.models = models;
     }

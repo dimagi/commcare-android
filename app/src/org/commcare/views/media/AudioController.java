@@ -28,30 +28,40 @@ public enum AudioController {
      * Button that corresponds to the currentEntity media. Pressing the button
      * should trigger playback control methods here.
      */
-    private AudioButton currentButton;
+    private AudioPlaybackButtonBase currentAudioButton;
 
     /**
      * Set the media to be played and store the playback button attached to
      * that media, enableing button display state to mirror playback state.
      *
-     * @param newMedia      New media to be controlled
-     * @param clickedButton Button that corresponds to the new media, needed so
-     *                      we can update the button's display state to mirror
-     *                      the media's playback state
+     * @param newMedia       New media to be controlled
+     * @param newAudioButton Button that corresponds to the new media, needed so
+     *                       we can update the button's display state to mirror
+     *                       the media's playback state
      */
     public void setCurrentMediaAndButton(MediaEntity newMedia,
-                                         AudioButton clickedButton) {
-        if (currentButton != null && currentButton != clickedButton) {
+                                         final AudioPlaybackButtonBase newAudioButton) {
+        if (currentAudioButton != null && currentAudioButton != newAudioButton) {
             // reset the old button to not be playing
-            currentButton.setStateToReady();
+            currentAudioButton.resetPlaybackState();
         }
-        currentButton = clickedButton;
+        currentAudioButton = newAudioButton;
 
         if (newMedia != currentEntity) {
             // newMedia is actually new, so release old media
             releaseCurrentMediaEntity();
             currentEntity = newMedia;
         }
+        registerPlaybackFinishedCallback();
+    }
+
+    private void registerPlaybackFinishedCallback() {
+        currentEntity.getPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                releaseCurrentMediaEntity();
+            }
+        });
     }
 
     /**
@@ -61,15 +71,18 @@ public enum AudioController {
      * @param button Corresponds with the media that is currently
      *               loaded/playing
      */
-    public void registerPlaybackButton(AudioButton button) {
-        currentButton = button;
+    public void registerPlaybackButton(AudioPlaybackButtonBase button) {
+        currentAudioButton = button;
+        registerPlaybackFinishedCallback();
     }
-
 
     /**
      * Release current media resources.
      */
     public void releaseCurrentMediaEntity() {
+        if (currentAudioButton != null) {
+            currentAudioButton.endPlaying();
+        }
         if (currentEntity != null) {
             MediaPlayer mp = currentEntity.getPlayer();
             mp.reset();
@@ -83,8 +96,10 @@ public enum AudioController {
      */
     public void playCurrentMediaEntity() {
         if (currentEntity != null) {
-            currentEntity.getPlayer().start();
+            MediaPlayer player = currentEntity.getPlayer();
+            player.start();
             currentEntity.setState(MediaState.Playing);
+            currentAudioButton.startProgressBar(player.getCurrentPosition(), player.getDuration());
         }
     }
 
@@ -126,7 +141,7 @@ public enum AudioController {
         if (currentEntity != null) {
             switch (currentEntity.getState()) {
                 case PausedForRenewal:
-                    playCurrentMediaEntity();
+                    currentAudioButton.startPlaying();
                     break;
                 case Paused:
                     break;
@@ -139,6 +154,32 @@ public enum AudioController {
 
     boolean isMediaLoaded() {
         return currentEntity != null;
+    }
+
+    boolean doesCurrentMediaCorrespondToButton(AudioPlaybackButtonBase audioButton) {
+        return currentEntity != null && currentAudioButton == audioButton;
+    }
+
+    void seekTo(int pos) {
+        if (currentEntity != null) {
+            currentEntity.getPlayer().seekTo(pos);
+        }
+    }
+
+    int getCurrentPosition() {
+        if (currentEntity == null) {
+            return -1;
+        } else {
+            return currentEntity.getPlayer().getCurrentPosition();
+        }
+    }
+
+    int getDuration() {
+        if (currentEntity == null) {
+            return -1;
+        } else {
+            return currentEntity.getPlayer().getDuration();
+        }
     }
 
     ViewId getMediaViewId() {

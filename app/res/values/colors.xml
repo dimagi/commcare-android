@@ -49,8 +49,8 @@
     <color name="dark_grey">#A3A3A3</color>
     <color name="darker_grey">#999999</color>
     <color name="darkest_grey">#666666</color>
-    <color name="bright_blue_grad_start">#ff266cc9</color>
-    <color name="bright_blue_grad_end">#ff1e559e</color>
+    <color name="bright_blue_grad_start">#266cc9</color>
+    <color name="bright_blue_grad_end">#1e559e</color>
     <color name="grey_grad_start">#A0A6A8</color>
     <color name="grey_grad_end">#868A8C</color>
     <color name="light_grey_grad_start">#dddddd</color>

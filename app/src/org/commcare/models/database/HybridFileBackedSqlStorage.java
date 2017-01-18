@@ -10,10 +10,9 @@ import org.commcare.CommCareApplication;
 import org.commcare.interfaces.AppFilePathBuilder;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.database.DatabaseHelper;
-import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
-import org.commcare.utils.SessionUnavailableException;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
@@ -42,16 +41,18 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
     private final File dbDir;
-    private final static int ONE_MB_DB_SIZE_LIMIT = 1000000;
+    public final static int ONE_MB_DB_SIZE_LIMIT = 1000000;
 
     /**
      * Column selection used for reading file data:
-     * - Id column needed to correctly set the id of objects read from db, which isn't set at write time for efficiency.
+     * - Id column needed to correctly set the id of objects read from db,
+     *   which isn't set at write time for efficiency.
      * - Data column holds serialized objects under 1mb
      * - File column points to file holding serialized object over 1mb
      * - Aes column holds encryption key for objects saved to filesystem
      *
-     * Constraint: we never expect both data and file/aes columns to contain data at the same time
+     * Constraint: we never expect both data and file/aes columns to contain
+     * data at the same time
      */
     protected final static String[] dataColumns =
             {DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL,
@@ -221,7 +222,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 byte[] aesKeyBlob = cur.getBlob(cur.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
                 is = getInputStreamFromFile(filename, aesKeyBlob);
 
-                return AndroidStreamUtil.inputStreamToByteArray(is);
+                return StreamsUtil.inputStreamToByteArray(is);
             }
         } catch (IOException e) {
             throw new RuntimeException("Unable to read serialized object from file.", e);
@@ -309,7 +310,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     }
 
     protected byte[] generateKeyAndAdd(ContentValues contentValues) {
-        byte[] key = CommCareApplication._().createNewSymmetricKey().getEncoded();
+        byte[] key = CommCareApplication.instance().createNewSymmetricKey().getEncoded();
         contentValues.put(DatabaseHelper.AES_COL, key);
         return key;
     }

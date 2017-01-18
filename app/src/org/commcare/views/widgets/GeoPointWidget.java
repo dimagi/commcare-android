@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.commcare.views.widgets;
 
 import android.app.Activity;
@@ -26,9 +12,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.activities.GeoPointMapActivity;
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
@@ -76,7 +62,7 @@ public class GeoPointWidget extends QuestionWidget {
 
         mStringAnswer = new TextView(getContext());
         mAnswerDisplay = new TextView(getContext());
-        mAnswerDisplay.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+        mAnswerDisplay.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswerDisplay.setGravity(Gravity.CENTER);
 
         Spannable locButtonText;
@@ -98,7 +84,7 @@ public class GeoPointWidget extends QuestionWidget {
         mGetLocationButton = new Button(getContext());
         WidgetUtils.setupButton(mGetLocationButton,
                 locButtonText,
-                mAnswerFontsize,
+                mAnswerFontSize,
                 !prompt.isReadOnly());
 
         mGetLocationButton.setOnClickListener(new View.OnClickListener() {
@@ -110,7 +96,7 @@ public class GeoPointWidget extends QuestionWidget {
                 } else {
                     i = new Intent(getContext(), GeoPointActivity.class);
                 }
-                ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.LOCATION_CAPTURE);
+                ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.LOCATION_CAPTURE);
                 pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
             }
         });
@@ -119,7 +105,7 @@ public class GeoPointWidget extends QuestionWidget {
         mViewButton = new Button(getContext());
         WidgetUtils.setupButton(mViewButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.show_location),
-                mAnswerFontsize,
+                mAnswerFontSize,
                 viewButtonEnabled);
 
         // launch appropriate map viewer
@@ -136,7 +122,6 @@ public class GeoPointWidget extends QuestionWidget {
                 Intent i = new Intent(getContext(), GeoPointMapActivity.class);
                 i.putExtra(LOCATION, gp);
                 getContext().startActivity(i);
-
             }
         });
 
@@ -147,7 +132,6 @@ public class GeoPointWidget extends QuestionWidget {
         addView(mAnswerDisplay);
     }
 
-
     @Override
     public void clearAnswer() {
         mStringAnswer.setText(null);
@@ -155,7 +139,6 @@ public class GeoPointWidget extends QuestionWidget {
         mGetLocationButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.get_location));
 
     }
-
 
     @Override
     public IAnswerData getAnswer() {
@@ -179,12 +162,10 @@ public class GeoPointWidget extends QuestionWidget {
         }
     }
 
-
     private String truncateDouble(String s) {
         DecimalFormat df = new DecimalFormat("#.##");
         return df.format(Double.valueOf(s));
     }
-
 
     private String formatGps(double coordinates, String type) {
         String location = Double.toString(coordinates);
@@ -213,7 +194,6 @@ public class GeoPointWidget extends QuestionWidget {
         return degree;
     }
 
-
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -221,7 +201,6 @@ public class GeoPointWidget extends QuestionWidget {
                 (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
-
 
     @Override
     public void setBinaryData(Object answer) {
@@ -239,7 +218,6 @@ public class GeoPointWidget extends QuestionWidget {
                         StringUtils.getStringSpannableRobust(getContext(), R.string.accuracy) +
                         ": " + truncateDouble(sa[3]) + "m");
         // update form relevancies and such
-        // TODO PLM: probably want to call this for every class that overrides setBinaryData
         widgetEntryChanged();
     }
 
@@ -269,5 +247,4 @@ public class GeoPointWidget extends QuestionWidget {
         mStringAnswer.cancelLongPress();
         mAnswerDisplay.cancelLongPress();
     }
-
 }

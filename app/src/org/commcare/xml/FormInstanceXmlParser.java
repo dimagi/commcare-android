@@ -66,6 +66,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         this.rootInstanceDir = destination;
     }
 
+    @Override
     public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String xmlns = parser.getNamespace();
         //Parse this subdocument into a dom
@@ -147,7 +148,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
     private IStorageUtilityIndexed<FormRecord> cachedStorage() {
         if (storage == null) {
-            storage = CommCareApplication._().getUserStorage(FormRecord.class);
+            storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         }
         return storage;
     }
@@ -169,20 +170,20 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         // same second don't get placed in the same file.
         String time = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Calendar.getInstance().getTime()) + parseCount++;
 
-        String formId = formPath.substring(formPath.lastIndexOf('/') + 1,
+        String formId = formPath.substring(formPath.lastIndexOf(File.separator) + 1,
                 formPath.lastIndexOf('.'));
         String filename = formId + "_" + time;
 
         String formInstanceDir = rootInstanceDir + filename;
         if (FileUtil.createFolder(formInstanceDir)) {
-            return new File(formInstanceDir + "/" + filename + ".xml").getAbsolutePath();
+            return new File(formInstanceDir + File.separator + filename + ".xml").getAbsolutePath();
         }
 
         throw new RuntimeException("Couldn't create folder needed to save form instance");
     }
 
     @Override
-    public void commit(FormRecord parsed) throws IOException {
+    protected void commit(FormRecord parsed) throws IOException {
         //This is unused.
     }
 }

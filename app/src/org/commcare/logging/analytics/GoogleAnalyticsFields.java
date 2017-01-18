@@ -22,6 +22,20 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_MODULE_NAVIGATION = "Module Navigation";
     public static final String CATEGORY_FEATURE_USAGE = "Feature Usage";
     public static final String CATEGORY_APP_MANAGER = "App Manager";
+    public static final String CATEGORY_AUDIO_WIDGET = "Audio Widget Prototype";
+    public static final String CATEGORY_PRIVILEGE_ENABLED = "Global Privilege Enabled";
+    public static final String CATEGORY_LANGUAGE_STATS = "Language Statistics";
+    public static final String CATEGORY_HIGH_LEVEL_STATS = "High Level Statistics";
+
+    //Actions for CATEGORY_AUDIO_WIDGET only
+    public static final String ACTION_START_RECORDING_DIALOG = "Click the button to open recording popup";
+    public static final String ACTION_CHOOSE_FILE = "Click the button to choose an audio file";
+    public static final String ACTION_START_RECORD = "Click the button to start recording audio";
+    public static final String ACTION_STOP_RECORD = "Click the button to stop recording audio";
+    public static final String ACTION_SAVE_RECORDING = "Click the button to save an audio recording";
+    public static final String ACTION_PLAY_AUDIO = "Click the button to play audio";
+    public static final String ACTION_PAUSE_AUDIO = "Click the button to pause audio playback";
+    public static final String ACTION_RECORD_AGAIN = "Click the button to Record Again";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
@@ -65,6 +79,7 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_CLEAR_SAVED_SESSION = "Clear Saved Session";
     public static final String ACTION_FORCE_LOG_SUBMISSION = "Force Log Submission";
     public static final String ACTION_RECOVERY_MODE = "Recovery Mode";
+    public static final String ACTION_ENABLE_PRIVILEGES = "Enable Mobile Privileges";
 
     // Actions for CATEGORY_FEATURE_USAGE
     public static final String ACTION_LOGIN_AS_DEMO_USER = "Login as Demo User";
@@ -73,7 +88,6 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_IMAGE_CAPTURE_RESIZED = "Image Capture Resized";
     public static final String ACTION_CASE_AUTOSELECT_USED = "Case Autoselect Used";
     public static final String ACTION_USING_SMART_IMAGE_INFLATION = "Using Smart Image Inflation";
-    public static final String ACTION_USING_GRIDVIEW = "Using GridView";
 
     // Actions for CATEGORY_APP_MANAGER
     public static final String ACTION_OPEN_APP_MANAGER = "Open App Manager";
@@ -86,6 +100,12 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_OFFLINE_INSTALL = "Offline Install";
     public static final String ACTION_URL_INSTALL = "URL Install";
     public static final String ACTION_SMS_INSTALL = "SMS Install";
+
+    // Actions for CATEGORY_LANGUAGE_STATS
+    public static final String ACTION_LANGUAGE_AT_FORM_ENTRY = "Language at Time of Form Entry";
+
+    // Actions for CATEGORY_HIGH_LEVEL_STATS
+    public static final String ACTION_ANDROID_API_LEVEL_AT_STARTUP = "Android API Level at Startup";
 
     // Labels for ACTION_BUTTON
     public static final String LABEL_START_BUTTON = "Start Button";
@@ -105,6 +125,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_FUZZY_SEARCH = "Fuzzy Search Matches";
     public static final String LABEL_PRINT_TEMPLATE = "Set Print Template";
     public static final String LABEL_DEVELOPER_OPTIONS = "Developer Options";
+    public static final String LABEL_UPDATE_TO_UNSTARRED = "Update to Unstarred Builds";
 
     // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_FORM_PREFS
     public static final String LABEL_FONT_SIZE = "Font Size";
@@ -116,7 +137,6 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_GRID_MENUS = "Grid Menus Enabled";
     public static final String LABEL_NAV_UI = "Navigation UI";
     public static final String LABEL_ENTITY_LIST_REFRESH = "Entity List Screen Auto-Refresh";
-    public static final String LABEL_NEWEST_APP_VERSION = "Use Newest App Version From HQ";
     public static final String LABEL_AUTO_LOGIN = "Auto-login While Debugging";
     public static final String LABEL_SESSION_SAVING = "Enable Session Saving";
     public static final String LABEL_EDIT_SAVED_SESSION = "Edit Saved Session";
@@ -124,11 +144,11 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_MARKDOWN = "Markdown Enabled";
     public static final String LABEL_IMAGE_ABOVE_TEXT = "Image Above Question Text Enabled";
     public static final String LABEL_TRIGGERS_ON_SAVE = "Fire triggers on form save";
-    public static final String LABEL_ANIMATE_FORM_SUBMIT_BUTTON = "Animate form submit button";
     public static final String LABEL_REPORT_BUTTON_ENABLED = "Home Report Button enabled";
     public static final String LABEL_AUTO_PURGE = "Auto Purge on Save Enabled";
     public static final String LABEL_LOAD_FORM_PAYLOAD_AS = "Load form payload as";
     public static final String LABEL_DETAIL_TAB_SWIPE_ACTION = "Detail tab final swipe action enabled";
+    public static final String LABEL_OFFLINE_UPDATE = "Offline Updates enabled";
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
     public static final String LABEL_SETTINGS = "Settings";
@@ -182,6 +202,7 @@ public final class GoogleAnalyticsFields {
     public static final int VALUE_UNKNOWN_FAILURE = 6;
     public static final int VALUE_STORAGE_FULL = 7;
     public static final int VALUE_BAD_DATA_REQUIRES_INTERVENTION = 8;
+    public static final int VALUE_ACTIONABLE_FAILURE = 9;
 
     // Values for LABEL_AUTO_UPDATE
     public static final int VALUE_NEVER = 0;

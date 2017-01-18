@@ -3,8 +3,8 @@ package org.commcare.tasks;
 import android.util.Log;
 
 import org.commcare.tasks.templates.CommCareTask;
-import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.FileUtil;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -85,7 +85,7 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
 
             try {
                 try {
-                    AndroidStreamUtil.writeFromInputToOutput(inputStream, outputStream);
+                    StreamsUtil.writeFromInputToOutputNew(inputStream, outputStream);
                 } catch (IOException ioe) {
                     this.publishProgress(Localization.get("mult.install.progress.errormoving"));
                     return -1;

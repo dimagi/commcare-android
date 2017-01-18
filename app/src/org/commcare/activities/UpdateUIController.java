@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -97,7 +98,7 @@ class UpdateUIController implements CommCareActivityUIController {
             }
         });
         String updateVersionPlaceholderMsg =
-            Localization.getWithDefault(applyUpdateButtonTextKey, new String[]{"-1"}, "");
+                Localization.getWithDefault(applyUpdateButtonTextKey, new String[]{"-1"}, "");
         installUpdateButton.setText(updateVersionPlaceholderMsg);
     }
 
@@ -123,7 +124,7 @@ class UpdateUIController implements CommCareActivityUIController {
     protected void checkFailedUiState() {
         idleUiState();
         currentUIState = UIState.FailedCheck;
-        updateProgressText(Localization.get("updates.check.failed"));
+        updateErrorText(Localization.get("updates.check.failed"));
     }
 
     protected void downloadingUiState() {
@@ -171,7 +172,7 @@ class UpdateUIController implements CommCareActivityUIController {
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
 
-        updateProgressText(Localization.get("updates.error"));
+        updateErrorText(Localization.get("updates.error"));
     }
 
     protected void noConnectivityUiState() {
@@ -183,6 +184,7 @@ class UpdateUIController implements CommCareActivityUIController {
 
         updateProgressText(Localization.get("updates.check.network_unavailable"));
     }
+
     protected void applyingUpdateUiState() {
         currentUIState = UIState.ApplyingUpdate;
 
@@ -194,6 +196,12 @@ class UpdateUIController implements CommCareActivityUIController {
 
     protected void updateProgressText(String msg) {
         progressText.setText(msg);
+        progressText.setTextColor(Color.BLACK);
+    }
+
+    protected void updateErrorText(String msg) {
+        progressText.setText(msg);
+        progressText.setTextColor(Color.RED);
     }
 
     protected void updateProgressBar(int currentProgress, int max) {
@@ -202,7 +210,7 @@ class UpdateUIController implements CommCareActivityUIController {
     }
 
     private void refreshStatusText() {
-        CommCareApplication app = CommCareApplication._();
+        CommCareApplication app = CommCareApplication.instance();
 
         int version = app.getCommCarePlatform().getCurrentProfile().getVersion();
 

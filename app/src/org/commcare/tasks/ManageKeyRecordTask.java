@@ -67,6 +67,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     private boolean calloutNeeded = false;
     private final boolean restoreSession;
+    private final boolean forCustomDemoUser;
 
     private boolean calloutSuccessRequired;
 
@@ -74,7 +75,8 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     public ManageKeyRecordTask(Context c, int taskId, String username, String passwordOrPin,
                                LoginMode loginMode, CommCareApp app,
-                               boolean restoreSession, boolean triggerMultipleUserWarning) {
+                               boolean restoreSession, boolean triggerMultipleUserWarning,
+                               boolean forCustomDemoUser) {
         super(c);
         this.username = username;
         this.loginMode = loginMode;
@@ -89,10 +91,16 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
         this.app = app;
         this.restoreSession = restoreSession;
+        this.forCustomDemoUser = forCustomDemoUser;
 
-        keyServerUrl = CommCarePreferences.getKeyServer();
-        //long story
-        keyServerUrl = "".equals(keyServerUrl) ? null : keyServerUrl;
+        if (forCustomDemoUser) {
+            // block remote key management if we're logging in a custom demo user
+            keyServerUrl = null;
+        } else {
+            keyServerUrl = CommCarePreferences.getKeyServer();
+            //long story
+            keyServerUrl = "".equals(keyServerUrl) ? null : keyServerUrl;
+        }
 
         this.triggerMultipleUserWarning = triggerMultipleUserWarning;
         this.taskId = taskId;
@@ -106,7 +114,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 //If we got here, we didn't "log in" fully. IE: We have a key record and a
                 //functional sandbox, but this user has never been synced, so we aren't
                 //really "logged in".
-                CommCareApplication._().releaseUserResourcesAndServices();
+                CommCareApplication.instance().releaseUserResourcesAndServices();
                 keysReadyForSync(receiver);
                 return;
             } else {
@@ -120,7 +128,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         }
 
         //For any other result make sure we're logged out.
-        CommCareApplication._().releaseUserResourcesAndServices();
+        CommCareApplication.instance().releaseUserResourcesAndServices();
 
         //TODO: Do we wanna split this up at all? Seems unlikely. We don't have, like, a ton
         //more context that the receiving activity will
@@ -134,9 +142,9 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     }
 
     protected void keysReadyForSync(R receiver) {
-        // TODO: we only wanna do this on the _first_ try. Not
-        // subsequent ones (IE: On return from startDataPull)
-        receiver.startDataPull();
+        // TODO: we only wanna do this on the _first_ try. Not subsequent ones (IE: On return from startDataPull)
+        receiver.startDataPull(forCustomDemoUser ?
+                DataPullController.DataPullMode.CCZ_DEMO : DataPullController.DataPullMode.NORMAL);
     }
 
     protected void keysLoginComplete(R receiver) {
@@ -281,30 +289,29 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 newRecord.setType(UserKeyRecord.TYPE_NORMAL);
                 storage.write(newRecord);
             }
-
-
-            for (UserKeyRecord recordPendingDelete :
-                    storage.getRecordsForValue(UserKeyRecord.META_KEY_STATUS, UserKeyRecord.TYPE_PENDING_DELETE)) {
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Cleaning up sandbox which is pending removal");
-
-                // See if there are more records in this sandbox. (If so, we can just wipe this record and move on)
-                if (storage.getIDsForValue(UserKeyRecord.META_SANDBOX_ID, recordPendingDelete.getUuid()).size() > 2) {
-                    Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Record for sandbox " + recordPendingDelete.getUuid() + " has siblings. Removing record");
-
-                    //TODO: Will this invalidate our iterator?
-                    storage.remove(recordPendingDelete);
-                } else {
-                    // Otherwise, we should see if we can read the data, and if so, wipe it as well as the record.
-                    if (recordPendingDelete.isPasswordValid(password)) {
-                        //TODO AMS: Changed this such that you can only wipe the record if it was a password login -- is that OK?
-                        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Current user has access to purgable sandbox " + recordPendingDelete.getUuid() + ". Wiping that sandbox");
-                        UserSandboxUtils.purgeSandbox(this.getContext(), app, recordPendingDelete, recordPendingDelete.unWrapKey(password));
-                    }
-                    //Do we do anything here if we couldn't open the sandbox?
-                }
-            }
-            //TODO: Specifically we should never have two sandboxes which can be opened by the same password (I think...)
         }
+
+        for (UserKeyRecord recordPendingDelete :
+                storage.getRecordsForValue(UserKeyRecord.META_KEY_STATUS, UserKeyRecord.TYPE_PENDING_DELETE)) {
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Cleaning up sandbox which is pending removal");
+
+            // See if there are more records in this sandbox. (If so, we can just wipe this record and move on)
+            if (storage.getIDsForValue(UserKeyRecord.META_SANDBOX_ID, recordPendingDelete.getUuid()).size() > 2) {
+                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Record for sandbox " + recordPendingDelete.getUuid() + " has siblings. Removing record");
+
+                //TODO: Will this invalidate our iterator?
+                storage.remove(recordPendingDelete);
+            } else {
+                // Otherwise, we should see if we can read the data, and if so, wipe it as well as the record.
+                if (recordPendingDelete.isPasswordValid(password)) {
+                    //TODO AMS: Changed this such that you can only wipe the record if it was a password login -- is that OK?
+                    Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Current user has access to purgable sandbox " + recordPendingDelete.getUuid() + ". Wiping that sandbox");
+                    UserSandboxUtils.purgeSandbox(this.getContext(), app, recordPendingDelete, recordPendingDelete.unWrapKey(password));
+                }
+                //Do we do anything here if we couldn't open the sandbox?
+            }
+        }
+            //TODO: Specifically we should never have two sandboxes which can be opened by the same password (I think...)
     }
 
 
@@ -376,11 +383,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                     //or our password has changed and we need to overwrite the existing key record. Either way, all
                     //we should need to do is merge the records.
 
-                    UserKeyRecord ukr = new UserKeyRecord(
-                            record.getUsername(), record.getPasswordHash(),
-                            record.getEncryptedKey(), record.getWrappedPassword(),
-                            record.getValidFrom(), record.getValidTo(), record.getUuid(),
-                            existing.getType());
+                    UserKeyRecord ukr = UserKeyRecord.buildFrom(record, existing.getType());
                     ukr.setID(existing.getID());
                     storage.write(ukr);
                 } catch (NoSuchElementException nsee) {
@@ -410,6 +413,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         for (UserKeyRecord r : allRecordsWithSameUsername) {
             if (!r.getUuid().equals(uuidOfActiveRecord)) {
                 r.setInactive();
+                storage.write(r);
             }
         }
     }
@@ -422,15 +426,33 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         UserKeyRecord current = getCurrentValidRecord();
 
         if (current == null) {
-            if (loginMode == LoginMode.PIN) {
-                // If we are in pin mode then we did not execute the callout task; just means there
-                // is no existing record matching the username/pin combo
-                return HttpCalloutOutcomes.IncorrectPin;
-            } else {
-                return HttpCalloutOutcomes.UnknownError;
-            }
+            return handleNullRecord();
         }
 
+        setPasswordFromRecord(current);
+
+        if (!processUserKeyRecord(current)) {
+            return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
+        }
+
+        // Log into our local sandbox.
+        CommCareApplication.instance().startUserSession(current.unWrapKey(password), current, restoreSession);
+        setupLoggedInUser();
+
+        return HttpCalloutTask.HttpCalloutOutcomes.Success;
+    }
+
+    private HttpCalloutTask.HttpCalloutOutcomes handleNullRecord() {
+        if (loginMode == LoginMode.PIN) {
+            // If we are in pin mode then we did not execute the callout task; just means there
+            // is no existing record matching the username/pin combo
+            return HttpCalloutOutcomes.IncorrectPin;
+        } else {
+            return HttpCalloutOutcomes.UnknownError;
+        }
+    }
+
+    private void setPasswordFromRecord(UserKeyRecord current) {
         // If we successfully found a matching record in either PIN or Primed mode, we don't yet
         // have access to the un-hashed password, but are going to need it now to finish up
         if (loginMode == LoginMode.PIN) {
@@ -438,51 +460,63 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         } else if (loginMode == LoginMode.PRIMED) {
             this.password = current.getPrimedPassword();
         }
+    }
 
+    private boolean processUserKeyRecord(UserKeyRecord current) {
         // Now, see if we need to do anything to process our new record.
         if (current.getType() != UserKeyRecord.TYPE_NORMAL) {
             if (current.getType() == UserKeyRecord.TYPE_NEW) {
-                // See if we can migrate an old sandbox's data to the new sandbox.
-                if (!lookForAndMigrateOldSandbox(current)) {
-                    // TODO: Problem during migration! Should potentially try again instead of leaving old one
-
-                    // Switching over to using the old record instead of failing
-                    current = getInUserSandbox(current.getUsername(), app.getStorage(UserKeyRecord.class));
-
-                    // Make sure we didn't somehow not get a new sandbox
-                    if (current == null) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                                "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
-                        return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
-                    }
-
-                    // Otherwise we're now keyed up with the old DB and we should be fine to log in
-                }
+                return processNewUserKeyRecord(current);
             } else if (current.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-                // Transition the legacy storage to the new format. We don't have a new record,
-                // so don't worry
-                try {
-                    this.publishProgress(Localization.get("key.manage.legacy.begin"));
-                    LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), current.unWrapKey(password), current);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    // Ugh, high level trap catch
-                    // Problem during migration! We should try again? Maybe?
-                    // Or just leave the old one?
-                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
-                    // For now, fail.
-                    return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
-                }
+                return processLegacyUserKeyRecord(current);
             }
         }
+        return true;
+    }
 
-        // Ok, so we're done with everything now. We should log in our local sandbox and proceed to the next step.
-        CommCareApplication._().startUserSession(current.unWrapKey(password), current, restoreSession);
+    private boolean processNewUserKeyRecord(UserKeyRecord current) {
+        // See if we can migrate an old sandbox's data to the new sandbox.
+        if (!lookForAndMigrateOldSandbox(current)) {
+            // TODO: Problem during migration! Should potentially try again instead of leaving old one
 
+            // Switching over to using the old record instead of failing
+            current = getInUserSandbox(current.getUsername(), app.getStorage(UserKeyRecord.class));
+
+            // Make sure we didn't somehow not get a new sandbox
+            if (current == null) {
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                        "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
+                return false;
+            }
+
+            // Otherwise we're now keyed up with the old DB and we should be fine to log in
+        }
+        return true;
+    }
+
+    private boolean processLegacyUserKeyRecord(UserKeyRecord current) {
+        // Transition the legacy storage to the new format. We don't have a new record,
+        // so don't worry
+        try {
+            this.publishProgress(Localization.get("key.manage.legacy.begin"));
+            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication.instance().getCurrentApp(), current.unWrapKey(password), current);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Ugh, high level trap catch
+            // Problem during migration! We should try again? Maybe?
+            // Or just leave the old one?
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
+            // For now, fail.
+            return false;
+        }
+    }
+
+    private void setupLoggedInUser() {
         // So we may have logged in a key record but not a user (if we just received the
         // key, but not the user's data, for instance).
         try {
-            User u = CommCareApplication._().getSession().getLoggedInUser();
+            User u = CommCareApplication.instance().getSession().getLoggedInUser();
             if (u != null) {
                 u.setCachedPwd(password);
                 loggedIn = u;
@@ -490,8 +524,6 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         } catch (SessionUnavailableException sue) {
 
         }
-
-        return HttpCalloutTask.HttpCalloutOutcomes.Success;
     }
 
     private UserKeyRecord getInUserSandbox(String username, SqlStorage<UserKeyRecord> storage) {
@@ -537,34 +569,40 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         if (oldSandboxToMigrate == null) {
             newRecord.setType(UserKeyRecord.TYPE_NORMAL);
             storage.write(newRecord);
-            //No worries
-            return true;
+        } else {
+            //Otherwise we should start migrating that data over.
+            return migrate(oldSandboxToMigrate, newRecord);
         }
+        return true;
+    }
 
-        //Otherwise we should start migrating that data over.
+    private boolean migrate(UserKeyRecord oldSandboxToMigrate, UserKeyRecord newRecord) {
         byte[] oldKey = oldSandboxToMigrate.unWrapKey(password);
 
-        //First see if the old sandbox is legacy and needs to be transfered over.
-        if (oldSandboxToMigrate.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-            //transition the old storage into the new format before we copy the DB over.
-            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), oldKey, oldSandboxToMigrate);
-            publishProgress(Localization.get("key.manage.legacy.begin"));
-        }
+        migrateLegacySandbox(oldSandboxToMigrate, oldKey);
 
-        //TODO: Ok, so what error handling do we need here? 
         try {
             //Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
-            UserSandboxUtils.migrateData(this.getContext(), app, oldSandboxToMigrate, oldKey, newRecord,
+            UserSandboxUtils.migrateData(getContext(), app, oldSandboxToMigrate, oldKey, newRecord,
                     ByteEncrypter.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
             publishProgress(Localization.get("key.manage.migrate"));
-            return true;
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            Logger.exception(ioe);
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
             return false;
         } catch (Exception e) {
+            Logger.exception(e);
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
             return false;
+        }
+        return true;
+    }
+
+    private void migrateLegacySandbox(UserKeyRecord oldSandboxToMigrate, byte[] oldKey) {
+        if (oldSandboxToMigrate.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
+            //transition the old storage into the new format before we copy the DB over.
+            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication.instance().getCurrentApp(), oldKey, oldSandboxToMigrate);
+            publishProgress(Localization.get("key.manage.legacy.begin"));
         }
     }
 
@@ -573,7 +611,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         return HttpCalloutOutcomes.BadResponse;
     }
 
-    // XXX PLM: getCurrentValidRecord is called w/ acceptExpired set to
+    // NOTE PLM: getCurrentValidRecord is called w/ acceptExpired set to
     // true. Eventually we will enforce user key record expiration, but
     // can't do so until we proactively refresh records that are going to
     // expire in the next few months. Otherwise, devices that haven't

@@ -25,21 +25,20 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.activities.FormRecordListActivity;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
-import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.SessionStateUninitException;
-import org.commcare.views.GridEntityView;
+import org.commcare.views.EntityViewTile;
 import org.commcare.views.TabbedDetailView;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -235,7 +234,7 @@ public class BreadcrumbBarFragment extends Fragment {
                         mInternalDetailView = (TabbedDetailView)holder.findViewById(R.id.com_tile_holder_detail_frame);
                         mInternalDetailView.setRoot(mInternalDetailView);
 
-                        AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                        AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
                         CommCareSession session = asw.getSession();
 
                         Detail detail = session.getDetail(inlineDetail);
@@ -262,7 +261,7 @@ public class BreadcrumbBarFragment extends Fragment {
     private Pair<View, TreeReference> loadTile(Activity activity) {
         AndroidSessionWrapper asw;
         try {
-            asw = CommCareApplication._().getCurrentSessionWrapper();
+            asw = CommCareApplication.instance().getCurrentSessionWrapper();
         } catch (SessionStateUninitException e) {
             return null;
         }
@@ -330,7 +329,7 @@ public class BreadcrumbBarFragment extends Fragment {
         AndroidSessionWrapper asw;
 
         try {
-            asw = CommCareApplication._().getCurrentSessionWrapper();
+            asw = CommCareApplication.instance().getCurrentSessionWrapper();
         } catch (SessionStateUninitException e) {
             return null;
         }
@@ -412,8 +411,10 @@ public class BreadcrumbBarFragment extends Fragment {
         Entity entity = nef.getEntity(ref);
 
         Log.v("DEBUG-v", "Creating new GridEntityView for text header text");
-        GridEntityView tile = new GridEntityView(this.getActivity(), detail, entity);
-        int[] textColor = AndroidUtil.getThemeColorIDs(getActivity(), new int[]{R.attr.drawer_pulldown_text_color, R.attr.menu_tile_title_text_color});
+        EntityViewTile tile = EntityViewTile.createTileForIndividualDisplay(this.getActivity(),
+                detail, entity);
+        int[] textColor = AndroidUtil.getThemeColorIDs(getActivity(),
+                new int[]{R.attr.drawer_pulldown_text_color, R.attr.menu_tile_title_text_color});
         tile.setTextColor(textColor[0]);
         tile.setTitleTextColor(textColor[1]);
         return Pair.create(((View)tile), ref);

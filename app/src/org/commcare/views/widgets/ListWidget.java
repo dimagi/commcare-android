@@ -73,7 +73,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
         }
 
         //Is this safe enough from collisions?
-        buttonIdBase = Math.abs(mPrompt.getIndex().toString().hashCode());
+        buttonIdBase = Math.abs(mPrompt.getIndex().hashCode());
 
         if (mPrompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {
@@ -103,7 +103,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                 if (imageURI != null) {
                     try {
                         String imageFilename =
-                                ReferenceManager._().DeriveReference(imageURI).getLocalURI();
+                                ReferenceManager.instance().DeriveReference(imageURI).getLocalURI();
                         final File imageFile = new File(imageFilename);
                         if (imageFile.exists()) {
                             Bitmap b = null;

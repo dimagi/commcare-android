@@ -19,9 +19,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.commcare.CommCareApplication;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
@@ -44,7 +44,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private static final String TAG = EntityMapActivity.class.getSimpleName();
     private static final int MAP_PADDING = 50;  // Number of pixels to pad bounding region of markers
 
-    private final CommCareSession session = CommCareApplication._().getCurrentSession();
+    private final CommCareSession session = CommCareApplication.instance().getCurrentSession();
     private EntityDatum selectDatum;
 
     private final Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations = new Vector<>();

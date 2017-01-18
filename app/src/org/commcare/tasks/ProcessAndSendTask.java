@@ -4,11 +4,14 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.SyncCapableCommCareActivity;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -24,7 +27,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -32,16 +37,19 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * @author ctsims
  */
-public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, Integer, R> implements DataSubmissionListener {
+public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, FormUploadResult, R> implements DataSubmissionListener {
 
     private Context c;
     private String url;
-    private Long[] results;
+    private FormUploadResult[] results;
 
     private final int sendTaskId;
 
     public static final int PROCESSING_PHASE_ID = 8;
     public static final int SEND_PHASE_ID = 9;
+    public static final int PROCESSING_PHASE_ID_NO_DIALOG = -8;
+    public static final int SEND_PHASE_ID_NO_DIALOG = -9;
+
     public static final long PROGRESS_ALL_PROCESSED = 8;
 
     public static final long SUBMISSION_BEGIN = 16;
@@ -49,10 +57,11 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     public static final long SUBMISSION_NOTIFY = 64;
     public static final long SUBMISSION_DONE = 128;
 
-    public static final long PROGRESS_LOGGED_OUT = 256;
-    public static final long PROGRESS_SDCARD_REMOVED = 512;
+    private static final long SUBMISSION_SUCCESS = 1;
+    private static final long SUBMISSION_FAIL = 0;
 
-    private DataSubmissionListener formSubmissionListener;
+    private FormSubmissionProgressBarListener progressBarListener;
+    private List<DataSubmissionListener> formSubmissionListeners;
     private final FormRecordProcessor processor;
 
     private static final int SUBMISSION_ATTEMPTS = 2;
@@ -70,33 +79,34 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         this.c = c;
         this.url = url;
         this.processor = new FormRecordProcessor(c);
+        this.formSubmissionListeners = new ArrayList<>();
         if (inSyncMode) {
             this.sendTaskId = SEND_PHASE_ID;
             this.taskId = PROCESSING_PHASE_ID;
         } else {
-            this.sendTaskId = -1;
-            this.taskId = -1;
+            this.sendTaskId = SEND_PHASE_ID_NO_DIALOG;
+            this.taskId = PROCESSING_PHASE_ID_NO_DIALOG;
         }
     }
 
     @Override
-    protected Integer doTaskBackground(FormRecord... records) {
+    protected FormUploadResult doTaskBackground(FormRecord... records) {
         boolean needToSendLogs = false;
 
         try {
-            results = new Long[records.length];
+            results = new FormUploadResult[records.length];
             for (int i = 0; i < records.length; ++i) {
                 //Assume failure
-                results[i] = FormUploadUtil.FAILURE;
+                results[i] = FormUploadResult.FAILURE;
             }
             //The first thing we need to do is make sure everything is processed,
             //we can't actually proceed before that.
             try {
                 needToSendLogs = checkFormRecordStatus(records);
             } catch (FileNotFoundException e) {
-                return (int)PROGRESS_SDCARD_REMOVED;
+                return FormUploadResult.PROGRESS_SDCARD_REMOVED;
             } catch (TaskCancelledException e) {
-                return (int)FormUploadUtil.FAILURE;
+                return FormUploadResult.FAILURE;
             }
 
 
@@ -110,7 +120,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             try {
                 needToRefresh = blockUntilTopOfQueue();
             } catch (TaskCancelledException e) {
-                return (int)FormUploadUtil.FAILURE;
+                return FormUploadResult.FAILURE;
             }
 
 
@@ -123,34 +133,24 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 }
             }
 
-
-            //Ok, all forms are now processed. Time to focus on sending
-            if (formSubmissionListener != null) {
-                formSubmissionListener.beginSubmissionProcess(records.length);
-            }
-
+            // Ok, all forms are now processed. Time to focus on sending
+            dispatchBeginSubmissionProcessToListeners(records.length);
             sendForms(records);
 
-            long result = 0;
-            for (int i = 0; i < records.length; ++i) {
-                if (results[i] > result) {
-                    result = results[i];
-                }
-            }
-
-            return (int)result;
+            return FormUploadResult.getWorstResult(results);
         } catch (SessionUnavailableException sue) {
             this.cancel(false);
-            return (int)PROGRESS_LOGGED_OUT;
+            return FormUploadResult.PROGRESS_LOGGED_OUT;
         } finally {
-            this.endSubmissionProcess();
+            this.endSubmissionProcess(
+                    FormUploadResult.FULL_SUCCESS.equals(FormUploadResult.getWorstResult(results)));
 
             synchronized (processTasks) {
                 processTasks.remove(this);
             }
 
             if (needToSendLogs) {
-                CommCareApplication._().notifyLogsPending();
+                CommCareApplication.instance().notifyLogsPending();
             }
         }
     }
@@ -170,27 +170,27 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 try {
                     records[i] = processor.process(record);
                 } catch (InvalidStructureException e) {
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+                    CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
                     FormRecordCleanupTask.wipeRecord(c, record);
                     needToSendLogs = true;
                 } catch (XmlPullParserException e) {
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+                    CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
                     FormRecordCleanupTask.wipeRecord(c, record);
                     needToSendLogs = true;
                 } catch (UnfullfilledRequirementsException e) {
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+                    CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
                     FormRecordCleanupTask.wipeRecord(c, record);
                     needToSendLogs = true;
                 } catch (FileNotFoundException e) {
-                    if (CommCareApplication._().isStorageAvailable()) {
+                    if (CommCareApplication.instance().isStorageAvailable()) {
                         //If storage is available generally, this is a bug in the app design
                         Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
                         FormRecordCleanupTask.wipeRecord(c, record);
                     } else {
-                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+                        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
                         //Otherwise, the SD card just got removed, and we need to bail anyway.
                         throw e;
                     }
@@ -242,7 +242,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             //that forms are sent in order, so we won't proceed unless we succeed. We'll also permit
             //proceeding if there was a local problem with a record, since we'll just move on from that
             //processing.
-            if (i > 0 && !(results[i - 1] == FormUploadUtil.FULL_SUCCESS || results[i - 1] == FormUploadUtil.RECORD_FAILURE)) {
+            if (i > 0 && !(results[i - 1] == FormUploadResult.FULL_SUCCESS || results[i - 1] == FormUploadResult.RECORD_FAILURE)) {
                 //Something went wrong with the last form, so we need to cancel this whole shebang
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Cancelling submission due to network errors. " + (i - 1) + " forms succesfully sent.");
                 break;
@@ -263,7 +263,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     //Good!
                     //Time to Send!
                     try {
-                        User mUser = CommCareApplication._().getSession().getLoggedInUser();
+                        User mUser = CommCareApplication.instance().getSession().getLoggedInUser();
 
                         int attemptsMade = 0;
                         while (attemptsMade < SUBMISSION_ATTEMPTS) {
@@ -271,36 +271,36 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Retrying submission. " + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
                             }
                             results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this, mUser);
-                            if (results[i] == FormUploadUtil.FULL_SUCCESS) {
+                            if (results[i] == FormUploadResult.FULL_SUCCESS) {
                                 break;
                             } else {
                                 attemptsMade++;
                             }
                         }
 
-                        if (results[i] == FormUploadUtil.RECORD_FAILURE) {
+                        if (results[i] == FormUploadResult.RECORD_FAILURE) {
                             //We tried to submit multiple times and there was a local problem (not a remote problem).
                             //This implies that something is wrong with the current record, and we need to quarantine it.
                             processor.updateRecordStatus(record, FormRecord.STATUS_LIMBO);
                             Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Quarantined Form Record");
-                            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
+                            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
                         }
                     } catch (FileNotFoundException e) {
-                        if (CommCareApplication._().isStorageAvailable()) {
+                        if (CommCareApplication.instance().isStorageAvailable()) {
                             //If storage is available generally, this is a bug in the app design
                             Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
                             FormRecordCleanupTask.wipeRecord(c, record);
                         } else {
                             //Otherwise, the SD card just got removed, and we need to bail anyway.
-                            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+                            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
                             break;
                         }
                         continue;
                     }
 
-                    Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+                    Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
                     //Check for success
-                    if (results[i].intValue() == FormUploadUtil.FULL_SUCCESS) {
+                    if (results[i] == FormUploadResult.FULL_SUCCESS) {
                         //Only delete if this device isn't set up to review.
                         if (p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
                             FormRecordCleanupTask.wipeRecord(c, record);
@@ -310,7 +310,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         }
                     }
                 } else {
-                    results[i] = FormUploadUtil.FULL_SUCCESS;
+                    results[i] = FormUploadResult.FULL_SUCCESS;
                 }
             } catch (SessionUnavailableException sue) {
                 throw sue;
@@ -329,38 +329,64 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
     @Override
     protected void onProgressUpdate(Long... values) {
-        if (values.length == 1 && values[0] == ProcessAndSendTask.PROGRESS_ALL_PROCESSED) {
+        if (values.length == 1 && values[0] == PROGRESS_ALL_PROCESSED) {
             this.transitionPhase(sendTaskId);
         }
 
         super.onProgressUpdate(values);
 
         if (values.length > 0) {
-            if (formSubmissionListener != null) {
-                //Parcel updates out
-                if (values[0] == SUBMISSION_BEGIN) {
-                    formSubmissionListener.beginSubmissionProcess(values[1].intValue());
-                } else if (values[0] == SUBMISSION_START) {
-                    int item = values[1].intValue();
-                    long size = values[2];
-                    formSubmissionListener.startSubmission(item, size);
-                } else if (values[0] == SUBMISSION_NOTIFY) {
-                    int item = values[1].intValue();
-                    long progress = values[2];
-                    formSubmissionListener.notifyProgress(item, progress);
-                } else if (values[0] == SUBMISSION_DONE) {
-                    formSubmissionListener.endSubmissionProcess();
-                }
+            if (values[0] == SUBMISSION_BEGIN) {
+                dispatchBeginSubmissionProcessToListeners(values[1].intValue());
+            } else if (values[0] == SUBMISSION_START) {
+                int item = values[1].intValue();
+                long size = values[2];
+                dispatchStartSubmissionToListeners(item, size);
+            } else if (values[0] == SUBMISSION_NOTIFY) {
+                int item = values[1].intValue();
+                long progress = values[2];
+                dispatchNotifyProgressToListeners(item, progress);
+            } else if (values[0] == SUBMISSION_DONE) {
+                dispatchEndSubmissionProcessToListeners(values[1] == SUBMISSION_SUCCESS);
             }
         }
     }
 
-    public void setListeners(DataSubmissionListener submissionListener) {
-        this.formSubmissionListener = submissionListener;
+    public void addProgressBarSubmissionListener(FormSubmissionProgressBarListener listener) {
+        this.progressBarListener = listener;
+        addSubmissionListener(listener);
+    }
+
+    public void addSubmissionListener(DataSubmissionListener submissionListener) {
+        formSubmissionListeners.add(submissionListener);
+    }
+
+    private void dispatchBeginSubmissionProcessToListeners(int totalItems) {
+        for (DataSubmissionListener listener : formSubmissionListeners) {
+            listener.beginSubmissionProcess(totalItems);
+        }
+    }
+
+    private void dispatchStartSubmissionToListeners(int itemNumber, long length) {
+        for (DataSubmissionListener listener : formSubmissionListeners) {
+            listener.startSubmission(itemNumber, length);
+        }
+    }
+
+    private void dispatchNotifyProgressToListeners(int itemNumber, long progress) {
+        for (DataSubmissionListener listener : formSubmissionListeners) {
+            listener.notifyProgress(itemNumber, progress);
+        }
+    }
+
+    private void dispatchEndSubmissionProcessToListeners(boolean success) {
+        for (DataSubmissionListener listener : formSubmissionListeners) {
+            listener.endSubmissionProcess(success);
+        }
     }
 
     @Override
-    protected void onPostExecute(Integer result) {
+    protected void onPostExecute(FormUploadResult result) {
         super.onPostExecute(result);
 
         clearState();
@@ -374,8 +400,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
     protected int getSuccessfulSends() {
         int successes = 0;
-        for (Long formResult : results) {
-            if (formResult != null && FormUploadUtil.FULL_SUCCESS == formResult.intValue()) {
+        for (FormUploadResult formResult : results) {
+            if (formResult != null && FormUploadResult.FULL_SUCCESS == formResult) {
                 successes++;
             }
         }
@@ -383,21 +409,28 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     }
 
     //Wrappers for the internal stuff
+    @Override
     public void beginSubmissionProcess(int totalItems) {
         this.publishProgress(SUBMISSION_BEGIN, (long)totalItems);
     }
 
-    public void startSubmission(int itemNumber, long length) {
-        // TODO Auto-generated method stub
-        this.publishProgress(SUBMISSION_START, (long)itemNumber, length);
+    @Override
+    public void startSubmission(int itemNumber, long sizeOfItem) {
+        this.publishProgress(SUBMISSION_START, (long)itemNumber, sizeOfItem);
     }
 
+    @Override
     public void notifyProgress(int itemNumber, long progress) {
         this.publishProgress(SUBMISSION_NOTIFY, (long)itemNumber, progress);
     }
 
-    public void endSubmissionProcess() {
-        this.publishProgress(SUBMISSION_DONE);
+    @Override
+    public void endSubmissionProcess(boolean success) {
+        if (success) {
+            this.publishProgress(SUBMISSION_DONE, SUBMISSION_SUCCESS);
+        } else {
+            this.publishProgress(SUBMISSION_DONE, SUBMISSION_FAIL);
+        }
     }
 
     private String getExceptionText(Exception e) {
@@ -414,12 +447,19 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     protected void onCancelled() {
         super.onCancelled();
 
-        if (this.formSubmissionListener != null) {
-            formSubmissionListener.endSubmissionProcess();
-        }
-        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+        dispatchEndSubmissionProcessToListeners(false);
+        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
 
         clearState();
+    }
+
+    @Override
+    public void connect(CommCareTaskConnector<R> connector) {
+        super.connect(connector);
+        if (progressBarListener != null) {
+            progressBarListener.attachToNewActivity(
+                    (SyncCapableCommCareActivity)connector.getReceiver());
+        }
     }
 
     private static class TaskCancelledException extends Exception {

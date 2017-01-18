@@ -47,7 +47,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         }
 
         //Is this safe enough from collisions?
-        buttonIdBase = Math.abs(prompt.getIndex().toString().hashCode());
+        buttonIdBase = Math.abs(prompt.getIndex().hashCode());
 
         if (mItems != null) {
             for (int i = 0; i < mItems.size(); i++) {
@@ -58,7 +58,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
                 } else {
                     rb.setText(prompt.getSelectChoiceText(mItems.get(i)));
                 }
-                rb.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+                rb.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
                 rb.setId(i + buttonIdBase);
                 rb.setEnabled(!prompt.isReadOnly());
                 rb.setFocusable(!prompt.isReadOnly());
@@ -87,8 +87,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
 
                 String bigImageURI = prompt.getSpecialFormSelectChoiceText(mItems.get(i), "big-image");
 
-                MediaLayout mediaLayout = new MediaLayout(getContext());
-                mediaLayout.setAVT(rb, audioURI, imageURI, videoURI, bigImageURI);
+                MediaLayout mediaLayout = MediaLayout.buildAudioImageVisualLayout(getContext(), rb, audioURI, imageURI, videoURI, bigImageURI);
                 mediaLayout.setPadding(0, padding, 0, padding);
 
                 mediaLayout.setOnClickListener(new OnClickListener() {

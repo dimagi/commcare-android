@@ -1,32 +1,25 @@
 package org.commcare.activities;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
+import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,12 +27,12 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.activities.components.EntitySelectViewSetup;
 import org.commcare.adapters.EntityListAdapter;
+import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.models.Entity;
-import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.session.CommCareSession;
@@ -80,8 +73,7 @@ import java.util.List;
  * @author ctsims
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
-        implements TextWatcher, EntityLoaderListener,
-        OnItemClickListener, DetailCalloutListener {
+        implements EntityLoaderListener, OnItemClickListener, DetailCalloutListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
 
@@ -89,6 +81,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final String CONTAINS_HERE_FUNCTION = "contains_here_function";
     private static final String MAPPING_ENABLED = "map_view_enabled";
     private static final String LOCATION_CHANGED_WHILE_LOADING = "location_changed_while_loading";
+    private static final String IS_AUTO_LAUNCHING = "is_auto_launching";
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
@@ -101,15 +94,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private static final int MENU_ACTION_GROUP = Menu.FIRST + 1;
 
-    private EditText searchbox;
-    private TextView searchResultStatus;
-    private ImageButton clearSearchButton;
-    private View searchBanner;
     private EntityListAdapter adapter;
     private LinearLayout header;
-    private SearchView searchView;
-    private MenuItem searchItem;
-    private MenuItem barcodeItem;
 
     private EntityDatum selectDatum;
 
@@ -130,13 +116,16 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private TabbedDetailView detailView;
 
     private Intent selectedIntent = null;
+    private boolean hideActionsFromOptionsMenu;
+    private boolean hideActionsFromEntityList;
 
-    private String filterString = "";
+    private EntitySelectSearchUI entitySelectSearchUI;
 
     private Detail shortSelect;
 
     private DataSetObserver mListStateObserver;
-    private OnClickListener barcodeScanOnClickListener;
+    public OnClickListener barcodeScanOnClickListener;
+    private boolean isCalloutAutoLaunching;
 
     private boolean resuming = false;
     private boolean isStartingDetailActivity = false;
@@ -154,7 +143,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
     private boolean containsHereFunction = false;
     private boolean locationChangedWhileLoading = false;
-    private boolean hideActions;
 
     // Handler for displaying alert dialog when no location providers are found
     private final LocationNotificationHandler locationNotificationHandler =
@@ -172,17 +160,26 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         refreshTimer = new EntitySelectRefreshTimer();
-        asw = CommCareApplication._().getCurrentSessionWrapper();
+        asw = CommCareApplication.instance().getCurrentSessionWrapper();
         session = asw.getSession();
-        // Don't show actions (e.g. 'register patient', 'claim patient') when
-        // in the middle on workflow triggered by an (sync) action.
-        hideActions = session.isSyncCommand(session.getCommand());
 
         // avoid session dependent when there is no command
         if (session.getCommand() != null) {
             selectDatum = (EntityDatum)session.getNeededDatum();
             shortSelect = session.getDetail(selectDatum.getShortDetail());
+            if (shortSelect.forcesLandscape()) {
+                this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            }
+
             mNoDetailMode = selectDatum.getLongDetail() == null;
+            mViewMode = session.isViewCommand(session.getCommand());
+
+            // Don't show actions (e.g. 'register patient', 'claim patient') at all  when in the
+            // middle of workflow triggered by a (sync) action. Also hide them from the entity
+            // list (but not the options menu) when we are showing the entity list in grid mode
+            hideActionsFromEntityList = session.isRemoteRequestCommand(session.getCommand()) ||
+                    shortSelect.shouldBeLaidOutInGrid();
+            hideActionsFromOptionsMenu = session.isRemoteRequestCommand(session.getCommand());
 
             boolean isOrientationChange = savedInstanceState != null;
             setupUI(isOrientationChange);
@@ -195,62 +192,66 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             public void onChanged() {
                 super.onChanged();
 
-                setSearchBannerState();
+                entitySelectSearchUI.setSearchBannerState();
             }
         };
     }
 
-    private void setSearchBannerState() {
-        if (!"".equals(adapter.getSearchQuery())) {
-            showSearchBanner();
-        } else if (adapter.isFilteringByCalloutResult()) {
-            showSearchBannerWithClearButton();
-        } else {
-            searchBanner.setVisibility(View.GONE);
-            clearSearchButton.setVisibility(View.GONE);
-        }
-    }
-
-    private void showSearchBannerWithClearButton() {
-        showSearchBanner();
-        clearSearchButton.setVisibility(View.VISIBLE);
-    }
-
-    private void showSearchBanner() {
-        searchResultStatus.setText(adapter.getSearchNotificationText());
-        searchResultStatus.setVisibility(View.VISIBLE);
-        searchBanner.setVisibility(View.VISIBLE);
-    }
-
     private void restoreSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            this.isMappingEnabled = savedInstanceState.getBoolean(MAPPING_ENABLED);
-            this.containsHereFunction = savedInstanceState.getBoolean(CONTAINS_HERE_FUNCTION);
-            this.locationChangedWhileLoading = savedInstanceState.getBoolean(
-                    LOCATION_CHANGED_WHILE_LOADING);
+            isMappingEnabled = savedInstanceState.getBoolean(MAPPING_ENABLED);
+            containsHereFunction = savedInstanceState.getBoolean(CONTAINS_HERE_FUNCTION);
+            locationChangedWhileLoading =
+                    savedInstanceState.getBoolean(LOCATION_CHANGED_WHILE_LOADING);
+            isCalloutAutoLaunching = savedInstanceState.getBoolean(IS_AUTO_LAUNCHING);
         }
     }
 
     private void setupUI(boolean isOrientationChange) {
         if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
-            //See if we're on a big 'ol screen.
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 setupLandscapeDualPaneView();
             } else {
                 setContentView(R.layout.entity_select_layout);
-
                 restoreExistingSelection(isOrientationChange);
             }
         } else {
             setContentView(R.layout.entity_select_layout);
         }
 
-        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
-        view.setOnItemClickListener(this);
+        AdapterView visibleView;
+        GridView gridView = (GridView)this.findViewById(R.id.screen_entity_select_grid);
+        ListView listView = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+        if (shortSelect.shouldBeLaidOutInGrid()) {
+            visibleView = gridView;
+            gridView.setVisibility(View.VISIBLE);
+            gridView.setNumColumns(shortSelect.getNumEntitiesToDisplayPerRow());
+            listView.setVisibility(View.GONE);
+        } else {
+            visibleView = listView;
+            listView.setVisibility(View.VISIBLE);
+            gridView.setVisibility(View.GONE);
+            EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
+        }
+        visibleView.setOnItemClickListener(this);
 
-        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
-        setupToolbar(view);
+        header = (LinearLayout)findViewById(R.id.entity_select_header);
+        entitySelectSearchUI = new EntitySelectSearchUI(this);
+        restoreLastQueryString();
+        persistAdapterState(visibleView);
+        attemptInitCallout();
+        entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, shortSelect.getCallout());
         setupMapNav();
+    }
+
+    private void attemptInitCallout() {
+        Callout callout = shortSelect.getCallout();
+        if (callout == null) {
+            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeBarcodeClickListener(this);
+        } else {
+            isCalloutAutoLaunching = callout.isAutoLaunching();
+            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeCalloutClickListener(this, callout);
+        }
     }
 
     private void setupLandscapeDualPaneView() {
@@ -287,67 +288,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void setupToolbar(ListView view) {
-        TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
-        //use the old method here because some Android versions don't like Spannables for titles
-        searchLabel.setText(Localization.get("select.search.label"));
-        searchLabel.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // get the focus on the edittext by performing click
-                searchbox.performClick();
-                // then force the keyboard up since performClick() apparently isn't enough on some devices
-                InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                // only will trigger it if no physical keyboard is open
-                inputMethodManager.showSoftInput(searchbox, InputMethodManager.SHOW_IMPLICIT);
-            }
-        });
-
-        searchbox = (EditText)findViewById(R.id.searchbox);
-        searchbox.setMaxLines(3);
-        searchbox.setHorizontallyScrolling(false);
-        searchBanner = findViewById(R.id.search_result_banner);
-        searchResultStatus = (TextView)findViewById(R.id.search_results_status);
-        clearSearchButton = (ImageButton)findViewById(R.id.clear_search_button);
-        clearSearchButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adapter.clearCalloutResponseData();
-                refreshView();
-            }
-        });
-        clearSearchButton.setVisibility(View.GONE);
-        header = (LinearLayout)findViewById(R.id.entity_select_header);
-
-        mViewMode = session.isViewCommand(session.getCommand());
-
-        ImageButton barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
-
-        Callout callout = shortSelect.getCallout();
-        if (callout == null) {
-            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeBarcodeClickListener(this);
-        } else {
-            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeCalloutClickListener(this, callout);
-            if (callout.getImage() != null) {
-                EntitySelectCalloutSetup.setupImageLayout(this, barcodeButton, callout.getImage());
-            }
-        }
-
-        barcodeButton.setOnClickListener(barcodeScanOnClickListener);
-
-        searchbox.addTextChangedListener(this);
-        searchbox.requestFocus();
-
-        persistAdapterState(view);
-
-        restoreLastQueryString();
-
-        if (!isUsingActionBar()) {
-            searchbox.setText(lastQueryString);
-        }
-    }
-
-    private void persistAdapterState(ListView view) {
+    private void persistAdapterState(AdapterView view) {
         FragmentManager fm = this.getSupportFragmentManager();
 
         containerFragment = (ContainerFragment)fm.findFragmentByTag("entity-adapter");
@@ -366,13 +307,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void setupUIFromAdapter(ListView view) {
+    private void setupUIFromAdapter(AdapterView view) {
         view.setAdapter(adapter);
-        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
-
+        if (view instanceof ListView) {
+            EntitySelectViewSetup.setupDivider(this, (ListView)view, shortSelect.usesEntityTileView());
+        }
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
-
-        setSearchBannerState();
+        entitySelectSearchUI.setSearchBannerState();
     }
 
     private void setupMapNav() {
@@ -385,9 +326,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
+    protected void onResumeSessionSafe() {
         if (!isFinishing() && !isStartingDetailActivity) {
             if (adapter != null) {
                 adapter.registerDataSetObserver(mListStateObserver);
@@ -405,6 +344,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
 
             refreshView();
+            if (isCalloutAutoLaunching) {
+                isCalloutAutoLaunching = false;
+                barcodeScanOnClickListener.onClick(null);
+            }
         }
     }
 
@@ -439,7 +382,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     /**
      * Get form list from database and insert into view.
      */
-    private void refreshView() {
+    protected void refreshView() {
         try {
             rebuildHeaders();
 
@@ -463,8 +406,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         header.removeAllViews();
 
-        // only add headers if we're not using grid mode
-        if (!shortSelect.usesGridView()) {
+        // only add headers if we're not using case tiles
+        if (!shortSelect.usesEntityTileView()) {
             boolean hasCalloutResponseData = (adapter != null && adapter.hasCalloutResponseData());
             //Hm, sadly we possibly need to rebuild this each time.
             EntityView v =
@@ -482,7 +425,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             entityLoader.attachListener(this);
-            entityLoader.execute(selectDatum.getNodeset());
+            entityLoader.executeParallel(selectDatum.getNodeset());
             return true;
         }
         return false;
@@ -495,6 +438,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
         savedInstanceState.putBoolean(MAPPING_ENABLED, isMappingEnabled);
         savedInstanceState.putBoolean(LOCATION_CHANGED_WHILE_LOADING, locationChangedWhileLoading);
+        savedInstanceState.putBoolean(IS_AUTO_LAUNCHING, isCalloutAutoLaunching);
     }
 
     @Override
@@ -534,13 +478,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-
-
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
-        if (id == EntityListAdapter.SPECIAL_ACTION) {
-            triggerDetailAction(adapter.getActionIndex(position));
-        } else {
+        if (adapter.getItemViewType(position) == EntityListAdapter.ENTITY_TYPE) {
             TreeReference selection = adapter.getItem(position);
             if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
                 Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
@@ -636,7 +576,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             if (result != null) {
                 result = result.trim();
             }
-            setSearchText(result);
+            entitySelectSearchUI.setSearchText(result);
         }
     }
 
@@ -657,12 +597,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void handleSearchStringCallout(Intent intent) {
         String result = intent.getStringExtra(IntentCallout.INTENT_RESULT_VALUE);
         if (result != null) {
-            setSearchText(result.trim());
+            entitySelectSearchUI.setSearchText(result.trim());
         } else {
             for (String key : shortSelect.getCallout().getResponses()) {
                 result = intent.getExtras().getString(key);
                 if (result != null) {
-                    setSearchText(result);
+                    entitySelectSearchUI.setSearchText(result);
                     return;
                 }
             }
@@ -690,31 +630,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    public void afterTextChanged(Editable incomingEditable) {
-        final String incomingString = incomingEditable.toString();
-        final String currentSearchText = getSearchText().toString();
-        if (!"".equals(currentSearchText) && incomingString.equals(currentSearchText)) {
-            filterString = currentSearchText;
-            if (adapter != null) {
-                adapter.filterByString(filterString);
-            }
-        }
-        if (!isUsingActionBar()) {
-            lastQueryString = filterString;
-        }
-    }
-
-
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count,
-                                  int after) {
-    }
-
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         //use the old method here because some Android versions don't like Spannables for titles
@@ -725,88 +640,22 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     android.R.drawable.ic_menu_mapmode);
         }
 
-        tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
-            // again, this should be unnecessary...
-            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-            @Override
-            public void onActionBarFound(MenuItem searchItem, SearchView searchView, MenuItem barcodeItem) {
-                EntitySelectActivity.this.searchItem = searchItem;
-                EntitySelectActivity.this.searchView = searchView;
-                EntitySelectActivity.this.barcodeItem = barcodeItem;
-                // restore last query string in the searchView if there is one
-                if (lastQueryString != null && lastQueryString.length() > 0) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                        searchItem.expandActionView();
-                    }
-                    searchView.setQuery(lastQueryString, false);
-                    if (adapter != null) {
-                        adapter.filterByString(lastQueryString == null ? "" : lastQueryString);
-                    }
-                }
-                EntitySelectActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-                        lastQueryString = newText;
-                        filterString = newText;
-                        if (adapter != null) {
-                            adapter.filterByString(newText);
-                        }
-                        return false;
-                    }
-                });
-            }
-        });
-
+        tryToAddSearchActionToAppBar(this, menu, entitySelectSearchUI.getActionBarInstantiator());
         setupActionOptionsMenu(menu);
-
         return true;
     }
 
     private void setupActionOptionsMenu(Menu menu) {
-        if (shortSelect != null && !hideActions) {
-            int actionIndex = MENU_ACTION;
-            for (Action action : shortSelect.getCustomActions()) {
+        if (shortSelect != null && !hideActionsFromOptionsMenu) {
+            int indexToAddActionAt = MENU_ACTION;
+            for (Action action : shortSelect.getCustomActions(asw.getEvaluationContext())) {
                 if (action != null) {
-                    ViewUtil.addDisplayToMenu(this, menu, actionIndex, MENU_ACTION_GROUP,
-                            action.getDisplay().evaluate());
-                    actionIndex += 1;
+                    ViewUtil.addActionToMenu(this, action, menu, indexToAddActionAt, MENU_ACTION_GROUP);
+                    indexToAddActionAt += 1;
                 }
             }
-            if (shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null) {
-                EntitySelectCalloutSetup.setupImageLayout(this, barcodeItem, shortSelect.getCallout().getImage());
-            }
+            entitySelectSearchUI.setupActionImage(shortSelect.getCallout());
         }
-    }
-
-    /**
-     * Checks if this activity uses the ActionBar
-     */
-    private boolean isUsingActionBar() {
-        return searchView != null;
-    }
-
-    @SuppressWarnings("NewApi")
-    private CharSequence getSearchText() {
-        if (isUsingActionBar()) {
-            return searchView.getQuery();
-        }
-        return searchbox.getText();
-    }
-
-    @SuppressWarnings("NewApi")
-    private void setSearchText(CharSequence text) {
-        if (isUsingActionBar()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                searchItem.expandActionView();
-            }
-            searchView.setQuery(text, false);
-        }
-        searchbox.setText(text);
     }
 
     @Override
@@ -815,7 +664,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
         // hide sorting menu when using async loading strategy
         menu.findItem(MENU_SORT).setVisible((shortSelect == null || !shortSelect.useAsyncStrategy()));
-        menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication._().isConsumerApp());
+        menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -840,33 +689,37 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 return true;
             // this is needed because superclasses do not implement the menu_settings click
             case R.id.menu_settings:
-                CommCareHomeActivity.createPreferencesMenu(this);
+                HomeScreenBaseActivity.createPreferencesMenu(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void triggerDetailAction(int index) {
-        Action action = shortSelect.getCustomActions().get(index);
+        Action action = shortSelect.getCustomActions(asw.getEvaluationContext()).get(index);
 
+        triggerDetailAction(action, this);
+    }
+
+    public static void triggerDetailAction(Action action, CommCareActivity activity) {
         try {
-            asw.executeStackActions(action.getStackOperations());
+            CommCareApplication.instance().getCurrentSessionWrapper().executeStackActions(action.getStackOperations());
         } catch (XPathTypeMismatchException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, true);
             return;
         }
 
-        this.setResult(CommCareHomeActivity.RESULT_RESTART);
-        this.finish();
+        activity.setResult(HomeScreenBaseActivity.RESULT_RESTART);
+        activity.finish();
     }
 
     private void createSortMenu() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.menu.sort"));
-        dialog.setChoiceItems(getSortOptionsList(dialog));
+        dialog.setChoiceItems(getSortOptionsList());
         showAlertDialog(dialog);
     }
 
-    private DialogChoiceItem[] getSortOptionsList(final PaneledChoiceDialog dialog) {
+    private DialogChoiceItem[] getSortOptionsList() {
         DetailField[] fields = session.getDetail(selectDatum.getShortDetail()).getFields();
         List<String> namesList = new ArrayList<>();
 
@@ -899,10 +752,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         for (int i = 0; i < namesList.size(); i++) {
             final int index = i;
             View.OnClickListener listener = new View.OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     adapter.sortEntities(new int[]{keyArray[index]});
-                    adapter.filterByString(getSearchText().toString());
-                    dialog.dismiss();
+                    adapter.filterByString(entitySelectSearchUI.getSearchText().toString());
+                    dismissAlertDialog();
                 }
             };
             DialogChoiceItem item = new DialogChoiceItem(namesList.get(i), -1, listener);
@@ -914,25 +768,30 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public void deliverLoadResult(List<Entity<TreeReference>> entities,
                                   List<TreeReference> references,
-                                  NodeEntityFactory factory) {
+                                  NodeEntityFactory factory, int focusTargetIndex) {
         loader = null;
-        Detail detail = session.getDetail(selectDatum.getShortDetail());
-        int[] order = detail.getSortOrder();
 
-        for (int i = 0; i < detail.getFields().length; ++i) {
-            String header = detail.getFields()[i].getHeader().evaluate();
+        int[] order = shortSelect.getSortOrder();
+        for (int i = 0; i < shortSelect.getFields().length; ++i) {
+            String header = shortSelect.getFields()[i].getHeader().evaluate();
             if (order.length == 0 && !"".equals(header)) {
                 order = new int[]{i};
             }
         }
 
-        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+        AdapterView visibleView;
+        if (shortSelect.shouldBeLaidOutInGrid()) {
+            visibleView = ((GridView)this.findViewById(R.id.screen_entity_select_grid));
+        } else {
+            ListView listView = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+            EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
+            visibleView = listView;
+        }
 
-        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
-
-        adapter = new EntityListAdapter(this, detail, references, entities, order, factory, hideActions);
-
-        view.setAdapter(adapter);
+        adapter = new EntityListAdapter(this, shortSelect, references, entities,
+                order, factory, hideActionsFromEntityList,
+                shortSelect.getCustomActions(asw.getEvaluationContext()), inAwesomeMode);
+        visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);
 
@@ -957,9 +816,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             restoreAdapterStateFromSession();
         }
 
-        //In landscape we want to select something now. Either the top item, or the most recently selected one
         if (inAwesomeMode) {
             updateSelectedItem(true);
+        } else if (focusTargetIndex != -1) {
+            visibleView.setSelection(focusTargetIndex);
         }
 
         refreshTimer.start(this);
@@ -972,9 +832,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void restoreAdapterStateFromSession() {
-        if (filterString != null && !"".equals(filterString)) {
-            adapter.filterByString(filterString);
-        }
+        entitySelectSearchUI.restoreSearchString();
 
         adapter.loadCalloutDataFromSession();
     }
@@ -1034,6 +892,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             //use the old method here because some Android versions don't like Spannables for titles
             next.setText(Localization.get("select.detail.confirm"));
             next.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     performEntitySelect();
                 }
@@ -1055,8 +914,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             detailView = (TabbedDetailView)rightFrame.findViewById(R.id.entity_detail_tabs);
             detailView.setRoot(detailView);
 
-            factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
-            Detail detail = factory.getDetail();
+            Detail detail = session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID));
+            factory = new NodeEntityFactory(detail, session.getEvaluationContext(new AndroidInstanceInitializer(session)));
             detailView.showMenu();
 
             if (detail.isCompound()) {
@@ -1142,5 +1001,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public String getActivityTitle() {
         return null;
+    }
+
+    protected EntityListAdapter getAdapter() {
+        return adapter;
     }
 }

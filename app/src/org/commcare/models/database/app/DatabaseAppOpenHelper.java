@@ -10,6 +10,7 @@ import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
 
@@ -90,27 +91,12 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    /**
-     * Build SQL command to create an index on a table
-     *
-     * @param indexName        Name of index on the table
-     * @param tableName        Table target of index being created
-     * @param columnListString One or more columns used to create the index.
-     *                         Multiple columns should be comma-seperated.
-     * @return Indexed table creation SQL command.
-     */
-    public static String indexOnTableCommand(String indexName,
-                                             String tableName,
-                                             String columnListString) {
-        return "CREATE INDEX " + indexName + " ON " +
-                tableName + "( " + columnListString + " )";
-    }
-
     public static String indexOnTableWithPGUIDCommand(String indexName,
                                                       String tableName) {
-        return indexOnTableCommand(indexName, tableName, Resource.META_INDEX_PARENT_GUID);
+        return DatabaseIndexingUtils.indexOnTableCommand(indexName, tableName, Resource.META_INDEX_PARENT_GUID);
     }
 
+    @Override
     public SQLiteDatabase getWritableDatabase(String key) {
         try {
             return super.getWritableDatabase(key);

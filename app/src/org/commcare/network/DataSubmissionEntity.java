@@ -56,6 +56,7 @@ public class DataSubmissionEntity extends MultipartEntity {
         }
 
 
+        @Override
         public void write(@NonNull byte[] b, int off, int len) throws IOException {
             out.write(b, off, len);
             this.transferred += len;
@@ -73,6 +74,7 @@ public class DataSubmissionEntity extends MultipartEntity {
             return (transferred - lastNumberReported) > REPORT_WHEN_PROGRESS_OVER;
         }
 
+        @Override
         public void write(int b) throws IOException {
             out.write(b);
             this.transferred++;

@@ -13,9 +13,9 @@ import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
-import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
 import org.commcare.android.database.user.models.ACase;
@@ -27,6 +27,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -122,6 +123,17 @@ class UserDatabaseUpgrader {
                 oldVersion = 13;
             }
         }
+        if (oldVersion == 13) {
+            if (upgradeThirteenFourteen(db)) {
+                oldVersion = 14;
+            }
+        }
+
+        if (oldVersion == 14) {
+            if (upgradeFourteenFifteen(db)) {
+                oldVersion = 15;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -161,7 +173,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeFourFive(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("ledger_entity_id", "ledger", "entity_id"));
+            db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("ledger_entity_id", "ledger", "entity_id"));
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -172,11 +184,11 @@ class UserDatabaseUpgrader {
     private boolean upgradeFiveSix(SQLiteDatabase db) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.
-        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
 
         db.beginTransaction();
         try {
-            db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_status_open_index", "AndroidCase", "case_type,case_status"));
+            db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_open_index", "AndroidCase", "case_type,case_status"));
 
             DbUtil.createNumbersTable(db);
             db.execSQL(EntityStorageCache.getTableDefinition());
@@ -205,7 +217,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeSixSeven(SQLiteDatabase db) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.
-        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
 
         long start = System.currentTimeMillis();
         db.beginTransaction();
@@ -227,7 +239,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeSevenEight(SQLiteDatabase db) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.
-        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
         long start = System.currentTimeMillis();
         db.beginTransaction();
         try {
@@ -269,7 +281,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeNineTen(SQLiteDatabase db) {
         // This process could take a while, so tell the service to wait longer to make sure
         // it can finish
-        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
 
         db.beginTransaction();
         try {
@@ -379,10 +391,47 @@ class UserDatabaseUpgrader {
         }
     }
 
+    private boolean upgradeThirteenFourteen(SQLiteDatabase db) {
+        // This process could take a while, so tell the service to wait longer
+        // to make sure it can finish
+        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
+
+        db.beginTransaction();
+        try {
+            SqlStorage<FormRecord> formRecordSqlStorage = new SqlStorage<>(
+                    FormRecord.STORAGE_KEY,
+                    FormRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            // Re-store all the form records, forcing new date representation
+            // to be used.  Must happen proactively because the date parsing
+            // code was updated to handle new representation
+            for (FormRecord formRecord : formRecordSqlStorage) {
+                formRecordSqlStorage.write(formRecord);
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeFourteenFifteen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            IndexedFixturePathUtils.createStorageBackedFixtureIndexTable(db);
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     private void updateIndexes(SQLiteDatabase db) {
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_type_index", "AndroidCase", "case_type"));
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_status_index", "AndroidCase", "case_status"));
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_type_index", "AndroidCase", "case_type"));
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_index", "AndroidCase", "case_status"));
     }
 
     private void addStockTable(SQLiteDatabase db) {
@@ -395,7 +444,6 @@ class UserDatabaseUpgrader {
     private void markSenseIncompleteUnsent(final SQLiteDatabase db) {
         //Fix for Bug in 2.7.0/1, forms in sense mode weren't being properly marked as complete after entry.
         if (inSenseMode) {
-
             //Get form record storage
             SqlStorage<FormRecord> storage = new SqlStorage<>(FormRecord.STORAGE_KEY, FormRecord.class, new ConcreteAndroidDbHelper(c, db));
 
@@ -422,7 +470,7 @@ class UserDatabaseUpgrader {
 
     private static boolean multipleInstalledAppRecords() {
         SqlStorage<ApplicationRecord> storage =
-                CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
+                CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class);
         int count = 0;
         for (ApplicationRecord r : storage) {
             if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED && r.resourcesValidated()) {
@@ -434,7 +482,7 @@ class UserDatabaseUpgrader {
 
     private static ApplicationRecord getInstalledAppRecord() {
         SqlStorage<ApplicationRecord> storage =
-                CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
+                CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class);
         for (Persistable p : storage) {
             ApplicationRecord r = (ApplicationRecord)p;
             if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED && r.resourcesValidated()) {
@@ -462,6 +510,6 @@ class UserDatabaseUpgrader {
         String warningMessage = "Due to the experimental state of" +
                 " multiple application seating, we were not able to migrate all of your app data" +
                 " during upgrade. Any saved, incomplete, and unsent forms on the device were deleted.";
-        CommCareApplication._().storeMessageForUserOnDispatch(warningTitle, warningMessage);
+        CommCareApplication.instance().storeMessageForUserOnDispatch(warningTitle, warningMessage);
     }
 }

@@ -66,20 +66,22 @@ public class SpinnerMultiWidget extends QuestionWidget {
         }
 
         selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected));
-        selectionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        selectionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         selectionText.setVisibility(View.GONE);
 
         button.setText(StringUtils.getStringSpannableRobust(context, R.string.select_answer));
-        button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         button.setPadding(0, 0, 0, 7);
 
         // Give the button a click listener. This defines the alert as well. All the
         // click and selection behavior is defined here.
         button.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
 
                 alert_builder.setTitle(mPrompt.getQuestionText()).setPositiveButton(R.string.ok,
                         new DialogInterface.OnClickListener() {
+                            @Override
                             public void onClick(DialogInterface dialog, int id) {
                                 boolean first = true;
                                 selectionText.setText("");
@@ -98,9 +100,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
                                     }
                                 }
 
-                                if (hasListener()) {
-                                    widgetChangedListener.widgetEntryChanged();
-                                }
+                                widgetEntryChanged();
                             }
                         });
 
@@ -110,9 +110,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
                             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                                 selections[which] = isChecked;
 
-                                if (hasListener()) {
-                                    widgetChangedListener.widgetEntryChanged();
-                                }
+                                widgetEntryChanged();
                             }
                         });
                 AlertDialog alert = alert_builder.create();

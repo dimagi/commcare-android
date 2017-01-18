@@ -41,7 +41,7 @@ public class DecimalWidget extends StringWidget {
         super(context, prompt, secret);
 
         // formatting
-        mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+        mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);
 
         // needed to make long readonly text scroll

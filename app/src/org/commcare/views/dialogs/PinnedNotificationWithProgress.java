@@ -10,6 +10,7 @@ import android.support.v4.app.NotificationCompat;
 
 import org.commcare.activities.UpdateActivity;
 import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.javarosa.core.services.locale.Localization;
 
@@ -19,7 +20,7 @@ import org.javarosa.core.services.locale.Localization;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class PinnedNotificationWithProgress
-        implements TaskListener<Integer, AppInstallStatus> {
+        implements TaskListener<Integer, ResultAndError<AppInstallStatus>> {
     private final NotificationManager notificationManager;
     private final int notificationId;
     private final NotificationCompat.Builder notificationBuilder;
@@ -79,12 +80,12 @@ public class PinnedNotificationWithProgress
     }
 
     @Override
-    public void handleTaskCompletion(AppInstallStatus result) {
+    public void handleTaskCompletion(ResultAndError<AppInstallStatus> result) {
         notificationManager.cancel(notificationId);
     }
 
     @Override
-    public void handleTaskCancellation(AppInstallStatus result) {
+    public void handleTaskCancellation() {
         notificationManager.cancel(notificationId);
     }
 }

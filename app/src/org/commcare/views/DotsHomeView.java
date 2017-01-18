@@ -89,6 +89,7 @@ public class DotsHomeView extends RelativeLayout {
         done.setText("Finished");
         done.setOnClickListener(new OnClickListener() {
 
+            @Override
             public void onClick(View v) {
                 listener.doneWithDOTS();
             }
@@ -134,6 +135,7 @@ public class DotsHomeView extends RelativeLayout {
 
         dayView.setOnClickListener(new OnClickListener() {
 
+            @Override
             public void onClick(View v) {
                 Rect hitRect = new Rect();
                 if (v.getParent() instanceof View) {

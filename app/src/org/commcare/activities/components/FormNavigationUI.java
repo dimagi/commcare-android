@@ -20,10 +20,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
-import org.commcare.logic.FormController;
-import org.commcare.preferences.DeveloperPreferences;
+import org.javarosa.form.api.FormController;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.views.ClippingFrame;
 import org.commcare.views.QuestionsView;
@@ -65,10 +63,10 @@ public class FormNavigationUI {
 
         if (!details.relevantBeforeCurrentScreen) {
             prevButton.setImageResource(R.drawable.icon_close_darkwarm);
-            prevButton.setTag(FormEntryActivity.NAV_STATE_QUIT);
+            prevButton.setTag(FormEntryConstants.NAV_STATE_QUIT);
         } else {
             prevButton.setImageResource(R.drawable.icon_chevron_left_brand);
-            prevButton.setTag(FormEntryActivity.NAV_STATE_BACK);
+            prevButton.setTag(FormEntryConstants.NAV_STATE_BACK);
         }
 
         //Apparently in Android 2.3 setting the drawable resource for the progress bar
@@ -94,20 +92,15 @@ public class FormNavigationUI {
                                      final ClippingFrame finishButton,
                                      FormNavigationController.NavigationDetails details,
                                      ProgressBar progressBar) {
-        if (DeveloperPreferences.shouldAnimateFormSubmitButton()) {
-            if (nextButton.getTag() == null) {
+        if (nextButton.getTag() == null) {
+            setFinishVisible(finishButton);
+        } else if (!FormEntryConstants.NAV_STATE_DONE.equals(nextButton.getTag())) {
+            nextButton.setTag(FormEntryConstants.NAV_STATE_DONE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                expandAndShowFinishButton(context, finishButton);
+            } else {
                 setFinishVisible(finishButton);
-            } else if (!FormEntryActivity.NAV_STATE_DONE.equals(nextButton.getTag())) {
-                nextButton.setTag(FormEntryActivity.NAV_STATE_DONE);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    expandAndShowFinishButton(context, finishButton);
-                } else {
-                    setFinishVisible(finishButton);
-                }
             }
-        } else {
-            nextButton.setImageResource(R.drawable.icon_chevron_right_attnpos);
-            nextButton.setTag(FormEntryActivity.NAV_STATE_DONE);
         }
 
         progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_full));
@@ -155,16 +148,11 @@ public class FormNavigationUI {
                                               ClippingFrame finishButton,
                                               FormNavigationController.NavigationDetails details,
                                               ProgressBar progressBar) {
-        if (DeveloperPreferences.shouldAnimateFormSubmitButton()) {
-            if (!FormEntryActivity.NAV_STATE_NEXT.equals(nextButton.getTag())) {
-                nextButton.setTag(FormEntryActivity.NAV_STATE_NEXT);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    finishButton.setVisibility(View.GONE);
-                }
+        if (!FormEntryConstants.NAV_STATE_NEXT.equals(nextButton.getTag())) {
+            nextButton.setTag(FormEntryConstants.NAV_STATE_NEXT);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                finishButton.setVisibility(View.GONE);
             }
-        } else {
-            nextButton.setImageResource(R.drawable.icon_chevron_right_brand);
-            nextButton.setTag(FormEntryActivity.NAV_STATE_NEXT);
         }
 
         progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_modern));
@@ -194,13 +182,8 @@ public class FormNavigationUI {
             }
         });
 
-        if (DeveloperPreferences.shouldAnimateFormSubmitButton()) {
-            View finishButton = activity.findViewById(R.id.nav_image_finish);
-            finishButton.startAnimation(growShrinkAnimation);
-        } else {
-            ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
-            nextButton.startAnimation(growShrinkAnimation);
-        }
+        View finishButton = activity.findViewById(R.id.nav_image_finish);
+        finishButton.startAnimation(growShrinkAnimation);
     }
 
     private static void setFinishVisible(ClippingFrame finishButton) {

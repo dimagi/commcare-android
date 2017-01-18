@@ -7,11 +7,13 @@ import android.preference.PreferenceManager;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.utils.EncryptionUtils;
 
 import java.util.Map;
 
@@ -30,9 +32,11 @@ public class GoogleAnalyticsUtils {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
-                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
+                .setCustomDimension(4, "" + CommCareApplication.instance().isConsumerApp())
+                .setCustomDimension(5, ReportingUtils.getAppId())
                 .setCategory(category)
                 .setAction(action)
                 .build());
@@ -46,9 +50,11 @@ public class GoogleAnalyticsUtils {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
-                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
+                .setCustomDimension(4, "" + CommCareApplication.instance().isConsumerApp())
+                .setCustomDimension(5, ReportingUtils.getAppId())
                 .setCategory(category)
                 .setAction(action)
                 .setLabel(label)
@@ -63,15 +69,58 @@ public class GoogleAnalyticsUtils {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
-                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
+                .setCustomDimension(4, "" + CommCareApplication.instance().isConsumerApp())
+                .setCustomDimension(5, ReportingUtils.getAppId())
                 .setCategory(category)
                 .setAction(action)
                 .setLabel(label)
                 .setValue(value)
                 .build());
     }
+
+    public static void reportAudioFileChosen(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                    GoogleAnalyticsFields.ACTION_CHOOSE_FILE);
+    }
+
+    public static void reportRecordingPopupOpened(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_START_RECORDING_DIALOG);
+    }
+
+    public static void reportAudioPlayed(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_PLAY_AUDIO);
+    }
+
+    public static void reportAudioPaused(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_PAUSE_AUDIO);
+    }
+
+    public static void reportAudioFileSaved(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_SAVE_RECORDING);
+    }
+
+    public static void reportRecordingStarted(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_START_RECORD);
+    }
+
+    public static void reportRecordingStopped(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                    GoogleAnalyticsFields.ACTION_STOP_RECORD);
+    }
+
+    public static void reportRecordingRecycled(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_RECORD_AGAIN);
+    }
+
 
     /**
      * Report a user event of navigating forward in form entry
@@ -166,7 +215,7 @@ public class GoogleAnalyticsUtils {
         }
         HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
         builder.setCategory(category)
-                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
                 .setAction(GoogleAnalyticsFields.ACTION_EDIT_PREF)
@@ -216,7 +265,7 @@ public class GoogleAnalyticsUtils {
     public static void reportAppInstall(int lastInstallModeCode) {
         reportEvent(GoogleAnalyticsFields.CATEGORY_APP_INSTALL,
                 CommCareSetupActivity.getAnalyticsActionFromInstallMode(lastInstallModeCode),
-                CommCareApplication._().getCurrentVersionString());
+                AppUtils.getCurrentVersionString());
     }
 
     /**
@@ -267,6 +316,22 @@ public class GoogleAnalyticsUtils {
         reportEvent(GoogleAnalyticsFields.CATEGORY_APP_MANAGER, action);
     }
 
+    public static void reportPrivilegeEnabled(String privilegeName, String username) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_PRIVILEGE_ENABLED, privilegeName,
+                EncryptionUtils.getMD5HashAsString(username));
+    }
+
+    public static void reportLanguageAtPointOfFormEntry(String language) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_LANGUAGE_STATS,
+                GoogleAnalyticsFields.ACTION_LANGUAGE_AT_FORM_ENTRY, language);
+    }
+
+    public static void reportAndroidApiLevelAtStartup() {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_HIGH_LEVEL_STATS,
+                GoogleAnalyticsFields.ACTION_ANDROID_API_LEVEL_AT_STARTUP,
+                "" + Build.VERSION.SDK_INT);
+    }
+
     /**
      * Report the length of a certain user event/action/concept
      *
@@ -278,7 +343,7 @@ public class GoogleAnalyticsUtils {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
-                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
                 .setCategory(GoogleAnalyticsFields.CATEGORY_TIMED_EVENTS)
@@ -311,7 +376,7 @@ public class GoogleAnalyticsUtils {
     }
 
     private static Tracker getTracker() {
-        return CommCareApplication._().getDefaultTracker();
+        return CommCareApplication.instance().getDefaultTracker();
     }
 
     private static boolean analyticsDisabled() {

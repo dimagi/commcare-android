@@ -1,5 +1,6 @@
 package org.commcare.logging;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.models.database.SqlStorage;
@@ -81,16 +82,16 @@ public class DeviceReportWriter {
     }
 
     private void writeHeader() throws IllegalArgumentException, IllegalStateException, IOException {
-        CommCareApplication application = CommCareApplication._();
+        CommCareApplication application = CommCareApplication.instance();
 
         String did = application.getPhoneId();
         writeText("device_id", did);
         writeText("report_date", DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601));
-        writeText("app_version", application.getCurrentVersionString());
+        writeText("app_version", AppUtils.getCurrentVersionString());
     }
 
     private void writeUserReport() throws IllegalArgumentException, IllegalStateException, IOException {
-        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.STORAGE_KEY, User.class);
+        SqlStorage<User> storage = CommCareApplication.instance().getUserStorage(User.STORAGE_KEY, User.class);
 
         serializer.startTag(XMLNS, "user_subreport");
 

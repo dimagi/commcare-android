@@ -25,9 +25,15 @@ import java.util.Set;
  * @author jschweers
  */
 public class GeoUtils {
-    public static final double GOOD_ACCURACY = 5;             // Good enough accuracy to stop pinging the GPS altogether
-    public static final double ACCEPTABLE_ACCURACY = 1600;    // Good enough accuracy to ask user if they want to record
-    public static final int MAXIMUM_WAIT = 300 * 1000;        // For passive collection, milliseconds to wait for GPS before giving up
+    // Good enough accuracy to stop pinging the GPS altogether
+    public static final double DEFAULT_GOOD_ACCURACY = 5;
+    public static final double AUTO_CAPTURE_GOOD_ACCURACY = 10;
+
+    // Good enough accuracy to ask user if they want to record
+    public static final double DEFAULT_ACCEPTABLE_ACCURACY = 1600;
+
+    // For passive collection, milliseconds to wait for GPS before giving up
+    public static final int AUTO_CAPTURE_MAX_WAIT_IN_MINUTES = 2;
 
     public static final String ACTION_CHECK_GPS_ENABLED = "org.commcare.utils.GeoUtils.check";
 
@@ -114,10 +120,10 @@ public class GeoUtils {
                                                          DialogInterface.OnCancelListener onCancel) {
         StandardAlertDialog factory =
                 new StandardAlertDialog(context,
-                        context.getString(R.string.no_gps_title),
-                        context.getString(R.string.no_gps_message));
-        factory.setPositiveButton(context.getString(R.string.change_settings), onChange);
-        factory.setNegativeButton(context.getString(R.string.cancel_location), onChange);
+                        StringUtils.getStringRobust(context, R.string.no_gps_title),
+                        StringUtils.getStringRobust(context, R.string.no_gps_message));
+        factory.setPositiveButton(StringUtils.getStringRobust(context, R.string.change_settings), onChange);
+        factory.setNegativeButton(StringUtils.getStringRobust(context, R.string.cancel_location), onChange);
 
         if (onCancel != null) {
             factory.setOnCancelListener(onCancel);

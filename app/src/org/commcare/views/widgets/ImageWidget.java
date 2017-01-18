@@ -18,7 +18,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.FormEntryConstants;
+import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.ODKStorage;
@@ -62,8 +63,8 @@ public class ImageWidget extends QuestionWidget {
 
         mMaxDimen = -1;
         mInstanceFolder =
-                FormEntryActivity.mInstancePath.substring(0,
-                        FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
+                FormEntryInstanceState.mInstancePath.substring(0,
+                        FormEntryInstanceState.mInstancePath.lastIndexOf("/") + 1);
 
         setOrientation(LinearLayout.VERTICAL);
 
@@ -74,7 +75,7 @@ public class ImageWidget extends QuestionWidget {
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image),
-                mAnswerFontsize,
+                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
@@ -94,7 +95,7 @@ public class ImageWidget extends QuestionWidget {
                         Uri.fromFile(TEMP_FILE_FOR_IMAGE_CAPTURE));
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryActivity.IMAGE_CAPTURE);
+                            FormEntryConstants.IMAGE_CAPTURE);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
@@ -109,7 +110,7 @@ public class ImageWidget extends QuestionWidget {
         mChooseButton = new Button(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image),
-                mAnswerFontsize,
+                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
@@ -122,7 +123,7 @@ public class ImageWidget extends QuestionWidget {
 
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryActivity.IMAGE_CHOOSER);
+                            FormEntryConstants.IMAGE_CHOOSER);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
@@ -139,7 +140,7 @@ public class ImageWidget extends QuestionWidget {
         addView(mChooseButton);
 
         String acq = mPrompt.getAppearanceHint();
-        if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
+        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq)) {
             mChooseButton.setVisibility(View.GONE);
         }
         addView(mErrorTextView);
@@ -157,14 +158,16 @@ public class ImageWidget extends QuestionWidget {
             int screenWidth = display.getWidth();
             int screenHeight = display.getHeight();
 
-            // Check if we have a raw folder, and if so pull the image to display from there
+            File imageBeingSubmitted = new File(mInstanceFolder + "/" + mBinaryName);
+
+            // If there is an image in the raw folder, use that as the display image, since it is
+            // better quality
             File toDisplay = new File(mInstanceFolder + "/raw/" + mBinaryName);
             if (!toDisplay.exists()) {
-                // Otherwise, just use the image in the instance folder
-                toDisplay = new File(mInstanceFolder + "/" + mBinaryName);
+                toDisplay = imageBeingSubmitted;
             }
 
-            checkFileSize(toDisplay);
+            checkFileSize(imageBeingSubmitted);
 
             if (toDisplay.exists()) {
                 Bitmap bmp = MediaUtil.getBitmapScaledToContainer(toDisplay,

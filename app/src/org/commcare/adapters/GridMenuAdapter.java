@@ -37,17 +37,18 @@ public class GridMenuAdapter extends MenuAdapter {
             menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_grid_item, vg, false);
         }
 
-        MenuDisplayable mObject = displayableData[i];
+        MenuDisplayable menuDisplayable = displayableData[i];
 
         TextView rowText = (TextView)menuListItem.findViewById(R.id.row_txt);
-        setupTextView(rowText, mObject);
+        setupTextView(rowText, menuDisplayable);
 
         // set up the image, if available
         ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
-        setupImageView(mIconView, mObject);
+        setupImageView(mIconView, menuDisplayable);
+
+        setupBadgeView(menuListItem, menuDisplayable);
 
         return menuListItem;
-
     }
 
     @Override

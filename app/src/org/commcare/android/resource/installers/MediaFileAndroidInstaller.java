@@ -1,9 +1,8 @@
 package org.commcare.android.resource.installers;
 
-import android.util.Pair;
+import android.support.v4.util.Pair;
 
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -45,6 +44,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
         return FileUtil.cleanFilePath(this.localDestination, path);
     }
 
+    @Override
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
@@ -55,7 +55,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
+    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
         return false;
     }
 

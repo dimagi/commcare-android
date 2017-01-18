@@ -1,5 +1,8 @@
 package org.commcare.interfaces;
 
+import org.commcare.views.widgets.QuestionWidget;
+
 public interface WidgetChangedListener {
-    void widgetEntryChanged();
+
+    void widgetEntryChanged(QuestionWidget changedWidget);
 }

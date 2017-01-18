@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.AndroidLogger;
@@ -29,13 +30,13 @@ import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.xform.util.XFormSerializer;
+import org.javarosa.xpath.XPathException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -95,8 +96,15 @@ public class SaveToDiskTask extends
      */
     @Override
     protected ResultAndError<SaveStatus> doTaskBackground(Void... nothing) {
-        if (hasInvalidAnswers(mMarkCompleted, DeveloperPreferences.shouldFireTriggersOnSave())) {
-            return new ResultAndError<>(SaveStatus.INVALID_ANSWER);
+        try{
+            if (hasInvalidAnswers(mMarkCompleted)) {
+                return new ResultAndError<>(SaveStatus.INVALID_ANSWER);
+            }
+        } catch(XPathException xpe) {
+            String cleanedMessage = "An error in your form prevented it from saving: \n" +
+                    xpe.getMessage();
+
+            return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
         FormEntryActivity.mFormController.postProcessInstance();
@@ -106,7 +114,7 @@ public class SaveToDiskTask extends
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
-                    "Something is blocking acesss to the submission file in " + FormEntryActivity.mInstancePath);
+                    "Something is blocking acesss to the submission file in " + FormEntryInstanceState.mInstancePath);
         } catch(XFormSerializer.UnsupportedUnicodeSurrogatesException e) {
             Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Form contains invalid data encoding\n\n" + ForceCloseLogger.getStackTrace(e));
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
@@ -114,7 +122,7 @@ public class SaveToDiskTask extends
         }  catch (IOException e) {
             Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "I/O Error when serializing form\n\n" + ForceCloseLogger.getStackTrace(e));
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
-                    "Unable to write xml to " + FormEntryActivity.mInstancePath);
+                    "Unable to write xml to " + FormEntryInstanceState.mInstancePath);
         } catch (FormInstanceTransactionException e) {
             e.printStackTrace();
             // Passing exceptions through content providers make error message strings messy.
@@ -165,7 +173,7 @@ public class SaveToDiskTask extends
         } else if (FormsColumns.CONTENT_ITEM_TYPE.equals(resolverType)) {
             // Started with an empty form or possibly a manually saved form.
             // Try updating, and create a new instance if that fails.
-            String[] whereArgs = {FormEntryActivity.mInstancePath};
+            String[] whereArgs = {FormEntryInstanceState.mInstancePath};
             int rowsUpdated;
             try {
                 rowsUpdated = context.getContentResolver().update(instanceContentUri, values,
@@ -196,7 +204,7 @@ public class SaveToDiskTask extends
                         c.close();
                     }
                 }
-                values.put(InstanceColumns.INSTANCE_FILE_PATH, FormEntryActivity.mInstancePath);
+                values.put(InstanceColumns.INSTANCE_FILE_PATH, FormEntryInstanceState.mInstancePath);
                 try {
                     mUri = context.getContentResolver().insert(instanceContentUri, values);
                 } catch (IllegalStateException e) {
@@ -231,7 +239,7 @@ public class SaveToDiskTask extends
         payload = (ByteArrayPayload)serializer.createSerializedPayload(datamodel);
 
         writeXmlToStream(payload,
-                EncryptionIO.createFileOutputStream(FormEntryActivity.mInstancePath, symetricKey));
+                EncryptionIO.createFileOutputStream(FormEntryInstanceState.mInstancePath, symetricKey));
 
         // update the mUri. We've saved the reloadable instance, so update status...
         updateInstanceDatabase(true, true);
@@ -247,7 +255,7 @@ public class SaveToDiskTask extends
             // pay attention to the ref attribute of the submission profile...
             payload = FormEntryActivity.mFormController.getSubmissionXml();
 
-            File instanceXml = new File(FormEntryActivity.mInstancePath);
+            File instanceXml = new File(FormEntryInstanceState.mInstancePath);
             File submissionXml = new File(instanceXml.getParentFile(), "submission.xml");
             // write out submission.xml -- the data to actually submit to aggregate
             writeXmlToStream(payload,
@@ -358,30 +366,17 @@ public class SaveToDiskTask extends
      * with their constraints.  Constraints are ignored on 'jump to', so
      * answers can be outside of constraints. We don't allow saving to disk,
      * though, until all answers conform to their constraints/requirements.
-     * @param fireTriggerables re-fire the triggers associated with the
-     *                         question when checking its constraints?
      */
-    private boolean hasInvalidAnswers(boolean markCompleted, boolean fireTriggerables) {
+    private boolean hasInvalidAnswers(boolean markCompleted) {
         FormIndex i = FormEntryActivity.mFormController.getFormIndex();
         FormEntryActivity.mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
 
         int event;
-        if (!fireTriggerables) {
-            Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Saving form without firing triggers.");
-        }
         while ((event =
             FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
             if (event == FormEntryController.EVENT_QUESTION) {
-                int saveStatus;
-                if (fireTriggerables) {
-                    saveStatus =
-                            FormEntryActivity.mFormController
-                                    .answerQuestion(FormEntryActivity.mFormController.getQuestionPrompt()
-                                            .getAnswerValue());
-                } else {
-                    saveStatus =
+                int saveStatus =
                             FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
-                }
                 if (markCompleted &&
                         (saveStatus == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY ||
                                 saveStatus == FormEntryController.ANSWER_CONSTRAINT_VIOLATED)) {

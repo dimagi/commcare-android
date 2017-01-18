@@ -1,22 +1,25 @@
 package org.commcare.activities;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.widget.Toast;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.AndroidShortcuts;
+import org.commcare.utils.LifecycleUtils;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.StandardAlertDialog;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -25,12 +28,11 @@ import org.javarosa.core.services.locale.Localization;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class DispatchActivity extends FragmentActivity {
+    private static final String TAG = DispatchActivity.class.getSimpleName();
     private static final String SESSION_REQUEST = "ccodk_session_request";
     public static final String WAS_EXTERNAL = "launch_from_external";
     public static final String WAS_SHORTCUT_LAUNCH = "launch_from_shortcut";
     public static final String START_FROM_LOGIN = "process_successful_login";
-
-    private static final int DIALOG_CORRUPTED = 1;
 
     private static final int LOGIN_USER = 0;
     private static final int HOME_SCREEN = 1;
@@ -114,7 +116,7 @@ public class DispatchActivity extends FragmentActivity {
 
     private void checkForChangedCCZ() {
         alreadyCheckedForAppFilesChange = true;
-        Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
+        Intent i = new Intent(this, UpdateActivity.class);
         startActivity(i);
     }
 
@@ -124,15 +126,11 @@ public class DispatchActivity extends FragmentActivity {
             return;
         }
 
-        if (CommCareApplication._().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
-            checkForChangedCCZ();
-        }
-
-        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
 
         if (currentApp == null) {
-            if (CommCareApplication._().usableAppsPresent()) {
-                CommCareApplication._().initFirstUsableAppRecord();
+            if (MultipleAppsUtil.usableAppsPresent()) {
+                AppUtils.initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
                 dispatch();
             } else {
@@ -141,6 +139,10 @@ public class DispatchActivity extends FragmentActivity {
             }
         } else {
             // Note that the order in which these conditions are checked matters!!
+            if (CommCareApplication.instance().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
+                checkForChangedCCZ();
+                return;
+            }
 
             ApplicationRecord currentRecord = currentApp.getAppRecord();
             try {
@@ -155,7 +157,7 @@ public class DispatchActivity extends FragmentActivity {
                         // Recurse in order to make the correct decision based on the new state
                         dispatch();
                     }
-                } else if (!CommCareApplication._().getSession().isActive()) {
+                } else if (!CommCareApplication.instance().getSession().isActive()) {
                     launchLoginScreen();
                 } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
                     // CommCare was launched from an external app, with a session descriptor
@@ -174,14 +176,14 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private boolean isDbInBadState() {
-        int dbState = CommCareApplication._().getDatabaseState();
+        int dbState = CommCareApplication.instance().getDatabaseState();
         if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
-            CommCareApplication._().triggerHandledAppExit(this,
+            LifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_definite_failure),
                     getString(R.string.migration_failure_title), false);
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
-            CommCareApplication._().triggerHandledAppExit(this,
+            LifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_possible_failure),
                     getString(R.string.migration_failure_title), false);
             return true;
@@ -193,13 +195,14 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void handleDamagedApp() {
-        if (!CommCareApplication._().isStorageAvailable()) {
+        if (!CommCareApplication.instance().isStorageAvailable()) {
             createNoStorageDialog();
         } else {
             // See if we're logged in. If so, prompt for recovery.
             try {
-                CommCareApplication._().getSession();
-                showDialog(DIALOG_CORRUPTED);
+                CommCareApplication.instance().getSession();
+
+                createAskFixDialog().show(getSupportFragmentManager(), "damage-dialog");
             } catch (SessionUnavailableException e) {
                 // Otherwise, log in first
                 launchLoginScreen();
@@ -208,7 +211,7 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void createNoStorageDialog() {
-        CommCareApplication._().triggerHandledAppExit(this,
+        LifecycleUtils.triggerHandledAppExit(this,
                 Localization.get("app.storage.missing.message"),
                 Localization.get("app.storage.missing.title"));
     }
@@ -221,7 +224,7 @@ public class DispatchActivity extends FragmentActivity {
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
         } else {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
+            Log.w(TAG,
                     "Login redirection bug occurred; DispatchActivity is attempting to launch " +
                             "a new LoginActivity while it is still waiting for a result from " +
                             "another one.");
@@ -229,12 +232,25 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void launchHomeScreen() {
-        Intent i = new Intent(this, CommCareHomeActivity.class);
+        Intent i;
+        if (useRootMenuHomeActivity()) {
+            i = new Intent(this, RootMenuHomeActivity.class);
+            // Since we are entering a menu list, the session state will expect this later
+            HomeScreenBaseActivity.addPendingDataExtra(i,
+                    CommCareApplication.instance().getCurrentSessionWrapper().getSession());
+        } else {
+            i = new Intent(this, StandardHomeActivity.class);
+        }
         i.putExtra(START_FROM_LOGIN, startFromLogin);
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
         startFromLogin = false;
         startActivityForResult(i, HOME_SCREEN);
+    }
+
+    public static boolean useRootMenuHomeActivity() {
+        return DeveloperPreferences.useRootModuleMenuAsHomeScreen() ||
+                CommCareApplication.instance().isConsumerApp();
     }
 
     /**
@@ -244,15 +260,15 @@ public class DispatchActivity extends FragmentActivity {
     private boolean handleUnusableApp(ApplicationRecord record) {
         if (record.isArchived()) {
             // If the app is archived, unseat it and try to seat another one
-            CommCareApplication._().unseat(record);
-            CommCareApplication._().initFirstUsableAppRecord();
+            CommCareApplication.instance().unseat(record);
+            AppUtils.initFirstUsableAppRecord();
             return true;
         } else {
             // This app has unvalidated MM
-            if (CommCareApplication._().usableAppsPresent()) {
+            if (MultipleAppsUtil.usableAppsPresent()) {
                 // If there are other usable apps, unseat it and seat another one
-                CommCareApplication._().unseat(record);
-                CommCareApplication._().initFirstUsableAppRecord();
+                CommCareApplication.instance().unseat(record);
+                AppUtils.initFirstUsableAppRecord();
                 return true;
             } else {
                 handleUnvalidatedApp();
@@ -266,13 +282,13 @@ public class DispatchActivity extends FragmentActivity {
      * to seat instead -- Either calls out to verification activity or quits out of the app
      */
     private void handleUnvalidatedApp() {
-        if (CommCareApplication._().shouldSeeMMVerification()) {
+        if (MultipleAppsUtil.shouldSeeMMVerification()) {
             Intent i = new Intent(this, CommCareVerificationActivity.class);
             this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
         } else {
             // Means that there are no usable apps, but there are multiple apps who all don't have
             // MM verified -- show an error message and shut down
-            CommCareApplication._().triggerHandledAppExit(this,
+            LifecycleUtils.triggerHandledAppExit(this,
                     Localization.get("multiple.apps.unverified.message"),
                     Localization.get("multiple.apps.unverified.title"));
         }
@@ -282,8 +298,8 @@ public class DispatchActivity extends FragmentActivity {
         String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
         SessionStateDescriptor ssd = new SessionStateDescriptor();
         ssd.fromBundle(sessionRequest);
-        CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-        Intent i = new Intent(this, CommCareHomeActivity.class);
+        CommCareApplication.instance().getCurrentSessionWrapper().loadFromStateDescription(ssd);
+        Intent i = new Intent(this, StandardHomeActivity.class);
         i.putExtra(WAS_EXTERNAL, true);
         startActivityForResult(i, HOME_SCREEN);
     }
@@ -291,12 +307,12 @@ public class DispatchActivity extends FragmentActivity {
     private void handleShortcutLaunch() {
         if (!triggerLoginIfNeeded()) {
             //We were launched in shortcut mode. Get the command and load us up.
-            CommCareApplication._().getCurrentSession().setCommand(
+            CommCareApplication.instance().getCurrentSession().setCommand(
                     this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
 
             getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
             shortcutExtraWasConsumed = true;
-            Intent i = new Intent(this, CommCareHomeActivity.class);
+            Intent i = new Intent(this, StandardHomeActivity.class);
             i.putExtra(WAS_SHORTCUT_LAUNCH, true);
             startActivityForResult(i, HOME_SCREEN);
         }
@@ -304,7 +320,7 @@ public class DispatchActivity extends FragmentActivity {
 
     private boolean triggerLoginIfNeeded() {
         try {
-            if (!CommCareApplication._().getSession().isActive()) {
+            if (!CommCareApplication.instance().getSession().isActive()) {
                 launchLoginScreen();
                 return true;
             }
@@ -330,7 +346,7 @@ public class DispatchActivity extends FragmentActivity {
                     // exit the app if media wasn't validated on automatic
                     // validation check.
                     shouldFinish = true;
-                } else if (resultCode == RESULT_OK && !CommCareApplication._().isConsumerApp()) {
+                } else if (resultCode == RESULT_OK && !CommCareApplication.instance().isConsumerApp()) {
                     Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                 }
                 return;
@@ -357,21 +373,14 @@ public class DispatchActivity extends FragmentActivity {
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
-    protected Dialog onCreateDialog(int id) {
-        if (id == DIALOG_CORRUPTED) {
-            return createAskFixDialog();
-        } else {
-            return null;
-        }
-    }
-
-    private Dialog createAskFixDialog() {
+    private AlertDialogFragment createAskFixDialog() {
         //TODO: Localize this in theory, but really shift it to the upgrade/management state
         String title = "Storage is Corrupt :/";
         String message = "Sorry, something really bad has happened, and the app can't start up. " +
                 "With your permission CommCare can try to repair itself if you have network access.";
         StandardAlertDialog d = new StandardAlertDialog(this, title, message);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE: // attempt repair
@@ -386,6 +395,6 @@ public class DispatchActivity extends FragmentActivity {
         };
         d.setPositiveButton("Enter Recovery Mode", listener);
         d.setNegativeButton("Shut Down", listener);
-        return d.getDialog();
+        return AlertDialogFragment.fromCommCareAlertDialog(d);
     }
 }
