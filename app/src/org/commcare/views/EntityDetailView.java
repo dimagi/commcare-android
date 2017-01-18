@@ -80,6 +80,8 @@ public class EntityDetailView extends FrameLayout {
     private final LinearLayout.LayoutParams origValue;
     private final LinearLayout.LayoutParams origLabel;
     private final LinearLayout.LayoutParams fill;
+    private HashMap<View, String> graphHTMLMap = new HashMap<>();
+
 
     private static final String FORM_VIDEO = MediaUtil.FORM_VIDEO;
     private static final String FORM_AUDIO = MediaUtil.FORM_AUDIO;
@@ -344,23 +346,7 @@ public class EntityDetailView extends FrameLayout {
             addSpinnerToGraph((WebView) graphView, graphLayout);
         }
 
-        Button print = new Button(getContext());
-        print.setText("PRINT");
-
-        final Intent i = new Intent(getContext(), TemplatePrinterActivity.class);
-        i.putExtra("cc:print_template_reference", "jr://file/commcare/text/question1.html");
-        i.putExtra("woman_name", "Jane Doe");
-        i.putExtra("village_name", "Cambridge, MA");
-
-        i.putExtra(TemplatePrinterActivity.KEY_GRAPH_TO_PRINT, graphHTMLMap.get(graphView));
-
-        print.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getContext().startActivity(i);
-            }
-        });
-        graphLayout.addView(print);
+        addPrintGraphButton(graphView);
 
         if (current != GRAPH) {
             // Hide field label and expand value to take up full screen width
@@ -372,6 +358,25 @@ public class EntityDetailView extends FrameLayout {
             data.setVisibility(View.GONE);
             updateCurrentView(GRAPH, graphLayout);
         }
+    }
+
+    private void addPrintGraphButton(final View graphView) {
+        Button printButton = new Button(getContext());
+        printButton.setText("PRINT");
+
+        printButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), TemplatePrinterActivity.class);
+                i.putExtra("cc:print_template_reference", "jr://file/commcare/text/question1.html");
+                i.putExtra("woman_name", "Jane Doe");
+                i.putExtra("village_name", "Cambridge, MA");
+                i.putExtra(TemplatePrinterActivity.KEY_GRAPH_TO_PRINT, graphHTMLMap.get(graphView));
+                getContext().startActivity(i);
+            }
+        });
+
+        graphLayout.addView(printButton);
     }
 
     private void setupVideo(String textField) {
@@ -462,9 +467,6 @@ public class EntityDetailView extends FrameLayout {
     /**
      * Generate graph view. May return WebView displaying graph, or TextView displaying error.
      */
-
-    private HashMap<View, String> graphHTMLMap = new HashMap<>();
-
     private View getGraphView(int index, String title, GraphData field, int orientation) {
         Context context = getContext();
         View graphView;

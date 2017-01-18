@@ -319,7 +319,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
     /**
      * Starts a print job for the given WebView
-     * <p/>
+     *
      * Source: https://developer.android.com/training/printing/html-docs.html
      *
      * @param v the WebView to be printed
@@ -340,7 +340,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     /**
      * A wrapper for the default print document adapter generated for a web view, to enable
      * implementation of a custom callback when onFinish() is called
-     * <p/>
+     *
      * Source: http://stackoverflow.com/questions/30742051/android-printmanager-get-callback
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)

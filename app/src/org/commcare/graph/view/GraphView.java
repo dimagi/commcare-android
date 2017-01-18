@@ -31,6 +31,7 @@ public class GraphView {
 
     public static final String HTML = "html";
     public static final String TITLE = "title";
+
     private final Context mContext;
     private final String mTitle;
     private final boolean mIsFullScreen;
