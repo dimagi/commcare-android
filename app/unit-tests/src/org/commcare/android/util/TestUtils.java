@@ -249,6 +249,6 @@ public class TestUtils {
         e.printStackTrace();
         RuntimeException re = new RuntimeException(prefix + ": " + e.getMessage());
         re.initCause(e);
-        return re;
+        throw re;
     }
 }
