@@ -471,13 +471,12 @@ def getConsumerAppPassword(isConsumerApp) {
     }
 }
 
+// must be at bottom of file to fix some stupid google bug
+apply plugin: 'com.google.gms.google-services'
+
 downloadLicenses {
     includeProjectDependencies = true
     dependencyConfiguration = 'compile'
 }
-
-// must be at bottom of file to fix some stupid google bug
-apply plugin: 'com.google.gms.google-services'
-
 
 

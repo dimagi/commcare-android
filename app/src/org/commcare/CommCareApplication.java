@@ -210,7 +210,7 @@ public class CommCareApplication extends Application {
             pil.dumpToNewLogger();
         }
 
-        intializeDefaultLocalizerData();
+        initializeDefaultLocalizerData();
 
         if (dbState != STATE_MIGRATION_FAILED && dbState != STATE_MIGRATION_QUESTIONABLE) {
             AppUtils.checkForIncompletelyUninstalledApps();
@@ -357,7 +357,7 @@ public class CommCareApplication extends Application {
         return imei;
     }
 
-    public void intializeDefaultLocalizerData() {
+    public void initializeDefaultLocalizerData() {
         Localization.init(true);
         Localization.registerLanguageReference("default",
                 "jr://asset/locales/android_translatable_strings.txt");
