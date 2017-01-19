@@ -165,8 +165,8 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             return null;
         }
 
-        //Check if a doc location is coming in from the Intent
-        //Will return a reference of format jr://... if it has been set
+        // Check if a doc location is coming in from the Intent
+        // Will return a reference of format jr://... if it has been set
         String path = data.getString("cc:print_template_reference");
         if (path != null) {
             try {
@@ -177,7 +177,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                 return null;
             }
         } else {
-            //Try to use the document location that was set in Settings menu
+            // Try to use the document location that was set in Settings menu
             SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
             path = prefs.getString(CommCarePreferences.PREFS_PRINT_DOC_LOCATION, "");
             if ("".equals(path)) {

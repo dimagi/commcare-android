@@ -360,6 +360,9 @@ public class EntityDetailView extends FrameLayout {
         }
     }
 
+    // TODO: Will probably want the print button to live at the case detail-level rather than
+    // the level of individual graphs, so that users can create print templates that expect
+    // multiple graphs, plus other information
     private void addPrintGraphButton(final View graphView) {
         Button printButton = new Button(getContext());
         printButton.setText("PRINT");
@@ -368,9 +371,6 @@ public class EntityDetailView extends FrameLayout {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getContext(), TemplatePrinterActivity.class);
-                i.putExtra("cc:print_template_reference", "jr://file/commcare/text/question1.html");
-                i.putExtra("woman_name", "Jane Doe");
-                i.putExtra("village_name", "Cambridge, MA");
                 i.putExtra(TemplatePrinterActivity.KEY_GRAPH_TO_PRINT, graphHTMLMap.get(graphView));
                 getContext().startActivity(i);
             }
