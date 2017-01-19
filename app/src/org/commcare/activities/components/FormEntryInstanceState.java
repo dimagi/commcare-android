@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -183,10 +184,10 @@ public class FormEntryInstanceState {
                 new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
                         .format(Calendar.getInstance().getTime());
         String file =
-                mFormPath.substring(mFormPath.lastIndexOf('/') + 1, mFormPath.lastIndexOf('.'));
+                mFormPath.substring(mFormPath.lastIndexOf(File.separator) + 1, mFormPath.lastIndexOf('.'));
         String path = mInstanceDestination + file + "_" + time;
         if (FileUtil.createFolder(path)) {
-            FormEntryInstanceState.mInstancePath = path + "/" + file + "_" + time + ".xml";
+            FormEntryInstanceState.mInstancePath = path + File.separator + file + "_" + time + ".xml";
         }
     }
 
@@ -195,6 +196,6 @@ public class FormEntryInstanceState {
     }
 
     public static String getInstanceFolder() {
-        return mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
+        return mInstancePath.substring(0, mInstancePath.lastIndexOf(File.separator) + 1);
     }
 }
