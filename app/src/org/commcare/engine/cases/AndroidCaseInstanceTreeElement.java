@@ -127,7 +127,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
         Vector<Integer> matchingCases = null;
 
-        if(op instanceof IndexedValueLookup) {
+        if (op instanceof IndexedValueLookup) {
 
             IndexedValueLookup iop = (IndexedValueLookup)op;
 
@@ -139,15 +139,16 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             //Check whether we've got a cache of this index.
             if (mIndexCache.containsKey(indexCacheKey)) {
                 //remove the match from the inputs
-                optimizations.removeElementAt(0);;
+                optimizations.removeElementAt(0);
+                ;
                 return mIndexCache.get(indexCacheKey);
             }
 
             matchingCases = mCaseIndexTable.getCasesMatchingIndex(indexName, value);
         }
-        if(op instanceof IndexedSetMemberLookup) {
+        if (op instanceof IndexedSetMemberLookup) {
             IndexedSetMemberLookup sop = (IndexedSetMemberLookup)op;
-            matchingCases = mCaseIndexTable.getCasesMatchingValueSet(indexName,sop.valueSet);
+            matchingCases = mCaseIndexTable.getCasesMatchingValueSet(indexName, sop.valueSet);
         }
 
         //Clear the most recent index and wipe it, because there is no way it is going to be useful
@@ -157,7 +158,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         //remove the match from the inputs
         optimizations.removeElementAt(0);
 
-        if(indexCacheKey != null) {
+        if (indexCacheKey != null) {
             //For now we're only going to run this on very small data sets because we don't
             //want to manage this too explicitly until we generalize. Almost all results here
             //will be very very small either way (~O(10's of cases)), so given that this only
