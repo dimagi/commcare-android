@@ -89,6 +89,11 @@ ext {
     COMMCARE_APP_ID = ""
 }
 
+afterEvaluate {
+    // Hack to get assets to show up in robolectric tests; try to eventually remove this
+    preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets
+}
+
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
 def ccDomain = project.hasProperty('cc_domain') ? cc_domain : ""
 def isConsumerApp = project.hasProperty('is_consumer_app') ? is_consumer_app : "false"
