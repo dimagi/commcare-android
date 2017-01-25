@@ -13,6 +13,7 @@ import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -27,8 +28,11 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -578,5 +582,30 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
         //Return a covering iterator 
         return new IndexSpanningIterator<>(c, this, minValue, maxValue, countValue);
+    }
+
+    public void bulkRead(List<Integer> cuedCases, HashMap recordMap) {
+        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(cuedCases);
+        Pair<String, String[]> whereArgs = whereParamList.get(0);
+
+        Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + " IN " + whereArgs.first, whereArgs.second, null, null, null);
+        try {
+            if (c.getCount() == 0) {
+                return;
+            } else {
+                c.moveToFirst();
+                int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
+                while (!c.isAfterLast()) {
+                    byte[] data = c.getBlob(index);
+                    recordMap.put(c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)),
+                            newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
+                    c.moveToNext();
+                }
+            }
+        } finally {
+            c.close();
+        }
+
+
     }
 }

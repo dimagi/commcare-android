@@ -13,6 +13,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -111,6 +112,50 @@ public class CaseIndexTable {
         }
         Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID}, COL_INDEX_NAME + " = ? AND " + COL_INDEX_TARGET + " =  ?", args, null, null, null);
         return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
+    }
+
+    /**
+     * read the full index table
+     */
+    public Hashtable<String, Vector<Integer>> loadFullIndexTable() {
+//        String[] args = new String[]{indexName, targetValue};
+        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
+            String query = String.format("SELECT %s,%s,%s FROM %s", COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TARGET, TABLE_NAME);
+            DbUtil.explainSql(db, query, null);
+        }
+
+        Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
+
+        Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TARGET},null, null, null, null, null);
+
+        try {
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    int id = c.getInt(c.getColumnIndexOrThrow(COL_CASE_RECORD_ID));
+                    String indexName = c.getString(c.getColumnIndexOrThrow(COL_INDEX_NAME));
+                    String target = c.getString(c.getColumnIndexOrThrow(COL_INDEX_TARGET));
+
+                    String cacheID = indexName + "|" + target;
+                    Vector<Integer> cache;
+                    if(mIndexCache.containsKey(cacheID)){
+                        cache = mIndexCache.get(cacheID);
+                    } else {
+                        cache = new Vector<>();
+                    }
+                    cache.add(id);
+                    mIndexCache.put(cacheID, cache);
+                    c.moveToNext();
+                }
+            }
+            return mIndexCache;
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+
+
+        ///return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
     }
 
     /**

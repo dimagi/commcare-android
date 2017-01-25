@@ -4,6 +4,7 @@ import android.util.Log;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
+import org.commcare.cases.util.CaseModelFetchCue;
 import org.commcare.cases.util.IndexedSetMemberLookup;
 import org.commcare.cases.util.IndexedValueLookup;
 import org.commcare.cases.util.PredicateProfile;
@@ -12,11 +13,13 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -32,7 +35,10 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     //We're storing this here for now because this is a safe lifecycle object that must represent
     //a single snapshot of the case database, but it could be generalized later.
-    private final Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
+    private Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
+
+    //TODO: Document
+    private Hashtable<String, Vector<Integer>> mPairedIndexCache = new Hashtable<>();
 
     private String[][] mMostRecentBatchFetch = null;
 
@@ -92,18 +98,30 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         }
 
         SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
+
         String[] namesToMatch = new String[numKeys];
         String[] valuesToMatch = new String[numKeys];
+
+        String cacheKey = "";
+
         for (int i = numKeys - 1; i >= 0; i--) {
             namesToMatch[i] = profiles.elementAt(i).getKey();
             valuesToMatch[i] = (String)
                     (((IndexedValueLookup)profiles.elementAt(i)).value);
+
+            cacheKey += "|" + namesToMatch[i] + "=" + valuesToMatch[i];
         }
         mMostRecentBatchFetch = new String[2][];
         mMostRecentBatchFetch[0] = namesToMatch;
         mMostRecentBatchFetch[1] = valuesToMatch;
 
-        Vector<Integer> ids = sqlStorage.getIDsForValues(namesToMatch, valuesToMatch);
+        Vector<Integer> ids;
+        if(mPairedIndexCache.containsKey(cacheKey)) {
+            ids = mPairedIndexCache.get(cacheKey);
+        } else {
+            ids = sqlStorage.getIDsForValues(namesToMatch, valuesToMatch);
+            mPairedIndexCache.put(cacheKey, ids);
+        }
 
         //Ok, we matched! Remove all of the keys that we matched
         for (int i = 0; i < numKeys; ++i) {
@@ -111,6 +129,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         }
         return ids;
     }
+
+    boolean hasIndexedTable = false;
 
     private Vector<Integer> performCaseIndexQuery(String firstKey, Vector<PredicateProfile> optimizations) {
         //CTS - March 9, 2015 - Introduced a small cache for child index queries here because they
@@ -127,6 +147,14 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
         Vector<Integer> matchingCases = null;
 
+        if(!hasIndexedTable) {
+            EvaluationTrace trace = new EvaluationTrace("Full Case Index Load");
+            mIndexCache = mCaseIndexTable.loadFullIndexTable();
+            trace.setOutcome("");
+            this.getQueryPlanner().reportTrace(trace);
+            hasIndexedTable = true;
+        }
+
         if (op instanceof IndexedValueLookup) {
 
             IndexedValueLookup iop = (IndexedValueLookup)op;
@@ -134,7 +162,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             String value = (String)iop.value;
 
             //TODO: Evaluate whether our indices could contain "|" but I don't imagine how they could.
-            indexCacheKey = firstKey + "|" + value;
+            indexCacheKey = indexName + "|" + value;
 
             //Check whether we've got a cache of this index.
             if (mIndexCache.containsKey(indexCacheKey)) {
@@ -166,7 +194,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             if (matchingCases.size() < 50) {
                 //Should never hit this, but don't wanna have any runaway memory if we do.
                 if (mIndexCache.size() > 100) {
-                    mIndexCache.clear();
+                    //mIndexCache.clear();
                 }
 
                 mIndexCache.put(indexCacheKey, matchingCases);
@@ -225,5 +253,24 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     @Override
     public String[][] getCachePrimeGuess() {
         return mMostRecentBatchFetch;
+    }
+
+
+    protected Case unusedGetElementOptimization(int recordId) {
+        CaseModelFetchCue cue = getQueryPlanner().getQueryCue(CaseModelFetchCue.class);
+        if(cue != null && cue.isCueing(recordId)) {
+            if(!cue.isPrimed(recordId)) {
+                EvaluationTrace loadTrace = new EvaluationTrace("Bulk Case Load");
+                SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
+                sqlStorage.bulkRead(new ArrayList<>(cue.getCuedCases()), cue.getCaseMap());
+                cue.setPrimed();
+                loadTrace.setOutcome(String.valueOf(cue.getCuedCases().size()));
+                getQueryPlanner().reportTrace(loadTrace);
+            }
+
+            return cue.getCase(recordId);
+        }
+
+        return super.getElement(recordId);
     }
 }

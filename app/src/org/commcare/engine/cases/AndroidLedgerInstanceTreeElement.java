@@ -2,6 +2,10 @@ package org.commcare.engine.cases;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
+import org.commcare.cases.util.IndexedValueLookup;
+import org.commcare.cases.util.PredicateProfile;
+import org.commcare.cases.util.QueryUtils;
+import org.commcare.cases.util.StaticLookupQueryHandler;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.android.database.user.models.ACase;
@@ -22,15 +26,21 @@ public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement 
     public AndroidLedgerInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<Ledger> storage) {
         super(instanceRoot, storage);
         primaryIdMapping = null;
+        addStaticQueryHandler();
     }
 
-    @Override
-    protected Hashtable<String, Integer> getKeyMapping(String keyId) {
-        if (keyId.equals(Ledger.INDEX_ENTITY_ID) && primaryIdMapping != null) {
-            return primaryIdMapping;
-        } else {
-            return null;
-        }
+    private void addStaticQueryHandler() {
+        this.getQueryPlanner().addQueryHandler(new StaticLookupQueryHandler() {
+            @Override
+            protected boolean canHandle(String attributeName) {
+                return attributeName.equals(Ledger.INDEX_ENTITY_ID) && primaryIdMapping != null;
+            }
+
+            @Override
+            protected Vector<Integer> getMatches(String attributeName, String valueToMatch) {
+                return QueryUtils.wrapSingleResult(primaryIdMapping.get(valueToMatch));
+            }
+        });
     }
 
     @Override
