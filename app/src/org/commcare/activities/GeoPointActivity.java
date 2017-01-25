@@ -20,12 +20,11 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.TimerListener;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.utils.GeoUtils;
-import org.commcare.utils.TimeoutTimer;
 import org.commcare.utils.StringUtils;
+import org.commcare.utils.TimeoutTimer;
 import org.commcare.views.dialogs.GeoProgressDialog;
 
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.Set;
 
 /**
