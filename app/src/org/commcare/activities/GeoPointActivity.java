@@ -20,8 +20,8 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.TimerListener;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.utils.GeoUtils;
-import org.commcare.utils.TimeoutTimer;
 import org.commcare.utils.StringUtils;
+import org.commcare.utils.TimeoutTimer;
 import org.commcare.views.dialogs.GeoProgressDialog;
 
 import java.text.DecimalFormat;
@@ -169,9 +169,9 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     public void onLocationChanged(Location location) {
         this.location = location;
         if (this.location != null) {
-            String[] args = {this.location.getProvider(), truncateDouble(this.location.getAccuracy())};
+            String accuracy = truncateDouble(this.location.getAccuracy());
             locationDialog.setMessage(StringUtils.getStringRobust(this,
-                    R.string.location_provider_accuracy, args));
+                    R.string.location_provider_accuracy, accuracy));
 
             // If location is accurate, we're done
             if (this.location.getAccuracy() <= CommCarePreferences.getGpsWidgetGoodAccuracy()) {
