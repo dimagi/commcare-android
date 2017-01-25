@@ -8,10 +8,15 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
+import org.commcare.cases.util.StringUtils;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.DataUtil;
+import org.javarosa.xpath.expr.FunctionUtils;
+import org.javarosa.xpath.expr.XPathJoinFunc;
 
 import java.util.Vector;
 
@@ -111,5 +116,39 @@ public class CaseIndexTable {
         }
         Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID}, COL_INDEX_NAME + " = ? AND " + COL_INDEX_TARGET + " =  ?", args, null, null, null);
         return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
+    }
+    /**
+     * Get a list of Case Record id's for cases which index any of a set of provided values
+     *
+     * @param indexName   The name of the index
+     * @param targetValueSet The set of cases targeted by the index
+     * @return An integer array of indexed case record ids
+     */
+    public Vector<Integer> getCasesMatchingValueSet(String indexName, String[] targetValueSet) {
+        String[] args = new String[1 + targetValueSet.length];
+        args[0] = indexName;
+        for(int i =0 ; i < targetValueSet.length ; ++i) {
+            args[i + 1] = targetValueSet[i];
+        }
+        String inSet = getInSet(targetValueSet.length);
+        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
+            String query = String.format("SELECT %s FROM %s WHERE %s = ? AND %s in " + inSet, COL_CASE_RECORD_ID, TABLE_NAME, COL_INDEX_NAME, COL_INDEX_TARGET);
+            DbUtil.explainSql(db, query, args);
+        }
+        Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID}, COL_INDEX_NAME + " = ? AND " + COL_INDEX_TARGET + " in " + inSet, args, null, null, null);
+        return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
+    }
+
+    public static String getInSet(int number) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("(");
+        for (int i = 0; i < number; i++) {
+            sb.append('?');
+            if (i < number - 1) {
+                sb.append(",");
+            }
+        }
+        sb.append(")");
+        return sb.toString();
     }
 }
