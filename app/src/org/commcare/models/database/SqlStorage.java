@@ -286,9 +286,12 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     @Override
     public int getNumRecords() {
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL}, null, null, null, null, null);
-        int records = c.getCount();
-        c.close();
-        return records;
+        try {
+            int records = c.getCount();
+            return records;
+        } finally {
+            c.close();
+        }
     }
 
     @Override

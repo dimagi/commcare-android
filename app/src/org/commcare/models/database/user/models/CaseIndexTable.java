@@ -141,7 +141,8 @@ public class CaseIndexTable {
         return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
     }
 
-    public void loadIntoIndexTable(HashMap<String, Vector<Integer>> indexCache, String indexName) {
+    public int loadIntoIndexTable(HashMap<String, Vector<Integer>> indexCache, String indexName) {
+        int resultsReturned = 0;
         String[] args = new String[]{indexName};
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             String query = String.format("SELECT %s,%s FROM %s where %s = %s", COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TARGET, TABLE_NAME, COL_INDEX_NAME, indexName);
@@ -153,6 +154,7 @@ public class CaseIndexTable {
         try {
             if (c.moveToFirst()) {
                 while (!c.isAfterLast()) {
+                    resultsReturned++;
                     int id = c.getInt(c.getColumnIndexOrThrow(COL_CASE_RECORD_ID));
                     String target = c.getString(c.getColumnIndexOrThrow(COL_INDEX_TARGET));
 
@@ -168,6 +170,8 @@ public class CaseIndexTable {
                     c.moveToNext();
                 }
             }
+
+            return resultsReturned;
         } finally {
             if (c != null) {
                 c.close();

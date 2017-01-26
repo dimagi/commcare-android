@@ -6,7 +6,6 @@ import org.commcare.cases.query.PredicateProfile;
 import org.commcare.cases.query.QueryCacheEntry;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QueryHandler;
-import org.commcare.cases.query.QueryPlanner;
 import org.commcare.cases.util.QueryUtils;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.javarosa.core.model.trace.EvaluationTrace;
@@ -23,6 +22,11 @@ import java.util.Vector;
 
 public class CaseIndexPrefetchHandler implements QueryHandler<IndexedValueLookup> {
 
+    /**
+     * This is roughly the inflection point between expecting
+     */
+    private static final int BULK_LOAD_THRESHOLD = 500;
+
     private final CaseIndexTable mCaseIndexTable;
 
     public static final class Cache implements QueryCacheEntry {
@@ -32,6 +36,7 @@ public class CaseIndexPrefetchHandler implements QueryHandler<IndexedValueLookup
 
     public CaseIndexPrefetchHandler(CaseIndexTable caseIndexTable) {
         this.mCaseIndexTable = caseIndexTable;
+        //TODO: Profile table by each type of index for size to identify threshold changes.
     }
 
     @Override
@@ -58,6 +63,10 @@ public class CaseIndexPrefetchHandler implements QueryHandler<IndexedValueLookup
 
         Cache cache = context.getQueryCache(Cache.class);
         if(!cache.currentlyFetchedIndexKeys.contains(indexName)) {
+            if(context.getScope() < BULK_LOAD_THRESHOLD) {
+                return null;
+            }
+
             EvaluationTrace trace = new EvaluationTrace("Index Bulk Prefetch [" + indexName + "]");
             mCaseIndexTable.loadIntoIndexTable(cache.indexCache, indexName);
             trace.setOutcome("");

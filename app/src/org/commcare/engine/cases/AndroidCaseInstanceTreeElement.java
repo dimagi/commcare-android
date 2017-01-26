@@ -112,6 +112,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         String[] valuesToMatch = new String[numKeys];
 
         String cacheKey = "";
+        String keyDescription ="";
 
         for (int i = numKeys - 1; i >= 0; i--) {
             namesToMatch[i] = profiles.elementAt(i).getKey();
@@ -119,6 +120,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
                     (((IndexedValueLookup)profiles.elementAt(i)).value);
 
             cacheKey += "|" + namesToMatch[i] + "=" + valuesToMatch[i];
+            keyDescription = namesToMatch[i] + "|";
         }
         mMostRecentBatchFetch = new String[2][];
         mMostRecentBatchFetch[0] = namesToMatch;
@@ -128,7 +130,13 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         if(mPairedIndexCache.containsKey(cacheKey)) {
             ids = mPairedIndexCache.get(cacheKey);
         } else {
+            EvaluationTrace trace = new EvaluationTrace("Case Storage Lookup" + "["+keyDescription + "]");
             ids = sqlStorage.getIDsForValues(namesToMatch, valuesToMatch);
+
+            trace.setOutcome("Results: " + ids.size());
+            queryPlanner.reportTrace(trace);
+
+
             mPairedIndexCache.put(cacheKey, ids);
         }
 
