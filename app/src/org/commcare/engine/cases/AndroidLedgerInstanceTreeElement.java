@@ -2,10 +2,8 @@ package org.commcare.engine.cases;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.instance.LedgerInstanceTreeElement;
-import org.commcare.cases.util.IndexedValueLookup;
-import org.commcare.cases.util.PredicateProfile;
 import org.commcare.cases.util.QueryUtils;
-import org.commcare.cases.util.StaticLookupQueryHandler;
+import org.commcare.cases.query.handlers.StaticLookupQueryHandler;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.android.database.user.models.ACase;

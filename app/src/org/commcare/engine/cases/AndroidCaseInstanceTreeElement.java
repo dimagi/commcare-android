@@ -5,9 +5,10 @@ import android.util.Log;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.util.CaseModelFetchCue;
-import org.commcare.cases.util.IndexedSetMemberLookup;
-import org.commcare.cases.util.IndexedValueLookup;
-import org.commcare.cases.util.PredicateProfile;
+import org.commcare.cases.query.IndexedSetMemberLookup;
+import org.commcare.cases.query.IndexedValueLookup;
+import org.commcare.cases.query.PredicateProfile;
+import org.commcare.cases.query.QueryPlanner;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
@@ -51,6 +52,14 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         super(instanceRoot, storage);
         mCaseIndexTable = caseIndexTable;
     }
+
+    @Override
+    protected void initBasicQueryHandlers(QueryPlanner queryPlanner) {
+        super.initBasicQueryHandlers(queryPlanner);
+        queryPlanner.addQueryHandler(new CaseIndexPrefetchHandler(mCaseIndexTable));
+    }
+
+
 
     @Override
     protected synchronized void loadElements() {
@@ -130,8 +139,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         return ids;
     }
 
-    boolean hasIndexedTable = false;
-
     private Vector<Integer> performCaseIndexQuery(String firstKey, Vector<PredicateProfile> optimizations) {
         //CTS - March 9, 2015 - Introduced a small cache for child index queries here because they
         //are a frequent target of bulk operations like graphing which do multiple requests across the
@@ -146,14 +153,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         String indexCacheKey = null;
 
         Vector<Integer> matchingCases = null;
-
-        if(!hasIndexedTable) {
-            EvaluationTrace trace = new EvaluationTrace("Full Case Index Load");
-            mIndexCache = mCaseIndexTable.loadFullIndexTable();
-            trace.setOutcome("");
-            this.getQueryPlanner().reportTrace(trace);
-            hasIndexedTable = true;
-        }
 
         if (op instanceof IndexedValueLookup) {
 
@@ -194,7 +193,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             if (matchingCases.size() < 50) {
                 //Should never hit this, but don't wanna have any runaway memory if we do.
                 if (mIndexCache.size() > 100) {
-                    //mIndexCache.clear();
+                    mIndexCache.clear();
                 }
 
                 mIndexCache.put(indexCacheKey, matchingCases);

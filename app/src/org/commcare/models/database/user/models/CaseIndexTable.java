@@ -13,6 +13,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -115,50 +116,6 @@ public class CaseIndexTable {
     }
 
     /**
-     * read the full index table
-     */
-    public Hashtable<String, Vector<Integer>> loadFullIndexTable() {
-//        String[] args = new String[]{indexName, targetValue};
-        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
-            String query = String.format("SELECT %s,%s,%s FROM %s", COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TARGET, TABLE_NAME);
-            DbUtil.explainSql(db, query, null);
-        }
-
-        Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
-
-        Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TARGET},null, null, null, null, null);
-
-        try {
-            if (c.moveToFirst()) {
-                while (!c.isAfterLast()) {
-                    int id = c.getInt(c.getColumnIndexOrThrow(COL_CASE_RECORD_ID));
-                    String indexName = c.getString(c.getColumnIndexOrThrow(COL_INDEX_NAME));
-                    String target = c.getString(c.getColumnIndexOrThrow(COL_INDEX_TARGET));
-
-                    String cacheID = indexName + "|" + target;
-                    Vector<Integer> cache;
-                    if(mIndexCache.containsKey(cacheID)){
-                        cache = mIndexCache.get(cacheID);
-                    } else {
-                        cache = new Vector<>();
-                    }
-                    cache.add(id);
-                    mIndexCache.put(cacheID, cache);
-                    c.moveToNext();
-                }
-            }
-            return mIndexCache;
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-
-
-        ///return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
-    }
-
-    /**
      * Get a list of Case Record id's for cases which index any of a set of provided values
      *
      * @param indexName      The name of the index
@@ -184,6 +141,42 @@ public class CaseIndexTable {
         return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
     }
 
+    public void loadIntoIndexTable(HashMap<String, Vector<Integer>> indexCache, String indexName) {
+        String[] args = new String[]{indexName};
+        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
+            String query = String.format("SELECT %s,%s FROM %s where %s = %s", COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TARGET, TABLE_NAME, COL_INDEX_NAME, indexName);
+            DbUtil.explainSql(db, query, null);
+        }
+
+        Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TARGET},COL_INDEX_NAME + " = ?", args, null, null, null);
+
+        try {
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    int id = c.getInt(c.getColumnIndexOrThrow(COL_CASE_RECORD_ID));
+                    String target = c.getString(c.getColumnIndexOrThrow(COL_INDEX_TARGET));
+
+                    String cacheID = indexName + "|" + target;
+                    Vector<Integer> cache;
+                    if(indexCache.containsKey(cacheID)){
+                        cache = indexCache.get(cacheID);
+                    } else {
+                        cache = new Vector<>();
+                    }
+                    cache.add(id);
+                    indexCache.put(cacheID, cache);
+                    c.moveToNext();
+                }
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+
+    }
+
+
     public static String getArgumentBasedVariableSet(int number) {
         StringBuffer sb = new StringBuffer();
         sb.append("(");
@@ -196,4 +189,5 @@ public class CaseIndexTable {
         sb.append(")");
         return sb.toString();
     }
+
 }
