@@ -6,6 +6,8 @@ import org.commcare.models.framework.Table;
 import org.commcare.modern.database.TableBuilder;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -27,7 +29,7 @@ public class AndroidTableBuilder extends TableBuilder {
         super(name);
     }
 
-    public static List<Pair<String, String[]>> sqlList(List<Integer> input) {
+    public static List<Pair<String, String[]>> sqlList(Collection<Integer> input) {
         return sqlList(input, MAX_SQL_ARGS);
     }
 
@@ -36,12 +38,14 @@ public class AndroidTableBuilder extends TableBuilder {
      * String containing (?, ?,...) to be used in the SQL query and the array of args
      * to replace them with
      */
-    private static List<Pair<String, String[]>> sqlList(List<Integer> input, int maxArgs) {
+    private static List<Pair<String, String[]>> sqlList(Collection<Integer> input, int maxArgs) {
 
         List<Pair<String, String[]>> ops = new ArrayList<>();
 
         //figure out how many iterations we'll need
         int numIterations = (int)Math.ceil(((double)input.size()) / maxArgs);
+
+        Iterator<Integer> iterator = input.iterator();
 
         for (int currentRound = 0; currentRound < numIterations; ++currentRound) {
 
@@ -55,7 +59,7 @@ public class AndroidTableBuilder extends TableBuilder {
             String[] array = new String[lastIndex - startPoint];
             int count = 0;
             for (int i = startPoint; i < lastIndex; ++i) {
-                array[count++] = String.valueOf(input.get(i));
+                array[count++] = String.valueOf(iterator.next());
             }
 
             ops.add(new Pair<>(stringBuilder.toString().substring(0,

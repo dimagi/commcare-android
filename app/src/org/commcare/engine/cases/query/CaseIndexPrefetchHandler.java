@@ -1,4 +1,4 @@
-package org.commcare.engine.cases;
+package org.commcare.engine.cases.query;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.query.IndexedValueLookup;

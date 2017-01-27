@@ -4,11 +4,13 @@ import android.util.Log;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
-import org.commcare.cases.util.CaseModelFetchCue;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.util.CaseGroupResultCache;
 import org.commcare.cases.query.IndexedSetMemberLookup;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
 import org.commcare.cases.query.QueryPlanner;
+import org.commcare.engine.cases.query.CaseIndexPrefetchHandler;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
@@ -20,8 +22,9 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 
-import java.util.ArrayList;
+import java.lang.ref.WeakReference;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.Vector;
 
 /**
@@ -33,6 +36,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     private final CaseIndexTable mCaseIndexTable;
 
     private final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<>();
+
+    private Vector<WeakReference<CaseGroupResultCache>> cueReferences = new Vector<>();
 
     //We're storing this here for now because this is a safe lifecycle object that must represent
     //a single snapshot of the case database, but it could be generalized later.
@@ -86,7 +91,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     @Override
     protected Vector<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
-                                                IStorageUtilityIndexed<?> storage) {
+                                                IStorageUtilityIndexed<?> storage,
+                                                QueryContext currentQueryContext) {
         //If the index object starts with "case-in-" it's actually a case index query and we need to run
         //this over the case index table
         String firstKey = profiles.elementAt(0).getKey();
@@ -132,12 +138,20 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         } else {
             EvaluationTrace trace = new EvaluationTrace("Case Storage Lookup" + "["+keyDescription + "]");
             ids = sqlStorage.getIDsForValues(namesToMatch, valuesToMatch);
-
             trace.setOutcome("Results: " + ids.size());
             queryPlanner.reportTrace(trace);
 
-
             mPairedIndexCache.put(cacheKey, ids);
+        }
+
+        if(ids.size() > 50) {
+            CaseGroupResultCache cue = currentQueryContext.getQueryCache(CaseGroupResultCache.class);
+            cue.reportBulkCaseBody(cacheKey, ids);
+
+            //Note: We still need to figure out how to get the query context around when we
+            //perform "cache" operations, in the mean time, we'll just keep weak references
+            //around. The query context _lifecycle_ will still manage the caches appropriately
+            this.cueReferences.add(new WeakReference<>(cue));
         }
 
         //Ok, we matched! Remove all of the keys that we matched
@@ -263,21 +277,41 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     }
 
 
-    protected Case unusedGetElementOptimization(int recordId) {
-        CaseModelFetchCue cue = getQueryPlanner().getQueryCue(CaseModelFetchCue.class);
-        if(cue != null && cue.isCueing(recordId)) {
-            if(!cue.isPrimed(recordId)) {
+    @Override
+    protected Case getElement(int recordId) {
+        CaseGroupResultCache cue = getCueMatchingRecord(recordId);
+        if(cue != null && false) {
+            if(!cue.isLoaded(recordId)) {
                 EvaluationTrace loadTrace = new EvaluationTrace("Bulk Case Load");
                 SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
-                sqlStorage.bulkRead(new ArrayList<>(cue.getCuedCases()), cue.getCaseMap());
-                cue.setPrimed();
-                loadTrace.setOutcome(String.valueOf(cue.getCuedCases().size()));
+                LinkedHashSet<Integer> body = cue.getTranche(recordId);
+
+                sqlStorage.bulkRead(body, cue.getLoadedCaseMap());
+                loadTrace.setOutcome("Loaded: " + body.size());
                 getQueryPlanner().reportTrace(loadTrace);
             }
-
-            return cue.getCase(recordId);
+            return cue.getLoadedCase(recordId);
         }
-
         return super.getElement(recordId);
+    }
+
+    private CaseGroupResultCache getCueMatchingRecord(int recordId) {
+        Vector<WeakReference<CaseGroupResultCache>> toRemove = new Vector<>();
+        CaseGroupResultCache toReturn = null;
+        for(WeakReference<CaseGroupResultCache> cueRef : cueReferences) {
+            CaseGroupResultCache cue = cueRef.get();
+            if(cue == null) {
+                //Lifecycle is expired, dump this ref;
+                toRemove.add(cueRef);
+            } else {
+                if(cue.hasMatchingCaseSet(recordId)) {
+                    toReturn = cue;
+                }
+            }
+        }
+        for(WeakReference<CaseGroupResultCache> expiredRef : toRemove) {
+            cueReferences.remove(expiredRef);
+        }
+        return toReturn;
     }
 }

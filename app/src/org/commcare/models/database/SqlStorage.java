@@ -587,7 +587,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return new IndexSpanningIterator<>(c, this, minValue, maxValue, countValue);
     }
 
-    public void bulkRead(List<Integer> cuedCases, HashMap recordMap) {
+    public void bulkRead(Collection<Integer> cuedCases, HashMap recordMap) {
         List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(cuedCases);
         Pair<String, String[]> whereArgs = whereParamList.get(0);
 
