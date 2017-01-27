@@ -2,10 +2,12 @@ package org.commcare.engine.cases;
 
 import android.util.Log;
 
+import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.IntSet;
+
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.query.QueryContext;
-import org.commcare.cases.util.CaseGroupResultCache;
 import org.commcare.cases.query.IndexedSetMemberLookup;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
@@ -14,6 +16,7 @@ import org.commcare.engine.cases.query.CaseIndexPrefetchHandler;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
@@ -44,7 +47,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     private Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
 
     //TODO: Document
-    private Hashtable<String, Vector<Integer>> mPairedIndexCache = new Hashtable<>();
+    private Hashtable<String, Pair<Vector<Integer>, IntSet>> mPairedIndexCache = new Hashtable<>();
 
     private String[][] mMostRecentBatchFetch = null;
 
@@ -133,20 +136,24 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         mMostRecentBatchFetch[1] = valuesToMatch;
 
         Vector<Integer> ids;
+        IntSet cacheResult;
         if(mPairedIndexCache.containsKey(cacheKey)) {
-            ids = mPairedIndexCache.get(cacheKey);
+            Pair<Vector<Integer>, IntSet> cacheResultBody = mPairedIndexCache.get(cacheKey);
+            ids = cacheResultBody.first;
+            cacheResult = cacheResultBody.second;
         } else {
             EvaluationTrace trace = new EvaluationTrace("Case Storage Lookup" + "["+keyDescription + "]");
-            ids = sqlStorage.getIDsForValues(namesToMatch, valuesToMatch);
+            cacheResult = new IntHashSet();
+            ids = sqlStorage.getIDsForValues(namesToMatch, valuesToMatch, cacheResult);
             trace.setOutcome("Results: " + ids.size());
             queryPlanner.reportTrace(trace);
 
-            mPairedIndexCache.put(cacheKey, ids);
+            mPairedIndexCache.put(cacheKey, new Pair<Vector<Integer>, IntSet>(ids, cacheResult));
         }
 
         if(ids.size() > 50) {
             CaseGroupResultCache cue = currentQueryContext.getQueryCache(CaseGroupResultCache.class);
-            cue.reportBulkCaseBody(cacheKey, ids);
+            cue.reportBulkCaseBody(cacheKey, cacheResult);
 
             //Note: We still need to figure out how to get the query context around when we
             //perform "cache" operations, in the mean time, we'll just keep weak references
@@ -280,11 +287,11 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     @Override
     protected Case getElement(int recordId) {
         CaseGroupResultCache cue = getCueMatchingRecord(recordId);
-        if(cue != null && false) {
+        if(cue != null) {
             if(!cue.isLoaded(recordId)) {
                 EvaluationTrace loadTrace = new EvaluationTrace("Bulk Case Load");
                 SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
-                LinkedHashSet<Integer> body = cue.getTranche(recordId);
+                IntSet body = cue.getTranche(recordId);
 
                 sqlStorage.bulkRead(body, cue.getLoadedCaseMap());
                 loadTrace.setOutcome("Loaded: " + body.size());
