@@ -763,6 +763,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             case SessionNavigator.XPATH_EXCEPTION_THROWN:
                 UserfacingErrorHandling
                         .logErrorAndShowDialog(this, sessionNavigator.getCurrentException(), false);
+                asw.reset();
                 break;
             case SessionNavigator.REPORT_CASE_AUTOSELECT:
                 GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_CASE_AUTOSELECT_USED);
