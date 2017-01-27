@@ -49,6 +49,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     private String[][] mMostRecentBatchFetch = null;
 
+    private static final int MAX_PREFETCH_CASE_BLOCK = 3000;
+
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage) {
         this(instanceRoot, storage, new CaseIndexTable());
     }
@@ -127,7 +129,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
                     (((IndexedValueLookup)profiles.elementAt(i)).value);
 
             cacheKey += "|" + namesToMatch[i] + "=" + valuesToMatch[i];
-            keyDescription = namesToMatch[i] + "|";
+            keyDescription += namesToMatch[i] + "|";
         }
         mMostRecentBatchFetch = new String[2][];
         mMostRecentBatchFetch[0] = namesToMatch;
@@ -144,12 +146,12 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             cacheResult = new IntHashSet();
             ids = sqlStorage.getIDsForValues(namesToMatch, valuesToMatch, cacheResult);
             trace.setOutcome("Results: " + ids.size());
-            queryPlanner.reportTrace(trace);
+            currentQueryContext.reportTrace(trace);
 
             mPairedIndexCache.put(cacheKey, new Pair<Vector<Integer>, IntSet>(ids, cacheResult));
         }
 
-        if(ids.size() > 50) {
+        if(ids.size() > 50 && ids.size() < MAX_PREFETCH_CASE_BLOCK) {
             CaseGroupResultCache cue = currentQueryContext.getQueryCache(CaseGroupResultCache.class);
             cue.reportBulkCaseBody(cacheKey, cacheResult);
         }
@@ -291,7 +293,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
                 sqlStorage.bulkRead(body, cue.getLoadedCaseMap());
                 loadTrace.setOutcome("Loaded: " + body.size());
-                getQueryPlanner().reportTrace(loadTrace);
+                context.reportTrace(loadTrace);
             }
             return cue.getLoadedCase(recordId);
         }

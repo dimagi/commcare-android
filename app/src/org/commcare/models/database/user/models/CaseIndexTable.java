@@ -52,8 +52,13 @@ public class CaseIndexTable {
     }
 
     public static void createIndexes(SQLiteDatabase db) {
-        String columns = COL_CASE_RECORD_ID + ", " + COL_INDEX_NAME + ", " + COL_INDEX_TARGET;
-        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("RECORD_NAME_ID_TARGET", TABLE_NAME, columns));
+        String recordFirstIndexId = "RECORD_NAME_ID_TARGET";
+        String recordFirstIndex = COL_CASE_RECORD_ID + ", " + COL_INDEX_NAME + ", " + COL_INDEX_TARGET;
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(recordFirstIndexId, TABLE_NAME, recordFirstIndex));
+
+        String typeFirstIndexId = "NAME_TARGET_RECORD";
+        String typeFirstIndex = COL_INDEX_NAME + ", " + COL_CASE_RECORD_ID + ", " + COL_INDEX_TARGET;
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(typeFirstIndexId, TABLE_NAME, typeFirstIndex));
     }
 
     /**
@@ -145,7 +150,7 @@ public class CaseIndexTable {
         int resultsReturned = 0;
         String[] args = new String[]{indexName};
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
-            String query = String.format("SELECT %s,%s FROM %s where %s = %s", COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TARGET, TABLE_NAME, COL_INDEX_NAME, indexName);
+            String query = String.format("SELECT %s,%s %s FROM %s where %s = '%s'", COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TARGET, TABLE_NAME, COL_INDEX_NAME, indexName);
             DbUtil.explainSql(db, query, null);
         }
 

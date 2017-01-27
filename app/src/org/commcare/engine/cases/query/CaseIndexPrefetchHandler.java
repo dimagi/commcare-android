@@ -68,8 +68,8 @@ public class CaseIndexPrefetchHandler implements QueryHandler<IndexedValueLookup
             }
 
             EvaluationTrace trace = new EvaluationTrace("Index Bulk Prefetch [" + indexName + "]");
-            mCaseIndexTable.loadIntoIndexTable(cache.indexCache, indexName);
-            trace.setOutcome("");
+            int indexFetchSize = mCaseIndexTable.loadIntoIndexTable(cache.indexCache, indexName);
+            trace.setOutcome("Loaded: " + indexFetchSize);
             context.reportTrace(trace);
             cache.currentlyFetchedIndexKeys.add(indexName);
         }
