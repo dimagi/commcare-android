@@ -4,6 +4,9 @@ import android.util.Log;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
+import org.commcare.cases.util.IndexedSetMemberLookup;
+import org.commcare.cases.util.IndexedValueLookup;
+import org.commcare.cases.util.PredicateProfile;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
@@ -67,21 +70,22 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     }
 
     @Override
-    protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values,
+    protected Vector<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
                                                 IStorageUtilityIndexed<?> storage) {
         //If the index object starts with "case-in-" it's actually a case index query and we need to run
         //this over the case index table
-        String firstKey = keys.elementAt(0);
+        String firstKey = profiles.elementAt(0).getKey();
         if (firstKey.startsWith(Case.INDEX_CASE_INDEX_PRE)) {
-            return performCaseIndexQuery(firstKey, keys, values);
+            return performCaseIndexQuery(firstKey, profiles);
         }
 
         //Otherwise see how many of these we can bulk process
         int numKeys;
-        for (numKeys = 0; numKeys < keys.size(); ++numKeys) {
+        for (numKeys = 0; numKeys < profiles.size(); ++numKeys) {
             //If the current key is an index fetch, we actually can't do it in bulk,
             //so we need to stop
-            if (keys.elementAt(numKeys).startsWith(Case.INDEX_CASE_INDEX_PRE)) {
+            if (profiles.elementAt(numKeys).getKey().startsWith(Case.INDEX_CASE_INDEX_PRE) ||
+                    !(profiles.elementAt(numKeys) instanceof IndexedValueLookup)) {
                 break;
             }
             //otherwise, it's now in our queue
@@ -91,8 +95,9 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         String[] namesToMatch = new String[numKeys];
         String[] valuesToMatch = new String[numKeys];
         for (int i = numKeys - 1; i >= 0; i--) {
-            namesToMatch[i] = keys.elementAt(i);
-            valuesToMatch[i] = (String)values.elementAt(i);
+            namesToMatch[i] = profiles.elementAt(i).getKey();
+            valuesToMatch[i] = (String)
+                    (((IndexedValueLookup)profiles.elementAt(i)).value);
         }
         mMostRecentBatchFetch = new String[2][];
         mMostRecentBatchFetch[0] = namesToMatch;
@@ -102,53 +107,70 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
         //Ok, we matched! Remove all of the keys that we matched
         for (int i = 0; i < numKeys; ++i) {
-            keys.removeElementAt(0);
-            values.removeElementAt(0);
+            profiles.removeElementAt(0);
         }
         return ids;
     }
 
-    private Vector<Integer> performCaseIndexQuery(String firstKey, Vector<String> keys, Vector<Object> values) {
+    private Vector<Integer> performCaseIndexQuery(String firstKey, Vector<PredicateProfile> optimizations) {
         //CTS - March 9, 2015 - Introduced a small cache for child index queries here because they
         //are a frequent target of bulk operations like graphing which do multiple requests across the
         //same query.
+
+        PredicateProfile op = optimizations.elementAt(0);
+
         //TODO: This should likely be generalized for a number of other queries with bulk/nodeset
         //returns
         String indexName = firstKey.substring(Case.INDEX_CASE_INDEX_PRE.length());
-        String value = (String)values.elementAt(0);
 
-        //TODO: Evaluate whether our indices could contain "|" but I don't imagine how they could.
-        String indexCacheKey = firstKey + "|" + value;
+        String indexCacheKey = null;
 
-        //Check whether we've got a cache of this index.
-        if (mIndexCache.containsKey(indexCacheKey)) {
-            //remove the match from the inputs
-            keys.removeElementAt(0);
-            values.removeElementAt(0);
-            return mIndexCache.get(indexCacheKey);
+        Vector<Integer> matchingCases = null;
+
+        if (op instanceof IndexedValueLookup) {
+
+            IndexedValueLookup iop = (IndexedValueLookup)op;
+
+            String value = (String)iop.value;
+
+            //TODO: Evaluate whether our indices could contain "|" but I don't imagine how they could.
+            indexCacheKey = firstKey + "|" + value;
+
+            //Check whether we've got a cache of this index.
+            if (mIndexCache.containsKey(indexCacheKey)) {
+                //remove the match from the inputs
+                optimizations.removeElementAt(0);
+                ;
+                return mIndexCache.get(indexCacheKey);
+            }
+
+            matchingCases = mCaseIndexTable.getCasesMatchingIndex(indexName, value);
         }
-
-        Vector<Integer> matchingCases = mCaseIndexTable.getCasesMatchingIndex(indexName, value);
+        if (op instanceof IndexedSetMemberLookup) {
+            IndexedSetMemberLookup sop = (IndexedSetMemberLookup)op;
+            matchingCases = mCaseIndexTable.getCasesMatchingValueSet(indexName, sop.valueSet);
+        }
 
         //Clear the most recent index and wipe it, because there is no way it is going to be useful
         //after this
         mMostRecentBatchFetch = new String[2][];
 
         //remove the match from the inputs
-        keys.removeElementAt(0);
-        values.removeElementAt(0);
+        optimizations.removeElementAt(0);
 
-        //For now we're only going to run this on very small data sets because we don't
-        //want to manage this too explicitly until we generalize. Almost all results here
-        //will be very very small either way (~O(10's of cases)), so given that this only
-        //exists across one session that won't get out of hand
-        if (matchingCases.size() < 50) {
-            //Should never hit this, but don't wanna have any runaway memory if we do.
-            if (mIndexCache.size() > 100) {
-                mIndexCache.clear();
+        if (indexCacheKey != null) {
+            //For now we're only going to run this on very small data sets because we don't
+            //want to manage this too explicitly until we generalize. Almost all results here
+            //will be very very small either way (~O(10's of cases)), so given that this only
+            //exists across one session that won't get out of hand
+            if (matchingCases.size() < 50) {
+                //Should never hit this, but don't wanna have any runaway memory if we do.
+                if (mIndexCache.size() > 100) {
+                    mIndexCache.clear();
+                }
+
+                mIndexCache.put(indexCacheKey, matchingCases);
             }
-
-            mIndexCache.put(indexCacheKey, matchingCases);
         }
         return matchingCases;
     }
