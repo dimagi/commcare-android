@@ -40,8 +40,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     private final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<>();
 
-    private Vector<WeakReference<CaseGroupResultCache>> cueReferences = new Vector<>();
-
     //We're storing this here for now because this is a safe lifecycle object that must represent
     //a single snapshot of the case database, but it could be generalized later.
     private Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
@@ -154,11 +152,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         if(ids.size() > 50) {
             CaseGroupResultCache cue = currentQueryContext.getQueryCache(CaseGroupResultCache.class);
             cue.reportBulkCaseBody(cacheKey, cacheResult);
-
-            //Note: We still need to figure out how to get the query context around when we
-            //perform "cache" operations, in the mean time, we'll just keep weak references
-            //around. The query context _lifecycle_ will still manage the caches appropriately
-            this.cueReferences.add(new WeakReference<>(cue));
         }
 
         //Ok, we matched! Remove all of the keys that we matched
@@ -285,9 +278,12 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
 
     @Override
-    protected Case getElement(int recordId) {
-        CaseGroupResultCache cue = getCueMatchingRecord(recordId);
-        if(cue != null) {
+    protected Case getElement(int recordId, QueryContext context) {
+        if(context == null) {
+            return super.getElement(recordId, context);
+        }
+        CaseGroupResultCache cue = context.getQueryCacheOrNull(CaseGroupResultCache.class);
+        if(cue != null && cue.hasMatchingCaseSet(recordId)) {
             if(!cue.isLoaded(recordId)) {
                 EvaluationTrace loadTrace = new EvaluationTrace("Bulk Case Load");
                 SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
@@ -299,26 +295,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             }
             return cue.getLoadedCase(recordId);
         }
-        return super.getElement(recordId);
+        return super.getElement(recordId, context);
     }
 
-    private CaseGroupResultCache getCueMatchingRecord(int recordId) {
-        Vector<WeakReference<CaseGroupResultCache>> toRemove = new Vector<>();
-        CaseGroupResultCache toReturn = null;
-        for(WeakReference<CaseGroupResultCache> cueRef : cueReferences) {
-            CaseGroupResultCache cue = cueRef.get();
-            if(cue == null) {
-                //Lifecycle is expired, dump this ref;
-                toRemove.add(cueRef);
-            } else {
-                if(cue.hasMatchingCaseSet(recordId)) {
-                    toReturn = cue;
-                }
-            }
-        }
-        for(WeakReference<CaseGroupResultCache> expiredRef : toRemove) {
-            cueReferences.remove(expiredRef);
-        }
-        return toReturn;
-    }
 }
