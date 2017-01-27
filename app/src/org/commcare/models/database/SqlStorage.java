@@ -605,26 +605,25 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     public void bulkRead(IntSet cuedCases, IntObjectMap recordMap) {
         List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(cuedCases);
-        Pair<String, String[]> whereArgs = whereParamList.get(0);
-
-        Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + " IN " + whereArgs.first, whereArgs.second, null, null, null);
-        try {
-            if (c.getCount() == 0) {
-                return;
-            } else {
-                c.moveToFirst();
-                int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
-                while (!c.isAfterLast()) {
-                    byte[] data = c.getBlob(index);
-                    recordMap.put(c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)),
-                            newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
-                    c.moveToNext();
+        for(Pair<String, String[]> querySet : whereParamList) {
+            Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + " IN " + querySet.first, querySet.second, null, null, null);
+            try {
+                if (c.getCount() == 0) {
+                    return;
+                } else {
+                    c.moveToFirst();
+                    int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
+                    while (!c.isAfterLast()) {
+                        byte[] data = c.getBlob(index);
+                        recordMap.put(c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)),
+                                newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
+                        c.moveToNext();
+                    }
                 }
+            } finally {
+                c.close();
             }
-        } finally {
-            c.close();
         }
-
 
     }
 }
