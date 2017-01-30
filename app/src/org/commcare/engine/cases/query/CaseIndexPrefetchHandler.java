@@ -11,6 +11,7 @@ import org.commcare.models.database.user.models.CaseIndexTable;
 import org.javarosa.core.model.trace.EvaluationTrace;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -57,7 +58,7 @@ public class CaseIndexPrefetchHandler implements QueryHandler<IndexedValueLookup
     }
 
     @Override
-    public Vector<Integer> loadProfileMatches(IndexedValueLookup querySet, QueryContext context) {
+    public List<Integer> loadProfileMatches(IndexedValueLookup querySet, QueryContext context) {
         String indexName = querySet.getKey().substring(Case.INDEX_CASE_INDEX_PRE.length());
         String value = (String)querySet.value;
 

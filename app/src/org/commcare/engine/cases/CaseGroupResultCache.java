@@ -23,12 +23,12 @@ import java.util.Vector;
 
 public class CaseGroupResultCache implements QueryCacheEntry {
 
-    HashMap<String,IntSet> bulkFetchBodies = new HashMap<>();
+    HashMap<String,LinkedHashSet<Integer>> bulkFetchBodies = new HashMap<>();
 
-    IntObjectMap<Case> cachedCases = new IntObjectHashMap<>();
+    HashMap<Integer, Case> cachedCases = new HashMap<>();
 
 
-    public void reportBulkCaseBody(String key, IntSet ids) {
+    public void reportBulkCaseBody(String key, LinkedHashSet<Integer> ids) {
         if(bulkFetchBodies.containsKey(key)) {
             return;
         }
@@ -45,8 +45,8 @@ public class CaseGroupResultCache implements QueryCacheEntry {
         return false;
     }
 
-    public IntSet getTranche(int recordId) {
-        for(IntSet tranche: bulkFetchBodies.values()) {
+    public LinkedHashSet<Integer> getTranche(int recordId) {
+        for(LinkedHashSet<Integer> tranche: bulkFetchBodies.values()) {
             if(tranche.contains(recordId)){
                 return tranche;
             }
@@ -58,7 +58,7 @@ public class CaseGroupResultCache implements QueryCacheEntry {
         return cachedCases.containsKey(recordId);
     }
 
-    public IntObjectMap<Case> getLoadedCaseMap() {
+    public HashMap<Integer, Case> getLoadedCaseMap() {
         return cachedCases;
     }
 

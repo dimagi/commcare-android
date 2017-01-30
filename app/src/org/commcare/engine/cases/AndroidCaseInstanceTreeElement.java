@@ -2,7 +2,6 @@ package org.commcare.engine.cases;
 
 import android.util.Log;
 
-import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntSet;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
@@ -16,7 +15,6 @@ import org.commcare.engine.cases.query.CaseIndexPrefetchHandler;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
-import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
@@ -25,7 +23,8 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 
-import java.lang.ref.WeakReference;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.Vector;
@@ -42,10 +41,10 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     //We're storing this here for now because this is a safe lifecycle object that must represent
     //a single snapshot of the case database, but it could be generalized later.
-    private Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
+    private Hashtable<String, LinkedHashSet<Integer>> mIndexCache = new Hashtable<>();
 
     //TODO: Document
-    private Hashtable<String, Pair<Vector<Integer>, IntSet>> mPairedIndexCache = new Hashtable<>();
+    private Hashtable<String, LinkedHashSet<Integer>> mPairedIndexCache = new Hashtable<>();
 
     private String[][] mMostRecentBatchFetch = null;
 
@@ -93,9 +92,9 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     }
 
     @Override
-    protected Vector<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
-                                                IStorageUtilityIndexed<?> storage,
-                                                QueryContext currentQueryContext) {
+    protected Collection<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
+                                                    IStorageUtilityIndexed<?> storage,
+                                                    QueryContext currentQueryContext) {
         //If the index object starts with "case-in-" it's actually a case index query and we need to run
         //this over the case index table
         String firstKey = profiles.elementAt(0).getKey();
@@ -135,25 +134,22 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         mMostRecentBatchFetch[0] = namesToMatch;
         mMostRecentBatchFetch[1] = valuesToMatch;
 
-        Vector<Integer> ids;
-        IntSet cacheResult;
+        LinkedHashSet<Integer> ids;
         if(mPairedIndexCache.containsKey(cacheKey)) {
-            Pair<Vector<Integer>, IntSet> cacheResultBody = mPairedIndexCache.get(cacheKey);
-            ids = cacheResultBody.first;
-            cacheResult = cacheResultBody.second;
+            ids = mPairedIndexCache.get(cacheKey);
         } else {
             EvaluationTrace trace = new EvaluationTrace("Case Storage Lookup" + "["+keyDescription + "]");
-            cacheResult = new IntHashSet();
-            ids = sqlStorage.getIDsForValues(namesToMatch, valuesToMatch, cacheResult);
+            ids = new LinkedHashSet<>();
+            sqlStorage.getIDsForValues(namesToMatch, valuesToMatch, ids);
             trace.setOutcome("Results: " + ids.size());
             currentQueryContext.reportTrace(trace);
 
-            mPairedIndexCache.put(cacheKey, new Pair<Vector<Integer>, IntSet>(ids, cacheResult));
+            mPairedIndexCache.put(cacheKey, ids);
         }
 
         if(ids.size() > 50 && ids.size() < MAX_PREFETCH_CASE_BLOCK) {
             CaseGroupResultCache cue = currentQueryContext.getQueryCache(CaseGroupResultCache.class);
-            cue.reportBulkCaseBody(cacheKey, cacheResult);
+            cue.reportBulkCaseBody(cacheKey, ids);
         }
 
         //Ok, we matched! Remove all of the keys that we matched
@@ -163,7 +159,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         return ids;
     }
 
-    private Vector<Integer> performCaseIndexQuery(String firstKey, Vector<PredicateProfile> optimizations) {
+    private LinkedHashSet<Integer> performCaseIndexQuery(String firstKey, Vector<PredicateProfile> optimizations) {
         //CTS - March 9, 2015 - Introduced a small cache for child index queries here because they
         //are a frequent target of bulk operations like graphing which do multiple requests across the
         //same query.
@@ -176,7 +172,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
         String indexCacheKey = null;
 
-        Vector<Integer> matchingCases = null;
+        LinkedHashSet<Integer> matchingCases = null;
 
         if (op instanceof IndexedValueLookup) {
 
@@ -289,7 +285,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             if(!cue.isLoaded(recordId)) {
                 EvaluationTrace loadTrace = new EvaluationTrace("Bulk Case Load");
                 SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
-                IntSet body = cue.getTranche(recordId);
+                LinkedHashSet<Integer>  body = cue.getTranche(recordId);
 
                 sqlStorage.bulkRead(body, cue.getLoadedCaseMap());
                 loadTrace.setOutcome("Loaded: " + body.size());

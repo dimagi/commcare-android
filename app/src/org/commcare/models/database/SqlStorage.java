@@ -2,9 +2,7 @@ package org.commcare.models.database;
 
 import android.database.Cursor;
 import android.util.Pair;
-import android.util.SparseArray;
 
-import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.IntSet;
 
@@ -18,7 +16,6 @@ import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -33,7 +30,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -96,7 +92,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return getIDsForValues(fieldNames, values, null);
     }
 
-    public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values, IntSet returnSet) {
+    public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet<Integer> returnSet) {
         SQLiteDatabase db = helper.getHandle();
 
         Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);
@@ -114,7 +110,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return fillIdWindow(c, columnName, null);
     }
 
-    public static Vector<Integer> fillIdWindow(Cursor c, String columnName, IntSet newReturn) {
+    public static Vector<Integer> fillIdWindow(Cursor c, String columnName, LinkedHashSet<Integer> newReturn) {
         Vector<Integer> indices = new Vector<>();
         try {
             if (c.moveToFirst()) {
@@ -603,7 +599,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return new IndexSpanningIterator<>(c, this, minValue, maxValue, countValue);
     }
 
-    public void bulkRead(IntSet cuedCases, IntObjectMap recordMap) {
+    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap recordMap) {
         List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(cuedCases);
         for(Pair<String, String[]> querySet : whereParamList) {
             Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + " IN " + querySet.first, querySet.second, null, null, null);

@@ -2,6 +2,8 @@ package org.commcare.models.database.user.models;
 
 import android.content.ContentValues;
 
+import com.carrotsearch.hppc.IntSet;
+
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -13,8 +15,10 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.Vector;
 
 /**
@@ -110,14 +114,16 @@ public class CaseIndexTable {
      * @param targetValue The case targeted by the index
      * @return An integer array of indexed case record ids
      */
-    public Vector<Integer> getCasesMatchingIndex(String indexName, String targetValue) {
+    public LinkedHashSet<Integer> getCasesMatchingIndex(String indexName, String targetValue) {
         String[] args = new String[]{indexName, targetValue};
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             String query = String.format("SELECT %s FROM %s WHERE %s = ? AND %s = ?", COL_CASE_RECORD_ID, TABLE_NAME, COL_INDEX_NAME, COL_INDEX_TARGET);
             DbUtil.explainSql(db, query, args);
         }
         Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID}, COL_INDEX_NAME + " = ? AND " + COL_INDEX_TARGET + " =  ?", args, null, null, null);
-        return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
+        LinkedHashSet<Integer> ret = new LinkedHashSet<>();
+        SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID, ret);
+        return ret;
     }
 
     /**
@@ -127,7 +133,7 @@ public class CaseIndexTable {
      * @param targetValueSet The set of cases targeted by the index
      * @return An integer array of indexed case record ids
      */
-    public Vector<Integer> getCasesMatchingValueSet(String indexName, String[] targetValueSet) {
+    public LinkedHashSet<Integer> getCasesMatchingValueSet(String indexName, String[] targetValueSet) {
         String[] args = new String[1 + targetValueSet.length];
         args[0] = indexName;
         for (int i = 0; i < targetValueSet.length; ++i) {
@@ -143,7 +149,10 @@ public class CaseIndexTable {
         }
 
         Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID}, whereExpr, args, null, null, null);
-        return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
+        LinkedHashSet<Integer> ret = new LinkedHashSet<>();
+
+        SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID, ret);
+        return ret;
     }
 
     public int loadIntoIndexTable(HashMap<String, Vector<Integer>> indexCache, String indexName) {
