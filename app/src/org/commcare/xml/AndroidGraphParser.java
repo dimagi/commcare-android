@@ -1,6 +1,6 @@
 package org.commcare.xml;
 
-import org.commcare.graph.util.GraphUtil;
+import org.commcare.modern.graph.util.GraphUtil;
 import org.commcare.suite.model.Text;
 import org.commcare.suite.model.graph.Annotation;
 import org.commcare.suite.model.graph.BubbleSeries;

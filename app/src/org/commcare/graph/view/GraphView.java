@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.graph.model.GraphData;
-import org.commcare.graph.util.GraphUtil;
+import org.commcare.modern.graph.util.GraphUtil;
 
 /**
  * View containing a graph. Note that this does not derive from View; call renderView to get a view for adding to other views, etc.

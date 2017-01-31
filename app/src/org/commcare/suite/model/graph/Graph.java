@@ -6,7 +6,7 @@ import org.commcare.graph.model.ConfigurableData;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.model.SeriesData;
 import org.commcare.graph.model.XYPointData;
-import org.commcare.graph.util.GraphUtil;
+import org.commcare.modern.graph.util.GraphUtil;
 import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
