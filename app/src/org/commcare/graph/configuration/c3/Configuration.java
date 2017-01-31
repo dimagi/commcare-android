@@ -1,4 +1,4 @@
-package org.commcare.graph.view.c3;
+package org.commcare.graph.configuration.c3;
 
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
