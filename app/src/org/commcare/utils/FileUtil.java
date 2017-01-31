@@ -48,7 +48,7 @@ import javax.crypto.CipherOutputStream;
  */
 public class FileUtil {
 
-    private static final int WARNING_SIZE = 3000;
+    private static final int    WARNING_SIZE = 3000;
 
     private static final String LOG_TOKEN = "cc-file-util";
 

@@ -27,6 +27,7 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
+import org.commcare.graph.util.GraphUtil;
 import org.commcare.graph.view.GraphLoader;
 import org.commcare.graph.view.GraphView;
 import org.commcare.logging.AndroidLogger;
@@ -446,7 +447,7 @@ public class EntityDetailView extends FrameLayout {
         View graphView;
         GraphView g = new GraphView(context, title, false);
         try {
-            String graphHTML = g.getHTML(field);
+            String graphHTML = GraphUtil.getHTML(field, title);
             graphView = g.getView(graphHTML);
             graphLayout.setRatio((float)g.getRatio(field), (float)1);
         } catch (GraphException ex) {
@@ -469,7 +470,7 @@ public class EntityDetailView extends FrameLayout {
         if (graphIntent == null && !graphsWithErrors.contains(index)) {
             GraphView g = new GraphView(this.getContext(), title, true);
             try {
-                String html = g.getHTML(field);
+                String html = GraphUtil.getHTML(field, title);
                 graphIntent = g.getIntent(html, CommCareGraphActivity.class);
                 graphIntentsCache.put(index, graphIntent);
             } catch (GraphException ex) {

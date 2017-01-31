@@ -19,6 +19,7 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
+import org.commcare.graph.util.GraphUtil;
 import org.commcare.graph.view.GraphView;
 import org.commcare.models.AsyncEntity;
 import org.commcare.suite.model.Detail;
@@ -292,7 +293,7 @@ public class EntityView extends LinearLayout {
             }
             if (rendered == null) {
                 try {
-                    rendered = g.getView(g.getHTML((GraphData)field));
+                    rendered = g.getView(GraphUtil.getHTML((GraphData)field, ""));
                 } catch (GraphException ex) {
                     rendered = new TextView(getContext());
                     ((TextView)rendered).setText(ex.getMessage());
