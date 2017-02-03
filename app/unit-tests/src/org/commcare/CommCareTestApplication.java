@@ -2,7 +2,6 @@ package org.commcare;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -16,6 +15,7 @@ import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.encryption.ByteEncrypter;
+import org.commcare.modern.util.Pair;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.HttpUtils;
 import org.commcare.network.LocalDataPullResponseFactory;
@@ -207,10 +207,10 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
-    public ModernHttpRequester buildModernHttpRequester(Context context, URL url,
-                                                        HashMap<String, String> params,
-                                                        boolean isAuthenticatedRequest,
-                                                        boolean isPostRequest) {
+    public ModernHttpRequester buildHttpRequesterForLoggedInUser(Context context, URL url,
+                                                                 HashMap<String, String> params,
+                                                                 boolean isAuthenticatedRequest,
+                                                                 boolean isPostRequest) {
         Pair<User, String> userAndDomain = HttpUtils.getUserAndDomain(isAuthenticatedRequest);
         return new ModernHttpRequesterMock(new AndroidCacheDirSetup(context),
                 url, params, userAndDomain.first, userAndDomain.second,

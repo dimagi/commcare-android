@@ -6,7 +6,12 @@ import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.modern.util.Pair;
+import org.commcare.network.AndroidModernHttpRequester;
+import org.commcare.network.HttpUtils;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.utils.AndroidCacheDirSetup;
+import org.javarosa.core.model.User;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,12 +34,19 @@ public class SimpleHttpTask
     private InputStream responseDataStream;
     private IOException ioException;
 
-    public SimpleHttpTask(Context context, URL url,
-                          HashMap<String, String> params,
-                          boolean isPostRequest) {
+    public SimpleHttpTask(Context context, URL url, HashMap<String, String> params,
+                          boolean isPostRequest,
+                          Pair<String, String> usernameAndPasswordToAuthWith) {
         taskId = SIMPLE_HTTP_TASK_ID;
-        requestor = CommCareApplication.instance().buildModernHttpRequester(context, url,
-                params, true, isPostRequest);
+        if (usernameAndPasswordToAuthWith != null) {
+            requestor =
+                    new AndroidModernHttpRequester(new AndroidCacheDirSetup(context), url, params,
+                            usernameAndPasswordToAuthWith, isPostRequest);
+        } else {
+            requestor =
+                    CommCareApplication.instance().buildHttpRequesterForLoggedInUser(context, url,
+                            params, true, isPostRequest);
+        }
         requestor.setResponseProcessor(this);
     }
 

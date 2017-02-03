@@ -962,13 +962,14 @@ public class CommCareApplication extends Application {
         return false;
     }
 
-    public ModernHttpRequester buildModernHttpRequester(Context context, URL url,
-                                                        HashMap<String, String> params,
-                                                        boolean isAuthenticatedRequest,
-                                                        boolean isPostRequest) {
-        Pair<User, String> userAndDomain = HttpUtils.getUserAndDomain(isAuthenticatedRequest);
-        return new AndroidModernHttpRequester(new AndroidCacheDirSetup(context), url,
-                params, userAndDomain.first, userAndDomain.second, isAuthenticatedRequest, isPostRequest);
+    public ModernHttpRequester buildHttpRequesterForLoggedInUser(Context context, URL url,
+                                                                 HashMap<String, String> params,
+                                                                 boolean isAuthenticatedRequest,
+                                                                 boolean isPostRequest) {
+        org.commcare.modern.util.Pair<User, String> userAndDomain =
+                HttpUtils.getUserAndDomain(isAuthenticatedRequest);
+        return new AndroidModernHttpRequester(new AndroidCacheDirSetup(context), url, params,
+                userAndDomain.first, userAndDomain.second, isAuthenticatedRequest, isPostRequest);
     }
 
     public DataPullRequester getDataPullRequester() {

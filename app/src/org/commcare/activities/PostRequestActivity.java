@@ -110,7 +110,7 @@ public class PostRequestActivity
         if (!hasTaskLaunched && !inErrorState) {
             SimpleHttpTask postTask;
             try {
-                postTask = new SimpleHttpTask(this, url, params, true);
+                postTask = new SimpleHttpTask(this, url, params, true, null);
             } catch (ModernHttpRequester.PlainTextPasswordException e) {
                 enterErrorState(Localization.get("post.not.using.https", url.toString()));
                 return;
