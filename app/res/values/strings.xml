@@ -216,6 +216,7 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="getting_location" cc:translatable="true">Loading Location</string>
     <string name="get_forms" cc:translatable="true">Get Blank Form</string>
     <string name="get_location" cc:translatable="true">Record Location</string>
+    <string name="get_available_apps">Get Available Apps</string>
     <string name="provider_disabled_error" cc:translatable="true">Sorry, Location providers are disabled!</string>
     <string name="invalid_answer_error" cc:translatable="true">Sorry, this response is invalid!</string>
     <string name="jump_to_beginning" cc:translatable="true">Go To Start</string>

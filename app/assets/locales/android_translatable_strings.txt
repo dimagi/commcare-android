@@ -132,6 +132,11 @@ login.hide.password=HIDE
 login.update.install.success=App update successfully applied!
 login.update.install.failure=App update failed to apply!
 
+username.empty=You must enter a username
+password.empty=You must enter a password
+username.and.password.empty=You must enter a username and password
+full.username.pattern.not.matched=You must enter either a valid mobile username ending in '@yourdomain.commcarehq.org', or a valid web username ending in '@dimagi.com'
+
 query.button=Query
 query.dialog.title=Querying Server
 query.dialog.body=Searching server for relevant data

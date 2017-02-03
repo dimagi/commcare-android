@@ -104,11 +104,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     public static final int MODE_ARCHIVE = Menu.FIRST;
     private static final int MODE_SMS = Menu.FIRST + 2;
+    private static final int MODE_ADMIN_AUTH = Menu.FIRST + 3;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
     public static final int OFFLINE_INSTALL = 3;
     private static final int MULTIPLE_APPS_LIMIT = 4;
+    public static final int GET_APPS_FROM_HQ = 5;
 
     // dialog ID
     private static final int DIALOG_INSTALL_PROGRESS = 4;
@@ -132,6 +134,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final int INSTALL_MODE_URL = 1;
     private static final int INSTALL_MODE_OFFLINE = 2;
     private static final int INSTALL_MODE_SMS = 3;
+    private static final int INSTALL_MODE_FROM_LIST = 4;
     private int lastInstallMode;
 
     /**
@@ -384,6 +387,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
                 }
                 break;
+            case GET_APPS_FROM_HQ:
+                if (resultCode == Activity.RESULT_OK) {
+                    lastInstallMode = INSTALL_MODE_FROM_LIST;
+                    //result = data.getStringExtra();
+                }
+                break;
             case MULTIPLE_APPS_LIMIT:
                 setResult(RESULT_CANCELED);
                 finish();
@@ -509,6 +518,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onCreateOptionsMenu(menu);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MODE_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
+        menu.add(0, MODE_ADMIN_AUTH, 2, Localization.get("menu.admin.install"));
         return true;
     }
 
@@ -610,14 +620,21 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == MODE_ARCHIVE) {
-            clearErrorMessage();
-            Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
-            startActivityForResult(i, OFFLINE_INSTALL);
-        }
-        if (item.getItemId() == MODE_SMS) {
-            clearErrorMessage();
-            performSMSInstall(true);
+        switch (item.getItemId()) {
+            case MODE_ARCHIVE:
+                clearErrorMessage();
+                Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
+                startActivityForResult(i, OFFLINE_INSTALL);
+                break;
+            case MODE_SMS:
+                clearErrorMessage();
+                performSMSInstall(true);
+                break;
+            case MODE_ADMIN_AUTH:
+                clearErrorMessage();
+                i = new Intent(getApplicationContext(), GetAvailableAppsActivity.class);
+                startActivityForResult(i, GET_APPS_FROM_HQ);
+                break;
         }
         return true;
     }

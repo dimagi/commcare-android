@@ -8,10 +8,8 @@ import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.modern.util.Pair;
 import org.commcare.network.AndroidModernHttpRequester;
-import org.commcare.network.HttpUtils;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.AndroidCacheDirSetup;
-import org.javarosa.core.model.User;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +46,10 @@ public class SimpleHttpTask
                             params, true, isPostRequest);
         }
         requestor.setResponseProcessor(this);
+    }
+
+    public void setResponseProcessor(HttpResponseProcessor responseProcessor) {
+        requestor.setResponseProcessor(responseProcessor);
     }
 
     @Override
