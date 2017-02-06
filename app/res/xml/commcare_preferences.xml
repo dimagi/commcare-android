@@ -29,11 +29,11 @@
         android:title="Fuzzy Search Matches"/>
     <ListPreference
         android:enabled="true"
-        android:defaultValue="no"
-        android:entries="@array/pref_enabled_labels"
-        android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-update-to-unstarred-builds"
-        android:title="Enable Updating to Un-Starred Builds"/>
+        android:defaultValue="release"
+        android:entries="@array/update_target_labels"
+        android:entryValues="@array/update_target_vals"
+        android:key="cc-update-target"
+        android:title="Update Options"/>
     <ListPreference
         android:enabled="true"
         android:defaultValue="always_hidden"

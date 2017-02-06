@@ -215,20 +215,13 @@ public class ResourceInstallUtils {
             return profileRef;
         }
 
-        if (DeveloperPreferences.updateToLatestSavedEnabled()) {
+        String targetParam = CommCarePreferences.getUpdateTargetParam();
+        if (!"".equals(targetParam)) {
             if (profileUrl.getQuery() != null) {
                 // url already has query strings, so add a new one to the end
-                return profileRef + "&target=save";
+                return profileRef + "&target=" + targetParam;
             } else {
-                return profileRef + "?target=save";
-            }
-        }
-        else if (CommCarePreferences.updateToUnstarredBuildsEnabled()) {
-            if (profileUrl.getQuery() != null) {
-                // url already has query strings, so add a new one to the end
-                return profileRef + "&target=build";
-            } else {
-                return profileRef + "?target=build";
+                return profileRef + "?target=" + targetParam;
             }
         }
 
