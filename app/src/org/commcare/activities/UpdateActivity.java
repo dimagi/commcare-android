@@ -8,6 +8,7 @@ import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -19,6 +20,7 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
@@ -27,6 +29,8 @@ import org.commcare.tasks.UpdateTask;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.dialogs.DialogChoiceItem;
+import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
@@ -44,8 +48,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public static final String KEY_FROM_LATEST_BUILD_ACTIVITY = "from-test-latest-build-util";
 
     // Options menu codes
-    public static final int MENU_UPDATE_FROM_CCZ = 0;
-    public static final int MENU_UPDATE_FROM_HUB = 1;
+    public static final int MENU_UPDATE_TARGET_OPTIONS = Menu.FIRST;
+    public static final int MENU_UPDATE_FROM_CCZ = Menu.FIRST + 1;
+    public static final int MENU_UPDATE_FROM_HUB = Menu.FIRST + 2;
 
     // Activity request codes
     private static final int OFFLINE_UPDATE = 0;
@@ -430,8 +435,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_UPDATE_FROM_CCZ, 0, Localization.get("menu.update.from.ccz"));
-        menu.add(0, MENU_UPDATE_FROM_HUB, 1, Localization.get("menu.update.from.hub"));
+        menu.add(0, MENU_UPDATE_TARGET_OPTIONS, 0, Localization.get("menu.update.options"));
+        menu.add(0, MENU_UPDATE_FROM_CCZ, 1, Localization.get("menu.update.from.ccz"));
+        menu.add(0, MENU_UPDATE_FROM_HUB, 2, Localization.get("menu.update.from.hub"));
         return true;
     }
 
@@ -440,7 +446,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_UPDATE_FROM_CCZ).setVisible(BuildConfig.DEBUG ||
                 !getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false));
-
         menu.findItem(MENU_UPDATE_FROM_HUB).setVisible(hubAppRecord != null);
         return true;
     }
@@ -453,19 +458,54 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 i.putExtra(InstallArchiveActivity.FROM_UPDATE, true);
                 startActivityForResult(i, OFFLINE_UPDATE);
                 return true;
-
             case MENU_UPDATE_FROM_HUB:
                 triggerLocalHubUpdate();
                 return true;
-
+            case MENU_UPDATE_TARGET_OPTIONS:
+                showUpdateTargetChoiceDialog();
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void triggerLocalHubUpdate() {
         offlineUpdateRef = hubAppRecord.getLocalUrl();
-
         this.startUpdateCheck();
+    }
+
+    private void showUpdateTargetChoiceDialog() {
+        final PaneledChoiceDialog dialog =
+                new PaneledChoiceDialog(this, Localization.get("menu.update.options"));
+
+        DialogChoiceItem latestStarredChoice = new DialogChoiceItem(
+                Localization.get("update.option.starred"), -1, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CommCarePreferences.setUpdateTarget(CommCarePreferences.UPDATE_TARGET_STARRED);
+                dialog.dismiss();
+            }
+        });
+
+        DialogChoiceItem latestBuildChoice = new DialogChoiceItem(
+                Localization.get("update.option.build"), -1, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CommCarePreferences.setUpdateTarget(CommCarePreferences.UPDATE_TARGET_BUILD);
+                dialog.dismiss();
+            }
+        });
+
+        DialogChoiceItem latestSavedChoice = new DialogChoiceItem(
+                Localization.get("update.option.saved"), -1, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CommCarePreferences.setUpdateTarget(CommCarePreferences.UPDATE_TARGET_SAVED);
+                dialog.dismiss();
+            }
+        });
+
+        dialog.setChoiceItems(
+                new DialogChoiceItem[]{latestStarredChoice, latestBuildChoice, latestSavedChoice});
+        this.showAlertDialog(dialog);
     }
 
     @Override

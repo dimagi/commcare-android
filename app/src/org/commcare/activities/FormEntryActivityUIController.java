@@ -557,7 +557,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                     }
                 }
         );
-        // Purposefully don't persist this dialog accross rotation! Rotation
+        // Purposefully don't persist this dialog across rotation! Rotation
         // refreshes the view, which steps the form index back from the repeat
         // event. This can be fixed, but the dialog click listeners closures
         // capture refences to the old activity, so we need to redo our
