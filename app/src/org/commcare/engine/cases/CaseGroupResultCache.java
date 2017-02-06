@@ -23,6 +23,8 @@ import java.util.Vector;
 
 public class CaseGroupResultCache implements QueryCacheEntry {
 
+    public static final int MAX_PREFETCH_CASE_BLOCK = 5000;
+
     HashMap<String,LinkedHashSet<Integer>> bulkFetchBodies = new HashMap<>();
 
     HashMap<Integer, Case> cachedCases = new HashMap<>();

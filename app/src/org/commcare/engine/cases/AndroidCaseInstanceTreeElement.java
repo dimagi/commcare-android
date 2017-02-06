@@ -11,6 +11,8 @@ import org.commcare.cases.query.IndexedSetMemberLookup;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
 import org.commcare.cases.query.QueryPlanner;
+import org.commcare.cases.query.handlers.ModelQueryLookupHandler;
+import org.commcare.cases.query.queryset.CaseModelQuerySetMatcher;
 import org.commcare.engine.cases.query.CaseIndexPrefetchHandler;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
@@ -48,8 +50,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     private String[][] mMostRecentBatchFetch = null;
 
-    private static final int MAX_PREFETCH_CASE_BLOCK = 3000;
-
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage) {
         this(instanceRoot, storage, new CaseIndexTable());
     }
@@ -64,6 +64,9 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     protected void initBasicQueryHandlers(QueryPlanner queryPlanner) {
         super.initBasicQueryHandlers(queryPlanner);
         queryPlanner.addQueryHandler(new CaseIndexPrefetchHandler(mCaseIndexTable));
+        CaseModelQuerySetMatcher matcher = new CaseModelQuerySetMatcher(multiplicityIdMapping);
+        matcher.addQuerySetTransform(new CaseIndexQuerySetTransform(mCaseIndexTable));
+        queryPlanner.addQueryHandler(new ModelQueryLookupHandler(matcher));
     }
 
 
@@ -73,7 +76,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         if (elements != null) {
             return;
         }
-        objectIdMapping = new Hashtable<>();
         elements = new Vector<>();
         Log.d(TAG, "Getting Cases!");
         long timeInMillis = System.currentTimeMillis();
@@ -147,7 +149,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             mPairedIndexCache.put(cacheKey, ids);
         }
 
-        if(ids.size() > 50 && ids.size() < MAX_PREFETCH_CASE_BLOCK) {
+        if(ids.size() > 50 && ids.size() < CaseGroupResultCache.MAX_PREFETCH_CASE_BLOCK) {
             CaseGroupResultCache cue = currentQueryContext.getQueryCache(CaseGroupResultCache.class);
             cue.reportBulkCaseBody(cacheKey, ids);
         }

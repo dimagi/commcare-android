@@ -1,6 +1,7 @@
 package org.commcare.models.database.user.models;
 
 import android.content.ContentValues;
+import android.util.Pair;
 
 import com.carrotsearch.hppc.IntSet;
 
@@ -8,8 +9,12 @@ import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
+import org.commcare.cases.query.queryset.DualTableSingleMatchModelQuerySet;
+import org.commcare.cases.query.queryset.ModelQuerySet;
+import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
@@ -19,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -194,11 +200,62 @@ public class CaseIndexTable {
 
     }
 
+    /**
+     * Provided an index name and a list of case row ID's, provides a list of the row ID's of the
+     * cases which point to that ID
+     * @param cuedCases
+     * @return
+     */
+    public DualTableSingleMatchModelQuerySet bulkReadIndexToCaseIdMatch(String indexName, Collection<Integer> cuedCases) {
+        DualTableSingleMatchModelQuerySet set = new DualTableSingleMatchModelQuerySet();
+        String caseIdIndex = AndroidTableBuilder.scrubName(Case.INDEX_CASE_ID);
+
+        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(cuedCases, "CAST(? as INT)");
+        for(Pair<String, String[]> querySet : whereParamList) {
+
+            String query =String.format(
+                    "SELECT %s,%s " +
+                            "FROM %s " +
+                            "INNER JOIN %s " +
+                            "ON %s = %s " +
+                            "WHERE %s = '%s' " +
+                            "AND " +
+                            "%s IN %s",
+
+                    COL_CASE_RECORD_ID, ACase.STORAGE_KEY + "." + DatabaseHelper.ID_COL,
+                    TABLE_NAME,
+                    ACase.STORAGE_KEY,
+                    COL_INDEX_TARGET, caseIdIndex,
+                    COL_INDEX_NAME, indexName,
+                    COL_CASE_RECORD_ID, querySet.first);
+
+            android.database.Cursor c = db.rawQuery(query, querySet.second);
+
+            try {
+                if (c.getCount() == 0) {
+                    return set;
+                } else {
+                    c.moveToFirst();
+                    while (!c.isAfterLast()) {
+                        int caseId = c.getInt(c.getColumnIndexOrThrow(COL_CASE_RECORD_ID));
+                        int targetCase = c.getInt(c.getColumnIndex(DatabaseHelper.ID_COL));
+                        set.loadResult(caseId, targetCase);
+                        c.moveToNext();
+                    }
+                }
+            } finally {
+                c.close();
+            }
+        }
+        return set;
+    }
+
+
 
     public static String getArgumentBasedVariableSet(int number) {
         StringBuffer sb = new StringBuffer();
         sb.append("(");
-        for (int i = 0; i < number; i++) {
+            for (int i = 0; i < number; i++) {
             sb.append('?');
             if (i < number - 1) {
                 sb.append(",");

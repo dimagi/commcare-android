@@ -241,8 +241,7 @@ public class TestUtils {
         formInstances.put("casedb", specializedDataInstance);
         formInstances.put("ledger", ledgerDataInstance);
 
-        TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
-        return new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
+        return new EvaluationContext(new EvaluationContext(null), formInstances, TreeReference.rootRef());
     }
 
     public static RuntimeException wrapError(Exception e, String prefix) {

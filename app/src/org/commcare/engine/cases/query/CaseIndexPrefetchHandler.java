@@ -8,8 +8,11 @@ import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QueryHandler;
 import org.commcare.cases.util.QueryUtils;
 import org.commcare.models.database.user.models.CaseIndexTable;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.trace.EvaluationTrace;
+import org.javarosa.xpath.expr.XPathExpression;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -81,5 +84,10 @@ public class CaseIndexPrefetchHandler implements QueryHandler<IndexedValueLookup
     @Override
     public void updateProfiles(IndexedValueLookup querySet, Vector<PredicateProfile> profiles) {
         profiles.remove(querySet);
+    }
+
+    @Override
+    public Collection<PredicateProfile> collectPredicateProfiles(Vector<XPathExpression> predicates, QueryContext context, EvaluationContext evaluationContext) {
+        return null;
     }
 }

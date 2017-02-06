@@ -620,6 +620,5 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 c.close();
             }
         }
-
     }
 }

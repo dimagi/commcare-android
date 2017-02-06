@@ -33,7 +33,11 @@ public class AndroidTableBuilder extends TableBuilder {
     }
 
     public static List<Pair<String, String[]>> sqlList(Collection<Integer> input) {
-        return sqlList(input, MAX_SQL_ARGS);
+        return sqlList(input, "?");
+    }
+
+    public static List<Pair<String, String[]>> sqlList(Collection<Integer> input, String questionMarkType) {
+        return sqlList(input, MAX_SQL_ARGS, questionMarkType);
     }
 
     /**
@@ -41,7 +45,7 @@ public class AndroidTableBuilder extends TableBuilder {
      * String containing (?, ?,...) to be used in the SQL query and the array of args
      * to replace them with
      */
-    private static List<Pair<String, String[]>> sqlList(Collection<Integer> input, int maxArgs) {
+    private static List<Pair<String, String[]>> sqlList(Collection<Integer> input, int maxArgs, String questionMark) {
 
         List<Pair<String, String[]>> ops = new ArrayList<>();
 
@@ -56,7 +60,8 @@ public class AndroidTableBuilder extends TableBuilder {
             int lastIndex = Math.min((currentRound + 1) * maxArgs, input.size());
             StringBuilder stringBuilder = new StringBuilder("(");
             for (int i = startPoint; i < lastIndex; ++i) {
-                stringBuilder.append("?,");
+                stringBuilder.append(questionMark);
+                stringBuilder.append(",");
             }
 
             String[] array = new String[lastIndex - startPoint];
