@@ -142,6 +142,16 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
         <item>400</item>
         <item>480</item>
     </string-array>
+    <string-array name="update_target_labels">
+        <item>Latest starred build</item>
+        <item>Latest build</item>
+        <item>Latest saved state (NEW!)</item>
+    </string-array>
+    <string-array name="update_target_vals">
+        <item>release</item>
+        <item>build</item>
+        <item>save</item>
+    </string-array>
 
     <item name="detail_size_cutoff" format="integer" type="integer">500</item>
 
