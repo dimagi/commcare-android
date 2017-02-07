@@ -1,9 +1,11 @@
 package org.commcare.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,6 +27,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -38,6 +41,8 @@ import java.util.regex.Pattern;
  * Created by amstone326 on 2/3/17.
  */
 public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements HttpResponseProcessor {
+
+    public static final String PROFILE_REF = "profile-ref-selected";
 
     private static final String REQUESTED_FROM_PROD_KEY = "have-requested-from-prod";
     private static final String REQUESTED_FROM_INDIA_KEY = "have-requested-from-india";
@@ -86,10 +91,33 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
                 if (validateUsernameAndPasswordFormat()) {
                     errorMessageBox.setVisibility(View.GONE);
                     authenticateView.setVisibility(View.GONE);
-                    requestAppList();
+                    //requestAppList();
+                    // TODO: change back to line above
+                    processTestResponseAndShowResults();
                 }
             }
         });
+
+        appsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position < allAvailableApps.size()) {
+                    AppAvailableForInstall app = allAvailableApps.get(position);
+                    Intent i = new Intent(getIntent());
+                    i.putExtra(PROFILE_REF, app.getMediaProfileRef());
+                    setResult(RESULT_OK, i);
+                    finish();
+                }
+            }
+        });
+    }
+
+    // TODO: REMOVE, for testing only
+    private void processTestResponseAndShowResults() {
+        String responseXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><apps><app profile=\"http://www.commcarehq.org/a/dimagi/apps/download/061eed551c565a2c18140a0a89fd3180/profile.xml?latest=true\" domain=\"dimagi\" name=\"Test icon uploader\" environment=\"changeme\" version=\"15\" media-profile=\"http://www.commcarehq.org/a/dimagi/apps/download/061eed551c565a2c18140a0a89fd3180/media_profile.xml?latest=true\"/><app profile=\"http://www.commcarehq.org/a/dimagi/apps/download/ef4b94438be3916d4a52eb01a726f99b/profile.xml?latest=true\" domain=\"dimagi\" name=\"Dev Recruitment Tracking\" environment=\"changeme\" version=\"130\" media-profile=\"http://www.commcarehq.org/a/dimagi/apps/download/ef4b94438be3916d4a52eb01a726f99b/media_profile.xml?latest=true\"/><app profile=\"http://www.commcarehq.org/a/dimagi/apps/download/145884de1cbbbe29619f010c56605cc8/profile.xml?latest=true\" domain=\"dimagi\" name=\"Dimagi Reports\" environment=\"changeme\" version=\"32\" media-profile=\"http://www.commcarehq.org/a/dimagi/apps/download/145884de1cbbbe29619f010c56605cc8/media_profile.xml?latest=true\"/><app profile=\"http://www.commcarehq.org/a/dimagi/apps/download/a05614e43f6b455084d5f2e158f5bc87/profile.xml?latest=true\" domain=\"dimagi\" name=\"Dimagi Device Signout\" environment=\"changeme\" version=\"3\" media-profile=\"http://www.commcarehq.org/a/dimagi/apps/download/a05614e43f6b455084d5f2e158f5bc87/media_profile.xml?latest=true\"/></apps>";
+        InputStream stream = new ByteArrayInputStream(responseXml.getBytes());
+        processResponseIntoAppsList(stream);
+        showResults();
     }
 
     private boolean validateUsernameAndPasswordFormat() {

@@ -390,7 +390,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case GET_APPS_FROM_HQ:
                 if (resultCode == Activity.RESULT_OK) {
                     lastInstallMode = INSTALL_MODE_FROM_LIST;
-                    //result = data.getStringExtra();
+                    result = data.getStringExtra(GetAvailableAppsActivity.PROFILE_REF);
                 }
                 break;
             case MULTIPLE_APPS_LIMIT:
