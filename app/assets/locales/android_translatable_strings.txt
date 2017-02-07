@@ -72,7 +72,7 @@ menu.update.from.hub=Update from Local Hub
 menu.update.options=Update Options
 update.option.starred=Latest starred build
 update.option.build=Latest build
-update.option.saved=Latest saved state (NEW!)
+update.option.saved=Latest saved state
 
 home.developer.options.enabled=Developer Mode Enabled
 
