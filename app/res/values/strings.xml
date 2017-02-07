@@ -145,7 +145,7 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string-array name="update_target_labels">
         <item>Latest starred build</item>
         <item>Latest build</item>
-        <item>Latest saved state (NEW!)</item>
+        <item>Latest saved state</item>
     </string-array>
     <string-array name="update_target_vals">
         <item>release</item>
