@@ -3,6 +3,9 @@ package org.commcare.models.database;
 import android.database.Cursor;
 import android.util.Pair;
 
+import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.IntSet;
+
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteQueryBuilder;
 import net.sqlcipher.database.SQLiteStatement;
@@ -27,8 +30,10 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -84,6 +89,10 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
+        return getIDsForValues(fieldNames, values, null);
+    }
+
+    public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet<Integer> returnSet) {
         SQLiteDatabase db = helper.getHandle();
 
         Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);
@@ -94,16 +103,23 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
 
         Cursor c = db.query(table, new String[]{DatabaseHelper.ID_COL}, whereClause.first, whereClause.second, null, null, null);
-        return fillIdWindow(c, DatabaseHelper.ID_COL);
+        return fillIdWindow(c, DatabaseHelper.ID_COL, returnSet);
     }
 
     public static Vector<Integer> fillIdWindow(Cursor c, String columnName) {
+        return fillIdWindow(c, columnName, null);
+    }
+
+    public static Vector<Integer> fillIdWindow(Cursor c, String columnName, LinkedHashSet<Integer> newReturn) {
         Vector<Integer> indices = new Vector<>();
         try {
             if (c.moveToFirst()) {
                 int index = c.getColumnIndexOrThrow(columnName);
                 while (!c.isAfterLast()) {
                     int id = c.getInt(index);
+                    if(newReturn != null) {
+                        newReturn.add(id);
+                    }
                     indices.add(id);
                     c.moveToNext();
                 }
@@ -282,9 +298,12 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     @Override
     public int getNumRecords() {
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL}, null, null, null, null, null);
-        int records = c.getCount();
-        c.close();
-        return records;
+        try {
+            int records = c.getCount();
+            return records;
+        } finally {
+            c.close();
+        }
     }
 
     @Override
@@ -578,5 +597,28 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
         //Return a covering iterator 
         return new IndexSpanningIterator<>(c, this, minValue, maxValue, countValue);
+    }
+
+    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap recordMap) {
+        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(cuedCases);
+        for(Pair<String, String[]> querySet : whereParamList) {
+            Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + " IN " + querySet.first, querySet.second, null, null, null);
+            try {
+                if (c.getCount() == 0) {
+                    return;
+                } else {
+                    c.moveToFirst();
+                    int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
+                    while (!c.isAfterLast()) {
+                        byte[] data = c.getBlob(index);
+                        recordMap.put(c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)),
+                                newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
+                        c.moveToNext();
+                    }
+                }
+            } finally {
+                c.close();
+            }
+        }
     }
 }
