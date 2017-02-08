@@ -2,22 +2,33 @@ package org.commcare.engine.cases;
 
 import android.util.Log;
 
+import com.carrotsearch.hppc.IntSet;
+
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
-import org.commcare.cases.util.IndexedSetMemberLookup;
-import org.commcare.cases.util.IndexedValueLookup;
-import org.commcare.cases.util.PredicateProfile;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.IndexedSetMemberLookup;
+import org.commcare.cases.query.IndexedValueLookup;
+import org.commcare.cases.query.PredicateProfile;
+import org.commcare.cases.query.QueryPlanner;
+import org.commcare.cases.query.handlers.ModelQueryLookupHandler;
+import org.commcare.cases.query.queryset.CaseModelQuerySetMatcher;
+import org.commcare.engine.cases.query.CaseIndexPrefetchHandler;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.Vector;
 
 /**
@@ -32,7 +43,10 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     //We're storing this here for now because this is a safe lifecycle object that must represent
     //a single snapshot of the case database, but it could be generalized later.
-    private final Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
+    private Hashtable<String, LinkedHashSet<Integer>> mIndexCache = new Hashtable<>();
+
+    //TODO: Document
+    private Hashtable<String, LinkedHashSet<Integer>> mPairedIndexCache = new Hashtable<>();
 
     private String[][] mMostRecentBatchFetch = null;
 
@@ -47,11 +61,21 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     }
 
     @Override
+    protected void initBasicQueryHandlers(QueryPlanner queryPlanner) {
+        super.initBasicQueryHandlers(queryPlanner);
+        queryPlanner.addQueryHandler(new CaseIndexPrefetchHandler(mCaseIndexTable));
+        CaseModelQuerySetMatcher matcher = new CaseModelQuerySetMatcher(multiplicityIdMapping);
+        matcher.addQuerySetTransform(new CaseIndexQuerySetTransform(mCaseIndexTable));
+        queryPlanner.addQueryHandler(new ModelQueryLookupHandler(matcher));
+    }
+
+
+
+    @Override
     protected synchronized void loadElements() {
         if (elements != null) {
             return;
         }
-        objectIdMapping = new Hashtable<>();
         elements = new Vector<>();
         Log.d(TAG, "Getting Cases!");
         long timeInMillis = System.currentTimeMillis();
@@ -70,8 +94,9 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     }
 
     @Override
-    protected Vector<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
-                                                IStorageUtilityIndexed<?> storage) {
+    protected Collection<Integer> getNextIndexMatch(Vector<PredicateProfile> profiles,
+                                                    IStorageUtilityIndexed<?> storage,
+                                                    QueryContext currentQueryContext) {
         //If the index object starts with "case-in-" it's actually a case index query and we need to run
         //this over the case index table
         String firstKey = profiles.elementAt(0).getKey();
@@ -92,18 +117,42 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         }
 
         SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
+
         String[] namesToMatch = new String[numKeys];
         String[] valuesToMatch = new String[numKeys];
+
+        String cacheKey = "";
+        String keyDescription ="";
+
         for (int i = numKeys - 1; i >= 0; i--) {
             namesToMatch[i] = profiles.elementAt(i).getKey();
             valuesToMatch[i] = (String)
                     (((IndexedValueLookup)profiles.elementAt(i)).value);
+
+            cacheKey += "|" + namesToMatch[i] + "=" + valuesToMatch[i];
+            keyDescription += namesToMatch[i] + "|";
         }
         mMostRecentBatchFetch = new String[2][];
         mMostRecentBatchFetch[0] = namesToMatch;
         mMostRecentBatchFetch[1] = valuesToMatch;
 
-        Vector<Integer> ids = sqlStorage.getIDsForValues(namesToMatch, valuesToMatch);
+        LinkedHashSet<Integer> ids;
+        if(mPairedIndexCache.containsKey(cacheKey)) {
+            ids = mPairedIndexCache.get(cacheKey);
+        } else {
+            EvaluationTrace trace = new EvaluationTrace("Case Storage Lookup" + "["+keyDescription + "]");
+            ids = new LinkedHashSet<>();
+            sqlStorage.getIDsForValues(namesToMatch, valuesToMatch, ids);
+            trace.setOutcome("Results: " + ids.size());
+            currentQueryContext.reportTrace(trace);
+
+            mPairedIndexCache.put(cacheKey, ids);
+        }
+
+        if(ids.size() > 50 && ids.size() < CaseGroupResultCache.MAX_PREFETCH_CASE_BLOCK) {
+            CaseGroupResultCache cue = currentQueryContext.getQueryCache(CaseGroupResultCache.class);
+            cue.reportBulkCaseBody(cacheKey, ids);
+        }
 
         //Ok, we matched! Remove all of the keys that we matched
         for (int i = 0; i < numKeys; ++i) {
@@ -112,7 +161,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         return ids;
     }
 
-    private Vector<Integer> performCaseIndexQuery(String firstKey, Vector<PredicateProfile> optimizations) {
+    private LinkedHashSet<Integer> performCaseIndexQuery(String firstKey, Vector<PredicateProfile> optimizations) {
         //CTS - March 9, 2015 - Introduced a small cache for child index queries here because they
         //are a frequent target of bulk operations like graphing which do multiple requests across the
         //same query.
@@ -125,7 +174,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
         String indexCacheKey = null;
 
-        Vector<Integer> matchingCases = null;
+        LinkedHashSet<Integer> matchingCases = null;
 
         if (op instanceof IndexedValueLookup) {
 
@@ -134,7 +183,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             String value = (String)iop.value;
 
             //TODO: Evaluate whether our indices could contain "|" but I don't imagine how they could.
-            indexCacheKey = firstKey + "|" + value;
+            indexCacheKey = indexName + "|" + value;
 
             //Check whether we've got a cache of this index.
             if (mIndexCache.containsKey(indexCacheKey)) {
@@ -226,4 +275,27 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     public String[][] getCachePrimeGuess() {
         return mMostRecentBatchFetch;
     }
+
+
+    @Override
+    protected Case getElement(int recordId, QueryContext context) {
+        if(context == null) {
+            return super.getElement(recordId, context);
+        }
+        CaseGroupResultCache cue = context.getQueryCacheOrNull(CaseGroupResultCache.class);
+        if(cue != null && cue.hasMatchingCaseSet(recordId)) {
+            if(!cue.isLoaded(recordId)) {
+                EvaluationTrace loadTrace = new EvaluationTrace("Bulk Case Load");
+                SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
+                LinkedHashSet<Integer>  body = cue.getTranche(recordId);
+
+                sqlStorage.bulkRead(body, cue.getLoadedCaseMap());
+                loadTrace.setOutcome("Loaded: " + body.size());
+                context.reportTrace(loadTrace);
+            }
+            return cue.getLoadedCase(recordId);
+        }
+        return super.getElement(recordId, context);
+    }
+
 }

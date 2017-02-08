@@ -9,6 +9,7 @@ import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.AsyncNodeEntityFactory;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -39,6 +40,9 @@ public class EntityLoaderTask
             this.factory = new AsyncNodeEntityFactory(detail, evalCtx);
         } else {
             this.factory = new NodeEntityFactory(detail, evalCtx);
+            if(DeveloperPreferences.collectAndDisplayEntityTrances()) {
+                this.factory.activateDebugTraceOutput();
+            }
         }
     }
 
@@ -66,6 +70,7 @@ public class EntityLoaderTask
             }
 
             factory.prepareEntities();
+            factory.printAndClearTraces("build");
             return new Pair<>(full, references);
         } catch (XPathException xe) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xe);
