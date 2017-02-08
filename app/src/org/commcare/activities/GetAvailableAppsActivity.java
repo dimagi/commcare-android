@@ -2,15 +2,20 @@ package org.commcare.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.ModernHttpRequester;
@@ -35,7 +40,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Created by amstone326 on 2/3/17.
@@ -53,18 +57,13 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     //private static final String PROD_URL = "https://www.commcarehq.org/phone/list_apps";
     //private static final String INDIA_URL = "https://india.commcarehq.org/phone/list_apps";
 
-    private static final String WEB_USER_SUFFIX = "@dimagi.com";
-    private static final String MOBILE_USER_REGEX = "(.*)@(.*).commcarehq.org";
-
-    private String enteredUsername;
-    private String enteredPassword;
+    private boolean inMobileUserAuthMode;
 
     private boolean requestedFromProd;
     private boolean requestedFromIndia;
     private String urlCurrentlyRequestingFrom;
 
     private String errorMessage;
-
     private View authenticateView;
     private TextView errorMessageBox;
     private ListView appsList;
@@ -82,14 +81,18 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
         setContentView(R.layout.user_get_available_apps);
         errorMessageBox = (TextView)findViewById(R.id.error_message);
         authenticateView = findViewById(R.id.authenticate_view);
-        appsList = (ListView)findViewById(R.id.apps_list_view);
+        setUpGetAppsButton();
+        setUpAppsList();
+        setUpToggle();
+    }
 
+    private void setUpGetAppsButton() {
         Button getAppsButton = (Button)findViewById(R.id.get_apps_button);
         getAppsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validateUsernameAndPasswordFormat()) {
-                    errorMessageBox.setVisibility(View.GONE);
+                if (inputIsValid()) {
+                    errorMessageBox.setVisibility(View.INVISIBLE);
                     authenticateView.setVisibility(View.GONE);
                     //requestAppList();
                     // TODO: change back to line above
@@ -97,7 +100,10 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
                 }
             }
         });
+    }
 
+    private void setUpAppsList() {
+        appsList = (ListView)findViewById(R.id.apps_list_view);
         appsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -112,6 +118,43 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
         });
     }
 
+    private void setUpToggle() {
+        FrameLayout toggleContainer = (FrameLayout)findViewById(R.id.toggle_button_container);
+        CompoundButton userTypeToggler;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            Switch switchButton = new Switch(this);
+            switchButton.setTextOff(Localization.get("toggle.web.user.mode"));
+            switchButton.setTextOn(Localization.get("toggle.mobile.user.mode"));
+            userTypeToggler = switchButton;
+        } else {
+            ToggleButton toggleButton = new ToggleButton(this);
+            toggleButton.setTextOff(Localization.get("toggle.web.user.mode"));
+            toggleButton.setTextOn(Localization.get("toggle.mobile.user.mode"));
+            userTypeToggler = toggleButton;
+        }
+
+        final View mobileUserView = findViewById(R.id.mobile_user_view);
+        final View webUserView = findViewById(R.id.web_user_view);
+        userTypeToggler.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                inMobileUserAuthMode = isChecked;
+                if (inMobileUserAuthMode) {
+                    mobileUserView.setVisibility(View.VISIBLE);
+                    webUserView.setVisibility(View.GONE);
+                } else {
+                    mobileUserView.setVisibility(View.GONE);
+                    webUserView.setVisibility(View.VISIBLE);
+                }
+                errorMessageBox.setVisibility(View.INVISIBLE);
+                ((EditText)findViewById(R.id.edit_password)).setText("");
+            }
+        });
+
+        userTypeToggler.setChecked(true);
+        toggleContainer.addView(userTypeToggler);
+    }
+
     // TODO: REMOVE, for testing only
     private void processTestResponseAndShowResults() {
         String responseXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><apps><app profile=\"http://www.commcarehq.org/a/dimagi/apps/download/061eed551c565a2c18140a0a89fd3180/profile.xml?latest=true\" domain=\"dimagi\" name=\"Test icon uploader\" environment=\"changeme\" version=\"15\" media-profile=\"http://www.commcarehq.org/a/dimagi/apps/download/061eed551c565a2c18140a0a89fd3180/media_profile.xml?latest=true\"/><app profile=\"http://www.commcarehq.org/a/dimagi/apps/download/ef4b94438be3916d4a52eb01a726f99b/profile.xml?latest=true\" domain=\"dimagi\" name=\"Dev Recruitment Tracking\" environment=\"changeme\" version=\"130\" media-profile=\"http://www.commcarehq.org/a/dimagi/apps/download/ef4b94438be3916d4a52eb01a726f99b/media_profile.xml?latest=true\"/><app profile=\"http://www.commcarehq.org/a/dimagi/apps/download/145884de1cbbbe29619f010c56605cc8/profile.xml?latest=true\" domain=\"dimagi\" name=\"Dimagi Reports\" environment=\"changeme\" version=\"32\" media-profile=\"http://www.commcarehq.org/a/dimagi/apps/download/145884de1cbbbe29619f010c56605cc8/media_profile.xml?latest=true\"/><app profile=\"http://www.commcarehq.org/a/dimagi/apps/download/a05614e43f6b455084d5f2e158f5bc87/profile.xml?latest=true\" domain=\"dimagi\" name=\"Dimagi Device Signout\" environment=\"changeme\" version=\"3\" media-profile=\"http://www.commcarehq.org/a/dimagi/apps/download/a05614e43f6b455084d5f2e158f5bc87/media_profile.xml?latest=true\"/></apps>";
@@ -120,26 +163,30 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
         showResults();
     }
 
-    private boolean validateUsernameAndPasswordFormat() {
-        enteredUsername = ((EditText)findViewById(R.id.edit_username)).getText().toString();
-        enteredPassword = ((EditText)findViewById(R.id.edit_password)).getText().toString();
-
-        if ("".equals(enteredPassword) && "".equals(enteredUsername)) {
-            enterErrorState(Localization.get("username.and.password.empty"));
-            return false;
-        }
+    private boolean inputIsValid() {
+        String enteredPassword = ((EditText)findViewById(R.id.edit_password)).getText().toString();
         if ("".equals(enteredPassword)) {
-            enterErrorState(Localization.get("password.empty"));
+            enterErrorState(Localization.get("missing.fields"));
             return false;
         }
-        if ("".equals(enteredUsername)) {
-            enterErrorState(Localization.get("username.empty"));
-            return false;
-        }
-        if (!Pattern.matches(MOBILE_USER_REGEX, enteredUsername) &&
-                !enteredUsername.endsWith(WEB_USER_SUFFIX)) {
-            enterErrorState(Localization.get("full.username.pattern.not.matched"));
-            return false;
+
+        if (inMobileUserAuthMode) {
+            String enteredMobileUser = ((EditText)findViewById(R.id.edit_username)).getText().toString();
+            String enteredDomain = ((EditText)findViewById(R.id.edit_domain)).getText().toString();
+            if ("".equals(enteredMobileUser) || "".equals(enteredDomain)) {
+                enterErrorState(Localization.get("missing.fields"));
+                return false;
+            }
+        } else {
+            String enteredEmail = ((EditText)findViewById(R.id.edit_email)).getText().toString();
+            if ("".equals(enteredEmail)) {
+                enterErrorState(Localization.get("missing.fields"));
+                return false;
+            }
+            if (!enteredEmail.contains("@")) {
+                enterErrorState(Localization.get("email.address.invalid"));
+                return false;
+            }
         }
 
         return true;
@@ -172,7 +219,8 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
             SimpleHttpTask task;
             try {
                 task = new SimpleHttpTask(this, urlToTry, new HashMap<String, String>(), false,
-                        new Pair<>(enteredUsername, enteredPassword));
+                        new Pair<>(getUsernameForAuth(),
+                                ((EditText)findViewById(R.id.edit_password)).getText().toString()));
             } catch (ModernHttpRequester.PlainTextPasswordException e) {
                 enterErrorState(Localization.get("post.not.using.https", urlToTry.toString()));
                 return false;
@@ -188,6 +236,16 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
             return true;
         }
         return false;
+    }
+
+    private String getUsernameForAuth() {
+        if (inMobileUserAuthMode) {
+            String username =  ((EditText)findViewById(R.id.edit_username)).getText().toString();
+            String domain =  ((EditText)findViewById(R.id.edit_domain)).getText().toString();
+            return username + "@" + domain + ".commcarehq.org";
+        } else {
+            return ((EditText)findViewById(R.id.edit_email)).getText().toString();
+        }
     }
 
     private void setAttemptedRequestFlag() {
