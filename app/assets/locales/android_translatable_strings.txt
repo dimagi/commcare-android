@@ -489,6 +489,9 @@ notification.install.badreqs.title=Incompatible CommCare Version for Install
 notification.install.badreqs.detail=${0}
 notification.install.badreqs.action=${0}
 
+notification.update.failed.general.title=Update failed due to an error
+notification.update.failed.general.detail=${0}
+
 notification.install.badarchive.title=Archive must be in file system
 notification.install.badarchive.detail=Your .ccz archive file must be on your phone's file system
 notification.install.badarchive.action=Download this fule and place it on your phone's SD card and retry. 
