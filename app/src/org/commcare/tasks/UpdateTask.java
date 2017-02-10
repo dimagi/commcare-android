@@ -12,7 +12,6 @@ import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.InstallCancelled;
-import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
