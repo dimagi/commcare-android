@@ -50,7 +50,8 @@ public class UpdateActivityTest {
      */
     @Test
     public void invalidUpdateTest() {
-        String invalidUpdateReference = "jr://resource/commcare-apps/update_tests/invalid_suite_update/profile.ccpr";
+        String invalidUpdateReference =
+                "jr://resource/commcare-apps/update_tests/invalid_suite_update/profile.ccpr";
 
         // start the update activity
         Intent updateActivityIntent =
@@ -64,27 +65,33 @@ public class UpdateActivityTest {
         ShadowActivity shadowActivity = Shadows.shadowOf(updateActivity);
         shadowActivity.clickMenuItem(UpdateActivity.MENU_UPDATE_FROM_CCZ);
 
-        // make sure there are no pinned notifications
+        // Make sure there are no pinned notifications before we start
         NotificationManager notificationManager =
-                (NotificationManager)RuntimeEnvironment.application.getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notification = Shadows.shadowOf(notificationManager).getNotification(CommCareNoficationManager.MESSAGE_NOTIFICATION);
+                (NotificationManager)RuntimeEnvironment.application
+                        .getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(CommCareNoficationManager.MESSAGE_NOTIFICATION);
+        Notification notification = Shadows.shadowOf(notificationManager)
+                .getNotification(CommCareNoficationManager.MESSAGE_NOTIFICATION);
         assertNull(notification);
 
         // mock receiving the offline app reference and start the update
         Intent referenceIntent = new Intent();
         referenceIntent.putExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE, invalidUpdateReference);
-        shadowActivity.receiveResult(shadowActivity.getNextStartedActivity(), Activity.RESULT_OK, referenceIntent);
+        shadowActivity.receiveResult(shadowActivity.getNextStartedActivity(), Activity.RESULT_OK,
+                referenceIntent);
 
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
 
         // assert that we get the right error message
-        String errorMessage = (String)((TextView)updateActivity.findViewById(R.id.update_progress_text)).getText();
+        String errorMessage = (String)((TextView)updateActivity
+                .findViewById(R.id.update_progress_text)).getText();
         assertEquals(Localization.get("updates.check.failed"), errorMessage);
 
         // check that a pinned notification was created for invalid update
         // NOTE: it is way more work to assert the notification body is correct, so skip over that
-        notification = Shadows.shadowOf(notificationManager).getNotification(CommCareNoficationManager.MESSAGE_NOTIFICATION);
+        notification = Shadows.shadowOf(notificationManager)
+                .getNotification(CommCareNoficationManager.MESSAGE_NOTIFICATION);
         assertNotNull(notification);
     }
 }

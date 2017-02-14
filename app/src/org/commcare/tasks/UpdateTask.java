@@ -9,15 +9,18 @@ import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
+import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.services.Logger;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
 
@@ -109,6 +112,16 @@ public class UpdateTask
             ResourceInstallUtils.logInstallError(e,
                     "Structure error ocurred during install|");
             return new ResultAndError<>(AppInstallStatus.UnknownFailure, buildCombinedErrorMessage(e.resourceName, e.getMessage()));
+        } catch (LocalStorageUnavailableException e) {
+            ResourceInstallUtils.logInstallError(e,
+                    "Couldn't install file to local storage|");
+            return new ResultAndError<>(AppInstallStatus.NoLocalStorage, e.getMessage());
+        } catch (UnfullfilledRequirementsException e) {
+            ResourceInstallUtils.logInstallError(e,
+                    "App resources are incompatible with this device|");
+            return new ResultAndError<>(AppInstallStatus.IncompatibleReqs, e.getMessage());
+        } catch (UnresolvedResourceException e) {
+            return new ResultAndError<>(ResourceInstallUtils.processUnresolvedResource(e), e.getMessage());
         } catch (Exception e) {
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
@@ -129,7 +142,8 @@ public class UpdateTask
                 "Beginning install attempt for profile " + profileRef);
     }
 
-    private AppInstallStatus stageUpdate() {
+    private AppInstallStatus stageUpdate() throws UnfullfilledRequirementsException,
+            UnresolvedResourceException {
         Resource profile = resourceManager.getMasterProfile();
         boolean appInstalled = (profile != null &&
                 profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
