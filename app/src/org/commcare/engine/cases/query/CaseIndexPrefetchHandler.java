@@ -3,7 +3,7 @@ package org.commcare.engine.cases.query;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
-import org.commcare.cases.query.QueryCacheEntry;
+import org.commcare.cases.query.QueryCache;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QueryHandler;
 import org.commcare.cases.util.QueryUtils;
@@ -33,7 +33,7 @@ public class CaseIndexPrefetchHandler implements QueryHandler<IndexedValueLookup
 
     private final CaseIndexTable mCaseIndexTable;
 
-    public static final class Cache implements QueryCacheEntry {
+    public static final class Cache implements QueryCache {
         Vector<String> currentlyFetchedIndexKeys = new Vector<>();
         private HashMap<String, Vector<Integer>> indexCache = new HashMap<>();
     }

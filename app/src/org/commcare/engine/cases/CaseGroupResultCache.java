@@ -1,27 +1,16 @@
 package org.commcare.engine.cases;
 
-import android.util.SparseArray;
-
-import com.carrotsearch.hppc.IntHashSet;
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.IntObjectMap;
-import com.carrotsearch.hppc.IntSet;
-
 import org.commcare.cases.model.Case;
 import org.commcare.cases.query.QueryCache;
-import org.commcare.cases.query.QueryCacheEntry;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Vector;
 
 /**
  * Created by ctsims on 1/25/2017.
  */
 
-public class CaseGroupResultCache implements QueryCacheEntry {
+public class CaseGroupResultCache implements QueryCache {
 
     public static final int MAX_PREFETCH_CASE_BLOCK = 7500;
 
