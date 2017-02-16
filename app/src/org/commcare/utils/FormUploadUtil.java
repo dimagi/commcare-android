@@ -129,6 +129,7 @@ public class FormUploadUtil {
         if (files.length == 0) {
             Log.e(TAG, "no files to upload");
             listener.cancel(true);
+            throw new FileNotFoundException("Folder at path " + folder.getAbsolutePath() + " had no files.");
         }
 
         // mime post

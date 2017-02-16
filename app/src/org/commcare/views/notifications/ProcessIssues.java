@@ -25,7 +25,12 @@ public enum ProcessIssues implements MessageTag {
     /**
      * Logs saved, but not actually submitted
      **/
-    RecordQuarantined("notification.sending.quarantine");
+    RecordQuarantined("notification.sending.quarantine"),
+
+    /**
+     * FormRecord files cannot be found
+     **/
+    RecordFilesMissing("notification.formrecord.files.missing");
 
     ProcessIssues(String root) {
         this(root, "processing");

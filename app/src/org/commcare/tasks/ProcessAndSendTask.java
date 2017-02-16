@@ -289,10 +289,13 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         if (CommCareApplication.instance().isStorageAvailable()) {
                             //If storage is available generally, this is a bug in the app design
                             Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
+                            CommCareApplication.notificationManager().reportNotificationMessage(
+                                    NotificationMessageFactory.message(ProcessIssues.RecordFilesMissing), true);
                             FormRecordCleanupTask.wipeRecord(c, record);
                         } else {
                             //Otherwise, the SD card just got removed, and we need to bail anyway.
-                            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+                            CommCareApplication.notificationManager().reportNotificationMessage(
+                                    NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
                             break;
                         }
                         continue;
