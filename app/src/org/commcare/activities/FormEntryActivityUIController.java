@@ -75,7 +75,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     private int indexOfLastChangedWidget = -1;
     private BlockingActionsManager blockingActionsManager;
 
-    private boolean formRelevanicesUpdateInProgress = false;
+    private boolean formRelevanciesUpdateInProgress = false;
 
     private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
 
@@ -697,11 +697,11 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     protected synchronized void updateFormRelevancies() {
-        if (formRelevanicesUpdateInProgress) {
+        if (formRelevanciesUpdateInProgress) {
             // Don't allow this method to call itself downstream accidentally
             return;
         }
-        formRelevanicesUpdateInProgress = true;
+        formRelevanciesUpdateInProgress = true;
 
         ArrayList<QuestionWidget> oldWidgets = questionsView.getWidgets();
         // These 2 calls need to be made here, rather than in the for loop below, because at that
@@ -760,6 +760,6 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         }
         updateCompoundIntentButtonVisibility();
 
-        formRelevanicesUpdateInProgress = false;
+        formRelevanciesUpdateInProgress = false;
     }
 }
