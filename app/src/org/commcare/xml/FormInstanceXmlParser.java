@@ -11,7 +11,6 @@ import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
@@ -127,10 +126,6 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             serializer.setOutput(bos, "UTF-8");
 
             document.write(serializer);
-        } catch (StorageFullException e) {
-            // writing the form instance to xml failed, so remove the record
-            storage.remove(attachedRecord);
-            throw new IOException(e.getMessage());
         } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException e) {
             // writing the form instance to xml failed, so remove the record
             storage.remove(attachedRecord);
