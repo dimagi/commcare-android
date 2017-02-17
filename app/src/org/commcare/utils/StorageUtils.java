@@ -110,8 +110,6 @@ public class StorageUtils {
                 dateAsSeconds = Long.valueOf(dateAsString);
             } catch (NumberFormatException e) {
                 // Go with the next best ordering for now
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                        "Invalid date in last modified value: " + dateAsString);
                 idToDateIndex.put(id, (long)id);
                 continue;
             }
