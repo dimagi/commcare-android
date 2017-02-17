@@ -13,7 +13,6 @@ import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
-import org.javarosa.core.services.storage.StorageFullException;
 
 /**
  * @author ctsims
@@ -39,19 +38,9 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
             @Override
             public void onClick(View v) {
                 Intent response = new Intent(getIntent());
-
                 AndroidSharedKeyRecord record = AndroidSharedKeyRecord.generateNewSharingKey();
-
-                try {
-                    CommCareApplication.instance().getGlobalStorage(AndroidSharedKeyRecord.class).write(record);
-                } catch (StorageFullException e) {
-                    setResult(Activity.RESULT_CANCELED);
-                    finish();
-                    return;
-                }
-
+                CommCareApplication.instance().getGlobalStorage(AndroidSharedKeyRecord.class).write(record);
                 record.writeResponseToIntent(response);
-
                 setResult(Activity.RESULT_OK, response);
                 finish();
             }
