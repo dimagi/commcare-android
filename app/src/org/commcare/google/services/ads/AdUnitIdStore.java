@@ -6,9 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by amstone326 on 2/20/17.
+ * Keeps track of all AdMob ad unit IDs and the logic for retrieving the proper one at runtime.
+ *
+ * @author Aliza Stone on 2/20/17.
  */
-
 public class AdUnitIdStore {
 
     private static final String TEST_BANNER_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111";
@@ -27,6 +28,7 @@ public class AdUnitIdStore {
 
     private static void initAdUnitIdMaps() {
         if (!mappingsCreated) {
+
             clinicalScalesAdUnitIdsMap = new HashMap<>();
             clinicalScalesAdUnitIdsMap.put(AdLocation.EntityDetail, CLINICAL_SCALES_AD_UNIT_ID_ENTITY_DETAIL);
             clinicalScalesAdUnitIdsMap.put(AdLocation.EntitySelect, CLINICAL_SCALES_AD_UNIT_ID_ENTITY_SELECT);
