@@ -29,7 +29,8 @@ public class AdMobManager {
 
     private static final String CLINICAL_SCALES_PACKAGE_ID =
             "org.commcare.consumerapps.clinicalscales";
-
+    private static final String CLINICAL_SCALES_ADMOB_ID =
+            "ca-app-pub-8038725004530429~5040587593";
     private static final String CLINICAL_SCALES_BANNER_AD_UNIT_ID =
             "ca-app-pub-8038725004530429/9992164391";
 
@@ -40,7 +41,7 @@ public class AdMobManager {
 
     public static Map<String, String> initAdMobIdsMap() {
         Map<String, String> map = new HashMap<>();
-        map.put(CLINICAL_SCALES_PACKAGE_ID, "ca-app-pub-8038725004530429~5040587593");
+        map.put(CLINICAL_SCALES_PACKAGE_ID, CLINICAL_SCALES_ADMOB_ID);
         return map;
     }
 
