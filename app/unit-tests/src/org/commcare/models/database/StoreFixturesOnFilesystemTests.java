@@ -9,7 +9,6 @@ import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -185,7 +184,7 @@ public class StoreFixturesOnFilesystemTests {
         }
     }
 
-    private void removeOneEntry(int id, IStorageUtility<FormInstance> userFixtureStorage) {
+    private void removeOneEntry(int id, IStorageUtilityIndexed<FormInstance> userFixtureStorage) {
         String fixtureFilename =
                 ((HybridFileBackedSqlStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(id);
         File fixtureFile = new File(fixtureFilename);
@@ -194,7 +193,7 @@ public class StoreFixturesOnFilesystemTests {
         Assert.assertTrue(!fixtureFile.exists());
     }
 
-    private void removeTwoEntries(int idOne, int idTwo, IStorageUtility<FormInstance> userFixtureStorage) {
+    private void removeTwoEntries(int idOne, int idTwo, IStorageUtilityIndexed<FormInstance> userFixtureStorage) {
         ArrayList<Integer> toRemoveList = new ArrayList<>();
         toRemoveList.add(idOne);
         toRemoveList.add(idTwo);

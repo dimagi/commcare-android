@@ -287,8 +287,6 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
 
     @Override
     public IAnswerData getAnswer() {
-        setFocus(getContext());
-
         String month = (String)monthSpinner.getSelectedItem();
         String day = dayText.getText().toString();
         String year = yearText.getText().toString();

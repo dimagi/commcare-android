@@ -29,9 +29,9 @@ configurations {
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    testCompile 'org.robolectric:robolectric:3.1.4'
-    testCompile 'org.robolectric:shadows-multidex:3.1.4'
-    testCompile 'org.robolectric:shadows-core:3.1.4'
+    testCompile 'org.robolectric:robolectric:3.2.2'
+    testCompile 'org.robolectric:shadows-multidex:3.2.2'
+    testCompile 'org.robolectric:shadows-core:3.2.2'
 
     testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
@@ -51,7 +51,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:10.0.1'
     compile 'com.google.android.gms:play-services-analytics:10.0.1'
     compile 'com.google.zxing:core:3.3.0'
-    compile 'ch.acra:acra:4.9.1@aar'
+    compile 'ch.acra:acra:4.9.2@aar'
     compile 'joda-time:joda-time:2.9.4'
     compile 'net.sf.kxml:kxml2:2.3.0'
     compile 'net.zetetic:android-database-sqlcipher:3.5.4@aar'

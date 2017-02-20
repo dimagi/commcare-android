@@ -28,9 +28,9 @@ public class RefreshToLatestBuildReceiver extends BroadcastReceiver {
         DeveloperPreferences.enableSessionSaving();
 
         if (intent.getBooleanExtra("useLatestSaved", false)) {
-            DeveloperPreferences.enableUpdateToLatestSavedVersion();
+            CommCarePreferences.setUpdateTarget(CommCarePreferences.UPDATE_TARGET_SAVED);
         } else if (intent.getBooleanExtra("useLatestBuild", false)) {
-            CommCarePreferences.enableUpdateToUnstarredBuilds();
+            CommCarePreferences.setUpdateTarget(CommCarePreferences.UPDATE_TARGET_BUILD);
         }
 
         Intent i = new Intent(context, RefreshToLatestBuildActivity.class);

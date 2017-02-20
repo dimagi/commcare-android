@@ -6,7 +6,7 @@ import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.util.CommCareInstance;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -80,14 +80,14 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     @Override
-                    public boolean initialize(CommCareInstance instance, boolean isUpgrade) {
+                    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
                         return true;
                     }
 
                     @Override
                     public boolean install(Resource r,
                                            ResourceLocation location, Reference ref,
-                                           ResourceTable table, CommCareInstance instance,
+                                           ResourceTable table, CommCarePlatform instance,
                                            boolean upgrade)
                             throws UnresolvedResourceException,
                             UnfullfilledRequirementsException {
@@ -182,7 +182,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void prepareResources(ResourceTable master, CommCareInstance instance)
+    public void prepareResources(ResourceTable master, CommCarePlatform instance)
             throws UnresolvedResourceException,
             UnfullfilledRequirementsException {
     }
@@ -206,7 +206,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void initializeResources(CommCareInstance instance, boolean isUpgrade) {
+    public void initializeResources(CommCarePlatform instance, boolean isUpgrade) {
     }
 
 }

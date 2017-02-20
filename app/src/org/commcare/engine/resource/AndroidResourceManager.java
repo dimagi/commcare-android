@@ -67,7 +67,8 @@ public class AndroidResourceManager extends ResourceManager {
      * @return UpdateStaged upon update download, UpToDate if no new update,
      * otherwise an error status.
      */
-    public AppInstallStatus checkAndPrepareUpgradeResources(String profileRef, int profileAuthority) {
+    public AppInstallStatus checkAndPrepareUpgradeResources(String profileRef, int profileAuthority)
+            throws UnfullfilledRequirementsException, UnresolvedResourceException {
         synchronized (updateLock) {
             this.profileRef = profileRef;
             try {
@@ -88,16 +89,6 @@ public class AndroidResourceManager extends ResourceManager {
                 // The user cancelled the upgrade check process. The calling task
                 // should have caught and handled the cancellation
                 return AppInstallStatus.UnknownFailure;
-            } catch (LocalStorageUnavailableException e) {
-                ResourceInstallUtils.logInstallError(e,
-                        "Couldn't install file to local storage|");
-                return AppInstallStatus.NoLocalStorage;
-            } catch (UnfullfilledRequirementsException e) {
-                ResourceInstallUtils.logInstallError(e,
-                        "App resources are incompatible with this device|");
-                return AppInstallStatus.IncompatibleReqs;
-            } catch (UnresolvedResourceException e) {
-                return ResourceInstallUtils.processUnresolvedResource(e);
             }
 
             return AppInstallStatus.UpdateStaged;

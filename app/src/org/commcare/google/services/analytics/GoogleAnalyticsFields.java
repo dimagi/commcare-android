@@ -125,7 +125,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_FUZZY_SEARCH = "Fuzzy Search Matches";
     public static final String LABEL_PRINT_TEMPLATE = "Set Print Template";
     public static final String LABEL_DEVELOPER_OPTIONS = "Developer Options";
-    public static final String LABEL_UPDATE_TO_UNSTARRED = "Update to Unstarred Builds";
+    public static final String LABEL_UPDATE_TARGET = "Change Update Target";
 
     // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_FORM_PREFS
     public static final String LABEL_FONT_SIZE = "Font Size";
@@ -208,6 +208,11 @@ public final class GoogleAnalyticsFields {
     public static final int VALUE_NEVER = 0;
     public static final int VALUE_DAILY = 1;
     public static final int VALUE_WEEKLY = 2;
+
+    // Values for LABEL_UPDATE_TARGET
+    public static final int VALUE_STARRED = 0;
+    public static final int VALUE_BUILD = 1;
+    public static final int VALUE_SAVED = 2;
 
     // Values for all labels under ACTION_EDIT_PREF in CATEGORY_DEV_PREFS, and for LABEL_FUZZY_SEARCH
     public static final int VALUE_DISABLED = 0;

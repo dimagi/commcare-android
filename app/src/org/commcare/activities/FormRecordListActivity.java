@@ -56,7 +56,6 @@ import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
 
 
 public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity>
@@ -418,13 +417,10 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     return true;
                 case RESTORE_RECORD:
                     FormRecord record = (FormRecord)adapter.getItem(info.position);
-                    try {
-                        new FormRecordProcessor(this).updateRecordStatus(record, FormRecord.STATUS_UNSENT);
-                        adapter.resetRecords();
-                        adapter.notifyDataSetChanged();
-                        return true;
-                    } catch (StorageFullException e) {
-                    }
+                    new FormRecordProcessor(this).updateRecordStatus(record, FormRecord.STATUS_UNSENT);
+                    adapter.resetRecords();
+                    adapter.notifyDataSetChanged();
+                    return true;
                 case SCAN_RECORD:
                     FormRecord theRecord = (FormRecord)adapter.getItem(info.position);
                     Pair<Boolean, String> result = new FormRecordProcessor(this).verifyFormRecordIntegrity(theRecord);
