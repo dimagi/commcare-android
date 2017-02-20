@@ -94,7 +94,10 @@ def assemble_apk(domain, build_number, username, password, build_type):
         gradle_directive = "assembleStandaloneDebug"
     else:
         gradle_directive = "assembleStandaloneRelease"
-    subprocess.call(["gradle", gradle_directive,
+
+    # NOTE: If your machine is set up to use the gradle wrapper to run gradle commands, you will
+    # need to change "gradle" to "./gradlew"
+    subprocess.call(["./gradlew", gradle_directive,
         "-Pcc_domain={}".format(domain), 
         "-Papplication_name={}".format(get_app_name_from_profile()), 
         "-Pis_consumer_app=true", 

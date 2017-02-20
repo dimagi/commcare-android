@@ -1,5 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
 import com.android.builder.core.DefaultManifestParser
-
 
 ////////////
 // README //
@@ -83,6 +83,7 @@ ext {
                     "HJ+F335hm/lVdaFQzvBmeq64MUMbumheVLDJaSUiAVzqSHDKJWH01ZQRowqBYjwo" +
                     "ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0" +
                     "HaAJkjpnc165Os+aYwIDAQAB"
+    GOOGLE_SERVICES_API_KEY = project.properties['GOOGLE_SERVICES_API_KEY'] ?: ""
     QA_BETA_APP_ID = ""
     STANDALONE_APP_ID = ""
     LTS_APP_ID = ""
@@ -92,6 +93,36 @@ ext {
 afterEvaluate {
     // Hack to get assets to show up in robolectric tests; try to eventually remove this
     preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets
+
+    processQabetaDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processQabetaReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processStandaloneDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processStandaloneReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processLtsDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processLtsReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processCommcareDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processCommcareReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+}
+
+task injectGoogleServicesAPIKey(type: Copy) {
+    description = 'Injects the Google Services API key into the google-services.json file at runtime'
+
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    if (isBelowGradleThree()) {
+        outputs.files.setFrom(file("$projectDir/google-services.json"))
+    }
+
+    from file("templates/google-services.json")
+    filter(ReplaceTokens, tokens: [apiKey: project.ext.GOOGLE_SERVICES_API_KEY])
+    into projectDir
+}
+
+def isBelowGradleThree() {
+    return (gradle.gradleVersion.split("\\.")[0] as double) < 3
 }
 
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
