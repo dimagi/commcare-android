@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Controls all actions related to showing ads in consumer apps via AdMob
+ *
  * @author Aliza Stone
  */
 public class AdMobManager {
@@ -27,6 +29,14 @@ public class AdMobManager {
 
     private static final String CLINICAL_SCALES_PACKAGE_ID =
             "org.commcare.consumerapps.clinicalscales";
+
+    private static final String CLINICAL_SCALES_BANNER_AD_UNIT_ID =
+            "ca-app-pub-8038725004530429/9992164391";
+
+    private static final String TEST_BANNER_AD_UNIT_ID =
+            "ca-app-pub-3940256099942544/6300978111";
+    private static final String TEST_INTERSTITIAL_AD_UNIT_ID =
+            "ca-app-pub-3940256099942544/1033173712";
 
     public static Map<String, String> initAdMobIdsMap() {
         Map<String, String> map = new HashMap<>();
@@ -76,7 +86,7 @@ public class AdMobManager {
         } else {
             switch(pkgIdentifier) {
                 case CLINICAL_SCALES_PACKAGE_ID:
-                    return "ca-app-pub-8038725004530429/9992164391";
+                    return CLINICAL_SCALES_BANNER_AD_UNIT_ID;
                 default:
                     return "";
             }
@@ -86,9 +96,9 @@ public class AdMobManager {
     private static String getAdUnitIdForTest(String adType) {
         switch(adType) {
             case AD_TYPE_BANNER:
-                return "ca-app-pub-3940256099942544/6300978111";
+                return TEST_BANNER_AD_UNIT_ID;
             case AD_TYPE_INTERSTITIAL:
-                return "ca-app-pub-3940256099942544/1033173712";
+                return TEST_INTERSTITIAL_AD_UNIT_ID;
             default:
                 return "";
         }
