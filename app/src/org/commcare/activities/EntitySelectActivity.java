@@ -31,6 +31,7 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
+import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
@@ -243,7 +244,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         attemptInitCallout();
         entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, shortSelect.getCallout());
         setupMapNav();
-        AdMobManager.requestBannerAdForView(this, (FrameLayout)findViewById(R.id.ad_container));
+        AdMobManager.requestBannerAdForView(this, (FrameLayout)findViewById(R.id.ad_container),
+                AdLocation.EntitySelect);
     }
 
     private void attemptInitCallout() {

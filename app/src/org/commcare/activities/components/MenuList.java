@@ -15,6 +15,7 @@ import org.commcare.activities.HomeScreenBaseActivity;
 import org.commcare.adapters.MenuAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
+import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
@@ -54,8 +55,12 @@ public class MenuList implements AdapterView.OnItemClickListener {
         activity.setContentView(getLayoutFileResource());
         initViewAndAdapter(menuId);
         setupAdapter();
+        requestBannerAd();
+    }
+
+    protected void requestBannerAd() {
         AdMobManager.requestBannerAdForView(activity,
-                (FrameLayout)activity.findViewById(R.id.ad_container));
+                (FrameLayout)activity.findViewById(R.id.ad_container), AdLocation.MenuList);
     }
 
     protected void initViewAndAdapter(String menuId) {
