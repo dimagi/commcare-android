@@ -227,9 +227,19 @@ public class QuestionsView extends ScrollView
         int newHeight = MeasureSpec.getSize(heightMeasureSpec);
         int oldHeight = this.getMeasuredHeight();
         
-        if(oldHeight == 0 || Math.abs(((newHeight * 1.0 - oldHeight) / oldHeight)) > .2) {
-            for(QuestionWidget qw : this.widgets) { 
+        if (oldHeight == 0 || Math.abs(((newHeight * 1.0 - oldHeight) / oldHeight)) > .2) {
+            // Update the frame size and hint height based on the new height
+            for (QuestionWidget qw : this.widgets) {
                 qw.updateFrameSize(newHeight);
+                qw.updateHintHeight(newHeight/4);
+            }
+        } else {
+            // Check to see if any of our QuestionWidgets have a hint text that was initially
+            // displayed without proper height spec information
+            for (QuestionWidget qw : this.widgets) {
+                if (qw.hintTextNeedsHeightSpec) {
+                    qw.updateHintHeight(newHeight/4);
+                }
             }
         }
         
