@@ -695,7 +695,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         activity.findViewById(R.id.multiple_intent_dispatch_button).setVisibility(View.GONE);
     }
 
-    protected synchronized void updateFormRelevancies() {
+    protected void updateFormRelevancies() {
         if (formRelevanciesUpdateInProgress) {
             // Don't allow this method to call itself downstream accidentally
             return;
