@@ -8,6 +8,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.WindowManager;
 
+import org.commcare.CommCareApplication;
 import org.commcare.engine.references.JavaFileReference;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -20,6 +21,9 @@ import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author ctsims
@@ -122,6 +126,13 @@ public class MediaUtil {
     public static Bitmap getBitmapScaledForNativeDensity(DisplayMetrics metrics, String imageFilepath,
                                                          int containerHeight, int containerWidth,
                                                          int targetDensity) {
+        Pair<File, Bitmap> cacheKey = getCacheFileLocationAndBitmap(imageFilepath,
+                String.format("density_%d_%d_%d",containerHeight, containerWidth, targetDensity));
+
+        if(cacheKey.second != null) {
+            return cacheKey.second;
+        }
+
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
         o.inScaled = false;
@@ -133,12 +144,104 @@ public class MediaUtil {
         int calculatedHeight = Math.round((float)(imageHeight * scaleFactor));
         int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
 
+        Bitmap toReturn;
+
         if (scaleFactor > 1) {
-            return attemptBoundedScaleUp(imageFilepath, calculatedHeight, calculatedWidth,
+            toReturn = attemptBoundedScaleUp(imageFilepath, calculatedHeight, calculatedWidth,
                     containerHeight, containerWidth);
         } else  {
-            return scaleDownToTargetOrContainer(imageFilepath, imageHeight, imageWidth,
+            toReturn = scaleDownToTargetOrContainer(imageFilepath, imageHeight, imageWidth,
                     calculatedHeight, calculatedWidth, containerHeight, containerWidth, false, true);
+        }
+
+        if(cacheKey != null) {
+            attemptWriteCacheToLocation(toReturn, cacheKey.first);
+        }
+
+        return toReturn;
+    }
+
+    private static void attemptWriteCacheToLocation(Bitmap toReturn, File cacheLocation) {
+        try {
+            FileUtil.writeBitmapToDiskAndCleanupHandles(toReturn,
+                    ImageType.fromExtension(FileUtil.getExtension(cacheLocation.getPath())),
+                    cacheLocation);
+        }catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG, "Failed to write bitmap to cache for " + cacheLocation);
+        }
+    }
+
+    /**
+     * Attempts to load a cached filepath from the given location and tag, and returns the
+     * location for the cached file either way.
+     *
+     * If caching is unavailable, null should be returned. If an object is returned, the first
+     * argument must be non-null, and must have the same extension as the input filepath.
+     *
+     * The cache key/object will handle its own file path/modified clearance, the tag provided
+     * should differentiate between different ways of inflating the provided image path
+     */
+    private static Pair<File, Bitmap> getCacheFileLocationAndBitmap(String imageFilepath,
+                                                                    String tag) {
+        File cacheKey = getCacheFileLocation(imageFilepath, tag);
+        if(cacheKey == null ) {
+            return null;
+        }
+        Bitmap b = null;
+        if(cacheKey.exists()) {
+            try {
+                b = BitmapFactory.decodeFile(cacheKey.getPath());
+            } catch(RuntimeException e) {
+                try {
+                    cacheKey.delete();
+                    Log.d(TAG, "Removed potentially invalid cache from " +cacheKey.toString());
+                } catch (Exception inner) {
+
+                }
+            }
+        }
+        return new Pair<>(cacheKey,b);
+    }
+
+    private static File getCacheFileLocation(String imageFilepath, String tag) {
+        Context c = CommCareApplication.instance().getApplicationContext();
+        File cacheDirectory = c.getCacheDir();
+
+        if(!cacheDirectory.exists()) {
+            return null;
+        }
+
+        String ext = FileUtil.getExtension(imageFilepath);
+        if(ImageType.fromExtension(ext) == null) {
+            Log.d(TAG, "Couldn't identify the format of a file for caching: " + imageFilepath);
+            return null;
+        }
+
+        File fileToTransform = new File(imageFilepath);
+
+        String fileName = String.format("%s_%d_%s.%s",
+                getHashedImageFilepath(imageFilepath),
+                fileToTransform.lastModified(),
+                tag,
+                ext);
+        return new File(cacheDirectory, fileName);
+    }
+
+    public static String getHashedImageFilepath(String input){
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(input.getBytes());
+            byte[] hashInBytes = md.digest();
+
+            BigInteger number = new BigInteger(1, hashInBytes);
+            String md5 = number.toString(16);
+            while (md5.length() < 32) {
+                md5 = "0" + md5;
+            }
+            return md5;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("No MD5 platform hashing enabled");
         }
     }
 
@@ -184,7 +287,18 @@ public class MediaUtil {
      * down proportionally with the width)
      */
     public static Bitmap getBitmapScaledToContainer(String imageFilepath, int containerHeight,
-                                                     int containerWidth, boolean respectBoundsExactly) {
+                                                     int containerWidth,
+                                                    boolean respectBoundsExactly) {
+
+        Pair<File, Bitmap> cacheKey = getCacheFileLocationAndBitmap(imageFilepath,
+                String.format("container_%d_%d_%b",containerHeight, containerWidth,
+                        respectBoundsExactly));
+
+        if(cacheKey.second != null) {
+            return cacheKey.second;
+        }
+
+
         // Determine dimensions of original image
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
@@ -192,8 +306,14 @@ public class MediaUtil {
         int imageHeight = o.outHeight;
         int imageWidth = o.outWidth;
 
-        return scaleDownToTargetOrContainer(imageFilepath, imageHeight, imageWidth, -1, -1,
-                containerHeight, containerWidth, true, respectBoundsExactly);
+        Bitmap toReturn = scaleDownToTargetOrContainer(imageFilepath, imageHeight, imageWidth, -1,
+                -1, containerHeight, containerWidth, true, respectBoundsExactly);
+
+        if(cacheKey != null) {
+            attemptWriteCacheToLocation(toReturn, cacheKey.first);
+        }
+
+        return toReturn;
     }
 
     public static Bitmap getBitmapScaledToContainer(File imageFile, int containerHeight,
