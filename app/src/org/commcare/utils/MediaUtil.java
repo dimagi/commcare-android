@@ -129,7 +129,7 @@ public class MediaUtil {
         Pair<File, Bitmap> cacheKey = getCacheFileLocationAndBitmap(imageFilepath,
                 String.format("density_%d_%d_%d", containerHeight, containerWidth, targetDensity));
 
-        if (cacheKey.second != null) {
+        if (cacheKey != null && cacheKey.second != null) {
             return cacheKey.second;
         }
 
@@ -294,7 +294,7 @@ public class MediaUtil {
                 String.format("container_%d_%d_%b",containerHeight, containerWidth,
                         respectBoundsExactly));
 
-        if(cacheKey.second != null) {
+        if (cacheKey != null && cacheKey.second != null) {
             return cacheKey.second;
         }
 
@@ -309,7 +309,7 @@ public class MediaUtil {
         Bitmap toReturn = scaleDownToTargetOrContainer(imageFilepath, imageHeight, imageWidth, -1,
                 -1, containerHeight, containerWidth, true, respectBoundsExactly);
 
-        if(cacheKey != null) {
+        if (cacheKey != null) {
             attemptWriteCacheToLocation(toReturn, cacheKey.first);
         }
 
