@@ -10,8 +10,8 @@ import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.database.DatabaseIndexingUtils;
 
 import java.util.Vector;
 
@@ -51,7 +51,7 @@ public class CaseIndexTable {
 
     public static void createIndexes(SQLiteDatabase db) {
         String columns = COL_CASE_RECORD_ID + ", " + COL_INDEX_NAME + ", " + COL_INDEX_TARGET;
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("RECORD_NAME_ID_TARGET", TABLE_NAME, columns));
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("RECORD_NAME_ID_TARGET", TABLE_NAME, columns));
     }
 
     /**
@@ -111,5 +111,44 @@ public class CaseIndexTable {
         }
         Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID}, COL_INDEX_NAME + " = ? AND " + COL_INDEX_TARGET + " =  ?", args, null, null, null);
         return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
+    }
+
+    /**
+     * Get a list of Case Record id's for cases which index any of a set of provided values
+     *
+     * @param indexName      The name of the index
+     * @param targetValueSet The set of cases targeted by the index
+     * @return An integer array of indexed case record ids
+     */
+    public Vector<Integer> getCasesMatchingValueSet(String indexName, String[] targetValueSet) {
+        String[] args = new String[1 + targetValueSet.length];
+        args[0] = indexName;
+        for (int i = 0; i < targetValueSet.length; ++i) {
+            args[i + 1] = targetValueSet[i];
+        }
+        String inSet = getArgumentBasedVariableSet(targetValueSet.length);
+
+        String whereExpr = String.format("%s = ? AND %s IN %s", COL_INDEX_NAME, COL_INDEX_TARGET, inSet);
+
+        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
+            String query = String.format("SELECT %s FROM %s WHERE %s", COL_CASE_RECORD_ID, TABLE_NAME, whereExpr);
+            DbUtil.explainSql(db, query, args);
+        }
+
+        Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID}, whereExpr, args, null, null, null);
+        return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
+    }
+
+    public static String getArgumentBasedVariableSet(int number) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("(");
+        for (int i = 0; i < number; i++) {
+            sb.append('?');
+            if (i < number - 1) {
+                sb.append(",");
+            }
+        }
+        sb.append(")");
+        return sb.toString();
     }
 }

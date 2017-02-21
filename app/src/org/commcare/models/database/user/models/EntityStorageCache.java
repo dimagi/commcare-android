@@ -8,8 +8,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.database.DatabaseIndexingUtils;
 
 /**
  * @author ctsims
@@ -48,8 +48,8 @@ public class EntityStorageCache {
     }
 
     public static void createIndexes(SQLiteDatabase db) {
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("CACHE_TIMESTAMP", TABLE_NAME, COL_CACHE_NAME + ", " + COL_TIMESTAMP));
-        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("NAME_ENTITY_KEY", TABLE_NAME, COL_CACHE_NAME + ", " + COL_ENTITY_KEY + ", " + COL_CACHE_KEY));
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("CACHE_TIMESTAMP", TABLE_NAME, COL_CACHE_NAME + ", " + COL_TIMESTAMP));
+        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("NAME_ENTITY_KEY", TABLE_NAME, COL_CACHE_NAME + ", " + COL_ENTITY_KEY + ", " + COL_CACHE_KEY));
     }
 
     //TODO: We should do some synchronization to make it the case that nothing can hold

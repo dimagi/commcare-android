@@ -23,7 +23,7 @@ public class StringNumberWidget extends StringWidget {
     public StringNumberWidget(Context context, FormEntryPrompt prompt, boolean secret) {
         super(context, prompt, secret);
 
-        mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+        mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);
 
         // needed to make long readonly text scroll

@@ -29,7 +29,12 @@ public enum AppInstallStatus implements MessageTag {
     UnknownFailure("notification.install.unknown"),
     NoLocalStorage("notification.install.nolocal"),
     NoConnection("notification.install.no.connection"),
-    BadCertificate("notification.install.badcert");
+    BadCertificate("notification.install.badcert"),
+
+    /**
+     * A catch-all MessageTag to use for reporting app update failures to the notifications bar
+     */
+    UpdateFailedGeneral("notification.update.failed.general");
 
     AppInstallStatus(String root) {
         this.root = root;

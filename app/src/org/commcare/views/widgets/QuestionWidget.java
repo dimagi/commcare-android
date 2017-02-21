@@ -59,8 +59,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     private final LinearLayout.LayoutParams mLayout;
     protected final FormEntryPrompt mPrompt;
 
-    protected final int mQuestionFontsize;
-    protected final int mAnswerFontsize;
+    protected final int mQuestionFontSize;
+    protected final int mAnswerFontSize;
     protected final static String ACQUIREFIELD = "acquire";
 
     //the height of the "Frame" available to this widget. The frame
@@ -83,6 +83,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     protected WidgetChangedListener widgetChangedListener;
     protected BlockingActionsManager blockingActionsManager;
 
+    public boolean hintTextNeedsHeightSpec = false;
+
     public QuestionWidget(Context context, FormEntryPrompt p) {
         super(context);
         mPrompt = p;
@@ -101,8 +103,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         String question_font =
                 settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
-        mQuestionFontsize = Integer.valueOf(question_font);
-        mAnswerFontsize = mQuestionFontsize + 2;
+        mQuestionFontSize = Integer.valueOf(question_font);
+        mAnswerFontSize = mQuestionFontSize + 2;
 
         setOrientation(LinearLayout.VERTICAL);
         setGravity(Gravity.TOP);
@@ -385,7 +387,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      */
     protected void addQuestionText() {
         mQuestionText = (TextView)LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, this, false);
-        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         mQuestionText.setId(38475483); // assign random id
 
         setQuestionText(mQuestionText, mPrompt);
@@ -478,7 +480,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         } else {
             text.setText(mPrompt.getHelpText());
         }
-        text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
         text.setPadding(0, 0, 0, 7);
         text.setId(38475483); // assign random id
@@ -547,11 +549,14 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     public void updateFrameSize(int height) {
-        int maxHintHeight = height / 4;
-        if(mHintText != null) {
+        mFrameHeight = height;
+    }
+
+    public void updateHintHeight(int maxHintHeight) {
+        if (mHintText != null) {
             mHintText.updateMaxHeight(maxHintHeight);
         }
-        mFrameHeight = height;
+        hintTextNeedsHeightSpec = false;
     }
 
     /**
@@ -562,7 +567,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
         if (s != null && !s.equals("")) {
             mHintText = new ShrinkingTextView(getContext(),this.getMaxHintHeight());
-            mHintText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize - 3);
+            mHintText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize - 3);
             mHintText.setPadding(0, -5, 0, 7);
             // wrap to the widget of view
             mHintText.setHorizontallyScrolling(false);
@@ -574,7 +579,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     private int getMaxHintHeight() {
-        return -1;
+        if (mFrameHeight != -1) {
+            return mFrameHeight / 4;
+        } else {
+            hintTextNeedsHeightSpec = true;
+            return -1;
+        }
     }
 
     /**
@@ -638,12 +648,16 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     public void widgetEntryChanged() {
+        clearWarningMessage();
+        if (hasListener()) {
+            widgetChangedListener.widgetEntryChanged(this);
+        }
+    }
+
+    public void clearWarningMessage() {
         if (this.warningView != null) {
             this.warningView.setVisibility(View.GONE);
             ViewUtil.setBackgroundRetainPadding(this, null);
-        }
-        if (hasListener()) {
-            widgetChangedListener.widgetEntryChanged(this);
         }
     }
 

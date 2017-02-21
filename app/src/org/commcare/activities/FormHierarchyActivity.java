@@ -22,7 +22,6 @@ import org.commcare.utils.SessionActivityRegistration;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
-import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.util.ArrayList;
@@ -183,7 +182,7 @@ public class FormHierarchyActivity extends ListActivity {
         String hierarchyPath;
         try {
             hierarchyPath = FormHierarchyBuilder.populateHierarchyList(this, formList);
-        } catch (XPathTypeMismatchException | XPathArityException e) {
+        } catch (XPathTypeMismatchException e) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
 
             final String errorMsg = "Encounted xpath error: " + e.getMessage();

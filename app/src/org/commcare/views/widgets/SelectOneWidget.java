@@ -58,7 +58,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
                 } else {
                     rb.setText(prompt.getSelectChoiceText(mItems.get(i)));
                 }
-                rb.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
+                rb.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
                 rb.setId(i + buttonIdBase);
                 rb.setEnabled(!prompt.isReadOnly());
                 rb.setFocusable(!prompt.isReadOnly());

@@ -55,7 +55,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>33</item>
+        <item>34</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -141,6 +141,16 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
         <item>320</item>
         <item>400</item>
         <item>480</item>
+    </string-array>
+    <string-array name="update_target_labels">
+        <item>Latest starred build</item>
+        <item>Latest build</item>
+        <item>Latest saved state</item>
+    </string-array>
+    <string-array name="update_target_vals">
+        <item>release</item>
+        <item>build</item>
+        <item>save</item>
     </string-array>
 
     <item name="detail_size_cutoff" format="integer" type="integer">500</item>

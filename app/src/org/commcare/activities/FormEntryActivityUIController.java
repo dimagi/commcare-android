@@ -46,7 +46,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
@@ -447,7 +446,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                             break;
                     }
                 } while (event != FormEntryController.EVENT_END_OF_FORM);
-            } catch (XPathTypeMismatchException | XPathArityException e) {
+            } catch (XPathTypeMismatchException e) {
                 UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
             }
         }
@@ -464,7 +463,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         FormNavigationController.NavigationDetails details;
         try {
             details = FormNavigationController.calculateNavigationStatus(FormEntryActivity.mFormController, questionsView);
-        } catch (XPathTypeMismatchException | XPathArityException e) {
+        } catch (XPathTypeMismatchException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
             return;
         }
@@ -517,7 +516,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 dialog.dismiss();
                 try {
                     FormEntryActivity.mFormController.newRepeat();
-                } catch (XPathUnhandledException | XPathTypeMismatchException | XPathArityException e) {
+                } catch (XPathUnhandledException | XPathTypeMismatchException e) {
                     Logger.exception(e);
                     UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
                     return;
@@ -557,7 +556,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                     }
                 }
         );
-        // Purposefully don't persist this dialog accross rotation! Rotation
+        // Purposefully don't persist this dialog across rotation! Rotation
         // refreshes the view, which steps the form index back from the repeat
         // event. This can be fixed, but the dialog click listeners closures
         // capture refences to the old activity, so we need to redo our
