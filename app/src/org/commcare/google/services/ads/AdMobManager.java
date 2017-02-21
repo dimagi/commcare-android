@@ -22,24 +22,14 @@ import java.util.Map;
  */
 public class AdMobManager {
 
-    private static final Map<String, String> adMobIdsMap = initAdMobIdsMap();
-
-    public static final String CLINICAL_SCALES_PACKAGE_ID =
-            "org.commcare.consumerapps.clinicalscales";
-    private static final String CLINICAL_SCALES_ADMOB_ID =
-            "ca-app-pub-8038725004530429~5040587593";
-
-    public static Map<String, String> initAdMobIdsMap() {
-        Map<String, String> map = new HashMap<>();
-        map.put(CLINICAL_SCALES_PACKAGE_ID, CLINICAL_SCALES_ADMOB_ID);
-        return map;
-    }
+    private static final String TEST_BANNER_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111";
 
     public static void requestBannerAdForView(Context context, FrameLayout adContainer,
                                               AdLocation adLocation) {
-        String currentConsumerAppPackageId = getPackageIdentifierForCurrentConsumerApp(context);
-        if (hasAdmobId(currentConsumerAppPackageId)) {
-            AdView adView = buildBannerAdView(context, currentConsumerAppPackageId, adLocation);
+        if (hasValidAdmobId()) {
+            // TODO: It's probably bad not to validate this in any way, but any mechanism for doing
+            // so would defeat the purpose of having made this configurable from the consumer apps resources
+            AdView adView = buildBannerAdView(context, adLocation);
             adContainer.setVisibility(View.VISIBLE);
             adContainer.addView(adView);
 
@@ -50,13 +40,30 @@ public class AdMobManager {
         }
     }
 
-    private static AdView buildBannerAdView(Context context, String currentConsumerAppPackageId,
-                                            AdLocation adLocation) {
+    private static AdView buildBannerAdView(Context context, AdLocation adLocation) {
         AdView adView = new AdView(context);
         adView.setAdSize(AdSize.BANNER);
-        adView.setAdUnitId(AdUnitIdStore.getBannerAdUnitIdForCurrentConsumerApp(
-                currentConsumerAppPackageId, adLocation));
+        adView.setAdUnitId(getBannerAdUnitIdForCurrentConsumerApp(adLocation));
         return adView;
+    }
+
+    public static String getBannerAdUnitIdForCurrentConsumerApp(AdLocation adLocation) {
+        if (BuildConfig.DEBUG) {
+            return TEST_BANNER_AD_UNIT_ID;
+        } else {
+            switch(adLocation) {
+                case EntityDetail:
+                    return BuildConfig.ENTITY_DETAIL_AD_UNIT_ID;
+                case EntitySelect:
+                    return BuildConfig.ENTITY_SELECT_AD_UNIT_ID;
+                case MenuGrid:
+                    return BuildConfig.MENU_GRID_AD_UNIT_ID;
+                case MenuList:
+                    return BuildConfig.MENU_LIST_AD_UNIT_ID;
+                default:
+                    return "";
+            }
+        }
     }
 
     private static AdRequest buildAdRequest() {
@@ -75,24 +82,12 @@ public class AdMobManager {
     }
 
     public static void initAdsForCurrentConsumerApp(Context context) {
-        String currentConsumerAppPackageId = getPackageIdentifierForCurrentConsumerApp(context);
-        if (hasAdmobId(currentConsumerAppPackageId)) {
-            String adMobId = adMobIdsMap.get(currentConsumerAppPackageId);
-            if (adMobId != null) {
-                MobileAds.initialize(context, adMobId);
-            }
+        if (hasValidAdmobId()) {
+            MobileAds.initialize(context, BuildConfig.ADMOB_ID);
         }
     }
 
-    private static String getPackageIdentifierForCurrentConsumerApp(Context context) {
-        if (CommCareApplication.instance().isConsumerApp()) {
-            return context.getPackageName();
-        }
-        return "";
+    private static boolean hasValidAdmobId() {
+        return CommCareApplication.instance().isConsumerApp() && !"".equals(BuildConfig.ADMOB_ID);
     }
-
-    private static boolean hasAdmobId(String packageIdentifier) {
-        return adMobIdsMap.containsKey(packageIdentifier);
-    }
-
 }

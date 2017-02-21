@@ -132,6 +132,19 @@ def runDownloadScripts = project.hasProperty('run_download_scripts') ? run_downl
 def ccDomainSafe = ccDomain.replaceAll("-", "")
 def consumerAppUsername = getConsumerAppUsername(isConsumerApp);
 def consumerAppPassword = getConsumerAppPassword(isConsumerApp);
+def usingAdmob = isConsumerApp && project.hasProperty('admob_id') && allAdUnitIdsPresent()
+def admobId = usingAdmob ? admob_id : ""
+def entityDetailAdUnitId = usingAdmob ? entity_detail_ad_id : ""
+def entitySelectAdUnitId = usingAdmob ? entity_select_ad_id : ""
+def menuListAdUnitId = usingAdmob ? menu_list_ad_id : ""
+def menuGridAdUnitId = usingAdmob ? menu_grid_ad_id : ""
+
+def allAdUnitIdsPresent() {
+    return (project.hasProperty("entity_detail_ad_id") &&
+            project.hasProperty("entity_select_ad_id") &&
+            project.hasProperty("menu_list_ad_id") &&
+            project.hasProperty("menu_grid_ad_id"))
+}
 
 /**
  * Get the version code from command line param
@@ -206,6 +219,12 @@ android {
         buildConfigField "String", "TRUSTED_SOURCE_PUBLIC_KEY", "\"${project.ext.TRUSTED_SOURCE_PUBLIC_KEY}\""
         buildConfigField "String", "ANALYTICS_TRACKING_ID_LIVE", "\"${project.ext.ANALYTICS_TRACKING_ID_LIVE}\""
         buildConfigField "String", "ANALYTICS_TRACKING_ID_DEV", "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
+
+        buildConfigField "String", "ADMOB_ID", "\"\""
+        buildConfigField "String", "ENTITY_DETAIL_AD_UNIT_ID", "\"\""
+        buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"\""
+        buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"\""
+        buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
     }
 
     compileOptions {
@@ -327,6 +346,12 @@ android {
             // include this again so that the value get reloaded
             buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
             buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
+
+            buildConfigField "String", "ADMOB_ID", "\"${admobId}\""
+            buildConfigField "String", "ENTITY_DETAIL_AD_UNIT_ID", "\"${entityDetailAdUnitId}\""
+            buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"${entitySelectAdUnitId}\""
+            buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"${menuListAdUnitId}\""
+            buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"${menuGridAdUnitId}\""
         }
     }
 

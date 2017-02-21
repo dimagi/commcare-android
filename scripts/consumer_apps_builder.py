@@ -17,6 +17,7 @@ import xml.etree.ElementTree as ET
 PATH_TO_STATIC_RESOURCES_DIR = "./consumer-apps-resources"
 CONFIG_FILE_NAME = "config.txt"
 ZIP_FILE_NAME = "ic_launcher.zip"
+ADMOB_CONFIG_FILE_NAME = "admob.txt"
 
 # Path to the commcare-android app directory
 PATH_TO_ANDROID_DIR = "./commcare-android/"
@@ -56,16 +57,26 @@ def build_apk_from_directory_contents(app_sub_dir, files_list, build_type):
     if ZIP_FILE_NAME not in files_list:
         raise Exception("One of the app resource directories does not contain the required ic_launcher.zip file.")
 
-    full_path_to_config_file = os.path.join(app_sub_dir, CONFIG_FILE_NAME)
-    full_path_to_zipfile = os.path.join(app_sub_dir, ZIP_FILE_NAME)
+    path_to_config_file = os.path.join(app_sub_dir, CONFIG_FILE_NAME)
+    path_to_zipfile = os.path.join(app_sub_dir, ZIP_FILE_NAME)
+    using_admob = False
+    if ADMOB_CONFIG_FILE_NAME in files_list:
+        path_to_admob_file = os.path.join(app_sub_dir, ADMOB_CONFIG_FILE_NAME)
+        admob_id, entity_detail_ad_id, entity_select_ad_id, menu_list_ad_id, menu_grid_ad_id = get_fields_from_txt_file(path_to_admob_file)
+        using_admob = True
 
-    unzip_app_icon(full_path_to_zipfile)
-    app_id, domain, build_number, username, password = get_app_fields(full_path_to_config_file)
-    
+    unzip_app_icon(path_to_zipfile)
+    app_id, domain, build_number, username, password = get_fields_from_txt_file(path_to_config_file)
+
     os.chdir(PATH_TO_ANDROID_DIR)
     download_ccz(app_id, domain, build_number)
     download_restore_file(domain, username, password)
-    assemble_apk(domain, build_number, username, password, build_type)
+
+    if using_admob:
+        assemble_apk_with_admob(domain, build_number, username, password, build_type, admob_id, entity_detail_ad_id, entity_select_ad_id, menu_list_ad_id, menu_grid_ad_id)
+    else:
+        assemble_apk(domain, build_number, username, password, build_type)
+    
     move_apk(app_id, build_type)
     os.chdir('../')
 
@@ -75,8 +86,9 @@ def unzip_app_icon(zipfile_name):
     subprocess.call(["unzip", "-o", zipfile_name, "-d", PATH_TO_STANDALONE_DIR])
 
 
-def get_app_fields(config_filename):
-    f = open(config_filename, 'r')
+def get_fields_from_txt_file(filename):
+    print(filename)
+    f = open(filename, 'r')
     line = f.readline().strip('\n')
     return tuple(line.split(","))
 
@@ -97,7 +109,7 @@ def assemble_apk(domain, build_number, username, password, build_type):
 
     # NOTE: If your machine is set up to use the gradle wrapper to run gradle commands, you will
     # need to change "gradle" to "./gradlew"
-    subprocess.call(["./gradlew", gradle_directive,
+    subprocess.call(["gradle", gradle_directive,
         "-Pcc_domain={}".format(domain), 
         "-Papplication_name={}".format(get_app_name_from_profile()), 
         "-Pis_consumer_app=true", 
@@ -105,6 +117,30 @@ def assemble_apk(domain, build_number, username, password, build_type):
         "-PversionCode={}".format(build_number),
         "-Pusername={}".format(username),
         "-Ppassword={}".format(password)])
+
+
+def assemble_apk_with_admob(domain, build_number, username, password, build_type, admob_id, 
+    entity_detail_ad_id, entity_select_ad_id, menu_list_ad_id, menu_grid_ad_id):
+    if build_type == 'd':
+        gradle_directive = "assembleStandaloneDebug"
+    else:
+        gradle_directive = "assembleStandaloneRelease"
+
+    # NOTE: If your machine is set up to use the gradle wrapper to run gradle commands, you will
+    # need to change "gradle" to "./gradlew"
+    subprocess.call(["./gradlew", gradle_directive,
+        "-Pcc_domain={}".format(domain), 
+        "-Papplication_name={}".format(get_app_name_from_profile()), 
+        "-Pis_consumer_app=true", 
+        "-Prun_download_scripts=false",
+        "-PversionCode={}".format(build_number),
+        "-Pusername={}".format(username),
+        "-Ppassword={}".format(password),
+        "-Padmob_id={}".format(admob_id),
+        "-Pentity_detail_ad_id={}".format(entity_detail_ad_id),
+        "-Pentity_select_ad_id={}".format(entity_select_ad_id),
+        "-Pmenu_list_ad_id={}".format(menu_list_ad_id),
+        "-Pmenu_grid_ad_id={}".format(menu_grid_ad_id)])
 
 
 def get_app_name_from_profile():
