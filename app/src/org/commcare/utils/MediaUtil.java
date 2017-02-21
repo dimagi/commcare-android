@@ -127,9 +127,9 @@ public class MediaUtil {
                                                          int containerHeight, int containerWidth,
                                                          int targetDensity) {
         Pair<File, Bitmap> cacheKey = getCacheFileLocationAndBitmap(imageFilepath,
-                String.format("density_%d_%d_%d",containerHeight, containerWidth, targetDensity));
+                String.format("density_%d_%d_%d", containerHeight, containerWidth, targetDensity));
 
-        if(cacheKey.second != null) {
+        if (cacheKey.second != null) {
             return cacheKey.second;
         }
 
@@ -149,12 +149,12 @@ public class MediaUtil {
         if (scaleFactor > 1) {
             toReturn = attemptBoundedScaleUp(imageFilepath, calculatedHeight, calculatedWidth,
                     containerHeight, containerWidth);
-        } else  {
+        } else {
             toReturn = scaleDownToTargetOrContainer(imageFilepath, imageHeight, imageWidth,
                     calculatedHeight, calculatedWidth, containerHeight, containerWidth, false, true);
         }
 
-        if(cacheKey != null) {
+        if (cacheKey != null) {
             attemptWriteCacheToLocation(toReturn, cacheKey.first);
         }
 
@@ -166,7 +166,7 @@ public class MediaUtil {
             FileUtil.writeBitmapToDiskAndCleanupHandles(toReturn,
                     ImageType.fromExtension(FileUtil.getExtension(cacheLocation.getPath())),
                     cacheLocation);
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Log.d(TAG, "Failed to write bitmap to cache for " + cacheLocation);
         }
@@ -185,14 +185,14 @@ public class MediaUtil {
     private static Pair<File, Bitmap> getCacheFileLocationAndBitmap(String imageFilepath,
                                                                     String tag) {
         File cacheKey = getCacheFileLocation(imageFilepath, tag);
-        if(cacheKey == null ) {
+        if (cacheKey == null) {
             return null;
         }
         Bitmap b = null;
-        if(cacheKey.exists()) {
+        if (cacheKey.exists()) {
             try {
                 b = BitmapFactory.decodeFile(cacheKey.getPath());
-            } catch(RuntimeException e) {
+            } catch (RuntimeException e) {
                 try {
                     cacheKey.delete();
                     Log.d(TAG, "Removed potentially invalid cache from " +cacheKey.toString());
@@ -208,12 +208,12 @@ public class MediaUtil {
         Context c = CommCareApplication.instance().getApplicationContext();
         File cacheDirectory = c.getCacheDir();
 
-        if(!cacheDirectory.exists()) {
+        if (!cacheDirectory.exists()) {
             return null;
         }
 
         String ext = FileUtil.getExtension(imageFilepath);
-        if(ImageType.fromExtension(ext) == null) {
+        if (ImageType.fromExtension(ext) == null) {
             Log.d(TAG, "Couldn't identify the format of a file for caching: " + imageFilepath);
             return null;
         }
@@ -228,7 +228,7 @@ public class MediaUtil {
         return new File(cacheDirectory, fileName);
     }
 
-    public static String getHashedImageFilepath(String input){
+    public static String getHashedImageFilepath(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             md.update(input.getBytes());
