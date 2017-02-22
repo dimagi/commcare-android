@@ -68,7 +68,8 @@ public class CaseIndexQuerySetTransform implements QuerySetTransform {
         }
 
         private void cacheCaseModelQuerySet(QueryContext queryContext, DualTableSingleMatchModelQuerySet ret) {
-            if(ret.getSetBody().size() > 50 && ret.getSetBody().size() < CaseGroupResultCache.MAX_PREFETCH_CASE_BLOCK) {
+            int modelQueryMagnitude = ret.getSetBody().size();
+            if(modelQueryMagnitude > QueryContext.BULK_QUERY_THRESHOLD && modelQueryMagnitude < CaseGroupResultCache.MAX_PREFETCH_CASE_BLOCK) {
                 queryContext.getQueryCache(CaseGroupResultCache.class).reportBulkCaseBody(this.getCurrentQuerySetId(), ret.getSetBody());
             }
         }

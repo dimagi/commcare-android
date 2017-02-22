@@ -282,18 +282,18 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         if(context == null) {
             return super.getElement(recordId, context);
         }
-        CaseGroupResultCache cue = context.getQueryCacheOrNull(CaseGroupResultCache.class);
-        if(cue != null && cue.hasMatchingCaseSet(recordId)) {
-            if(!cue.isLoaded(recordId)) {
+        CaseGroupResultCache caseGroupCache = context.getQueryCacheOrNull(CaseGroupResultCache.class);
+        if(caseGroupCache != null && caseGroupCache.hasMatchingCaseSet(recordId)) {
+            if(!caseGroupCache.isLoaded(recordId)) {
                 EvaluationTrace loadTrace = new EvaluationTrace("Bulk Case Load");
                 SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
-                LinkedHashSet<Integer>  body = cue.getTranche(recordId);
+                LinkedHashSet<Integer>  body = caseGroupCache.getTranche(recordId);
 
-                sqlStorage.bulkRead(body, cue.getLoadedCaseMap());
+                sqlStorage.bulkRead(body, caseGroupCache.getLoadedCaseMap());
                 loadTrace.setOutcome("Loaded: " + body.size());
                 context.reportTrace(loadTrace);
             }
-            return cue.getLoadedCase(recordId);
+            return caseGroupCache.getLoadedCase(recordId);
         }
         return super.getElement(recordId, context);
     }
