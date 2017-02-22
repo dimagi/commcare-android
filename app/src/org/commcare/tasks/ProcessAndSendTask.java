@@ -290,7 +290,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     } catch (FileNotFoundException e) {
                         if (CommCareApplication.instance().isStorageAvailable()) {
                             //If storage is available generally, this is a bug in the app design
-                            Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
+                            Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION,
+                                    "Removing form record because file was missing|" + getExceptionText(e));
                             CommCareApplication.notificationManager().reportNotificationMessage(
                                     NotificationMessageFactory.message(ProcessIssues.RecordFilesMissing), true);
                             FormRecordCleanupTask.wipeRecord(c, record);
