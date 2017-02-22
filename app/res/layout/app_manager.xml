@@ -35,14 +35,17 @@
 
     <Button
         android:id="@+id/install_app_button"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/manager_instructions"
         android:layout_marginTop="@dimen/standard_spacer"
+        android:paddingLeft="@dimen/standard_spacer_double"
+        android:paddingRight="@dimen/standard_spacer_double"
         android:onClick="installAppClicked"
         android:text="@string/install_app"
-        android:textColor="@color/darkest_grey"
+        android:background="@color/cc_brand_color"
+        android:textColor="@color/cc_neutral_bg"
         android:textSize="@dimen/font_size_xlarger"/>
 
     <ListView

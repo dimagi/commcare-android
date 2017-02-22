@@ -113,4 +113,5 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-update-to-latest-saved"
         android:title="Enable Updating to Latest Saved Version"/>
+
 </PreferenceScreen>
