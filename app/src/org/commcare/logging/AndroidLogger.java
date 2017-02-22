@@ -6,7 +6,6 @@ import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.IFullLogSerializer;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
-import org.javarosa.core.services.storage.StorageFullException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,6 +77,11 @@ public class AndroidLogger implements ILogger {
     public static final String TYPE_FORM_ENTRY = "form-entry";
 
     /**
+     * Form submission messages *
+     */
+    public static final String TYPE_FORM_SUBMISSION = "form-submission";
+
+    /**
      * Problem reported via report activity at home screen *
      */
     public static final String USER_REPORTED_PROBLEM = "user-report";
@@ -106,12 +110,7 @@ public class AndroidLogger implements ILogger {
 
     @Override
     public void log(String type, String message, Date logDate) {
-        try {
-            storage.write(new AndroidLogEntry(type, message, logDate));
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            panic();
-        }
+        storage.write(new AndroidLogEntry(type, message, logDate));
     }
 
     @Override

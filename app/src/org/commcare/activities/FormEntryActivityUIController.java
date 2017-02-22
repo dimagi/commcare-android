@@ -46,7 +46,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
@@ -74,6 +73,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     private boolean hasGroupLabel = false;
     private int indexOfLastChangedWidget = -1;
     private BlockingActionsManager blockingActionsManager;
+
+    private boolean formRelevanciesUpdateInProgress = false;
 
     private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
 
@@ -447,7 +448,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                             break;
                     }
                 } while (event != FormEntryController.EVENT_END_OF_FORM);
-            } catch (XPathTypeMismatchException | XPathArityException e) {
+            } catch (XPathTypeMismatchException e) {
                 UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
             }
         }
@@ -464,7 +465,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         FormNavigationController.NavigationDetails details;
         try {
             details = FormNavigationController.calculateNavigationStatus(FormEntryActivity.mFormController, questionsView);
-        } catch (XPathTypeMismatchException | XPathArityException e) {
+        } catch (XPathTypeMismatchException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
             return;
         }
@@ -517,7 +518,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 dialog.dismiss();
                 try {
                     FormEntryActivity.mFormController.newRepeat();
-                } catch (XPathUnhandledException | XPathTypeMismatchException | XPathArityException e) {
+                } catch (XPathUnhandledException | XPathTypeMismatchException e) {
                     Logger.exception(e);
                     UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
                     return;
@@ -695,6 +696,12 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     protected void updateFormRelevancies() {
+        if (formRelevanciesUpdateInProgress) {
+            // Don't allow this method to call itself downstream accidentally
+            return;
+        }
+        formRelevanciesUpdateInProgress = true;
+
         ArrayList<QuestionWidget> oldWidgets = questionsView.getWidgets();
         // These 2 calls need to be made here, rather than in the for loop below, because at that
         // point the widgets will have already started being updated to the values for the new view
@@ -751,5 +758,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             }
         }
         updateCompoundIntentButtonVisibility();
+
+        formRelevanciesUpdateInProgress = false;
     }
 }

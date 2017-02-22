@@ -476,25 +476,32 @@ public class FileUtil {
         Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmapAndScaledBool.first, maxDimen);
         if (scaledBitmap != null) {
             // Write this scaled bitmap to the final file location
-            FileOutputStream out = null;
             try {
-                out = new FileOutputStream(finalFilePath);
-                scaledBitmap.compress(type.getCompressFormat(), 100, out);
+                writeBitmapToDiskAndCleanupHandles(scaledBitmap, type, new File(finalFilePath));
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
-            } finally {
-                try {
-                    if (out != null) {
-                        out.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
         return false;
+    }
+
+    public static void writeBitmapToDiskAndCleanupHandles(Bitmap bitmap, ImageType type,
+                                                          File location) throws IOException{
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(location);
+            bitmap.compress(type.getCompressFormat(), 100, out);
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
