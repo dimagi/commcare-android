@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;
@@ -26,29 +25,21 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LoggerInterface;
-import org.commcare.util.XPathLoggableException;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathTypeMismatchException;
-import org.javarosa.xpath.expr.FunctionUtils;
-import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.File;
-import java.util.Hashtable;
-import java.util.Vector;
 
 /**
  * Load module menu items
@@ -66,7 +57,7 @@ public class MenuAdapter extends BaseAdapter {
     class MenuLogger implements LoggerInterface {
 
         @Override
-        public <T extends Exception & XPathLoggableException> void logError(String message, T cause) {
+        public void logError(String message, Exception cause) {
             if (cause instanceof XPathSyntaxException) {
                 errorMessage = Localization.get("app.menu.display.cond.bad.xpath", new String[]{message, cause.getMessage()});
                 logError(errorMessage);
