@@ -83,6 +83,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     protected WidgetChangedListener widgetChangedListener;
     protected BlockingActionsManager blockingActionsManager;
 
+    public boolean hintTextNeedsHeightSpec = false;
+
     public QuestionWidget(Context context, FormEntryPrompt p) {
         super(context);
         mPrompt = p;
@@ -547,11 +549,14 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     public void updateFrameSize(int height) {
-        int maxHintHeight = height / 4;
-        if(mHintText != null) {
+        mFrameHeight = height;
+    }
+
+    public void updateHintHeight(int maxHintHeight) {
+        if (mHintText != null) {
             mHintText.updateMaxHeight(maxHintHeight);
         }
-        mFrameHeight = height;
+        hintTextNeedsHeightSpec = false;
     }
 
     /**
@@ -574,7 +579,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     private int getMaxHintHeight() {
-        return -1;
+        if (mFrameHeight != -1) {
+            return mFrameHeight / 4;
+        } else {
+            hintTextNeedsHeightSpec = true;
+            return -1;
+        }
     }
 
     /**

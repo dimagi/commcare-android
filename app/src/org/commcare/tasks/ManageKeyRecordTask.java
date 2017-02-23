@@ -27,7 +27,6 @@ import org.commcare.xml.KeyRecordParser;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 
 import java.io.IOException;
@@ -365,37 +364,32 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
         Logger.log(AndroidLogger.TYPE_USER, "Key record request complete. Received: " + keyRecords.size() + " key records from server");
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
-        try {
-            //We successfully received and parsed out some key records! Let's update the db
-            for (UserKeyRecord record : keyRecords) {
+        //We successfully received and parsed out some key records! Let's update the db
+        for (UserKeyRecord record : keyRecords) {
 
-                // See if we already have a key record for this sandbox and user
-                // (There should _definitely_ only be one if there is one)
-                UserKeyRecord existing;
+            // See if we already have a key record for this sandbox and user
+            // (There should _definitely_ only be one if there is one)
+            UserKeyRecord existing;
 
-                try {
-                    existing = storage.getRecordForValues(
-                            new String[]{UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_USERNAME},
-                            new Object[]{record.getUuid(), record.getUsername()});
+            try {
+                existing = storage.getRecordForValues(
+                        new String[]{UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_USERNAME},
+                        new Object[]{record.getUuid(), record.getUsername()});
 
-                    Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Got new record for existing sandbox " + existing.getUuid() + " . Merging");
-                    //So we have an existing record. Either we're updating our current record and we're updating the key details
-                    //or our password has changed and we need to overwrite the existing key record. Either way, all
-                    //we should need to do is merge the records.
+                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Got new record for existing sandbox " + existing.getUuid() + " . Merging");
+                //So we have an existing record. Either we're updating our current record and we're updating the key details
+                //or our password has changed and we need to overwrite the existing key record. Either way, all
+                //we should need to do is merge the records.
 
-                    UserKeyRecord ukr = UserKeyRecord.buildFrom(record, existing.getType());
-                    ukr.setID(existing.getID());
-                    storage.write(ukr);
-                } catch (NoSuchElementException nsee) {
-                    // If there's no existing record, write this new one (we'll handle updating the status later)
-                    storage.write(record);
-                }
-
-                markOldRecordsInactive(storage, record.getUsername(), record.getUuid());
+                UserKeyRecord ukr = UserKeyRecord.buildFrom(record, existing.getType());
+                ukr.setID(existing.getID());
+                storage.write(ukr);
+            } catch (NoSuchElementException nsee) {
+                // If there's no existing record, write this new one (we'll handle updating the status later)
+                storage.write(record);
             }
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            return false;
+
+            markOldRecordsInactive(storage, record.getUsername(), record.getUuid());
         }
         return true;
     }

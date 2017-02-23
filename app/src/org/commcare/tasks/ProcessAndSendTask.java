@@ -272,6 +272,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             }
                             results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this, mUser);
                             if (results[i] == FormUploadResult.FULL_SUCCESS) {
+                                Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION,
+                                        String.format("Successfully submitted form with id %s", record.getInstanceID()));
                                 break;
                             } else {
                                 attemptsMade++;
@@ -288,7 +290,11 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     } catch (FileNotFoundException e) {
                         if (CommCareApplication.instance().isStorageAvailable()) {
                             //If storage is available generally, this is a bug in the app design
+                            // Log with two tags so we can track more easily
                             Logger.log(AndroidLogger.SOFT_ASSERT,
+                                    String.format("Removed form record with id %s because file was missing| %s",
+                                            record.getInstanceID(), getExceptionText(e)));
+                            Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION,
                                     String.format("Removed form record with id %s because file was missing| %s",
                                             record.getInstanceID(), getExceptionText(e)));
                             CommCareApplication.notificationManager().reportNotificationMessage(

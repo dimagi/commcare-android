@@ -82,7 +82,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
-import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
@@ -1251,7 +1250,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             uiController.recordLastChangedWidgetIndex(changedWidget);
             uiController.updateFormRelevancies();
-        } catch (XPathTypeMismatchException | XPathArityException e) {
+        } catch (XPathTypeMismatchException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(this, e, FormEntryConstants.EXIT);
             return;
         }
