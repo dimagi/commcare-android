@@ -29,6 +29,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LoggerInterface;
+import org.commcare.util.XPathLoggableException;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.media.AudioPlaybackButton;
@@ -65,9 +66,15 @@ public class MenuAdapter extends BaseAdapter {
     class MenuLogger implements LoggerInterface {
 
         @Override
-        public void logError(String message, XPathException cause) {
-            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(cause.getSource(), message);
-            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, message);
+        public <T extends Exception & XPathLoggableException> void logError(String message, T cause) {
+            if (cause instanceof XPathSyntaxException) {
+                errorMessage = Localization.get("app.menu.display.cond.bad.xpath", new String[]{message, cause.getMessage()});
+                logError(errorMessage);
+            } else if (cause instanceof XPathException) {
+                errorMessage = Localization.get("app.menu.display.cond.xpath.err", new String[]{message, cause.getMessage()});
+                XPathErrorLogger.INSTANCE.logErrorToCurrentApp(((XPathException)cause).getSource(), message);
+                Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, message);
+            }
         }
 
         @Override
