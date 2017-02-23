@@ -74,6 +74,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     private int indexOfLastChangedWidget = -1;
     private BlockingActionsManager blockingActionsManager;
 
+    private boolean formRelevanciesUpdateInProgress = false;
+
     private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
 
     enum AnimationType {
@@ -694,6 +696,12 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     protected void updateFormRelevancies() {
+        if (formRelevanciesUpdateInProgress) {
+            // Don't allow this method to call itself downstream accidentally
+            return;
+        }
+        formRelevanciesUpdateInProgress = true;
+
         ArrayList<QuestionWidget> oldWidgets = questionsView.getWidgets();
         // These 2 calls need to be made here, rather than in the for loop below, because at that
         // point the widgets will have already started being updated to the values for the new view
@@ -750,5 +758,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             }
         }
         updateCompoundIntentButtonVisibility();
+
+        formRelevanciesUpdateInProgress = false;
     }
 }

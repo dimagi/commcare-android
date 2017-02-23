@@ -149,7 +149,7 @@ public class QuestionsView extends ScrollView
         addView(mView);
     }
 
-    private void removeQuestionFromIndex(int i){
+    private void removeQuestionFromIndex(int i) {
         int dividerIndex = Math.max(i - 1, 0);
 
         if (dividerIndex < dividers.size()) {
