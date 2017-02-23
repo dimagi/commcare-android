@@ -11,8 +11,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.user.models.FormRecord;
 
 import java.util.HashMap;
@@ -31,7 +31,9 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static final String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
     public static final String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
     public static final String USE_ROOT_MENU_AS_HOME_SCREEN = "cc-use-root-menu-as-home-screen";
+    public static final String SHOW_ADB_ENTITY_LIST_TRACES = "cc-show-entity-trace-outputs";
     public static final String UPDATE_TO_LATEST_SAVED_ENABLED = "cc-update-to-latest-saved";
+    
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -295,6 +297,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static boolean useRootModuleMenuAsHomeScreen() {
         return doesPropertyMatch(USE_ROOT_MENU_AS_HOME_SCREEN, CommCarePreferences.NO, CommCarePreferences.YES);
+    }
+
+
+    public static boolean collectAndDisplayEntityTrances() {
+        return doesPropertyMatch(SHOW_ADB_ENTITY_LIST_TRACES, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
     public static boolean updateToLatestSavedEnabled() {

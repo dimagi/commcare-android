@@ -72,11 +72,43 @@ public class CaseDbQueryTest {
         evaluate("join(',',instance('casedb')/casedb/case[index/parent = 'test_case_parent']/@case_id)", "child_one,child_two,child_three", ec);
         evaluate("join(',',instance('casedb')/casedb/case[index/parent = 'test_case_parent'][@case_id = 'child_two']/@case_id)", "child_two", ec);
         evaluate("join(',',instance('casedb')/casedb/case[index/parent = 'test_case_parent'][@case_id != 'child_two']/@case_id)", "child_one,child_three", ec);
+    }
 
+
+    @Test
+    public void testIndexSetMemberOptimizations() {
+        TestUtils.processResourceTransaction("/inputs/case_test_db_optimizations.xml");
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+
+        evaluate("join(',',instance('casedb')/casedb/case[selected('test_case_parent', index/parent)]/@case_id)", "child_one,child_two,child_three", ec);
+        evaluate("join(',',instance('casedb')/casedb/case[selected('test_case_parent test_case_parent_2', index/parent)]/@case_id)", "child_one,child_two,child_three", ec);
+        evaluate("join(',',instance('casedb')/casedb/case[selected('test_case_parent_2 test_case_parent', index/parent)]/@case_id)", "child_one,child_two,child_three", ec);
+        evaluate("join(',',instance('casedb')/casedb/case[selected('test_case_parent_2 test_case_parent_3', index/parent)]/@case_id)", "", ec);
+        evaluate("join(',',instance('casedb')/casedb/case[selected('', index/parent)]/@case_id)", "", ec);
+    }
+
+    @Test
+    public void testModelQueryLookupDerivations() {
+        TestUtils.processResourceTransaction("/inputs/case_test_model_query_lookups.xml");
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+
+        evaluate("join(',',instance('casedb')/casedb/case[@case_type='unit_test_child_child'][@status='open'][true() and " +
+                "instance('casedb')/casedb/case[@case_id = instance('casedb')/casedb/case[@case_id=current()/index/parent]/index/parent]/test = 'true']/@case_id)", "child_ptwo_one_one,child_one_one", ec);
 
     }
 
-        public static void evaluate(String xpath, String expectedValue, EvaluationContext ec) {
+    @Test
+    public void testModelSelfReference() {
+        TestUtils.processResourceTransaction("/inputs/case_test_model_query_lookups.xml");
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+
+        evaluate("join(',',instance('casedb')/casedb/case[@case_type='unit_test_child'][@status='open'][true() and " +
+                "count(instance('casedb')/casedb/case[index/parent = instance('casedb')/casedb/case[@case_id=current()/@case_id]/index/parent][false = 'true']) > 0]/@case_id)", "", ec);
+
+    }
+
+
+    public static void evaluate(String xpath, String expectedValue, EvaluationContext ec) {
         XPathExpression expr;
         try {
             expr = XPathParseTool.parseXPath(xpath);

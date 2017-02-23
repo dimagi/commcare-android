@@ -88,7 +88,7 @@ public class ComboboxAdapter extends ArrayAdapter<String> {
             protected FilterResults performFiltering(CharSequence constraint) {
                 ArrayList<String> matched = new ArrayList<>();
                 for (String choice : allChoices) {
-                    if (filterRule.choiceShouldBeShown(choice, constraint)) {
+                    if (constraint == null || filterRule.choiceShouldBeShown(choice, constraint)) {
                         matched.add(choice);
                     }
                 }
@@ -101,13 +101,11 @@ public class ComboboxAdapter extends ArrayAdapter<String> {
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                if (constraint != null) {
-                    currentChoices = (String[]) results.values;
-                    if (results.count > 0) {
-                        notifyDataSetChanged();
-                    } else {
-                        notifyDataSetInvalidated();
-                    }
+                currentChoices = (String[]) results.values;
+                if (results.count > 0) {
+                    notifyDataSetChanged();
+                } else {
+                    notifyDataSetInvalidated();
                 }
             }
         };

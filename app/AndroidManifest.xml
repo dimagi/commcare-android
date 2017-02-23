@@ -208,7 +208,8 @@
             android:windowSoftInputMode="stateUnchanged|adjustResize">
         </activity>
         <activity
-            android:name="org.commcare.activities.CommCareGraphActivity">
+            android:name="org.commcare.activities.CommCareGraphActivity"
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name="org.commcare.activities.EntityDetailActivity"
