@@ -12,10 +12,20 @@
         android:text="Continue"
         android:layout_below="@+id/universal_frame_tile"/>
 
+    <FrameLayout
+        android:id="@+id/ad_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:padding="@dimen/standard_spacer_double"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true">
+    </FrameLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@id/ad_container"
         android:layout_below="@id/entity_select_button">
 
         <org.commcare.views.TabbedDetailView

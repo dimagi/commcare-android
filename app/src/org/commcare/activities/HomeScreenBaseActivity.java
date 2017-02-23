@@ -25,10 +25,11 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.CommCarePreferences;
@@ -129,6 +130,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         super.onCreateSessionSafe(savedInstanceState);
         loadInstanceState(savedInstanceState);
         ACRAUtil.registerAppData();
+        AdMobManager.initAdsForCurrentConsumerApp(getApplicationContext());
         sessionNavigator = new SessionNavigator(this);
 
         processFromExternalLaunch(savedInstanceState);

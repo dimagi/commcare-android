@@ -8,8 +8,8 @@ import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.CommCarePreferences;
 import org.javarosa.core.services.locale.Localization;
 

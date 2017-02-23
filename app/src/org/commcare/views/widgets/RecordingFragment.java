@@ -24,7 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;

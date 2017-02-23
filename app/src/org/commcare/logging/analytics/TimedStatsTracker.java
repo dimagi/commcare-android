@@ -4,6 +4,8 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 
 import java.util.Date;
 

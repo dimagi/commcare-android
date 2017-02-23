@@ -8,8 +8,8 @@ import android.preference.PreferenceManager;
 
 import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.R;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 
 /**
  * @author yanokwa

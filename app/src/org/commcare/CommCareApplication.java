@@ -17,7 +17,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.telephony.TelephonyManager;
@@ -46,7 +45,7 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorLogger;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidSessionWrapper;
@@ -211,7 +210,7 @@ public class CommCareApplication extends Application {
             pil.dumpToNewLogger();
         }
 
-        intializeDefaultLocalizerData();
+        initializeDefaultLocalizerData();
 
         if (dbState != STATE_MIGRATION_FAILED && dbState != STATE_MIGRATION_QUESTIONABLE) {
             AppUtils.checkForIncompletelyUninstalledApps();
@@ -358,7 +357,7 @@ public class CommCareApplication extends Application {
         return imei;
     }
 
-    public void intializeDefaultLocalizerData() {
+    public void initializeDefaultLocalizerData() {
         Localization.init(true);
         Localization.registerLanguageReference("default",
                 "jr://asset/locales/android_translatable_strings.txt");
