@@ -134,6 +134,11 @@ class UserDatabaseUpgrader {
                 oldVersion = 15;
             }
         }
+        if (oldVersion == 15) {
+            if (upgradeFifteenSixteen(db)) {
+                oldVersion = 16;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -427,6 +432,22 @@ class UserDatabaseUpgrader {
             db.endTransaction();
         }
     }
+
+    private boolean upgradeFifteenSixteen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            String typeFirstIndexId = "NAME_TARGET_RECORD";
+            String typeFirstIndex = "name" + ", " + "case_rec_id" + ", " + "target";
+            db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(typeFirstIndexId, "case_index_storage", typeFirstIndex));
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+
 
     private void updateIndexes(SQLiteDatabase db) {
         db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));

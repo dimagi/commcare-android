@@ -1,7 +1,6 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import com.android.builder.core.DefaultManifestParser
 
-
 ////////////
 // README //
 ////////////
@@ -62,6 +61,9 @@ dependencies {
     }
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
+    compile 'com.google.firebase:firebase-core:10.0.1'
+    compile 'com.google.firebase:firebase-ads:10.0.1'
+    compile 'com.carrotsearch:hppc:0.7.2'
 }
 
 ext {
@@ -82,10 +84,46 @@ ext {
                     "HJ+F335hm/lVdaFQzvBmeq64MUMbumheVLDJaSUiAVzqSHDKJWH01ZQRowqBYjwo" +
                     "ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0" +
                     "HaAJkjpnc165Os+aYwIDAQAB"
+    GOOGLE_SERVICES_API_KEY = project.properties['GOOGLE_SERVICES_API_KEY'] ?: ""
     QA_BETA_APP_ID = ""
     STANDALONE_APP_ID = ""
     LTS_APP_ID = ""
     COMMCARE_APP_ID = ""
+}
+
+afterEvaluate {
+    // Hack to get assets to show up in robolectric tests; try to eventually remove this
+    preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets
+
+    processQabetaDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processQabetaReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processStandaloneDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processStandaloneReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processLtsDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processLtsReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processCommcareDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processCommcareReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+}
+
+task injectGoogleServicesAPIKey(type: Copy) {
+    description = 'Injects the Google Services API key into the google-services.json file at runtime'
+
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    if (isBelowGradleThree()) {
+        outputs.files.setFrom(file("$projectDir/google-services.json"))
+    }
+
+    from file("templates/google-services.json")
+    filter(ReplaceTokens, tokens: [apiKey: project.ext.GOOGLE_SERVICES_API_KEY])
+    into projectDir
+}
+
+def isBelowGradleThree() {
+    return (gradle.gradleVersion.split("\\.")[0] as double) < 3
 }
 
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
@@ -95,6 +133,19 @@ def runDownloadScripts = project.hasProperty('run_download_scripts') ? run_downl
 def ccDomainSafe = ccDomain.replaceAll("-", "")
 def consumerAppUsername = getConsumerAppUsername(isConsumerApp);
 def consumerAppPassword = getConsumerAppPassword(isConsumerApp);
+def usingAdmob = isConsumerApp && project.hasProperty('admob_id') && allAdUnitIdsPresent()
+def admobId = usingAdmob ? admob_id : ""
+def entityDetailAdUnitId = usingAdmob ? entity_detail_ad_id : ""
+def entitySelectAdUnitId = usingAdmob ? entity_select_ad_id : ""
+def menuListAdUnitId = usingAdmob ? menu_list_ad_id : ""
+def menuGridAdUnitId = usingAdmob ? menu_grid_ad_id : ""
+
+def allAdUnitIdsPresent() {
+    return (project.hasProperty("entity_detail_ad_id") &&
+            project.hasProperty("entity_select_ad_id") &&
+            project.hasProperty("menu_list_ad_id") &&
+            project.hasProperty("menu_grid_ad_id"))
+}
 
 /**
  * Get the version code from command line param
@@ -169,6 +220,12 @@ android {
         buildConfigField "String", "TRUSTED_SOURCE_PUBLIC_KEY", "\"${project.ext.TRUSTED_SOURCE_PUBLIC_KEY}\""
         buildConfigField "String", "ANALYTICS_TRACKING_ID_LIVE", "\"${project.ext.ANALYTICS_TRACKING_ID_LIVE}\""
         buildConfigField "String", "ANALYTICS_TRACKING_ID_DEV", "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
+
+        buildConfigField "String", "ADMOB_ID", "\"\""
+        buildConfigField "String", "ENTITY_DETAIL_AD_UNIT_ID", "\"\""
+        buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"\""
+        buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"\""
+        buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
     }
 
     compileOptions {
@@ -290,6 +347,12 @@ android {
             // include this again so that the value get reloaded
             buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
             buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
+
+            buildConfigField "String", "ADMOB_ID", "\"${admobId}\""
+            buildConfigField "String", "ENTITY_DETAIL_AD_UNIT_ID", "\"${entityDetailAdUnitId}\""
+            buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"${entitySelectAdUnitId}\""
+            buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"${menuListAdUnitId}\""
+            buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"${menuGridAdUnitId}\""
         }
     }
 
@@ -323,97 +386,6 @@ android {
             systemProperty 'robolectric.logging', 'stdout'
         }
     }
-}
-
-/**
- * Setup tasks to inject google-services.json file with package name matching
- * the build variant.
-
- * NOTE: My Groovy knowledge is abysmal and Gradle plugins do black magic,
- * hence, the need for an *_APP_ID var for each build variant :(
- */
-afterEvaluate {
-    // Hack to get assets to show up in robolectric tests; try to eventually remove this
-    preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets
-
-    processQabetaDebugGoogleServices.dependsOn switchGoogleServicesQabeta
-    processQabetaReleaseGoogleServices.dependsOn switchGoogleServicesQabeta
-    processStandaloneDebugGoogleServices.dependsOn switchGoogleServicesStandalone
-    processStandaloneReleaseGoogleServices.dependsOn switchGoogleServicesStandalone
-    processLtsDebugGoogleServices.dependsOn switchGoogleServicesLts
-    processLtsReleaseGoogleServices.dependsOn switchGoogleServicesLts
-    processCommcareDebugGoogleServices.dependsOn switchGoogleServicesCommcare
-    processCommcareReleaseGoogleServices.dependsOn switchGoogleServicesCommcare
-}
-
-task switchGoogleServicesCommcare(type: Copy) {
-    description = 'Makes build use normal google-services.json file'
-    println project.ext.COMMCARE_APP_ID
-
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    if (isBelowGradleThree()) {
-        outputs.files.setFrom(file("$projectDir/google-services.json"))
-    }
-
-    from file("templates/google-services.json")
-    filter(ReplaceTokens, tokens: [applicationId: project.ext.COMMCARE_APP_ID])
-    into projectDir
-}
-
-task switchGoogleServicesLts(type: Copy) {
-    description = 'Switches package name in google-services.json to match Lts package name'
-
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    if (isBelowGradleThree()) {
-        outputs.files.setFrom(file("$projectDir/google-services.json"))
-    }
-
-    from file("templates/google-services.json")
-    filter(ReplaceTokens, tokens: [applicationId: project.ext.LTS_APP_ID])
-    into projectDir
-}
-
-task switchGoogleServicesStandalone(type: Copy) {
-    description = 'Switches package name in google-services.json to match Standalone package name'
-    outputs.upToDateWhen { false }
-
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    if (isBelowGradleThree()) {
-        outputs.files.setFrom(file("$projectDir/google-services.json"))
-    }
-
-    from file("templates/google-services.json")
-    filter(ReplaceTokens, tokens: [applicationId: project.ext.STANDALONE_APP_ID])
-    into projectDir
-}
-
-task switchGoogleServicesQabeta(type: Copy) {
-    description = 'Switches package name in google-services.json to match Qabeta package name'
-
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    if (isBelowGradleThree()) {
-        outputs.files.setFrom(file("$projectDir/google-services.json"))
-    }
-
-    from file("templates/google-services.json")
-    filter(ReplaceTokens, tokens: [applicationId: project.ext.QA_BETA_APP_ID])
-    into projectDir
 }
 
 /**
@@ -527,11 +499,9 @@ def getStandalonePackageIdentifier(ccDomainSafe, isConsumerApp) {
     }
 }
 
-
 def cleanseAppNameForPackageIdentifier(appName) {
     return appName.replaceAll("[ '.:]", "").replaceAll("\\\\", "").toLowerCase()
 }
-
 
 def getStandaloneApplicationName(ccDomainSafe, isConsumerApp) {
     if (project.hasProperty('application_name')) {
@@ -563,13 +533,6 @@ def getConsumerAppPassword(isConsumerApp) {
     }
 }
 
-/**
- * @return True if the gradle version being used is below 3.0
- */
-def isBelowGradleThree() {
-    return (gradle.gradleVersion.split("\\.")[0] as double) < 3
-}
-
 // must be at bottom of file to fix some stupid google bug
 apply plugin: 'com.google.gms.google-services'
 
@@ -577,4 +540,5 @@ downloadLicenses {
     includeProjectDependencies = true
     dependencyConfiguration = 'compile'
 }
+
 

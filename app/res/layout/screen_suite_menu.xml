@@ -12,9 +12,20 @@
         android:layout_alignParentTop="true"/>
 
     <FrameLayout
+        android:id="@+id/ad_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:padding="@dimen/standard_spacer_double"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true">
+    </FrameLayout>
+
+    <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
+        android:layout_above="@id/ad_container"
         android:layout_below="@id/universal_frame_tile">
 
         <include layout="@layout/component_drop_shadow"/>
@@ -27,4 +38,5 @@
             android:layout_height="match_parent"
             android:listSelector="@drawable/selector"/>
     </FrameLayout>
+
 </RelativeLayout>

@@ -15,7 +15,7 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.core.encryption.CryptUtil;
