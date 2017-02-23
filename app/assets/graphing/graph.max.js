@@ -60,10 +60,6 @@ var intervalID = setInterval(function() {
                             + html;
                 }
 
-                if (type === "bubble") {
-                    html += "<tr><td>Radius</td><td>" + data.radii[d.id][d.index] + "</td></tr>";
-                }
-
                 html = "<table>" + html + "</table>";
                 html = "<div id='tooltip'>" + html + "</div>";
                 return html;

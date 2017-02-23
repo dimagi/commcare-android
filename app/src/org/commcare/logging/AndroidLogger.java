@@ -77,6 +77,11 @@ public class AndroidLogger implements ILogger {
     public static final String TYPE_FORM_ENTRY = "form-entry";
 
     /**
+     * Form submission messages *
+     */
+    public static final String TYPE_FORM_SUBMISSION = "form-submission";
+
+    /**
      * Problem reported via report activity at home screen *
      */
     public static final String USER_REPORTED_PROBLEM = "user-report";

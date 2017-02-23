@@ -520,7 +520,8 @@ public class InstanceProvider extends ContentProvider {
             return;
         }
 
-        Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Completed");
+        Logger.log(AndroidLogger.TYPE_FORM_ENTRY,
+                String.format("Form Entry Completed for record with id %s", current.getInstanceID()));
 
         // The form is either ready for processing, or not, depending on how it was saved
         if (complete) {

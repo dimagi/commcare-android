@@ -172,16 +172,7 @@ public class FormUploadUtil {
             return FormUploadResult.TRANSPORT_FAILURE;
         }
 
-        int responseCode = response.getStatusLine().getStatusCode();
-        Log.e(TAG, "Response code:" + responseCode);
-
-        if (!(responseCode >= 200 && responseCode < 300)) {
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
-                    "Response Code: " + responseCode);
-        }
-
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
         try {
             StreamsUtil.writeFromInputToOutputNew(response.getEntity().getContent(), bos);
         } catch (IllegalStateException | IOException e) {
@@ -189,7 +180,8 @@ public class FormUploadUtil {
         }
 
         String responseString = new String(bos.toByteArray());
-        Log.d(TAG, responseString);
+        int responseCode = response.getStatusLine().getStatusCode();
+        logResponse(responseCode, responseString);
 
         if (responseCode >= 200 && responseCode < 300) {
             return FormUploadResult.FULL_SUCCESS;
@@ -197,6 +189,18 @@ public class FormUploadUtil {
             return FormUploadResult.AUTH_FAILURE;
         } else {
             return FormUploadResult.FAILURE;
+        }
+    }
+
+    private static void logResponse(int responseCode, String responseString) {
+        String responseCodeMessage = "Response code to form submission attempt: " + responseCode;
+        Log.e(TAG, responseCodeMessage);
+        Log.d(TAG, responseString);
+        if (!(responseCode >= 200 && responseCode < 300)) {
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, responseCodeMessage);
+            Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, responseCodeMessage);
+            Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION,
+                    "Response string to failed form submission attempt: " + responseString);
         }
     }
 
