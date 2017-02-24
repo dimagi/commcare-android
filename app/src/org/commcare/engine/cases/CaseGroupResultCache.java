@@ -12,21 +12,21 @@ import java.util.LinkedHashSet;
 
 public class CaseGroupResultCache implements QueryCache {
 
-    public static final int MAX_PREFETCH_CASE_BLOCK = 7500;
+    static final int MAX_PREFETCH_CASE_BLOCK = 7500;
 
-    HashMap<String,LinkedHashSet<Integer>> bulkFetchBodies = new HashMap<>();
+    private HashMap<String,LinkedHashSet<Integer>> bulkFetchBodies = new HashMap<>();
 
-    HashMap<Integer, Case> cachedCases = new HashMap<>();
+    private HashMap<Integer, Case> cachedCases = new HashMap<>();
 
 
-    public void reportBulkCaseBody(String key, LinkedHashSet<Integer> ids) {
+    void reportBulkCaseBody(String key, LinkedHashSet<Integer> ids) {
         if(bulkFetchBodies.containsKey(key)) {
             return;
         }
         bulkFetchBodies.put(key, ids);
     }
 
-    public boolean hasMatchingCaseSet(int recordId) {
+    boolean hasMatchingCaseSet(int recordId) {
         if(isLoaded(recordId)) {
             return true;
         }
@@ -36,7 +36,7 @@ public class CaseGroupResultCache implements QueryCache {
         return false;
     }
 
-    public LinkedHashSet<Integer> getTranche(int recordId) {
+    LinkedHashSet<Integer> getTranche(int recordId) {
         for(LinkedHashSet<Integer> tranche: bulkFetchBodies.values()) {
             if(tranche.contains(recordId)){
                 return tranche;
@@ -45,15 +45,15 @@ public class CaseGroupResultCache implements QueryCache {
         return null;
     }
 
-    public boolean isLoaded(int recordId) {
+    boolean isLoaded(int recordId) {
         return cachedCases.containsKey(recordId);
     }
 
-    public HashMap<Integer, Case> getLoadedCaseMap() {
+    HashMap<Integer, Case> getLoadedCaseMap() {
         return cachedCases;
     }
 
-    public Case getLoadedCase(int recordId) {
+    Case getLoadedCase(int recordId) {
         return cachedCases.get(recordId);
     }
 }

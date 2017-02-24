@@ -3,8 +3,6 @@ package org.commcare.models.database.user.models;
 import android.content.ContentValues;
 import android.util.Pair;
 
-import com.carrotsearch.hppc.IntSet;
-
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -13,7 +11,6 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.cases.query.queryset.DualTableSingleMatchModelQuerySet;
-import org.commcare.cases.query.queryset.ModelQuerySet;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
@@ -22,7 +19,6 @@ import org.commcare.modern.database.DatabaseIndexingUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Vector;
