@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -31,6 +33,10 @@ import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UiElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xpath.expr.XPathExpression;
+
+import java.util.HashMap;
+import java.util.Hashtable;
 
 /**
  * @author ctsims
@@ -44,6 +50,10 @@ public class EntityDetailActivity
     public static final String CONTEXT_REFERENCE = "eda_crid";
     public static final String DETAIL_ID = "eda_detail_id";
     public static final String DETAIL_PERSISTENT_ID = "eda_persistent_id";
+
+    private static final int MENU_PRINT_DETAIL = Menu.FIRST;
+
+    private static final int PRINT_DETAIL = 1;
 
     private Detail detail;
     private Pair<Detail, TreeReference> mEntityContext;
@@ -251,4 +261,45 @@ public class EntityDetailActivity
         super.onBackPressed();
         GoogleAnalyticsUtils.reportEntityDetailExit(false, mDetailView.getTabCount() == 1);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_PRINT_DETAIL, 0, Localization.get("print.detail.button"));
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(MENU_PRINT_DETAIL).setVisible(detail.isPrintEnabled());
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case MENU_PRINT_DETAIL:
+                printDetailV2();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /*private void printDetailV1() {
+        Hashtable<String, XPathExpression> refsMap = detail.getKeyValueMapForPrint();
+        IntentCallout printActivityCallout =
+                IntentCallout.CalloutForOutsideFormEntry("org.commcare.dalvik.action.PRINT", refsMap);
+        this.startActivityForResult(printActivityCallout.generate(null), PRINT_DETAIL);
+    }*/
+
+    private void printDetailV2() {
+        HashMap<String, String> keyValueMap = detail.getKeyValueMapForPrint(
+                CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext());
+        Intent i = new Intent(this, TemplatePrinterActivity.class);
+        for (String key : keyValueMap.keySet()) {
+            i.putExtra(key, keyValueMap.get(key));
+        }
+    }
+
 }

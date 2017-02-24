@@ -22,7 +22,6 @@ import android.webkit.WebViewClient;
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.dalvik.R;
-import org.commcare.graph.view.GraphView;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.TemplatePrinterTask;
 import org.commcare.tasks.TemplatePrinterTask.PopulateListener;
@@ -56,6 +55,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     private static final String TEMPLATE_STYLE_HTML = "TEMPLATE_HTML";
     private static final String TEMPLATE_STYLE_ZPL = "TEMPLATE_ZPL";
     public static final String KEY_GRAPH_TO_PRINT = "graph-html-to-print";
+    public static final String PRINT_TEMPLATE_REF_STRING = "cc:print_template_reference";
 
     private static final int CALLOUT_ZPL = 1;
 
@@ -102,32 +102,29 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             }
         }
 
-        String path = getPathOrThrowError(getIntent().getExtras());
+        String pathToTemplateFile = getTemplateFilePathOrThrowError(getIntent().getExtras());
 
-        //A null return code from the path retriever means that it is displaying a message;
-        if (path == null) {
+        // A null return code from the path retriever means that it is displaying a message;
+        if (pathToTemplateFile == null) {
             return;
         }
 
-
-
-        //Check to make sure we are targeting API 19 or above, which is where print is supported
+        // Check to make sure we are targeting API 19 or above, which is where print is supported
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             showErrorDialog(Localization.get("print.not.supported"));
             return;
         }
 
-
         this.outputPath = CommCareApplication.instance().getTempFilePath() + ".html";
-
-        preparePrintDoc(path);
+        preparePrintDoc(pathToTemplateFile);
     }
 
     private void doZebraPrint() {
         Intent i = new Intent("com.dimagi.android.zebraprinttool.action.PrintTemplate");
 
         if (CompoundIntentList.isIntentCompound(this.getIntent())) {
-            ArrayList<String> keys = this.getIntent().getStringArrayListExtra(CompoundIntentList.EXTRA_COMPOUND_DATA_INDICES);
+            ArrayList<String> keys = this.getIntent().getStringArrayListExtra(
+                    CompoundIntentList.EXTRA_COMPOUND_DATA_INDICES);
             i.putStringArrayListExtra("zebra:bundle_list", keys);
             for(String key : keys) {
                 Bundle b = this.getIntent().getBundleExtra(key);
@@ -147,7 +144,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     }
 
     private void prepareZebraBundleFromFile(Bundle bundle) {
-        String path = getPathOrThrowError(bundle);
+        String path = getTemplateFilePathOrThrowError(bundle);
 
         File destFile = new File(path);
         bundle.putString("zebra:template_file_path", destFile.getAbsolutePath());
@@ -158,8 +155,8 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      * display an error message to the user. If a message is displayed, the method will
      * return null and the activity should not continue attempting to print
      */
-    private String getPathOrThrowError(Bundle data) {
-        //Check to make sure key-value data has been passed with the intent
+    private String getTemplateFilePathOrThrowError(Bundle data) {
+        // Check to make sure key-value data has been passed with the intent
         if (data == null) {
             showErrorDialog(Localization.get("no.print.data"));
             return null;
@@ -167,7 +164,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
         // Check if a doc location is coming in from the Intent
         // Will return a reference of format jr://... if it has been set
-        String path = data.getString("cc:print_template_reference");
+        String path = data.getString(PRINT_TEMPLATE_REF_STRING);
         if (path != null) {
             try {
                 path = ReferenceManager.instance().DeriveReference(path).getLocalURI();
