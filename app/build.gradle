@@ -192,6 +192,7 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
+        multiDexEnabled true
         applicationId "org.commcare.dalvik"
         project.ext.COMMCARE_APP_ID = applicationId
         resValue "string", "application_name", "CommCare"
