@@ -6,6 +6,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.modern.session.SessionWrapperInterface;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionDescriptorUtil;
 import org.commcare.session.SessionFrame;
@@ -33,7 +34,7 @@ import javax.crypto.SecretKey;
  *
  * @author ctsims
  */
-public class AndroidSessionWrapper {
+public class AndroidSessionWrapper implements SessionWrapperInterface {
     private static final String TAG = AndroidSessionWrapper.class.getSimpleName();
     //The state descriptor will need these 
     private final CommCareSession session;
@@ -190,12 +191,23 @@ public class AndroidSessionWrapper {
     }
     
     private AndroidInstanceInitializer initializer;
-    private AndroidInstanceInitializer getIIF() {
+
+    public AndroidInstanceInitializer getIIF() {
         if(initializer == null) {
             initializer = new AndroidInstanceInitializer(session);
         } 
 
         return initializer;
+    }
+
+    @Override
+    public String getNeededData() {
+        return session.getNeededData(getEvaluationContext());
+    }
+
+    @Override
+    public SessionDatum getNeededDatum(Entry entry) {
+        return session.getNeededDatum(entry);
     }
 
     public static AndroidSessionWrapper mockEasiestRoute(CommCarePlatform platform, String formNamespace, String selectedValue) {
