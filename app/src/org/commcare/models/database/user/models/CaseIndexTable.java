@@ -16,6 +16,7 @@ import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.modern.engine.cases.IndexTable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class CaseIndexTable {
+public class CaseIndexTable implements IndexTable {
     private static final String TABLE_NAME = "case_index_storage";
 
     private static final String COL_CASE_RECORD_ID = "case_rec_id";
