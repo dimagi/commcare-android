@@ -88,7 +88,7 @@ public class Combobox extends AutoCompleteTextView {
             @Override
             public void afterTextChanged(Editable s) {
                 fixingInvalidEntry = false;
-                if (!customAdapter.isValidUserEntry(s.toString())) {
+                if (!isValidUserEntry(s.toString())) {
                     fixingInvalidEntry = true;
                     // Re-set the entered text to be what it was before this change was made
                     setText(lastAcceptableStringEntered);
@@ -99,6 +99,10 @@ public class Combobox extends AutoCompleteTextView {
                 }
             }
         };
+    }
+
+    public boolean isValidUserEntry(String enteredText) {
+        return customAdapter.isValidUserEntry(enteredText);
     }
 
     /**
