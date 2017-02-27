@@ -1,10 +1,15 @@
 package org.commcare.preferences;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -14,12 +19,22 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.utils.FileUtil;
+import org.commcare.utils.TemplatePrinterUtils;
+import org.commcare.utils.UriToFilePath;
+import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class DeveloperPreferences extends SessionAwarePreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
+    public static final int RESULT_SYNC_CUSTOM = Activity.RESULT_FIRST_USER + 1;
+    public static final int REQUEST_SYNC_FILE = 1;
+
+    public final static String PREFS_CUSTOM_RESTORE_DOC_LOCATION = "cc-custom-restore-doc-location";
+
+
     public static final String SUPERUSER_ENABLED = "cc-superuser-enabled";
     public static final String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     public static final String CSS_ENABLED = "cc-css-enabled";
@@ -75,7 +90,51 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
         savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
         setSessionEditText();
+        createOnCustomRestoreOption(prefMgr);
     }
+
+    private void createOnCustomRestoreOption(PreferenceManager prefMgr) {
+        Preference pref = prefMgr.findPreference(PREFS_CUSTOM_RESTORE_DOC_LOCATION);
+        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                GoogleAnalyticsUtils.reportPrefItemClick(
+                        GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
+                        GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
+                startFileBrowser();
+                return true;
+            }
+        });
+    }
+
+    private void startFileBrowser() {
+        Intent chooseTemplateIntent = new Intent()
+                .setAction(Intent.ACTION_GET_CONTENT)
+                .setType("file/*")
+                .addCategory(Intent.CATEGORY_OPENABLE);
+        try {
+            startActivityForResult(chooseTemplateIntent, REQUEST_SYNC_FILE);
+        } catch (ActivityNotFoundException e) {
+            // Means that there is no file browser installed on the device
+            TemplatePrinterUtils.showAlertDialog(this, "Can't restore custom XML File",
+                    Localization.get("no.file.browser"), false);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_SYNC_FILE) {
+            if (resultCode == RESULT_OK && data != null) {
+                this.setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM, data);
+                this.finish();
+            } else {
+                //No file selected
+                Toast.makeText(this, "No file requested...", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
 
     private static void populatePrefKeyToEventLabelMapping() {
         prefKeyToAnalyticsEvent.put(SUPERUSER_ENABLED, GoogleAnalyticsFields.LABEL_DEV_MODE);
@@ -92,6 +151,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
         prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
         prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
+        prefKeyToAnalyticsEvent.put(PREFS_CUSTOM_RESTORE_DOC_LOCATION, GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
     }
 
     private void setSessionEditText() {
