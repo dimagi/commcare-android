@@ -13,7 +13,7 @@ import org.commcare.cases.query.QueryPlanner;
 import org.commcare.cases.query.handlers.ModelQueryLookupHandler;
 import org.commcare.cases.query.queryset.CaseModelQuerySetMatcher;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.CaseIndexTable;
+import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.modern.engine.cases.CaseGroupResultCache;
 import org.commcare.modern.engine.cases.CaseIndexQuerySetTransform;
 import org.commcare.modern.engine.cases.query.CaseIndexPrefetchHandler;
@@ -36,7 +36,7 @@ import java.util.Vector;
 public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement implements CacheHost {
     private static final String TAG = AndroidCaseInstanceTreeElement.class.getSimpleName();
 
-    private final CaseIndexTable mCaseIndexTable;
+    private final AndroidCaseIndexTable mCaseIndexTable;
 
     private final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<>();
 
@@ -50,11 +50,11 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     private String[][] mMostRecentBatchFetch = null;
 
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage) {
-        this(instanceRoot, storage, new CaseIndexTable());
+        this(instanceRoot, storage, new AndroidCaseIndexTable());
     }
 
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage,
-                                          CaseIndexTable caseIndexTable) {
+                                          AndroidCaseIndexTable caseIndexTable) {
         super(instanceRoot, storage);
         mCaseIndexTable = caseIndexTable;
     }
