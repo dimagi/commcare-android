@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Data pulling requester that gets data from a local reference.
+ * Data pulling requester that gets data from a local CommCare reference.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */

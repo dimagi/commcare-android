@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Builds data pull requester that gets data from a local reference.
+ * Builds data pull requester that gets data from a local CommCare reference.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
