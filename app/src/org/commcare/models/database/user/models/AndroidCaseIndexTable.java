@@ -3,8 +3,6 @@ package org.commcare.models.database.user.models;
 import android.content.ContentValues;
 import android.util.Pair;
 
-import com.carrotsearch.hppc.IntSet;
-
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -13,16 +11,15 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.cases.query.queryset.DualTableSingleMatchModelQuerySet;
-import org.commcare.cases.query.queryset.ModelQuerySet;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.modern.engine.cases.CaseIndexTable;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Vector;
@@ -30,7 +27,7 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class CaseIndexTable {
+public class AndroidCaseIndexTable implements CaseIndexTable {
     private static final String TABLE_NAME = "case_index_storage";
 
     private static final String COL_CASE_RECORD_ID = "case_rec_id";
@@ -43,11 +40,11 @@ public class CaseIndexTable {
     //TODO: We should do some synchronization to make it the case that nothing can hold
     //an object for the same cache at once and let us manage the lifecycle
 
-    public CaseIndexTable() {
+    public AndroidCaseIndexTable() {
         this.db = CommCareApplication.instance().getUserDbHandle();
     }
 
-    public CaseIndexTable(SQLiteDatabase dbHandle) {
+    public AndroidCaseIndexTable(SQLiteDatabase dbHandle) {
         this.db = dbHandle;
     }
 
