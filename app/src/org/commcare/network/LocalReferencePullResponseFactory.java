@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public enum LocalDataPullResponseFactory implements DataPullRequester {
+public enum LocalReferencePullResponseFactory implements DataPullRequester {
     INSTANCE;
 
     // data pull requests will pop off and use the top reference in this list
@@ -38,7 +38,7 @@ public enum LocalDataPullResponseFactory implements DataPullRequester {
                                                       boolean includeSyncToken) throws IOException {
         numTries++;
         HttpResponse response = requestor.makeCaseFetchRequest(server, includeSyncToken);
-        return new LocalDataPullResponse(xmlPayloadReferences.remove(0), response);
+        return new LocalReferencePullResponse(xmlPayloadReferences.remove(0), response);
     }
 
     @Override

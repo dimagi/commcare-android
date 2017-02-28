@@ -12,11 +12,11 @@ import java.io.InputStream;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class LocalDataPullResponse extends RemoteDataPullResponse {
+public class LocalReferencePullResponse extends RemoteDataPullResponse {
     private InputStream debugStream = null;
 
-    public LocalDataPullResponse(String xmlPayloadReference,
-                                 HttpResponse response) throws IOException {
+    public LocalReferencePullResponse(String xmlPayloadReference,
+                                      HttpResponse response) throws IOException {
         super(null, response);
 
         try {

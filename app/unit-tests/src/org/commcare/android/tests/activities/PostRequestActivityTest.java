@@ -17,7 +17,7 @@ import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.network.HttpRequestEndpointsMock;
-import org.commcare.network.LocalDataPullResponseFactory;
+import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -152,7 +152,7 @@ public class PostRequestActivityTest {
     public void retryClaimTest() {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{500, 200});
         HttpRequestEndpointsMock.setCaseFetchResponseCodes(new Integer[]{200});
-        LocalDataPullResponseFactory.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/empty_restore.xml"});
+        LocalReferencePullResponseFactory.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/empty_restore.xml"});
 
         PostRequestActivity postRequestActivity = buildPostActivity("https://www.fake.com");
 
@@ -172,7 +172,7 @@ public class PostRequestActivityTest {
     public void makeSuccessfulPostRequestTest() {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         HttpRequestEndpointsMock.setCaseFetchResponseCodes(new Integer[]{200});
-        LocalDataPullResponseFactory.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/empty_restore.xml"});
+        LocalReferencePullResponseFactory.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/empty_restore.xml"});
 
         AndroidSessionWrapper sessionWrapper =
                 CommCareApplication.instance().getCurrentSessionWrapper();

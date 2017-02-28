@@ -6,7 +6,7 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.network.HttpRequestEndpointsMock;
 import org.commcare.android.util.TestAppInstaller;
-import org.commcare.network.LocalDataPullResponseFactory;
+import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.junit.Assert;
@@ -125,7 +125,7 @@ public class DataPullTaskTest {
         
         // Indicates that the task executed all of the retries we indicated, and then successfully
         // parsed the final success response
-        Assert.assertEquals(4, LocalDataPullResponseFactory.getNumRequestsMade());
+        Assert.assertEquals(4, LocalReferencePullResponseFactory.getNumRequestsMade());
 
         // Indicates that the mock retry result was parsed correctly
         Assert.assertTrue(pullTask.getAsyncRestoreHelper().serverProgressCompletedSoFar == 55);
@@ -142,10 +142,10 @@ public class DataPullTaskTest {
 
     private static void runDataPull(Integer[] resultCodes, String[] payloadResources) {
         HttpRequestEndpointsMock.setCaseFetchResponseCodes(resultCodes);
-        LocalDataPullResponseFactory.setRequestPayloads(payloadResources);
+        LocalReferencePullResponseFactory.setRequestPayloads(payloadResources);
 
         DataPullTask<Object> task =
-                new DataPullTask<Object>("test", "123", "fake.server.com", RuntimeEnvironment.application, LocalDataPullResponseFactory.INSTANCE, false) {
+                new DataPullTask<Object>("test", "123", "fake.server.com", RuntimeEnvironment.application, LocalReferencePullResponseFactory.INSTANCE, false) {
                     @Override
                     protected void deliverResult(Object o, ResultAndError<PullTaskResult> pullTaskResultResultAndError) {
                         dataPullResult = pullTaskResultResultAndError;
