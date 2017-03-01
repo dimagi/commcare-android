@@ -78,6 +78,7 @@ home.developer.options.enabled=Developer Mode Enabled
 
 menu.save.session=Save Your Session
 menu.clear.saved.session=Clear Saved Session
+menu.print.detail=Print Case Detail
 
 sync.success.sent.singular=Form sent to server!
 sync.success.sent=${0} forms sent to server!

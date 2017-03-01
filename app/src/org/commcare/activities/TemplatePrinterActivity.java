@@ -23,6 +23,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.suite.model.Detail;
 import org.commcare.tasks.TemplatePrinterTask;
 import org.commcare.tasks.TemplatePrinterTask.PopulateListener;
 import org.commcare.utils.CompoundIntentList;
@@ -165,7 +166,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         // Check if a doc location is coming in from the Intent
         // Will return a reference of format jr://... if it has been set
         String path = data.getString(PRINT_TEMPLATE_REF_STRING);
-        if (path != null) {
+        if (path != null && !path.equals(Detail.PRINT_TEMPLATE_PROVIDED_VIA_GLOBAL_SETTING)) {
             try {
                 path = ReferenceManager.instance().DeriveReference(path).getLocalURI();
                 return path;
@@ -175,14 +176,11 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             }
         } else {
             // Try to use the document location that was set in Settings menu
-            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            path = prefs.getString(CommCarePreferences.PREFS_PRINT_DOC_LOCATION, "");
-            if ("".equals(path)) {
+            path = CommCarePreferences.getGlobalTemplatePath();
+            if (path == null) {
                 showErrorDialog(Localization.get("missing.template.file"));
-                return null;
-            } else {
-                return path;
             }
+            return path;
         }
     }
 

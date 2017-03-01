@@ -31,6 +31,7 @@ import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UiElement;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -265,7 +266,7 @@ public class EntityDetailActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_PRINT_DETAIL, 0, Localization.get("print.detail.button"));
+        menu.add(0, MENU_PRINT_DETAIL, 0, Localization.get("menu.print.detail"));
         return true;
     }
 
