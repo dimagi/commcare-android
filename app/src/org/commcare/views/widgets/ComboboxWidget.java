@@ -18,6 +18,7 @@ import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.util.Vector;
 
@@ -115,9 +116,17 @@ public class ComboboxWidget extends QuestionWidget {
 
     private void fillInPreviousAnswer(FormEntryPrompt prompt) {
         if (prompt.getAnswerValue() != null) {
-            String previousAnswerValue = ((Selection)prompt.getAnswerValue().getValue()).getValue();
-            if (comboBox.isValidUserEntry(previousAnswerValue)) {
-                comboBox.setText(previousAnswerValue);
+            Selection priorSelection = (Selection)prompt.getAnswerValue().getValue();
+            String previousEnteredText;
+            try {
+                previousEnteredText = prompt.getSelectItemText(priorSelection);
+            } catch (XPathTypeMismatchException e) {
+                // Means that a default value was provided that is not a precise answer choice,
+                // but we can still grab the entered text this way and check if it's a valid entry
+                previousEnteredText = priorSelection.xmlValue;
+            }
+            if (previousEnteredText != null && comboBox.isValidUserEntry(previousEnteredText)) {
+                comboBox.setText(previousEnteredText);
             }
         }
     }
