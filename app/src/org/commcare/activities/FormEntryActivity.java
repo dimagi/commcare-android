@@ -731,8 +731,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     public void discardChangesAndExit() {
-        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this, FormEntryInstanceState.mInstancePath, instanceProviderContentURI);
-
+        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this,
+                FormEntryInstanceState.mInstancePath, instanceProviderContentURI);
         finishReturnInstance(false);
     }
 
