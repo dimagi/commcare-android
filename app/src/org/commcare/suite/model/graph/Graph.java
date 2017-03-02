@@ -136,6 +136,8 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         }
         for (String key : nonvariables) {
             String value = template.getConfiguration(key).evaluate(context);
+            System.out.println("139 Evaluated key " + key + " configuration "
+                    + template.getConfiguration(key) + " to value " + value);
             data.setConfiguration(key, value);
         }
     }
@@ -173,7 +175,10 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     }
                     String x = s.evaluateX(refContext);
                     String y = s.evaluateY(refContext);
-                    if (x != null && y != null) {
+                    if (x != null) {
+                        if (y == null) {
+                            y = "0";
+                        }
                         if (graphData.getType().equals(GraphUtil.TYPE_BUBBLE)) {
                             String radius = ((BubbleSeries)s).evaluateRadius(refContext);
                             seriesData.addPoint(new BubblePointData(x, y, radius));
@@ -182,6 +187,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                         }
                     }
                 }
+                
                 graphData.addSeries(seriesData);
 
                 for (Enumeration e = expandedConfiguration.keys(); e.hasMoreElements();) {
