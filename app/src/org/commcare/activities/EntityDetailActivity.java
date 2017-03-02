@@ -31,13 +31,10 @@ import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UiElement;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 
 /**
  * @author ctsims
@@ -60,6 +57,8 @@ public class EntityDetailActivity
     private Pair<Detail, TreeReference> mEntityContext;
     private TreeReference mTreeReference;
     private int detailIndex;
+    private AndroidSessionWrapper asw;
+
 
     // controls whether swiping can toggle exit from case detail screen
     private boolean isFinalSwipeActionEnabled = false;
@@ -77,7 +76,6 @@ public class EntityDetailActivity
     protected void onCreate(Bundle savedInstanceState) {
         Intent i = getIntent();
 
-        AndroidSessionWrapper asw;
         CommCareSession session;
         try {
             asw = CommCareApplication.instance().getCurrentSessionWrapper();
@@ -295,8 +293,8 @@ public class EntityDetailActivity
     }*/
 
     private void printDetailV2() {
-        HashMap<String, String> keyValueMap = detail.getKeyValueMapForPrint(
-                CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext());
+        HashMap<String, String> keyValueMap =
+                detail.getKeyValueMapForPrint(mTreeReference, asw.getEvaluationContext());
         Intent i = new Intent(this, TemplatePrinterActivity.class);
         for (String key : keyValueMap.keySet()) {
             i.putExtra(key, keyValueMap.get(key));

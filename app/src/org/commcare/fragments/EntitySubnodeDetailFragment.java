@@ -41,25 +41,27 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
             this.modifier = savedInstanceState.getParcelable(MODIFIER_KEY);
         }
 
-        Detail childDetail = getChildDetail();
-        TreeReference childReference = this.getChildReference();
+        Detail detailToDisplay = getDetailToUseForDisplay();
+        TreeReference referenceToDisplay = getReferenceToDisplay();
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         final Activity thisActivity = getActivity();
         this.listView = ((ListView)rootView.findViewById(R.id.screen_entity_detail_list));
         if (this.adapter == null && this.loader == null && !EntityLoaderTask.attachToActivity(this)) {
             // Set up task to fetch entity data
-            EntityLoaderTask theloader = new EntityLoaderTask(childDetail, this.getFactoryContext(childReference));
-            theloader.attachListener(this);
-            theloader.executeParallel(childDetail.getNodeset().contextualize(childReference));
+            EntityLoaderTask theLoader =
+                    new EntityLoaderTask(detailToDisplay, getFactoryContextForRef(referenceToDisplay));
+            theLoader.attachListener(this);
+            theLoader.executeParallel(detailToDisplay.getNodeset().contextualize(referenceToDisplay));
 
             // Add header row
             final LinearLayout headerLayout = ((LinearLayout)rootView.findViewById(R.id.entity_detail_header));
-            String[] headers = new String[childDetail.getFields().length];
+            String[] headers = new String[detailToDisplay.getFields().length];
             for (int i = 0; i < headers.length; ++i) {
-                headers[i] = childDetail.getFields()[i].getHeader().evaluate();
+                headers[i] = detailToDisplay.getFields()[i].getHeader().evaluate();
             }
-            EntityView headerView = EntityView.buildHeadersEntityView(thisActivity, childDetail, headers, false);
+            EntityView headerView = EntityView.buildHeadersEntityView(thisActivity, detailToDisplay,
+                    headers, false);
             headerLayout.removeAllViews();
             headerLayout.addView(headerView);
             headerLayout.setVisibility(View.VISIBLE);
