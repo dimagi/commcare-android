@@ -9,7 +9,7 @@ import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.models.database.user.models.CaseIndexTable;
+import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.utils.CommCareUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -83,7 +83,7 @@ public class CaseUtils {
 
             Vector<Integer> casesRemoved = storage.removeAll(filter);
             removedCaseCount = casesRemoved.size();
-            CaseIndexTable indexTable = new CaseIndexTable(db);
+            AndroidCaseIndexTable indexTable = new AndroidCaseIndexTable(db);
             for (int recordId : casesRemoved) {
                 indexTable.clearCaseIndices(recordId);
             }

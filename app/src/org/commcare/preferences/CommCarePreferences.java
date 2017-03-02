@@ -122,6 +122,7 @@ public class CommCarePreferences
     public final static String FALSE = "False";
 
     private static final int REQUEST_TEMPLATE = 0;
+    private static final int REQUEST_DEVELOPER_PREFERENCES = 1;
 
     private final static Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
@@ -291,6 +292,13 @@ public class CommCarePreferences
                 Toast.makeText(this, Localization.get("template.not.set"), Toast.LENGTH_SHORT).show();
             }
         }
+        if (requestCode == REQUEST_DEVELOPER_PREFERENCES) {
+            if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM && data != null) {
+                this.setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM, data);
+                this.finish();
+            }
+        }
+
     }
 
     @Override
@@ -554,7 +562,7 @@ public class CommCarePreferences
 
     private void startDeveloperOptions() {
         Intent intent = new Intent(this, DeveloperPreferences.class);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_DEVELOPER_PREFERENCES);
     }
 
     public static String getKeyServer() {

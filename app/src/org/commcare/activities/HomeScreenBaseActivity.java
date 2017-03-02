@@ -56,6 +56,7 @@ import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.UriToFilePath;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
@@ -70,6 +71,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Vector;
@@ -359,6 +361,20 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case PREFERENCES_ACTIVITY:
                     if (resultCode == AdvancedActionsActivity.RESULT_DATA_RESET) {
                         finish();
+                    } else if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
+                        try {
+                            Uri uri = intent.getData();
+                            String filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uri);
+                            if(filePath != null) {
+                                File f = new File(filePath);
+                                if (f != null && f.exists()) {
+                                    formAndDataSyncer.performCustomRestoreFromFile(this, f);
+                                }
+                            }
+                        } catch(Exception e) {
+                            Toast.makeText(this, "Error loading custom sync...",
+                                    Toast.LENGTH_LONG).show();
+                        }
                     }
                     return;
                 case ADVANCED_ACTIONS_ACTIVITY:

@@ -12,7 +12,7 @@ import org.commcare.engine.references.JavaHttpReference;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.models.database.user.models.CaseIndexTable;
+import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
@@ -37,17 +37,17 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     private final boolean processAttachments = true;
     private HttpRequestEndpoints generator;
     private final EntityStorageCache mEntityCache;
-    private final CaseIndexTable mCaseIndexTable;
+    private final AndroidCaseIndexTable mCaseIndexTable;
 
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage,
-                                EntityStorageCache entityCache, CaseIndexTable indexTable) {
+                                EntityStorageCache entityCache, AndroidCaseIndexTable indexTable) {
         super(parser, storage);
         mEntityCache = entityCache;
         mCaseIndexTable = indexTable;
     }
 
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
-        this(parser, storage, new EntityStorageCache("case"), new CaseIndexTable());
+        this(parser, storage, new EntityStorageCache("case"), new AndroidCaseIndexTable());
     }
 
     public AndroidCaseXmlParser(KXmlParser parser, boolean acceptCreateOverwrites,
@@ -56,7 +56,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         super(parser, acceptCreateOverwrites, storage);
         this.generator = generator;
         mEntityCache = new EntityStorageCache("case");
-        mCaseIndexTable = new CaseIndexTable();
+        mCaseIndexTable = new AndroidCaseIndexTable();
     }
 
     @Override
