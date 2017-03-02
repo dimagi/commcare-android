@@ -101,6 +101,37 @@
           "status": 2
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:768065119425:android:455113c70d7e361f",
+        "android_client_info": {
+          "package_name": "org.commcare.consumerapps.germygameshindi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "768065119425-hg10t0osvjqrt6pne3toaobabn5gobqs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "@apiKey@"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
     }
   ],
   "configuration_version": "1"
