@@ -1,10 +1,9 @@
-package org.commcare.activities;
+package org.commcare.print;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -24,8 +23,7 @@ import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.suite.model.Detail;
-import org.commcare.tasks.TemplatePrinterTask;
-import org.commcare.tasks.TemplatePrinterTask.PopulateListener;
+import org.commcare.print.TemplatePrinterTask.PopulateListener;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;

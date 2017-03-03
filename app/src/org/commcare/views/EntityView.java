@@ -292,7 +292,7 @@ public class EntityView extends LinearLayout {
             }
             if (rendered == null) {
                 try {
-                    rendered = g.getView(g.getHTML((GraphData)field));
+                    rendered = g.getView(((GraphData)field).getGraphHTML(""));
                 } catch (GraphException ex) {
                     rendered = new TextView(getContext());
                     ((TextView)rendered).setText(ex.getMessage());

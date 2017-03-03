@@ -21,10 +21,13 @@ import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.print.PrintableDetailField;
+import org.commcare.print.TemplatePrinterActivity;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
+import org.commcare.util.DetailFieldPrintInfo;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.SessionStateUninitException;
@@ -34,6 +37,7 @@ import org.commcare.views.UiElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -285,19 +289,18 @@ public class EntityDetailActivity
         return super.onOptionsItemSelected(item);
     }
 
-    /*private void printDetailV1() {
-        Hashtable<String, XPathExpression> refsMap = detail.getKeyValueMapForPrint();
-        IntentCallout printActivityCallout =
-                IntentCallout.CalloutForOutsideFormEntry("org.commcare.dalvik.action.PRINT", refsMap);
-        this.startActivityForResult(printActivityCallout.generate(null), PRINT_DETAIL);
-    }*/
-
     private void printDetailV2() {
-        HashMap<String, String> keyValueMap =
+        HashMap<String, Object> keyValueMap =
                 detail.getKeyValueMapForPrint(mTreeReference, asw.getEvaluationContext());
+
         Intent i = new Intent(this, TemplatePrinterActivity.class);
         for (String key : keyValueMap.keySet()) {
-            i.putExtra(key, keyValueMap.get(key));
+            Object value = keyValueMap.get(key);
+            if (value instanceof DetailFieldPrintInfo) {
+                i.putExtra(key, new PrintableDetailField((DetailFieldPrintInfo)value));
+            } else {
+                i.putExtra(key, (String)value);
+            }
         }
     }
 
