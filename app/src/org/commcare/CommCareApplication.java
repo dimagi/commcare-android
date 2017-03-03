@@ -629,6 +629,14 @@ public class CommCareApplication extends Application {
         if (!success) {
             Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Couldn't create temp folder");
         }
+
+        String externalRoot = this.getAndroidFsExternalTemp();
+        FileUtil.deleteFileOrDir(externalRoot);
+        success = FileUtil.createFolder(externalRoot);
+        if (!success) {
+            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Couldn't create external file folder");
+        }
+
     }
 
     /**
@@ -884,6 +892,9 @@ public class CommCareApplication extends Application {
     public String getAndroidFsTemp() {
         return Environment.getExternalStorageDirectory().toString() + "/Android/data/" + getPackageName() + "/temp/";
     }
+    public String getAndroidFsExternalTemp() {
+        return getAndroidFsRoot() + "/temp/external/";
+    }
 
     /**
      * @return a path to a file location that can be used to store a file
@@ -892,6 +903,14 @@ public class CommCareApplication extends Application {
      */
     public String getTempFilePath() {
         return getAndroidFsTemp() + PropertyUtils.genUUID();
+    }
+
+    /**
+     * @param fileStem a relative file path to reference in the temp storage space
+     * @return A file that can be shared with external applications via URI
+     */
+    public String getExternalTempPath(String fileStem) {
+        return getAndroidFsExternalTemp() + fileStem;
     }
 
     public ArchiveFileRoot getArchiveFileRoot() {

@@ -118,6 +118,17 @@
             android:exported="true"
             android:readPermission="${applicationId}.provider.cases.read"/>
 
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.external.files.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
+
         <activity android:name="org.commcare.preferences.CommCarePreferences">
         </activity>
         <activity android:name="org.commcare.activities.DotsEntryActivity">

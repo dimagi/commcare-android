@@ -32,12 +32,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.DrawActivity;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.ODKStorage;
+import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UrlUtils;
@@ -63,6 +65,11 @@ public class SignatureWidget extends QuestionWidget {
     private final PendingCalloutInterface pendingCalloutInterface;
 
     private final TextView mErrorTextView;
+
+    public static File getTempFileForDrawingCapture() {
+        return new File(CommCareApplication.instance().
+                getExternalTempPath(GlobalConstants.TEMP_FILE_STEM_DRAW_HOLDER));
+    }
 
     public SignatureWidget(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
@@ -154,7 +161,7 @@ public class SignatureWidget extends QuestionWidget {
         }
 
         i.putExtra(DrawActivity.EXTRA_OUTPUT,
-                Uri.fromFile(new File(ODKStorage.TMPFILE_PATH)));
+                Uri.fromFile(ImageWidget.getTempFileForImageCapture()));
 
         try {
             ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.SIGNATURE_CAPTURE);
