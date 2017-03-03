@@ -29,6 +29,8 @@ import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.commcare.views.widgets.ImageWidget;
+import org.commcare.views.widgets.SignatureWidget;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -88,9 +90,9 @@ public class DrawActivity extends Activity {
         if (extras == null) {
             loadOption = OPTION_DRAW;
             refImage = null;
-            savepointImage = new File(ODKStorage.TMPDRAWFILE_PATH);
+            savepointImage = SignatureWidget.getTempFileForDrawingCapture();
             savepointImage.delete();
-            output = new File(ODKStorage.TMPFILE_PATH);
+            output = ImageWidget.getTempFileForImageCapture();
         } else {
             loadOption = extras.getString(OPTION);
             if (loadOption == null) {
@@ -114,7 +116,7 @@ public class DrawActivity extends Activity {
                     }
                 }
             } else {
-                savepointImage = new File(ODKStorage.TMPDRAWFILE_PATH);
+                savepointImage = SignatureWidget.getTempFileForDrawingCapture();
                 savepointImage.delete();
                 if (refImage != null && refImage.exists()) {
                     try {
@@ -130,7 +132,7 @@ public class DrawActivity extends Activity {
             if (uri != null) {
                 output = new File(uri.getPath());
             } else {
-                output = new File(ODKStorage.TMPFILE_PATH);
+                output = ImageWidget.getTempFileForImageCapture();
             }
         }
 
@@ -349,7 +351,7 @@ public class DrawActivity extends Activity {
             mBitmapPaint = new Paint(Paint.DITHER_FLAG);
             mCurrentPath = new Path();
             setBackgroundColor(0xFFFFFFFF);
-            mBackgroundBitmapFile = new File(ODKStorage.TMPDRAWFILE_PATH);
+            mBackgroundBitmapFile = SignatureWidget.getTempFileForDrawingCapture();
         }
 
         public DrawView(Context c, boolean isSignature, File f, Paint paint, Paint pointPaint) {

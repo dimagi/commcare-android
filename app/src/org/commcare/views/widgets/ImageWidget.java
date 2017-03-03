@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -18,11 +20,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.ODKStorage;
+import org.commcare.utils.FileUtil;
+import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UrlUtils;
@@ -42,7 +47,6 @@ import java.io.File;
  */
 public class ImageWidget extends QuestionWidget {
     private final static String t = "MediaWidget";
-    public final static File TEMP_FILE_FOR_IMAGE_CAPTURE = new File(ODKStorage.TMPFILE_PATH);
 
     private final Button mCaptureButton;
     private final Button mChooseButton;
@@ -57,7 +61,12 @@ public class ImageWidget extends QuestionWidget {
     private int mMaxDimen;
     private final PendingCalloutInterface pendingCalloutInterface;
 
-    public ImageWidget(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic) {
+    public static File getTempFileForImageCapture() {
+        return new File(CommCareApplication.instance().
+                getExternalTempPath(GlobalConstants.TEMP_FILE_STEM_IMAGE_HOLDER));
+    }
+
+    public ImageWidget(final Context context, FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
         this.pendingCalloutInterface = pic;
 
@@ -84,6 +93,9 @@ public class ImageWidget extends QuestionWidget {
             public void onClick(View v) {
                 mErrorTextView.setVisibility(View.GONE);
                 Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
+                Uri uri = FileUtil.getUriForExternalFile(context, getTempFileForImageCapture());
+
                 // We give the camera an absolute filename/path where to put the
                 // picture because of bug:
                 // http://code.google.com/p/android/issues/detail?id=1480
@@ -91,8 +103,9 @@ public class ImageWidget extends QuestionWidget {
                 // 2010, G1 phones only run 1.6. Without specifying the path the
                 // images returned by the camera in 1.6 (and earlier) are ~1/4
                 // the size. boo.
-                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-                        Uri.fromFile(TEMP_FILE_FOR_IMAGE_CAPTURE));
+                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
+                i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                i.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryConstants.IMAGE_CAPTURE);
