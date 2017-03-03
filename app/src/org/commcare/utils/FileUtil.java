@@ -697,6 +697,10 @@ public class FileUtil {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
+    /**
+     * @return A platform-dependent URI for the file at the provided URI. If using SDK24+ only files
+     * supported by a FileProvider are able to be shared externally by these URI's
+     */
     public static Uri getUriForExternalFile(Context context, File file) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
             return FileProvider.getUriForFile(context,
