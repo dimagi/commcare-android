@@ -290,18 +290,16 @@ public class EntityDetailActivity
     }
 
     private void printDetailV2() {
-        HashMap<String, Object> keyValueMap =
-                detail.getKeyValueMapForPrint(mTreeReference, asw.getEvaluationContext());
-
         Intent i = new Intent(this, TemplatePrinterActivity.class);
+        i.putExtra(TemplatePrinterActivity.PRINT_TEMPLATE_REF_STRING,
+                detail.getDerivedPrintTemplatePath());
+
+        HashMap<String, DetailFieldPrintInfo> keyValueMap =
+                detail.getKeyValueMapForPrint(mTreeReference, asw.getEvaluationContext());
         for (String key : keyValueMap.keySet()) {
-            Object value = keyValueMap.get(key);
-            if (value instanceof DetailFieldPrintInfo) {
-                i.putExtra(key, new PrintableDetailField((DetailFieldPrintInfo)value));
-            } else {
-                i.putExtra(key, (String)value);
-            }
+            i.putExtra(key, new PrintableDetailField(keyValueMap.get(key)));
         }
+        startActivityForResult(i, PRINT_DETAIL);
     }
 
 }

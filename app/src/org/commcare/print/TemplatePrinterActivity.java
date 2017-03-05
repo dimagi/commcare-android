@@ -37,6 +37,7 @@ import org.jsoup.nodes.Node;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -257,44 +258,32 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         });
 
         try {
-            String htmlDocString = TemplatePrinterUtils.readStringFromFile(outputPath);
-            String graphHTML = getIntent().getExtras().getString(KEY_GRAPH_TO_PRINT);
-            Document templateDoc = Jsoup.parse(htmlDocString);
-            Element graphNodeInTemplate = templateDoc.getElementById("graph");
-
-            if (graphHTML != null && graphNodeInTemplate != null) {
-                loadHtmlTemplateWithGraph(graphHTML, templateDoc, graphNodeInTemplate, webView);
-            } else {
-                webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
-            }
+            String populatedHtmlDocString = TemplatePrinterUtils.readStringFromFile(outputPath);
+            Document templateDoc = Jsoup.parse(populatedHtmlDocString);
+            loadHtmlIntoWebView(templateDoc, webView);
         } catch (IOException e) {
             showErrorDialog(Localization.get("print.io.error"));
         }
         createWebPrintJob(webView);
     }
 
-    private void loadHtmlTemplateWithGraph(String graphHTML, Document templateDoc,
-                                           Element graphNodeInTemplate, WebView webView) {
-        Document graphDoc = Jsoup.parse(graphHTML);
-        Element graphHead = graphDoc.getElementsByTag("head").get(0);
-        Element graphBody = graphDoc.getElementsByTag("body").get(0);
-        Element templateDocHead = templateDoc.getElementsByTag("head").get(0);
-
-        for (Node n: graphHead.children()) {
-            // Transfer anything from the <head> element of the graph html doc to the <head>
-            // element of our template doc
-            templateDocHead.appendChild(n);
-        }
-        try {
-            for (Node n : graphBody.children()) {
-                graphNodeInTemplate.appendChild(n);
-            }
-        } catch (NullPointerException e) {
-            showErrorDialog(Localization.get("template.error"));
-        }
-
+    private void loadHtmlIntoWebView(Document templateDoc, WebView webView) {
+        transferHeadElementsFromPopulatedFields(templateDoc);
         String finalHTML = templateDoc.html();
         webView.loadDataWithBaseURL(null, finalHTML, "text/HTML", "UTF-8", null);
+    }
+
+    private void transferHeadElementsFromPopulatedFields(Document templateDoc) {
+        Element templateDocHead = templateDoc.getElementsByTag("head").get(0);
+        Bundle bundle = getIntent().getExtras();
+        for (String key : bundle.keySet()) {
+            Serializable o = bundle.getSerializable(key);
+            if (o instanceof PrintableDetailField) {
+                for (Node n : ((PrintableDetailField)o).getHtmlHeadElementsToAppend()) {
+                    templateDocHead.appendChild(n);
+                }
+            }
+        }
     }
 
     @Override
