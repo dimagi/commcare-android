@@ -268,12 +268,12 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     }
 
     private void loadHtmlIntoWebView(Document templateDoc, WebView webView) {
-        transferHeadElementsFromPopulatedFields(templateDoc);
+        //transferHeadElementsFromPopulatedFields(templateDoc);
         String finalHTML = templateDoc.html();
         webView.loadDataWithBaseURL(null, finalHTML, "text/HTML", "UTF-8", null);
     }
 
-    private void transferHeadElementsFromPopulatedFields(Document templateDoc) {
+    /*private void transferHeadElementsFromPopulatedFields(Document templateDoc) {
         Element templateDocHead = templateDoc.getElementsByTag("head").get(0);
         Bundle bundle = getIntent().getExtras();
         for (String key : bundle.keySet()) {
@@ -284,7 +284,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                 }
             }
         }
-    }
+    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -20,7 +20,6 @@ public class PrintableDetailField implements Serializable {
 
     private String valueString;
     private String fieldForm;
-    private String fullGraphHtml;
 
     public PrintableDetailField(DetailFieldPrintInfo printInfo) {
         DetailField field = printInfo.field;
@@ -45,30 +44,43 @@ public class PrintableDetailField implements Serializable {
     private void parseGraphPrintData(Entity entity, int fieldIndex) {
         try {
             Object evaluatedField = entity.getField(fieldIndex);
-            this.fullGraphHtml = ((GraphData)evaluatedField).getGraphHTML("");
-            this.valueString = getHtmlStringForBody(fullGraphHtml);
+            String fullGraphHtml = ((GraphData)evaluatedField).getGraphHTML("");
+            this.valueString = fullGraphHtml;
         } catch (GraphException e) {
             this.valueString = "";
         }
     }
 
-    private static String getHtmlStringForBody(String html) {
+    /*private static String getHtmlStringForBody(String html) {
         return StringUtils.substringBetween(html, "<body>", "</body>");
+    }*/
+
+    public String getValueString() {
+        if (isGraphDetailField()) {
+            return createIframeForGraphHtml(valueString);
+        } else {
+            return valueString;
+        }
+    }
+
+    private static String createIframeForGraphHtml(String fullGraphHtml) {
+        return "<iframe srcdoc=\"" + scrubHtmlStringForUseAsAttribute(fullGraphHtml)
+                + "\" height=\"500\" width=\"500\"></iframe>";
+    }
+
+    private static String scrubHtmlStringForUseAsAttribute(String htmlString) {
+        return htmlString.replace("\"", "\'").replace("&lt;", "<").replace("&gt;", ">");
     }
 
     private boolean isGraphDetailField() {
         return "graph".equals(fieldForm);
     }
 
-    public String getValueString() {
-        return valueString;
-    }
-
     public boolean isPrintable() {
         return !"".equals(valueString);
     }
 
-    public Elements getHtmlHeadElementsToAppend() {
+    /*public Elements getHtmlHeadElementsToAppend() {
         if (isGraphDetailField()) {
             Document graphDoc = Jsoup.parse(this.fullGraphHtml);
             Element graphHead = graphDoc.getElementsByTag("head").get(0);
@@ -76,6 +88,6 @@ public class PrintableDetailField implements Serializable {
         } else {
             return new Elements();
         }
-    }
+    }*/
 
 }
