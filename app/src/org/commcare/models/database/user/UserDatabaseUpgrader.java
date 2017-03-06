@@ -21,7 +21,7 @@ import org.commcare.models.database.migration.FixtureSerializationMigration;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.ACasePreV6Model;
 import org.commcare.android.database.user.models.AUser;
-import org.commcare.models.database.user.models.CaseIndexTable;
+import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
@@ -199,9 +199,9 @@ class UserDatabaseUpgrader {
             db.execSQL(EntityStorageCache.getTableDefinition());
             EntityStorageCache.createIndexes(db);
 
-            db.execSQL(CaseIndexTable.getTableDefinition());
-            CaseIndexTable.createIndexes(db);
-            CaseIndexTable cit = new CaseIndexTable(db);
+            db.execSQL(AndroidCaseIndexTable.getTableDefinition());
+            AndroidCaseIndexTable.createIndexes(db);
+            AndroidCaseIndexTable cit = new AndroidCaseIndexTable(db);
 
             //NOTE: Need to use the PreV6 case model any time we manipulate cases in this model for upgraders
             //below 6

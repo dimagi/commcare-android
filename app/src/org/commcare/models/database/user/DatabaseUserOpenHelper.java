@@ -16,7 +16,7 @@ import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.models.database.user.models.CaseIndexTable;
+import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -138,8 +138,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
             database.execSQL(EntityStorageCache.getTableDefinition());
             EntityStorageCache.createIndexes(database);
 
-            database.execSQL(CaseIndexTable.getTableDefinition());
-            CaseIndexTable.createIndexes(database);
+            database.execSQL(AndroidCaseIndexTable.getTableDefinition());
+            AndroidCaseIndexTable.createIndexes(database);
 
             database.setVersion(USER_DB_VERSION);
 

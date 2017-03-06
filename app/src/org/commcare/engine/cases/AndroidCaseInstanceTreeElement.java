@@ -2,21 +2,21 @@ package org.commcare.engine.cases;
 
 import android.util.Log;
 
-import com.carrotsearch.hppc.IntSet;
-
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
-import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.IndexedSetMemberLookup;
 import org.commcare.cases.query.IndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
+import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QueryPlanner;
 import org.commcare.cases.query.handlers.ModelQueryLookupHandler;
 import org.commcare.cases.query.queryset.CaseModelQuerySetMatcher;
-import org.commcare.engine.cases.query.CaseIndexPrefetchHandler;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
-import org.commcare.models.database.user.models.CaseIndexTable;
+import org.commcare.models.database.user.models.AndroidCaseIndexTable;
+import org.commcare.modern.engine.cases.CaseGroupResultCache;
+import org.commcare.modern.engine.cases.CaseIndexQuerySetTransform;
+import org.commcare.modern.engine.cases.query.CaseIndexPrefetchHandler;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
@@ -26,7 +26,6 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.Vector;
@@ -37,7 +36,7 @@ import java.util.Vector;
 public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement implements CacheHost {
     private static final String TAG = AndroidCaseInstanceTreeElement.class.getSimpleName();
 
-    private final CaseIndexTable mCaseIndexTable;
+    private final AndroidCaseIndexTable mCaseIndexTable;
 
     private final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<>();
 
@@ -51,11 +50,11 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     private String[][] mMostRecentBatchFetch = null;
 
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage) {
-        this(instanceRoot, storage, new CaseIndexTable());
+        this(instanceRoot, storage, new AndroidCaseIndexTable());
     }
 
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage,
-                                          CaseIndexTable caseIndexTable) {
+                                          AndroidCaseIndexTable caseIndexTable) {
         super(instanceRoot, storage);
         mCaseIndexTable = caseIndexTable;
     }
