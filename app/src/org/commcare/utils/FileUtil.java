@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.util.Pair;
 
@@ -695,4 +696,19 @@ public class FileUtil {
     private static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
+
+    /**
+     * @return A platform-dependent URI for the file at the provided URI. If using SDK24+ only files
+     * supported by a FileProvider are able to be shared externally by these URI's
+     */
+    public static Uri getUriForExternalFile(Context context, File file) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
+            return FileProvider.getUriForFile(context,
+                    context.getApplicationContext().getPackageName() + ".external.files.provider",
+                    file);
+        } else {
+            return Uri.fromFile(file);
+        }
+    }
+
 }
