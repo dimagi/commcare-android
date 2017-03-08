@@ -55,9 +55,4 @@ public abstract class VerificationTask<Reciever>
     @Override
     public void simpleResourceAdded() {
     }
-
-    @Override
-    public boolean wasInstallCancelled() {
-        return isCancelled();
-    }
 }
