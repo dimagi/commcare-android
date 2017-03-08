@@ -1,6 +1,5 @@
 package org.commcare.print;
 
-import org.apache.commons.lang3.StringUtils;
 import org.commcare.cases.entity.Entity;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
@@ -9,7 +8,6 @@ import org.commcare.util.DetailFieldPrintInfo;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.Serializable;
 
@@ -57,10 +55,6 @@ public class PrintableDetailField implements Serializable {
         }
     }
 
-    /*private static String getHtmlStringForBody(String html) {
-        return StringUtils.substringBetween(html, "<body>", "</body>");
-    }*/
-
     public String getFormattedValueString() {
         if (isGraphDetailField()) {
             return createIframeForGraphHtml(valueString);
@@ -70,12 +64,22 @@ public class PrintableDetailField implements Serializable {
     }
 
     private static String createIframeForGraphHtml(String fullGraphHtml) {
-        return "<iframe srcdoc=\"" + scrubHtmlStringForUseAsAttribute(fullGraphHtml)
-                + "\" height=\"500\" width=\"500\"></iframe>";
+        return "<iframe srcdoc=\""
+                + scrubHtmlStringForUseAsAttribute(addStyleAttributes(fullGraphHtml))
+                + "\" height=\"250\" width=\"500\"></iframe>";
     }
 
     private static String scrubHtmlStringForUseAsAttribute(String htmlString) {
         return htmlString.replace("\"", "\'");
+    }
+
+    private static String addStyleAttributes(String htmlString) {
+        Document graphDoc = Jsoup.parse(htmlString);
+        Element htmlNode = graphDoc.getElementsByTag("html").get(0);
+        htmlNode.attr("style", "height: 100%");
+        Element bodyNode = graphDoc.getElementsByTag("body").get(0);
+        bodyNode.attr("style", "height: 90%; margin:0;");
+        return graphDoc.html();
     }
 
     private boolean isGraphDetailField() {
@@ -85,15 +89,5 @@ public class PrintableDetailField implements Serializable {
     public boolean isPrintable() {
         return !"".equals(valueString);
     }
-
-    /*public Elements getHtmlHeadElementsToAppend() {
-        if (isGraphDetailField()) {
-            Document graphDoc = Jsoup.parse(this.fullGraphHtml);
-            Element graphHead = graphDoc.getElementsByTag("head").get(0);
-            return graphHead.children();
-        } else {
-            return new Elements();
-        }
-    }*/
 
 }

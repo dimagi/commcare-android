@@ -32,12 +32,8 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -268,23 +264,9 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     }
 
     private void loadHtmlIntoWebView(Document templateDoc, WebView webView) {
-        //transferHeadElementsFromPopulatedFields(templateDoc);
         String finalHTML = templateDoc.html();
         webView.loadDataWithBaseURL(null, finalHTML, "text/HTML", "UTF-8", null);
     }
-
-    /*private void transferHeadElementsFromPopulatedFields(Document templateDoc) {
-        Element templateDocHead = templateDoc.getElementsByTag("head").get(0);
-        Bundle bundle = getIntent().getExtras();
-        for (String key : bundle.keySet()) {
-            Serializable o = bundle.getSerializable(key);
-            if (o instanceof PrintableDetailField) {
-                for (Node n : ((PrintableDetailField)o).getHtmlHeadElementsToAppend()) {
-                    templateDocHead.appendChild(n);
-                }
-            }
-        }
-    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
