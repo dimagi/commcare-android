@@ -116,8 +116,11 @@ public class ComboboxWidget extends QuestionWidget {
     private void fillInPreviousAnswer(FormEntryPrompt prompt) {
         if (prompt.getAnswerValue() != null) {
             String previousAnswerValue = ((Selection)prompt.getAnswerValue().getValue()).getValue();
-            if (comboBox.isValidUserEntry(previousAnswerValue)) {
-                comboBox.setText(previousAnswerValue);
+            for (int i = 0; i < choices.size(); i++) {
+                if (choices.get(i).getValue().equals(previousAnswerValue)) {
+                    comboBox.setText(choiceTexts.get(i));
+                    break;
+                }
             }
         }
     }
