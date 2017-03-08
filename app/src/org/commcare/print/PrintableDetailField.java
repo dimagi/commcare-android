@@ -69,7 +69,7 @@ public class PrintableDetailField implements Serializable {
     }
 
     private static String scrubHtmlStringForUseAsAttribute(String htmlString) {
-        return htmlString.replace("\"", "\'").replace("&lt;", "<").replace("&gt;", ">").replace("<br>", "");
+        return htmlString.replace("\"", "\'");
     }
 
     private boolean isGraphDetailField() {
