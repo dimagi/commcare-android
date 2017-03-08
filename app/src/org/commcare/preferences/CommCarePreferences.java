@@ -73,6 +73,8 @@ public class CommCarePreferences
     public final static String LAST_PASSWORD = "last_password";
     public final static String CURRENT_SESSION = "current_user_session";
     public final static String CURRENT_FORM_ENTRY_SESSION = "current_form_entry_session";
+    public final static String GLOBAL_APP_FORM_COUNTER = "global-app-form-counter";
+
     public final static String CONTENT_VALIDATED = "cc-content-valid";
 
     public final static String YES = "yes";
@@ -483,4 +485,5 @@ public class CommCarePreferences
                     Localization.get("no.file.browser"), false);
         }
     }
+
 }
