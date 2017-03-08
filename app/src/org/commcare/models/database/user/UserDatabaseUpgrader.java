@@ -403,9 +403,13 @@ class UserDatabaseUpgrader {
                         oldRecord.getInstanceID(),
                         oldRecord.lastModified(),
                         oldRecord.getAppId());
-                // By processing the old records in order of their last modified date, we make sure
-                // that we are setting this form numbers in the most accurate order we can
-                newRecord.setFormNumberForSubmissionOrdering();
+                String statusOfOldRecord = oldRecord.getStatus();
+                if (FormRecord.STATUS_COMPLETE.equals(statusOfOldRecord) ||
+                        FormRecord.STATUS_UNSENT.equals(statusOfOldRecord)) {
+                    // By processing the old records in order of their last modified date, we make
+                    // sure that we are setting this form numbers in the most accurate order we can
+                    newRecord.setFormNumberForSubmissionOrdering();
+                }
                 upgradedRecords.add(newRecord);
             }
 
