@@ -655,10 +655,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
-                // We're honoring in order submissions, now, so trigger a full
-                // submission cycle
+                current.setFormNumberForSubmissionOrdering();
                 checkAndStartUnsentFormsTask(false, false);
-
                 refreshUI();
 
                 if (wasExternal) {
@@ -667,8 +665,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     return false;
                 }
 
-                // Before we can terminate the session, we need to know that the form has been processed
-                // in case there is state that depends on it.
+                // Before we can terminate the session, we need to know that the form has been
+                // processed in case there is state that depends on it.
                 boolean terminateSuccessful;
                 try {
                     terminateSuccessful = currentState.terminateSession();

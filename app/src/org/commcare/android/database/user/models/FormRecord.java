@@ -1,14 +1,17 @@
 package org.commcare.android.database.user.models;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 
 import java.io.FileNotFoundException;
@@ -28,6 +31,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String META_XMLNS = "XMLNS";
     public static final String META_LAST_MODIFIED = "DATE_MODIFIED";
     public static final String META_APP_ID = "APP_ID";
+    public static final String META_FORM_NUMBER = "FORM_NUMBER";
 
     /**
      * This form record is a stub that hasn't actually had data saved for it yet
@@ -67,23 +71,33 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @Persisting(1)
     @MetaField(META_XMLNS)
     private String xmlns;
+
     @Persisting(2)
     @MetaField(META_INSTANCE_URI)
     private String instanceURI;
+
     @Persisting(3)
     @MetaField(META_STATUS)
     private String status;
+
     @Persisting(4)
     private byte[] aesKey;
+
     @Persisting(value = 5, nullable = true)
     @MetaField(META_UUID)
     private String uuid;
+
     @Persisting(6)
     @MetaField(META_LAST_MODIFIED)
     private Date lastModified;
+
     @Persisting(7)
     @MetaField(META_APP_ID)
     private String appId;
+
+    @Persisting(8)
+    @MetaField(META_FORM_NUMBER)
+    private String formNumberInOrder;
 
     public FormRecord() {
     }
@@ -190,5 +204,17 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @Override
     public String toString() {
         return String.format("Form Record[%s][Status: %s]\n[Form: %s]\n[Last Modified: %s]", this.recordId, this.status, this.xmlns, this.lastModified.toString());
+    }
+
+    public void setFormNumberForSubmissionOrdering() {
+        this.formNumberInOrder = ""+getNextFormNumberInOrder();
+    }
+
+    private static int getNextFormNumberInOrder() {
+        SharedPreferences appPrefs =
+                CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        int lastFormNum = appPrefs.getInt(CommCarePreferences.GLOBAL_APP_FORM_COUNTER, -1);
+        appPrefs.edit().putInt(CommCarePreferences.GLOBAL_APP_FORM_COUNTER, lastFormNum + 1);
+        return lastFormNum + 1;
     }
 }

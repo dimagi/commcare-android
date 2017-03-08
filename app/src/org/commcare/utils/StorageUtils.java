@@ -3,10 +3,8 @@ package org.commcare.utils;
 import android.support.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.javarosa.core.services.Logger;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -63,9 +61,8 @@ public class StorageUtils {
             return new FormRecord[0];
         }
 
-        // Order ids so they're submitted to and processed by the server in
-        // the correct order.
-        sortRecordsByDate(ids, storage);
+        // Order ids so they're submitted to and processed by the server in the correct order.
+        sortRecordsByGlobalCounter(ids, storage);
 
         // The records should now be in order and we can pass to the next phase
         FormRecord[] records = new FormRecord[ids.size()];
@@ -75,20 +72,19 @@ public class StorageUtils {
         return records;
     }
 
-    private static void sortRecordsByDate(Vector<Integer> ids,
-                                          SqlStorage<FormRecord> storage) {
-        final HashMap<Integer, Long> idToDateIndex =
-                getIdToDateMap(ids, storage);
+    private static void sortRecordsByGlobalCounter(Vector<Integer> ids,
+                                                   SqlStorage<FormRecord> storage) {
+        final HashMap<Integer, Integer> idToFormNumberMapping = getIdToFormNumberMap(ids, storage);
 
         Collections.sort(ids, new Comparator<Integer>() {
             @Override
-            public int compare(Integer lhs, Integer rhs) {
-                Long lhd = idToDateIndex.get(lhs);
-                Long rhd = idToDateIndex.get(rhs);
-                if (lhd < rhd) {
+            public int compare(Integer formId1, Integer formId2) {
+                Integer formNum1 = idToFormNumberMapping.get(formId1);
+                Integer formNum2 = idToFormNumberMapping.get(formId2);
+                if (formNum1 < formNum2) {
                     return -1;
                 }
-                if (lhd > rhd) {
+                if (formNum1 > formNum2) {
                     return 1;
                 }
                 return 0;
@@ -96,27 +92,14 @@ public class StorageUtils {
         });
     }
 
-    private static HashMap<Integer, Long> getIdToDateMap(Vector<Integer> ids,
-                                                         SqlStorage<FormRecord> storage) {
-        HashMap<Integer, Long> idToDateIndex = new HashMap<>();
+    private static HashMap<Integer, Integer> getIdToFormNumberMap(Vector<Integer> ids,
+                                                               SqlStorage<FormRecord> storage) {
+        HashMap<Integer, Integer> idToFormNumberMapping = new HashMap<>();
         for (int id : ids) {
-            // Last modified for a unsent and complete forms is the formEnd
-            // date that was captured and locked when form entry, so it's a
-            // safe cannonical ordering
-            String dateAsString =
-                    storage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
-            long dateAsSeconds;
-            try {
-                dateAsSeconds = Long.valueOf(dateAsString);
-            } catch (NumberFormatException e) {
-                // Go with the next best ordering for now
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                        "Invalid date in last modified value: " + dateAsString);
-                idToDateIndex.put(id, (long)id);
-                continue;
-            }
-            idToDateIndex.put(id, dateAsSeconds);
+            String formNumberAsString =
+                    storage.getMetaDataFieldForRecord(id, FormRecord.META_FORM_NUMBER);
+            idToFormNumberMapping.put(id, Integer.parseInt(formNumberAsString));
         }
-        return idToDateIndex;
+        return idToFormNumberMapping;
     }
 }
