@@ -31,7 +31,7 @@ public class PrintableDetailField implements Serializable {
         if ("".equals(fieldAsString) || fieldAsString == null) {
             // this field can't be automatically represented as a string
             if (isGraphDetailField()) {
-                parseGraphPrintData(entity, fieldIndex);
+                parseGraphPrintData(entity, field, fieldIndex);
             } else {
                 // this field is of some other form for which printing is currently not supported
                 this.valueString = "";
@@ -41,10 +41,16 @@ public class PrintableDetailField implements Serializable {
         }
     }
 
-    private void parseGraphPrintData(Entity entity, int fieldIndex) {
+    private void parseGraphPrintData(Entity entity, DetailField field, int fieldIndex) {
         try {
             Object evaluatedField = entity.getField(fieldIndex);
-            String fullGraphHtml = ((GraphData)evaluatedField).getGraphHTML("");
+            String graphTitle = field.getHeader().evaluate();
+            if ("".equals(graphTitle) || graphTitle == null) {
+                // DO NOT CHANGE THIS -- Workaround to address that fact that a graph will not
+                // render properly if the 'chart-title' <div> is empty
+                graphTitle = " ";
+            }
+            String fullGraphHtml = ((GraphData)evaluatedField).getGraphHTML(graphTitle);
             this.valueString = fullGraphHtml;
         } catch (GraphException e) {
             this.valueString = "";
