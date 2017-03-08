@@ -214,7 +214,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
         SharedPreferences appPrefs =
                 CommCareApplication.instance().getCurrentApp().getAppPreferences();
         int lastFormNum = appPrefs.getInt(CommCarePreferences.GLOBAL_APP_FORM_COUNTER, -1);
-        appPrefs.edit().putInt(CommCarePreferences.GLOBAL_APP_FORM_COUNTER, lastFormNum + 1);
+        appPrefs.edit().putInt(CommCarePreferences.GLOBAL_APP_FORM_COUNTER, lastFormNum + 1).commit();
         return lastFormNum + 1;
     }
 }
