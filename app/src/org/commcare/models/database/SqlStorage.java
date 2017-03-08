@@ -3,9 +3,6 @@ package org.commcare.models.database;
 import android.database.Cursor;
 import android.util.Pair;
 
-import com.carrotsearch.hppc.IntObjectMap;
-import com.carrotsearch.hppc.IntSet;
-
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteQueryBuilder;
 import net.sqlcipher.database.SQLiteStatement;
@@ -106,6 +103,12 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return fillIdWindow(c, DatabaseHelper.ID_COL, returnSet);
     }
 
+    public Vector<Integer> getIDsForAllRecords() {
+        SQLiteDatabase db = helper.getHandle();
+        Cursor c = db.query(table, new String[]{DatabaseHelper.ID_COL}, null, null, null, null, null);
+        return fillIdWindow(c, DatabaseHelper.ID_COL, null);
+    }
+
     public static Vector<Integer> fillIdWindow(Cursor c, String columnName) {
         return fillIdWindow(c, columnName, null);
     }
@@ -117,7 +120,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 int index = c.getColumnIndexOrThrow(columnName);
                 while (!c.isAfterLast()) {
                     int id = c.getInt(index);
-                    if(newReturn != null) {
+                    if (newReturn != null) {
                         newReturn.add(id);
                     }
                     indices.add(id);
