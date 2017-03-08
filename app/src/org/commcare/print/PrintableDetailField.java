@@ -55,7 +55,7 @@ public class PrintableDetailField implements Serializable {
         return StringUtils.substringBetween(html, "<body>", "</body>");
     }*/
 
-    public String getValueString() {
+    public String getFormattedValueString() {
         if (isGraphDetailField()) {
             return createIframeForGraphHtml(valueString);
         } else {
@@ -69,7 +69,7 @@ public class PrintableDetailField implements Serializable {
     }
 
     private static String scrubHtmlStringForUseAsAttribute(String htmlString) {
-        return htmlString.replace("\"", "\'").replace("&lt;", "<").replace("&gt;", ">");
+        return htmlString.replace("\"", "\'").replace("&lt;", "<").replace("&gt;", ">").replace("<br>", "");
     }
 
     private boolean isGraphDetailField() {
