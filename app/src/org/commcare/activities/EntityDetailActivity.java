@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -19,10 +21,13 @@ import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.print.PrintableDetailField;
+import org.commcare.print.TemplatePrinterActivity;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
+import org.commcare.util.DetailFieldPrintInfo;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.SessionStateUninitException;
@@ -31,6 +36,9 @@ import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UiElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
+
+import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * @author ctsims
@@ -45,10 +53,16 @@ public class EntityDetailActivity
     public static final String DETAIL_ID = "eda_detail_id";
     public static final String DETAIL_PERSISTENT_ID = "eda_persistent_id";
 
+    private static final int MENU_PRINT_DETAIL = Menu.FIRST;
+
+    private static final int PRINT_DETAIL = 1;
+
     private Detail detail;
     private Pair<Detail, TreeReference> mEntityContext;
     private TreeReference mTreeReference;
     private int detailIndex;
+    private AndroidSessionWrapper asw;
+
 
     // controls whether swiping can toggle exit from case detail screen
     private boolean isFinalSwipeActionEnabled = false;
@@ -66,7 +80,6 @@ public class EntityDetailActivity
     protected void onCreate(Bundle savedInstanceState) {
         Intent i = getIntent();
 
-        AndroidSessionWrapper asw;
         CommCareSession session;
         try {
             asw = CommCareApplication.instance().getCurrentSessionWrapper();
@@ -251,4 +264,42 @@ public class EntityDetailActivity
         super.onBackPressed();
         GoogleAnalyticsUtils.reportEntityDetailExit(false, mDetailView.getTabCount() == 1);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_PRINT_DETAIL, 0, Localization.get("menu.print.detail"));
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(MENU_PRINT_DETAIL).setVisible(detail.isPrintEnabled());
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case MENU_PRINT_DETAIL:
+                printDetailV2();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void printDetailV2() {
+        Intent i = new Intent(this, TemplatePrinterActivity.class);
+        i.putExtra(TemplatePrinterActivity.PRINT_TEMPLATE_REF_STRING,
+                detail.getDerivedPrintTemplatePath());
+
+        HashMap<String, DetailFieldPrintInfo> keyValueMap =
+                detail.getKeyValueMapForPrint(mTreeReference, asw.getEvaluationContext());
+        for (String key : keyValueMap.keySet()) {
+            i.putExtra(key, new PrintableDetailField(keyValueMap.get(key)));
+        }
+        startActivityForResult(i, PRINT_DETAIL);
+    }
+
 }

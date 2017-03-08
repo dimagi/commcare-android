@@ -23,15 +23,12 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
     private final int detailIndex;
     private final TreeReference mEntityReference;
 
-    private EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference) {
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex,
+                                    TreeReference reference, ListItemViewModifier modifier) {
         super(fm);
         this.detail = detail;
         this.detailIndex = detailIndex;
         this.mEntityReference = reference;
-    }
-
-    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, ListItemViewModifier modifier) {
-        this(fm, detail, detailIndex, reference);
         this.modifier = modifier;
     }
 

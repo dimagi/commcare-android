@@ -23,6 +23,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.activities.CommCareGraphActivity;
+import org.commcare.print.TemplatePrinterActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
 import org.commcare.graph.model.GraphData;
@@ -44,6 +45,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -78,7 +80,9 @@ public class EntityDetailView extends FrameLayout {
     private final LinearLayout.LayoutParams origValue;
     private final LinearLayout.LayoutParams origLabel;
     private final LinearLayout.LayoutParams fill;
+    private HashMap<View, String> graphHTMLMap = new HashMap<>();
 
+    // Potential "forms" of a detail field
     private static final String FORM_VIDEO = MediaUtil.FORM_VIDEO;
     private static final String FORM_AUDIO = MediaUtil.FORM_AUDIO;
     private static final String FORM_PHONE = "phone";
@@ -179,7 +183,8 @@ public class EntityDetailView extends FrameLayout {
             setupAddress(textField);
         } else if (FORM_IMAGE.equals(form)) {
             veryLong = setupImage(textField);
-        } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {    // if graph parsing had errors, they'll be stored as a string
+        } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
+            // if graph parsing had errors, they'll be stored as a string
             setupGraph(index, labelText, field);
         } else if (FORM_AUDIO.equals(form)) {
             ViewId uniqueId = ViewId.buildTableViewId(detailNumber, index, true);
@@ -270,6 +275,7 @@ public class EntityDetailView extends FrameLayout {
                 calloutButton.setText(actionName);
             }
 
+
             calloutButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -325,7 +331,7 @@ public class EntityDetailView extends FrameLayout {
         View graphView = getGraphViewFromCache(index, orientation);
         if (graphView == null) {
             cached = false;
-            graphView = getGraphView(index, labelText, (GraphData) field, orientation);
+            graphView = getGraphView(index, labelText, (GraphData)field, orientation);
         }
         final Intent finalIntent = getGraphIntent(index, labelText, (GraphData) field);
 
@@ -351,6 +357,25 @@ public class EntityDetailView extends FrameLayout {
             data.setVisibility(View.GONE);
             updateCurrentView(GRAPH, graphLayout);
         }
+    }
+
+    // TODO: Will probably want the print button to live at the case detail-level rather than
+    // the level of individual graphs, so that users can create print templates that expect
+    // multiple graphs, plus other information
+    private void addPrintGraphButton(final View graphView) {
+        Button printButton = new Button(getContext());
+        printButton.setText("PRINT");
+
+        printButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), TemplatePrinterActivity.class);
+                i.putExtra(TemplatePrinterActivity.KEY_GRAPH_TO_PRINT, graphHTMLMap.get(graphView));
+                getContext().startActivity(i);
+            }
+        });
+
+        graphLayout.addView(printButton);
     }
 
     private void setupVideo(String textField) {
@@ -446,9 +471,10 @@ public class EntityDetailView extends FrameLayout {
         View graphView;
         GraphView g = new GraphView(context, title, false);
         try {
-            String graphHTML = g.getHTML(field);
+            String graphHTML = field.getGraphHTML(title);
             graphView = g.getView(graphHTML);
             graphLayout.setRatio((float)g.getRatio(field), (float)1);
+            graphHTMLMap.put(graphView, g.myHTML);
         } catch (GraphException ex) {
             graphView = new TextView(context);
             int padding = (int)context.getResources().getDimension(R.dimen.spacer_small);
@@ -457,7 +483,6 @@ public class EntityDetailView extends FrameLayout {
             graphsWithErrors.add(index);
         }
         graphViewsCache.get(index).put(orientation, graphView);
-
         return graphView;
     }
 
@@ -469,7 +494,7 @@ public class EntityDetailView extends FrameLayout {
         if (graphIntent == null && !graphsWithErrors.contains(index)) {
             GraphView g = new GraphView(this.getContext(), title, true);
             try {
-                String html = g.getHTML(field);
+                String html = field.getGraphHTML(title);
                 graphIntent = g.getIntent(html, CommCareGraphActivity.class);
                 graphIntentsCache.put(index, graphIntent);
             } catch (GraphException ex) {

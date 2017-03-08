@@ -78,6 +78,7 @@ home.developer.options.enabled=Developer Mode Enabled
 
 menu.save.session=Save Your Session
 menu.clear.saved.session=Clear Saved Session
+menu.print.detail=Print Case Detail
 
 sync.success.sent.singular=Form sent to server!
 sync.success.sent=${0} forms sent to server!
@@ -364,6 +365,7 @@ template.malformed.mustache=The template file set for your print job has imprope
 template.malformed.chevron=The template file set for your print job has improperly-formed content. There is a mis-matched usage of '<'/'>' characters near the section: ${0}
 cannot.set.template=Could not set your print template
 no.file.browser=Your device does not have a file browser installed. Please download one from the playstore and then try again.
+template.error=Your template is not correctly formatted
 
 start.recording=Start Recording
 stop.recording=Stop Recording
