@@ -95,7 +95,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @MetaField(META_APP_ID)
     private String appId;
 
-    @Persisting(8)
+    @Persisting(value = 8, nullable = true)
     @MetaField(META_FORM_NUMBER)
     private String formNumberInOrder;
 

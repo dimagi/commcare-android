@@ -29,6 +29,7 @@ import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -455,30 +456,12 @@ class UserDatabaseUpgrader {
                     FormRecordV2.class,
                     new ConcreteAndroidDbHelper(c, db));
 
-            // Sort the old record ids by their last modified date, which is how form submission
-            // ordering was previously done
-            Vector<Integer> recordIds = oldStorage.getIDsForAllRecords();
-            UserDbUpgradeUtils.sortRecordsByDate(recordIds, oldStorage);
-
+            Set<String> idsOfAppsWithOldFormRecords =
+                    UserDbUpgradeUtils.getAppIdsForRecords(oldStorage);
             Vector<FormRecord> upgradedRecords = new Vector<>();
-            for (int i = 0; i < recordIds.size(); i++) {
-                FormRecordV2 oldRecord = oldStorage.read(recordIds.elementAt(i));
-                FormRecord newRecord = new FormRecord(
-                        oldRecord.getInstanceURIString(),
-                        oldRecord.getStatus(),
-                        oldRecord.getFormNamespace(),
-                        oldRecord.getAesKey(),
-                        oldRecord.getInstanceID(),
-                        oldRecord.lastModified(),
-                        oldRecord.getAppId());
-                String statusOfOldRecord = oldRecord.getStatus();
-                if (FormRecord.STATUS_COMPLETE.equals(statusOfOldRecord) ||
-                        FormRecord.STATUS_UNSENT.equals(statusOfOldRecord)) {
-                    // By processing the old records in order of their last modified date, we make
-                    // sure that we are setting this form numbers in the most accurate order we can
-                    newRecord.setFormNumberForSubmissionOrdering();
-                }
-                upgradedRecords.add(newRecord);
+
+            for (String appId : idsOfAppsWithOldFormRecords) {
+                migrateV2FormRecordsForSingleApp(appId, oldStorage, upgradedRecords);
             }
 
             // Add new column to db and then write all of the new records
@@ -495,6 +478,36 @@ class UserDatabaseUpgrader {
             return true;
         } finally {
             db.endTransaction();
+        }
+    }
+
+    private void migrateV2FormRecordsForSingleApp(String appId,
+                                                  SqlStorage<FormRecordV2> oldStorage,
+                                                  Vector<FormRecord> upgradedRecords) {
+        Vector<Integer> recordIds = oldStorage.getIDsForValue(FormRecord.META_APP_ID, appId);
+
+        // Sort the old record ids by their last modified date, which is how form submission
+        // ordering was previously done
+        UserDbUpgradeUtils.sortRecordsByDate(recordIds, oldStorage);
+
+        for (int i = 0; i < recordIds.size(); i++) {
+            FormRecordV2 oldRecord = oldStorage.read(recordIds.elementAt(i));
+            FormRecord newRecord = new FormRecord(
+                    oldRecord.getInstanceURIString(),
+                    oldRecord.getStatus(),
+                    oldRecord.getFormNamespace(),
+                    oldRecord.getAesKey(),
+                    oldRecord.getInstanceID(),
+                    oldRecord.lastModified(),
+                    oldRecord.getAppId());
+            String statusOfOldRecord = oldRecord.getStatus();
+            if (FormRecord.STATUS_COMPLETE.equals(statusOfOldRecord) ||
+                    FormRecord.STATUS_UNSENT.equals(statusOfOldRecord)) {
+                // By processing the old records in order of their last modified date, we make
+                // sure that we are setting this form numbers in the most accurate order we can
+                newRecord.setFormNumberForSubmissionOrdering();
+            }
+            upgradedRecords.add(newRecord);
         }
     }
 

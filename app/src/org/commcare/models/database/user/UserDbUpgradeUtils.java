@@ -23,6 +23,8 @@ import org.javarosa.core.services.storage.Persistable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -103,6 +105,14 @@ public class UserDbUpgradeUtils {
         builder.addData(new Ledger());
         builder.setUnique(Ledger.INDEX_ENTITY_ID);
         db.execSQL(builder.getTableCreateString());
+    }
+
+    protected static Set<String> getAppIdsForRecords(SqlStorage<FormRecordV2> oldFormRecords) {
+        Set<String> appIds = new HashSet<>();
+        for (FormRecordV2 formRecord : oldFormRecords) {
+            appIds.add(formRecord.getAppId());
+        }
+        return appIds;
     }
 
     protected static void sortRecordsByDate(Vector<Integer> ids,
