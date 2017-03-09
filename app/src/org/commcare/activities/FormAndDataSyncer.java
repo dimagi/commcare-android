@@ -26,7 +26,7 @@ public class FormAndDataSyncer {
 
     public FormAndDataSyncer() {
     }
-
+    
     @SuppressLint("NewApi")
     public void processAndSendForms(final CommCareHomeActivity activity,
                                     FormRecord[] records,
