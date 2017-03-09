@@ -11,7 +11,6 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 
 import java.io.FileNotFoundException;
@@ -24,7 +23,7 @@ import java.util.Date;
 public class FormRecord extends Persisted implements EncryptedModel {
 
     public static final String STORAGE_KEY = "FORMRECORDS";
-    private final static String GLOBAL_APP_FORM_COUNTER = "global-app-form-counter";
+    private final static String APP_FORM_SUBMISSION_COUNTER = "app-form-submission-counter";
 
     public static final String META_INSTANCE_URI = "INSTANCE_URI";
     public static final String META_STATUS = "STATUS";
@@ -32,7 +31,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String META_XMLNS = "XMLNS";
     public static final String META_LAST_MODIFIED = "DATE_MODIFIED";
     public static final String META_APP_ID = "APP_ID";
-    public static final String META_FORM_ORDERING_NUMBER = "FORM_ORDERING_NUMBER";
+    public static final String META_SUBMISSION_ORDERING_NUMBER = "SUBMISSION_ORDERING_NUMBER";
 
     /**
      * This form record is a stub that hasn't actually had data saved for it yet
@@ -97,8 +96,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
     private String appId;
 
     @Persisting(value = 8, nullable = true)
-    @MetaField(META_FORM_ORDERING_NUMBER)
-    private String formOrderingNumber;
+    @MetaField(META_SUBMISSION_ORDERING_NUMBER)
+    private String submissionOrderingNumber;
 
     public FormRecord() {
     }
@@ -130,7 +129,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
         FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid,
                 lastModified, appId);
         fr.recordId = this.recordId;
-        fr.formOrderingNumber = this.formOrderingNumber;
+        fr.submissionOrderingNumber = this.submissionOrderingNumber;
         return fr;
     }
 
@@ -175,8 +174,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return uuid;
     }
 
-    public String getFormOrderingNumber() {
-        return formOrderingNumber;
+    public String getSubmissionOrderingNumber() {
+        return submissionOrderingNumber;
     }
 
     /**
@@ -213,14 +212,14 @@ public class FormRecord extends Persisted implements EncryptedModel {
     }
 
     public void setFormNumberForSubmissionOrdering() {
-        this.formOrderingNumber = ""+getNextFormNumberInOrder();
+        this.submissionOrderingNumber = ""+ getNextSubmissionNumber();
     }
 
-    private int getNextFormNumberInOrder() {
+    private int getNextSubmissionNumber() {
         SharedPreferences appPrefs = CommCareApplication.instance()
                 .getSharedPreferences(this.appId, Context.MODE_PRIVATE);
-        int lastFormNum = appPrefs.getInt(GLOBAL_APP_FORM_COUNTER, -1);
-        appPrefs.edit().putInt(GLOBAL_APP_FORM_COUNTER, lastFormNum + 1).commit();
+        int lastFormNum = appPrefs.getInt(APP_FORM_SUBMISSION_COUNTER, -1);
+        appPrefs.edit().putInt(APP_FORM_SUBMISSION_COUNTER, lastFormNum + 1).commit();
         return lastFormNum + 1;
     }
 

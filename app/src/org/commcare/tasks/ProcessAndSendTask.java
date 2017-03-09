@@ -273,9 +273,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this, mUser);
                             if (results[i] == FormUploadResult.FULL_SUCCESS) {
                                 String submitLogMessage = String.format(
-                                        "Successfully submitted form with id %1$s and form ordering number %2$s",
+                                        "Successfully submitted form with id %1$s and submission ordering number %2$s",
                                         record.getInstanceID(),
-                                        record.getFormOrderingNumber());
+                                        record.getSubmissionOrderingNumber());
                                 Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, submitLogMessage);
                                 break;
                             } else {
