@@ -97,7 +97,7 @@ public class StorageUtils {
         HashMap<Integer, Integer> idToFormNumberMapping = new HashMap<>();
         for (int id : ids) {
             String formNumberAsString =
-                    storage.getMetaDataFieldForRecord(id, FormRecord.META_FORM_NUMBER);
+                    storage.getMetaDataFieldForRecord(id, FormRecord.META_FORM_ORDERING_NUMBER);
             idToFormNumberMapping.put(id, Integer.parseInt(formNumberAsString));
         }
         return idToFormNumberMapping;

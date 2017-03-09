@@ -45,7 +45,7 @@ public class UserDbUpgradeUtils {
         // Alter the FormRecord table to include an app id column
         db.execSQL(DbUtil.addColumnToTable(
                 FormRecord.STORAGE_KEY,
-                FormRecord.META_FORM_NUMBER,
+                FormRecord.META_FORM_ORDERING_NUMBER,
                 "TEXT"));
     }
 

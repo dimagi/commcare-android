@@ -507,6 +507,7 @@ class UserDatabaseUpgrader {
                 // sure that we are setting this form numbers in the most accurate order we can
                 newRecord.setFormNumberForSubmissionOrdering();
             }
+            newRecord.setID(oldRecord.getID());
             upgradedRecords.add(newRecord);
         }
     }

@@ -31,7 +31,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String META_XMLNS = "XMLNS";
     public static final String META_LAST_MODIFIED = "DATE_MODIFIED";
     public static final String META_APP_ID = "APP_ID";
-    public static final String META_FORM_NUMBER = "FORM_NUMBER";
+    public static final String META_FORM_ORDERING_NUMBER = "FORM_ORDERING_NUMBER";
 
     /**
      * This form record is a stub that hasn't actually had data saved for it yet
@@ -96,8 +96,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
     private String appId;
 
     @Persisting(value = 8, nullable = true)
-    @MetaField(META_FORM_NUMBER)
-    private String formNumberInOrder;
+    @MetaField(META_FORM_ORDERING_NUMBER)
+    private String formOrderingNumber;
 
     public FormRecord() {
     }
@@ -173,6 +173,10 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return uuid;
     }
 
+    public String getFormOrderingNumber() {
+        return formOrderingNumber;
+    }
+
     /**
      * Get the file system path to the encrypted XML submission file.
      *
@@ -207,14 +211,15 @@ public class FormRecord extends Persisted implements EncryptedModel {
     }
 
     public void setFormNumberForSubmissionOrdering() {
-        this.formNumberInOrder = ""+getNextFormNumberInOrder();
+        this.formOrderingNumber = ""+getNextFormNumberInOrder();
     }
 
-    private static int getNextFormNumberInOrder() {
-        SharedPreferences appPrefs =
-                CommCareApplication.instance().getCurrentApp().getAppPreferences();
+    private int getNextFormNumberInOrder() {
+        SharedPreferences appPrefs = CommCareApplication.instance()
+                .getSharedPreferences(this.appId, Context.MODE_PRIVATE);
         int lastFormNum = appPrefs.getInt(CommCarePreferences.GLOBAL_APP_FORM_COUNTER, -1);
         appPrefs.edit().putInt(CommCarePreferences.GLOBAL_APP_FORM_COUNTER, lastFormNum + 1).commit();
         return lastFormNum + 1;
     }
+
 }
