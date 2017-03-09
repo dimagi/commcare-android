@@ -428,10 +428,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     ReportingUtils.getAppBuildNumber();
             Logger.log(AndroidLogger.TYPE_USER, updateLogMessage);
         } catch (SessionUnavailableException e) {
-            // Must be updating from the app manager, in which case we don't have a current use to
-            // report for
+            // Must be updating from the app manager, in which case we don't have a current user
         }
-
     }
 
     private void logoutOnSuccessfulUpdate() {
