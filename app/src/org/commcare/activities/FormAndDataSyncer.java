@@ -45,7 +45,7 @@ public class FormAndDataSyncer {
                                                 final boolean syncAfterwards,
                                                 boolean userTriggered) {
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        FormRecord[] records = StorageUtils.getUnsentRecords(storage);
+        FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(storage);
 
         if (records.length > 0) {
             processAndSendForms(activity, records, syncAfterwards, userTriggered);
