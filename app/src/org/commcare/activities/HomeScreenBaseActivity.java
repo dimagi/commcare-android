@@ -656,6 +656,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
                 current.setFormNumberForSubmissionOrdering();
+                CommCareApplication.instance().getUserStorage(FormRecord.class).write(current);
                 checkAndStartUnsentFormsTask(false, false);
                 refreshUI();
 
