@@ -23,7 +23,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.activities.CommCareGraphActivity;
-import org.commcare.print.TemplatePrinterActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
 import org.commcare.graph.model.GraphData;
@@ -80,7 +79,6 @@ public class EntityDetailView extends FrameLayout {
     private final LinearLayout.LayoutParams origValue;
     private final LinearLayout.LayoutParams origLabel;
     private final LinearLayout.LayoutParams fill;
-    private HashMap<View, String> graphHTMLMap = new HashMap<>();
 
     // Potential "forms" of a detail field
     private static final String FORM_VIDEO = MediaUtil.FORM_VIDEO;
@@ -275,7 +273,6 @@ public class EntityDetailView extends FrameLayout {
                 calloutButton.setText(actionName);
             }
 
-
             calloutButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -357,25 +354,6 @@ public class EntityDetailView extends FrameLayout {
             data.setVisibility(View.GONE);
             updateCurrentView(GRAPH, graphLayout);
         }
-    }
-
-    // TODO: Will probably want the print button to live at the case detail-level rather than
-    // the level of individual graphs, so that users can create print templates that expect
-    // multiple graphs, plus other information
-    private void addPrintGraphButton(final View graphView) {
-        Button printButton = new Button(getContext());
-        printButton.setText("PRINT");
-
-        printButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getContext(), TemplatePrinterActivity.class);
-                i.putExtra(TemplatePrinterActivity.KEY_GRAPH_TO_PRINT, graphHTMLMap.get(graphView));
-                getContext().startActivity(i);
-            }
-        });
-
-        graphLayout.addView(printButton);
     }
 
     private void setupVideo(String textField) {
@@ -474,7 +452,6 @@ public class EntityDetailView extends FrameLayout {
             String graphHTML = field.getGraphHTML(title);
             graphView = g.getView(graphHTML);
             graphLayout.setRatio((float)g.getRatio(field), (float)1);
-            graphHTMLMap.put(graphView, g.myHTML);
         } catch (GraphException ex) {
             graphView = new TextView(context);
             int padding = (int)context.getResources().getDimension(R.dimen.spacer_small);

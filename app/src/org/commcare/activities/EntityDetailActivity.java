@@ -37,7 +37,6 @@ import org.commcare.views.UiElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 
-import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -283,13 +282,13 @@ public class EntityDetailActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case MENU_PRINT_DETAIL:
-                printDetailV2();
+                printDetail();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void printDetailV2() {
+    private void printDetail() {
         Intent i = new Intent(this, TemplatePrinterActivity.class);
         i.putExtra(TemplatePrinterActivity.PRINT_TEMPLATE_REF_STRING,
                 detail.getDerivedPrintTemplatePath());

@@ -74,9 +74,8 @@ public class GraphData implements ConfigurableData {
     }
 
     /**
-     * Get the HTML that will comprise this graph.
-     *
-     * @return Full HTML page, including head, body, and all script and style tags
+     * @return The full HTML page that will comprise this graph (including head, body, and all
+     * script and style tags)
      */
     public String getGraphHTML(String title) throws GraphException {
         SortedMap<String, String> variables = new TreeMap<>();

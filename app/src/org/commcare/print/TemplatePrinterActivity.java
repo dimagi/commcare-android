@@ -50,7 +50,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     private static final String KEY_TEMPLATE_STYLE = "PRINT_TEMPLATE_STYLE";
     private static final String TEMPLATE_STYLE_HTML = "TEMPLATE_HTML";
     private static final String TEMPLATE_STYLE_ZPL = "TEMPLATE_ZPL";
-    public static final String KEY_GRAPH_TO_PRINT = "graph-html-to-print";
     public static final String PRINT_TEMPLATE_REF_STRING = "cc:print_template_reference";
 
     private static final int CALLOUT_ZPL = 1;
@@ -251,21 +250,20 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                 return false;
             }
 
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                createWebPrintJob(view);
+            }
+
         });
 
         try {
-            String populatedHtmlDocString = TemplatePrinterUtils.readStringFromFile(outputPath);
-            Document templateDoc = Jsoup.parse(populatedHtmlDocString);
-            loadHtmlIntoWebView(templateDoc, webView);
+            String finalHtml = TemplatePrinterUtils.readStringFromFile(outputPath);
+            webView.loadDataWithBaseURL(null, finalHtml, "text/HTML", "UTF-8", null);
         } catch (IOException e) {
             showErrorDialog(Localization.get("print.io.error"));
         }
         createWebPrintJob(webView);
-    }
-
-    private void loadHtmlIntoWebView(Document templateDoc, WebView webView) {
-        String finalHTML = templateDoc.html();
-        webView.loadDataWithBaseURL(null, finalHTML, "text/HTML", "UTF-8", null);
     }
 
     @Override
@@ -290,7 +288,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void createWebPrintJob(WebView v) {
-
         // Get a PrintManager instance
         PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
 

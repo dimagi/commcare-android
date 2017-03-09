@@ -134,8 +134,8 @@ public class EntityView extends LinearLayout {
         }
 
         for (int col = 0; col < columnCount; ++col) {
-            views.add(addCell(col, columnTitles[col], headerForms[col],
-                    mHints.get(col), null, colors[1], false));
+            views.add(addCell(col, columnTitles[col], headerForms[col], mHints.get(col), null,
+                    colors[1], false));
         }
     }
 
@@ -166,8 +166,7 @@ public class EntityView extends LinearLayout {
         return new EntityView(context, detail, headerText, hasCalloutResponseData);
     }
 
-    private View addCell(int columnIndex, Object data, String form,
-                         String hint, String sortField,
+    private View addCell(int columnIndex, Object data, String form, String hint, String sortField,
                          int textColor, boolean shouldRefresh) {
         View view = null;
         if (isNonZeroWidth(hint)) {
@@ -273,8 +272,7 @@ public class EntityView extends LinearLayout {
         }
     }
 
-    private void refreshViewForNewEntity(View view, Object field,
-                                         String form, String sortField,
+    private void refreshViewForNewEntity(View view, Object field, String form, String sortField,
                                          int columnIndex, long rowId) {
         if (FORM_AUDIO.equals(form)) {
             ViewId uniqueId = ViewId.buildTableViewId(rowId, columnIndex, false);
@@ -292,7 +290,7 @@ public class EntityView extends LinearLayout {
             }
             if (rendered == null) {
                 try {
-                    rendered = g.getView(((GraphData)field).getGraphHTML(""));
+                    rendered = g.getView(((GraphData)field).getGraphHTML(" "));
                 } catch (GraphException ex) {
                     rendered = new TextView(getContext());
                     ((TextView)rendered).setText(ex.getMessage());

@@ -67,10 +67,8 @@ public class GraphView {
         // Improve performance
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
+        this.myHTML = html;
         webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
-
-        myHTML = html;
-
         return webView;
     }
 
