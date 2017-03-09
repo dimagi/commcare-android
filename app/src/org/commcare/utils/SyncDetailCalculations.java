@@ -51,7 +51,7 @@ public class SyncDetailCalculations {
     public static int getNumUnsentForms() {
         SqlStorage<FormRecord> formsStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         try {
-            return StorageUtils.getUnsentRecordsForCurrentApp(formsStorage).length;
+            return StorageUtils.getUnsentRecordsForCurrentApp(formsStorage, false).length;
         } catch (SessionUnavailableException e) {
             // Addresses unexpected issue where this db lookup occurs after session ends.
             // If possible, replace this with fix that addresses root issue
