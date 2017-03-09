@@ -24,6 +24,7 @@ import java.util.Date;
 public class FormRecord extends Persisted implements EncryptedModel {
 
     public static final String STORAGE_KEY = "FORMRECORDS";
+    private final static String GLOBAL_APP_FORM_COUNTER = "global-app-form-counter";
 
     public static final String META_INSTANCE_URI = "INSTANCE_URI";
     public static final String META_STATUS = "STATUS";
@@ -218,8 +219,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
     private int getNextFormNumberInOrder() {
         SharedPreferences appPrefs = CommCareApplication.instance()
                 .getSharedPreferences(this.appId, Context.MODE_PRIVATE);
-        int lastFormNum = appPrefs.getInt(CommCarePreferences.GLOBAL_APP_FORM_COUNTER, -1);
-        appPrefs.edit().putInt(CommCarePreferences.GLOBAL_APP_FORM_COUNTER, lastFormNum + 1).commit();
+        int lastFormNum = appPrefs.getInt(GLOBAL_APP_FORM_COUNTER, -1);
+        appPrefs.edit().putInt(GLOBAL_APP_FORM_COUNTER, lastFormNum + 1).commit();
         return lastFormNum + 1;
     }
 

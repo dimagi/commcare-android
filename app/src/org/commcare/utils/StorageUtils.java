@@ -64,7 +64,7 @@ public class StorageUtils {
 
         if (sortRequired) {
             // Order ids so they're submitted to and processed by the server in the correct order.
-            sortRecordsByGlobalCounter(ids, storage);
+            sortRecordsBySubmissionOrderingNumber(ids, storage);
         }
 
         // The records should now be in order and we can pass to the next phase
@@ -75,8 +75,8 @@ public class StorageUtils {
         return records;
     }
 
-    private static void sortRecordsByGlobalCounter(Vector<Integer> ids,
-                                                   SqlStorage<FormRecord> storage) {
+    private static void sortRecordsBySubmissionOrderingNumber(Vector<Integer> ids,
+                                                              SqlStorage<FormRecord> storage) {
         final HashMap<Integer, Integer> idToFormNumberMapping = getIdToFormNumberMap(ids, storage);
 
         Collections.sort(ids, new Comparator<Integer>() {

@@ -98,7 +98,6 @@ public class CommCarePreferences
     public final static String LAST_PASSWORD = "last_password";
     public final static String CURRENT_SESSION = "current_user_session";
     public final static String CURRENT_FORM_ENTRY_SESSION = "current_form_entry_session";
-    public final static String GLOBAL_APP_FORM_COUNTER = "global-app-form-counter";
 
     // Preferences that are sent down by HQ
     public final static String PREFS_LOCALE_KEY = "cur_locale";

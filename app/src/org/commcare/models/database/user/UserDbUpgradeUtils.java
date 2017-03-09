@@ -30,7 +30,6 @@ import java.util.Vector;
 /**
  * Created by amstone326 on 3/8/17.
  */
-
 public class UserDbUpgradeUtils {
 
     protected static void addAppIdColumnToTable(SQLiteDatabase db) {

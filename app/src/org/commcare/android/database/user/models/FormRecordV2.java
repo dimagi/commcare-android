@@ -10,7 +10,7 @@ import java.util.Date;
 /**
  * This class represents the version of a FormRecord that exists on any devices running versions
  * 2.26 though 2.34 of CommCare, which was deprecated in user db version 17. This class is used
- * to read a FormRecord that exists in such a database, in order to run a db upgrade.
+ * to read a form record that exists in such a database, in order to run a db upgrade.
  *
  * @author Aliza Stone
  */
