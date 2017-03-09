@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
@@ -20,6 +21,7 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ResultAndError;
@@ -28,11 +30,13 @@ import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.ConsumerAppsUtil;
+import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -365,6 +369,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     protected void deliverResult(UpdateActivity receiver,
                                                  AppInstallStatus result) {
                         if (result == AppInstallStatus.Installed) {
+                            reportAppUpdate();
                             receiver.logoutOnSuccessfulUpdate();
                         } else {
                             if (proceedAutomatically) {
@@ -414,6 +419,19 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 CustomProgressDialog.newInstance(title, message, taskId);
         dialog.setCancelable(false);
         return dialog;
+    }
+
+    private static void reportAppUpdate() {
+        try {
+            String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
+            String updateLogMessage = "User " + username + " updated to app version " +
+                    ReportingUtils.getAppBuildNumber();
+            Logger.log(AndroidLogger.TYPE_USER, updateLogMessage);
+        } catch (SessionUnavailableException e) {
+            // Must be updating from the app manager, in which case we don't have a current use to
+            // report for
+        }
+
     }
 
     private void logoutOnSuccessfulUpdate() {
