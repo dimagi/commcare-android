@@ -16,6 +16,9 @@ import java.io.Serializable;
  */
 public class PrintableDetailField implements Serializable {
 
+    private static final int GRAPH_WIDTH = 500;
+    private static final int GRAPH_HEIGHT = 250;
+
     private String valueString;
     private String fieldForm;
 
@@ -66,7 +69,7 @@ public class PrintableDetailField implements Serializable {
     private static String createIframeForGraphHtml(String fullGraphHtml) {
         return "<iframe srcdoc=\""
                 + scrubHtmlStringForUseAsAttribute(addStyleAttributes(fullGraphHtml))
-                + "\" height=\"250\" width=\"500\"></iframe>";
+                + "\" height=\"" + GRAPH_HEIGHT + "\" width=\"" + GRAPH_WIDTH + "\"></iframe>";
     }
 
     private static String scrubHtmlStringForUseAsAttribute(String htmlString) {

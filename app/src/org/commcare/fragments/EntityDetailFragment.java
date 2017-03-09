@@ -20,7 +20,7 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.ModifiableEntityDetailAdapter;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.suite.model.Detail;
-import org.commcare.util.DetailUtil;
+import org.commcare.cases.entity.EntityUtil;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -93,7 +93,7 @@ public class EntityDetailFragment extends Fragment {
     }
 
     protected EvaluationContext getFactoryContextForRef(TreeReference referenceToDisplay) {
-        EvaluationContext context = DetailUtil.getEntityFactoryContext(referenceToDisplay,
+        EvaluationContext context = EntityUtil.getEntityFactoryContext(referenceToDisplay,
                 getArguments().getInt(CHILD_DETAIL_INDEX, -1) != -1,
                 getParentDetail(),
                 CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext());
