@@ -1058,7 +1058,7 @@ public class CommCareHomeActivity
                                                  boolean userTriggered) {
         isSyncUserLaunched = userTriggered;
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
-        FormRecord[] records = StorageUtils.getUnsentRecords(storage);
+        FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(storage);
 
         if(records.length > 0) {
             formAndDataSyncer.processAndSendForms(this, records, syncAfterwards, userTriggered);

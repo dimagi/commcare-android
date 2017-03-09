@@ -47,7 +47,7 @@ public class StorageUtils {
                 new String[]{FormRecord.STATUS_INCOMPLETE, currentAppId}).size();
     }
 
-    public static FormRecord[] getUnsentRecords(SqlStorage<FormRecord> storage) {
+    public static FormRecord[] getUnsentRecordsForCurrentApp(SqlStorage<FormRecord> storage) {
         // TODO: This could all be one big sql query instead of doing it in code
 
         Vector<Integer> ids = getUnsentOrUnprocessedFormsForCurrentApp(storage);
