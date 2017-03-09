@@ -102,17 +102,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return fillIdWindow(c, DatabaseHelper.ID_COL);
     }
 
-    public Vector<Integer> getIDsForAllRecords() {
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-        Cursor c = db.query(table, new String[]{DatabaseHelper.ID_COL}, null, null, null, null, null);
-        return fillIdWindow(c, DatabaseHelper.ID_COL);
-    }
-
     public static Vector<Integer> fillIdWindow(Cursor c, String columnName) {
         Vector<Integer> indices = new Vector<>();
         try {
