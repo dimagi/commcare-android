@@ -93,7 +93,7 @@ public class ImageCaptureProcessing {
          */
 
         // The intent is empty, but we know we saved the image to the temp file
-        File originalImage = ImageWidget.TEMP_FILE_FOR_IMAGE_CAPTURE;
+        File originalImage = ImageWidget.getTempFileForImageCapture();
         try {
             File unscaledFinalImage = moveAndScaleImage(originalImage, isImage, instanceFolder, activity);
             activity.saveImageWidgetAnswer(buildImageFileContentValues(unscaledFinalImage));

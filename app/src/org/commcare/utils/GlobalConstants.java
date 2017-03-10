@@ -14,6 +14,9 @@ public class GlobalConstants {
 
     public static final String FILE_CC_FORMS = "formdata/";
 
+    public static final String TEMP_FILE_STEM_IMAGE_HOLDER = "tmp.jpg";
+    public static final String TEMP_FILE_STEM_DRAW_HOLDER = "tmpDraw.jpg";
+
     /**
      * Root file directory for storing serialized objects for the file backed
      * sql storage layer (currently used for fixtures).

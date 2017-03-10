@@ -128,7 +128,7 @@ def assemble_apk_with_admob(domain, build_number, username, password, build_type
 
     # NOTE: If your machine is set up to use the gradle wrapper to run gradle commands, you will
     # need to change "gradle" to "./gradlew"
-    subprocess.call(["./gradlew", gradle_directive,
+    subprocess.call(["gradle", gradle_directive,
         "-Pcc_domain={}".format(domain), 
         "-Papplication_name={}".format(get_app_name_from_profile()), 
         "-Pis_consumer_app=true", 
