@@ -174,8 +174,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return uuid;
     }
 
-    public String getSubmissionOrderingNumber() {
-        return submissionOrderingNumber;
+    public int getSubmissionOrderingNumber() {
+        return Integer.parseInt(submissionOrderingNumber);
     }
 
     /**

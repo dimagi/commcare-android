@@ -20,7 +20,7 @@ import java.util.Vector;
 public class StorageUtils {
 
     @NonNull
-    public static Vector<Integer> getUnsentOrUnprocessedFormsForCurrentApp(
+    public static Vector<Integer> getUnsentOrUnprocessedFormIdsForCurrentApp(
             SqlStorage<FormRecord> storage) {
 
         String currentAppId =
@@ -34,6 +34,22 @@ public class StorageUtils {
                 new Object[]{FormRecord.STATUS_COMPLETE, currentAppId}));
 
         return ids;
+    }
+
+    public static Vector<FormRecord> getUnsentOrUnprocessedFormRecordsForCurrentApp(
+            SqlStorage<FormRecord> storage) {
+
+        String currentAppId =
+                CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
+
+        Vector<FormRecord> records = storage.getRecordsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[]{FormRecord.STATUS_UNSENT, currentAppId});
+        records.addAll(storage.getRecordsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[]{FormRecord.STATUS_COMPLETE, currentAppId}));
+
+        return records;
     }
 
     public static int getNumIncompleteForms() {
@@ -50,44 +66,39 @@ public class StorageUtils {
     public static FormRecord[] getUnsentRecordsForCurrentApp(SqlStorage<FormRecord> storage,
                                                              boolean sortRequired) {
         // TODO: This could all be one big sql query instead of doing it in code
-
-        Vector<Integer> ids;
+        Vector<FormRecord> records;
         try {
-            ids = getUnsentOrUnprocessedFormsForCurrentApp(storage);
+            records = getUnsentOrUnprocessedFormRecordsForCurrentApp(storage);
         } catch (SessionUnavailableException e) {
-            ids = new Vector<>();
+            records = new Vector<>();
         }
 
-        if (ids.size() == 0) {
+        if (records.size() == 0) {
             return new FormRecord[0];
         }
 
         if (sortRequired) {
             // Order ids so they're submitted to and processed by the server in the correct order.
-            sortRecordsBySubmissionOrderingNumber(ids, storage);
+            sortRecordsBySubmissionOrderingNumber(records);
         }
 
-        // The records should now be in order and we can pass to the next phase
-        FormRecord[] records = new FormRecord[ids.size()];
-        for (int i = 0; i < ids.size(); ++i) {
-            records[i] = storage.read(ids.elementAt(i));
+        FormRecord[] recordArray = new FormRecord[records.size()];
+        for (int i = 0; i < records.size(); ++i) {
+            recordArray[i] = records.get(i);
         }
-        return records;
+        return recordArray;
     }
 
-    private static void sortRecordsBySubmissionOrderingNumber(Vector<Integer> ids,
-                                                              SqlStorage<FormRecord> storage) {
-        final HashMap<Integer, Integer> idToFormNumberMapping = getIdToFormNumberMap(ids, storage);
-
-        Collections.sort(ids, new Comparator<Integer>() {
+    private static void sortRecordsBySubmissionOrderingNumber(Vector<FormRecord> records) {
+        Collections.sort(records, new Comparator<FormRecord>() {
             @Override
-            public int compare(Integer formId1, Integer formId2) {
-                Integer formNum1 = idToFormNumberMapping.get(formId1);
-                Integer formNum2 = idToFormNumberMapping.get(formId2);
-                if (formNum1 < formNum2) {
+            public int compare(FormRecord form1, FormRecord form2) {
+                int form1OrderingNum = form1.getSubmissionOrderingNumber();
+                int form2OrderingNum = form2.getSubmissionOrderingNumber();
+                if (form1OrderingNum < form2OrderingNum) {
                     return -1;
                 }
-                if (formNum1 > formNum2) {
+                if (form1OrderingNum > form2OrderingNum) {
                     return 1;
                 }
                 return 0;
@@ -95,14 +106,4 @@ public class StorageUtils {
         });
     }
 
-    private static HashMap<Integer, Integer> getIdToFormNumberMap(Vector<Integer> ids,
-                                                               SqlStorage<FormRecord> storage) {
-        HashMap<Integer, Integer> idToFormNumberMapping = new HashMap<>();
-        for (int id : ids) {
-            String formNumberAsString =
-                    storage.getMetaDataFieldForRecord(id, FormRecord.META_SUBMISSION_ORDERING_NUMBER);
-            idToFormNumberMapping.put(id, Integer.parseInt(formNumberAsString));
-        }
-        return idToFormNumberMapping;
-    }
 }

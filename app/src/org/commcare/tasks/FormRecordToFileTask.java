@@ -166,7 +166,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
         storedFormDirectory.mkdirs();
 
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
+        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormIdsForCurrentApp(storage);
 
         if (ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];
