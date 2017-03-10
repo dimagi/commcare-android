@@ -32,7 +32,7 @@ public class XYSeries implements Externalizable, Configurable {
     // mConfiguration is an XPath expression, which during evaluation will be applied to
     // each point in turn to produce a list of one value for each point. As the "expanded",
     // point-level values are set, keys will be removed from this list.
-    private Vector<String> mPointConfiguration;
+    private Hashtable<String, Text> mPointConfiguration;
 
     private String mX;
     private String mY;
@@ -50,8 +50,8 @@ public class XYSeries implements Externalizable, Configurable {
     public XYSeries(String nodeSet) {
         mNodeSet = nodeSet;
         mConfiguration = new Hashtable<>();
-        mPointConfiguration = new Vector<>();
-        mPointConfiguration.addElement("bar-color");
+        mPointConfiguration = new Hashtable<>();
+        mPointConfiguration.put("bar-color", new Text());
     }
 
     public String getNodeSet() {
@@ -76,18 +76,31 @@ public class XYSeries implements Externalizable, Configurable {
         mYParse = null;
     }
 
+    public void removeConfiguration(String key) {
+        mConfiguration.remove(key);
+    }
+
     @Override
     public void setConfiguration(String key, Text value) {
-        mConfiguration.put(key, value);
+        if (mPointConfiguration.keySet().contains(key)) {
+            mPointConfiguration.remove(key);
+            mPointConfiguration.put(key, value);
+        } else {
+            mConfiguration.put(key, value);
+        }
     }
 
     public void setExpandedConfiguration(String key, Text value) {
-        mPointConfiguration.removeElement(key);
-        setConfiguration(key, value);
+        //mPointConfiguration.removeElement(key);
+        mConfiguration.put(key, value);
     }
 
     public Enumeration getPointConfigurationKeys() {
-        return mPointConfiguration.elements();
+        return mPointConfiguration.keys();
+    }
+
+    public Text getPointConfiguration(String key) {
+        return mPointConfiguration.get(key);
     }
 
     @Override
@@ -107,7 +120,7 @@ public class XYSeries implements Externalizable, Configurable {
         mY = ExtUtil.readString(in);
         mNodeSet = ExtUtil.readString(in);
         mConfiguration = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
-        mPointConfiguration =  (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
+        mPointConfiguration =  (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
     }
 
     @Override
@@ -116,7 +129,7 @@ public class XYSeries implements Externalizable, Configurable {
         ExtUtil.writeString(out, mY);
         ExtUtil.writeString(out, mNodeSet);
         ExtUtil.write(out, new ExtWrapMap(mConfiguration));
-        ExtUtil.write(out, new ExtWrapList(mPointConfiguration));
+        ExtUtil.write(out, new ExtWrapMap(mPointConfiguration));
     }
 
     /*
