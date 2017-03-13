@@ -17,6 +17,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.util.Vector;
@@ -138,7 +139,7 @@ public class ComboboxWidget extends QuestionWidget {
         } else if ("".equals(enteredText)) {
             return null;
         } else {
-            return new InvalidData("The text entered is not a valid answer choice",
+            return new InvalidData(Localization.get("combobox.value.invalid"),
                     new SelectOneData(new Selection(enteredText)));
         }
     }
