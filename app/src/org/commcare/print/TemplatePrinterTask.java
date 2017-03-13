@@ -10,6 +10,7 @@ import org.commcare.utils.TemplatePrinterUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 
 
 /**
@@ -147,18 +148,25 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
         // Remove whitespace from key
         String key = TemplatePrinterUtils.remove(tokenSplit, " ");
 
+        String valToPopulate = "";
         if (mapping.containsKey(key) && mapping.get(key) != null) {
-            PrintableDetailField printableField = (PrintableDetailField)mapping.getSerializable(key);
-            if (printableField.isPrintSupported()) {
-                tokenSplits[index] = printableField.getFormattedValueString();
+            Serializable passedValue = mapping.getSerializable(key);
+            if (passedValue instanceof PrintableDetailField) {
+                // If we are printing from a detail, the passed values will be of type
+                // PrintableDetailField
+                PrintableDetailField printableField = ((PrintableDetailField)passedValue);
+                if (printableField.isPrintSupported()) {
+                    valToPopulate = printableField.getFormattedValueString();
+                } else {
+                    // Empty if printing is not supported for this type of detail field
+                    valToPopulate = "";
+                }
             } else {
-                // Empty if printing is not supported for this type of detail field
-                tokenSplits[index] = "";
+                // If we are printing from a form, the passed values will just be strings
+                valToPopulate = (String)passedValue;
             }
-        } else {
-            // Empty if not found
-            tokenSplits[index] = "";
         }
+        tokenSplits[index] = valToPopulate;
     }
 
     /**

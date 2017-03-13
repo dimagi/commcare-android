@@ -263,7 +263,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         } catch (IOException e) {
             showErrorDialog(Localization.get("print.io.error"));
         }
-        createWebPrintJob(webView);
     }
 
     @Override
