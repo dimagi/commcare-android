@@ -542,6 +542,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // group
         boolean success = true;
         if (isEventQuestionOrListGroup()) {
+
+            if (evaluateConstraints) {
+                uiController.questionsView.lockComboboxAnswers();
+            }
+
             HashMap<FormIndex, IAnswerData> answers =
                     uiController.questionsView.getAnswers();
 

@@ -160,4 +160,12 @@ public class ComboboxWidget extends QuestionWidget {
     public void setOnLongClickListener(OnLongClickListener l) {
     }
 
+    public void checkForUncommittedChange() {
+        String currentEnteredText = comboBox.getText().toString();
+        String currentRegisteredAnswerText = mPrompt.getAnswerValue().getDisplayText();
+        if (!currentEnteredText.equals(currentRegisteredAnswerText)) {
+            widgetEntryChanged();
+        }
+    }
+
 }

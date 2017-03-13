@@ -24,6 +24,7 @@ import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.MarkupUtil;
+import org.commcare.views.widgets.ComboboxWidget;
 import org.commcare.views.widgets.DateTimeWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
@@ -516,7 +517,7 @@ public class QuestionsView extends ScrollView
     public CompoundIntentList getAggregateIntentCallout() {
         CompoundIntentList compoundedCallout = null;
         for (QuestionWidget widget : this.getWidgets()) {
-            if(widget instanceof IntentWidget) {
+            if (widget instanceof IntentWidget) {
                 boolean expectResult = compoundedCallout != null;
                 compoundedCallout = ((IntentWidget)widget).addToCompoundIntent(compoundedCallout);
                 if(compoundedCallout == null && expectResult) {
@@ -524,9 +525,17 @@ public class QuestionsView extends ScrollView
                 }
             }
         }
-        if(compoundedCallout == null || compoundedCallout.getNumberOfCallouts() <= 1) {
+        if (compoundedCallout == null || compoundedCallout.getNumberOfCallouts() <= 1) {
             return null;
         }
         return compoundedCallout;
+    }
+
+    public void lockComboboxAnswers() {
+        for (QuestionWidget widget : this.widgets) {
+            if (widget instanceof ComboboxWidget) {
+                ((ComboboxWidget)widget).checkForUncommittedChange();
+            }
+        }
     }
 }
