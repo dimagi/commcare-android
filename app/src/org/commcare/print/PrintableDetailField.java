@@ -19,8 +19,8 @@ import java.io.Serializable;
  */
 public class PrintableDetailField implements Serializable {
 
-    private static final int GRAPH_WIDTH = 500;
-    private static final int GRAPH_HEIGHT = 250;
+    private static final int GRAPH_WIDTH = 750;
+    private static final int GRAPH_HEIGHT = 375;
 
     private String valueString;
     private String fieldForm;
