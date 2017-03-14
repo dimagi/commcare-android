@@ -82,8 +82,7 @@ public class CommCareUtil {
     }
 
     public static void triggerLogSubmission(Context c) {
-        SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        String url = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null);
+        String url = LogSubmissionTask.getSubmissionUrl(CommCareApplication.instance().getCurrentApp().getAppPreferences());
 
         if (url == null) {
             //This is mostly for dev purposes
