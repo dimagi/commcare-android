@@ -32,11 +32,11 @@ public class AndroidTableBuilder extends TableBuilder {
         super(name);
     }
 
-    public static List<Pair<String, String[]>> sqlList(Collection<Integer> input) {
+    public static List<Pair<String, String[]>> sqlList(Collection<?> input) {
         return sqlList(input, "?");
     }
 
-    public static List<Pair<String, String[]>> sqlList(Collection<Integer> input, String questionMarkType) {
+    public static List<Pair<String, String[]>> sqlList(Collection<?> input, String questionMarkType) {
         return sqlList(input, MAX_SQL_ARGS, questionMarkType);
     }
 
@@ -45,14 +45,14 @@ public class AndroidTableBuilder extends TableBuilder {
      * String containing (?, ?,...) to be used in the SQL query and the array of args
      * to replace them with
      */
-    private static List<Pair<String, String[]>> sqlList(Collection<Integer> input, int maxArgs, String questionMark) {
+    private static List<Pair<String, String[]>> sqlList(Collection<?> input, int maxArgs, String questionMark) {
 
         List<Pair<String, String[]>> ops = new ArrayList<>();
 
         //figure out how many iterations we'll need
         int numIterations = (int)Math.ceil(((double)input.size()) / maxArgs);
 
-        Iterator<Integer> iterator = input.iterator();
+        Iterator<?> iterator = input.iterator();
 
         for (int currentRound = 0; currentRound < numIterations; ++currentRound) {
 

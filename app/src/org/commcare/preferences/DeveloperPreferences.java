@@ -48,7 +48,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static final String USE_ROOT_MENU_AS_HOME_SCREEN = "cc-use-root-menu-as-home-screen";
     public static final String SHOW_ADB_ENTITY_LIST_TRACES = "cc-show-entity-trace-outputs";
     public static final String UPDATE_TO_LATEST_SAVED_ENABLED = "cc-update-to-latest-saved";
-    
+    public static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
+
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -362,6 +363,10 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static boolean collectAndDisplayEntityTrances() {
         return doesPropertyMatch(SHOW_ADB_ENTITY_LIST_TRACES, CommCarePreferences.NO, CommCarePreferences.YES);
+    }
+
+    public static boolean isBulkPerformanceEnabled() {
+        return doesPropertyMatch(ENABLE_BULK_PERFORMANCE, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
     public static boolean updateToLatestSavedEnabled() {
