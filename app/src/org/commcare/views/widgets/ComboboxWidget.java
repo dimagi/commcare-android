@@ -160,6 +160,11 @@ public class ComboboxWidget extends QuestionWidget {
     public void setOnLongClickListener(OnLongClickListener l) {
     }
 
+    /**
+     *
+     * @return true if the saved value for this widget is out of sync with the text the user
+     * currently has entered (which means that we have not yet "locked in" their change)
+     */
     public boolean checkForUncommittedChange() {
         if (mPrompt.getAnswerValue() != null) {
             String currentRegisteredAnswerText = mPrompt.getAnswerValue().getDisplayText();

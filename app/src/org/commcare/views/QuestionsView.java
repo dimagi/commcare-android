@@ -531,6 +531,12 @@ public class QuestionsView extends ScrollView
         return compoundedCallout;
     }
 
+    /**
+     *
+     * @return true if any QuestionWidget in this view contains a change at the UI level that has
+     * not yet been "locked into" the underlying data model (currently only relevant for Combobox
+     * Widgets, but could be applied to others if necessary)
+     */
     public boolean uncommittedChangesPresent() {
         for (QuestionWidget widget : this.widgets) {
             if (widget instanceof ComboboxWidget &&

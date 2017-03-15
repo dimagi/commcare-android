@@ -580,6 +580,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
         if (uncommittedChangesWerePresent) {
+            // Lock in the uncommitted changes
             uiController.updateFormRelevancies();
         }
         return success && !uncommittedChangesWerePresent;
