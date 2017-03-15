@@ -119,7 +119,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 int index = c.getColumnIndexOrThrow(columnName);
                 while (!c.isAfterLast()) {
                     int id = c.getInt(index);
-                    if(newReturn != null) {
+                    if (newReturn != null) {
                         newReturn.add(id);
                     }
                     indices.add(id);
@@ -603,7 +603,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap recordMap) {
         List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(cuedCases);
-        for(Pair<String, String[]> querySet : whereParamList) {
+        for (Pair<String, String[]> querySet : whereParamList) {
             Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + " IN " + querySet.first, querySet.second, null, null, null);
             try {
                 if (c.getCount() == 0) {
@@ -624,11 +624,15 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
-    public List<T> getBulkRecordsForIndex(String rawFieldName, Collection<String> matchingValues) {
+    /**
+     * Retrieves a set of the models in storage based on a list of values matching one if the
+     * indexes of this storage
+     */
+    public List<T> getBulkRecordsForIndex(String indexName, Collection<String> matchingValues) {
         List<T> returnSet = new ArrayList<>();
-        String fieldName = AndroidTableBuilder.scrubName(rawFieldName);
+        String fieldName = AndroidTableBuilder.scrubName(indexName);
         List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(matchingValues, "?");
-        for(Pair<String, String[]> querySet : whereParamList) {
+        for (Pair<String, String[]> querySet : whereParamList) {
             Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, fieldName}, fieldName + " IN " + querySet.first, querySet.second, null, null, null);
             try {
                 if (c.getCount() == 0) {
