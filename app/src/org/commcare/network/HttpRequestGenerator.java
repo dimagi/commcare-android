@@ -75,6 +75,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     private final String username;
     private final String password;
     private final String userType;
+    private final String userId;
 
     /**
      * Keep track of current request to allow for early aborting
@@ -82,14 +83,18 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     private HttpRequestBase currentRequest;
 
     public HttpRequestGenerator(User user) {
-        this(user.getUsername(), user.getCachedPwd(), user.getUserType());
+        this(user.getUsername(), user.getCachedPwd(), user.getUserType(), user.getUniqueId());
     }
 
     public HttpRequestGenerator(String username, String password) {
         this(username, password, null);
     }
 
-    private HttpRequestGenerator(String username, String password, String userType) {
+    public HttpRequestGenerator(String username, String password, String userId) {
+        this(username, password, null, userId);
+    }
+
+    private HttpRequestGenerator(String username, String password, String userType, String userId) {
         String domainedUsername = buildDomainUser(username);
         this.password = password;
         this.userType = userType;
@@ -101,6 +106,8 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             this.credentials = null;
             this.username = null;
         }
+
+        this.userId = userId;
     }
 
     protected static String buildDomainUser(String username) {
@@ -115,7 +122,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     }
 
     public static HttpRequestGenerator buildNoAuthGenerator() {
-        return new HttpRequestGenerator(null, null, null);
+        return new HttpRequestGenerator(null, null, null, null);
     }
 
     public HttpResponse get(String uri) throws ClientProtocolException, IOException {
@@ -155,6 +162,10 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         // include IMEI in key fetch request for auditing large deployments
         serverUri = serverUri.buildUpon().appendQueryParameter("device_id",
                 CommCareApplication.instance().getPhoneId()).build();
+
+        if(userId != null) {
+            serverUri = serverUri.buildUpon().appendQueryParameter("user_id", userId).build();
+        }
 
         String syncToken = null;
         if (includeStateFlags) {

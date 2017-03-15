@@ -145,7 +145,7 @@ public class DataPullTaskTest {
         LocalReferencePullResponseFactory.setRequestPayloads(payloadResources);
 
         DataPullTask<Object> task =
-                new DataPullTask<Object>("test", "123", "fake.server.com", RuntimeEnvironment.application, LocalReferencePullResponseFactory.INSTANCE, false) {
+                new DataPullTask<Object>("test", "123", null, "fake.server.com", RuntimeEnvironment.application, LocalReferencePullResponseFactory.INSTANCE, false) {
                     @Override
                     protected void deliverResult(Object o, ResultAndError<PullTaskResult> pullTaskResultResultAndError) {
                         dataPullResult = pullTaskResultResultAndError;

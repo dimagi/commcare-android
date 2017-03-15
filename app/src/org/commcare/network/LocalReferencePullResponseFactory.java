@@ -42,7 +42,7 @@ public enum LocalReferencePullResponseFactory implements DataPullRequester {
     }
 
     @Override
-    public HttpRequestEndpoints getHttpGenerator(String username, String password) {
+    public HttpRequestEndpoints getHttpGenerator(String username, String password, String userId) {
         return new HttpRequestEndpointsMock();
     }
 }

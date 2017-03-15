@@ -149,7 +149,7 @@ public class FormAndDataSyncer {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         syncData(activity, formsToSend, userTriggeredSync,
                 prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
-                u.getUsername(), u.getCachedPwd());
+                u.getUsername(), u.getCachedPwd(), u.getUniqueId());
     }
 
     public void performOtaRestore(LoginActivity context, String username, String password) {
@@ -157,7 +157,8 @@ public class FormAndDataSyncer {
         syncData(context, false, false,
                 prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, context.getString(R.string.ota_restore_url)),
                 username,
-                password);
+                password,
+                null);
     }
 
     public <I extends CommCareActivity & PullTaskResultReceiver> void performCustomRestoreFromFile(
@@ -167,7 +168,7 @@ public class FormAndDataSyncer {
         String username = u.getUsername();
 
         LocalFilePullResponseFactory.setRequestPayloads(new File[]{incomingRestoreFile});
-        syncData(context, false, false, "fake-server-that-is-never-used", username, null,
+        syncData(context, false, false, "fake-server-that-is-never-used", username, null, "unused",
                 LocalFilePullResponseFactory.INSTANCE, true);
     }
 
@@ -185,7 +186,7 @@ public class FormAndDataSyncer {
         }
 
         LocalReferencePullResponseFactory.setRequestPayloads(new String[]{SingleAppInstallation.LOCAL_RESTORE_REFERENCE});
-        syncData(context, false, false, "fake-server-that-is-never-used", username, password,
+        syncData(context, false, false, "fake-server-that-is-never-used", username, password, "unused",
                 LocalReferencePullResponseFactory.INSTANCE, true);
     }
 
@@ -196,27 +197,27 @@ public class FormAndDataSyncer {
         String[] demoUserRestore = new String[]{offlineUserRestore.getReference()};
         LocalReferencePullResponseFactory.setRequestPayloads(demoUserRestore);
         syncData(context, false, false, "fake-server-that-is-never-used",
-                offlineUserRestore.getUsername(), OfflineUserRestore.DEMO_USER_PASSWORD,
+                offlineUserRestore.getUsername(), OfflineUserRestore.DEMO_USER_PASSWORD, "demo_id",
                 LocalReferencePullResponseFactory.INSTANCE, true);
     }
 
     public <I extends CommCareActivity & PullTaskResultReceiver> void syncData(
             final I activity, final boolean formsToSend,
             final boolean userTriggeredSync, String server,
-            String username, String password) {
+            String username, String password, String userId) {
 
-        syncData(activity, formsToSend, userTriggeredSync, server, username, password,
+        syncData(activity, formsToSend, userTriggeredSync, server, username, password, userId,
                 CommCareApplication.instance().getDataPullRequester(), false);
     }
 
     private <I extends CommCareActivity & PullTaskResultReceiver> void syncData(
             final I activity, final boolean formsToSend,
             final boolean userTriggeredSync, String server,
-            String username, String password,
+            String username, String password, String userId,
             DataPullRequester dataPullRequester, boolean blockRemoteKeyManagement) {
 
         DataPullTask<PullTaskResultReceiver> dataPullTask = new DataPullTask<PullTaskResultReceiver>(
-                username, password, server, activity, dataPullRequester, blockRemoteKeyManagement) {
+                username, password, userId, server, activity, dataPullRequester, blockRemoteKeyManagement) {
 
             @Override
             protected void deliverResult(PullTaskResultReceiver receiver,
