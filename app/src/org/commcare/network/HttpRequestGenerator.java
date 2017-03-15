@@ -152,6 +152,10 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             serverUri = serverUri.buildUpon().appendQueryParameter("version", "2.0").build();
         }
 
+        // include IMEI in key fetch request for auditing large deployments
+        serverUri = serverUri.buildUpon().appendQueryParameter("device_id",
+                CommCareApplication.instance().getPhoneId()).build();
+
         String syncToken = null;
         if (includeStateFlags) {
             syncToken = getSyncToken(username);
