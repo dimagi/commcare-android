@@ -538,14 +538,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean saveAnswersForCurrentScreen(boolean evaluateConstraints,
                                                 boolean failOnRequired,
                                                 boolean headless) {
-        // only try to save if the current event is a question or a field-list
-        // group
+        // only try to save if the current event is a question or a field-list group
         boolean success = true;
+        boolean uncommittedChangesWerePresent = false;
         if (isEventQuestionOrListGroup()) {
-
-            if (evaluateConstraints) {
-                uiController.questionsView.lockComboboxAnswers();
-            }
+            uncommittedChangesWerePresent = uiController.questionsView.uncommittedChangesPresent();
 
             HashMap<FormIndex, IAnswerData> answers =
                     uiController.questionsView.getAnswers();
@@ -582,7 +579,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
             }
         }
-        return success;
+        if (uncommittedChangesWerePresent) {
+            uiController.updateFormRelevancies();
+        }
+        return success && !uncommittedChangesWerePresent;
     }
 
     private boolean isEventQuestionOrListGroup() {

@@ -531,11 +531,13 @@ public class QuestionsView extends ScrollView
         return compoundedCallout;
     }
 
-    public void lockComboboxAnswers() {
+    public boolean uncommittedChangesPresent() {
         for (QuestionWidget widget : this.widgets) {
-            if (widget instanceof ComboboxWidget) {
-                ((ComboboxWidget)widget).checkForUncommittedChange();
+            if (widget instanceof ComboboxWidget &&
+                    ((ComboboxWidget)widget).checkForUncommittedChange()) {
+                return true;
             }
         }
+        return false;
     }
 }
