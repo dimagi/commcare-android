@@ -13,6 +13,7 @@ import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.xml.bulk.LinearBulkProcessingCaseXmlParser;
 import org.kxml2.io.KXmlParser;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
     private TransactionParserFactory defaultCaseParser;
 
     public AndroidTransactionParserFactory(Context context, HttpRequestEndpoints generator) {
-        super(new AndroidSandbox(CommCareApplication.instance()));
+        super(new AndroidSandbox(CommCareApplication.instance()), DeveloperPreferences.isBulkPerformanceEnabled());
         this.context = context;
         this.generator = generator;
     }
@@ -83,17 +84,6 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
             }
         };
     }
-
-    @Override
-    public void initCaseParser() {
-
-        if (!DeveloperPreferences.isBulkPerformanceEnabled()) {
-            caseParser = getDefaultCaseParser();
-        } else {
-            caseParser = getBulkProcessingCaseParser();
-        }
-    }
-
     public ArrayList<String> getCreatedAndUpdatedCases () {
         return createdAndUpdatedCases;
     }
@@ -128,7 +118,8 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
         return caseIndexesWereDisrupted;
     }
 
-    public TransactionParserFactory getDefaultCaseParser() {
+    @Override
+    public TransactionParserFactory getNormalCaseParser() {
         return new TransactionParserFactory() {
             AndroidCaseXmlParser created = null;
 
@@ -154,7 +145,8 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
         };
     }
 
-    public TransactionParserFactory getBulkProcessingCaseParser() {
+    @Override
+    public TransactionParserFactory getBulkCaseParser() {
         return new TransactionParserFactory() {
             AndroidBulkCaseXmlParser created = null;
 
