@@ -32,7 +32,10 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.DebugControlsReceiver;
+import org.commcare.utils.CredentialUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
@@ -90,8 +93,8 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     }
 
     private HttpRequestGenerator(String username, String password, String userType) {
-        String domainedUsername = buildDomainUser(username);
-        this.password = password;
+        String domainedUsername = buildDomainUserAndPassword(username);
+        this.password = password = buildAppPassword(password);
         this.userType = userType;
 
         if (username != null && !User.TYPE_DEMO.equals(userType)) {
@@ -103,7 +106,14 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         }
     }
 
-    protected static String buildDomainUser(String username) {
+    private String buildAppPassword(String password) {
+        if (DeveloperPreferences.useObfuscatedPassword()) {
+            return CredentialUtil.wrap(password);
+        }
+        return password;
+    }
+
+    protected static String buildDomainUserAndPassword(String username) {
         if (username != null) {
             SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
