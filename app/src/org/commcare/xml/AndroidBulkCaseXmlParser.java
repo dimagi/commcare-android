@@ -38,6 +38,9 @@ import java.util.Set;
 import java.util.SortedMap;
 
 /**
+ * A bulk processing parser for the android platform. Provides superior performance when
+ * processing high case loads during syncing and/or processing.
+ *
  * @author ctsims
  */
 public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
@@ -46,19 +49,7 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
     private final AndroidCaseIndexTable mCaseIndexTable;
     private final SqlStorage<ACase> storage;
 
-    public AndroidBulkCaseXmlParser(KXmlParser parser, SqlStorage<ACase> storage,
-                                    EntityStorageCache entityCache, AndroidCaseIndexTable indexTable) {
-        super(parser);
-        mEntityCache = entityCache;
-        mCaseIndexTable = indexTable;
-        this.storage = storage;
-    }
-
-    public AndroidBulkCaseXmlParser(KXmlParser parser, SqlStorage<ACase> storage) {
-        this(parser, storage, new EntityStorageCache("case"), new AndroidCaseIndexTable());
-    }
-
-    public AndroidBulkCaseXmlParser(KXmlParser parser, boolean acceptCreateOverwrites,
+    public AndroidBulkCaseXmlParser(KXmlParser parser,
                                     SqlStorage<ACase> storage,
                                     HttpRequestEndpoints generator) {
         super(parser);
