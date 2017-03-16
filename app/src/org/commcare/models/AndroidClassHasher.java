@@ -6,6 +6,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * @author ctsims
@@ -16,6 +17,8 @@ public class AndroidClassHasher extends Hasher {
     private static final int CLASS_HASH_SIZE = 4;
 
     private final MessageDigest mMessageDigester;
+
+    private final HashMap<String, byte[]> classNameHashMap = new HashMap<>();
 
     private AndroidClassHasher() {
         try {
@@ -39,7 +42,13 @@ public class AndroidClassHasher extends Hasher {
 
     @Override
     public synchronized byte[] getHash(Class c) {
-        return mMessageDigester.digest(c.getName().getBytes());
+        String name = c.getName();
+        if(classNameHashMap.containsKey(name)) {
+            return classNameHashMap.get(name);
+        }
+        byte[] hash = mMessageDigester.digest(name.getBytes());
+        classNameHashMap.put(name, hash);
+        return hash;
     }
 
     public synchronized byte[] getClassnameHash(String className) {
