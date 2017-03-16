@@ -65,6 +65,7 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     private boolean requestedFromProd;
     private boolean requestedFromIndia;
     private String urlCurrentlyRequestingFrom;
+    private boolean failedDueToAuth;
 
     private String errorMessage;
     private View authenticateView;
@@ -107,6 +108,9 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
                 if (inputIsValid()) {
                     errorMessageBox.setVisibility(View.INVISIBLE);
                     authenticateView.setVisibility(View.GONE);
+                    requestedFromIndia = false;
+                    requestedFromProd = false;
+                    failedDueToAuth = false;
                     requestAppList();
                 }
             }
@@ -328,6 +332,9 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
 
     @Override
     public void processClientError(int responseCode) {
+        if (responseCode == 401 || responseCode == 403) {
+            failedDueToAuth = true;
+        }
         handleRequestError(responseCode);
     }
 
@@ -360,7 +367,11 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
                 @Override
                 public void run() {
                     if (availableApps.size() == 0) {
-                        enterErrorState("No apps found for that user");
+                        if (failedDueToAuth) {
+                            enterErrorState("Incorrect password entered.");
+                        } else {
+                            enterErrorState("No apps found for that user.");
+                        }
                     } else {
                         showResults();
                     }
