@@ -32,9 +32,9 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -51,11 +51,12 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     private static final String REQUESTED_FROM_PROD_KEY = "have-requested-from-prod";
     private static final String REQUESTED_FROM_INDIA_KEY = "have-requested-from-india";
     private static final String ERROR_MESSAGE_KEY = "error-message-key";
+    private static final String AVAILABLE_APPS_RECEIVED = "available-apps-received";
 
-    private static final String PROD_URL = "http://192.168.8.180/phone/list_apps";
-    private static final String INDIA_URL = "http://192.168.8.180/phone/list_apps";
-    //private static final String PROD_URL = "https://www.commcarehq.org/phone/list_apps";
-    //private static final String INDIA_URL = "https://india.commcarehq.org/phone/list_apps";
+    //private static final String PROD_URL = "http://192.168.8.180/phone/list_apps";
+    //private static final String INDIA_URL = "http://192.168.8.180/phone/list_apps";
+    private static final String PROD_URL = "https://www.commcarehq.org/phone/list_apps";
+    private static final String INDIA_URL = "https://india.commcarehq.org/phone/list_apps";
 
     private boolean inMobileUserAuthMode;
 
@@ -68,13 +69,14 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     private TextView errorMessageBox;
     private ListView appsList;
 
-    private List<AppAvailableForInstall> allAvailableApps = new ArrayList<>();
+    private List<AppAvailableForInstall> availableApps = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadStateFromSavedInstance(savedInstanceState);
         setupUI();
+        checkForPreviouslyRetrievedApps();
     }
 
     private void setupUI() {
@@ -86,6 +88,12 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
         setUpToggle();
     }
 
+    private void checkForPreviouslyRetrievedApps() {
+        if (availableApps.size() > 0) {
+            showResults();
+        }
+    }
+
     private void setUpGetAppsButton() {
         Button getAppsButton = (Button)findViewById(R.id.get_apps_button);
         getAppsButton.setOnClickListener(new View.OnClickListener() {
@@ -94,9 +102,7 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
                 if (inputIsValid()) {
                     errorMessageBox.setVisibility(View.INVISIBLE);
                     authenticateView.setVisibility(View.GONE);
-                    //requestAppList();
-                    // TODO: change back to line above
-                    processTestResponseAndShowResults();
+                    requestAppList();
                 }
             }
         });
@@ -107,8 +113,8 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
         appsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position < allAvailableApps.size()) {
-                    AppAvailableForInstall app = allAvailableApps.get(position);
+                if (position < availableApps.size()) {
+                    AppAvailableForInstall app = availableApps.get(position);
                     Intent i = new Intent(getIntent());
                     i.putExtra(PROFILE_REF, app.getMediaProfileRef());
                     setResult(RESULT_OK, i);
@@ -155,14 +161,6 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
         toggleContainer.addView(userTypeToggler);
     }
 
-    // TODO: REMOVE, for testing only
-    private void processTestResponseAndShowResults() {
-        String responseXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><apps><app profile=\"http://www.commcarehq.org/a/dimagi/apps/download/061eed551c565a2c18140a0a89fd3180/profile.xml?latest=true\" domain=\"dimagi\" name=\"Test icon uploader\" environment=\"changeme\" version=\"15\" media-profile=\"http://www.commcarehq.org/a/dimagi/apps/download/061eed551c565a2c18140a0a89fd3180/media_profile.xml?latest=true\"/><app profile=\"http://www.commcarehq.org/a/dimagi/apps/download/ef4b94438be3916d4a52eb01a726f99b/profile.xml?latest=true\" domain=\"dimagi\" name=\"Dev Recruitment Tracking\" environment=\"changeme\" version=\"130\" media-profile=\"http://www.commcarehq.org/a/dimagi/apps/download/ef4b94438be3916d4a52eb01a726f99b/media_profile.xml?latest=true\"/><app profile=\"http://www.commcarehq.org/a/dimagi/apps/download/145884de1cbbbe29619f010c56605cc8/profile.xml?latest=true\" domain=\"dimagi\" name=\"Dimagi Reports\" environment=\"changeme\" version=\"32\" media-profile=\"http://www.commcarehq.org/a/dimagi/apps/download/145884de1cbbbe29619f010c56605cc8/media_profile.xml?latest=true\"/><app profile=\"http://www.commcarehq.org/a/dimagi/apps/download/a05614e43f6b455084d5f2e158f5bc87/profile.xml?latest=true\" domain=\"dimagi\" name=\"Dimagi Device Signout\" environment=\"changeme\" version=\"3\" media-profile=\"http://www.commcarehq.org/a/dimagi/apps/download/a05614e43f6b455084d5f2e158f5bc87/media_profile.xml?latest=true\"/></apps>";
-        InputStream stream = new ByteArrayInputStream(responseXml.getBytes());
-        processResponseIntoAppsList(stream);
-        showResults();
-    }
-
     private boolean inputIsValid() {
         String enteredPassword = ((EditText)findViewById(R.id.edit_password)).getText().toString();
         if ("".equals(enteredPassword)) {
@@ -197,6 +195,7 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
             requestedFromIndia = savedInstanceState.getBoolean(REQUESTED_FROM_INDIA_KEY);
             requestedFromProd = savedInstanceState.getBoolean(REQUESTED_FROM_PROD_KEY);
             errorMessage = savedInstanceState.getString(ERROR_MESSAGE_KEY);
+            availableApps = (List<AppAvailableForInstall>)savedInstanceState.getSerializable(AVAILABLE_APPS_RECEIVED);
         }
     }
 
@@ -206,6 +205,7 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
         savedInstanceState.putBoolean(REQUESTED_FROM_INDIA_KEY, requestedFromIndia);
         savedInstanceState.putBoolean(REQUESTED_FROM_PROD_KEY, requestedFromProd);
         savedInstanceState.putString(ERROR_MESSAGE_KEY, errorMessage);
+        savedInstanceState.putSerializable(AVAILABLE_APPS_RECEIVED, (Serializable)availableApps);
     }
 
     /**
@@ -218,9 +218,24 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
             System.out.println("requesting from " + urlToTry);
             SimpleHttpTask task;
             try {
+                final View processingRequestView = findViewById(R.id.processing_request_view);
                 task = new SimpleHttpTask(this, urlToTry, new HashMap<String, String>(), false,
                         new Pair<>(getUsernameForAuth(),
-                                ((EditText)findViewById(R.id.edit_password)).getText().toString()));
+                                ((EditText)findViewById(R.id.edit_password)).getText().toString())) {
+
+                    @Override
+                    protected void onPreExecute() {
+                        super.onPreExecute();
+                        processingRequestView.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void result) {
+                        super.onPostExecute(result);
+                        processingRequestView.setVisibility(View.GONE);
+                    }
+
+                };
             } catch (ModernHttpRequester.PlainTextPasswordException e) {
                 enterErrorState(Localization.get("post.not.using.https", urlToTry.toString()));
                 return false;
@@ -249,13 +264,11 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     }
 
     private void setAttemptedRequestFlag() {
-        /*if (PROD_URL.equals(urlCurrentlyRequestingFrom)) {
+        if (PROD_URL.equals(urlCurrentlyRequestingFrom)) {
             requestedFromProd = true;
         } else {
             requestedFromIndia = true;
-        }*/
-        requestedFromProd = true;
-        requestedFromIndia = true;
+        }
     }
 
     private URL getURLToTry() {
@@ -297,7 +310,7 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
         try {
             KXmlParser baseParser = ElementParser.instantiateParser(responseData);
             List<AppAvailableForInstall> apps = (new AvailableAppsParser(baseParser)).parse();
-            allAvailableApps.addAll(apps);
+            availableApps.addAll(apps);
             System.out.println("parsed app list response");
         } catch (IOException | InvalidStructureException | XmlPullParserException | UnfullfilledRequirementsException e) {
             // TODO: Decide how to handle this
@@ -341,7 +354,7 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
             this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (allAvailableApps.size() == 0) {
+                    if (availableApps.size() == 0) {
                         enterErrorState("No apps found for that user");
                     } else {
                         showResults();
@@ -353,13 +366,13 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
 
     private void showResults() {
         System.out.println("showing results");
-        for (AppAvailableForInstall app : allAvailableApps) {
+        for (AppAvailableForInstall app : availableApps) {
             System.out.println(app.getAppName());
         }
 
         appsList.setVisibility(View.VISIBLE);
         authenticateView.setVisibility(View.GONE);
-        appsList.setAdapter(new ArrayAdapter<AppAvailableForInstall>(this, android.R.layout.simple_list_item_1, allAvailableApps) {
+        appsList.setAdapter(new ArrayAdapter<AppAvailableForInstall>(this, android.R.layout.simple_list_item_1, availableApps) {
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
