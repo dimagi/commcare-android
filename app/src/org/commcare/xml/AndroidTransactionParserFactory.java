@@ -47,7 +47,6 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
      * A mapping from an installed form's namespace its install path.
      */
     private Hashtable<String, String> formInstanceNamespaces;
-    private TransactionParserFactory defaultCaseParser;
 
     public AndroidTransactionParserFactory(Context context, HttpRequestEndpoints generator) {
         super(new AndroidSandbox(CommCareApplication.instance()), DeveloperPreferences.isBulkPerformanceEnabled());
