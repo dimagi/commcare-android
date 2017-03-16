@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -52,10 +54,11 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     private static final String REQUESTED_FROM_PROD_KEY = "have-requested-from-prod";
     private static final String REQUESTED_FROM_INDIA_KEY = "have-requested-from-india";
     private static final String ERROR_MESSAGE_KEY = "error-message-key";
-    private static final String AVAILABLE_APPS_RECEIVED = "available-apps-received";
 
     private static final String PROD_URL = "https://www.commcarehq.org/phone/list_apps";
     private static final String INDIA_URL = "https://india.commcarehq.org/phone/list_apps";
+
+    private static final int RETRIEVE_APPS_FOR_DIFF_USER = Menu.FIRST;
 
     private boolean inMobileUserAuthMode;
 
@@ -88,16 +91,11 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     }
 
     private void checkForPreviouslyRetrievedApps() {
-        if (availableApps.size() > 0) {
-            // First see if we have apps that were preserved on rotation
+        Vector<AppAvailableForInstall> previouslyRetrievedApps =
+                GlobalPrivilegesManager.restorePreviouslyRetrievedAvailableApps();
+        if (previouslyRetrievedApps != null && previouslyRetrievedApps.size() > 0) {
+            this.availableApps = previouslyRetrievedApps;
             showResults();
-        } else {
-            Vector<AppAvailableForInstall> previouslyRetrievedApps =
-                    GlobalPrivilegesManager.restorePreviouslyRetrievedAvailableApps();
-            if (previouslyRetrievedApps != null) {
-                this.availableApps = previouslyRetrievedApps;
-                showResults();
-            }
         }
     }
 
@@ -202,8 +200,6 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
             requestedFromIndia = savedInstanceState.getBoolean(REQUESTED_FROM_INDIA_KEY);
             requestedFromProd = savedInstanceState.getBoolean(REQUESTED_FROM_PROD_KEY);
             errorMessage = savedInstanceState.getString(ERROR_MESSAGE_KEY);
-            availableApps =
-                    (Vector<AppAvailableForInstall>)savedInstanceState.getSerializable(AVAILABLE_APPS_RECEIVED);
         }
     }
 
@@ -213,7 +209,6 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
         savedInstanceState.putBoolean(REQUESTED_FROM_INDIA_KEY, requestedFromIndia);
         savedInstanceState.putBoolean(REQUESTED_FROM_PROD_KEY, requestedFromProd);
         savedInstanceState.putString(ERROR_MESSAGE_KEY, errorMessage);
-        savedInstanceState.putSerializable(AVAILABLE_APPS_RECEIVED, (Serializable)availableApps);
     }
 
     /**
@@ -392,6 +387,33 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
                 return textView;
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, RETRIEVE_APPS_FOR_DIFF_USER, 0, Localization.get("menu.admin.install.other.user"));
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER).setVisible(appsList.getVisibility() == View.VISIBLE);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == RETRIEVE_APPS_FOR_DIFF_USER) {
+            GlobalPrivilegesManager.clearPreviouslyRetrivedApps();
+            availableApps.clear();
+            appsList.setVisibility(View.GONE);
+            authenticateView.setVisibility(View.VISIBLE);
+            rebuildOptionsMenu();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }

@@ -119,17 +119,17 @@ public class GlobalPrivilegesManager {
                 Vector<AppAvailableForInstall> previouslyRetrievedApps =
                         (Vector<AppAvailableForInstall>) ExtUtil.read(stream,
                                 new ExtWrapList((AppAvailableForInstall.class)), ExtUtil.defaultPrototypes());
-                if (previouslyRetrievedApps.size() > 0) {
-                    return previouslyRetrievedApps;
-                } else {
-                    return null;
-                }
+                return previouslyRetrievedApps;
             } catch (Exception e) {
                 // Something went wrong, so clear out whatever is there
-                getGlobalPrivilegesRecord().edit().putString(RETRIEVED_AVAILABLE_APPS, null);
+                clearPreviouslyRetrivedApps();
             }
         }
         return null;
+    }
+
+    public static void clearPreviouslyRetrivedApps() {
+        getGlobalPrivilegesRecord().edit().putString(RETRIEVED_AVAILABLE_APPS, null).commit();
     }
 
 }

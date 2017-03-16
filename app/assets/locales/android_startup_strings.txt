@@ -20,10 +20,12 @@ install.choose.local.app=Available Apps
 menu.archive=Offline Install
 menu.sms=SMS Install
 menu.admin.install=See Apps for My User
+menu.admin.install.other.user=See Apps for Another User
 menu.sms.not.found=Install link not found in your texts!
 menu.sms.ready=Found install link. Press "Start" to begin installation.
 menu.sms.not.verified=We found a valid looking text, but could not verify its authenticity.
 menu.sms.not.retrieved=We could not retrieve the installation link. Please check your connectivity and try again.
+
 
 updates.resources.initialization=Setting Up App
 updates.resources.profile=Locating application...
