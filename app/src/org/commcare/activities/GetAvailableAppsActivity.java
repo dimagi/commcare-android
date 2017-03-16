@@ -21,6 +21,7 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
 import org.commcare.modern.util.Pair;
+import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.suite.model.AppAvailableForInstall;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
@@ -37,9 +38,9 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by amstone326 on 2/3/17.
@@ -53,8 +54,6 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     private static final String ERROR_MESSAGE_KEY = "error-message-key";
     private static final String AVAILABLE_APPS_RECEIVED = "available-apps-received";
 
-    //private static final String PROD_URL = "http://192.168.8.180/phone/list_apps";
-    //private static final String INDIA_URL = "http://192.168.8.180/phone/list_apps";
     private static final String PROD_URL = "https://www.commcarehq.org/phone/list_apps";
     private static final String INDIA_URL = "https://india.commcarehq.org/phone/list_apps";
 
@@ -69,7 +68,7 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     private TextView errorMessageBox;
     private ListView appsList;
 
-    private List<AppAvailableForInstall> availableApps = new ArrayList<>();
+    private Vector<AppAvailableForInstall> availableApps = new Vector<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +89,15 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
 
     private void checkForPreviouslyRetrievedApps() {
         if (availableApps.size() > 0) {
+            // First see if we have apps that were preserved on rotation
             showResults();
+        } else {
+            Vector<AppAvailableForInstall> previouslyRetrievedApps =
+                    GlobalPrivilegesManager.restorePreviouslyRetrievedAvailableApps();
+            if (previouslyRetrievedApps != null) {
+                this.availableApps = previouslyRetrievedApps;
+                showResults();
+            }
         }
     }
 
@@ -195,7 +202,8 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
             requestedFromIndia = savedInstanceState.getBoolean(REQUESTED_FROM_INDIA_KEY);
             requestedFromProd = savedInstanceState.getBoolean(REQUESTED_FROM_PROD_KEY);
             errorMessage = savedInstanceState.getString(ERROR_MESSAGE_KEY);
-            availableApps = (List<AppAvailableForInstall>)savedInstanceState.getSerializable(AVAILABLE_APPS_RECEIVED);
+            availableApps =
+                    (Vector<AppAvailableForInstall>)savedInstanceState.getSerializable(AVAILABLE_APPS_RECEIVED);
         }
     }
 
@@ -350,7 +358,9 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
 
     private void repeatRequestOrShowResults() {
         if (!requestAppList()) {
-            // Means we've requested to both endpoints
+            // Means we've tried requesting to both endpoints
+            GlobalPrivilegesManager.storeRetrievedAvailableApps(availableApps);
+
             this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -365,11 +375,6 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     }
 
     private void showResults() {
-        System.out.println("showing results");
-        for (AppAvailableForInstall app : availableApps) {
-            System.out.println(app.getAppName());
-        }
-
         appsList.setVisibility(View.VISIBLE);
         authenticateView.setVisibility(View.GONE);
         appsList.setAdapter(new ArrayAdapter<AppAvailableForInstall>(this, android.R.layout.simple_list_item_1, availableApps) {
