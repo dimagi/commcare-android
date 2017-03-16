@@ -25,6 +25,7 @@ public class CommCareServerPreferences
     public final static String PREFS_APP_SERVER_KEY = "default_app_server";
     public final static String PREFS_DATA_SERVER_KEY = "ota-restore-url";
     public final static String PREFS_SUBMISSION_URL_KEY = "PostURL";
+    public final static String PREFS_LOG_POST_URL_KEY = "log_receiver_url";
     private final static String PREFS_KEY_SERVER_KEY = "default_key_server";
     public final static String PREFS_FORM_RECORD_KEY = "form-record-url";
 
