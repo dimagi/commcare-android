@@ -16,7 +16,7 @@ import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.models.database.user.models.CaseIndexTable;
+import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -88,7 +88,7 @@ public class TestUtils {
                             Collections.unmodifiableMap(formInstanceNamespaces),
                             CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
                 } else if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
-                    return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new CaseIndexTable(db)) {
+                    return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new AndroidCaseIndexTable(db)) {
                         @Override
                         protected SQLiteDatabase getDbHandle() {
                             return db;
@@ -210,7 +210,7 @@ public class TestUtils {
             @Override
             public AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
                 SqlStorage<ACase> storage = getCaseStorage(db);
-                AndroidCaseInstanceTreeElement casebase = new AndroidCaseInstanceTreeElement(instance.getBase(), storage, new CaseIndexTable(db));
+                AndroidCaseInstanceTreeElement casebase = new AndroidCaseInstanceTreeElement(instance.getBase(), storage, new AndroidCaseIndexTable(db));
                 instance.setCacheHost(casebase);
                 return casebase;
             }
@@ -241,8 +241,7 @@ public class TestUtils {
         formInstances.put("casedb", specializedDataInstance);
         formInstances.put("ledger", ledgerDataInstance);
 
-        TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
-        return new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
+        return new EvaluationContext(new EvaluationContext(null), formInstances, TreeReference.rootRef());
     }
 
     public static RuntimeException wrapError(Exception e, String prefix) {

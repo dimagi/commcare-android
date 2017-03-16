@@ -15,7 +15,7 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.core.encryption.CryptUtil;
@@ -35,7 +35,6 @@ import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -518,8 +517,7 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             failureReason = e.getLocalizedMessage();
         } catch (InvalidStructureException | XmlPullParserException
-                | UnfullfilledRequirementsException | StorageFullException
-                | SessionUnavailableException | IOException e) {
+                | UnfullfilledRequirementsException | SessionUnavailableException | IOException e) {
             e.printStackTrace();
             failureReason = e.getMessage();
         } finally {
@@ -541,7 +539,7 @@ public abstract class DataPullTask<R>
         CommCareApplication.instance().getSession().setCurrentUser(u, password);
     }
 
-    private void updateUserSyncToken(String syncToken) throws StorageFullException {
+    private void updateUserSyncToken(String syncToken) {
         SqlStorage<User> storage = CommCareApplication.instance().getUserStorage("USER", User.class);
         try {
             User u = storage.getRecordForValue(User.META_USERNAME, username);

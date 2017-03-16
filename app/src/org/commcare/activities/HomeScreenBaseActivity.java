@@ -25,10 +25,11 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.CommCarePreferences;
@@ -55,6 +56,7 @@ import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.UriToFilePath;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
@@ -69,6 +71,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Vector;
@@ -129,6 +132,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         super.onCreateSessionSafe(savedInstanceState);
         loadInstanceState(savedInstanceState);
         ACRAUtil.registerAppData();
+        AdMobManager.initAdsForCurrentConsumerApp(getApplicationContext());
         sessionNavigator = new SessionNavigator(this);
 
         processFromExternalLaunch(savedInstanceState);
@@ -357,6 +361,20 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case PREFERENCES_ACTIVITY:
                     if (resultCode == AdvancedActionsActivity.RESULT_DATA_RESET) {
                         finish();
+                    } else if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
+                        try {
+                            Uri uri = intent.getData();
+                            String filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uri);
+                            if(filePath != null) {
+                                File f = new File(filePath);
+                                if (f != null && f.exists()) {
+                                    formAndDataSyncer.performCustomRestoreFromFile(this, f);
+                                }
+                            }
+                        } catch(Exception e) {
+                            Toast.makeText(this, "Error loading custom sync...",
+                                    Toast.LENGTH_LONG).show();
+                        }
                     }
                     return;
                 case ADVANCED_ACTIONS_ACTIVITY:

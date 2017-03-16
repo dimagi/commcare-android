@@ -25,8 +25,8 @@ public class ShrinkingTextView extends TextView {
     private ExpandAnimation mCurrentAnimation;
 
     private int mFullHeight = -1;
-    private int mMaxHeight;
-    private int mSetMaxHeight = -1;
+    private int maxHeightCalculated;
+    private int maxHeightPassedIn = -1;
 
     private int mAnimatingHeight = -1;
 
@@ -37,35 +37,33 @@ public class ShrinkingTextView extends TextView {
     }
 
     public void updateMaxHeight(int maxHeight) {
-        int contentHeightAdj = this.getPaddingBottom() + this.getPaddingTop();
+        int paddingHeight = this.getPaddingBottom() + this.getPaddingTop();
+        float textSize = this.getTextSize();
+        float lineHeight = this.getLineHeight();
+        float stH = lineHeight + paddingHeight;
 
-        float tH = this.getTextSize();
-        float lH = this.getLineHeight();
-        float stH = lH + contentHeightAdj;
+        maxHeightPassedIn = maxHeight;
 
-        mSetMaxHeight = maxHeight;
-
-        //Don't allow this control to be smaller than one line
         if (maxHeight * 1f < stH) {
-            mMaxHeight = (int)stH;
+            // Don't allow this control to be smaller than one line
+            maxHeightCalculated = (int)stH;
         } else {
             //Otherwise, count up lines until this will spill over, then 
             //set the max height to be the bottom of the lowest line
-            int contentHeight = maxHeight - contentHeightAdj;
-            float countUp = tH;
+            int contentHeightAllottedByGivenMax = maxHeight - paddingHeight;
+            float countUp = textSize;
 
-            while (countUp + lH < contentHeight) {
-                countUp = countUp + lH;
+            while (countUp + lineHeight < contentHeightAllottedByGivenMax) {
+                countUp = countUp + lineHeight;
             }
 
-            //We're now on the last full line. We either want to put our baseline at the bottom of this line,
-            //or the bottom of the next
-
-            if (countUp + tH < contentHeight) {
-                countUp = countUp + tH;
+            // We're now on the last full line. We either want to put our baseline at the bottom
+            // of this line, or the bottom of the next
+            if (countUp + textSize < contentHeightAllottedByGivenMax) {
+                countUp = countUp + textSize;
             }
 
-            mMaxHeight = (int)(countUp + contentHeightAdj);
+            maxHeightCalculated = (int)(countUp + paddingHeight);
         }
 
         //TODO: Don't mess with this during animation?
@@ -112,7 +110,7 @@ public class ShrinkingTextView extends TextView {
 
         mInteractive = true;
         mFullHeight = -1;
-        if (mMaxHeight == -1) {
+        if (maxHeightCalculated == -1) {
             mInteractive = false;
             mExpanded = false;
         }
@@ -129,9 +127,9 @@ public class ShrinkingTextView extends TextView {
                 if (mFullHeight == -1) {
                     mFullHeight = ShrinkingTextView.this.getMeasuredHeight();
                 }
-                mCurrentAnimation = new ExpandAnimation(mFullHeight, mMaxHeight);
+                mCurrentAnimation = new ExpandAnimation(mFullHeight, maxHeightCalculated);
             } else {
-                mCurrentAnimation = new ExpandAnimation(mMaxHeight, mFullHeight);
+                mCurrentAnimation = new ExpandAnimation(maxHeightCalculated, mFullHeight);
             }
             mCurrentAnimation.setDuration(mAnimationDuration);
             ShrinkingTextView.this.startAnimation(mCurrentAnimation);
@@ -157,13 +155,13 @@ public class ShrinkingTextView extends TextView {
 
         //The full height here isn't greater than the max,
         //no need for heroics
-        if (mFullHeight <= mSetMaxHeight) {
+        if (mFullHeight <= maxHeightPassedIn) {
             mInteractive = false;
             return;
         }
         int measuredWidth = this.getMeasuredWidth();
 
-        this.setMeasuredDimension(measuredWidth, mMaxHeight);
+        this.setMeasuredDimension(measuredWidth, maxHeightCalculated);
     }
 
     private boolean isAnimating() {

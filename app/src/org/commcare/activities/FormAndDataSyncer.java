@@ -11,7 +11,8 @@ import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.network.DataPullRequester;
-import org.commcare.network.LocalDataPullResponseFactory;
+import org.commcare.network.LocalReferencePullResponseFactory;
+import org.commcare.network.mocks.LocalFilePullResponseFactory;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
@@ -26,6 +27,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -158,6 +160,18 @@ public class FormAndDataSyncer {
                 password);
     }
 
+    public <I extends CommCareActivity & PullTaskResultReceiver> void performCustomRestoreFromFile(
+            I context,
+            File incomingRestoreFile) {
+        User u = CommCareApplication.instance().getSession().getLoggedInUser();
+        String username = u.getUsername();
+
+        LocalFilePullResponseFactory.setRequestPayloads(new File[]{incomingRestoreFile});
+        syncData(context, false, false, "fake-server-that-is-never-used", username, null,
+                LocalFilePullResponseFactory.INSTANCE, true);
+    }
+
+
     public <I extends CommCareActivity & PullTaskResultReceiver> void performLocalRestore(
             I context,
             String username,
@@ -170,19 +184,20 @@ public class FormAndDataSyncer {
             throw new RuntimeException("Local restore file missing");
         }
 
-        LocalDataPullResponseFactory.setRequestPayloads(new String[]{SingleAppInstallation.LOCAL_RESTORE_REFERENCE});
+        LocalReferencePullResponseFactory.setRequestPayloads(new String[]{SingleAppInstallation.LOCAL_RESTORE_REFERENCE});
         syncData(context, false, false, "fake-server-that-is-never-used", username, password,
-                LocalDataPullResponseFactory.INSTANCE, true);
+                LocalReferencePullResponseFactory.INSTANCE, true);
     }
+
 
     public <I extends CommCareActivity & PullTaskResultReceiver> void performDemoUserRestore(
             I context,
             OfflineUserRestore offlineUserRestore) {
         String[] demoUserRestore = new String[]{offlineUserRestore.getReference()};
-        LocalDataPullResponseFactory.setRequestPayloads(demoUserRestore);
+        LocalReferencePullResponseFactory.setRequestPayloads(demoUserRestore);
         syncData(context, false, false, "fake-server-that-is-never-used",
                 offlineUserRestore.getUsername(), OfflineUserRestore.DEMO_USER_PASSWORD,
-                LocalDataPullResponseFactory.INSTANCE, true);
+                LocalReferencePullResponseFactory.INSTANCE, true);
     }
 
     public <I extends CommCareActivity & PullTaskResultReceiver> void syncData(

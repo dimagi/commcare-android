@@ -495,6 +495,9 @@ notification.install.badreqs.title=Incompatible CommCare Version for Install
 notification.install.badreqs.detail=${0}
 notification.install.badreqs.action=${0}
 
+notification.update.failed.general.title=Update failed due to an error
+notification.update.failed.general.detail=${0}
+
 notification.install.badarchive.title=Archive must be in file system
 notification.install.badarchive.detail=Your .ccz archive file must be on your phone's file system
 notification.install.badarchive.action=Download this fule and place it on your phone's SD card and retry. 
@@ -567,6 +570,9 @@ notification.sending.quarantine.title=Form Record Quarantined
 notification.sending.quarantine.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
 notification.sending.quarantine.action=You can view the record in the saved records screen by checking the quarantine filter. From there you can restore quarantined records back onto the unsent queue to try to submit them again. Restarting the device and/or ejecting and re-inserting your external storage first may correct the issue. 
 
+notification.formrecord.files.missing.title=Form Record Missing
+notification.formrecord.files.missing.detail=The files for one of your forms are missing. This can happen due to corruption of the storage layer or deletion of the files by other programs.
+notification.formrecord.files.missing.action=The form record has been removed and this issue has been logged. To prevent this error please do not manually edit or delete any files inside CommCare.
 
 notification.network.timeout.title=It is taking a long time for the server to respond. Please try again.
 notification.network.timeout.detail=The remote service did not respond to CommCare's request within the time limit. It may be busy or this may indicate a connection problem.

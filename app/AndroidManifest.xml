@@ -3,7 +3,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="org.commcare.dalvik"
           android:versionCode="106"
-          android:versionName="2.34">
+          android:versionName="2.35">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -117,6 +117,17 @@
             android:enabled="true"
             android:exported="true"
             android:readPermission="${applicationId}.provider.cases.read"/>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.external.files.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
 
         <activity android:name="org.commcare.preferences.CommCarePreferences">
         </activity>

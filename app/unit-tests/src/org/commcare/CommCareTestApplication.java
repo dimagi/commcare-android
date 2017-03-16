@@ -18,7 +18,7 @@ import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.util.Pair;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.HttpUtils;
-import org.commcare.network.LocalDataPullResponseFactory;
+import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.model.User;
@@ -219,7 +219,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     public DataPullRequester getDataPullRequester() {
-        return LocalDataPullResponseFactory.INSTANCE;
+        return LocalReferencePullResponseFactory.INSTANCE;
     }
 
     @Override

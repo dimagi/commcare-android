@@ -22,6 +22,7 @@ import org.commcare.network.DataSubmissionEntity;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.LogSubmissionTask.LogSubmitOutcomes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.MessageTag;
@@ -94,6 +95,11 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         this.serializeCurrentLogs = serializeCurrentLogs;
         this.listener = listener;
         this.submissionUrl = submissionUrl;
+    }
+
+    public static String getSubmissionUrl(SharedPreferences appPreferences) {
+        return appPreferences.getString(CommCareServerPreferences.PREFS_LOG_POST_URL_KEY,
+                appPreferences.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null));
     }
 
     @Override

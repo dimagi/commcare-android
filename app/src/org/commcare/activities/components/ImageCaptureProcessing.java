@@ -7,8 +7,8 @@ import android.provider.MediaStore.Images.Media;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.locale.Localization;
@@ -93,7 +93,7 @@ public class ImageCaptureProcessing {
          */
 
         // The intent is empty, but we know we saved the image to the temp file
-        File originalImage = ImageWidget.TEMP_FILE_FOR_IMAGE_CAPTURE;
+        File originalImage = ImageWidget.getTempFileForImageCapture();
         try {
             File unscaledFinalImage = moveAndScaleImage(originalImage, isImage, instanceFolder, activity);
             activity.saveImageWidgetAnswer(buildImageFileContentValues(unscaledFinalImage));

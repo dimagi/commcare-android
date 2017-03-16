@@ -8,11 +8,12 @@ import android.view.View;
 
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.StringUtils;
+import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -44,9 +45,10 @@ public class FormEntryDialogs {
         View.OnClickListener exitFormListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
-                activity.discardChangesAndExit();
                 activity.dismissAlertDialog();
+                GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
+                ViewUtil.hideVirtualKeyboard(activity);
+                activity.discardChangesAndExit();
             }
         };
         DialogChoiceItem quitFormItem = new DialogChoiceItem(

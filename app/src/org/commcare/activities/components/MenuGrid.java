@@ -4,11 +4,14 @@ import android.media.MediaPlayer;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.GridMenuAdapter;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.ads.AdLocation;
+import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.suite.model.MenuDisplayable;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -33,6 +36,12 @@ public class MenuGrid extends MenuList implements OnItemLongClickListener {
         adapterView.setOnItemLongClickListener(this);
         adapter = new GridMenuAdapter(activity,
                 CommCareApplication.instance().getCommCarePlatform(), menuId);
+    }
+
+    @Override
+    protected void requestBannerAd() {
+        AdMobManager.requestBannerAdForView(activity,
+                (FrameLayout)activity.findViewById(R.id.ad_container), AdLocation.MenuGrid);
     }
 
     @Override

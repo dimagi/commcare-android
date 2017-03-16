@@ -42,7 +42,6 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.AndroidFormController;
-import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.views.media.MediaLayout;
 import org.commcare.android.javarosa.IntentCallout;
@@ -52,8 +51,8 @@ import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
@@ -82,7 +81,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
-import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
@@ -733,8 +731,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     public void discardChangesAndExit() {
-        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this, FormEntryInstanceState.mInstancePath, instanceProviderContentURI);
-
+        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this,
+                FormEntryInstanceState.mInstancePath, instanceProviderContentURI);
         finishReturnInstance(false);
     }
 
@@ -1251,7 +1249,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             uiController.recordLastChangedWidgetIndex(changedWidget);
             uiController.updateFormRelevancies();
-        } catch (XPathTypeMismatchException | XPathArityException e) {
+        } catch (XPathTypeMismatchException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(this, e, FormEntryConstants.EXIT);
             return;
         }

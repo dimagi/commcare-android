@@ -31,6 +31,7 @@ import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
@@ -237,12 +238,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 finishWithResult(RefreshToLatestBuildActivity.ALREADY_UP_TO_DATE);
             }
         } else {
-            // Gives user generic failure warning; even if update staging
-            // failed for a specific reason like xml syntax
-            if (UpdateTask.isCombinedErrorMessage(result.errorMessage)) {
-                Pair<String, String> resouceAndMessage = UpdateTask.splitCombinedErrorMessage(result.errorMessage);
-                CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(AppInstallStatus.InvalidResource, new String[]{null, resouceAndMessage.first, resouceAndMessage.second}), true);
-            }
+            reportFailureToNotifications(result.errorMessage);
             uiController.checkFailedUiState();
             if (proceedAutomatically) {
                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
@@ -251,6 +247,27 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         unregisterTask();
         uiController.refreshView();
+    }
+
+    private void reportFailureToNotifications(String errorMessage) {
+        NotificationMessage notificationMessage = null;
+
+        if (UpdateTask.isCombinedErrorMessage(errorMessage)) {
+            Pair<String, String> resourceAndMessage =
+                    UpdateTask.splitCombinedErrorMessage(errorMessage);
+            notificationMessage =
+                    NotificationMessageFactory.message(AppInstallStatus.InvalidResource,
+                            new String[]{null, resourceAndMessage.first, resourceAndMessage.second});
+        } else if (!"".equals(errorMessage)) {
+            notificationMessage =
+                    NotificationMessageFactory.message(AppInstallStatus.UpdateFailedGeneral,
+                            new String[]{null, errorMessage, null});
+        }
+
+        if (notificationMessage != null) {
+            CommCareApplication.notificationManager()
+                    .reportNotificationMessage(notificationMessage, true);
+        }
     }
 
     private void finishWithResult(String result) {
