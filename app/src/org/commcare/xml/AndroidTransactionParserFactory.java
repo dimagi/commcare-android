@@ -4,7 +4,6 @@ import android.content.Context;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.cases.model.Case;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -13,7 +12,6 @@ import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.GlobalConstants;
-import org.commcare.xml.bulk.LinearBulkProcessingCaseXmlParser;
 import org.kxml2.io.KXmlParser;
 
 import java.util.ArrayList;
