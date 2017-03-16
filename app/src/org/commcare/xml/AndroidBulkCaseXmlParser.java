@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -50,12 +51,20 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
     private final SqlStorage<ACase> storage;
 
     public AndroidBulkCaseXmlParser(KXmlParser parser,
+                                         SqlStorage<ACase> storage,
+                                         HttpRequestEndpoints generator) {
+        this(parser, storage, new EntityStorageCache("case"), new AndroidCaseIndexTable(), generator);
+    }
+
+    public AndroidBulkCaseXmlParser(KXmlParser parser,
                                     SqlStorage<ACase> storage,
+                                    EntityStorageCache entityStorageCache,
+                                    AndroidCaseIndexTable indexTable,
                                     HttpRequestEndpoints generator) {
         super(parser);
         this.generator = generator;
-        mEntityCache = new EntityStorageCache("case");
-        mCaseIndexTable = new AndroidCaseIndexTable();
+        mEntityCache = entityStorageCache;
+        mCaseIndexTable = indexTable;
         this.storage = storage;
     }
 
@@ -84,20 +93,22 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
     }
 
     @Override
-    protected void performBulkWrite(SortedMap<String, Case> writeLog) throws IOException {
+    protected void performBulkWrite(LinkedHashMap<String, Case> writeLog) throws IOException {
         SQLiteDatabase db;
         db = getDbHandle();
         db.beginTransaction();
         ArrayList<Integer> recordIdsToWipe = new ArrayList<>();
         try {
-            for(Case c : writeLog.values()) {
+            for(String cid : writeLog.keySet()) {
+                Case c = writeLog.get(cid);
                 storage.write(c);
                 recordIdsToWipe.add(c.getID());
-                mCaseIndexTable.indexCase(c);
             }
             mEntityCache.invalidateCaches(recordIdsToWipe);
             mCaseIndexTable.clearCaseIndices(recordIdsToWipe);
-            for(Case c : writeLog.values()) {
+
+            for(String cid : writeLog.keySet()) {
+                Case c = writeLog.get(cid);
                 mCaseIndexTable.indexCase(c);
             }
             db.setTransactionSuccessful();
