@@ -152,7 +152,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     Text value = s.getPointConfiguration(key);
                     if (value != null) {
                         pointConfiguration.put(key, value);
-                        s.removeConfiguration(key);
+                        //s.removeConfiguration(key);
                     }
                 }
 
