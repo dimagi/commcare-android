@@ -113,11 +113,30 @@
         android:indeterminate="true"
         android:visibility="gone"/>
 
-    <ListView
-        android:id="@+id/apps_list_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/apps_list_container"
+        android:orientation="vertical"
         android:visibility="gone">
-    </ListView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Apps Available for Install"
+            android:textSize="@dimen/font_size_xlarge"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:paddingTop="@dimen/standard_spacer"
+            android:layout_marginBottom="@dimen/standard_spacer_double"/>
+
+        <ListView
+            android:id="@+id/apps_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </ListView>
+
+    </LinearLayout>
+
 
 </LinearLayout>

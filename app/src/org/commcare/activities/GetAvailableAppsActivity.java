@@ -70,6 +70,7 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     private String errorMessage;
     private View authenticateView;
     private TextView errorMessageBox;
+    private View appsListContainer;
     private ListView appsList;
 
     private Vector<AppAvailableForInstall> availableApps = new Vector<>();
@@ -118,6 +119,7 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     }
 
     private void setUpAppsList() {
+        appsListContainer = findViewById(R.id.apps_list_container);
         appsList = (ListView)findViewById(R.id.apps_list_view);
         appsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -381,21 +383,25 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     }
 
     private void showResults() {
-        appsList.setVisibility(View.VISIBLE);
+        appsListContainer.setVisibility(View.VISIBLE);
         authenticateView.setVisibility(View.GONE);
         appsList.setAdapter(new ArrayAdapter<AppAvailableForInstall>(this, android.R.layout.simple_list_item_1, availableApps) {
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                TextView textView = (TextView)convertView;
+                View v = convertView;
                 Context context = GetAvailableAppsActivity.this;
-                if (textView == null) {
-                    //v = View.inflate(context, R.layout.single_available_app_view, null);
-                    textView = new TextView(context);
+                if (v == null) {
+                    v = View.inflate(context, R.layout.single_available_app_view, null);
                 }
+
                 AppAvailableForInstall app = this.getItem(position);
-                textView.setText(app.getAppName());
-                return textView;
+                TextView appName = (TextView)v.findViewById(R.id.app_name);
+                appName.setText(app.getAppName());
+                TextView domain = (TextView)v.findViewById(R.id.domain);
+                domain.setText(app.getDomainName());
+
+                return v;
             }
         });
     }
@@ -410,7 +416,7 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER).setVisible(appsList.getVisibility() == View.VISIBLE);
+        menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER).setVisible(appsListContainer.getVisibility() == View.VISIBLE);
         return true;
     }
 
@@ -419,7 +425,7 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
         if (item.getItemId() == RETRIEVE_APPS_FOR_DIFF_USER) {
             GlobalPrivilegesManager.clearPreviouslyRetrivedApps();
             availableApps.clear();
-            appsList.setVisibility(View.GONE);
+            appsListContainer.setVisibility(View.GONE);
             authenticateView.setVisibility(View.VISIBLE);
             rebuildOptionsMenu();
             return true;
