@@ -83,7 +83,6 @@ public class XYSeries implements Externalizable, Configurable {
     @Override
     public void setConfiguration(String key, Text value) {
         if (mPointConfiguration.keySet().contains(key)) {
-            mPointConfiguration.remove(key);
             mPointConfiguration.put(key, value);
         } else {
             mConfiguration.put(key, value);
