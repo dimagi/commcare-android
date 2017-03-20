@@ -81,7 +81,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
             }
         };
     }
-    public ArrayList<String> getCreatedAndUpdatedCases () {
+    public ArrayList<String> getCreatedAndUpdatedCases() {
         return createdAndUpdatedCases;
     }
 

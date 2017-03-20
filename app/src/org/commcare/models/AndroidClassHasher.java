@@ -43,7 +43,7 @@ public class AndroidClassHasher extends Hasher {
     @Override
     public synchronized byte[] getHash(Class c) {
         String name = c.getName();
-        if(classNameHashMap.containsKey(name)) {
+        if (classNameHashMap.containsKey(name)) {
             return classNameHashMap.get(name);
         }
         byte[] hash = mMessageDigester.digest(name.getBytes());

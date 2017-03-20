@@ -41,7 +41,7 @@ public class AndroidTableBuilder extends TableBuilder {
     }
 
     /**
-     * Given a list of integer params to insert and a maximum number of args, return the
+     * Given a list of params to insert and a maximum number of args, return the
      * String containing (?, ?,...) to be used in the SQL query and the array of args
      * to replace them with
      */

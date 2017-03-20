@@ -99,7 +99,7 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
         db.beginTransaction();
         ArrayList<Integer> recordIdsToWipe = new ArrayList<>();
         try {
-            for(String cid : writeLog.keySet()) {
+            for (String cid : writeLog.keySet()) {
                 Case c = writeLog.get(cid);
                 storage.write(c);
                 recordIdsToWipe.add(c.getID());
@@ -107,7 +107,7 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
             mEntityCache.invalidateCaches(recordIdsToWipe);
             mCaseIndexTable.clearCaseIndices(recordIdsToWipe);
 
-            for(String cid : writeLog.keySet()) {
+            for (String cid : writeLog.keySet()) {
                 Case c = writeLog.get(cid);
                 mCaseIndexTable.indexCase(c);
             }

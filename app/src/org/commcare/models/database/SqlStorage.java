@@ -625,7 +625,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     /**
-     * Retrieves a set of the models in storage based on a list of values matching one if the
+     * Retrieves a set of the models in storage based on a list of values matching one of the
      * indexes of this storage
      */
     public List<T> getBulkRecordsForIndex(String indexName, Collection<String> matchingValues) {
