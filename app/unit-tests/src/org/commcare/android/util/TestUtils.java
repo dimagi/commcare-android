@@ -18,10 +18,12 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.network.HttpRequestEndpointsMock;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.FormSaveUtil;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.xml.AndroidBulkCaseXmlParser;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
@@ -67,12 +69,19 @@ public class TestUtils {
         // we need better shadows for
         SqlStorage.STORAGE_OPTIMIZATIONS_ACTIVE = false;
     }
-    
+
 
     /**
      * Get a form instance and case enabled parsing factory
      */
     private static TransactionParserFactory getFactory(final SQLiteDatabase db) {
+        return getFactory(db, false);
+    }
+
+        /**
+         * Get a form instance and case enabled parsing factory
+         */
+    private static TransactionParserFactory getFactory(final SQLiteDatabase db, final boolean bulkProcessingEnabled) {
         final Hashtable<String, String> formInstanceNamespaces;
         if (CommCareApplication.instance().getCurrentApp() != null) {
             formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance());
@@ -88,12 +97,29 @@ public class TestUtils {
                             Collections.unmodifiableMap(formInstanceNamespaces),
                             CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
                 } else if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
-                    return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new AndroidCaseIndexTable(db)) {
-                        @Override
-                        protected SQLiteDatabase getDbHandle() {
-                            return db;
-                        }
-                    };
+
+                    //Note - this isn't even actually bulk processing. since this class is static
+                    //there's no good lifecycle to manage the bulk processor in, but at least
+                    //this will validate that the bulk processor works.
+                    if(bulkProcessingEnabled)  {
+                        return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new AndroidCaseIndexTable(db), new HttpRequestEndpointsMock()) {
+                            @Override
+                            protected SQLiteDatabase getDbHandle() {
+                                return db;
+                            }
+                        };
+
+                    } else {
+                        return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new AndroidCaseIndexTable(db)) {
+                            @Override
+                            protected SQLiteDatabase getDbHandle() {
+                                return db;
+                            }
+                        };
+                    }
+
+
+
                 }  else if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
                     return new LedgerXmlParsers(parser, getLedgerStorage(db));
                 }
@@ -106,6 +132,14 @@ public class TestUtils {
      * Process an input XML file for transactions and update the relevant databases.
      */
     public static void processResourceTransaction(String resourcePath) {
+        processResourceTransaction(resourcePath, false);
+    }
+
+        /**
+         * Process an input XML file for transactions and update the relevant databases.
+         */
+    public static void processResourceTransaction(String resourcePath,
+                                                  boolean bulkProcessingEnabled) {
         final SQLiteDatabase db = getTestDb();
 
         DataModelPullParser parser;
@@ -113,7 +147,7 @@ public class TestUtils {
         try{
             InputStream is = System.class.getResourceAsStream(resourcePath);
 
-            parser = new DataModelPullParser(is, getFactory(db), true, true);
+            parser = new DataModelPullParser(is, getFactory(db, bulkProcessingEnabled), true, true);
             parser.parse();
             is.close();
 
