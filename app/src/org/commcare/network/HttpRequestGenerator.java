@@ -93,7 +93,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     }
 
     private HttpRequestGenerator(String username, String password, String userType) {
-        String domainedUsername = buildDomainUserAndPassword(username);
+        String domainedUsername = buildDomainUser(username);
         this.password = password = buildAppPassword(password);
         this.userType = userType;
 
@@ -113,7 +113,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         return password;
     }
 
-    protected static String buildDomainUserAndPassword(String username) {
+    protected static String buildDomainUser(String username) {
         if (username != null) {
             SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
