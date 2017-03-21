@@ -369,16 +369,4 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static boolean useObfuscatedPassword() {
         return doesPropertyMatch(USE_OBFUSCATED_PW, CommCarePreferences.NO, CommCarePreferences.YES);
     }
-
-    public static boolean updateToLatestSavedEnabled() {
-        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(UPDATE_TO_LATEST_SAVED_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
-    }
-
-    public static void enableUpdateToLatestSavedVersion() {
-        CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .edit()
-                .putString(UPDATE_TO_LATEST_SAVED_ENABLED, CommCarePreferences.YES)
-                .apply();
-    }
 }

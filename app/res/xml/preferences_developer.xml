@@ -107,13 +107,6 @@
         android:key="cc-show-entity-trace-outputs"
         android:title="Output Entity List Trace Data to ADB"/>
     <ListPreference
-        android:defaultValue="no"
-        android:enabled="true"
-        android:entries="@array/pref_enabled_labels"
-        android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-show-entity-trace-outputs"
-        android:title="Output Entity List Trace Data to ADB"/>
-    <ListPreference
         android:enabled="true"
         android:defaultValue="no"
         android:entries="@array/pref_enabled_labels"
