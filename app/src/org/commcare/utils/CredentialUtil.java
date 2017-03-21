@@ -34,7 +34,8 @@ public class CredentialUtil {
 
     public static String wrap(String input, String salt1, String salt2) {
         try {
-            String encoded = Base64.encode((salt1 + input + salt2).getBytes("UTF-8"));
+            String encodedPw = Base64.encode(input.getBytes("UTF-8"));
+            String encoded = Base64.encode((salt1 + encodedPw + salt2).getBytes("UTF-8"));
             return String.format("%s%s%s", salt1, encoded, salt2);
         } catch (UnsupportedEncodingException iee) {
             throw new RuntimeException(iee);
@@ -60,7 +61,8 @@ public class CredentialUtil {
 
         try {
             String decoded = new String(Base64.decode(encoded), "UTF-8");
-            return decoded.substring(salt1.length(), decoded.length() - salt2.length());
+            return new String(Base64.decode(decoded.substring(salt1.length(),
+                    decoded.length() - salt2.length())), "UTF-8");
         } catch (UnsupportedEncodingException iee) {
             throw new RuntimeException(iee);
         } catch (Base64DecoderException e) {
