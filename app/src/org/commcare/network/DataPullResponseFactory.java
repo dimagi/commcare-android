@@ -25,7 +25,7 @@ public enum DataPullResponseFactory implements DataPullRequester {
     }
 
     @Override
-    public HttpRequestGenerator getHttpGenerator(String username, String password) {
-        return new HttpRequestGenerator(username, password);
+    public HttpRequestGenerator getHttpGenerator(String username, String password, String userId) {
+        return new HttpRequestGenerator(username, password, userId);
     }
 }

@@ -91,7 +91,7 @@ public abstract class DataPullTask<R>
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
 
-    public DataPullTask(String username, String password,
+    public DataPullTask(String username, String password, String userId,
                         String server, Context context, DataPullRequester dataPullRequester,
                         boolean blockRemoteKeyManagement) {
         this.server = server;
@@ -100,16 +100,16 @@ public abstract class DataPullTask<R>
         this.context = context;
         this.taskId = DATA_PULL_TASK_ID;
         this.dataPullRequester = dataPullRequester;
-        this.requestor = dataPullRequester.getHttpGenerator(username, password);
+        this.requestor = dataPullRequester.getHttpGenerator(username, password, userId);
         this.asyncRestoreHelper = new AsyncRestoreHelper(this);
         this.blockRemoteKeyManagement = blockRemoteKeyManagement;
 
         TAG = DataPullTask.class.getSimpleName();
     }
 
-    public DataPullTask(String username, String password,
+    public DataPullTask(String username, String password, String userId,
                         String server, Context context) {
-        this(username, password, server, context, CommCareApplication.instance().getDataPullRequester(),
+        this(username, password, userId, server, context, CommCareApplication.instance().getDataPullRequester(),
                 false);
     }
 

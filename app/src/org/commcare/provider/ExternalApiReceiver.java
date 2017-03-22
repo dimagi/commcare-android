@@ -170,6 +170,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(
                 u.getUsername(),
                 u.getCachedPwd(),
+                u.getUniqueId(),
                 prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY,
                         context.getString(R.string.ota_restore_url)),
                 context) {
