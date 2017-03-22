@@ -1,20 +1,22 @@
 package org.commcare.android.database.user.models;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.utils.StorageUtils;
 
 import java.io.FileNotFoundException;
 import java.util.Date;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -23,7 +25,6 @@ import java.util.Date;
 public class FormRecord extends Persisted implements EncryptedModel {
 
     public static final String STORAGE_KEY = "FORMRECORDS";
-    private final static String APP_FORM_SUBMISSION_COUNTER = "app-form-submission-counter";
 
     public static final String META_INSTANCE_URI = "INSTANCE_URI";
     public static final String META_STATUS = "STATUS";
@@ -216,11 +217,17 @@ public class FormRecord extends Persisted implements EncryptedModel {
     }
 
     private int getNextSubmissionNumber() {
-        SharedPreferences appPrefs = CommCareApplication.instance()
-                .getSharedPreferences(this.appId, Context.MODE_PRIVATE);
-        int lastFormNum = appPrefs.getInt(APP_FORM_SUBMISSION_COUNTER, -1);
-        appPrefs.edit().putInt(APP_FORM_SUBMISSION_COUNTER, lastFormNum + 1).commit();
-        return lastFormNum + 1;
+        SqlStorage<FormRecord> storage =
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
+        Vector<FormRecord> records =
+                StorageUtils.getUnsentOrUnprocessedFormRecordsForCurrentApp(storage);
+        int maxSubmissionNumber = -1;
+        for (FormRecord record : records) {
+            if (record.getSubmissionOrderingNumber() > maxSubmissionNumber) {
+                maxSubmissionNumber = record.getSubmissionOrderingNumber();
+            }
+        }
+        return maxSubmissionNumber + 1;
     }
 
 }
