@@ -176,9 +176,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
     }
 
     public int getSubmissionOrderingNumber() {
-        if (submissionOrderingNumber == null) {
-            return -1;
-        }
         return Integer.parseInt(submissionOrderingNumber);
     }
 
@@ -215,22 +212,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return String.format("Form Record[%s][Status: %s]\n[Form: %s]\n[Last Modified: %s]", this.recordId, this.status, this.xmlns, this.lastModified.toString());
     }
 
-    public void setFormNumberForSubmissionOrdering() {
-        this.submissionOrderingNumber = ""+getNextSubmissionNumber();
-    }
-
-    private int getNextSubmissionNumber() {
-        SqlStorage<FormRecord> storage =
-                CommCareApplication.instance().getUserStorage(FormRecord.class);
-        Vector<FormRecord> records =
-                StorageUtils.getUnsentOrUnprocessedFormRecordsForCurrentApp(storage);
-        int maxSubmissionNumber = -1;
-        for (FormRecord record : records) {
-            if (record.getSubmissionOrderingNumber() > maxSubmissionNumber) {
-                maxSubmissionNumber = record.getSubmissionOrderingNumber();
-            }
-        }
-        return maxSubmissionNumber + 1;
+    public void setFormNumberForSubmissionOrdering(int num) {
+        this.submissionOrderingNumber = ""+num;
     }
 
 }

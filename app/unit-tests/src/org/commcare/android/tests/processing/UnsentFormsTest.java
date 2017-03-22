@@ -52,7 +52,7 @@ public class UnsentFormsTest {
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         for (int i = 0; i < instanceOrder.length; i++) {
             FormRecord record = storage.getRecordForValue(FormRecord.META_UUID, instanceOrder[i]);
-            record.setFormNumberForSubmissionOrdering();
+            record.setFormNumberForSubmissionOrdering(i);
             storage.write(record);
         }
 

@@ -490,6 +490,7 @@ class UserDatabaseUpgrader {
         // ordering was previously done
         UserDbUpgradeUtils.sortRecordsByDate(recordIds, oldStorage);
 
+        int submissionNumber = 0;
         for (int i = 0; i < recordIds.size(); i++) {
             FormRecordV2 oldRecord = oldStorage.read(recordIds.elementAt(i));
             FormRecord newRecord = new FormRecord(
@@ -505,7 +506,7 @@ class UserDatabaseUpgrader {
                     FormRecord.STATUS_UNSENT.equals(statusOfOldRecord)) {
                 // By processing the old records in order of their last modified date, we make
                 // sure that we are setting this form numbers in the most accurate order we can
-                newRecord.setFormNumberForSubmissionOrdering();
+                newRecord.setFormNumberForSubmissionOrdering(submissionNumber++);
             }
             newRecord.setID(oldRecord.getID());
             upgradedRecords.add(newRecord);

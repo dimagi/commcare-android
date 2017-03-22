@@ -56,6 +56,7 @@ import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StorageUtils;
 import org.commcare.utils.UriToFilePath;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
@@ -657,7 +658,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             if (complete) {
                 // Now that we know this form is completed, we can give it the next available
                 // submission ordering number
-                current.setFormNumberForSubmissionOrdering();
+                current.setFormNumberForSubmissionOrdering(StorageUtils.getNextFormSubmissionNumber());
                 CommCareApplication.instance().getUserStorage(FormRecord.class).write(current);
                 checkAndStartUnsentFormsTask(false, false);
                 refreshUI();

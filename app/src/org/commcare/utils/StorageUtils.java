@@ -103,4 +103,18 @@ public class StorageUtils {
         });
     }
 
+    public static int getNextFormSubmissionNumber() {
+        SqlStorage<FormRecord> storage =
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
+        Vector<FormRecord> records =
+                StorageUtils.getUnsentOrUnprocessedFormRecordsForCurrentApp(storage);
+        int maxSubmissionNumber = -1;
+        for (FormRecord record : records) {
+            if (record.getSubmissionOrderingNumber() > maxSubmissionNumber) {
+                maxSubmissionNumber = record.getSubmissionOrderingNumber();
+            }
+        }
+        return maxSubmissionNumber + 1;
+    }
+
 }
