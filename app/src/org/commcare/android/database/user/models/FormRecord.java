@@ -176,6 +176,9 @@ public class FormRecord extends Persisted implements EncryptedModel {
     }
 
     public int getSubmissionOrderingNumber() {
+        if (submissionOrderingNumber == null) {
+            return -1;
+        }
         return Integer.parseInt(submissionOrderingNumber);
     }
 
@@ -213,7 +216,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     }
 
     public void setFormNumberForSubmissionOrdering() {
-        this.submissionOrderingNumber = ""+ getNextSubmissionNumber();
+        this.submissionOrderingNumber = ""+getNextSubmissionNumber();
     }
 
     private int getNextSubmissionNumber() {
