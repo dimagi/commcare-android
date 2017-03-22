@@ -47,7 +47,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static final String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
     public static final String USE_ROOT_MENU_AS_HOME_SCREEN = "cc-use-root-menu-as-home-screen";
     public static final String SHOW_ADB_ENTITY_LIST_TRACES = "cc-show-entity-trace-outputs";
-    public static final String UPDATE_TO_LATEST_SAVED_ENABLED = "cc-update-to-latest-saved";
     public static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
 
     /**
@@ -368,5 +367,5 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static boolean isBulkPerformanceEnabled() {
         return doesPropertyMatch(ENABLE_BULK_PERFORMANCE, CommCarePreferences.NO, CommCarePreferences.YES);
     }
-    
+
 }
