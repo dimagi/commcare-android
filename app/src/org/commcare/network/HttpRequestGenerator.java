@@ -163,7 +163,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         serverUri = serverUri.buildUpon().appendQueryParameter("device_id",
                 CommCareApplication.instance().getPhoneId()).build();
 
-        if(userId != null) {
+        if (userId != null) {
             serverUri = serverUri.buildUpon().appendQueryParameter("user_id", userId).build();
         }
 
