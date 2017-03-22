@@ -381,7 +381,7 @@
         <activity android:name="org.commcare.preferences.DeveloperPreferences">
         </activity>
         <activity
-            android:name="org.commcare.activities.TemplatePrinterActivity"
+            android:name="org.commcare.print.TemplatePrinterActivity"
             android:theme="@style/Theme.Dialog.NoTitle">
             <intent-filter>
                 <action android:name="${applicationId}.action.PRINT"/>

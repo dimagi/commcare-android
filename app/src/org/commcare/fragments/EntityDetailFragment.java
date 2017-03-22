@@ -20,6 +20,7 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.ModifiableEntityDetailAdapter;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.suite.model.Detail;
+import org.commcare.cases.entity.EntityUtil;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -71,17 +72,18 @@ public class EntityDetailFragment extends Fragment {
         }
 
         // Note that some of this setup could be moved into onAttach if it would help performance
-        Detail childDetail = getChildDetail();
-        TreeReference childReference = getChildReference();
-        NodeEntityFactory factory = new NodeEntityFactory(childDetail, this.getFactoryContext(childReference));
+        Detail detailForDisplay = getDetailToUseForDisplay();
+        TreeReference referenceToDisplay = getReferenceToDisplay();
+        EvaluationContext contextForFactory = getFactoryContextForRef(referenceToDisplay);
+        NodeEntityFactory factory = new NodeEntityFactory(detailForDisplay, contextForFactory);
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         final Activity thisActivity = getActivity();
-        final Entity entity = factory.getEntity(childReference);
+        final Entity entity = factory.getEntity(referenceToDisplay);
         final DetailCalloutListener detailCalloutListener =
                 thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener)thisActivity) : null;
         adapter = new EntityDetailAdapter(
-                thisActivity, childDetail, entity,
+                thisActivity, detailForDisplay, entity,
                 detailCalloutListener, getArguments().getInt(DETAIL_INDEX),
                 modifier
         );
@@ -90,57 +92,45 @@ public class EntityDetailFragment extends Fragment {
         return rootView;
     }
 
+    protected EvaluationContext getFactoryContextForRef(TreeReference referenceToDisplay) {
+        EvaluationContext context = EntityUtil.getEntityFactoryContext(referenceToDisplay,
+                getArguments().getInt(CHILD_DETAIL_INDEX, -1) != -1,
+                getParentDetail(),
+                CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext());
+        context.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler());
+        return context;
+    }
+
     /**
-     * @return The Detail whose information will be displayed. Will never be a parent detail.
+     * @return The Detail whose information will be displayed. If the root detail passed to this
+     * fragment is NOT a compound detail, then this method will just return that detail. If it is
+     * compound, then this will return one of its children (the one corresponding to the given
+     * CHILD_DETAIL_INDEX)
      */
-    protected Detail getChildDetail() {
+    protected Detail getDetailToUseForDisplay() {
         Bundle args = getArguments();
         final Detail detail = asw.getSession().getDetail(args.getString(DETAIL_ID));
         final int childIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
-        final boolean detailCompound = childIndex != -1;
-        if (detailCompound) {
+        final boolean rootDetailIsCompound = childIndex != -1;
+        if (rootDetailIsCompound) {
             return detail.getDetails()[childIndex];
         }
         return detail;
     }
 
     /**
-     * @return Reference to the detail returned by getChildDetail
+     * @return Reference to the detail returned by getDetailToUseForDisplay
      */
-    protected TreeReference getChildReference() {
-        return SerializationUtil.deserializeFromBundle(getArguments(), CHILD_REFERENCE, TreeReference.class);
-    }
-
-    protected EvaluationContext getFactoryContext(TreeReference childReference) {
-        EvaluationContext factoryContext;
-        if (getArguments().getInt(CHILD_DETAIL_INDEX, -1) != -1) {
-            factoryContext = prepareEvaluationContext(childReference);
-        } else {
-            factoryContext = asw.getEvaluationContext();
-        }
-        factoryContext.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler());
-        return factoryContext;
+    protected TreeReference getReferenceToDisplay() {
+        return SerializationUtil.deserializeFromBundle(
+                getArguments(), CHILD_REFERENCE, TreeReference.class);
     }
 
     /**
-     * @return Reference to this fragment's parent detail, which may be the same as this fragment's detail.
+     * @return Reference to this fragment's parent detail, which may be the same as this
+     * fragment's detail.
      */
     private Detail getParentDetail() {
         return asw.getSession().getDetail(getArguments().getString(DETAIL_ID));
-    }
-
-    /**
-     * Creates an evaluation context which is preloaded with all of the variables and context from
-     * the parent detail definition.
-     *
-     * @param childReference The qualified reference for the nodeset in the parent detail
-     * @return An evaluation context ready to be used as the base of the subnode detail, including
-     * any variable definitions included by the parent.
-     */
-    private EvaluationContext prepareEvaluationContext(TreeReference childReference) {
-        EvaluationContext sessionContext = asw.getEvaluationContext();
-        EvaluationContext parentDetailContext = new EvaluationContext(sessionContext, childReference);
-        getParentDetail().populateEvaluationContextVariables(parentDetailContext);
-        return parentDetailContext;
     }
 }

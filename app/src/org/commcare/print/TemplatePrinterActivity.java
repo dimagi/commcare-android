@@ -1,10 +1,9 @@
-package org.commcare.activities;
+package org.commcare.print;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -15,6 +14,7 @@ import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
 import android.print.PrintJobInfo;
 import android.print.PrintManager;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -22,15 +22,16 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
-import org.commcare.tasks.TemplatePrinterTask;
-import org.commcare.tasks.TemplatePrinterTask.PopulateListener;
+import org.commcare.suite.model.Detail;
+import org.commcare.print.TemplatePrinterTask.PopulateListener;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
-
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -49,6 +50,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     private static final String KEY_TEMPLATE_STYLE = "PRINT_TEMPLATE_STYLE";
     private static final String TEMPLATE_STYLE_HTML = "TEMPLATE_HTML";
     private static final String TEMPLATE_STYLE_ZPL = "TEMPLATE_ZPL";
+    public static final String PRINT_TEMPLATE_REF_STRING = "cc:print_template_reference";
 
     private static final int CALLOUT_ZPL = 1;
 
@@ -72,7 +74,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         setContentView(R.layout.activity_template_printer);
 
         String printStyle = this.getIntent().getExtras().getString(KEY_TEMPLATE_STYLE);
-        if(printStyle == null) {
+        if (printStyle == null) {
             if(CompoundIntentList.isIntentCompound(this.getIntent())) {
                 //Only zebra print jobs can compound
                 //TODO: This still isn't a particularly great way for us to be differentiating
@@ -82,12 +84,12 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             }
         }
 
-        if(TEMPLATE_STYLE_ZPL.equals(printStyle)) {
+        if (TEMPLATE_STYLE_ZPL.equals(printStyle)) {
 
             //Since this and the callout activities are raised as "dialog" activities, they will
             //recreate themselves on rotation. If we detect that we need to not "re-kick-off" the
             //activity, it will result in duplicate activities.
-            if(savedInstanceState != null) {
+            if (savedInstanceState != null) {
                 return;
             } else {
                 doZebraPrint();
@@ -95,32 +97,29 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             }
         }
 
-        String path = getPathOrThrowError(getIntent().getExtras());
+        String pathToTemplateFile = getTemplateFilePathOrThrowError(getIntent().getExtras());
 
-        //A null return code from the path retriever means that it is displaying a message;
-        if(path == null) {
+        // A null return code from the path retriever means that it is displaying a message;
+        if (pathToTemplateFile == null) {
             return;
         }
 
-
-
-        //Check to make sure we are targeting API 19 or above, which is where print is supported
+        // Check to make sure we are targeting API 19 or above, which is where print is supported
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             showErrorDialog(Localization.get("print.not.supported"));
             return;
         }
 
-
         this.outputPath = CommCareApplication.instance().getTempFilePath() + ".html";
-
-        preparePrintDoc(path);
+        preparePrintDoc(pathToTemplateFile);
     }
 
     private void doZebraPrint() {
         Intent i = new Intent("com.dimagi.android.zebraprinttool.action.PrintTemplate");
 
-        if(CompoundIntentList.isIntentCompound(this.getIntent())) {
-            ArrayList<String> keys = this.getIntent().getStringArrayListExtra(CompoundIntentList.EXTRA_COMPOUND_DATA_INDICES);
+        if (CompoundIntentList.isIntentCompound(this.getIntent())) {
+            ArrayList<String> keys = this.getIntent().getStringArrayListExtra(
+                    CompoundIntentList.EXTRA_COMPOUND_DATA_INDICES);
             i.putStringArrayListExtra("zebra:bundle_list", keys);
             for(String key : keys) {
                 Bundle b = this.getIntent().getBundleExtra(key);
@@ -140,7 +139,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     }
 
     private void prepareZebraBundleFromFile(Bundle bundle) {
-        String path = getPathOrThrowError(bundle);
+        String path = getTemplateFilePathOrThrowError(bundle);
 
         File destFile = new File(path);
         bundle.putString("zebra:template_file_path", destFile.getAbsolutePath());
@@ -151,17 +150,17 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      * display an error message to the user. If a message is displayed, the method will
      * return null and the activity should not continue attempting to print
      */
-    private String getPathOrThrowError(Bundle data) {
-        //Check to make sure key-value data has been passed with the intent
+    private String getTemplateFilePathOrThrowError(Bundle data) {
+        // Check to make sure key-value data has been passed with the intent
         if (data == null) {
             showErrorDialog(Localization.get("no.print.data"));
             return null;
         }
 
-        //Check if a doc location is coming in from the Intent
-        //Will return a reference of format jr://... if it has been set
-        String path = data.getString("cc:print_template_reference");
-        if (path != null) {
+        // Check if a doc location is coming in from the Intent
+        // Will return a reference of format jr://... if it has been set
+        String path = data.getString(PRINT_TEMPLATE_REF_STRING);
+        if (path != null && !path.equals(Detail.PRINT_TEMPLATE_PROVIDED_VIA_GLOBAL_SETTING)) {
             try {
                 path = ReferenceManager.instance().DeriveReference(path).getLocalURI();
                 return path;
@@ -170,15 +169,12 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                 return null;
             }
         } else {
-            //Try to use the document location that was set in Settings menu
-            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            path = prefs.getString(CommCarePreferences.PREFS_PRINT_DOC_LOCATION, "");
-            if ("".equals(path)) {
+            // Try to use the document location that was set in Settings menu
+            path = CommCarePreferences.getGlobalTemplatePath();
+            if (path == null) {
                 showErrorDialog(Localization.get("missing.template.file"));
-                return null;
-            } else {
-                return path;
             }
+            return path;
         }
     }
 
@@ -244,8 +240,9 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      * Source: https://developer.android.com/training/printing/html-docs.html
      */
     private void doHtmlPrint() {
-        // Create a WebView object specifically for printing
         WebView webView = new WebView(this);
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
         webView.setWebViewClient(new WebViewClient() {
 
             @Override
@@ -257,14 +254,15 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             public void onPageFinished(WebView view, String url) {
                 createWebPrintJob(view);
             }
+
         });
+
         try {
-            String htmlDocString = TemplatePrinterUtils.readStringFromFile(outputPath);
-            webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
+            String finalHtml = TemplatePrinterUtils.readStringFromFile(outputPath);
+            webView.loadDataWithBaseURL(null, finalHtml, "text/HTML", "UTF-8", null);
         } catch (IOException e) {
             showErrorDialog(Localization.get("print.io.error"));
         }
-
     }
 
     @Override
@@ -289,9 +287,8 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void createWebPrintJob(WebView v) {
-
         // Get a PrintManager instance
-        PrintManager printManager = (PrintManager)getSystemService(Context.PRINT_SERVICE);
+        PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
 
         // Get a print adapter instance
         PrintDocumentAdapter printAdapter = new PrintDocumentAdapterWrapper(this, v.createPrintDocumentAdapter());
@@ -321,14 +318,14 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         @Override
         public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes,
                              CancellationSignal cancellationSignal,
-                             PrintDocumentAdapter.LayoutResultCallback callback, Bundle extras) {
+                             LayoutResultCallback callback, Bundle extras) {
             delegate.onLayout(oldAttributes, newAttributes, cancellationSignal, callback, extras);
         }
 
         @Override
         public void onWrite(PageRange[] pages, ParcelFileDescriptor destination,
                             CancellationSignal cancellationSignal,
-                            PrintDocumentAdapter.WriteResultCallback callback) {
+                            WriteResultCallback callback) {
             delegate.onWrite(pages, destination, cancellationSignal, callback);
         }
 
