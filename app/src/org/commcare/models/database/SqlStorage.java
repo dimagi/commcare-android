@@ -29,7 +29,9 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -117,7 +119,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 int index = c.getColumnIndexOrThrow(columnName);
                 while (!c.isAfterLast()) {
                     int id = c.getInt(index);
-                    if(newReturn != null) {
+                    if (newReturn != null) {
                         newReturn.add(id);
                     }
                     indices.add(id);
@@ -601,7 +603,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap recordMap) {
         List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(cuedCases);
-        for(Pair<String, String[]> querySet : whereParamList) {
+        for (Pair<String, String[]> querySet : whereParamList) {
             Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + " IN " + querySet.first, querySet.second, null, null, null);
             try {
                 if (c.getCount() == 0) {
@@ -621,4 +623,35 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             }
         }
     }
+
+    /**
+     * Retrieves a set of the models in storage based on a list of values matching one of the
+     * indexes of this storage
+     */
+    public List<T> getBulkRecordsForIndex(String indexName, Collection<String> matchingValues) {
+        List<T> returnSet = new ArrayList<>();
+        String fieldName = AndroidTableBuilder.scrubName(indexName);
+        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(matchingValues, "?");
+        for (Pair<String, String[]> querySet : whereParamList) {
+            Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, fieldName}, fieldName + " IN " + querySet.first, querySet.second, null, null, null);
+            try {
+                if (c.getCount() == 0) {
+                    return returnSet;
+                } else {
+                    c.moveToFirst();
+                    int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
+                    while (!c.isAfterLast()) {
+                        byte[] data = c.getBlob(index);
+
+                        returnSet.add(newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
+                        c.moveToNext();
+                    }
+                }
+            } finally {
+                c.close();
+            }
+        }
+        return returnSet;
+    }
+
 }

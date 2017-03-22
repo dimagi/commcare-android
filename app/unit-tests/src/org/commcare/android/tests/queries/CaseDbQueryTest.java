@@ -11,11 +11,21 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.robolectric.annotation.Config;
 
 import static junit.framework.Assert.assertEquals;
 
 /**
+ * General case query tests
+ *
+ * Note that this should be following the same @Parameterized testing patter we are using in
+ * CommCare core, but can't because the ParameterizedRobolectricTestRunner can't be used with a
+ * custom test runner (we need the custom runer to shadow sqlcipher and the encrpytion libs).
+ *
+ * If/when https://github.com/robolectric/robolectric/issues/2910 ever gets fixed, we should expand
+ * many tests to be run with the parameterized runner.
+ *
  * @author ctsims
  */
 @Config(application = CommCareApplication.class)
@@ -106,6 +116,19 @@ public class CaseDbQueryTest {
                 "count(instance('casedb')/casedb/case[index/parent = instance('casedb')/casedb/case[@case_id=current()/@case_id]/index/parent][false = 'true']) > 0]/@case_id)", "", ec);
 
     }
+
+    @Test
+    public void testBulkQueryProcessingOutcomes() {
+        TestUtils.processResourceTransaction("/inputs/case_test_db_optimizations.xml", true);
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+
+        evaluate("join(',',instance('casedb')/casedb/case[selected('test_case_parent', index/parent)]/@case_id)", "child_one,child_two,child_three", ec);
+        evaluate("join(',',instance('casedb')/casedb/case[selected('test_case_parent test_case_parent_2', index/parent)]/@case_id)", "child_one,child_two,child_three", ec);
+        evaluate("join(',',instance('casedb')/casedb/case[selected('test_case_parent_2 test_case_parent', index/parent)]/@case_id)", "child_one,child_two,child_three", ec);
+        evaluate("join(',',instance('casedb')/casedb/case[selected('test_case_parent_2 test_case_parent_3', index/parent)]/@case_id)", "", ec);
+        evaluate("join(',',instance('casedb')/casedb/case[selected('', index/parent)]/@case_id)", "", ec);
+    }
+
 
 
     public static void evaluate(String xpath, String expectedValue, EvaluationContext ec) {

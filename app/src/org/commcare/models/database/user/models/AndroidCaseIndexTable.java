@@ -110,6 +110,23 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
         }
     }
 
+    public void clearCaseIndices(Collection<Integer> idsToClear) {
+        if (idsToClear.size() == 0) {
+            return;
+        }
+        db.beginTransaction();
+        try {
+            List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(idsToClear);
+            for (Pair<String, String[]> whereParams : whereParamList) {
+                db.delete(TABLE_NAME, COL_CASE_RECORD_ID + " IN " + whereParams.first, whereParams.second);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+
     /**
      * Get a list of Case Record id's for cases which index a provided value.
      *

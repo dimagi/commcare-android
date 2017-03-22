@@ -3,12 +3,14 @@ package org.commcare.xml;
 import android.content.Context;
 
 import org.commcare.CommCareApplication;
-import org.commcare.cases.model.Case;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.models.database.AndroidSandbox;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.GlobalConstants;
 import org.kxml2.io.KXmlParser;
 
@@ -47,7 +49,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
     private Hashtable<String, String> formInstanceNamespaces;
 
     public AndroidTransactionParserFactory(Context context, HttpRequestEndpoints generator) {
-        super(new AndroidSandbox(CommCareApplication.instance()));
+        super(new AndroidSandbox(CommCareApplication.instance()), DeveloperPreferences.isBulkPerformanceEnabled());
         this.context = context;
         this.generator = generator;
     }
@@ -79,34 +81,6 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
             }
         };
     }
-
-    @Override
-    public void initCaseParser() {
-        caseParser = new TransactionParserFactory() {
-            CaseXmlParser created = null;
-
-            @Override
-            public TransactionParser<Case> getParser(KXmlParser parser) {
-                if (created == null) {
-                    created = new AndroidCaseXmlParser(parser, true, sandbox.getCaseStorage(), generator) {
-
-                        @Override
-                        public void onIndexDisrupted(String caseId) {
-                            caseIndexesWereDisrupted = true;
-                        }
-
-                        @Override
-                        protected void onCaseCreateUpdate(String caseId) {
-                            createdAndUpdatedCases.add(caseId);
-                        }
-                    };
-                }
-
-                return created;
-            }
-        };
-    }
-
     public ArrayList<String> getCreatedAndUpdatedCases() {
         return createdAndUpdatedCases;
     }
@@ -116,6 +90,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
      *
      * @param namespaces A mapping from an installed form's namespace its install path.
      */
+
     public void initFormInstanceParser(Hashtable<String, String> namespaces) {
         this.formInstanceNamespaces = namespaces;
 
@@ -138,5 +113,59 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
 
     public boolean wereCaseIndexesDisrupted() {
         return caseIndexesWereDisrupted;
+    }
+
+    @Override
+    public TransactionParserFactory getNormalCaseParser() {
+        return new TransactionParserFactory() {
+            AndroidCaseXmlParser created = null;
+
+            @Override
+            public AndroidCaseXmlParser getParser(KXmlParser parser) {
+                if (created == null) {
+                    created = new AndroidCaseXmlParser(parser, true, (SqlStorage<ACase>)sandbox.getCaseStorage(), generator) {
+
+                        @Override
+                        public void onIndexDisrupted(String caseId) {
+                            caseIndexesWereDisrupted = true;
+                        }
+
+                        @Override
+                        protected void onCaseCreateUpdate(String caseId) {
+                            createdAndUpdatedCases.add(caseId);
+                        }
+                    };
+                }
+
+                return created;
+            }
+        };
+    }
+
+    @Override
+    public TransactionParserFactory getBulkCaseParser() {
+        return new TransactionParserFactory() {
+            AndroidBulkCaseXmlParser created = null;
+
+            @Override
+            public AndroidBulkCaseXmlParser getParser(KXmlParser parser) {
+                if (created == null) {
+                    created = new AndroidBulkCaseXmlParser(parser, (SqlStorage<ACase>)sandbox.getCaseStorage(), generator) {
+
+                        @Override
+                        public void onIndexDisrupted(String caseId) {
+                            caseIndexesWereDisrupted = true;
+                        }
+
+                        @Override
+                        protected void onCaseCreateUpdate(String caseId) {
+                            createdAndUpdatedCases.add(caseId);
+                        }
+                    };
+                }
+
+                return created;
+            }
+        };
     }
 }
