@@ -128,7 +128,7 @@ public class GraphData implements ConfigurableData {
                             "</html>");
         } catch (JSONException e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new GraphException(e.getMessage());
         }
 
         return html.toString();

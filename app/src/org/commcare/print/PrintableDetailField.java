@@ -50,14 +50,14 @@ public class PrintableDetailField implements Serializable {
             Object evaluatedField = entity.getField(fieldIndex);
             String graphTitle = field.getHeader().evaluate();
             if ("".equals(graphTitle) || graphTitle == null) {
-                // DO NOT CHANGE THIS -- Workaround to address that fact that a graph will not
+                // DO NOT CHANGE THIS -- Workaround to address the fact that a graph will not
                 // render properly if the 'chart-title' <div> is empty
                 graphTitle = " ";
             }
             String fullGraphHtml = ((GraphData)evaluatedField).getGraphHTML(graphTitle);
             this.valueString = fullGraphHtml;
         } catch (GraphException e) {
-            this.valueString = "";
+            this.valueString = "<p>ERROR ENCOUNTERED WHILE TRYING TO PRINT GRAPH</p>";
         }
     }
 
