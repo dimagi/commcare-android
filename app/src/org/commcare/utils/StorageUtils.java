@@ -63,8 +63,7 @@ public class StorageUtils {
                 new String[]{FormRecord.STATUS_INCOMPLETE, currentAppId}).size();
     }
 
-    public static FormRecord[] getUnsentRecordsForCurrentApp(SqlStorage<FormRecord> storage,
-                                                             boolean sortRequired) {
+    public static FormRecord[] getUnsentRecordsForCurrentApp(SqlStorage<FormRecord> storage) {
         // TODO: This could all be one big sql query instead of doing it in code
         Vector<FormRecord> records;
         try {
@@ -77,10 +76,8 @@ public class StorageUtils {
             return new FormRecord[0];
         }
 
-        if (sortRequired) {
-            // Order ids so they're submitted to and processed by the server in the correct order.
-            sortRecordsBySubmissionOrderingNumber(records);
-        }
+        // Order ids so they're submitted to and processed by the server in the correct order.
+        sortRecordsBySubmissionOrderingNumber(records);
 
         FormRecord[] recordArray = new FormRecord[records.size()];
         for (int i = 0; i < records.size(); ++i) {

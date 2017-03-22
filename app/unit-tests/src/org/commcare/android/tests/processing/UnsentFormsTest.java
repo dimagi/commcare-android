@@ -56,7 +56,7 @@ public class UnsentFormsTest {
             storage.write(record);
         }
 
-        FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(storage, true);
+        FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(storage);
         int count = 0;
         for (FormRecord record : records) {
             assertEquals(instanceOrder[count], record.getInstanceID());

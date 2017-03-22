@@ -60,7 +60,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             @Override
             public void onClick(View v) {
                 FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(
-                        CommCareApplication.instance().getUserStorage(FormRecord.class), true);
+                        CommCareApplication.instance().getUserStorage(FormRecord.class));
                 SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
                 ProcessAndSendTask<RecoveryActivity> mProcess =
@@ -174,7 +174,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
         SqlStorage<FormRecord> recordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         try {
-            FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(recordStorage, false);
+            FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(recordStorage);
             if (records.length == 0) {
                 txtUnsentForms.setText("This device has no unsent forms");
             } else {
