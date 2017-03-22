@@ -112,22 +112,12 @@ public class MediaLayout extends RelativeLayout {
         RelativeLayout questionTextPane = new RelativeLayout(this.getContext());
         questionTextPane.setId(QUESTION_TEXT_PANE_ID);
 
-        if (audioURI != null) {
-            audioButton = new AudioPlaybackButton(getContext(), audioURI, ViewId.buildListViewId(questionIndex), true);
-
-            // random ID to be used by the relative layout.
-            audioButton.setId(AUDIO_BUTTON_ID);
-        }
-
-        // Then set up the video button
+        setupStandardAudio(audioURI, questionIndex);
         setupVideoButton(videoURI);
 
-        boolean textVisible = (viewText.getVisibility() != GONE);
-        addAudioVideoButtonsToView(questionTextPane, textVisible);
-
-        // Now set up the center view, it is either an image, a QR Code, or an inline video
+        // Now set up the center view -- it is either an image, a QR Code, an inline video, or
+        // expanded audio
         View mediaPane = null;
-
         if (inlineVideoURI != null) {
             mediaPane = getInlineVideoView(inlineVideoURI, mediaPaneParams);
         } else if (qrCodeContent != null) {
@@ -135,13 +125,18 @@ public class MediaLayout extends RelativeLayout {
         } else if (imageURI != null) {
             mediaPane = setupImage(imageURI, bigImageURI);
         } else if (expandedAudioURI != null) {
-            mediaPane = setupExpandedAudio(expandedAudioURI, questionIndex);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                mediaPane = setupExpandedAudio(expandedAudioURI, questionIndex);
+            } else {
+                setupStandardAudio(expandedAudioURI, questionIndex);
+            }
         }
+
+        addAudioVideoButtonsToView(questionTextPane);
 
         showImageAboveText = showImageAboveText ||
                 DeveloperPreferences.imageAboveTextEnabled();
-        addElementsToView(mediaPane, mediaPaneParams, questionTextPane,
-                textVisible, showImageAboveText);
+        addElementsToView(mediaPane, mediaPaneParams, questionTextPane, showImageAboveText);
     }
 
     private void setupVideoButton(final String videoURI) {
@@ -187,8 +182,7 @@ public class MediaLayout extends RelativeLayout {
         }
     }
 
-    private void addAudioVideoButtonsToView(RelativeLayout questionTextPane,
-                                            boolean textVisible) {
+    private void addAudioVideoButtonsToView(RelativeLayout questionTextPane) {
         RelativeLayout.LayoutParams textParams =
                 new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
@@ -221,9 +215,18 @@ public class MediaLayout extends RelativeLayout {
             //Audio and Video are both null, let text bleed to right
             textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         }
-        if (textVisible) {
+        if (viewText.getVisibility() != GONE) {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             questionTextPane.addView(viewText, textParams);
+        }
+    }
+
+    private void setupStandardAudio(String audioURI, int questionIndex) {
+        if (audioURI != null) {
+            audioButton = new AudioPlaybackButton(getContext(), audioURI,
+                    ViewId.buildListViewId(questionIndex), true);
+            // random ID to be used by the relative layout.
+            audioButton.setId(AUDIO_BUTTON_ID);
         }
     }
 
@@ -303,12 +306,11 @@ public class MediaLayout extends RelativeLayout {
 
     private void addElementsToView(View mediaPane,
                                    RelativeLayout.LayoutParams mediaPaneParams,
-                                   RelativeLayout questionTextPane,
-                                   boolean textVisible, boolean showImageAboveText) {
+                                   RelativeLayout questionTextPane, boolean showImageAboveText) {
         RelativeLayout.LayoutParams questionTextPaneParams =
                 new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         if (mediaPane != null) {
-            if (!textVisible) {
+            if (viewText.getVisibility() == GONE) {
                 this.addView(questionTextPane, questionTextPaneParams);
                 if (audioButton != null) {
                     mediaPaneParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());

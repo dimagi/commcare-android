@@ -1,6 +1,7 @@
 package org.commcare.views.media;
 
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
@@ -20,6 +21,8 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
+
+@TargetApi(Build.VERSION_CODES.KITKAT)
 public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
     private ProgressBar seekBar;
     private ObjectAnimator animation;
@@ -61,11 +64,9 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
     }
 
     private void setupProgressAnimation() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            final int startPosition = 0;
-            animation = ObjectAnimator.ofInt(seekBar, "progress", startPosition, seekBar.getMax());
-            animation.setInterpolator(new LinearInterpolator());
-        }
+        final int startPosition = 0;
+        animation = ObjectAnimator.ofInt(seekBar, "progress", startPosition, seekBar.getMax());
+        animation.setInterpolator(new LinearInterpolator());
     }
 
     @Override
@@ -76,19 +77,15 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
     @Override
     protected void startProgressBar(int currentPositionMillis, int milliDuration) {
         playbackDurationMillis = milliDuration;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            animation.setCurrentPlayTime(currentPositionMillis);
-            animation.setDuration(playbackDurationMillis);
-            animation.start();
-        }
+        animation.setCurrentPlayTime(currentPositionMillis);
+        animation.setDuration(playbackDurationMillis);
+        animation.start();
         launchElapseTextUpdaterThread();
     }
 
     private boolean performProgressBarTouch(View v, MotionEvent event) {
         int progress = (int)(playbackDurationMillis * (event.getX() / v.getWidth()));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            animation.setCurrentPlayTime(progress);
-        }
+        animation.setCurrentPlayTime(progress);
         updateProgressText(progress, playbackDurationMillis);
         if (AudioController.INSTANCE.doesCurrentMediaCorrespondToButton(ExpandedAudioPlaybackView.this)) {
             AudioController.INSTANCE.seekTo(progress);
@@ -119,12 +116,10 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
             handler = null;
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            if (animation != null) {
-                animation.removeAllListeners();
-                animation.end();
-                animation.cancel();
-            }
+        if (animation != null) {
+            animation.removeAllListeners();
+            animation.end();
+            animation.cancel();
         }
 
         if (seekBar != null) {
@@ -139,9 +134,7 @@ public class ExpandedAudioPlaybackView extends AudioPlaybackButtonBase {
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && animation != null) {
-            animation.cancel();
-        }
+        animation.pause();
     }
 
     private void updateProgressText(int progress, int max) {
