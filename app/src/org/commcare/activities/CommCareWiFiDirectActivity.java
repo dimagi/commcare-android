@@ -790,7 +790,7 @@ public class CommCareWiFiDirectActivity
 
     private void updateStatusText() {
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
+        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormIdsForCurrentApp(storage);
 
         int numUnsyncedForms = ids.size();
         int numUnsubmittedForms;

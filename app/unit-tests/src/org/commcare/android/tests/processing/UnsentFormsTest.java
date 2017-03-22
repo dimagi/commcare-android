@@ -48,9 +48,15 @@ public class UnsentFormsTest {
                 "2dd2031e-ee5a-4423-93b3-ad45c3ced47b",
                 "3dd1031e-ee5a-4423-93b3-ad45c3ced47c",
                 "4dd0031e-ee5a-4423-93b3-ad45c3ced47d"};
-        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
+        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
+        for (int i = 0; i < instanceOrder.length; i++) {
+            FormRecord record = storage.getRecordForValue(FormRecord.META_UUID, instanceOrder[i]);
+            record.setFormNumberForSubmissionOrdering(i);
+            storage.write(record);
+        }
+
+        FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(storage);
         int count = 0;
         for (FormRecord record : records) {
             assertEquals(instanceOrder[count], record.getInstanceID());

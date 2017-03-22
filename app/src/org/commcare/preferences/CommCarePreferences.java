@@ -601,6 +601,5 @@ public class CommCarePreferences
                     .putString(UPDATE_TARGET, updateTargetValue)
                     .apply();
         }
-
     }
 }

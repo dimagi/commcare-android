@@ -250,7 +250,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
     private Vector<Integer> getUnsyncedForms() {
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
+        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormIdsForCurrentApp(storage);
         Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Found " + ids.size() + " unsynced forms.");
         return ids;
     }

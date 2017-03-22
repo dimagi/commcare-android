@@ -58,6 +58,7 @@ public class FormStorageTest {
             , "org.commcare.android.database.user.models.AUser"
             , "org.commcare.android.database.user.models.FormRecord"
             , "org.commcare.android.database.user.models.FormRecordV1"
+            , "org.commcare.android.database.user.models.FormRecordV2"
             , "org.commcare.android.database.user.models.GeocodeCacheModel"
             , "org.commcare.android.database.user.models.SessionStateDescriptor"
             , "org.commcare.android.javarosa.AndroidLogEntry"

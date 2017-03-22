@@ -244,7 +244,7 @@ public class SaveToDiskTask extends
         // update the mUri. We've saved the reloadable instance, so update status...
         updateInstanceDatabase(true, true);
 
-        if ( markCompleted ) {
+        if (markCompleted) {
             // now see if it is to be finalized and perhaps update everything...
             boolean canEditAfterCompleted = FormEntryActivity.mFormController.isSubmissionEntireForm();
             boolean isEncrypted = false;
@@ -285,7 +285,7 @@ public class SaveToDiskTask extends
             //    and remove the plaintext attachments if encrypting
             updateInstanceDatabase(false, canEditAfterCompleted);
 
-            if (  !canEditAfterCompleted ) {
+            if (!canEditAfterCompleted) {
                 // AT THIS POINT, there is no going back.  We are committed
                 // to returning "success" (true) whether or not we can 
                 // rename "submission.xml" to instanceXml and whether or 
@@ -303,15 +303,15 @@ public class SaveToDiskTask extends
                 }
 
                 // rename the submission.xml to be the instanceXml
-                if ( !submissionXml.renameTo(instanceXml) ) {
+                if (!submissionXml.renameTo(instanceXml)) {
                     Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
                     return;
                 }
 
                 // if encrypted, delete all plaintext files
                 // (anything not named instanceXml or anything not ending in .enc)
-                if ( isEncrypted ) {
-                    if ( !EncryptionUtils.deletePlaintextFiles(instanceXml) ) {
+                if (isEncrypted) {
+                    if (!EncryptionUtils.deletePlaintextFiles(instanceXml)) {
                         Log.e(TAG, "Error deleting plaintext files for " + instanceXml.getAbsolutePath());
                     }
                 }

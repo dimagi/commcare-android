@@ -264,16 +264,15 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     //Time to Send!
                     try {
                         User mUser = CommCareApplication.instance().getSession().getLoggedInUser();
-
                         int attemptsMade = 0;
+                        logSubmissionAttempt(record);
                         while (attemptsMade < SUBMISSION_ATTEMPTS) {
                             if (attemptsMade > 0) {
                                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Retrying submission. " + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
                             }
                             results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this, mUser);
                             if (results[i] == FormUploadResult.FULL_SUCCESS) {
-                                Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION,
-                                        String.format("Successfully submitted form with id %s", record.getInstanceID()));
+                                logSubmissionSuccess(record);
                                 break;
                             } else {
                                 attemptsMade++;
@@ -330,6 +329,22 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
             }
         }
+    }
+
+    private static void logSubmissionAttempt(FormRecord record) {
+        String attemptMesssage = String.format(
+                "Attempting to submit form with id %1$s and submission ordering number %2$s",
+                record.getInstanceID(),
+                record.getSubmissionOrderingNumber());
+        Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, attemptMesssage);
+    }
+
+    private static void logSubmissionSuccess(FormRecord record) {
+        String successMessage = String.format(
+                "Successfully submitted form with id %1$s and submission ordering number %2$s",
+                record.getInstanceID(),
+                record.getSubmissionOrderingNumber());
+        Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, successMessage);
     }
 
     public static int pending() {

@@ -198,7 +198,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         dumpDirectory.mkdirs();
 
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
+        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormIdsForCurrentApp(storage);
 
         if(ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];
