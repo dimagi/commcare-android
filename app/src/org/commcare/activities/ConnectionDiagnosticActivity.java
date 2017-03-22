@@ -113,9 +113,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
         this.reportButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences settings =
-                        CommCareApplication.instance().getCurrentApp().getAppPreferences();
-                String url = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null);
+                String url = LogSubmissionTask.getSubmissionUrl(CommCareApplication.instance().getCurrentApp().getAppPreferences());
 
                 if (url != null) {
                     DataSubmissionListener dataListener;
