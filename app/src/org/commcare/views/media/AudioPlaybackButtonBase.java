@@ -115,7 +115,6 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
 
     private void pausePlaying() {
         AudioController.INSTANCE.pauseCurrentMediaEntity();
-
         currentState = MediaState.Paused;
         refreshAppearance();
     }
