@@ -422,14 +422,15 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     private static void reportAppUpdate() {
+        String updateLogMessage = "Update to app version " + ReportingUtils.getAppBuildNumber();
         try {
             String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
-            String updateLogMessage = "User " + username + " updated to app version " +
-                    ReportingUtils.getAppBuildNumber();
-            Logger.log(AndroidLogger.TYPE_USER, updateLogMessage);
+            updateLogMessage += " by user " + username;
         } catch (SessionUnavailableException e) {
             // Must be updating from the app manager, in which case we don't have a current user
         }
+        Logger.log(AndroidLogger.TYPE_RESOURCES, updateLogMessage);
+
     }
 
     private void logoutOnSuccessfulUpdate() {
