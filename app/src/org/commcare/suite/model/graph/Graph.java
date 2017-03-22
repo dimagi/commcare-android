@@ -174,7 +174,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     }
                     String x = s.evaluateX(refContext);
                     String y = s.evaluateY(refContext);
-                    if (x != null && (y == null || graphData.getType().equals(GraphUtil.TYPE_BAR))) {
+                    if (x != null && (y != null || graphData.getType().equals(GraphUtil.TYPE_BAR))) {
                         if (y == null) {
                             y = "0";
                         }
