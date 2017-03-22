@@ -57,7 +57,7 @@ public class PrintableDetailField implements Serializable {
             String fullGraphHtml = ((GraphData)evaluatedField).getGraphHTML(graphTitle);
             this.valueString = fullGraphHtml;
         } catch (GraphException e) {
-            this.valueString = "<p>ERROR ENCOUNTERED WHILE TRYING TO PRINT GRAPH</p>";
+            this.valueString = String.format("<p>AN ERROR OCCURRED: %s</p>", e.getMessage());
         }
     }
 
