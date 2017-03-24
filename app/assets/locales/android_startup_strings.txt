@@ -19,13 +19,10 @@ install.choose.local.app=Available Apps
 
 menu.archive=Offline Install
 menu.sms=SMS Install
-menu.admin.install=See Apps for My User
-menu.admin.install.other.user=See Apps for Another User
 menu.sms.not.found=Install link not found in your texts!
 menu.sms.ready=Found install link. Press "Start" to begin installation.
 menu.sms.not.verified=We found a valid looking text, but could not verify its authenticity.
 menu.sms.not.retrieved=We could not retrieve the installation link. Please check your connectivity and try again.
-
 
 updates.resources.initialization=Setting Up App
 updates.resources.profile=Locating application...
@@ -42,3 +39,11 @@ menu.enable.privilege=Enable Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 app.manager.advanced.settings.title=App Manager > Advanced Settings
 app.manager.advanced.settings.option=Advanced
+
+# Install from list strings
+menu.admin.install=See Apps for My User
+menu.admin.install.other.user=See Apps for Another User
+toggle.web.user.mode=Web User
+toggle.mobile.user.mode=Mobile User
+missing.fields=Please enter all required fields.
+email.address.invalid=Please enter a valid email address.

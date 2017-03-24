@@ -74,9 +74,6 @@ update.option.starred=Latest starred build
 update.option.build=Latest build
 update.option.saved=Latest saved state
 
-toggle.web.user.mode=Web User
-toggle.mobile.user.mode=Mobile User
-
 home.developer.options.enabled=Developer Mode Enabled
 
 menu.save.session=Save Your Session
@@ -139,9 +136,6 @@ login.hide.password=HIDE
 
 login.update.install.success=App update successfully applied!
 login.update.install.failure=App update failed to apply!
-
-missing.fields=Please enter all required fields.
-email.address.invalid=Please enter a valid email address.
 
 query.button=Query
 query.dialog.title=Querying Server
