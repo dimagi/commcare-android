@@ -40,10 +40,12 @@ menu.privilege.claim.disable=Disable Privileges
 app.manager.advanced.settings.title=App Manager > Advanced Settings
 app.manager.advanced.settings.option=Advanced
 
-# Install from list strings
+# strings for Install from list
 menu.admin.install=See Apps for My User
 menu.admin.install.other.user=See Apps for Another User
 toggle.web.user.mode=Web User
 toggle.mobile.user.mode=Mobile User
 missing.fields=Please enter all required fields.
 email.address.invalid=Please enter a valid email address.
+invalid.user.entered=Invalid user provided. Please make sure all of the fields you entered are spelled correctly.
+no.apps.available=No apps are available for download for this user.

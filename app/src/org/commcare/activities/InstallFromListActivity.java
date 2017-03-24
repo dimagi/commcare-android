@@ -22,12 +22,14 @@ import android.widget.ToggleButton;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.modern.util.Pair;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.suite.model.AppAvailableForInstall;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.xml.AvailableAppsParser;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -69,7 +71,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private View authenticateView;
     private TextView errorMessageBox;
     private View appsListContainer;
-    private ListView appsList;
+    private ListView appsListView;
 
     private Vector<AppAvailableForInstall> availableApps = new Vector<>();
 
@@ -117,8 +119,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     private void setUpAppsList() {
         appsListContainer = findViewById(R.id.apps_list_container);
-        appsList = (ListView)findViewById(R.id.apps_list_view);
-        appsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        appsListView = (ListView)findViewById(R.id.apps_list_view);
+        appsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position < availableApps.size()) {
@@ -221,34 +223,24 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private boolean requestAppList() {
         URL urlToTry = getURLToTry();
         if (urlToTry != null) {
-            System.out.println("requesting from " + urlToTry);
-            SimpleHttpTask task;
-            try {
-                final View processingRequestView = findViewById(R.id.processing_request_view);
-                task = new SimpleHttpTask(this, urlToTry, new HashMap<String, String>(), false,
-                        new Pair<>(getUsernameForAuth(),
-                                ((EditText)findViewById(R.id.edit_password)).getText().toString())) {
+            final View processingRequestView = findViewById(R.id.processing_request_view);
+            SimpleHttpTask task = new SimpleHttpTask(this, urlToTry, new HashMap<String, String>(),
+                    false, new Pair<>(getUsernameForAuth(),
+                    ((EditText)findViewById(R.id.edit_password)).getText().toString())) {
 
-                    @Override
-                    protected void onPreExecute() {
-                        super.onPreExecute();
-                        processingRequestView.setVisibility(View.VISIBLE);
-                    }
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+                    processingRequestView.setVisibility(View.VISIBLE);
+                }
 
-                    @Override
-                    protected void onPostExecute(Void result) {
-                        super.onPostExecute(result);
-                        processingRequestView.setVisibility(View.GONE);
-                    }
+                @Override
+                protected void onPostExecute(Void result) {
+                    super.onPostExecute(result);
+                    processingRequestView.setVisibility(View.GONE);
+                }
 
-                };
-            } catch (ModernHttpRequester.PlainTextPasswordException e) {
-                enterErrorState(Localization.get("post.not.using.https", urlToTry.toString()));
-                return false;
-            } catch (Exception e) {
-                enterErrorState(e.getMessage());
-                return false;
-            }
+            };
 
             task.connect((CommCareTaskConnector)this);
             task.executeParallel();
@@ -289,9 +281,16 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         try {
             return new URL(urlCurrentlyRequestingFrom);
         } catch (MalformedURLException e) {
-            enterErrorState("This shouldn't be possible...");
+            // This shouldn't ever happen because the URL is static
+            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Encountered exception while creating " +
+                    "URL for apps list request");
             return null;
         }
+    }
+
+    private void enterErrorState(String message) {
+        errorMessage = message;
+        enterErrorState();
     }
 
     private void enterErrorState() {
@@ -300,14 +299,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         errorMessageBox.setText(errorMessage);
     }
 
-    private void enterErrorState(String message) {
-        errorMessage = message;
-        enterErrorState();
-    }
-
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
-        System.out.println("response received");
         processResponseIntoAppsList(responseData);
         repeatRequestOrShowResults(false);
     }
@@ -317,10 +310,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             KXmlParser baseParser = ElementParser.instantiateParser(responseData);
             List<AppAvailableForInstall> apps = (new AvailableAppsParser(baseParser)).parse();
             availableApps.addAll(apps);
-            System.out.println("parsed app list response");
         } catch (IOException | InvalidStructureException | XmlPullParserException | UnfullfilledRequirementsException e) {
-            // TODO: Decide how to handle this
-            System.out.println("FAILED to parse app list response");
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "Error encountered while parsing apps available for install");
         }
     }
 
@@ -364,10 +355,9 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 public void run() {
                     if (availableApps.size() == 0) {
                         if (responseWasError) {
-                            enterErrorState("Invalid user provided. Please make sure all of the " +
-                                    "fields you entered are spelled correctly.");
+                            enterErrorState(Localization.get("invalid.user.entered"));
                         } else {
-                            enterErrorState("No apps are available for download for this user.");
+                            enterErrorState(Localization.get("no.apps.available"));
                         }
                     } else {
                         showResults();
@@ -380,7 +370,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private void showResults() {
         appsListContainer.setVisibility(View.VISIBLE);
         authenticateView.setVisibility(View.GONE);
-        appsList.setAdapter(new ArrayAdapter<AppAvailableForInstall>(this, android.R.layout.simple_list_item_1, availableApps) {
+        appsListView.setAdapter(new ArrayAdapter<AppAvailableForInstall>(this,
+                android.R.layout.simple_list_item_1, availableApps) {
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
@@ -405,14 +396,16 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, RETRIEVE_APPS_FOR_DIFF_USER, 0, Localization.get("menu.admin.install.other.user"));
+        menu.add(0, RETRIEVE_APPS_FOR_DIFF_USER, 0,
+                Localization.get("menu.admin.install.other.user"));
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER).setVisible(appsListContainer.getVisibility() == View.VISIBLE);
+        menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER)
+                .setVisible(appsListContainer.getVisibility() == View.VISIBLE);
         return true;
     }
 
