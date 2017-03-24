@@ -403,6 +403,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 return v;
             }
         });
+        rebuildOptionsMenu();
     }
 
     @Override
