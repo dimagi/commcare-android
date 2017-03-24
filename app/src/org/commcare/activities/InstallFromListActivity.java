@@ -105,8 +105,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         getAppsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                errorMessageBox.setVisibility(View.INVISIBLE);
                 if (inputIsValid()) {
-                    errorMessageBox.setVisibility(View.INVISIBLE);
                     authenticateView.setVisibility(View.GONE);
                     requestedFromIndia = false;
                     requestedFromProd = false;
