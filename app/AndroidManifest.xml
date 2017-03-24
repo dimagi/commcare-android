@@ -275,7 +275,7 @@
         </activity>
         <activity android:name="org.commcare.activities.AppManagerAdvancedSettings">
         </activity>
-        <activity android:name="org.commcare.activities.GetAvailableAppsActivity">
+        <activity android:name="org.commcare.activities.InstallFromListActivity">
         </activity>
 
         <uses-library

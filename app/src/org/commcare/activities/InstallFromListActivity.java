@@ -37,7 +37,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -47,7 +46,7 @@ import java.util.Vector;
 /**
  * Created by amstone326 on 2/3/17.
  */
-public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements HttpResponseProcessor {
+public class InstallFromListActivity<T> extends CommCareActivity<T> implements HttpResponseProcessor {
 
     public static final String PROFILE_REF = "profile-ref-selected";
 
@@ -390,7 +389,7 @@ public class GetAvailableAppsActivity<T> extends CommCareActivity<T> implements 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View v = convertView;
-                Context context = GetAvailableAppsActivity.this;
+                Context context = InstallFromListActivity.this;
                 if (v == null) {
                     v = View.inflate(context, R.layout.single_available_app_view, null);
                 }

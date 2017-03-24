@@ -390,7 +390,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case GET_APPS_FROM_HQ:
                 if (resultCode == Activity.RESULT_OK) {
                     lastInstallMode = INSTALL_MODE_FROM_LIST;
-                    result = data.getStringExtra(GetAvailableAppsActivity.PROFILE_REF);
+                    result = data.getStringExtra(InstallFromListActivity.PROFILE_REF);
                 }
                 break;
             case MULTIPLE_APPS_LIMIT:
@@ -632,7 +632,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case MODE_ADMIN_AUTH:
                 clearErrorMessage();
-                i = new Intent(getApplicationContext(), GetAvailableAppsActivity.class);
+                i = new Intent(getApplicationContext(), InstallFromListActivity.class);
                 startActivityForResult(i, GET_APPS_FROM_HQ);
                 break;
         }
