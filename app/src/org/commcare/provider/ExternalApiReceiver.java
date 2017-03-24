@@ -118,7 +118,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
     private boolean checkAndStartUnsentTask(final Context context) {
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
+        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormIdsForCurrentApp(storage);
 
         if (ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];
@@ -170,6 +170,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(
                 u.getUsername(),
                 u.getCachedPwd(),
+                u.getUniqueId(),
                 prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY,
                         context.getString(R.string.ota_restore_url)),
                 context) {

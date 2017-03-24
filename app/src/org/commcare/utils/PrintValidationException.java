@@ -1,6 +1,6 @@
 package org.commcare.utils;
 
-import org.commcare.tasks.TemplatePrinterTask;
+import org.commcare.print.TemplatePrinterTask;
 
 /**
  * Created by amstone326 on 7/31/15.

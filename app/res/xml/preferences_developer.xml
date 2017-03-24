@@ -111,11 +111,18 @@
         android:defaultValue="no"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-update-to-latest-saved"
-        android:title="Enable Updating to Latest Saved Version"/>
+        android:key="cc-use-pw-obfuscation"
+        android:title="Use Password Obfuscation"/>
     <Preference
         android:title="Restore a custom user XML data file"
         android:key="cc-custom-restore-doc-location"/>
+    <ListPreference
+        android:enabled="true"
+        android:defaultValue="no"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-enable-bulk-performance"
+        android:title="Enable cutting-edge performance improvements"/>
 
 
 </PreferenceScreen>

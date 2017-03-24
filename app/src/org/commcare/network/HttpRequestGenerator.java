@@ -32,7 +32,10 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.DebugControlsReceiver;
+import org.commcare.utils.CredentialUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
@@ -75,6 +78,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     private final String username;
     private final String password;
     private final String userType;
+    private final String userId;
 
     /**
      * Keep track of current request to allow for early aborting
@@ -82,16 +86,20 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     private HttpRequestBase currentRequest;
 
     public HttpRequestGenerator(User user) {
-        this(user.getUsername(), user.getCachedPwd(), user.getUserType());
+        this(user.getUsername(), user.getCachedPwd(), user.getUserType(), user.getUniqueId());
     }
 
     public HttpRequestGenerator(String username, String password) {
         this(username, password, null);
     }
 
-    private HttpRequestGenerator(String username, String password, String userType) {
+    public HttpRequestGenerator(String username, String password, String userId) {
+        this(username, password, null, userId);
+    }
+
+    private HttpRequestGenerator(String username, String password, String userType, String userId) {
         String domainedUsername = buildDomainUser(username);
-        this.password = password;
+        this.password = password = buildAppPassword(password);
         this.userType = userType;
 
         if (username != null && !User.TYPE_DEMO.equals(userType)) {
@@ -101,6 +109,15 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             this.credentials = null;
             this.username = null;
         }
+
+        this.userId = userId;
+    }
+
+    private String buildAppPassword(String password) {
+        if (DeveloperPreferences.useObfuscatedPassword()) {
+            return CredentialUtil.wrap(password);
+        }
+        return password;
     }
 
     protected static String buildDomainUser(String username) {
@@ -115,7 +132,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     }
 
     public static HttpRequestGenerator buildNoAuthGenerator() {
-        return new HttpRequestGenerator(null, null, null);
+        return new HttpRequestGenerator(null, null, null, null);
     }
 
     public HttpResponse get(String uri) throws ClientProtocolException, IOException {
@@ -150,6 +167,14 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         String vparam = serverUri.getQueryParameter("version");
         if (vparam == null) {
             serverUri = serverUri.buildUpon().appendQueryParameter("version", "2.0").build();
+        }
+
+        // include IMEI in key fetch request for auditing large deployments
+        serverUri = serverUri.buildUpon().appendQueryParameter("device_id",
+                CommCareApplication.instance().getPhoneId()).build();
+
+        if (userId != null) {
+            serverUri = serverUri.buildUpon().appendQueryParameter("user_id", userId).build();
         }
 
         String syncToken = null;

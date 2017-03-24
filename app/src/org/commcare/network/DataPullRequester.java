@@ -26,5 +26,5 @@ public interface DataPullRequester {
                                                String server,
                                                boolean includeSyncToken) throws IOException;
 
-    HttpRequestEndpoints getHttpGenerator(String username, String password);
+    HttpRequestEndpoints getHttpGenerator(String username, String password, String userId);
 }

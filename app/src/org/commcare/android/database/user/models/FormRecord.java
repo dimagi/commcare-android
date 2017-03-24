@@ -4,15 +4,19 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.utils.StorageUtils;
 
 import java.io.FileNotFoundException;
 import java.util.Date;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -28,6 +32,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String META_XMLNS = "XMLNS";
     public static final String META_LAST_MODIFIED = "DATE_MODIFIED";
     public static final String META_APP_ID = "APP_ID";
+    public static final String META_SUBMISSION_ORDERING_NUMBER = "SUBMISSION_ORDERING_NUMBER";
 
     /**
      * This form record is a stub that hasn't actually had data saved for it yet
@@ -67,23 +72,33 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @Persisting(1)
     @MetaField(META_XMLNS)
     private String xmlns;
+
     @Persisting(2)
     @MetaField(META_INSTANCE_URI)
     private String instanceURI;
+
     @Persisting(3)
     @MetaField(META_STATUS)
     private String status;
+
     @Persisting(4)
     private byte[] aesKey;
+
     @Persisting(value = 5, nullable = true)
     @MetaField(META_UUID)
     private String uuid;
+
     @Persisting(6)
     @MetaField(META_LAST_MODIFIED)
     private Date lastModified;
+
     @Persisting(7)
     @MetaField(META_APP_ID)
     private String appId;
+
+    @Persisting(value = 8, nullable = true)
+    @MetaField(META_SUBMISSION_ORDERING_NUMBER)
+    private String submissionOrderingNumber;
 
     public FormRecord() {
     }
@@ -115,6 +130,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
         FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid,
                 lastModified, appId);
         fr.recordId = this.recordId;
+        fr.submissionOrderingNumber = this.submissionOrderingNumber;
         return fr;
     }
 
@@ -159,6 +175,13 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return uuid;
     }
 
+    public int getSubmissionOrderingNumber() {
+        if (submissionOrderingNumber == null) {
+            return -1;
+        }
+        return Integer.parseInt(submissionOrderingNumber);
+    }
+
     /**
      * Get the file system path to the encrypted XML submission file.
      *
@@ -191,4 +214,9 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public String toString() {
         return String.format("Form Record[%s][Status: %s]\n[Form: %s]\n[Last Modified: %s]", this.recordId, this.status, this.xmlns, this.lastModified.toString());
     }
+
+    public void setFormNumberForSubmissionOrdering(int num) {
+        this.submissionOrderingNumber = ""+num;
+    }
+
 }

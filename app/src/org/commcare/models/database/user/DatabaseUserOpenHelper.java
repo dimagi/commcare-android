@@ -51,9 +51,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.14 - Change format of last modified date in form record to canonical SQLite form
      * V.15 - Add table to store path info about storage-backed fixture tables
      * V.16 - Add type -> id index for case index storage
+     * V.17 - Add global counter metadata field to form records, for use in submission ordering
      */
 
-    private static final int USER_DB_VERSION = 16;
+    private static final int USER_DB_VERSION = 17;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 

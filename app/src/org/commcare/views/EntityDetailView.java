@@ -44,6 +44,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -79,6 +80,7 @@ public class EntityDetailView extends FrameLayout {
     private final LinearLayout.LayoutParams origLabel;
     private final LinearLayout.LayoutParams fill;
 
+    // Potential "forms" of a detail field
     private static final String FORM_VIDEO = MediaUtil.FORM_VIDEO;
     private static final String FORM_AUDIO = MediaUtil.FORM_AUDIO;
     private static final String FORM_PHONE = "phone";
@@ -179,7 +181,8 @@ public class EntityDetailView extends FrameLayout {
             setupAddress(textField);
         } else if (FORM_IMAGE.equals(form)) {
             veryLong = setupImage(textField);
-        } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {    // if graph parsing had errors, they'll be stored as a string
+        } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
+            // if graph parsing had errors, they'll be stored as a string
             setupGraph(index, labelText, field);
         } else if (FORM_AUDIO.equals(form)) {
             ViewId uniqueId = ViewId.buildTableViewId(detailNumber, index, true);
@@ -325,7 +328,7 @@ public class EntityDetailView extends FrameLayout {
         View graphView = getGraphViewFromCache(index, orientation);
         if (graphView == null) {
             cached = false;
-            graphView = getGraphView(index, labelText, (GraphData) field, orientation);
+            graphView = getGraphView(index, labelText, (GraphData)field, orientation);
         }
         final Intent finalIntent = getGraphIntent(index, labelText, (GraphData) field);
 
@@ -446,7 +449,7 @@ public class EntityDetailView extends FrameLayout {
         View graphView;
         GraphView g = new GraphView(context, title, false);
         try {
-            String graphHTML = g.getHTML(field);
+            String graphHTML = field.getGraphHTML(title);
             graphView = g.getView(graphHTML);
             graphLayout.setRatio((float)g.getRatio(field), (float)1);
         } catch (GraphException ex) {
@@ -457,7 +460,6 @@ public class EntityDetailView extends FrameLayout {
             graphsWithErrors.add(index);
         }
         graphViewsCache.get(index).put(orientation, graphView);
-
         return graphView;
     }
 
@@ -469,7 +471,7 @@ public class EntityDetailView extends FrameLayout {
         if (graphIntent == null && !graphsWithErrors.contains(index)) {
             GraphView g = new GraphView(this.getContext(), title, true);
             try {
-                String html = g.getHTML(field);
+                String html = field.getGraphHTML(title);
                 graphIntent = g.getIntent(html, CommCareGraphActivity.class);
                 graphIntentsCache.put(index, graphIntent);
             } catch (GraphException ex) {

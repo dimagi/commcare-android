@@ -34,7 +34,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public final static String PREFS_CUSTOM_RESTORE_DOC_LOCATION = "cc-custom-restore-doc-location";
 
-
     public static final String SUPERUSER_ENABLED = "cc-superuser-enabled";
     public static final String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     public static final String CSS_ENABLED = "cc-css-enabled";
@@ -47,8 +46,9 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static final String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
     public static final String USE_ROOT_MENU_AS_HOME_SCREEN = "cc-use-root-menu-as-home-screen";
     public static final String SHOW_ADB_ENTITY_LIST_TRACES = "cc-show-entity-trace-outputs";
-    public static final String UPDATE_TO_LATEST_SAVED_ENABLED = "cc-update-to-latest-saved";
-    
+    public static final String USE_OBFUSCATED_PW = "cc-use-pw-obfuscation";
+    public static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
+
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -364,15 +364,12 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         return doesPropertyMatch(SHOW_ADB_ENTITY_LIST_TRACES, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
-    public static boolean updateToLatestSavedEnabled() {
-        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(UPDATE_TO_LATEST_SAVED_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    public static boolean useObfuscatedPassword() {
+        return doesPropertyMatch(USE_OBFUSCATED_PW, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
-    public static void enableUpdateToLatestSavedVersion() {
-        CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .edit()
-                .putString(UPDATE_TO_LATEST_SAVED_ENABLED, CommCarePreferences.YES)
-                .apply();
+    public static boolean isBulkPerformanceEnabled() {
+        return doesPropertyMatch(ENABLE_BULK_PERFORMANCE, CommCarePreferences.NO, CommCarePreferences.YES);
     }
+
 }

@@ -3,10 +3,8 @@ package org.commcare.utils;
 import android.support.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.javarosa.core.services.Logger;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,7 +20,7 @@ import java.util.Vector;
 public class StorageUtils {
 
     @NonNull
-    public static Vector<Integer> getUnsentOrUnprocessedFormsForCurrentApp(
+    public static Vector<Integer> getUnsentOrUnprocessedFormIdsForCurrentApp(
             SqlStorage<FormRecord> storage) {
 
         String currentAppId =
@@ -38,6 +36,22 @@ public class StorageUtils {
         return ids;
     }
 
+    public static Vector<FormRecord> getUnsentOrUnprocessedFormRecordsForCurrentApp(
+            SqlStorage<FormRecord> storage) {
+
+        String currentAppId =
+                CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
+
+        Vector<FormRecord> records = storage.getRecordsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[]{FormRecord.STATUS_UNSENT, currentAppId});
+        records.addAll(storage.getRecordsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[]{FormRecord.STATUS_COMPLETE, currentAppId}));
+
+        return records;
+    }
+
     public static int getNumIncompleteForms() {
         SqlStorage<FormRecord> formsStorage =
                 CommCareApplication.instance().getUserStorage(FormRecord.class);
@@ -49,46 +63,39 @@ public class StorageUtils {
                 new String[]{FormRecord.STATUS_INCOMPLETE, currentAppId}).size();
     }
 
-    public static FormRecord[] getUnsentRecords(SqlStorage<FormRecord> storage) {
+    public static FormRecord[] getUnsentRecordsForCurrentApp(SqlStorage<FormRecord> storage) {
         // TODO: This could all be one big sql query instead of doing it in code
-
-        Vector<Integer> ids;
+        Vector<FormRecord> records;
         try {
-            ids = getUnsentOrUnprocessedFormsForCurrentApp(storage);
+            records = getUnsentOrUnprocessedFormRecordsForCurrentApp(storage);
         } catch (SessionUnavailableException e) {
-            ids = new Vector<>();
+            records = new Vector<>();
         }
 
-        if (ids.size() == 0) {
+        if (records.size() == 0) {
             return new FormRecord[0];
         }
 
-        // Order ids so they're submitted to and processed by the server in
-        // the correct order.
-        sortRecordsByDate(ids, storage);
+        // Order ids so they're submitted to and processed by the server in the correct order.
+        sortRecordsBySubmissionOrderingNumber(records);
 
-        // The records should now be in order and we can pass to the next phase
-        FormRecord[] records = new FormRecord[ids.size()];
-        for (int i = 0; i < ids.size(); ++i) {
-            records[i] = storage.read(ids.elementAt(i));
+        FormRecord[] recordArray = new FormRecord[records.size()];
+        for (int i = 0; i < records.size(); ++i) {
+            recordArray[i] = records.get(i);
         }
-        return records;
+        return recordArray;
     }
 
-    private static void sortRecordsByDate(Vector<Integer> ids,
-                                          SqlStorage<FormRecord> storage) {
-        final HashMap<Integer, Long> idToDateIndex =
-                getIdToDateMap(ids, storage);
-
-        Collections.sort(ids, new Comparator<Integer>() {
+    private static void sortRecordsBySubmissionOrderingNumber(Vector<FormRecord> records) {
+        Collections.sort(records, new Comparator<FormRecord>() {
             @Override
-            public int compare(Integer lhs, Integer rhs) {
-                Long lhd = idToDateIndex.get(lhs);
-                Long rhd = idToDateIndex.get(rhs);
-                if (lhd < rhd) {
+            public int compare(FormRecord form1, FormRecord form2) {
+                int form1OrderingNum = form1.getSubmissionOrderingNumber();
+                int form2OrderingNum = form2.getSubmissionOrderingNumber();
+                if (form1OrderingNum < form2OrderingNum) {
                     return -1;
                 }
-                if (lhd > rhd) {
+                if (form1OrderingNum > form2OrderingNum) {
                     return 1;
                 }
                 return 0;
@@ -96,27 +103,18 @@ public class StorageUtils {
         });
     }
 
-    private static HashMap<Integer, Long> getIdToDateMap(Vector<Integer> ids,
-                                                         SqlStorage<FormRecord> storage) {
-        HashMap<Integer, Long> idToDateIndex = new HashMap<>();
-        for (int id : ids) {
-            // Last modified for a unsent and complete forms is the formEnd
-            // date that was captured and locked when form entry, so it's a
-            // safe cannonical ordering
-            String dateAsString =
-                    storage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
-            long dateAsSeconds;
-            try {
-                dateAsSeconds = Long.valueOf(dateAsString);
-            } catch (NumberFormatException e) {
-                // Go with the next best ordering for now
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                        "Invalid date in last modified value: " + dateAsString);
-                idToDateIndex.put(id, (long)id);
-                continue;
+    public static int getNextFormSubmissionNumber() {
+        SqlStorage<FormRecord> storage =
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
+        Vector<FormRecord> records =
+                StorageUtils.getUnsentOrUnprocessedFormRecordsForCurrentApp(storage);
+        int maxSubmissionNumber = -1;
+        for (FormRecord record : records) {
+            if (record.getSubmissionOrderingNumber() > maxSubmissionNumber) {
+                maxSubmissionNumber = record.getSubmissionOrderingNumber();
             }
-            idToDateIndex.put(id, dateAsSeconds);
         }
-        return idToDateIndex;
+        return maxSubmissionNumber + 1;
     }
+
 }

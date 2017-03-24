@@ -6,8 +6,8 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.logging.ForceCloseLogEntry;
-import org.commcare.cases.ledger.Ledger;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;
@@ -16,7 +16,6 @@ import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.ACasePreV6Model;
@@ -26,11 +25,11 @@ import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -139,6 +138,11 @@ class UserDatabaseUpgrader {
                 oldVersion = 16;
             }
         }
+        if (oldVersion == 16) {
+            if (upgradeSixteenSeventeen(db)) {
+                oldVersion = 17;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -166,8 +170,8 @@ class UserDatabaseUpgrader {
     private boolean upgradeThreeFour(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            addStockTable(db);
-            updateIndexes(db);
+            UserDbUpgradeUtils.addStockTable(db);
+            UserDbUpgradeUtils.updateIndexes(db);
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -291,12 +295,12 @@ class UserDatabaseUpgrader {
         db.beginTransaction();
         try {
 
-            if (multipleInstalledAppRecords()) {
+            if (UserDbUpgradeUtils.multipleInstalledAppRecords()) {
                 // Cannot migrate FormRecords once this device has already started installing
                 // multiple applications, because there is no way to know which of those apps the
                 // existing FormRecords belong to
-                deleteExistingFormRecordsAndWarnUser(c, db);
-                addAppIdColumnToTable(db);
+                UserDbUpgradeUtils.deleteExistingFormRecordsAndWarnUser(c, db);
+                UserDbUpgradeUtils.addAppIdColumnToTable(db);
                 db.setTransactionSuccessful();
                 return true;
             }
@@ -306,11 +310,11 @@ class UserDatabaseUpgrader {
                     FormRecordV1.class,
                     new ConcreteAndroidDbHelper(c, db));
 
-            String appId = getInstalledAppRecord().getApplicationId();
-            Vector<FormRecord> upgradedRecords = new Vector<>();
+            String appId = UserDbUpgradeUtils.getInstalledAppRecord().getApplicationId();
+            Vector<FormRecordV2> upgradedRecords = new Vector<>();
             // Create all of the updated records, based upon the existing ones
             for (FormRecordV1 oldRecord : oldStorage) {
-                FormRecord newRecord = new FormRecord(
+                FormRecordV2 newRecord = new FormRecordV2(
                         oldRecord.getInstanceURIString(),
                         oldRecord.getStatus(),
                         oldRecord.getFormNamespace(),
@@ -322,14 +326,14 @@ class UserDatabaseUpgrader {
                 upgradedRecords.add(newRecord);
             }
 
-            addAppIdColumnToTable(db);
+            UserDbUpgradeUtils.addAppIdColumnToTable(db);
 
             // Write all of the new records to the updated table
-            SqlStorage<FormRecord> newStorage = new SqlStorage<>(
+            SqlStorage<FormRecordV2> newStorage = new SqlStorage<>(
                     FormRecord.STORAGE_KEY,
-                    FormRecord.class,
+                    FormRecordV2.class,
                     new ConcreteAndroidDbHelper(c, db));
-            for (FormRecord r : upgradedRecords) {
+            for (FormRecordV2 r : upgradedRecords) {
                 newStorage.write(r);
             }
 
@@ -338,14 +342,6 @@ class UserDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
-    }
-
-    private static void addAppIdColumnToTable(SQLiteDatabase db) {
-        // Alter the FormRecord table to include an app id column
-        db.execSQL(DbUtil.addColumnToTable(
-                FormRecord.STORAGE_KEY,
-                FormRecord.META_APP_ID,
-                "TEXT"));
     }
 
     private boolean upgradeTenEleven(SQLiteDatabase db) {
@@ -447,19 +443,74 @@ class UserDatabaseUpgrader {
         }
     }
 
+    /**
+     * Add a metadata field to all form records for "form number" that will be used for ordering
+     * submissions. Since submissions were previously ordered by the last modified property,
+     * set the new form numbers in this order.
+     */
+    private boolean upgradeSixteenSeventeen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage<FormRecordV2> oldStorage = new SqlStorage<>(
+                    FormRecord.STORAGE_KEY,
+                    FormRecordV2.class,
+                    new ConcreteAndroidDbHelper(c, db));
 
+            Set<String> idsOfAppsWithOldFormRecords =
+                    UserDbUpgradeUtils.getAppIdsForRecords(oldStorage);
+            Vector<FormRecord> upgradedRecords = new Vector<>();
 
-    private void updateIndexes(SQLiteDatabase db) {
-        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));
-        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_type_index", "AndroidCase", "case_type"));
-        db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_index", "AndroidCase", "case_status"));
+            for (String appId : idsOfAppsWithOldFormRecords) {
+                migrateV2FormRecordsForSingleApp(appId, oldStorage, upgradedRecords);
+            }
+
+            // Add new column to db and then write all of the new records
+            UserDbUpgradeUtils.addFormNumberColumnToTable(db);
+            SqlStorage<FormRecord> newStorage = new SqlStorage<>(
+                    FormRecord.STORAGE_KEY,
+                    FormRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            for (FormRecord r : upgradedRecords) {
+                newStorage.write(r);
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
     }
 
-    private void addStockTable(SQLiteDatabase db) {
-        AndroidTableBuilder builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
-        builder.addData(new Ledger());
-        builder.setUnique(Ledger.INDEX_ENTITY_ID);
-        db.execSQL(builder.getTableCreateString());
+    private void migrateV2FormRecordsForSingleApp(String appId,
+                                                  SqlStorage<FormRecordV2> oldStorage,
+                                                  Vector<FormRecord> upgradedRecords) {
+        Vector<Integer> recordIds = oldStorage.getIDsForValue(FormRecord.META_APP_ID, appId);
+
+        // Sort the old record ids by their last modified date, which is how form submission
+        // ordering was previously done
+        UserDbUpgradeUtils.sortRecordsByDate(recordIds, oldStorage);
+
+        int submissionNumber = 0;
+        for (int i = 0; i < recordIds.size(); i++) {
+            FormRecordV2 oldRecord = oldStorage.read(recordIds.elementAt(i));
+            FormRecord newRecord = new FormRecord(
+                    oldRecord.getInstanceURIString(),
+                    oldRecord.getStatus(),
+                    oldRecord.getFormNamespace(),
+                    oldRecord.getAesKey(),
+                    oldRecord.getInstanceID(),
+                    oldRecord.lastModified(),
+                    oldRecord.getAppId());
+            String statusOfOldRecord = oldRecord.getStatus();
+            if (FormRecord.STATUS_COMPLETE.equals(statusOfOldRecord) ||
+                    FormRecord.STATUS_UNSENT.equals(statusOfOldRecord)) {
+                // By processing the old records in order of their last modified date, we make
+                // sure that we are setting this form numbers in the most accurate order we can
+                newRecord.setFormNumberForSubmissionOrdering(submissionNumber++);
+            }
+            newRecord.setID(oldRecord.getID());
+            upgradedRecords.add(newRecord);
+        }
     }
 
     private void markSenseIncompleteUnsent(final SQLiteDatabase db) {
@@ -489,48 +540,4 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private static boolean multipleInstalledAppRecords() {
-        SqlStorage<ApplicationRecord> storage =
-                CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class);
-        int count = 0;
-        for (ApplicationRecord r : storage) {
-            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED && r.resourcesValidated()) {
-                count++;
-            }
-        }
-        return (count > 1);
-    }
-
-    private static ApplicationRecord getInstalledAppRecord() {
-        SqlStorage<ApplicationRecord> storage =
-                CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class);
-        for (Persistable p : storage) {
-            ApplicationRecord r = (ApplicationRecord)p;
-            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED && r.resourcesValidated()) {
-                return r;
-            }
-        }
-        return null;
-    }
-
-    private static void deleteExistingFormRecordsAndWarnUser(Context c, SQLiteDatabase db) {
-        SqlStorage<FormRecordV1> formRecordStorage = new SqlStorage<>(
-                FormRecord.STORAGE_KEY,
-                FormRecordV1.class,
-                new ConcreteAndroidDbHelper(c, db));
-
-        SqlStorage<SessionStateDescriptor> ssdStorage = new SqlStorage<>(
-                SessionStateDescriptor.STORAGE_KEY,
-                SessionStateDescriptor.class,
-                new ConcreteAndroidDbHelper(c, db));
-
-        formRecordStorage.removeAll();
-        ssdStorage.removeAll();
-
-        String warningTitle = "Minor data loss during upgrade";
-        String warningMessage = "Due to the experimental state of" +
-                " multiple application seating, we were not able to migrate all of your app data" +
-                " during upgrade. Any saved, incomplete, and unsent forms on the device were deleted.";
-        CommCareApplication.instance().storeMessageForUserOnDispatch(warningTitle, warningMessage);
-    }
 }

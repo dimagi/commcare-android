@@ -601,6 +601,15 @@ public class CommCarePreferences
                     .putString(UPDATE_TARGET, updateTargetValue)
                     .apply();
         }
+    }
 
+    public static String getGlobalTemplatePath() {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        String path = prefs.getString(CommCarePreferences.PREFS_PRINT_DOC_LOCATION, "");
+        if ("".equals(path)) {
+            return null;
+        } else {
+            return path;
+        }
     }
 }
