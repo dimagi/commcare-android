@@ -64,7 +64,6 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private boolean requestedFromProd;
     private boolean requestedFromIndia;
     private String urlCurrentlyRequestingFrom;
-    private boolean failedDueToAuth;
 
     private String errorMessage;
     private View authenticateView;
@@ -110,7 +109,6 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                     authenticateView.setVisibility(View.GONE);
                     requestedFromIndia = false;
                     requestedFromProd = false;
-                    failedDueToAuth = false;
                     requestAppList();
                 }
             }
@@ -311,7 +309,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     public void processSuccess(int responseCode, InputStream responseData) {
         System.out.println("response received");
         processResponseIntoAppsList(responseData);
-        repeatRequestOrShowResults();
+        repeatRequestOrShowResults(false);
     }
 
     private void processResponseIntoAppsList(InputStream responseData) {
@@ -333,9 +331,6 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     @Override
     public void processClientError(int responseCode) {
-        if (responseCode == 401 || responseCode == 403) {
-            failedDueToAuth = true;
-        }
         handleRequestError(responseCode);
     }
 
@@ -351,15 +346,15 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     @Override
     public void handleIOException(IOException exception) {
-        repeatRequestOrShowResults();
+        repeatRequestOrShowResults(true);
     }
 
     private void handleRequestError(int responseCode) {
         System.out.println(responseCode);
-        repeatRequestOrShowResults();
+        repeatRequestOrShowResults(true);
     }
 
-    private void repeatRequestOrShowResults() {
+    private void repeatRequestOrShowResults(final boolean responseWasError) {
         if (!requestAppList()) {
             // Means we've tried requesting to both endpoints
             GlobalPrivilegesManager.storeRetrievedAvailableApps(availableApps);
@@ -368,10 +363,11 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 @Override
                 public void run() {
                     if (availableApps.size() == 0) {
-                        if (failedDueToAuth) {
-                            enterErrorState("Incorrect password entered.");
+                        if (responseWasError) {
+                            enterErrorState("Invalid user provided. Please make sure all of the " +
+                                    "fields you entered are spelled correctly.");
                         } else {
-                            enterErrorState("No apps found for that user.");
+                            enterErrorState("No apps are available for download for this user.");
                         }
                     } else {
                         showResults();
