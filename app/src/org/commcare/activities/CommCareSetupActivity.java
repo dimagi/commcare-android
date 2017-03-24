@@ -102,9 +102,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
     private String errorMessageToDisplay;
 
-    public static final int MODE_ARCHIVE = Menu.FIRST;
-    private static final int MODE_SMS = Menu.FIRST + 2;
-    private static final int MODE_ADMIN_AUTH = Menu.FIRST + 3;
+    public static final int MENU_ARCHIVE = Menu.FIRST;
+    private static final int MENU_SMS = Menu.FIRST + 2;
+    private static final int MENU_FROM_LIST = Menu.FIRST + 3;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
@@ -516,9 +516,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
-        menu.add(0, MODE_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
-        menu.add(0, MODE_ADMIN_AUTH, 2, Localization.get("menu.admin.install"));
+        menu.add(0, MENU_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
+        menu.add(0, MENU_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
+        menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.admin.install"));
         return true;
     }
 
@@ -621,16 +621,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case MODE_ARCHIVE:
+            case MENU_ARCHIVE:
                 clearErrorMessage();
                 Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
                 startActivityForResult(i, OFFLINE_INSTALL);
                 break;
-            case MODE_SMS:
+            case MENU_SMS:
                 clearErrorMessage();
                 performSMSInstall(true);
                 break;
-            case MODE_ADMIN_AUTH:
+            case MENU_FROM_LIST:
                 clearErrorMessage();
                 i = new Intent(getApplicationContext(), InstallFromListActivity.class);
                 startActivityForResult(i, GET_APPS_FROM_HQ);
