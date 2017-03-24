@@ -37,10 +37,12 @@ public class SimpleHttpTask
                           Pair<String, String> usernameAndPasswordToAuthWith) {
         taskId = SIMPLE_HTTP_TASK_ID;
         if (usernameAndPasswordToAuthWith != null) {
+            // Means the the user for which we are submitting this request is not yet logged in
             requestor =
                     new AndroidModernHttpRequester(new AndroidCacheDirSetup(context), url, params,
                             usernameAndPasswordToAuthWith, isPostRequest);
         } else {
+            // Means the the user for which we are submitting this request is already logged in
             requestor =
                     CommCareApplication.instance().buildHttpRequesterForLoggedInUser(context, url,
                             params, true, isPostRequest);
