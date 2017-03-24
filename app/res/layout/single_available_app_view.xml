@@ -27,5 +27,4 @@
         android:paddingTop="@dimen/title_padding"
         android:paddingBottom="@dimen/title_padding"/>
 
-
 </LinearLayout>
