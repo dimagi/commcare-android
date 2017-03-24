@@ -49,7 +49,7 @@
     <string name="privilege_not_enabled_text">Special privileges are not enabled on your device.</string>
     <string name="privilege_claim_failed">Could not claim privileges</string>
     <string name="privilege_instructions">If you have a superuser account on HQ, you can enable certain privileges on your device by going to the \'Enable Privileges on Mobile\' tab of your \'My Account Settings\' page, and then scanning the barcode that appears there.</string>
-
+    <string name="see_available_apps">See Available Apps</string>
 
     <!-- endregion -->
 
@@ -339,6 +339,5 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="sign_button" cc:translatable="true">Gather Signature</string>
     <string name="markup_image" cc:translatable="true">Markup Image</string>
     <string name="draw_image" cc:translatable="true">Sketch Image</string>
-    <string name="see_available_apps" cc:translatable="true">See Available Apps</string>
 
 </resources>
