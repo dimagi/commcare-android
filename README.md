@@ -121,8 +121,9 @@ Resolution:
 - Disable _Instant Run_ found in Settings > Build, Execution, Deployment > Instant Run.
 - Maybe also edit ~/.gradle/gradle.properties (may not exist) and add a line like `org.gradle.jvmargs=-Xmx1536M` if the build fails due to OOM or you see a message like the following during the build:
 
-        To run dex in process, the Gradle daemon needs a larger heap.
-        It currently has 1024 MB.
-        For faster builds, increase the maximum heap size for the Gradle daemon to at least 1536 MB.
-        To do this set org.gradle.jvmargs=-Xmx1536M in the project gradle.properties.
+      To run dex in process, the Gradle daemon needs a larger heap.
+      It currently has 1024 MB.
+      For faster builds, increase the maximum heap size for the Gradle daemon to at least 1536 MB.
+      To do this set org.gradle.jvmargs=-Xmx1536M in the project gradle.properties.
+
 - Click _Run 'app'_ to rebuid and run on phone.
