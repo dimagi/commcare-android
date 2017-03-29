@@ -93,7 +93,7 @@ Create a new Android Studio JUnit Build configuration using the following steps.
 
 ### Common Errors
 
-If you experience the following exception when running the tests:
+#### If you experience the following exception when running the tests:
 ```
 java.security.InvalidKeyException: Illegal key size or default parameters
 ```
@@ -104,3 +104,25 @@ you will need to upgrade the JCE policy files that are being used. To do so:
 3. From there, cd into `jre/lib/security`, and replace the local\_policy.jar and US\_export\_policy.jar files found there with the ones in the zip file you downloaded
 
 NOTE that if you are running the tests from Android Studio, it may be using a different version of Java than that in your java home directory. The first line of the test output will usually show the directory from which Android Studio is running Java. If it is indeed different, you should follow the steps above for that directory as well.
+
+
+#### Error on attempt to install CommCare app on phone: _Unknown failure during app install_
+
+Android Monitor in Android Studio shows the following exceptions:
+```
+java.lang.RuntimeException: CommCare ran into an issue deserializing data while inflating type
+    ...
+Caused by: org.javarosa.core.util.externalizable.DeserializationException:
+No datatype registered to serialization code [4b a9 e5 89]
+```
+
+Resolution:
+
+- Disable _Instant Run_ found in Settings > Build, Execution, Deployment > Instant Run.
+- Maybe also edit ~/.gradle/gradle.properties (may not exist) and add a line like `org.gradle.jvmargs=-Xmx1536M` if the build fails due to OOM or you see a message like the following during the build:
+
+        To run dex in process, the Gradle daemon needs a larger heap.
+        It currently has 1024 MB.
+        For faster builds, increase the maximum heap size for the Gradle daemon to at least 1536 MB.
+        To do this set org.gradle.jvmargs=-Xmx1536M in the project gradle.properties.
+- Click _Run 'app'_ to rebuid and run on phone.
