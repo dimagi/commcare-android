@@ -82,9 +82,11 @@ Create a new Android Studio JUnit Build configuration using the following steps.
 - Click _Run -> Edit Configruations_ and create a new JUnit configuration by pressing the green plus button.
 - Set _Name_ to "commcare android test suite"
 - Set _Test kind_ to "All in directory"
-- set _Directory_ to `/absolute/path/to/commcare-android/unit-tests/src/`
+- set _Directory_ to `/absolute/path/to/commcare-android/app/unit-tests/src/`
 - Right click on this directory and click the "Create 'All Tests'" option that should be listed more than half-way down the list.
 - Set _VM options_ to `-ea -noverify`
+- Set _Working directory_ to `/absolute/path/to/commcare-android/app/`
+- Set _Use classpath of module_ to *app*
 - Click `OK` to finish creating the configuration.
 - Select the "commcare android test suite" under the configuration drop down to the left of the green play button.
 - Press the green play button to run the tests.

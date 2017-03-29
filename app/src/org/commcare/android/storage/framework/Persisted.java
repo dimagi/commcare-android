@@ -204,8 +204,8 @@ public class Persisted implements Persistable, IMetaData {
                 try {
                     m.setAccessible(true);
 
-                    if (m.isAnnotationPresent(MetaField.class)) {
-                        MetaField mf = m.getAnnotation(MetaField.class);
+                    MetaField mf = m.getAnnotation(MetaField.class);
+                    if (mf != null) {
                         fields.add(mf.value());
                     }
                 } finally {
@@ -241,11 +241,9 @@ public class Persisted implements Persistable, IMetaData {
                     try {
                         m.setAccessible(true);
 
-                        if (m.isAnnotationPresent(MetaField.class)) {
-                            MetaField mf = m.getAnnotation(MetaField.class);
-                            if (mf.value().equals(fieldName)) {
-                                return m.invoke(this, (Object[])null);
-                            }
+                        MetaField mf = m.getAnnotation(MetaField.class);
+                        if (mf != null && mf.value().equals(fieldName)) {
+                            return m.invoke(this, (Object[])null);
                         }
                     } finally {
                         m.setAccessible(false);
