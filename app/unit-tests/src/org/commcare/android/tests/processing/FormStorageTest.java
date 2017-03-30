@@ -275,6 +275,12 @@ public class FormStorageTest {
             // Removed in 2.32, but doesn't require migration because it was
             // never actually serialized
             //, "org.javarosa.core.model.DataBinding"
+
+            // Added in 2.35
+            , "org.javarosa.xpath.expr.XPathJoinChunkFunc"
+            , "org.javarosa.xpath.expr.XPathIdCompressFunc"
+
+
             );
 
     @Before
