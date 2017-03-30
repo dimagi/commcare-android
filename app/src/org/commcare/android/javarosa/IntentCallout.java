@@ -140,14 +140,24 @@ public class IntentCallout implements Externalizable {
         return i;
     }
 
+    /**
+     * @return if answer was set from intent successfully
+     */
     public boolean processResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
         if (intentInvalid(intent)) {
             return false;
         } else if (SimprintsCalloutProcessing.isRegistrationResponse(intent)) {
             return SimprintsCalloutProcessing.processRegistrationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else {
-            return processOdkResponse(intent, intentQuestionRef, destination);
+            return processOdkResponse(intent, intentQuestionRef, destination)
+                    // If this is a print callout, then we shouldn't be setting any answer from
+                    // the result anyway, so always return true
+                    ||  isPrintIntentCallout();
         }
+    }
+
+    private boolean isPrintIntentCallout() {
+        return "org.commcare.dalvik.action.PRINT".equals(this.className);
     }
 
     public void processBarcodeResponse(TreeReference intentQuestionRef, String scanResult) {
@@ -174,18 +184,18 @@ public class IntentCallout implements Externalizable {
         String result = intent.getStringExtra(INTENT_RESULT_VALUE);
         setNodeValue(formDef, intentQuestionRef, result);
 
-        //see if we have a return bundle
+        // see if we have a return bundle
         Bundle response = intent.getBundleExtra(INTENT_RESULT_BUNDLE);
 
-        //Load all of the data from the incoming bundle
+        // Load all of the data from the incoming bundle
         if (responseToRefMap != null && response != null) {
             for (String key : responseToRefMap.keySet()) {
-                //See if the value exists at all, if not, skip it
+                // See if the value exists at all, if not, skip it
                 if (!response.containsKey(key)) {
                     continue;
                 }
 
-                //Get our response value
+                // Get our response value
                 String responseValue = response.getString(key);
                 if (key == null) {
                     key = "";

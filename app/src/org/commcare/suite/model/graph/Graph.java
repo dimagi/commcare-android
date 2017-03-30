@@ -170,7 +170,9 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     for (Enumeration e = pointConfiguration.keys(); e.hasMoreElements();) {
                         String key = (String) e.nextElement();
                         String value = pointConfiguration.get(key).evaluate(refContext);
-                        expandedConfiguration.get(key).addElement(value);
+                        if (value != null) {
+                            expandedConfiguration.get(key).addElement(value);
+                        }
                     }
                     String x = s.evaluateX(refContext);
                     String y = s.evaluateY(refContext);
