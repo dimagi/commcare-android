@@ -149,10 +149,9 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                 Hashtable<String, Text> pointConfiguration = new Hashtable<>();
                 for (Enumeration e = s.getPointConfigurationKeys(); e.hasMoreElements();) {
                     String key = (String) e.nextElement();
-                    Text value = s.getPointConfiguration(key);
+                    Text value = s.getConfiguration(key);
                     if (value != null) {
                         pointConfiguration.put(key, value);
-                        //s.removeConfiguration(key);
                     }
                 }
 
@@ -174,10 +173,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     }
                     String x = s.evaluateX(refContext);
                     String y = s.evaluateY(refContext);
-                    if (x != null && (y != null || graphData.getType().equals(GraphUtil.TYPE_BAR))) {
-                        if (y == null) {
-                            y = "0";
-                        }
+                    if (x != null && y != null) {
                         if (graphData.getType().equals(GraphUtil.TYPE_BUBBLE)) {
                             String radius = ((BubbleSeries)s).evaluateRadius(refContext);
                             seriesData.addPoint(new BubblePointData(x, y, radius));
@@ -186,7 +182,6 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                         }
                     }
                 }
-                
                 graphData.addSeries(seriesData);
 
                 for (Enumeration e = expandedConfiguration.keys(); e.hasMoreElements();) {
