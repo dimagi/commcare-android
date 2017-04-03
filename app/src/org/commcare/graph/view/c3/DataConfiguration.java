@@ -286,17 +286,19 @@ public class DataConfiguration extends Configuration {
         String barColorJSON = s.getConfiguration("bar-color");
         if (barColorJSON != null) {
             JSONArray requestedColors = new JSONArray(barColorJSON);
-            JSONArray colors = new JSONArray();
-            JSONArray opacities = new JSONArray();
-            for (int i = 0; i < requestedColors.length(); i++) {
-                String color = requestedColors.getString(i);
-                color = normalizeColor(color);
-                colors.put(i, "#" + color.substring(3));
-                opacities.put(getOpacity(color));
+            if (requestedColors.length() > 0) {
+                JSONArray colors = new JSONArray();
+                JSONArray opacities = new JSONArray();
+                for (int i = 0; i < requestedColors.length(); i++) {
+                    String color = requestedColors.getString(i);
+                    color = normalizeColor(color);
+                    colors.put(i, "#" + color.substring(3));
+                    opacities.put(getOpacity(color));
+                }
+                mBarColors.put(yID, colors);
+                mBarOpacities.put(yID, opacities);
+                return;
             }
-            mBarColors.put(yID, colors);
-            mBarOpacities.put(yID, opacities);
-            return;
         }
 
         String color = s.getConfiguration("line-color", "#ff000000");
