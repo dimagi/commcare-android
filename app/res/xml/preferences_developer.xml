@@ -114,7 +114,7 @@
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
-        android:defaultValue="yes"
+        android:defaultValue="no"
         android:key="cc-hide-issue-report"
         android:title="Hide the 'Report an Issue' Menu Option"/>
 </PreferenceScreen>
