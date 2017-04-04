@@ -51,6 +51,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
 
     public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
+    public final static String HIDE_ISSUE_REPORT = "cc-hide-issue-report";
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
 
@@ -258,5 +259,9 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      */
     public static boolean isDetailTabSwipeActionEnabled() {
         return doesPropertyMatch(DETAIL_TAB_SWIPE_ACTION_ENABLED, CommCarePreferences.YES, CommCarePreferences.YES);
+    }
+
+    public static boolean isIssueReportHidden() {
+        return doesPropertyMatch(HIDE_ISSUE_REPORT, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 }

@@ -1198,6 +1198,8 @@ public class CommCareHomeActivity
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
             menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
             menu.findItem(MENU_ABOUT).setVisible(enableMenus);
+            menu.findItem(MENU_REPORT_PROBLEM).setVisible(
+                    !DeveloperPreferences.isIssueReportHidden());
             if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
                 menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
             } else {
