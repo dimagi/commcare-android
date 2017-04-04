@@ -149,6 +149,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (1==1) {
+            throw new RuntimeException("This is a designed crash.");
+        }
+
         fromManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
         if (checkForMultipleAppsViolation()) {
