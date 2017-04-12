@@ -6,6 +6,13 @@
         android:key="cc-superuser-enabled"
         android:title="Developer Mode Enabled"/>
     <ListPreference
+        android:enabled="true"
+        android:defaultValue="no"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-show-update-target-options"
+        android:title="Show Update Options Item"/>
+    <ListPreference
         android:defaultValue="yes"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
@@ -123,6 +130,5 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-enable-bulk-performance"
         android:title="Enable cutting-edge performance improvements"/>
-
 
 </PreferenceScreen>
