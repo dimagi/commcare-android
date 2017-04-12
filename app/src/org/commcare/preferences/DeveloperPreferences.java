@@ -374,7 +374,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
     public static boolean shouldShowUpdateOptionsSetting() {
-        return doesPropertyMatch(SHOW_UPDATE_OPTIONS_SETTING, CommCarePreferences.NO, CommCarePreferences.YES);
+        return doesPropertyMatch(SHOW_UPDATE_OPTIONS_SETTING, CommCarePreferences.NO,
+                CommCarePreferences.YES) || BuildConfig.DEBUG;
     }
 
 }
