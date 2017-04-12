@@ -152,8 +152,6 @@ public class CommCarePreferences
 
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
                 GoogleAnalyticsFields.CATEGORY_CC_PREFS);
-        // Override the default listener for the print pref key b/c it has extra behavior
-        createPrintPrefOnClickListener(prefMgr);
     }
 
     private void setupUI() {
@@ -227,6 +225,45 @@ public class CommCarePreferences
         } else {
             getPreferenceScreen().removePreference(analyticsButton);
         }
+
+        Preference printTemplateSetting = findPreference(PREFS_PRINT_DOC_LOCATION);
+        printTemplateSetting.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                GoogleAnalyticsUtils.reportPrefItemClick(
+                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                        GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
+                startFileBrowser();
+                return true;
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        setVisibilityOfUpdateOptionsPref();
+
+        // Set up a listener whenever a key changes
+        getPreferenceScreen().getSharedPreferences()
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    private void setVisibilityOfUpdateOptionsPref() {
+        Preference updateOptionsPref = getPreferenceManager().findPreference(UPDATE_TARGET);
+        if (!DeveloperPreferences.shouldShowUpdateOptionsSetting() && updateOptionsPref != null) {
+            // If the pref is showing and it shouldn't be
+            PreferenceScreen prefScreen = getPreferenceScreen();
+            prefScreen.removePreference(updateOptionsPref);
+        } else if (DeveloperPreferences.shouldShowUpdateOptionsSetting() &&
+                updateOptionsPref == null) {
+            // If the pref isn't showing and it should be
+            getPreferenceScreen().removeAll();
+            addPreferencesFromResource(R.xml.commcare_preferences);
+            setupLocalizedText(this, keyToTitleMap);
+            setupButtons();
+        }
     }
 
     private void showAnalyticsOptOutDialog() {
@@ -254,20 +291,6 @@ public class CommCarePreferences
                 });
 
         f.showNonPersistentDialog();
-    }
-
-    private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
-        Preference pref = prefManager.findPreference(PREFS_PRINT_DOC_LOCATION);
-        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportPrefItemClick(
-                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                        GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
-                startFileBrowser();
-                return true;
-            }
-        });
     }
 
     @Override
@@ -299,15 +322,6 @@ public class CommCarePreferences
             }
         }
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Set up a listener whenever a key changes
-        getPreferenceScreen().getSharedPreferences()
-                .registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override

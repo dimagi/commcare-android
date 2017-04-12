@@ -48,6 +48,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static final String SHOW_ADB_ENTITY_LIST_TRACES = "cc-show-entity-trace-outputs";
     public static final String USE_OBFUSCATED_PW = "cc-use-pw-obfuscation";
     public static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
+    public static final String SHOW_UPDATE_OPTIONS_SETTING = "cc-show-update-target-options";
 
     /**
      * Stores last used password and performs auto-login when that password is
@@ -370,6 +371,10 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static boolean isBulkPerformanceEnabled() {
         return doesPropertyMatch(ENABLE_BULK_PERFORMANCE, CommCarePreferences.NO, CommCarePreferences.YES);
+    }
+
+    public static boolean shouldShowUpdateOptionsSetting() {
+        return doesPropertyMatch(SHOW_UPDATE_OPTIONS_SETTING, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
 }
