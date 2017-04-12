@@ -52,5 +52,12 @@ public class LedgerDbQueryTest {
                 CaseTestUtils.xpathEvalAndCompare(evalContext,
                         "instance('ledger')/ledgerdb/ledger[@entity-id='ocean_state_job_lot']/section[@section-id='cleaning_stock']/entry[@id='soap']",
                         9.0));
+
+        // checking a non-existent entity
+        assertTrue(
+                CaseTestUtils.xpathEvalAndCompare(evalContext,
+                        "count(instance('ledger')/ledgerdb/ledger[@entity-id='doesnt_exist']/section[@section-id='cleaning_stock']/entry[@id='soap'])",
+                        0.0));
+
     }
 }
