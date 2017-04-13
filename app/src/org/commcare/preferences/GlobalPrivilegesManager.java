@@ -106,8 +106,14 @@ public class GlobalPrivilegesManager {
                     String serializedAppsList = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
                     getGlobalPrivilegesRecord().edit()
                             .putString(RETRIEVED_AVAILABLE_APPS, serializedAppsList).commit();
+                    baos.close();
                     serializedStream.close();
                 } catch (IOException e) {
+                    // Means something went wrong serializing the available apps objects, so we just
+                    // won't save them for later, but we should also clear out anything that was
+                    // previously saved, since the user will be expecting the latest request
+                    System.out.println("IO error encountered while serializing retrieved available apps");
+                    clearPreviouslyRetrivedApps();
                 }
             } finally {
                 try {
@@ -118,6 +124,7 @@ public class GlobalPrivilegesManager {
                         serializedStream.close();
                     }
                 } catch (IOException e) {
+                    // Nothing we can do
                 }
             }
         }
@@ -136,6 +143,7 @@ public class GlobalPrivilegesManager {
                 return previouslyRetrievedApps;
             } catch (Exception e) {
                 // Something went wrong, so clear out whatever is there
+                System.out.println("IO error encountered while de-serializing retrieved available apps");
                 clearPreviouslyRetrivedApps();
             }
         }
