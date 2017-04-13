@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareHeartbeatManager;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
@@ -71,6 +72,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.json.JSONException;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -192,6 +194,13 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             }
 
             checkForPinLaunchConditions();
+
+            // Try to send a heartbeat request
+            try {
+                CommCareHeartbeatManager.parseTestHeartbeatResponse();
+            } catch (JSONException e) {
+                System.out.println("ERROR while parsing test response");
+            }
         }
     }
 

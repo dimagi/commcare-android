@@ -21,17 +21,16 @@ import java.util.TimerTask;
  * Created by amstone326 on 4/13/17.
  */
 
-public class CommCareHeartbeatManager implements HttpResponseProcessor {
+public class CommCareHeartbeatManager {
 
     private static final long ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
-    private static final String TEST_RESPONSE = "{\"latest_apk_version\":{\"value\":\"2.25.2\"},\"latest_ccz_version\":{\"value\":\"115\",\"force_by_date\":\"2017-05-01\"}}";
+    private static final String TEST_RESPONSE =
+            "{\"latest_apk_version\":{\"value\":\"2.36.1\"},\"latest_ccz_version\":{\"value\":\"75\", \"force_by_date\":\"2017-05-01\"}}";
 
-    TimerTask heartbeatTimerTask;
-    Timer heartbeatTimer = new Timer();
 
-    public void startHeartbeatCommunications() {
-        heartbeatTimerTask = new TimerTask() {
+    public static void startHeartbeatCommunications() {
+        TimerTask heartbeatTimerTask = new TimerTask() {
             @Override
             public void run() {
                 try {
@@ -43,10 +42,10 @@ public class CommCareHeartbeatManager implements HttpResponseProcessor {
             }
         };
 
-        heartbeatTimer.schedule(heartbeatTimerTask, new Date(), ONE_DAY_IN_MS);
+        (new Timer()).schedule(heartbeatTimerTask, new Date(), ONE_DAY_IN_MS);
     }
 
-    private void requestHeartbeat(User currentUser) {
+    private static void requestHeartbeat(User currentUser) {
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         String urlString = currentApp.getAppPreferences().getString(
                 CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
@@ -69,7 +68,11 @@ public class CommCareHeartbeatManager implements HttpResponseProcessor {
         }
     }
 
-    private void parseHeartbeatResponse(JSONObject responseAsJson) {
+    public static void parseTestHeartbeatResponse() throws JSONException {
+        parseHeartbeatResponse(new JSONObject(TEST_RESPONSE));
+    }
+
+    private static void parseHeartbeatResponse(JSONObject responseAsJson) {
         try {
             if (responseAsJson.has("latest_apk_version")) {
                 JSONObject latestApkVersionInfo = responseAsJson.getJSONObject("latest_apk_version");
@@ -90,7 +93,7 @@ public class CommCareHeartbeatManager implements HttpResponseProcessor {
 
     }
 
-    private void parseUpdateToPrompt(JSONObject latestVersionInfo, boolean isForApk) {
+    private static void parseUpdateToPrompt(JSONObject latestVersionInfo, boolean isForApk) {
         try {
             if (latestVersionInfo.has("value")) {
                 String versionValue = latestVersionInfo.getString("value");
@@ -106,33 +109,4 @@ public class CommCareHeartbeatManager implements HttpResponseProcessor {
         }
     }
 
-    @Override
-    public void processSuccess(int responseCode, InputStream responseData) {
-
-    }
-
-    @Override
-    public void processRedirection(int responseCode) {
-
-    }
-
-    @Override
-    public void processClientError(int responseCode) {
-
-    }
-
-    @Override
-    public void processServerError(int responseCode) {
-
-    }
-
-    @Override
-    public void processOther(int responseCode) {
-
-    }
-
-    @Override
-    public void handleIOException(IOException exception) {
-
-    }
 }
