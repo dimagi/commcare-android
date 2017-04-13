@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -163,6 +164,8 @@ public class CommCareApplication extends Application {
     private boolean invalidateCacheOnRestore;
     private CommCareNoficationManager noficationManager;
 
+    private UpdateToPrompt apkVersionToPromptForUpdate;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -221,6 +224,12 @@ public class CommCareApplication extends Application {
         if (!GoogleAnalyticsUtils.versionIncompatible()) {
             analyticsInstance = GoogleAnalytics.getInstance(this);
             GoogleAnalyticsUtils.reportAndroidApiLevelAtStartup();
+        }
+
+        try {
+            System.out.println("APK VERSION: " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+
         }
     }
 
@@ -1016,5 +1025,16 @@ public class CommCareApplication extends Application {
 
     public static CommCareNoficationManager notificationManager() {
         return app.noficationManager;
+    }
+
+    public void registerUpdateToPrompt(UpdateToPrompt update) {
+        try {
+            PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+            ApkVersion currentVersion = new ApkVersion(pi.versionName);
+            if (currentVersion.compareTo(update.getApkVersion()) < 0) {
+                this.apkVersionToPromptForUpdate = update;
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+        }
     }
 }
