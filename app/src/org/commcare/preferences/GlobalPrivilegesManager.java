@@ -96,15 +96,29 @@ public class GlobalPrivilegesManager {
 
     public static void storeRetrievedAvailableApps(Vector<AppAvailableForInstall> availableAppsRetrieved) {
         if (availableAppsRetrieved != null && availableAppsRetrieved.size() > 0) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream serializedStream = new DataOutputStream(baos);
+            ByteArrayOutputStream baos = null;
+            DataOutputStream serializedStream = null;
             try {
-                ExtUtil.write(serializedStream, new ExtWrapList(availableAppsRetrieved));
-                String serializedAppsList = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-                getGlobalPrivilegesRecord().edit()
-                        .putString(RETRIEVED_AVAILABLE_APPS, serializedAppsList).commit();
-                serializedStream.close();
-            } catch (IOException e) {
+                baos = new ByteArrayOutputStream();
+                serializedStream = new DataOutputStream(baos);
+                try {
+                    ExtUtil.write(serializedStream, new ExtWrapList(availableAppsRetrieved));
+                    String serializedAppsList = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+                    getGlobalPrivilegesRecord().edit()
+                            .putString(RETRIEVED_AVAILABLE_APPS, serializedAppsList).commit();
+                    serializedStream.close();
+                } catch (IOException e) {
+                }
+            } finally {
+                try {
+                    if (baos != null) {
+                        baos.close();
+                    }
+                    if (serializedStream != null) {
+                        serializedStream.close();
+                    }
+                } catch (IOException e) {
+                }
             }
         }
     }
