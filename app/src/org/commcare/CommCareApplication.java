@@ -225,12 +225,6 @@ public class CommCareApplication extends Application {
             analyticsInstance = GoogleAnalytics.getInstance(this);
             GoogleAnalyticsUtils.reportAndroidApiLevelAtStartup();
         }
-
-        try {
-            System.out.println("APK VERSION: " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
-        } catch (PackageManager.NameNotFoundException e) {
-
-        }
     }
 
     public void startUserSession(byte[] symmetricKey, UserKeyRecord record, boolean restoreSession) {

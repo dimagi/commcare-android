@@ -10,11 +10,7 @@ public class ApkVersion implements Comparable<ApkVersion> {
         String[] pieces = versionName.split(".");
         this.majorVersion = Integer.parseInt(pieces[0]);
         this.minorVersion = Integer.parseInt(pieces[1]);
-        if (pieces.length > 2) {
-            this.pointReleaseVersion = Integer.parseInt(pieces[2]);
-        } else {
-            this.pointReleaseVersion = 0;
-        }
+        this.pointReleaseVersion = (pieces.length > 2) ? Integer.parseInt(pieces[2]) : 0;
     }
 
     @Override
@@ -24,9 +20,11 @@ public class ApkVersion implements Comparable<ApkVersion> {
             return majorVersionDifferential;
         } else {
             int minorVersionDifferential = this.minorVersion - other.minorVersion;
-            //if (minorVersionDifferential != 0 || pointReleaseVersion == -1) {
+            if (minorVersionDifferential != 0 ) {
                 return minorVersionDifferential;
-            //}
+            } else {
+                return this.pointReleaseVersion - other.pointReleaseVersion;
+            }
         }
     }
 }
