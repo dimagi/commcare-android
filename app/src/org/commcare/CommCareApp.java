@@ -361,6 +361,7 @@ public class CommCareApp implements AppFilePathBuilder {
     public void registerUpdateToPrompt(UpdateToPrompt update) {
         int currentVersion = getCommCarePlatform().getCurrentProfile().getVersion();
         if (currentVersion < update.getCczVersion()) {
+            System.out.println(".ccz version to prompt for update set to " + update.getCczVersion());
             this.appVersionToPromptForUpdate = update;
         }
     }

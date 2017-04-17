@@ -18,7 +18,9 @@ public class UpdateToPrompt {
     private boolean isApkUpdate;
 
     public UpdateToPrompt(String version, String forceByDate, boolean isApkUpdate) {
-        this.forceByDate = DateUtils.parseDate(forceByDate);
+        if (forceByDate != null) {
+            this.forceByDate = DateUtils.parseDate(forceByDate);
+        }
         this.isApkUpdate = isApkUpdate;
         if (isApkUpdate) {
             this.apkVersion = new ApkVersion(version);

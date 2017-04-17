@@ -1026,6 +1026,7 @@ public class CommCareApplication extends Application {
             PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
             ApkVersion currentVersion = new ApkVersion(pi.versionName);
             if (currentVersion.compareTo(update.getApkVersion()) < 0) {
+                System.out.println(".apk version to prompt for update set to " + update.getApkVersion());
                 this.apkVersionToPromptForUpdate = update;
             }
         } catch (PackageManager.NameNotFoundException e) {

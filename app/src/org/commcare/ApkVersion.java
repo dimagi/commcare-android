@@ -2,12 +2,14 @@ package org.commcare;
 
 public class ApkVersion implements Comparable<ApkVersion> {
 
+    private String versionName;
     private int majorVersion;
     private int minorVersion;
     private int pointReleaseVersion;
 
     public ApkVersion(String versionName) {
-        String[] pieces = versionName.split(".");
+        this.versionName = versionName;
+        String[] pieces = versionName.split("\\.");
         this.majorVersion = Integer.parseInt(pieces[0]);
         this.minorVersion = Integer.parseInt(pieces[1]);
         this.pointReleaseVersion = (pieces.length > 2) ? Integer.parseInt(pieces[2]) : 0;
@@ -26,5 +28,10 @@ public class ApkVersion implements Comparable<ApkVersion> {
                 return this.pointReleaseVersion - other.pointReleaseVersion;
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return versionName;
     }
 }
