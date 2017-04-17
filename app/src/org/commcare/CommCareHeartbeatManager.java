@@ -2,11 +2,13 @@ package org.commcare;
 
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
+import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,10 +29,13 @@ import java.util.TimerTask;
 public class CommCareHeartbeatManager {
 
     private static final long ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
+    private static final long TEN_SECONDS = 10*1000;
 
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
     // not sure about this one
     private static final String UNSUBMITTED_FORMS_PARAM = "num_quarantined_forms";
+
+    private static Timer heartbeatTimer;
 
     private static final HttpResponseProcessor responseProcessor = new HttpResponseProcessor() {
 
@@ -81,22 +86,35 @@ public class CommCareHeartbeatManager {
 
     private static final String TEST_RESPONSE =
             "{\"latest_apk_version\":{\"value\":\"2.36.1\"},\"latest_ccz_version\":{\"value\":\"85\", \"force_by_date\":\"2017-05-01\"}}";
-
+    public static void parseTestHeartbeatResponse() {
+        System.out.println("NOTE: Testing heartbeat response processing");
+        try {
+            parseHeartbeatResponse(new JSONObject(TEST_RESPONSE));
+        } catch (JSONException e) {
+            System.out.println("Test response was not properly formed JSON");
+        }
+    }
 
     public static void startHeartbeatCommunications() {
         TimerTask heartbeatTimerTask = new TimerTask() {
             @Override
             public void run() {
                 try {
-                    requestHeartbeat(CommCareApplication.instance().getSession().getLoggedInUser());
+                    //requestHeartbeat(CommCareApplication.instance().getSession().getLoggedInUser());
+                    parseTestHeartbeatResponse();
                 } catch (SessionUnavailableException e) {
-                    // There is no active user session, so we can't send this request right now
-                    // TODO: change the timer to try again sooner
+                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                            "Tried to send heartbeat request when there was no active session");
                 }
             }
         };
 
-        (new Timer()).schedule(heartbeatTimerTask, new Date(), ONE_DAY_IN_MS);
+        heartbeatTimer = new Timer();
+        heartbeatTimer.schedule(heartbeatTimerTask, new Date(), TEN_SECONDS);
+    }
+
+    public static void stopHeartbeatCommunications() {
+        heartbeatTimer.cancel();
     }
 
     private static void requestHeartbeat(User currentUser) {
@@ -126,11 +144,6 @@ public class CommCareHeartbeatManager {
         // TODO: get the actual value for this
         params.put(QUARANTINED_FORMS_PARAM, "0");
         return params;
-    }
-
-    public static void parseTestHeartbeatResponse() throws JSONException {
-        System.out.println("Testing heartbeat response processing");
-        parseHeartbeatResponse(new JSONObject(TEST_RESPONSE));
     }
 
     private static void parseHeartbeatResponse(JSONObject responseAsJson) {

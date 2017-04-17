@@ -194,13 +194,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             }
 
             checkForPinLaunchConditions();
-
-            // Try to send a heartbeat request
-            try {
-                CommCareHeartbeatManager.parseTestHeartbeatResponse();
-            } catch (JSONException e) {
-                System.out.println("ERROR while parsing test response");
-            }
         }
     }
 

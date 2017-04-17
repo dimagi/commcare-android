@@ -1,7 +1,5 @@
 package org.commcare;
 
-import android.preference.PreferenceManager;
-
 import org.javarosa.core.model.utils.DateUtils;
 
 import java.util.Date;

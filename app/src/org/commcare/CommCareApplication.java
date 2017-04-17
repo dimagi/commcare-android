@@ -715,6 +715,7 @@ public class CommCareApplication extends Application {
                         }
                     }
 
+                    CommCareHeartbeatManager.startHeartbeatCommunications();
                     TimedStatsTracker.registerStartSession();
                 }
             }
@@ -726,6 +727,7 @@ public class CommCareApplication extends Application {
                 // Because it is running in our same process, we should never
                 // see this happen.
                 mBoundService = null;
+                CommCareHeartbeatManager.stopHeartbeatCommunications();
             }
         };
 
@@ -813,6 +815,9 @@ public class CommCareApplication extends Application {
                     sessionWrapper.reset();
                 }
                 sessionServiceIsBound = false;
+
+                CommCareHeartbeatManager.stopHeartbeatCommunications();
+
                 // Detach our existing connection.
                 unbindService(mConnection);
                 stopService(new Intent(this, CommCareSessionService.class));
