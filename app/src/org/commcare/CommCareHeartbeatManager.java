@@ -35,8 +35,6 @@ public class CommCareHeartbeatManager {
             "{\"latest_apk_version\":{\"value\":\"2.36.1\"},\"latest_ccz_version\":{\"value\":\"85\", \"force_by_date\":\"2017-05-01\"}}";
 
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
-    // not sure about this one
-    private static final String UNSUBMITTED_FORMS_PARAM = "num_quarantined_forms";
 
     private Timer heartbeatTimer;
 
@@ -90,6 +88,9 @@ public class CommCareHeartbeatManager {
     };
 
     public static CommCareHeartbeatManager instance() {
+        if (INSTANCE == null) {
+            INSTANCE = new CommCareHeartbeatManager();
+        }
         return INSTANCE;
     }
 
