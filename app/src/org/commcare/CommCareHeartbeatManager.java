@@ -1,5 +1,8 @@
 package org.commcare;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.logging.AndroidLogger;
@@ -99,11 +102,13 @@ public class CommCareHeartbeatManager {
             @Override
             public void run() {
                 try {
-                    //requestHeartbeat(CommCareApplication.instance().getSession().getLoggedInUser());
+                    User currentUser = CommCareApplication.instance().getSession().getLoggedInUser();
+                    //simulateRequestGettingStuck();
+                    //requestHeartbeat(currentUser);
                     parseTestHeartbeatResponse();
                 } catch (SessionUnavailableException e) {
-                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                            "Tried to send heartbeat request when there was no active session");
+                    // Means the session has ended, so we should stop these requests
+                    stopHeartbeatCommunications();
                 }
             }
         };
@@ -123,6 +128,16 @@ public class CommCareHeartbeatManager {
         } catch (JSONException e) {
             System.out.println("Test response was not properly formed JSON");
         }
+    }
+
+    private static void simulateRequestGettingStuck() {
+        System.out.println("Before sleeping");
+        try {
+            Thread.sleep(TEN_SECONDS/2);
+        } catch (InterruptedException e) {
+            System.out.println("TEST ERROR: sleep was interrupted");
+        }
+        System.out.println("After sleeping");
     }
 
     private void requestHeartbeat(User currentUser) {
@@ -154,25 +169,30 @@ public class CommCareHeartbeatManager {
         return params;
     }
 
-    private static void parseHeartbeatResponse(JSONObject responseAsJson) {
-        try {
-            if (responseAsJson.has("latest_apk_version")) {
-                JSONObject latestApkVersionInfo = responseAsJson.getJSONObject("latest_apk_version");
-                parseUpdateToPrompt(latestApkVersionInfo, true);
-            }
-        } catch (JSONException e) {
-            System.out.println("Latest apk version object not formatted properly");
-        }
+    private static void parseHeartbeatResponse(final JSONObject responseAsJson) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                // will run on UI thread
+                try {
+                    if (responseAsJson.has("latest_apk_version")) {
+                        JSONObject latestApkVersionInfo = responseAsJson.getJSONObject("latest_apk_version");
+                        parseUpdateToPrompt(latestApkVersionInfo, true);
+                    }
+                } catch (JSONException e) {
+                    System.out.println("Latest apk version object not formatted properly");
+                }
 
-        try {
-            if (responseAsJson.has("latest_ccz_version")) {
-                JSONObject latestCczVersionInfo = responseAsJson.getJSONObject("latest_ccz_version");
-                parseUpdateToPrompt(latestCczVersionInfo, false);
+                try {
+                    if (responseAsJson.has("latest_ccz_version")) {
+                        JSONObject latestCczVersionInfo = responseAsJson.getJSONObject("latest_ccz_version");
+                        parseUpdateToPrompt(latestCczVersionInfo, false);
+                    }
+                } catch (JSONException e) {
+                    System.out.println("Latest ccz version object not formatted properly");
+                }
             }
-        } catch (JSONException e) {
-            System.out.println("Latest ccz version object not formatted properly");
-        }
-
+        });
     }
 
     private static void parseUpdateToPrompt(JSONObject latestVersionInfo, boolean isForApk) {

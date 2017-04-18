@@ -27,7 +27,7 @@ public class BlockingActionsManager {
         synchronized (lock) {
             cleanQueue();
 
-            DelayedBlockingAction  pendingAction = null;
+            DelayedBlockingAction pendingAction = null;
             for (DelayedBlockingAction existingAction : actions) {
                 if (existingAction.isSameType(action)) {
                     pendingAction = existingAction;
