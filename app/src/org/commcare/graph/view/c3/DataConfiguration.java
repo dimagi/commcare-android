@@ -117,7 +117,7 @@ public class DataConfiguration extends Configuration {
         }
 
         // Whether or not to show data labels at each point/bar
-        boolean showLabels = Boolean.valueOf(mData.getConfiguration("show-data-labels", "true"));
+        boolean showLabels = Boolean.valueOf(mData.getConfiguration("show-data-labels", "false"));
         if (showLabels) {
             mConfiguration.put("labels", true);
         }
