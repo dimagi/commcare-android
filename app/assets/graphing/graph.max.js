@@ -113,10 +113,15 @@ var intervalID = setInterval(function() {
         }
         config.legend.hide = hideSeries;
 
-        // Configure data labels, which we use only to display annotations
+        // Configure data labels, which we use as intended and also to display annotations
+        var showDataLabels = !!config.data.labels;
         config.data.labels = {
             format: function(value, id, index) {
-                return data.annotations[id] || '';
+                if (data.isData[id]) {
+                    return value || '';
+                } else {
+                  return data.annotations[id] || '';
+                }
             },
         };
 
@@ -125,9 +130,6 @@ var intervalID = setInterval(function() {
 
         // Post-processing
         config.onrendered = function() {
-            // For annotations series, nudge text so it appears on top of data point
-            d3.selectAll("g.c3-texts text").attr("dy", 10);
-
             // Support point-style
             for (var yID in data.pointStyles) {
                 var symbol = data.pointStyles[yID];
