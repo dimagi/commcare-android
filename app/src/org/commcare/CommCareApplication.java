@@ -715,7 +715,7 @@ public class CommCareApplication extends Application {
                         }
                     }
 
-                    CommCareHeartbeatManager.startHeartbeatCommunications();
+                    CommCareHeartbeatManager.instance().startHeartbeatCommunications();
                     TimedStatsTracker.registerStartSession();
                 }
             }
@@ -727,7 +727,7 @@ public class CommCareApplication extends Application {
                 // Because it is running in our same process, we should never
                 // see this happen.
                 mBoundService = null;
-                CommCareHeartbeatManager.stopHeartbeatCommunications();
+                CommCareHeartbeatManager.instance().stopHeartbeatCommunications();
             }
         };
 
@@ -816,7 +816,7 @@ public class CommCareApplication extends Application {
                 }
                 sessionServiceIsBound = false;
 
-                CommCareHeartbeatManager.stopHeartbeatCommunications();
+                CommCareHeartbeatManager.instance().stopHeartbeatCommunications();
 
                 // Detach our existing connection.
                 unbindService(mConnection);
