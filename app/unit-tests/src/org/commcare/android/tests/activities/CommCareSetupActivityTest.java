@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 
-import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.CommCareSetupActivity;
@@ -53,7 +52,7 @@ public class CommCareSetupActivityTest {
 
         // click the 'offline install' menu item
         ShadowActivity shadowActivity = Shadows.shadowOf(setupActivity);
-        shadowActivity.clickMenuItem(CommCareSetupActivity.MODE_ARCHIVE);
+        shadowActivity.clickMenuItem(CommCareSetupActivity.MENU_ARCHIVE);
 
         // make sure there are no pinned notifications
         NotificationManager notificationManager =

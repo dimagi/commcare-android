@@ -18,7 +18,6 @@ import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.util.Pair;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -62,12 +61,12 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.framework.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
+import org.commcare.modern.util.Pair;
 import org.commcare.network.AndroidModernHttpRequester;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpUtils;
 import org.commcare.preferences.CommCarePreferences;
-import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
@@ -980,13 +979,14 @@ public class CommCareApplication extends Application {
         return false;
     }
 
-    public ModernHttpRequester buildModernHttpRequester(Context context, URL url,
-                                                        HashMap<String, String> params,
-                                                        boolean isAuthenticatedRequest,
-                                                        boolean isPostRequest) {
-        Pair<User, String> userAndDomain = HttpUtils.getUserAndDomain(isAuthenticatedRequest);
-        return new AndroidModernHttpRequester(new AndroidCacheDirSetup(context), url,
-                params, userAndDomain.first, userAndDomain.second, isAuthenticatedRequest, isPostRequest);
+    public ModernHttpRequester buildHttpRequesterForLoggedInUser(Context context, URL url,
+                                                                 HashMap<String, String> params,
+                                                                 boolean isAuthenticatedRequest,
+                                                                 boolean isPostRequest) {
+        Pair<User, String> userAndDomain =
+                HttpUtils.getUserAndDomain(isAuthenticatedRequest);
+        return new AndroidModernHttpRequester(new AndroidCacheDirSetup(context), url, params,
+                userAndDomain.first, userAndDomain.second, isAuthenticatedRequest, isPostRequest);
     }
 
     public DataPullRequester getDataPullRequester() {

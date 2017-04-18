@@ -179,7 +179,7 @@ public class QueryRequestActivity
         try {
             httpTask = new SimpleHttpTask(this, url,
                     new HashMap<>(remoteQuerySessionManager.getRawQueryParams()),
-                    false);
+                    false, null);
         } catch (ModernHttpRequester.PlainTextPasswordException e) {
             enterErrorState(Localization.get("post.not.using.https", url.toString()));
             return;

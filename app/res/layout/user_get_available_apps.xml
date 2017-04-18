@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <LinearLayout
+        android:id="@+id/authenticate_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/toggle_button_container"
+            android:layout_marginBottom="@dimen/standard_spacer_large"/>
+
+        <LinearLayout
+            android:id="@+id/mobile_user_view"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/edit_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/standard_spacer_large"
+                android:layout_marginRight="@dimen/standard_spacer_large"
+                android:hint="Username"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusDown="@+id/edit_password"
+                android:textSize="@dimen/text_medium"/>
+
+            <EditText
+                android:id="@+id/edit_domain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/standard_spacer_large"
+                android:layout_marginRight="@dimen/standard_spacer_large"
+                android:hint="Domain"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusDown="@+id/edit_password"
+                android:textSize="@dimen/text_medium"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/web_user_view"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/edit_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/standard_spacer_large"
+                android:layout_marginRight="@dimen/standard_spacer_large"
+                android:hint="Email Address"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusDown="@+id/edit_password"
+                android:textSize="@dimen/text_medium"/>
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/edit_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/standard_spacer_large"
+            android:layout_marginRight="@dimen/standard_spacer_large"
+            android:hint="Password"
+            android:imeOptions="actionDone"
+            android:nextFocusUp="@+id/edit_username"
+            android:inputType="textPassword"/>
+
+        <Button
+            android:id="@+id/get_apps_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/see_available_apps"
+            android:padding="@dimen/standard_spacer"
+            android:layout_marginTop="@dimen/standard_spacer_double"
+            android:background="@color/cc_brand_color"
+            android:textColor="@color/cc_neutral_bg" />
+
+        <TextView
+            android:id="@+id/error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/content_min_margin"
+            android:textColor="@color/cc_neutral_color"
+            android:textSize="@dimen/text_medium"
+            android:visibility="invisible"/>
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/processing_request_view"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/apps_list_container"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Apps Available for Install"
+            android:textSize="@dimen/font_size_xlarge"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:paddingTop="@dimen/standard_spacer"
+            android:layout_marginBottom="@dimen/standard_spacer_double"/>
+
+        <ListView
+            android:id="@+id/apps_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </ListView>
+
+    </LinearLayout>
+
+</LinearLayout>
