@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -161,7 +162,7 @@ public class FormUploadUtil {
                     "Internal error reading form record during submission: " +
                             ioe.getWrapped().getMessage());
             return FormUploadResult.RECORD_FAILURE;
-        } catch (ClientProtocolException e) {
+        } catch (ClientProtocolException | UnknownHostException e) {
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
                     "Client network issues during submission: " + e.getMessage());
