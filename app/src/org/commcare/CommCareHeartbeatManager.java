@@ -118,7 +118,7 @@ public class CommCareHeartbeatManager {
         };
 
         heartbeatTimer = new Timer();
-        heartbeatTimer.schedule(heartbeatTimerTask, new Date(), TEN_SECONDS);
+        heartbeatTimer.schedule(heartbeatTimerTask, new Date(), ONE_DAY_IN_MS);
     }
 
     public void stopHeartbeatCommunications() {
@@ -222,38 +222,56 @@ public class CommCareHeartbeatManager {
      * @param context
      * @return - If the user was prompted to update
      */
-    private static boolean promptForUpdateIfNeeded(Activity context, int requestCodeForActivityLaunch) {
-        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-        if (currentApp != null) {
-            UpdateToPrompt cczUpdate = getCurrentUpdateToPrompt(currentApp.getAppPreferences(), false);
-            UpdateToPrompt apkUpdate = getCurrentUpdateToPrompt(currentApp.getAppPreferences(), true);
-            if (cczUpdate != null || apkUpdate != null) {
-                Intent i = new Intent(context, PromptUpdateActivity.class);
-                context.startActivityForResult(i, requestCodeForActivityLaunch);
-                return true;
-            }
+    public static boolean promptForUpdateIfNeeded(Activity context, int requestCodeForActivityLaunch) {
+        UpdateToPrompt cczUpdate = getCurrentUpdateToPrompt(false);
+        UpdateToPrompt apkUpdate = getCurrentUpdateToPrompt(true);
+        if (cczUpdate != null || apkUpdate != null) {
+            Intent i = new Intent(context, PromptUpdateActivity.class);
+            context.startActivityForResult(i, requestCodeForActivityLaunch);
+            return true;
         }
         return false;
     }
 
-    private static UpdateToPrompt getCurrentUpdateToPrompt(SharedPreferences prefs, boolean forApkUpdate) {
-        String prefsKey = forApkUpdate ?
-                UpdateToPrompt.KEY_APK_UPDATE_TO_PROMPT : UpdateToPrompt.KEY_CCZ_UPDATE_TO_PROMPT;
-        String serializedUpdate = prefs.getString(prefsKey, "");
-        if (!"".equals(serializedUpdate)) {
-            try {
-                byte[] updateBytes = Base64.decode(serializedUpdate, Base64.DEFAULT);
-                DataInputStream stream = new DataInputStream(new ByteArrayInputStream(updateBytes));
-                UpdateToPrompt update = (UpdateToPrompt)
-                        ExtUtil.read(stream, UpdateToPrompt.class, ExtUtil.defaultPrototypes());
-                return update;
-            } catch (Exception e) {
-                // Something went wrong, so clear out whatever is there
-                System.out.println("IO error encountered while de-serializing saved UpdateToPrompt");
-                prefs.edit().putString(prefsKey, "");
+    /**
+     *
+     * @return an UpdateToPrompt that has been stored in SharedPreferences and is still relevant
+     * (i.e. the user hasn't updated to or past this version since we stored it)
+     */
+    public static UpdateToPrompt getCurrentUpdateToPrompt(boolean forApkUpdate) {
+        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+        if (currentApp != null) {
+            String prefsKey = forApkUpdate ?
+                    UpdateToPrompt.KEY_APK_UPDATE_TO_PROMPT : UpdateToPrompt.KEY_CCZ_UPDATE_TO_PROMPT;
+            String serializedUpdate = currentApp.getAppPreferences().getString(prefsKey, "");
+            if (!"".equals(serializedUpdate)) {
+                try {
+                    byte[] updateBytes = Base64.decode(serializedUpdate, Base64.DEFAULT);
+                    DataInputStream stream = new DataInputStream(new ByteArrayInputStream(updateBytes));
+                    UpdateToPrompt update = (UpdateToPrompt)
+                            ExtUtil.read(stream, UpdateToPrompt.class, ExtUtil.defaultPrototypes());
+                    if (update.isNewerThanCurrentVersion(currentApp)) {
+                        return update;
+                    } else {
+                        // The update we had stored is no longer relevant, so wipe it and return nothing
+                        wipeStoredUpdate(forApkUpdate);
+                        return null;
+                    }
+                } catch (Exception e) {
+                    // Something went wrong, so clear out whatever is there
+                    System.out.println("IO error encountered while de-serializing saved UpdateToPrompt");
+                    wipeStoredUpdate(forApkUpdate);
+                }
             }
         }
         return null;
+    }
+
+    public static void wipeStoredUpdate(boolean forApkUpdate) {
+        String prefsKey = forApkUpdate ?
+                UpdateToPrompt.KEY_APK_UPDATE_TO_PROMPT : UpdateToPrompt.KEY_CCZ_UPDATE_TO_PROMPT;
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putString(prefsKey, "").commit();
     }
 
 }

@@ -195,11 +195,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 return;
             }
 
-
-
             if (checkForPinLaunchConditions()) {
                 return;
             }
+
+            CommCareHeartbeatManager.promptForUpdateIfNeeded(this, PROMPT_UPDATE);
         }
     }
 
@@ -460,6 +460,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case GET_REMOTE_DATA:
                     stepBackIfCancelled(resultCode);
                     break;
+                case PROMPT_UPDATE:
+                    if (resultCode == RESULT_OK) {
+
+                    }
+                    return;
             }
             sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();

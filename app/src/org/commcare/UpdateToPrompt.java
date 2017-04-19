@@ -56,19 +56,19 @@ public class UpdateToPrompt implements Externalizable {
         }
     }
 
-    public int getCczVersion() {
-        return cczVersion;
-    }
-
-    public ApkVersion getApkVersion() {
-        return this.apkVersion;
+    public boolean isPastForceByDate() {
+        return hasForceByDate && (forceByDate.getTime() < System.currentTimeMillis());
     }
 
     public void registerWithSystem() {
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-        if (updateIsNewer(currentApp)) {
+        if (isNewerThanCurrentVersion(currentApp)) {
             printDebugStatement();
             writeToPrefsObject(currentApp.getAppPreferences());
+        } else {
+            // If the latest signal we're getting is that our current version is up-to-date,
+            // then we should wipe any update prompt for this type that was previously stored
+            CommCareHeartbeatManager.wipeStoredUpdate(this.isApkUpdate);
         }
     }
 
@@ -83,7 +83,7 @@ public class UpdateToPrompt implements Externalizable {
         }
     }
 
-    private boolean updateIsNewer(CommCareApp currentApp) {
+    public boolean isNewerThanCurrentVersion(CommCareApp currentApp) {
         if (isApkUpdate) {
             try {
                 Context c = CommCareApplication.instance();
@@ -112,7 +112,7 @@ public class UpdateToPrompt implements Externalizable {
                 String serializedString = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
                 prefs.edit().putString(
                         isApkUpdate ? KEY_APK_UPDATE_TO_PROMPT : KEY_CCZ_UPDATE_TO_PROMPT,
-                        serializedString);
+                        serializedString).commit();
                 baos.close();
                 serializedStream.close();
             } catch (IOException e) {
