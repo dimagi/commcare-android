@@ -122,7 +122,9 @@ public class CommCareHeartbeatManager {
     }
 
     public void stopHeartbeatCommunications() {
-        heartbeatTimer.cancel();
+        if (heartbeatTimer != null) {
+            heartbeatTimer.cancel();
+        }
     }
 
     public static void parseTestHeartbeatResponse() {
