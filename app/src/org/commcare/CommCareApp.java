@@ -2,8 +2,6 @@ package org.commcare;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -358,32 +356,4 @@ public class CommCareApp implements AppFilePathBuilder {
         }
     }
 
-    public void registerUpdateToPrompt(UpdateToPrompt update) {
-        if (update.isApkUpdate) {
-            registerApkUpdate(update);
-        } else {
-            registerCczUpdate(update);
-        }
-    }
-
-    private static void registerApkUpdate(UpdateToPrompt update) {
-        try {
-            Context c = CommCareApplication.instance();
-            PackageInfo pi = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
-            ApkVersion currentVersion = new ApkVersion(pi.versionName);
-            if (currentVersion.compareTo(update.getApkVersion()) < 0) {
-                System.out.println(".apk version to prompt for update set to " + update.getApkVersion());
-                // TODO: write to application record
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-        }
-    }
-
-    private void registerCczUpdate(UpdateToPrompt update) {
-        int currentVersion = getCommCarePlatform().getCurrentProfile().getVersion();
-        if (currentVersion < update.getCczVersion()) {
-            System.out.println(".ccz version to prompt for update set to " + update.getCczVersion());
-            // TODO: write to application record
-        }
-    }
 }
