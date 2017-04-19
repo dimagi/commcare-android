@@ -2,10 +2,9 @@ package org.commcare.xml;
 
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.global.models.AppAvailableForInstall;
+import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.models.database.SqlStorage;
-import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -18,7 +17,7 @@ import java.util.List;
 /**
  * Created by amstone326 on 2/3/17.
  */
-public class AvailableAppsParser extends TransactionParser<List<AppAvailableForInstall>> {
+public class AvailableAppsParser extends TransactionParser<List<AppAvailableToInstall>> {
 
     private static final String APPS_TAG = "apps";
     private static final String APP_TAG = "app";
@@ -32,10 +31,10 @@ public class AvailableAppsParser extends TransactionParser<List<AppAvailableForI
     }
 
     @Override
-    public List<AppAvailableForInstall> parse() throws InvalidStructureException, IOException,
+    public List<AppAvailableToInstall> parse() throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
         checkNode(APPS_TAG);
-        List<AppAvailableForInstall> appsList = new ArrayList<>();
+        List<AppAvailableToInstall> appsList = new ArrayList<>();
 
         parser.next();
         int eventType = parser.getEventType();
@@ -47,7 +46,7 @@ public class AvailableAppsParser extends TransactionParser<List<AppAvailableForI
                     String appName = parser.getAttributeValue(null, APP_NAME_TAG);
                     String profileRef = parser.getAttributeValue(null, PROFILE_REF_TAG);
                     String mediaProfileRef = parser.getAttributeValue(null, MEDIA_PROFILE_REF_TAG);
-                    appsList.add(new AppAvailableForInstall(domain, appName, profileRef, mediaProfileRef));
+                    appsList.add(new AppAvailableToInstall(domain, appName, profileRef, mediaProfileRef));
                 }
             }
             eventType = parser.next();
@@ -58,11 +57,11 @@ public class AvailableAppsParser extends TransactionParser<List<AppAvailableForI
     }
 
     @Override
-    protected void commit(List<AppAvailableForInstall> parsed) throws IOException, InvalidStructureException {
-        SqlStorage<AppAvailableForInstall> storage =
-                CommCareApplication.instance().getGlobalStorage(AppAvailableForInstall.STORAGE_KEY,
-                        AppAvailableForInstall.class);
-        for (AppAvailableForInstall availableApp : parsed) {
+    protected void commit(List<AppAvailableToInstall> parsed) throws IOException, InvalidStructureException {
+        SqlStorage<AppAvailableToInstall> storage =
+                CommCareApplication.instance().getGlobalStorage(AppAvailableToInstall.STORAGE_KEY,
+                        AppAvailableToInstall.class);
+        for (AppAvailableToInstall availableApp : parsed) {
             storage.write(availableApp);
         }
     }

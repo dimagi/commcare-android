@@ -9,7 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
-import org.commcare.android.database.global.models.AppAvailableForInstall;
+import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.models.database.AndroidTableBuilder;
@@ -62,8 +62,8 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
             builder.addData(new ForceCloseLogEntry());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder(AppAvailableForInstall.STORAGE_KEY);
-            builder.addData(new AppAvailableForInstall());
+            builder = new AndroidTableBuilder(AppAvailableToInstall.STORAGE_KEY);
+            builder.addData(new AppAvailableToInstall());
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);

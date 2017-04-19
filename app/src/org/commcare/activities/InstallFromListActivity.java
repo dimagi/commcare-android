@@ -25,8 +25,7 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.util.Pair;
-import org.commcare.preferences.GlobalPrivilegesManager;
-import org.commcare.android.database.global.models.AppAvailableForInstall;
+import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.xml.AvailableAppsParser;
@@ -45,7 +44,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Created by amstone326 on 2/3/17.
@@ -75,7 +73,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private View appsListContainer;
     private ListView appsListView;
 
-    private List<AppAvailableForInstall> availableApps = new ArrayList<>();
+    private List<AppAvailableToInstall> availableApps = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +115,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position < availableApps.size()) {
-                    AppAvailableForInstall app = availableApps.get(position);
+                    AppAvailableToInstall app = availableApps.get(position);
                     Intent i = new Intent(getIntent());
                     i.putExtra(PROFILE_REF, app.getMediaProfileRef());
                     setResult(RESULT_OK, i);
@@ -301,7 +299,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private void processResponseIntoAppsList(InputStream responseData) {
         try {
             KXmlParser baseParser = ElementParser.instantiateParser(responseData);
-            List<AppAvailableForInstall> apps = (new AvailableAppsParser(baseParser)).parse();
+            List<AppAvailableToInstall> apps = (new AvailableAppsParser(baseParser)).parse();
             availableApps.addAll(apps);
         } catch (IOException | InvalidStructureException | XmlPullParserException | UnfullfilledRequirementsException e) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "Error encountered while parsing apps available for install");
@@ -362,7 +360,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private void showResults() {
         appsListContainer.setVisibility(View.VISIBLE);
         authenticateView.setVisibility(View.GONE);
-        appsListView.setAdapter(new ArrayAdapter<AppAvailableForInstall>(this,
+        appsListView.setAdapter(new ArrayAdapter<AppAvailableToInstall>(this,
                 android.R.layout.simple_list_item_1, availableApps) {
 
             @Override
@@ -373,7 +371,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                     v = View.inflate(context, R.layout.single_available_app_view, null);
                 }
 
-                AppAvailableForInstall app = this.getItem(position);
+                AppAvailableToInstall app = this.getItem(position);
                 TextView appName = (TextView)v.findViewById(R.id.app_name);
                 appName.setText(app.getAppName());
                 TextView domain = (TextView)v.findViewById(R.id.domain);
@@ -415,7 +413,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void loadPreviouslyRetrievedAvailableApps() {
-        for (AppAvailableForInstall availableApp : storage()) {
+        for (AppAvailableToInstall availableApp : storage()) {
             this.availableApps.add(availableApp);
         }
         if (this.availableApps.size() > 0) {
@@ -427,9 +425,9 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         storage().removeAll();
     }
 
-    private SqlStorage<AppAvailableForInstall> storage() {
+    private SqlStorage<AppAvailableToInstall> storage() {
         return CommCareApplication.instance()
-                .getGlobalStorage(AppAvailableForInstall.STORAGE_KEY, AppAvailableForInstall.class);
+                .getGlobalStorage(AppAvailableToInstall.STORAGE_KEY, AppAvailableToInstall.class);
     }
 
 }

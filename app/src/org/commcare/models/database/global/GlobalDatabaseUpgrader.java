@@ -5,7 +5,7 @@ import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.global.models.AppAvailableForInstall;
+import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -114,7 +114,7 @@ class GlobalDatabaseUpgrader {
     }
 
     private boolean upgradeFourFive(SQLiteDatabase db) {
-        return addTableForNewModel(db, AppAvailableForInstall.STORAGE_KEY, new AppAvailableForInstall());
+        return addTableForNewModel(db, AppAvailableToInstall.STORAGE_KEY, new AppAvailableToInstall());
     }
 
     private static boolean addTableForNewModel(SQLiteDatabase db, String storageKey,

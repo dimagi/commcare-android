@@ -16,7 +16,7 @@ import java.io.IOException;
  *
  * Created by amstone326 on 2/3/17.
  */
-public class AppAvailableForInstall extends Persisted {
+public class AppAvailableToInstall extends Persisted {
 
     public static final String STORAGE_KEY = "available_apps";
 
@@ -29,11 +29,11 @@ public class AppAvailableForInstall extends Persisted {
     @Persisting(4)
     private String mediaProfileRef;
 
-    public AppAvailableForInstall() {
+    public AppAvailableToInstall() {
         // for serialization only
     }
 
-    public AppAvailableForInstall(String domain, String appName, String profileRef, String mediaProfileRef) {
+    public AppAvailableToInstall(String domain, String appName, String profileRef, String mediaProfileRef) {
         this.domain = domain;
         this.appName = appName;
         this.profileRef = profileRef;
