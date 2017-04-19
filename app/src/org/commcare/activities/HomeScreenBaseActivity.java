@@ -96,16 +96,17 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      */
     protected static final int GET_CASE = 2;
     protected static final int GET_REMOTE_DATA = 3;
-    protected static final int MAKE_REMOTE_POST = 5;
     /**
      * Request code for launching FormEntryActivity
      */
     protected static final int MODEL_RESULT = 4;
-    public static final int GET_INCOMPLETE_FORM = 16;
-    protected static final int PREFERENCES_ACTIVITY = 512;
-    protected static final int ADVANCED_ACTIONS_ACTIVITY = 1024;
-    protected static final int CREATE_PIN = 16384;
-    protected static final int AUTHENTICATION_FOR_PIN = 32768;
+    protected static final int MAKE_REMOTE_POST = 5;
+    public static final int GET_INCOMPLETE_FORM = 6;
+    protected static final int PREFERENCES_ACTIVITY = 7;
+    protected static final int ADVANCED_ACTIONS_ACTIVITY = 8;
+    protected static final int CREATE_PIN = 9;
+    protected static final int AUTHENTICATION_FOR_PIN = 10;
+    protected static final int PROMPT_UPDATE = 11;
 
     private static final String KEY_PENDING_SESSION_DATA = "pending-session-data-id";
     private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
@@ -191,26 +192,29 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
             if (isDemoUser()) {
                 showDemoModeWarning();
+                return;
             }
 
-            checkForPinLaunchConditions();
+
+
+            if (checkForPinLaunchConditions()) {
+                return;
+            }
         }
     }
 
     /**
      * See if we should launch either the pin choice dialog, or the create pin activity directly
+     *
+     * @return true if we launched a dialog
      */
-    private void checkForPinLaunchConditions() {
+    private boolean checkForPinLaunchConditions() {
         LoginMode loginMode = (LoginMode)getIntent().getSerializableExtra(LoginActivity.LOGIN_MODE);
         if (loginMode == LoginMode.PRIMED) {
             launchPinCreateScreen(loginMode);
-            return;
+            return true;
         }
-        if (loginMode == LoginMode.PASSWORD) {
-            boolean pinCreationEnabledForApp = DeveloperPreferences.shouldOfferPinForLogin();
-            if (!pinCreationEnabledForApp) {
-                return;
-            }
+        if (loginMode == LoginMode.PASSWORD && DeveloperPreferences.shouldOfferPinForLogin()) {
             boolean userManuallyEnteredPasswordMode = getIntent()
                     .getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
             boolean alreadyDismissedPinCreation =
@@ -218,8 +222,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                             .getBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, false);
             if (!alreadyDismissedPinCreation || userManuallyEnteredPasswordMode) {
                 showPinChoiceDialog(loginMode);
+                return true;
             }
         }
+        return false;
     }
 
     private void showPinChoiceDialog(final LoginMode loginMode) {
