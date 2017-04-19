@@ -1,7 +1,10 @@
 package org.commcare;
 
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.externalizable.ExtUtil;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -10,29 +13,31 @@ import java.util.Date;
 
 public class UpdateToPrompt {
 
+    private String versionString;
     private int cczVersion;
     private ApkVersion apkVersion;
     private Date forceByDate;
-    private boolean isApkUpdate;
+    protected boolean isApkUpdate;
 
     public UpdateToPrompt(String version, String forceByDate, boolean isApkUpdate) {
         if (forceByDate != null) {
             this.forceByDate = DateUtils.parseDate(forceByDate);
         }
         this.isApkUpdate = isApkUpdate;
+        this.versionString = version;
+        buildFromVersionString();
+    }
+
+    private void buildFromVersionString() {
         if (isApkUpdate) {
-            this.apkVersion = new ApkVersion(version);
+            this.apkVersion = new ApkVersion(versionString);
         } else {
-            this.cczVersion = Integer.parseInt(version);
+            this.cczVersion = Integer.parseInt(versionString);
         }
     }
 
     public void registerWithSystem() {
-        if (isApkUpdate) {
-            CommCareApplication.instance().registerUpdateToPrompt(this);
-        } else {
-            CommCareApplication.instance().getCurrentApp().registerUpdateToPrompt(this);
-        }
+        CommCareApplication.instance().getCurrentApp().registerUpdateToPrompt(this);
     }
 
     public int getCczVersion() {
@@ -41,5 +46,11 @@ public class UpdateToPrompt {
 
     public ApkVersion getApkVersion() {
         return this.apkVersion;
+    }
+
+    public void writeToOutputStream(DataOutputStream outputStream) throws IOException {
+        ExtUtil.writeString(outputStream, versionString);
+        ExtUtil.writeBool(outputStream, isApkUpdate);
+        ExtUtil.write(outputStream, forceByDate);
     }
 }
