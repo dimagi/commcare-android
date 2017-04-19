@@ -116,6 +116,12 @@ public class DataConfiguration extends Configuration {
             mConfiguration.put("xFormat", "%Y-%m-%d %H:%M:%S");
         }
 
+        // Whether or not to show data labels at each point/bar
+        boolean showLabels = Boolean.valueOf(mData.getConfiguration("show-data-labels", "false"));
+        if (showLabels) {
+            mConfiguration.put("labels", true);
+        }
+
         // Finally, apply all data to main configuration
         mConfiguration.put("axes", mAxes);
         mConfiguration.put("colors", mColors);
@@ -183,7 +189,7 @@ public class DataConfiguration extends Configuration {
         String xID = "boundsX";
         if (addBoundary(xID, "boundsY", "y") || addBoundary(xID, "boundsY2", "secondary-y")) {
             // If at least one y axis had boundaries and therefore a series was created,
-            // now create the matchin x values
+            // now create the matching x values
             JSONArray xValues = new JSONArray();
             xValues.put(xID);
             if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
