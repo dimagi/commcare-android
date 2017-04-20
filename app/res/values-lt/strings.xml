@@ -82,8 +82,6 @@
     <string name="location_provider">Naudojamas %1$s tiekėjas. Norint pasiekti didesnį tikslumą reikia palaukti.</string>
     <string name="location_accuracy">Tikslumas yra %1$s m</string>
     <string name="longitude">Ilguma</string>
-    <string name="main_menu">Pagr. meniu</string>
-    <string name="main_menu_details">Duomenų surinkimas tapo lengvesnis...</string>
     <string name="manage_files">Ištrinti užpildytą formą</string>
     <string name="no">Ne</string>
     <string name="noselect_error">Deja, Jūs nepažymėjote jokių formų!</string>
@@ -144,7 +142,6 @@
     <string name="show_location">Rodyti vietovę</string>
     <string name="keep_changes">Išsaugoti pakeitimus</string>
     <string name="go_to_location">Aplankyti vietovę</string>
-    <string name="protocol">Protokolas</string>
     <string name="font_size">Teksto šrifto dydis</string>
     <string name="change_font_size">Teksto šrifto dydis</string>
     <string name="form_scan_starting">Ieškoma formų...</string>

@@ -82,8 +82,6 @@
     <string name="location_provider">Using %1$s provider. Please wait for greater accuracy.</string>
     <string name="location_accuracy">Accuracy is %1$s m</string>
     <string name="longitude">Longitude</string>
-    <string name="main_menu">Main Menu</string>
-    <string name="main_menu_details">Data collection made easier...</string>
     <string name="manage_files">Delete Saved Form</string>
     <string name="no">No</string>
     <string name="noselect_error">Sorry, you have not selected any forms!</string>
