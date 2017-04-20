@@ -1,9 +1,9 @@
 package org.commcare.network;
 
 import android.content.SharedPreferences;
-import android.support.v4.util.Pair;
 
 import org.commcare.CommCareApplication;
+import org.commcare.modern.util.Pair;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
 

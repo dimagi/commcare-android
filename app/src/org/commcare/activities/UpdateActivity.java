@@ -23,6 +23,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
@@ -478,6 +479,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        menu.findItem(MENU_UPDATE_TARGET_OPTIONS).setVisible(
+                DeveloperPreferences.shouldShowUpdateOptionsSetting());
         menu.findItem(MENU_UPDATE_FROM_CCZ).setVisible(BuildConfig.DEBUG ||
                 !getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false));
         menu.findItem(MENU_UPDATE_FROM_HUB).setVisible(hubAppRecord != null);

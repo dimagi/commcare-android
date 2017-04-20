@@ -265,8 +265,8 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathUuidFunc"
             , "org.javarosa.xpath.expr.XPathWeightedChecklistFunc"
             , "org.javarosa.xpath.expr.XpathCoalesceFunc"
-
-
+            , "org.commcare.suite.model.AppAvailableForInstall"
+            
             // Migrated in 2.28
             , "org.odk.collect.android.jr.extensions.AndroidXFormExtensions"
             , "org.odk.collect.android.jr.extensions.IntentCallout"
@@ -275,6 +275,12 @@ public class FormStorageTest {
             // Removed in 2.32, but doesn't require migration because it was
             // never actually serialized
             //, "org.javarosa.core.model.DataBinding"
+
+            // Added in 2.35
+            , "org.javarosa.xpath.expr.XPathJoinChunkFunc"
+            , "org.javarosa.xpath.expr.XPathIdCompressFunc"
+
+
             );
 
     @Before
