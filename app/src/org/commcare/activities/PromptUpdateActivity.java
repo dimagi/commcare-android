@@ -3,6 +3,8 @@ package org.commcare.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -63,8 +65,17 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
 
         ((TextView)findViewById(R.id.updates_available_title)).setText(
                 Localization.get("updates.available.title"));
-        ((Button)findViewById(R.id.update_later_button)).setText(
-                Localization.get("update.later.option"));
+
+        SpannableString content = new SpannableString(Localization.get("update.later.option"));
+        content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
+        TextView updateLater = (TextView)findViewById(R.id.update_later_option);
+        updateLater.setText(content);
+        updateLater.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         View cczView = findViewById(R.id.ccz_update_container);
         if (cczUpdate != null) {

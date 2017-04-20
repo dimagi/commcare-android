@@ -58,16 +58,14 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/update_later_button"
+    <TextView
+        android:id="@+id/update_later_option"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:padding="@dimen/standard_spacer"
-        android:layout_marginBottom="@dimen/standard_spacer"
+        android:layout_marginBottom="@dimen/standard_spacer_double"
         android:textSize="@dimen/font_size_medium"
-        android:background="@color/cc_neutral_bg"
         android:gravity="center"/>
 
 </RelativeLayout>
