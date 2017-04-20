@@ -1,5 +1,7 @@
 package org.commcare.activities;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -16,14 +18,31 @@ import org.javarosa.core.services.locale.Localization;
 
 public class PromptUpdateActivity extends SessionAwareCommCareActivity {
 
+    private static final int DO_AN_UPDATE = 1;
+
     private UpdateToPrompt apkUpdate;
     private UpdateToPrompt cczUpdate;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
+        refreshUpdateToPromptObjects();
+        setupUI();
+    }
+
+    private void refreshUpdateToPromptObjects() {
         cczUpdate = CommCareHeartbeatManager.getCurrentUpdateToPrompt(false);
         apkUpdate = CommCareHeartbeatManager.getCurrentUpdateToPrompt(true);
-        setupUI();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == DO_AN_UPDATE) {
+            refreshUpdateToPromptObjects();
+            if (cczUpdate == null && apkUpdate == null) {
+                finish();
+            }
+        }
     }
 
     private void setupUI() {
@@ -49,6 +68,12 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
             infoText.setText(Localization.get("prompted.ccz.update.info"));
             Button updateButton = (Button)findViewById(R.id.ccz_update_button);
             updateButton.setText(Localization.get("prompted.ccz.update.action"));
+            updateButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    launchUpdateActivity();
+                }
+            });
         } else {
             cczView.setVisibility(View.GONE);
         }
@@ -60,9 +85,32 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
             infoText.setText(Localization.get("prompted.apk.update.info"));
             Button updateButton = (Button)findViewById(R.id.apk_update_button);
             updateButton.setText(Localization.get("prompted.apk.update.action"));
+            updateButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    launchCommCareOnPlayStore();
+                }
+            });
         } else {
             apkView.setVisibility(View.GONE);
         }
+    }
+
+    private void launchUpdateActivity() {
+        startActivityForResult(new Intent(this, UpdateActivity.class), DO_AN_UPDATE);
+    }
+
+    private void launchCommCareOnPlayStore() {
+        final String appPackageName = getPackageName(); // getPackageName() from Context or Activity object
+        Intent intent;
+        try {
+            intent = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=" + appPackageName));
+        } catch (android.content.ActivityNotFoundException e) {
+            intent = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName));
+        }
+        startActivityForResult(intent, DO_AN_UPDATE);
     }
 
     @Override
