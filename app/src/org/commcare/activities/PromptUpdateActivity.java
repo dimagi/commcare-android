@@ -2,6 +2,7 @@ package org.commcare.activities;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.CommCareHeartbeatManager;
@@ -46,8 +47,8 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
             cczView.setVisibility(View.VISIBLE);
             TextView infoText = (TextView)findViewById(R.id.ccz_update_info_text);
             infoText.setText(Localization.get("prompted.ccz.update.info"));
-            TextView actionText = (TextView)findViewById(R.id.ccz_update_action_text);
-            actionText.setText(Localization.get("prompted.ccz.update.action"));
+            Button updateButton = (Button)findViewById(R.id.ccz_update_button);
+            updateButton.setText(Localization.get("prompted.ccz.update.action"));
         } else {
             cczView.setVisibility(View.GONE);
         }
@@ -57,8 +58,8 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
             apkView.setVisibility(View.VISIBLE);
             TextView infoText = (TextView)findViewById(R.id.apk_update_info_text);
             infoText.setText(Localization.get("prompted.apk.update.info"));
-            TextView actionText = (TextView)findViewById(R.id.apk_update_action_text);
-            actionText.setText(Localization.get("prompted.apk.update.action"));
+            Button updateButton = (Button)findViewById(R.id.apk_update_button);
+            updateButton.setText(Localization.get("prompted.apk.update.action"));
         } else {
             apkView.setVisibility(View.GONE);
         }

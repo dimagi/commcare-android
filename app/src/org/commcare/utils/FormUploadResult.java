@@ -15,7 +15,7 @@ public enum FormUploadResult {
     FAILURE(1),
 
     /**
-     * The server returned an authication error
+     * The server returned an authentication error
      */
     AUTH_FAILURE(2),
 
