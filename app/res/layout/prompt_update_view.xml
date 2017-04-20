@@ -1,45 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:gravity="center"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/apk_update_container"
+    <TextView
+        android:id="@+id/updates_available_title"
+        android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:textSize="@dimen/font_size_xlarge"
+        android:textStyle="bold"
+        android:layout_marginTop="@dimen/standard_spacer"
+        android:gravity="center"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/apk_update_info_text"
-            style="@style/PromptedUpdateInfoText"
-            android:layout_marginBottom="@dimen/standard_spacer"/>
+        <LinearLayout
+            android:id="@+id/apk_update_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/apk_update_button"
-            style="@style/PromptedUpdateActionText" />
+            <TextView
+                android:id="@+id/apk_update_info_text"
+                style="@style/PromptedUpdateInfoText"
+                android:layout_marginBottom="@dimen/standard_spacer"/>
+
+            <Button
+                android:id="@+id/apk_update_button"
+                style="@style/PromptedUpdateActionText" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ccz_update_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_spacer_large"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/ccz_update_info_text"
+                style="@style/PromptedUpdateInfoText"
+                android:layout_marginBottom="@dimen/standard_spacer"/>
+
+            <Button
+                android:id="@+id/ccz_update_button"
+                style="@style/PromptedUpdateActionText" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/ccz_update_container"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/update_later_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_spacer_large"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:padding="@dimen/standard_spacer"
+        android:layout_marginBottom="@dimen/standard_spacer"
+        android:textSize="@dimen/font_size_medium"
+        android:background="@color/cc_neutral_bg"
+        android:gravity="center"/>
 
-        <TextView
-            android:id="@+id/ccz_update_info_text"
-            style="@style/PromptedUpdateInfoText"
-            android:layout_marginBottom="@dimen/standard_spacer"/>
-
-        <Button
-            android:id="@+id/ccz_update_button"
-            style="@style/PromptedUpdateActionText" />
-
-    </LinearLayout>
-
-</LinearLayout>
+</RelativeLayout>

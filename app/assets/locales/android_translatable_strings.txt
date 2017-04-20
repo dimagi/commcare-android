@@ -19,6 +19,8 @@ updates.pinned.download=Downloading updates
 updates.pinned.progress=${0}/${1}
 install.current.version=Current version: ${0}
 
+updates.available.title=Updates Available
+update.later.option=I'll update later.
 prompted.apk.update.info=There is a newer version of CommCare available, and it is recommended that you update before continuing to use CommCare.
 prompted.apk.update.action=Update CommCare via the Play Store
 prompted.ccz.update.info=There is a newer version of your app available, and it is recommended that you update before continuing to use CommCare.

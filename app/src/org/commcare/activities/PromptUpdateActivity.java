@@ -10,12 +10,12 @@ import android.widget.TextView;
 import org.commcare.CommCareHeartbeatManager;
 import org.commcare.UpdateToPrompt;
 import org.commcare.dalvik.R;
+import org.commcare.views.ManagedUi;
 import org.javarosa.core.services.locale.Localization;
 
 /**
  * Created by amstone326 on 4/19/17.
  */
-
 public class PromptUpdateActivity extends SessionAwareCommCareActivity {
 
     private static final int DO_AN_UPDATE = 1;
@@ -60,6 +60,11 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
 
     private void setUpPromptView() {
         setContentView(R.layout.prompt_update_view);
+
+        ((TextView)findViewById(R.id.updates_available_title)).setText(
+                Localization.get("updates.available.title"));
+        ((Button)findViewById(R.id.update_later_button)).setText(
+                Localization.get("update.later.option"));
 
         View cczView = findViewById(R.id.ccz_update_container);
         if (cczUpdate != null) {

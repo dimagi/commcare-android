@@ -39,7 +39,7 @@ public class CommCareHeartbeatManager {
     private static final long TEN_SECONDS = 10*1000;
 
     private static final String TEST_RESPONSE =
-            "{\"latest_apk_version\":{\"value\":\"2.35.3\"},\"latest_ccz_version\":{\"value\":\"197\", \"force_by_date\":\"2017-05-01\"}}";
+            "{\"latest_apk_version\":{\"value\":\"2.36.1\"},\"latest_ccz_version\":{\"value\":\"197\", \"force_by_date\":\"2017-05-01\"}}";
 
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
 
