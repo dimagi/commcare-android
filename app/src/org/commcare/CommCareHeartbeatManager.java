@@ -36,7 +36,6 @@ import java.util.TimerTask;
 public class CommCareHeartbeatManager {
 
     private static final long ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
-    private static final long TEN_SECONDS = 10*1000;
 
     private static final String TEST_RESPONSE =
             "{\"latest_apk_version\":{\"value\":\"2.36.1\"},\"latest_ccz_version\":{\"value\":\"197\", \"force_by_date\":\"2017-05-01\"}}";
@@ -44,8 +43,6 @@ public class CommCareHeartbeatManager {
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
 
     private Timer heartbeatTimer;
-
-    private static CommCareHeartbeatManager INSTANCE;
 
     private final HttpResponseProcessor responseProcessor = new HttpResponseProcessor() {
 
@@ -94,6 +91,7 @@ public class CommCareHeartbeatManager {
         }
     };
 
+    private static CommCareHeartbeatManager INSTANCE;
     public static CommCareHeartbeatManager instance() {
         if (INSTANCE == null) {
             INSTANCE = new CommCareHeartbeatManager();
@@ -139,7 +137,7 @@ public class CommCareHeartbeatManager {
     private static void simulateRequestGettingStuck() {
         System.out.println("Before sleeping");
         try {
-            Thread.sleep(TEN_SECONDS/2);
+            Thread.sleep(5*1000);
         } catch (InterruptedException e) {
             System.out.println("TEST ERROR: sleep was interrupted");
         }

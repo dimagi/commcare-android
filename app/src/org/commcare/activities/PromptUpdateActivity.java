@@ -43,6 +43,8 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
             refreshUpdateToPromptObjects();
             if (cczUpdate == null && apkUpdate == null) {
                 finish();
+            } else {
+                updateVisibilities();
             }
         }
     }
@@ -53,6 +55,7 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
         } else {
             setUpPromptView();
         }
+        updateVisibilities();
     }
 
     private boolean inForceMode() {
@@ -77,38 +80,47 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
             }
         });
 
-        View cczView = findViewById(R.id.ccz_update_container);
-        if (cczUpdate != null) {
-            cczView.setVisibility(View.VISIBLE);
-            TextView infoText = (TextView)findViewById(R.id.ccz_update_info_text);
-            infoText.setText(Localization.get("prompted.ccz.update.info"));
-            Button updateButton = (Button)findViewById(R.id.ccz_update_button);
-            updateButton.setText(Localization.get("prompted.ccz.update.action"));
-            updateButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    launchUpdateActivity();
-                }
-            });
-        } else {
-            cczView.setVisibility(View.GONE);
-        }
+        ((TextView)findViewById(R.id.ccz_update_info_text))
+                .setText(Localization.get("prompted.ccz.update.info"));
+        Button updateCczButton = (Button)findViewById(R.id.ccz_update_button);
+        updateCczButton.setText(Localization.get("prompted.ccz.update.action"));
+        updateCczButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                launchUpdateActivity();
+            }
+        });
 
-        View apkView = findViewById(R.id.apk_update_container);
-        if (apkUpdate != null) {
-            apkView.setVisibility(View.VISIBLE);
-            TextView infoText = (TextView)findViewById(R.id.apk_update_info_text);
-            infoText.setText(Localization.get("prompted.apk.update.info"));
-            Button updateButton = (Button)findViewById(R.id.apk_update_button);
-            updateButton.setText(Localization.get("prompted.apk.update.action"));
-            updateButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    launchCommCareOnPlayStore();
-                }
-            });
+
+        ((TextView)findViewById(R.id.apk_update_info_text))
+                .setText(Localization.get("prompted.apk.update.info"));
+        Button updateApkButton = (Button)findViewById(R.id.apk_update_button);
+        updateApkButton.setText(Localization.get("prompted.apk.update.action"));
+        updateApkButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                launchCommCareOnPlayStore();
+            }
+        });
+    }
+
+    private void updateVisibilities() {
+        if (inForceMode()) {
+
         } else {
-            apkView.setVisibility(View.GONE);
+            View cczView = findViewById(R.id.ccz_update_container);
+            if (cczUpdate != null) {
+                cczView.setVisibility(View.VISIBLE);
+            } else {
+                cczView.setVisibility(View.GONE);
+            }
+
+            View apkView = findViewById(R.id.apk_update_container);
+            if (apkUpdate != null) {
+                apkView.setVisibility(View.VISIBLE);
+            } else {
+                apkView.setVisibility(View.GONE);
+            }
         }
     }
 
