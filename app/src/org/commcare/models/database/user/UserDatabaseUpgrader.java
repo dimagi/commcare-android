@@ -494,10 +494,10 @@ class UserDatabaseUpgrader {
     private boolean upgradeSeventeenEighteen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            /*db.execSQL(DbUtil.addColumnToTable(
+            db.execSQL(DbUtil.addColumnToTable(
                     ACase.STORAGE_KEY,
                     "owner_id",
-                    "TEXT"));*/
+                    "TEXT"));
 
             SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
                     new ConcreteAndroidDbHelper(c, db));
