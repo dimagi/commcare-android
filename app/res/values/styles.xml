@@ -239,6 +239,16 @@
         <item name="android:drawableRight">@drawable/icon_chevron_right_brand</item>
     </style>
 
+    <style name="AlertDialogButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/min_button_height</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textSize">@dimen/font_size_dp_medium</item>
+        <item name="android:textColor">@color/dialog_button_color</item>
+        <item name="android:visibility">gone</item>
+        <item name="android:padding">@dimen/standard_spacer</item>
+        <item name="android:layout_marginRight">@dimen/standard_spacer</item>
+    </style>
 
     <color name="login_edit_text_color">@color/cc_core_text</color>
     <color name="login_edit_text_color_error">@color/cc_attention_negative_color</color>
