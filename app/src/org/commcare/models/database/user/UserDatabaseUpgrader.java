@@ -495,7 +495,7 @@ class UserDatabaseUpgrader {
         db.beginTransaction();
         try {
             db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
-                    "case_owner_id_index", "AndroidCase", "owner_id"));
+                    "case_owner_id_index", "AndroidCase", "owner_ID"));
             db.setTransactionSuccessful();
             return true;
         } finally {
