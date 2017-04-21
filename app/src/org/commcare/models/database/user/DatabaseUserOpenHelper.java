@@ -57,7 +57,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.18 - Add index on @owner_id for cases
      */
 
-    private static final int USER_DB_VERSION = 17;
+    private static final int USER_DB_VERSION = 18;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
