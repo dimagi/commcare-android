@@ -81,8 +81,6 @@
     <string name="location_provider">Usando el proveedor %1$s. Por favor espere para mayor precision.</string>
     <string name="location_accuracy">Precision es de %1$s m</string>
     <string name="longitude">Longitud</string>
-    <string name="main_menu">Menu Principal</string>
-    <string name="main_menu_details">Recoleccion de Datos mas facilmente...</string>
     <string name="manage_files">Borrar el Formulario Guardado</string>
     <string name="no">No</string>
     <string name="noselect_error">No ha escogido ningun formulario!</string>

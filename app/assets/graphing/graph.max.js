@@ -113,21 +113,25 @@ var intervalID = setInterval(function() {
         }
         config.legend.hide = hideSeries;
 
-        // Configure data labels, which we use only to display annotations
-        config.data.labels = {
-            format: function(value, id, index) {
-                return data.annotations[id] || '';
-            },
-        };
+        // Configure data labels, which we use as intended and also to display annotations
+        var showDataLabels = !!config.data.labels;
+        if (showDataLabels) {
+            config.data.labels = {
+                format: function(value, id, index) {
+                    if (data.isData[id]) {
+                        return value || '';
+                    } else {
+                      return data.annotations[id] || '';
+                    }
+                },
+            };
+        }
 
         // Don't use C3's default ordering for stacked series, use the order series are defined
         config.data.order = false;
 
         // Post-processing
         config.onrendered = function() {
-            // For annotations series, nudge text so it appears on top of data point
-            d3.selectAll("g.c3-texts text").attr("dy", 10);
-
             // Support point-style
             for (var yID in data.pointStyles) {
                 var symbol = data.pointStyles[yID];
