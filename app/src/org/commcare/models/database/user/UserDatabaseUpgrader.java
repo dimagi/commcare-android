@@ -9,6 +9,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.cases.model.Case;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -26,6 +27,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -141,6 +143,11 @@ class UserDatabaseUpgrader {
         if (oldVersion == 16) {
             if (upgradeSixteenSeventeen(db)) {
                 oldVersion = 17;
+            }
+        }
+        if (oldVersion == 17) {
+            if (upgradeSeventeenEighteen(db)) {
+                oldVersion = 18;
             }
         }
     }
@@ -474,6 +481,21 @@ class UserDatabaseUpgrader {
                 newStorage.write(r);
             }
 
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    /**
+     * Add index on owner ID to case db
+     */
+    private boolean upgradeSeventeenEighteen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_owner_id_index", "AndroidCase", "owner_id"));
             db.setTransactionSuccessful();
             return true;
         } finally {
