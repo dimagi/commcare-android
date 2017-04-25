@@ -9,6 +9,7 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphUtil;
 
@@ -51,7 +52,7 @@ public class GraphView {
             WebView.setWebContentsDebuggingEnabled(true);
         }
 
-        WebView webView = new WebView(mContext);
+        WebView webView = new GraphWebView(mContext);
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -70,6 +71,24 @@ public class GraphView {
         this.myHTML = html;
         webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
         return webView;
+    }
+
+    private class GraphWebView extends WebView {
+        public GraphWebView(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected void onAttachedToWindow() {
+            super.onAttachedToWindow();
+            GoogleAnalyticsUtils.reportGraphViewAttached();
+        }
+
+        @Override
+        protected void onDetachedFromWindow() {
+            super.onDetachedFromWindow();
+            GoogleAnalyticsUtils.reportGraphViewDetached();
+        }
     }
 
     /*

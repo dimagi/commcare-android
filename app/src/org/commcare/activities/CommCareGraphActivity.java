@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.graph.activities.GraphActivityStateHandler;
 
 /**
@@ -18,5 +19,12 @@ public class CommCareGraphActivity extends CommCareActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         (new GraphActivityStateHandler(this)).setContent();
+        GoogleAnalyticsUtils.reportGraphViewFullScreenOpened();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        GoogleAnalyticsUtils.reportGraphViewFullScreenClosed();
     }
 }
