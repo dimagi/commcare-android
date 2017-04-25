@@ -12,6 +12,7 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StorageUtils;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -41,6 +42,7 @@ public class CommCareHeartbeatManager {
             "{\"latest_apk_version\":{\"value\":\"2.36.1\"},\"latest_ccz_version\":{\"value\":\"197\", \"force_by_date\":\"2017-04-24\"}}";
 
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
+    private static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
 
     private Timer heartbeatTimer;
 
@@ -169,13 +171,14 @@ public class CommCareHeartbeatManager {
     private static HashMap<String, String> getParamsForHeartbeatRequest() {
         HashMap<String, String> params = new HashMap<>();
         // TODO: get the actual value for this
-        params.put(QUARANTINED_FORMS_PARAM, "0");
+        params.put(QUARANTINED_FORMS_PARAM, "" + StorageUtils.getNumQuarantinedForms());
+        params.put(UNSENT_FORMS_PARAM, "" + StorageUtils.getNumUnsentForms());
         return params;
     }
 
     private static void parseHeartbeatResponse(final JSONObject responseAsJson) {
         try {
-            // Make sure the we still have an active session before parsing the response
+            // Make sure we still have an active session before parsing the response
             CommCareApplication.instance().getSession();
 
             new Handler(Looper.getMainLooper()).post(new Runnable() {
