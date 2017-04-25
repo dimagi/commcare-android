@@ -13,6 +13,7 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
+import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -43,6 +44,7 @@ public class CommCareHeartbeatManager {
 
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
     private static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
+    private static final String LAST_SYNC_TIME_PARAM = "last_sync_time";
 
     private Timer heartbeatTimer;
 
@@ -173,6 +175,7 @@ public class CommCareHeartbeatManager {
         // TODO: get the actual value for this
         params.put(QUARANTINED_FORMS_PARAM, "" + StorageUtils.getNumQuarantinedForms());
         params.put(UNSENT_FORMS_PARAM, "" + StorageUtils.getNumUnsentForms());
+        params.put(LAST_SYNC_TIME_PARAM, new Date(SyncDetailCalculations.getLastSyncTime()).toString());
         return params;
     }
 

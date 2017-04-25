@@ -61,14 +61,18 @@ public class SyncDetailCalculations {
 
     public static Pair<Long, String> getLastSyncTimeAndMessage() {
         CharSequence syncTimeMessage;
-        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        long lastSyncTime = prefs.getLong(getLastSyncKey(), 0);
+        long lastSyncTime = getLastSyncTime();
         if (lastSyncTime == 0) {
             syncTimeMessage = Localization.get("home.sync.message.last.never");
         } else {
             syncTimeMessage = DateUtils.formatSameDayTime(lastSyncTime, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
         }
         return new Pair<>(lastSyncTime, Localization.get("home.sync.message.last", new String[]{syncTimeMessage.toString()}));
+    }
+
+    public static long getLastSyncTime() {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return prefs.getLong(getLastSyncKey(), 0);
     }
 
     public static String getLastSyncKey() {
