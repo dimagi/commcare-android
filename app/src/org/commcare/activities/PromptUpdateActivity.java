@@ -76,7 +76,6 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
     }
 
     private void setUpComponents() {
-
         updatesAvailableTitle.setText(
                 Localization.get(inForceMode() ? "update.required.title" : "updates.available.title"));
 

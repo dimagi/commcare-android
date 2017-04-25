@@ -106,7 +106,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected static final int ADVANCED_ACTIONS_ACTIVITY = 8;
     protected static final int CREATE_PIN = 9;
     protected static final int AUTHENTICATION_FOR_PIN = 10;
-    protected static final int PROMPT_UPDATE = 11;
 
     private static final String KEY_PENDING_SESSION_DATA = "pending-session-data-id";
     private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
@@ -194,12 +193,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 showDemoModeWarning();
                 return;
             }
-
+            if (CommCareHeartbeatManager.promptForUpdateIfNeeded(this)) {
+                return;
+            }
             if (checkForPinLaunchConditions()) {
                 return;
             }
-
-            CommCareHeartbeatManager.promptForUpdateIfNeeded(this, PROMPT_UPDATE);
         }
     }
 
@@ -460,11 +459,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case GET_REMOTE_DATA:
                     stepBackIfCancelled(resultCode);
                     break;
-                case PROMPT_UPDATE:
-                    if (resultCode == RESULT_OK) {
-
-                    }
-                    return;
             }
             sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();

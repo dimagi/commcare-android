@@ -91,6 +91,8 @@ public class UpdateToPrompt implements Externalizable {
                 ApkVersion currentVersion = new ApkVersion(pi.versionName);
                 return currentVersion.compareTo(this.apkVersion) < 0;
             } catch (PackageManager.NameNotFoundException e) {
+                System.out.println("Couldn't get current .apk version to compare with in " +
+                        "UpdateToPrompt: " + e.getMessage());
                 // This shouldn't happen, but it if it does, there's no way for us to know if the
                 // update version is newer, so don't prompt
                 return false;
@@ -116,7 +118,8 @@ public class UpdateToPrompt implements Externalizable {
                 baos.close();
                 serializedStream.close();
             } catch (IOException e) {
-                System.out.println("IO error encountered while serializing UpdateToPrompt");
+                System.out.println("IO error encountered while serializing UpdateToPrompt: "
+                        + e.getMessage());
             }
         } finally {
             try {

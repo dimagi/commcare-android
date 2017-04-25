@@ -2,7 +2,6 @@ package org.commcare;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
@@ -58,10 +57,10 @@ public class CommCareHeartbeatManager {
                 parseHeartbeatResponse(jsonResponse);
             }
             catch (JSONException e) {
-                System.out.println("Heartbeat response was not properly-formed JSON");
+                System.out.println("Heartbeat response was not properly-formed JSON: " + e.getMessage());
             }
             catch (IOException e) {
-                System.out.println("IO error while processing heartbeat response");
+                System.out.println("IO error while processing heartbeat response: " + e.getMessage());
             }
         }
 
@@ -155,6 +154,7 @@ public class CommCareHeartbeatManager {
         if (urlString == null) {
             // This app was generated before the heartbeat URL started being included, so we
             // can't make the request
+            stopHeartbeatCommunications();
             return;
         }
 
@@ -166,13 +166,12 @@ public class CommCareHeartbeatManager {
             requester.setResponseProcessor(responseProcessor);
             requester.request();
         } catch (MalformedURLException e) {
-            System.out.println("Heartbeat URL was malformed");
+            System.out.println("Heartbeat URL was malformed: " + e.getMessage());
         }
     }
 
     private static HashMap<String, String> getParamsForHeartbeatRequest() {
         HashMap<String, String> params = new HashMap<>();
-        // TODO: get the actual value for this
         params.put(QUARANTINED_FORMS_PARAM, "" + StorageUtils.getNumQuarantinedForms());
         params.put(UNSENT_FORMS_PARAM, "" + StorageUtils.getNumUnsentForms());
         params.put(LAST_SYNC_TIME_PARAM, new Date(SyncDetailCalculations.getLastSyncTime()).toString());
@@ -194,7 +193,8 @@ public class CommCareHeartbeatManager {
                             parseUpdateToPrompt(latestApkVersionInfo, true);
                         }
                     } catch (JSONException e) {
-                        System.out.println("Latest apk version object not formatted properly");
+                        System.out.println("Latest apk version object not formatted properly: "
+                                + e.getMessage());
                     }
 
                     try {
@@ -203,7 +203,8 @@ public class CommCareHeartbeatManager {
                             parseUpdateToPrompt(latestCczVersionInfo, false);
                         }
                     } catch (JSONException e) {
-                        System.out.println("Latest ccz version object not formatted properly");
+                        System.out.println("Latest ccz version object not formatted properly: "
+                                + e.getMessage());
                     }
                 }
             });
@@ -223,28 +224,26 @@ public class CommCareHeartbeatManager {
                 updateToPrompt.registerWithSystem();
             }
         } catch (JSONException e) {
-            System.out.println("Encountered malformed json while parsing an UpdateToPrompt");
+            System.out.println("Encountered malformed json while parsing an UpdateToPrompt: "
+                    + e.getMessage());
         }
     }
 
     /**
-     *
-     * @param context
      * @return - If the user was prompted to update
      */
-    public static boolean promptForUpdateIfNeeded(Activity context, int requestCodeForActivityLaunch) {
+    public static boolean promptForUpdateIfNeeded(Activity context) {
         UpdateToPrompt cczUpdate = getCurrentUpdateToPrompt(false);
         UpdateToPrompt apkUpdate = getCurrentUpdateToPrompt(true);
         if (cczUpdate != null || apkUpdate != null) {
             Intent i = new Intent(context, PromptUpdateActivity.class);
-            context.startActivityForResult(i, requestCodeForActivityLaunch);
+            context.startActivity(i);
             return true;
         }
         return false;
     }
 
     /**
-     *
      * @return an UpdateToPrompt that has been stored in SharedPreferences and is still relevant
      * (i.e. the user hasn't updated to or past this version since we stored it)
      */
@@ -254,7 +253,7 @@ public class CommCareHeartbeatManager {
             String prefsKey = forApkUpdate ?
                     UpdateToPrompt.KEY_APK_UPDATE_TO_PROMPT : UpdateToPrompt.KEY_CCZ_UPDATE_TO_PROMPT;
             String serializedUpdate = currentApp.getAppPreferences().getString(prefsKey, "");
-            if (!"".equals(serializedUpdate)) {
+            if (serializedUpdate != null && !"".equals(serializedUpdate)) {
                 try {
                     byte[] updateBytes = Base64.decode(serializedUpdate, Base64.DEFAULT);
                     DataInputStream stream = new DataInputStream(new ByteArrayInputStream(updateBytes));
@@ -269,7 +268,8 @@ public class CommCareHeartbeatManager {
                     }
                 } catch (Exception e) {
                     // Something went wrong, so clear out whatever is there
-                    System.out.println("IO error encountered while de-serializing saved UpdateToPrompt");
+                    System.out.println("IO error encountered while de-serializing saved " +
+                            "UpdateToPrompt: " + e.getMessage());
                     wipeStoredUpdate(forApkUpdate);
                 }
             }
