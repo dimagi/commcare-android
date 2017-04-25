@@ -50,24 +50,15 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
     }
 
     private void setupUI() {
-        if (inForceMode()) {
-            setContentView(R.layout.force_update_view);
-        } else {
-            setUpPromptView();
-        }
+        setUpComponents();
         updateVisibilities();
     }
 
-    private boolean inForceMode() {
-        return (cczUpdate != null && cczUpdate.isPastForceByDate())
-                || (apkUpdate != null && apkUpdate.isPastForceByDate());
-    }
-
-    private void setUpPromptView() {
+    private void setUpComponents() {
         setContentView(R.layout.prompt_update_view);
 
         ((TextView)findViewById(R.id.updates_available_title)).setText(
-                Localization.get("updates.available.title"));
+                Localization.get(inForceMode() ? "update.required.title" : "updates.available.title"));
 
         SpannableString content = new SpannableString(Localization.get("update.later.option"));
         content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
@@ -81,9 +72,9 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
         });
 
         ((TextView)findViewById(R.id.ccz_update_info_text))
-                .setText(Localization.get("prompted.ccz.update.info"));
+                .setText(Localization.get(cczUpdateIsForce() ? "forced.ccz.update.info" : "prompted.ccz.update.info"));
         Button updateCczButton = (Button)findViewById(R.id.ccz_update_button);
-        updateCczButton.setText(Localization.get("prompted.ccz.update.action"));
+        updateCczButton.setText(Localization.get("ccz.update.action"));
         updateCczButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,9 +84,9 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
 
 
         ((TextView)findViewById(R.id.apk_update_info_text))
-                .setText(Localization.get("prompted.apk.update.info"));
+                .setText(Localization.get(apkUpdateIsForce() ? "forced.apk.update.info" : "prompted.apk.update.info"));
         Button updateApkButton = (Button)findViewById(R.id.apk_update_button);
-        updateApkButton.setText(Localization.get("prompted.apk.update.action"));
+        updateApkButton.setText(Localization.get("apk.update.action"));
         updateApkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,23 +96,38 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
     }
 
     private void updateVisibilities() {
-        if (inForceMode()) {
-
+        View cczView = findViewById(R.id.ccz_update_container);
+        if (cczUpdate != null) {
+            cczView.setVisibility(View.VISIBLE);
         } else {
-            View cczView = findViewById(R.id.ccz_update_container);
-            if (cczUpdate != null) {
-                cczView.setVisibility(View.VISIBLE);
-            } else {
-                cczView.setVisibility(View.GONE);
-            }
-
-            View apkView = findViewById(R.id.apk_update_container);
-            if (apkUpdate != null) {
-                apkView.setVisibility(View.VISIBLE);
-            } else {
-                apkView.setVisibility(View.GONE);
-            }
+            cczView.setVisibility(View.GONE);
         }
+
+        View apkView = findViewById(R.id.apk_update_container);
+        if (apkUpdate != null) {
+            apkView.setVisibility(View.VISIBLE);
+        } else {
+            apkView.setVisibility(View.GONE);
+        }
+
+        TextView updateLater = (TextView)findViewById(R.id.update_later_option);
+        if (inForceMode()) {
+            updateLater.setVisibility(View.GONE);
+        } else {
+            updateLater.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private boolean inForceMode() {
+        return cczUpdateIsForce() || apkUpdateIsForce();
+    }
+
+    private boolean cczUpdateIsForce() {
+        return cczUpdate != null && cczUpdate.isPastForceByDate();
+    }
+
+    private boolean apkUpdateIsForce() {
+        return apkUpdate != null && apkUpdate.isPastForceByDate();
     }
 
     private void launchUpdateActivity() {
