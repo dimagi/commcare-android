@@ -13,17 +13,37 @@ import org.commcare.CommCareHeartbeatManager;
 import org.commcare.UpdateToPrompt;
 import org.commcare.dalvik.R;
 import org.commcare.views.ManagedUi;
+import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
 /**
  * Created by amstone326 on 4/19/17.
  */
+@ManagedUi(R.layout.prompt_update_view)
 public class PromptUpdateActivity extends SessionAwareCommCareActivity {
 
     private static final int DO_AN_UPDATE = 1;
 
     private UpdateToPrompt apkUpdate;
     private UpdateToPrompt cczUpdate;
+
+    @UiElement(value = R.id.updates_available_title)
+    private TextView updatesAvailableTitle;
+
+    @UiElement(value = R.id.update_later_option)
+    private TextView updateLaterText;
+
+    @UiElement(value = R.id.ccz_update_info_text)
+    private TextView cczUpdateInfoText;
+
+    @UiElement(value = R.id.ccz_update_button)
+    private Button updateCczButton;
+
+    @UiElement(value = R.id.apk_update_info_text)
+    private TextView apkUpdateInfoText;
+
+    @UiElement(value = R.id.apk_update_button)
+    private Button updateApkButton;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -55,25 +75,22 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
     }
 
     private void setUpComponents() {
-        setContentView(R.layout.prompt_update_view);
 
-        ((TextView)findViewById(R.id.updates_available_title)).setText(
+        updatesAvailableTitle.setText(
                 Localization.get(inForceMode() ? "update.required.title" : "updates.available.title"));
 
         SpannableString content = new SpannableString(Localization.get("update.later.option"));
         content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
-        TextView updateLater = (TextView)findViewById(R.id.update_later_option);
-        updateLater.setText(content);
-        updateLater.setOnClickListener(new View.OnClickListener() {
+        updateLaterText.setText(content);
+        updateLaterText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
 
-        ((TextView)findViewById(R.id.ccz_update_info_text))
-                .setText(Localization.get(cczUpdateIsForce() ? "forced.ccz.update.info" : "prompted.ccz.update.info"));
-        Button updateCczButton = (Button)findViewById(R.id.ccz_update_button);
+        cczUpdateInfoText.setText(Localization.get(
+                cczUpdateIsForce() ? "forced.ccz.update.info" : "prompted.ccz.update.info"));
         updateCczButton.setText(Localization.get("ccz.update.action"));
         updateCczButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,9 +100,8 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
         });
 
 
-        ((TextView)findViewById(R.id.apk_update_info_text))
-                .setText(Localization.get(apkUpdateIsForce() ? "forced.apk.update.info" : "prompted.apk.update.info"));
-        Button updateApkButton = (Button)findViewById(R.id.apk_update_button);
+        apkUpdateInfoText.setText(
+                Localization.get(apkUpdateIsForce() ? "forced.apk.update.info" : "prompted.apk.update.info"));
         updateApkButton.setText(Localization.get("apk.update.action"));
         updateApkButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,11 +126,10 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
             apkView.setVisibility(View.GONE);
         }
 
-        TextView updateLater = (TextView)findViewById(R.id.update_later_option);
         if (inForceMode()) {
-            updateLater.setVisibility(View.GONE);
+            updateLaterText.setVisibility(View.GONE);
         } else {
-            updateLater.setVisibility(View.VISIBLE);
+            updateLaterText.setVisibility(View.VISIBLE);
         }
     }
 
