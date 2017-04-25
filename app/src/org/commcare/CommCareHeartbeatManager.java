@@ -174,29 +174,35 @@ public class CommCareHeartbeatManager {
     }
 
     private static void parseHeartbeatResponse(final JSONObject responseAsJson) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                // will run on UI thread
-                try {
-                    if (responseAsJson.has("latest_apk_version")) {
-                        JSONObject latestApkVersionInfo = responseAsJson.getJSONObject("latest_apk_version");
-                        parseUpdateToPrompt(latestApkVersionInfo, true);
-                    }
-                } catch (JSONException e) {
-                    System.out.println("Latest apk version object not formatted properly");
-                }
+        try {
+            // Make sure the we still have an active session before parsing the response
+            CommCareApplication.instance().getSession();
 
-                try {
-                    if (responseAsJson.has("latest_ccz_version")) {
-                        JSONObject latestCczVersionInfo = responseAsJson.getJSONObject("latest_ccz_version");
-                        parseUpdateToPrompt(latestCczVersionInfo, false);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    // will run on UI thread
+                    try {
+                        if (responseAsJson.has("latest_apk_version")) {
+                            JSONObject latestApkVersionInfo = responseAsJson.getJSONObject("latest_apk_version");
+                            parseUpdateToPrompt(latestApkVersionInfo, true);
+                        }
+                    } catch (JSONException e) {
+                        System.out.println("Latest apk version object not formatted properly");
                     }
-                } catch (JSONException e) {
-                    System.out.println("Latest ccz version object not formatted properly");
+
+                    try {
+                        if (responseAsJson.has("latest_ccz_version")) {
+                            JSONObject latestCczVersionInfo = responseAsJson.getJSONObject("latest_ccz_version");
+                            parseUpdateToPrompt(latestCczVersionInfo, false);
+                        }
+                    } catch (JSONException e) {
+                        System.out.println("Latest ccz version object not formatted properly");
+                    }
                 }
-            }
-        });
+            });
+        } catch (SessionUnavailableException e) {
+        }
     }
 
     private static void parseUpdateToPrompt(JSONObject latestVersionInfo, boolean isForApk) {
