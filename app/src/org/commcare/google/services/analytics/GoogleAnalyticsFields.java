@@ -88,6 +88,7 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_IMAGE_CAPTURE_RESIZED = "Image Capture Resized";
     public static final String ACTION_CASE_AUTOSELECT_USED = "Case Autoselect Used";
     public static final String ACTION_USING_SMART_IMAGE_INFLATION = "Using Smart Image Inflation";
+    public static final String ACTION_INSTALL_FROM_LIST = "Install from available app list";
 
     // Actions for CATEGORY_APP_MANAGER
     public static final String ACTION_OPEN_APP_MANAGER = "Open App Manager";
