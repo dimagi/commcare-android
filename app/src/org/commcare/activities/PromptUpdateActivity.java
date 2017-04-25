@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -90,7 +91,7 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
         });
 
         cczUpdateInfoText.setText(Localization.get(
-                cczUpdateIsForce() ? "forced.ccz.update.info" : "prompted.ccz.update.info"));
+                cczUpdateIsForced() ? "forced.ccz.update.info" : "prompted.ccz.update.info"));
         updateCczButton.setText(Localization.get("ccz.update.action"));
         updateCczButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,10 +99,13 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
                 launchUpdateActivity();
             }
         });
+        if (cczUpdateIsForced()) {
+            cczUpdateInfoText.setTextColor(getResources().getColor(R.color.cc_attention_negative_color));
+            cczUpdateInfoText.setTypeface(Typeface.DEFAULT_BOLD);
+        }
 
-
-        apkUpdateInfoText.setText(
-                Localization.get(apkUpdateIsForce() ? "forced.apk.update.info" : "prompted.apk.update.info"));
+        apkUpdateInfoText.setText(Localization.get(
+                apkUpdateIsForced() ? "forced.apk.update.info" : "prompted.apk.update.info"));
         updateApkButton.setText(Localization.get("apk.update.action"));
         updateApkButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,6 +113,10 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
                 launchCommCareOnPlayStore();
             }
         });
+        if (apkUpdateIsForced()) {
+            apkUpdateInfoText.setTextColor(getResources().getColor(R.color.cc_attention_negative_color));
+            apkUpdateInfoText.setTypeface(Typeface.DEFAULT_BOLD);
+        }
     }
 
     private void updateVisibilities() {
@@ -134,14 +142,14 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
     }
 
     private boolean inForceMode() {
-        return cczUpdateIsForce() || apkUpdateIsForce();
+        return cczUpdateIsForced() || apkUpdateIsForced();
     }
 
-    private boolean cczUpdateIsForce() {
+    private boolean cczUpdateIsForced() {
         return cczUpdate != null && cczUpdate.isPastForceByDate();
     }
 
-    private boolean apkUpdateIsForce() {
+    private boolean apkUpdateIsForced() {
         return apkUpdate != null && apkUpdate.isPastForceByDate();
     }
 
