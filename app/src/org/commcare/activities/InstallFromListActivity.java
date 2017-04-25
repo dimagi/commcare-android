@@ -234,9 +234,9 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             };
 
             task.connect((CommCareTaskConnector)this);
-            task.executeParallel();
             task.setResponseProcessor(this);
             setAttemptedRequestFlag();
+            task.executeParallel();
             return true;
         }
         return false;
@@ -292,6 +292,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
+        System.out.println("Request to " + urlCurrentlyRequestingFrom + " had success response");
         processResponseIntoAppsList(responseData);
         repeatRequestOrShowResults(false);
     }
@@ -332,7 +333,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void handleRequestError(int responseCode) {
-        System.out.println(responseCode);
+        System.out.println("Request to " + urlCurrentlyRequestingFrom + " had error code response: " + responseCode);
         repeatRequestOrShowResults(true);
     }
 
@@ -345,7 +346,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 public void run() {
                     if (availableApps.size() == 0) {
                         if (responseWasError) {
-                            enterErrorState(Localization.get("invalid.user.entered"));
+                            enterErrorState(Localization.get("invalid.fields.entered." +
+                                    (inMobileUserAuthMode ? "mobile" : "web")));
                         } else {
                             enterErrorState(Localization.get("no.apps.available"));
                         }
