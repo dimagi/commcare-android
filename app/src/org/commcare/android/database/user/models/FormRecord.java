@@ -6,6 +6,7 @@ import android.net.Uri;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
@@ -13,6 +14,7 @@ import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.utils.StorageUtils;
+import org.javarosa.core.services.Logger;
 
 import java.io.FileNotFoundException;
 import java.util.Date;
@@ -217,6 +219,16 @@ public class FormRecord extends Persisted implements EncryptedModel {
 
     public void setFormNumberForSubmissionOrdering(int num) {
         this.submissionOrderingNumber = ""+num;
+    }
+
+    public void logPendingDeletion(String reason) {
+        String logMessage = String.format(
+                "Wiping form record with id %1$s and submission ordering number %2$s " +
+                        "because %3$s",
+                getInstanceID(),
+                getSubmissionOrderingNumber(),
+                reason);
+        Logger.log(AndroidLogger.TYPE_FORM_DELETION, logMessage);
     }
 
 }
