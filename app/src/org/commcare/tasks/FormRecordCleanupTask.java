@@ -90,11 +90,11 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             } catch (FileNotFoundException e) {
                 // No form, mark for deletion
                 recordsToRemove.add(recordID);
-                r.logPendingDeletion("the xml submission file associated with the record could not be found");
+                r.logPendingDeletion(TAG, "the xml submission file associated with the record could not be found");
             } catch (InvalidStructureException e) {
                 // Bad form data, mark for deletion
                 recordsToRemove.add(recordID);
-                r.logPendingDeletion("the xml submission file associated with the record was improperly formed");
+                r.logPendingDeletion(TAG, "the xml submission file associated with the record was improperly formed");
             } catch (XmlPullParserException | IOException |
                     UnfullfilledRequirementsException e) {
                 // Not really sure what happened; just skip

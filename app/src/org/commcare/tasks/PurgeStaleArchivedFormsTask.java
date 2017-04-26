@@ -86,7 +86,7 @@ public class PurgeStaleArchivedFormsTask
         for (int recordId : toPurge) {
             FormRecord beingDeleted =
                     CommCareApplication.instance().getUserStorage(FormRecord.class).read(recordId);
-            beingDeleted.logPendingDeletion(
+            beingDeleted.logPendingDeletion(TAG,
                     "it is a saved form that has surpassed the validity date set by the app");
             FormRecordCleanupTask.wipeRecord(CommCareApplication.instance(), recordId);
         }

@@ -173,21 +173,25 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
                     FormRecordCleanupTask.wipeRecord(c, record);
+                    record.logPendingDeletion(TAG, "we encountered an InvalidStructureException while processing the record");
                     needToSendLogs = true;
                 } catch (XmlPullParserException e) {
                     CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
+                    record.logPendingDeletion(TAG, "we encountered an XmlPullParserException while processing the record");
                     FormRecordCleanupTask.wipeRecord(c, record);
                     needToSendLogs = true;
                 } catch (UnfullfilledRequirementsException e) {
                     CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
+                    record.logPendingDeletion(TAG, "we encountered an UnfullfilledRequirementsException while processing the record");
                     FormRecordCleanupTask.wipeRecord(c, record);
                     needToSendLogs = true;
                 } catch (FileNotFoundException e) {
                     if (CommCareApplication.instance().isStorageAvailable()) {
                         //If storage is available generally, this is a bug in the app design
                         Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
+                        record.logPendingDeletion(TAG, "the xml submission file associated with the record could not be found");
                         FormRecordCleanupTask.wipeRecord(c, record);
                     } else {
                         CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);

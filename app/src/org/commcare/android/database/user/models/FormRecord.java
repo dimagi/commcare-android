@@ -221,13 +221,13 @@ public class FormRecord extends Persisted implements EncryptedModel {
         this.submissionOrderingNumber = ""+num;
     }
 
-    public void logPendingDeletion(String reason) {
+    public void logPendingDeletion(String classTag, String reason) {
         String logMessage = String.format(
                 "Wiping form record with id %1$s and submission ordering number %2$s " +
-                        "because %3$s",
+                        "in class %3$s because %4$s",
                 getInstanceID(),
                 getSubmissionOrderingNumber(),
-                reason);
+                classTag, reason);
         Logger.log(AndroidLogger.TYPE_FORM_DELETION, logMessage);
     }
 
