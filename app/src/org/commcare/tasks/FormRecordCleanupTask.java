@@ -356,7 +356,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                 FormRecord r = frStorage.read(formRecordId);
                 removeInstanceFile(context, r);
 
-                //See if there is a hanging session ID for this
+                // See if there is a hanging session ID for this
                 if (sessionId == -1) {
                     sessionId = loadSSDIDFromFormRecord(ssdStorage, formRecordId);
                 }
@@ -367,7 +367,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             }
         }
 
-        //Delete 'em if you got 'em
+        // Delete 'em if you got 'em
         if (sessionId != -1) {
             ssdStorage.remove(sessionId);
         }

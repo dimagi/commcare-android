@@ -308,19 +308,21 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         }
                     } catch (FileNotFoundException e) {
                         if (CommCareApplication.instance().isStorageAvailable()) {
-                            //If storage is available generally, this is a bug in the app design
-                            // Log with two tags so we can track more easily
-                            Logger.log(AndroidLogger.SOFT_ASSERT,
-                                    String.format("Removed form record with id %s because file was missing| %s",
+                            // If storage is available generally, this is a bug in the app design
+                            // Log with multiple tags so we can track more easily
+                            Logger.log(AndroidLogger.SOFT_ASSERT, String.format(
+                                    "Removed form record with id %s because file was missing| %s",
                                             record.getInstanceID(), getExceptionText(e)));
-                            Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION,
-                                    String.format("Removed form record with id %s because file was missing| %s",
+                            Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, String.format(
+                                    "Removed form record with id %s because file was missing| %s",
                                             record.getInstanceID(), getExceptionText(e)));
+                            record.logPendingDeletion(TAG,
+                                    "the xml submission file associated with the record was missing");
                             CommCareApplication.notificationManager().reportNotificationMessage(
                                     NotificationMessageFactory.message(ProcessIssues.RecordFilesMissing), true);
                             FormRecordCleanupTask.wipeRecord(c, record);
                         } else {
-                            //Otherwise, the SD card just got removed, and we need to bail anyway.
+                            // Otherwise, the SD card just got removed, and we need to bail anyway.
                             CommCareApplication.notificationManager().reportNotificationMessage(
                                     NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
                             break;
@@ -329,13 +331,13 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     }
 
                     Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
-                    //Check for success
+                    // Check for success
                     if (results[i] == FormUploadResult.FULL_SUCCESS) {
-                        //Only delete if this device isn't set up to review.
+                        // Only delete if this device isn't set up to review.
                         if (p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
                             FormRecordCleanupTask.wipeRecord(c, record);
                         } else {
-                            //Otherwise save and move appropriately
+                            // Otherwise save and move appropriately
                             processor.updateRecordStatus(record, FormRecord.STATUS_SAVED);
                         }
                     }
