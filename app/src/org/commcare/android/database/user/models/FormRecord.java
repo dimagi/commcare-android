@@ -223,8 +223,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
 
     public void logPendingDeletion(String classTag, String reason) {
         String logMessage = String.format(
-                "Wiping form record with id %1$s and submission ordering number %2$s " +
-                        "in class %3$s because %4$s",
+                "Wiping form record with id %s and submission ordering number %s " +
+                        "in class %s because %s",
                 getInstanceID(),
                 getSubmissionOrderingNumber(),
                 classTag, reason);
