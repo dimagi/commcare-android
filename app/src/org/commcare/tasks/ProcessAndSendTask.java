@@ -169,42 +169,58 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             if (FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
                 try {
                     records[i] = processor.process(record);
-                } catch (InvalidStructureException e) {
-                    CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
-                    FormRecordCleanupTask.wipeRecord(c, record);
-                    record.logPendingDeletion(TAG, "we encountered an InvalidStructureException while processing the record");
-                    needToSendLogs = true;
-                } catch (XmlPullParserException e) {
-                    CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
-                    record.logPendingDeletion(TAG, "we encountered an XmlPullParserException while processing the record");
-                    FormRecordCleanupTask.wipeRecord(c, record);
-                    needToSendLogs = true;
-                } catch (UnfullfilledRequirementsException e) {
-                    CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
-                    record.logPendingDeletion(TAG, "we encountered an UnfullfilledRequirementsException while processing the record");
-                    FormRecordCleanupTask.wipeRecord(c, record);
+                } catch (InvalidStructureException | XmlPullParserException |
+                        UnfullfilledRequirementsException e) {
+                    handleExceptionFromFormProcessing(record, e);
                     needToSendLogs = true;
                 } catch (FileNotFoundException e) {
                     if (CommCareApplication.instance().isStorageAvailable()) {
                         //If storage is available generally, this is a bug in the app design
-                        Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
-                        record.logPendingDeletion(TAG, "the xml submission file associated with the record could not be found");
+                        Logger.log(AndroidLogger.TYPE_ERROR_DESIGN,
+                                "Removing form record because file was missing|" + getExceptionText(e));
+                        record.logPendingDeletion(TAG,
+                                "the xml submission file associated with the record could not be found");
                         FormRecordCleanupTask.wipeRecord(c, record);
                     } else {
-                        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+                        CommCareApplication.notificationManager().reportNotificationMessage(
+                                NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
                         //Otherwise, the SD card just got removed, and we need to bail anyway.
                         throw e;
                     }
                 } catch (IOException e) {
-                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. Tentatively not removing in case they are resolvable|" + getExceptionText(e));
+                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. " +
+                            "Tentatively not removing in case they are resolvable|" + getExceptionText(e));
                 }
             }
         }
         processor.closeBulkSubmit();
         return needToSendLogs;
+    }
+
+    private void handleExceptionFromFormProcessing(FormRecord record, Exception e) {
+        String generalLogMessage = "";
+        String formDeletionLogMessage = "";
+        if (e instanceof InvalidStructureException) {
+            generalLogMessage =
+                    "Removing form record due to transaction data|" + getExceptionText(e);
+            formDeletionLogMessage =
+                    "we encountered an InvalidStructureException while processing the record";
+        } else if (e instanceof XmlPullParserException) {
+            generalLogMessage =
+                    "Removing form record due to bad xml|" + getExceptionText(e);
+            formDeletionLogMessage =
+                    "we encountered an XmlPullParserException while processing the record";
+        } else if (e instanceof  UnfullfilledRequirementsException) {
+            generalLogMessage =
+                    "Removing form record due to bad requirements|" + getExceptionText(e);
+            formDeletionLogMessage =
+                    "we encountered an UnfullfilledRequirementsException while processing the record";
+        }
+        CommCareApplication.notificationManager().reportNotificationMessage(
+                NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+        Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, generalLogMessage);
+        record.logPendingDeletion(TAG, formDeletionLogMessage);
+        FormRecordCleanupTask.wipeRecord(c, record);
     }
 
     private boolean blockUntilTopOfQueue() throws TaskCancelledException {
