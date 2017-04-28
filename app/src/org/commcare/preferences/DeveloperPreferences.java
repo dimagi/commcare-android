@@ -380,6 +380,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 CommCarePreferences.YES) || BuildConfig.DEBUG;
     }
 
+    /**
+     * TODO: IMPORTANT -- Once the mobile privileges framework is updated to allow for multiple
+     * flags, we should change this to be controlled by its own flag, instead of piggy-backing
+     * off of the multiple apps one
+     */
     private void setVisibilityOfDangerousDeveloperPrefs() {
         if (!GlobalPrivilegesManager.isMultipleAppsPrivilegeEnabled() && !BuildConfig.DEBUG) {
             // Dangerous privileges should not be showing
