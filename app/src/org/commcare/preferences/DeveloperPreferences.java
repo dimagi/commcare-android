@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.widget.Toast;
 
 import org.commcare.CommCareApp;
@@ -92,6 +93,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
         setSessionEditText();
         createOnCustomRestoreOption(prefMgr);
+        setVisibilityOfDangerousDeveloperPrefs();
     }
 
     private void createOnCustomRestoreOption(PreferenceManager prefMgr) {
@@ -376,6 +378,35 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static boolean shouldShowUpdateOptionsSetting() {
         return doesPropertyMatch(SHOW_UPDATE_OPTIONS_SETTING, CommCarePreferences.NO,
                 CommCarePreferences.YES) || BuildConfig.DEBUG;
+    }
+
+    private void setVisibilityOfDangerousDeveloperPrefs() {
+        if (!GlobalPrivilegesManager.isMultipleAppsPrivilegeEnabled() && !BuildConfig.DEBUG) {
+            // Dangerous privileges should not be showing
+            PreferenceScreen prefScreen = getPreferenceScreen();
+            for (Preference pref : getDangerousDeveloperPrefs()) {
+                if (pref != null) {
+                    prefScreen.removePreference(pref);
+                }
+            }
+        }
+    }
+
+    private Preference[] getDangerousDeveloperPrefs() {
+        Preference autoLoginPref =
+                getPreferenceManager().findPreference(ENABLE_AUTO_LOGIN);
+        Preference sessionSavingPref =
+                getPreferenceManager().findPreference(ENABLE_SAVE_SESSION);
+        Preference editSavedSessionPref =
+                getPreferenceManager().findPreference(EDIT_SAVE_SESSION);
+        Preference customUserRestorePref =
+                getPreferenceManager().findPreference(PREFS_CUSTOM_RESTORE_DOC_LOCATION);
+        Preference performanceImprovementsPref =
+                getPreferenceManager().findPreference(ENABLE_BULK_PERFORMANCE);
+
+
+        return new Preference[]{autoLoginPref, sessionSavingPref, editSavedSessionPref,
+                customUserRestorePref, performanceImprovementsPref};
     }
 
 }
