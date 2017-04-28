@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
@@ -20,9 +19,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
-import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
@@ -93,7 +90,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
         setSessionEditText();
         createOnCustomRestoreOption(prefMgr);
-        setVisibilityOfDangerousDeveloperPrefs();
+        hideDangerousDeveloperPrefsIfNeeded();
     }
 
     private void createOnCustomRestoreOption(PreferenceManager prefMgr) {
@@ -385,7 +382,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      * flags, we should change this to be controlled by its own flag, instead of piggy-backing
      * off of the multiple apps one
      */
-    private void setVisibilityOfDangerousDeveloperPrefs() {
+    private void hideDangerousDeveloperPrefsIfNeeded() {
         if (!GlobalPrivilegesManager.isMultipleAppsPrivilegeEnabled() && !BuildConfig.DEBUG) {
             // Dangerous privileges should not be showing
             PreferenceScreen prefScreen = getPreferenceScreen();
