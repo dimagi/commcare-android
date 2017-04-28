@@ -268,9 +268,11 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         logSubmissionAttempt(record);
                         while (attemptsMade < SUBMISSION_ATTEMPTS) {
                             if (attemptsMade > 0) {
-                                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Retrying submission. " + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
+                                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Retrying submission. "
+                                        + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
                             }
-                            results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this, mUser);
+                            results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"),
+                                    url, this, mUser);
                             if (results[i] == FormUploadResult.FULL_SUCCESS) {
                                 logSubmissionSuccess(record);
                                 break;
@@ -279,12 +281,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             }
                         }
 
-                        if (results[i] == FormUploadResult.RECORD_FAILURE) {
-                            //We tried to submit multiple times and there was a local problem (not a remote problem).
-                            //This implies that something is wrong with the current record, and we need to quarantine it.
-                            processor.updateRecordStatus(record, FormRecord.STATUS_LIMBO);
-                            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Quarantined Form Record");
-                            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
+                        if (results[i] == FormUploadResult.RECORD_FAILURE ||
+                                results[i] == FormUploadResult.PROCESSING_FAILURE) {
+                            quarantineRecordAndReport(record, results[i]);
                         }
                     } catch (FileNotFoundException e) {
                         if (CommCareApplication.instance().isStorageAvailable()) {
@@ -329,6 +328,25 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
             }
         }
+    }
+
+    private void quarantineRecordAndReport(FormRecord record, FormUploadResult result) {
+        // We tried to submit multiple times and there was either a problem with the record that we
+        // found locally, or HQ could not process it
+        String reasonForQuarantine;
+        if (result == FormUploadResult.PROCESSING_FAILURE) {
+            reasonForQuarantine = result.processingFailureReason;
+        } else {
+            reasonForQuarantine = "There was a local issue with the record that prevented submission";
+        }
+        processor.quarantineRecord(record, reasonForQuarantine);
+        Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
+                String.format("Quarantining Form Record with id %s because %s",
+                        record.getInstanceID(), reasonForQuarantine));
+
+
+        CommCareApplication.notificationManager().reportNotificationMessage(
+                NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
     }
 
     private static void logSubmissionAttempt(FormRecord record) {

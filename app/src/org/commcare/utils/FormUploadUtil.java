@@ -20,11 +20,17 @@ import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -150,7 +156,7 @@ public class FormUploadUtil {
      * @return submission status of multipart entity post
      */
     private static FormUploadResult submitEntity(MultipartEntity entity, String url,
-                                                 HttpRequestGenerator generator) {
+                                                               HttpRequestGenerator generator) {
         HttpResponse response;
 
         try {
@@ -187,6 +193,10 @@ public class FormUploadUtil {
 
         if (responseCode >= 200 && responseCode < 300) {
             return FormUploadResult.FULL_SUCCESS;
+        } else if (responseCode == 400) {
+            FormUploadResult result = FormUploadResult.PROCESSING_FAILURE;
+            result.setProcessingFailureReason(parseFormUploadResponseForProcessingFailureReason(response));
+            return result;
         } else if (responseCode == 401) {
             return FormUploadResult.AUTH_FAILURE;
         } else {
@@ -360,5 +370,33 @@ public class FormUploadUtil {
         }
 
         return false;
+    }
+
+    private static String parseFormUploadResponseForProcessingFailureReason(HttpResponse response) {
+        try {
+            InputStream responseStream = response.getEntity().getContent();
+            KXmlParser baseParser = ElementParser.instantiateParser(responseStream);
+            ElementParser<String> responseParser = new ElementParser<String>(baseParser) {
+                @Override
+                public String parse() throws InvalidStructureException, IOException,
+                        XmlPullParserException, UnfullfilledRequirementsException {
+                    checkNode("OpenRosaResponse");
+                    nextTag("message");
+                    String nature = parser.getAttributeValue(null, "nature");
+                    if ("processing_failure".equals(nature)) {
+                        return parser.getAttributeValue(null, "reason");
+                    }
+                    return "";
+                }
+            };
+            return responseParser.parse();
+        } catch (IOException e) {
+            Log.e(TAG, "Error while getting response stream or instantiating parser for form " +
+                    "upload response");
+        } catch (InvalidStructureException | XmlPullParserException |
+                UnfullfilledRequirementsException e) {
+            Log.e(TAG, "Error while parsing form upload response");
+        }
+        return "";
     }
 }

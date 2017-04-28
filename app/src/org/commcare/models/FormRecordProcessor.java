@@ -111,6 +111,11 @@ public class FormRecordProcessor {
         return record;
     }
 
+    public void quarantineRecord(FormRecord record, String reasonForQuarantine) {
+        updateRecordStatus(record, FormRecord.STATUS_LIMBO);
+        record.setReasonForQuarantine(reasonForQuarantine);
+    }
+
     public FormRecord getRecord(int dbId) {
         //this seems silly.
         return storage.read(dbId);

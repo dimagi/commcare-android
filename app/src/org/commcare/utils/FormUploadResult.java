@@ -15,7 +15,7 @@ public enum FormUploadResult {
     FAILURE(1),
 
     /**
-     * The server returned an authication error
+     * The server returned an authentication error
      */
     AUTH_FAILURE(2),
 
@@ -34,12 +34,23 @@ public enum FormUploadResult {
      */
     PROGRESS_LOGGED_OUT(5),
 
-    PROGRESS_SDCARD_REMOVED(6);
+    PROGRESS_SDCARD_REMOVED(6),
+
+    /**
+     * HQ received the form submission but encountered an error while processing it, so the
+     * form has not resulted in any changes to the HQ database
+     */
+    PROCESSING_FAILURE(7);
 
     private final int orderVal;
+    public String processingFailureReason;
 
     FormUploadResult(int orderVal) {
         this.orderVal = orderVal;
+    }
+
+    public void setProcessingFailureReason(String s) {
+        this.processingFailureReason = s;
     }
 
     public static FormUploadResult getWorstResult(FormUploadResult[] results) {

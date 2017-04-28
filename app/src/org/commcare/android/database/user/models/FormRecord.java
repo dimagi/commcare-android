@@ -100,6 +100,9 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @MetaField(META_SUBMISSION_ORDERING_NUMBER)
     private String submissionOrderingNumber;
 
+    @Persisting(value = 8, nullable = true)
+    private String reasonForQuarantine;
+
     public FormRecord() {
     }
 
@@ -180,6 +183,14 @@ public class FormRecord extends Persisted implements EncryptedModel {
             return -1;
         }
         return Integer.parseInt(submissionOrderingNumber);
+    }
+
+    public void setReasonForQuarantine(String s) {
+        this.reasonForQuarantine = s;
+    }
+
+    public String getReasonForQuarantine() {
+        return reasonForQuarantine;
     }
 
     /**
