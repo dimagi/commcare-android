@@ -23,15 +23,19 @@ import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class DeveloperPreferences extends SessionAwarePreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
+
     public static final int RESULT_SYNC_CUSTOM = Activity.RESULT_FIRST_USER + 1;
     public static final int REQUEST_SYNC_FILE = 1;
 
-    public final static String PREFS_CUSTOM_RESTORE_DOC_LOCATION = "cc-custom-restore-doc-location";
+    // REGION - all Developer Preference keys
 
+    public final static String PREFS_CUSTOM_RESTORE_DOC_LOCATION = "cc-custom-restore-doc-location";
     public static final String SUPERUSER_ENABLED = "cc-superuser-enabled";
     public static final String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     public static final String CSS_ENABLED = "cc-css-enabled";
@@ -47,26 +51,39 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static final String USE_OBFUSCATED_PW = "cc-use-pw-obfuscation";
     public static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
     public static final String SHOW_UPDATE_OPTIONS_SETTING = "cc-show-update-target-options";
-
     /**
      * Stores last used password and performs auto-login when that password is
      * present
      */
     public final static String ENABLE_AUTO_LOGIN = "cc-enable-auto-login";
     public final static String ENABLE_SAVE_SESSION = "cc-enable-session-saving";
-
     /**
      * Stores the navigation and form entry sessions as one string for user manipulation
      */
     public final static String EDIT_SAVE_SESSION = "__edit_session_save";
+    public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
+    public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
+
+    // ENDREGION
+
+    private static final String[] ALL_DEVELOPER_PREF_KEYS = new String[] {
+            PREFS_CUSTOM_RESTORE_DOC_LOCATION, SUPERUSER_ENABLED, NAV_UI_ENABLED, CSS_ENABLED,
+            MARKDOWN_ENABLED, ACTION_BAR_ENABLED, LIST_REFRESH_ENABLED, HOME_REPORT_ENABLED,
+            AUTO_PURGE_ENABLED, LOAD_FORM_PAYLOAD_AS, DETAIL_TAB_SWIPE_ACTION_ENABLED,
+            USE_ROOT_MENU_AS_HOME_SCREEN, SHOW_ADB_ENTITY_LIST_TRACES, USE_OBFUSCATED_PW,
+            ENABLE_BULK_PERFORMANCE, SHOW_UPDATE_OPTIONS_SETTING, ENABLE_AUTO_LOGIN,
+            ENABLE_SAVE_SESSION, EDIT_SAVE_SESSION, ALTERNATE_QUESTION_LAYOUT_ENABLED,
+            OFFER_PIN_FOR_LOGIN
+    };
+    private static final String[] WHITELISTED_DEVELOPER_PREF_KEYS = new String[] {
+            SUPERUSER_ENABLED, SHOW_UPDATE_OPTIONS_SETTING, AUTO_PURGE_ENABLED,
+            ALTERNATE_QUESTION_LAYOUT_ENABLED
+    };
+
     /**
      * Spacer to distinguish between the saved navigation session and form entry session
      */
     private static final String NAV_AND_FORM_SESSION_SPACER = "@@@@@";
-    public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
-
-    public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
-
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
     private Preference savedSessionEditTextPreference;
@@ -378,11 +395,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
     private void hideDangerousDeveloperPrefsIfNeeded() {
-        if (!GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled()
-                && !BuildConfig.DEBUG) {
+        if (!GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled() && !BuildConfig.DEBUG) {
             // Dangerous privileges should not be showing
             PreferenceScreen prefScreen = getPreferenceScreen();
-            for (Preference pref : getDangerousDeveloperPrefs()) {
+            for (String key : getNonWhitelistedKeys()) {
+                Preference pref = findPreference(key);
                 if (pref != null) {
                     prefScreen.removePreference(pref);
                 }
@@ -390,21 +407,17 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         }
     }
 
-    private Preference[] getDangerousDeveloperPrefs() {
-        Preference autoLoginPref =
-                getPreferenceManager().findPreference(ENABLE_AUTO_LOGIN);
-        Preference sessionSavingPref =
-                getPreferenceManager().findPreference(ENABLE_SAVE_SESSION);
-        Preference editSavedSessionPref =
-                getPreferenceManager().findPreference(EDIT_SAVE_SESSION);
-        Preference customUserRestorePref =
-                getPreferenceManager().findPreference(PREFS_CUSTOM_RESTORE_DOC_LOCATION);
-        Preference performanceImprovementsPref =
-                getPreferenceManager().findPreference(ENABLE_BULK_PERFORMANCE);
-
-
-        return new Preference[]{autoLoginPref, sessionSavingPref, editSavedSessionPref,
-                customUserRestorePref, performanceImprovementsPref};
+    private Set<String> getNonWhitelistedKeys() {
+        Set<String> nonWhitelistedKeys = new HashSet<>();
+        for (String key : ALL_DEVELOPER_PREF_KEYS) {
+            nonWhitelistedKeys.add(key);
+        }
+        Set<String> whitelistedKeys = new HashSet<>();
+        for (String key : WHITELISTED_DEVELOPER_PREF_KEYS) {
+            whitelistedKeys.add(key);
+        }
+        nonWhitelistedKeys.removeAll(whitelistedKeys);
+        return nonWhitelistedKeys;
     }
 
 }
