@@ -378,7 +378,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
     private void hideDangerousDeveloperPrefsIfNeeded() {
-        if (!GlobalPrivilegesManager.isAdvancedDeveloperOptionsAccessEnabled()
+        if (!GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled()
                 && !BuildConfig.DEBUG) {
             // Dangerous privileges should not be showing
             PreferenceScreen prefScreen = getPreferenceScreen();
