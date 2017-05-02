@@ -393,13 +393,21 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         if (!GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled() && !BuildConfig.DEBUG) {
             // Dangerous privileges should not be showing
             PreferenceScreen prefScreen = getPreferenceScreen();
-            for (int i = 0; i < prefScreen.getPreferenceCount(); i++) {
-                Preference pref = prefScreen.getPreference(i);
-                if (pref != null && !WHITELISTED_DEVELOPER_PREF_KEYS.contains(pref.getKey())) {
-                    prefScreen.removePreference(pref);
+            for (Preference p : getOnScreenPrefs()) {
+                if (p != null && !WHITELISTED_DEVELOPER_PREF_KEYS.contains(p.getKey())) {
+                    prefScreen.removePreference(p);
                 }
             }
         }
+    }
+
+    private Preference[] getOnScreenPrefs() {
+        PreferenceScreen prefScreen = getPreferenceScreen();
+        Preference[] prefs = new Preference[prefScreen.getPreferenceCount()];
+        for (int i = 0; i < prefScreen.getPreferenceCount(); i++) {
+            prefs[i] = prefScreen.getPreference(i);
+        }
+        return prefs;
     }
 
 }
