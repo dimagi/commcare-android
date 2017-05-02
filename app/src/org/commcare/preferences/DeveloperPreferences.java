@@ -395,7 +395,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
             PreferenceScreen prefScreen = getPreferenceScreen();
             for (int i = 0; i < prefScreen.getPreferenceCount(); i++) {
                 Preference pref = prefScreen.getPreference(i);
-                if (!WHITELISTED_DEVELOPER_PREF_KEYS.contains(pref.getKey())) {
+                if (pref != null && !WHITELISTED_DEVELOPER_PREF_KEYS.contains(pref.getKey())) {
                     prefScreen.removePreference(pref);
                 }
             }
