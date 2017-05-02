@@ -19,6 +19,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.services.locale.Localization;
 
@@ -66,19 +67,13 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     // ENDREGION
 
-    private static final String[] ALL_DEVELOPER_PREF_KEYS = new String[] {
-            PREFS_CUSTOM_RESTORE_DOC_LOCATION, SUPERUSER_ENABLED, NAV_UI_ENABLED, CSS_ENABLED,
-            MARKDOWN_ENABLED, ACTION_BAR_ENABLED, LIST_REFRESH_ENABLED, HOME_REPORT_ENABLED,
-            AUTO_PURGE_ENABLED, LOAD_FORM_PAYLOAD_AS, DETAIL_TAB_SWIPE_ACTION_ENABLED,
-            USE_ROOT_MENU_AS_HOME_SCREEN, SHOW_ADB_ENTITY_LIST_TRACES, USE_OBFUSCATED_PW,
-            ENABLE_BULK_PERFORMANCE, SHOW_UPDATE_OPTIONS_SETTING, ENABLE_AUTO_LOGIN,
-            ENABLE_SAVE_SESSION, EDIT_SAVE_SESSION, ALTERNATE_QUESTION_LAYOUT_ENABLED,
-            OFFER_PIN_FOR_LOGIN
-    };
-    private static final String[] WHITELISTED_DEVELOPER_PREF_KEYS = new String[] {
-            SUPERUSER_ENABLED, SHOW_UPDATE_OPTIONS_SETTING, AUTO_PURGE_ENABLED,
-            ALTERNATE_QUESTION_LAYOUT_ENABLED
-    };
+    private static final Set<String> WHITELISTED_DEVELOPER_PREF_KEYS = new HashSet<>();
+    static {
+        WHITELISTED_DEVELOPER_PREF_KEYS.add(SUPERUSER_ENABLED);
+        WHITELISTED_DEVELOPER_PREF_KEYS.add(SHOW_UPDATE_OPTIONS_SETTING);
+        WHITELISTED_DEVELOPER_PREF_KEYS.add(AUTO_PURGE_ENABLED);
+        WHITELISTED_DEVELOPER_PREF_KEYS.add(ALTERNATE_QUESTION_LAYOUT_ENABLED);
+    }
 
     /**
      * Spacer to distinguish between the saved navigation session and form entry session
@@ -398,26 +393,13 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         if (!GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled() && !BuildConfig.DEBUG) {
             // Dangerous privileges should not be showing
             PreferenceScreen prefScreen = getPreferenceScreen();
-            for (String key : getNonWhitelistedKeys()) {
-                Preference pref = findPreference(key);
-                if (pref != null) {
+            for (int i = 0; i < prefScreen.getPreferenceCount(); i++) {
+                Preference pref = prefScreen.getPreference(i);
+                if (!WHITELISTED_DEVELOPER_PREF_KEYS.contains(pref.getKey())) {
                     prefScreen.removePreference(pref);
                 }
             }
         }
-    }
-
-    private Set<String> getNonWhitelistedKeys() {
-        Set<String> nonWhitelistedKeys = new HashSet<>();
-        for (String key : ALL_DEVELOPER_PREF_KEYS) {
-            nonWhitelistedKeys.add(key);
-        }
-        Set<String> whitelistedKeys = new HashSet<>();
-        for (String key : WHITELISTED_DEVELOPER_PREF_KEYS) {
-            whitelistedKeys.add(key);
-        }
-        nonWhitelistedKeys.removeAll(whitelistedKeys);
-        return nonWhitelistedKeys;
     }
 
 }
