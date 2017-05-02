@@ -394,7 +394,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
             // Dangerous privileges should not be showing
             PreferenceScreen prefScreen = getPreferenceScreen();
             for (Preference p : getOnScreenPrefs()) {
-                //Preference pref = prefScreen.getPreference(i);
                 if (p != null && !WHITELISTED_DEVELOPER_PREF_KEYS.contains(p.getKey())) {
                     prefScreen.removePreference(p);
                 }
