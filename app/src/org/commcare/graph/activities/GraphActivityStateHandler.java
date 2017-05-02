@@ -30,7 +30,7 @@ public class GraphActivityStateHandler {
 
         String html = extras.getString(GraphView.HTML);
         GraphView graphView = new GraphView(activity, title, true);
-        WebView webView = (WebView)graphView.getView(html);
+        WebView webView = graphView.getView(html);
         activity.setContentView(webView);
     }
 }

@@ -121,6 +121,26 @@ public class GoogleAnalyticsUtils {
                 GoogleAnalyticsFields.ACTION_RECORD_AGAIN);
     }
 
+    public static void reportGraphViewAttached(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_GRAPHING,
+                GoogleAnalyticsFields.ACTION_GRAPH_ATTACH);
+    }
+
+    public static void reportGraphViewDetached(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_GRAPHING,
+                GoogleAnalyticsFields.ACTION_GRAPH_DETACH);
+    }
+
+    public static void reportGraphViewFullScreenOpened(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_GRAPHING,
+                GoogleAnalyticsFields.ACTION_GRAPH_FULLSCREEN_OPEN);
+    }
+
+    public static void reportGraphViewFullScreenClosed(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_GRAPHING,
+                GoogleAnalyticsFields.ACTION_GRAPH_FULLSCREEN_CLOSE);
+    }
+
 
     /**
      * Report a user event of navigating forward in form entry
