@@ -23,6 +23,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
@@ -152,6 +153,17 @@ public class CommCarePreferences
 
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
                 GoogleAnalyticsFields.CATEGORY_CC_PREFS);
+        hideServerPrefsIfNeeded();
+    }
+
+    private void hideServerPrefsIfNeeded() {
+        if (!GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled() && !BuildConfig.DEBUG) {
+            PreferenceScreen prefScreen = getPreferenceScreen();
+            Preference serverSettingsAccessPref = findPreference(SERVER_SETTINGS);
+            if (serverSettingsAccessPref != null) {
+                prefScreen.removePreference(serverSettingsAccessPref);
+            }
+        }
     }
 
     private void setupUI() {
