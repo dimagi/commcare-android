@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -124,6 +125,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private EntitySelectSearchUI entitySelectSearchUI;
 
     private Detail shortSelect;
+    private Callout customCallout;
 
     private DataSetObserver mListStateObserver;
     public OnClickListener barcodeScanOnClickListener;
@@ -172,6 +174,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             if (shortSelect.forcesLandscape()) {
                 this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             }
+            this.customCallout = initCustomCallout();
 
             mNoDetailMode = selectDatum.getLongDetail() == null;
             mViewMode = session.isViewCommand(session.getCommand());
@@ -186,6 +189,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             boolean isOrientationChange = savedInstanceState != null;
             setupUI(isOrientationChange);
         }
+    }
+
+    private Callout initCustomCallout() {
+        Callout customCallout = shortSelect.getCallout();
+        if (customCallout != null && customCallout.isSimprintCallout()) { //&& Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            // If this device can't support the simprints library, ignore the callout
+            return null;
+        }
+        return customCallout;
     }
 
     private void createDataSetObserver() {
@@ -242,19 +254,19 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         restoreLastQueryString();
         persistAdapterState(visibleView);
         attemptInitCallout();
-        entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, shortSelect.getCallout());
+        entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, this.customCallout);
         setupMapNav();
         AdMobManager.requestBannerAdForView(this, (FrameLayout)findViewById(R.id.ad_container),
                 AdLocation.EntitySelect);
     }
 
     private void attemptInitCallout() {
-        Callout callout = shortSelect.getCallout();
-        if (callout == null) {
+        if (this.customCallout == null) {
             barcodeScanOnClickListener = EntitySelectCalloutSetup.makeBarcodeClickListener(this);
         } else {
-            isCalloutAutoLaunching = callout.isAutoLaunching();
-            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeCalloutClickListener(this, callout);
+            isCalloutAutoLaunching = this.customCallout.isAutoLaunching();
+            barcodeScanOnClickListener =
+                    EntitySelectCalloutSetup.makeCalloutClickListener(this, this.customCallout);
         }
     }
 
@@ -603,7 +615,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (result != null) {
             entitySelectSearchUI.setSearchText(result.trim());
         } else {
-            for (String key : shortSelect.getCallout().getResponses()) {
+            for (String key : this.customCallout.getResponses()) {
                 result = intent.getExtras().getString(key);
                 if (result != null) {
                     entitySelectSearchUI.setSearchText(result);
@@ -658,7 +670,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     indexToAddActionAt += 1;
                 }
             }
-            entitySelectSearchUI.setupActionImage(shortSelect.getCallout());
+            entitySelectSearchUI.setupActionImage(this.customCallout);
         }
     }
 
