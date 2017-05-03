@@ -26,6 +26,7 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_PRIVILEGE_ENABLED = "Global Privilege Enabled";
     public static final String CATEGORY_LANGUAGE_STATS = "Language Statistics";
     public static final String CATEGORY_HIGH_LEVEL_STATS = "High Level Statistics";
+    public static final String CATEGORY_GRAPHING = "Mobile Graphing";
 
     //Actions for CATEGORY_AUDIO_WIDGET only
     public static final String ACTION_START_RECORDING_DIALOG = "Click the button to open recording popup";
@@ -106,6 +107,12 @@ public final class GoogleAnalyticsFields {
 
     // Actions for CATEGORY_HIGH_LEVEL_STATS
     public static final String ACTION_ANDROID_API_LEVEL_AT_STARTUP = "Android API Level at Startup";
+
+    //Actions for CATEGORY_GRAPHING only
+    public static final String ACTION_GRAPH_ATTACH = "Start viewing graph in a list or detail";
+    public static final String ACTION_GRAPH_DETACH = "Stop viewing graph in a list or detail";
+    public static final String ACTION_GRAPH_FULLSCREEN_OPEN = "Start viewing graph in full screen";
+    public static final String ACTION_GRAPH_FULLSCREEN_CLOSE = "Stop viewing graph in full screen";
 
     // Labels for ACTION_BUTTON
     public static final String LABEL_START_BUTTON = "Start Button";
