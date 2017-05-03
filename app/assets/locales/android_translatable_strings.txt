@@ -705,6 +705,7 @@ intent.callout.update=Update Data
 intent.callout.cancelled=Question callout cancelled
 intent.callout.unable.to.process=Unable to process callout result
 intent.callout.activity.missing=Couldn't find intent for callout!
+intent.callout.not.supported=This intent callout is not supported on this device
 fingerprints.scanned=Fingerprints scanned: ${0}
 
 settings.server.listing=Server Settings

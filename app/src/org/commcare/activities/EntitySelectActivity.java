@@ -193,9 +193,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private Callout initCustomCallout() {
         Callout customCallout = shortSelect.getCallout();
-        if (customCallout != null && customCallout.isSimprintCallout()
+        if (customCallout != null && customCallout.isSimprintsCallout()
                 && Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            // If this device can't support the simprints library, ignore the callout
+            // If this device can't support the simprints library, don't create the callout
             return null;
         }
         return customCallout;
