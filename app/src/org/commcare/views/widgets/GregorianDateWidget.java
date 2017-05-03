@@ -40,6 +40,8 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     private Calendar calendar;
     private LinearLayout gregorianView;
     private Spinner monthSpinner;
+    private long dateOfLastWidgetUpdateNotice = -1;
+
     private final ImageButton openCalButton;
     private static final int EMPTY_MONTH_ENTRY_INDEX = 12;
 
@@ -159,7 +161,15 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         yearText.setText(String.format(YEARFORMAT, dateUniv.year));
         calendar.setTimeInMillis(millisFromJavaEpoch);
         dayOfWeek.setText(calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
-        widgetEntryChanged();
+
+        //The setSelection response above is delayed in its execution, which means that on a given
+        //ui loop where the widget is created, we're guaranteed to get this execution path
+        //on the next loop. If something changes, we should fire the event, but otherwise
+        //this can end up supressing QuestionWidget state like validation messages
+        if(dateOfLastWidgetUpdateNotice != millisFromJavaEpoch) {
+            dateOfLastWidgetUpdateNotice = millisFromJavaEpoch;
+            widgetEntryChanged();
+        }
     }
 
     //Used to calculate new time when a button is pressed
