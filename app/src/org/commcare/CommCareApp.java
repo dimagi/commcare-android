@@ -31,6 +31,8 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.IStorageIndexedFactory;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.UnregisteredLocaleException;
 
@@ -43,7 +45,7 @@ import java.io.File;
  *
  * @author ctsims
  */
-public class CommCareApp implements AppFilePathBuilder {
+public class CommCareApp implements AppFilePathBuilder, IStorageIndexedFactory {
     private ApplicationRecord record;
 
     protected JavaFileRoot fileRoot;
@@ -353,5 +355,10 @@ public class CommCareApp implements AppFilePathBuilder {
         } else {
             throw new RuntimeException("For testing purposes only!");
         }
+    }
+
+    @Override
+    public IStorageUtilityIndexed newStorage(String name, Class type) {
+        return getStorage(name, type);
     }
 }
