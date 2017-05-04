@@ -10,6 +10,7 @@
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
+    <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
 
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 

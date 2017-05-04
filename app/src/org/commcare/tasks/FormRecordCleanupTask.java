@@ -87,9 +87,14 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 
             try {
                 updateAndWriteUnindexedRecordTo(context, platform, r, storage, recordStatus);
-            } catch (FileNotFoundException | InvalidStructureException e) {
-                // No form or bad form data, mark for deletion
+            } catch (FileNotFoundException e) {
+                // No form, mark for deletion
                 recordsToRemove.add(recordID);
+                r.logPendingDeletion(TAG, "the xml submission file associated with the record could not be found");
+            } catch (InvalidStructureException e) {
+                // Bad form data, mark for deletion
+                recordsToRemove.add(recordID);
+                r.logPendingDeletion(TAG, "the xml submission file associated with the record was improperly formed");
             } catch (XmlPullParserException | IOException |
                     UnfullfilledRequirementsException e) {
                 // Not really sure what happened; just skip
@@ -351,7 +356,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                 FormRecord r = frStorage.read(formRecordId);
                 removeInstanceFile(context, r);
 
-                //See if there is a hanging session ID for this
+                // See if there is a hanging session ID for this
                 if (sessionId == -1) {
                     sessionId = loadSSDIDFromFormRecord(ssdStorage, formRecordId);
                 }
@@ -362,7 +367,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             }
         }
 
-        //Delete 'em if you got 'em
+        // Delete 'em if you got 'em
         if (sessionId != -1) {
             ssdStorage.remove(sessionId);
         }
