@@ -31,9 +31,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
+ * While active, this class is responsible for using a TimerTask to periodically ping the server
+ * with a "heartbeat" request, and then handle the response. The lifecycle of the TimerTask is
+ * tied to that of the CommCareSessionService; it should be started whenever a session service is
+ * started, and ended whenever a session service is ended for any reason.
+ *
+ * Currently, the primary content of the server's response to the heartbeat request will be
+ * information about potential binary or app updates that the app should prompt users to conduct.
+ *
  * Created by amstone326 on 4/13/17.
  */
-
 public class CommCareHeartbeatManager {
 
     private static final long ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
@@ -253,7 +260,7 @@ public class CommCareHeartbeatManager {
             String prefsKey = forApkUpdate ?
                     UpdateToPrompt.KEY_APK_UPDATE_TO_PROMPT : UpdateToPrompt.KEY_CCZ_UPDATE_TO_PROMPT;
             String serializedUpdate = currentApp.getAppPreferences().getString(prefsKey, "");
-            if (serializedUpdate != null && !"".equals(serializedUpdate)) {
+            if (!"".equals(serializedUpdate)) {
                 try {
                     byte[] updateBytes = Base64.decode(serializedUpdate, Base64.DEFAULT);
                     DataInputStream stream = new DataInputStream(new ByteArrayInputStream(updateBytes));

@@ -18,6 +18,9 @@ import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
 /**
+ * Activity used to prompt users to update to a newer .apk or app version. Will be launched
+ * periodically while there is a pending update to prompt.
+ *
  * Created by amstone326 on 4/19/17.
  */
 @ManagedUi(R.layout.prompt_update_view)
