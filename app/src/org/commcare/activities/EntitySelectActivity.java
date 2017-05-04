@@ -62,6 +62,7 @@ import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.LocationNotificationHandler;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -268,7 +269,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             isCalloutAutoLaunching = this.customCallout.isAutoLaunching();
             barcodeScanOnClickListener =
                     EntitySelectCalloutSetup.makeCalloutClickListener(this, this.customCallout,
-                            asw.getEvaluationContext());
+                            evalContext());
         }
     }
 
@@ -371,7 +372,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private boolean resumeSelectedEntity() {
         TreeReference selectedEntity =
-                selectDatum.getEntityFromID(asw.getEvaluationContext(),
+                selectDatum.getEntityFromID(evalContext(),
                         this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
 
         if (selectedEntity != null) {
@@ -441,7 +442,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
-            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, evalContext());
             entityLoader.attachListener(this);
             entityLoader.executeParallel(selectDatum.getNodeset());
             return true;
@@ -666,7 +667,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void setupActionOptionsMenu(Menu menu) {
         if (shortSelect != null && !hideActionsFromOptionsMenu) {
             int indexToAddActionAt = MENU_ACTION;
-            for (Action action : shortSelect.getCustomActions(asw.getEvaluationContext())) {
+            for (Action action : shortSelect.getCustomActions(evalContext())) {
                 if (action != null) {
                     ViewUtil.addActionToMenu(this, action, menu, indexToAddActionAt, MENU_ACTION_GROUP);
                     indexToAddActionAt += 1;
@@ -714,7 +715,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void triggerDetailAction(int index) {
-        Action action = shortSelect.getCustomActions(asw.getEvaluationContext()).get(index);
+        Action action = shortSelect.getCustomActions(evalContext()).get(index);
 
         triggerDetailAction(action, this);
     }
@@ -808,16 +809,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         adapter = new EntityListAdapter(this, shortSelect, references, entities,
                 order, factory, hideActionsFromEntityList,
-                shortSelect.getCustomActions(asw.getEvaluationContext()), inAwesomeMode);
+                shortSelect.getCustomActions(evalContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);
 
         // Pre-select entity if one was provided in original intent
         if (!resuming && !mNoDetailMode && inAwesomeMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-            TreeReference entity =
-                    selectDatum.getEntityFromID(asw.getEvaluationContext(),
-                            this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+            TreeReference entity = selectDatum.getEntityFromID(evalContext(),
+                    this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
 
             if (entity != null) {
                 displayReferenceAwesome(entity, adapter.getPosition(entity));
@@ -1023,5 +1023,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     protected EntityListAdapter getAdapter() {
         return adapter;
+    }
+
+    public EvaluationContext evalContext() {
+        return asw.getEvaluationContext();
     }
 }

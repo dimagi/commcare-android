@@ -96,7 +96,8 @@ public class EntitySelectCalloutSetup {
      * @return click listener that launches the callout's activity with the
      * associated callout extras
      */
-    public static View.OnClickListener makeCalloutClickListener(final Activity activity, Callout callout, EvaluationContext ec) {
+    public static View.OnClickListener makeCalloutClickListener(final Activity activity,
+                                                                Callout callout, EvaluationContext ec) {
         final Intent i = buildCalloutIntent(callout, ec);
         return new View.OnClickListener() {
             @Override
