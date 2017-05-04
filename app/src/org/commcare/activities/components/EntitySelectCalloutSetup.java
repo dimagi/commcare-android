@@ -17,6 +17,7 @@ import org.commcare.activities.EntitySelectActivity;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
@@ -95,8 +96,8 @@ public class EntitySelectCalloutSetup {
      * @return click listener that launches the callout's activity with the
      * associated callout extras
      */
-    public static View.OnClickListener makeCalloutClickListener(final Activity activity, Callout callout) {
-        final Intent i = buildCalloutIntent(callout);
+    public static View.OnClickListener makeCalloutClickListener(final Activity activity, Callout callout, EvaluationContext ec) {
+        final Intent i = buildCalloutIntent(callout, ec);
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,8 +112,8 @@ public class EntitySelectCalloutSetup {
         };
     }
 
-    public static Intent buildCalloutIntent(Callout callout) {
-        final CalloutData calloutData = callout.getRawCalloutData();
+    public static Intent buildCalloutIntent(Callout callout, EvaluationContext ec) {
+        final CalloutData calloutData = callout.evaluate(ec);
         Intent i = new Intent(calloutData.getActionName());
         for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
             i.putExtra(keyValue.getKey(), keyValue.getValue());
