@@ -255,14 +255,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         entitySelectSearchUI = new EntitySelectSearchUI(this);
         restoreLastQueryString();
         persistAdapterState(visibleView);
-        attemptInitCallout();
+        setUpCalloutClickListener();
         entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, this.customCallout);
         setupMapNav();
         AdMobManager.requestBannerAdForView(this, (FrameLayout)findViewById(R.id.ad_container),
                 AdLocation.EntitySelect);
     }
 
-    private void attemptInitCallout() {
+    private void setUpCalloutClickListener() {
         if (this.customCallout == null) {
             barcodeScanOnClickListener = EntitySelectCalloutSetup.makeBarcodeClickListener(this);
         } else {
