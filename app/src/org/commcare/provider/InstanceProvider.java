@@ -510,6 +510,15 @@ public class InstanceProvider extends ContentProvider {
                     instanceUri.toString(), instanceStatus);
         } catch (Exception e) {
             // Something went wrong with all of the connections which should exist.
+            if (currentState.getFormRecord() != null) {
+                currentState.getFormRecord().logPendingDeletion(t,
+                        "something went wrong trying to sync the record for the current session " +
+                                "with the form instance");
+            } else {
+                Logger.log(AndroidLogger.TYPE_FORM_DELETION, "The current session was missing " +
+                        "its form record when trying to sync with the form instance; " +
+                        "attempting to delete it if it still exists in the db");
+            }
             FormRecordCleanupTask.wipeRecord(getContext(), currentState);
 
             // Notify the server of this problem (since we aren't going to crash)

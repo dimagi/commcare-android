@@ -11,6 +11,7 @@ import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.cases.model.Case;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
@@ -21,6 +22,7 @@ import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.Persistable;
@@ -52,9 +54,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.15 - Add table to store path info about storage-backed fixture tables
      * V.16 - Add type -> id index for case index storage
      * V.17 - Add global counter metadata field to form records, for use in submission ordering
+     * V.18 - Add index on @owner_id for cases
      */
 
-    private static final int USER_DB_VERSION = 17;
+    private static final int USER_DB_VERSION = 18;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
@@ -126,13 +129,20 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             //The uniqueness index should be doing this for us
-            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));
-            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_type_index", "AndroidCase", "case_type"));
-            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_index", "AndroidCase", "case_status"));
+            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_id_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_CASE_ID)));
+            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_type_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_CASE_TYPE)));
+            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_status_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_CASE_STATUS)));
+            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_owner_id_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_OWNER_ID)));
 
-            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_open_index", "AndroidCase", "case_type,case_status"));
+            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_status_open_index", "AndroidCase", "case_type,case_status"));
 
-            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand("ledger_entity_id", "ledger", "entity_id"));
+            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "ledger_entity_id", "ledger", "entity_id"));
 
             DbUtil.createNumbersTable(database);
 

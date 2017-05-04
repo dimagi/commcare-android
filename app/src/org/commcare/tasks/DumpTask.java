@@ -168,15 +168,15 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
             mExternalStorageAvailable = mExternalStorageWriteable = false;
         }
 
-        if(!mExternalStorageAvailable){
+        if (!mExternalStorageAvailable) {
             publishProgress(Localization.get("bulk.form.sd.unavailable"));
             return false;
         }
-        if(!mExternalStorageWriteable){
+        if (!mExternalStorageWriteable) {
             publishProgress(Localization.get("bulk.form.sd.unwritable"));
             return false;
         }
-        if(mExternalStorageEmulated && externalMounts.size() == 0){
+        if (mExternalStorageEmulated && externalMounts.size() == 0) {
             publishProgress(Localization.get("bulk.form.sd.emulated"));
             return false;
         }
@@ -184,14 +184,14 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         String folderName = Localization.get("bulk.form.foldername");
         String directoryPath = FileUtil.getDumpDirectory(c);
 
-        if(directoryPath == null){
+        if (directoryPath == null) {
             publishProgress(Localization.get("bulk.form.sd.emulated"));
             return false;
         }
 
         File dumpDirectory = new File(directoryPath+"/"+folderName);
 
-        if(dumpDirectory.exists() && dumpDirectory.isDirectory()){
+        if (dumpDirectory.exists() && dumpDirectory.isDirectory()) {
             dumpDirectory.delete();
         }
 
@@ -200,66 +200,68 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormIdsForCurrentApp(storage);
 
-        if(ids.size() > 0) {
+        if (ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];
-            for(int i = 0 ; i < ids.size() ; ++i) {
+            for (int i = 0; i < ids.size(); ++i) {
                 records[i] = storage.read(ids.elementAt(i));
             }
 
             dumpFolder = dumpDirectory;
 
-                results = new FormUploadResult[records.length];
-                for(int i = 0; i < records.length ; ++i ) {
-                    //Assume failure
-                    results[i] = FormUploadResult.FAILURE;
-                }
+            results = new FormUploadResult[records.length];
+            for (int i = 0; i < records.length; ++i) {
+                //Assume failure
+                results[i] = FormUploadResult.FAILURE;
+            }
 
-                publishProgress(Localization.get("bulk.form.start"));
+            publishProgress(Localization.get("bulk.form.start"));
 
-                for(int i = 0 ; i < records.length ; ++i) {
-                    FormRecord record = records[i];
-                    try{
-                        //If it's unsent, go ahead and send it
-                        if(FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
-                            File folder;
-                            try {
-                                folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
-                            } catch (IOException e) {
-                                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
-                                continue;
-                            }
-
-                            //Good!
-                            //Time to Send!
-                            try {
-                                results[i] = dumpInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"));
-
-                            } catch (FileNotFoundException e) {
-                                if(CommCareApplication.instance().isStorageAvailable()) {
-                                    //If storage is available generally, this is a bug in the app design
-                                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
-                                } else {
-                                    //Otherwise, the SD card just got removed, and we need to bail anyway.
-                                    CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
-                                    break;
-                                }
-                                continue;
-                            }
-
-                            //Check for success
-                            if(results[i] == FormUploadResult.FULL_SUCCESS) {
-                                FormRecordCleanupTask.wipeRecord(c, record);
-                                publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i]}));
-                            }
+            for (int i = 0; i < records.length; ++i) {
+                FormRecord record = records[i];
+                try {
+                    //If it's unsent, go ahead and send it
+                    if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
+                        File folder;
+                        try {
+                            folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
+                        } catch (IOException e) {
+                            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                                    "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
+                            continue;
                         }
-                    } catch(SessionUnavailableException sue) {
-                        this.cancel(false);
-                        return false;
-                    } catch (Exception e) {
-                        //Just try to skip for now. Hopefully this doesn't wreck the model :/
-                        Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
+
+                        //Good!
+                        //Time to Send!
+                        try {
+                            results[i] = dumpInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"));
+
+                        } catch (FileNotFoundException e) {
+                            if (CommCareApplication.instance().isStorageAvailable()) {
+                                //If storage is available generally, this is a bug in the app design
+                                Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
+                            } else {
+                                //Otherwise, the SD card just got removed, and we need to bail anyway.
+                                CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+                                break;
+                            }
+                            continue;
+                        }
+
+                        // Check for success
+                        if (results[i] == FormUploadResult.FULL_SUCCESS) {
+                            record.logPendingDeletion(TAG, "we are performing a form dump to external storage");
+                            FormRecordCleanupTask.wipeRecord(c, record);
+                            publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i]}));
+                        }
                     }
+                } catch (SessionUnavailableException sue) {
+                    this.cancel(false);
+                    return false;
+                } catch (Exception e) {
+                    //Just try to skip for now. Hopefully this doesn't wreck the model :/
+                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form dump task" + getExceptionText(e));
                 }
+            }
 
             FormUploadResult result = FormUploadResult.getWorstResult(results);
             return result == FormUploadResult.FULL_SUCCESS;

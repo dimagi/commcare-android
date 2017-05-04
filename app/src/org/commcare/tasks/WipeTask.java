@@ -38,6 +38,7 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
 
         Log.d(TAG, "Wiping sent form records");
         for (FormRecord record : records) {
+            record.logPendingDeletion(TAG, "we have just completed a wifi direct transfer");
             FormRecordCleanupTask.wipeRecord(c, record);
         }
         Log.d(TAG, "Successfully wiped: " + records.length + " FormRecords.");
