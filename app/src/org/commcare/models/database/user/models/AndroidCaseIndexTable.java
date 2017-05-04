@@ -70,7 +70,7 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
 
     /**
      * Creates all indexes for this case.
-     * TODO: this doesn't ensure any sort of uniquenes, you should wipe constraints first
+     * TODO: this doesn't ensure any sort of uniqueness, you should wipe constraints first
      */
     public void indexCase(Case c) {
         db.beginTransaction();

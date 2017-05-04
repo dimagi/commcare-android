@@ -70,6 +70,7 @@ public class CaseDataContentProvider extends ContentProvider {
         caseMetaIndexTable.put(CaseDataAPI.MetadataColumns.CASE_ID, Case.INDEX_CASE_ID);
         caseMetaIndexTable.put(CaseDataAPI.MetadataColumns.CASE_TYPE, Case.INDEX_CASE_TYPE);
         caseMetaIndexTable.put(CaseDataAPI.MetadataColumns.STATUS, Case.INDEX_CASE_STATUS);
+        caseMetaIndexTable.put(CaseDataAPI.MetadataColumns.OWNER_ID, Case.INDEX_OWNER_ID);
         return true;
     }
 
