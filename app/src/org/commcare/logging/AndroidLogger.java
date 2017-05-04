@@ -82,6 +82,11 @@ public class AndroidLogger implements ILogger {
     public static final String TYPE_FORM_SUBMISSION = "form-submission";
 
     /**
+     * Used to track when we knowingly delete a form record
+     */
+    public static final String TYPE_FORM_DELETION = "form-deletion";
+
+    /**
      * Problem reported via report activity at home screen *
      */
     public static final String USER_REPORTED_PROBLEM = "user-report";
