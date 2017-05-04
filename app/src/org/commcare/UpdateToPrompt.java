@@ -6,7 +6,9 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.util.Base64;
 
+import org.commcare.logging.AndroidLogger;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -89,10 +91,11 @@ public class UpdateToPrompt implements Externalizable {
                 ApkVersion currentVersion = new ApkVersion(pi.versionName);
                 return currentVersion.compareTo(this.apkVersion) < 0;
             } catch (PackageManager.NameNotFoundException e) {
-                System.out.println("Couldn't get current .apk version to compare with in " +
-                        "UpdateToPrompt: " + e.getMessage());
                 // This shouldn't happen, but it if it does, there's no way for us to know if the
                 // update version is newer, so don't prompt
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                        "Couldn't get current .apk version to compare with in UpdateToPrompt: "
+                                + e.getMessage());
                 return false;
             }
         } else {
@@ -116,8 +119,8 @@ public class UpdateToPrompt implements Externalizable {
                 baos.close();
                 serializedStream.close();
             } catch (IOException e) {
-                System.out.println("IO error encountered while serializing UpdateToPrompt: "
-                        + e.getMessage());
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                        "IO error encountered while serializing UpdateToPrompt: " + e.getMessage());
             }
         } finally {
             try {

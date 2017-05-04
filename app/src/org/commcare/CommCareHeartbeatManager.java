@@ -9,12 +9,14 @@ import android.util.Base64;
 import org.commcare.activities.PromptUpdateActivity;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,10 +66,12 @@ public class CommCareHeartbeatManager {
                 parseHeartbeatResponse(jsonResponse);
             }
             catch (JSONException e) {
-                System.out.println("Heartbeat response was not properly-formed JSON: " + e.getMessage());
+                Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                        "Heartbeat response was not properly-formed JSON: " + e.getMessage());
             }
             catch (IOException e) {
-                System.out.println("IO error while processing heartbeat response: " + e.getMessage());
+                Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                        "IO error while processing heartbeat response: " + e.getMessage());
             }
         }
 
@@ -93,11 +97,14 @@ public class CommCareHeartbeatManager {
 
         @Override
         public void handleIOException(IOException exception) {
-            System.out.println("Encountered IOExeption while getting response stream");
+            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                    "Encountered IOException while getting response stream for heartbeat response: "
+                            + exception.getMessage());
         }
 
         private void processErrorResponse(int responseCode) {
-            System.out.println("Received error response from heartbeat request: " + responseCode);
+            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                    "Received error response from heartbeat request: " + responseCode);
         }
     };
 
@@ -173,7 +180,8 @@ public class CommCareHeartbeatManager {
             requester.setResponseProcessor(responseProcessor);
             requester.request();
         } catch (MalformedURLException e) {
-            System.out.println("Heartbeat URL was malformed: " + e.getMessage());
+            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE,
+                    "Heartbeat URL was malformed: " + e.getMessage());
         }
     }
 
@@ -196,12 +204,14 @@ public class CommCareHeartbeatManager {
                     // will run on UI thread
                     try {
                         if (responseAsJson.has("latest_apk_version")) {
-                            JSONObject latestApkVersionInfo = responseAsJson.getJSONObject("latest_apk_version");
+                            JSONObject latestApkVersionInfo =
+                                    responseAsJson.getJSONObject("latest_apk_version");
                             parseUpdateToPrompt(latestApkVersionInfo, true);
                         }
                     } catch (JSONException e) {
-                        System.out.println("Latest apk version object not formatted properly: "
-                                + e.getMessage());
+                        Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                                "Latest apk version object in heartbeat response was not " +
+                                        "formatted properly: " + e.getMessage());
                     }
 
                     try {
@@ -210,12 +220,15 @@ public class CommCareHeartbeatManager {
                             parseUpdateToPrompt(latestCczVersionInfo, false);
                         }
                     } catch (JSONException e) {
-                        System.out.println("Latest ccz version object not formatted properly: "
-                                + e.getMessage());
+                        Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                                "Latest ccz version object in heartbeat response was not " +
+                                        "formatted properly: " + e.getMessage());
                     }
                 }
             });
         } catch (SessionUnavailableException e) {
+            // Don't do anything, since we don't want to parse the response if the session service
+            // has ended.
         }
     }
 
@@ -231,8 +244,9 @@ public class CommCareHeartbeatManager {
                 updateToPrompt.registerWithSystem();
             }
         } catch (JSONException e) {
-            System.out.println("Encountered malformed json while parsing an UpdateToPrompt: "
-                    + e.getMessage());
+            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                    "Encountered malformed json while trying to parse server response into an " +
+                            "UpdateToPrompt object : " + e.getMessage());
         }
     }
 
@@ -275,8 +289,9 @@ public class CommCareHeartbeatManager {
                     }
                 } catch (Exception e) {
                     // Something went wrong, so clear out whatever is there
-                    System.out.println("IO error encountered while de-serializing saved " +
-                            "UpdateToPrompt: " + e.getMessage());
+                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                            "IO error encountered while de-serializing saved UpdateToPrompt: "
+                                    + e.getMessage());
                     wipeStoredUpdate(forApkUpdate);
                 }
             }
