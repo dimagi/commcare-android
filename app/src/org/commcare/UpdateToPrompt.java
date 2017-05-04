@@ -31,12 +31,10 @@ public class UpdateToPrompt implements Externalizable {
     private int cczVersion;
     private ApkVersion apkVersion;
     private Date forceByDate;
-    private boolean hasForceByDate;
     protected boolean isApkUpdate;
 
     public UpdateToPrompt(String version, String forceByDate, boolean isApkUpdate) {
         if (forceByDate != null) {
-            this.hasForceByDate = true;
             this.forceByDate = DateUtils.parseDate(forceByDate);
         }
         this.isApkUpdate = isApkUpdate;
@@ -57,7 +55,7 @@ public class UpdateToPrompt implements Externalizable {
     }
 
     public boolean isPastForceByDate() {
-        return hasForceByDate && (forceByDate.getTime() < System.currentTimeMillis());
+        return forceByDate != null && (forceByDate.getTime() < System.currentTimeMillis());
     }
 
     public void registerWithSystem() {
@@ -139,7 +137,7 @@ public class UpdateToPrompt implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.versionString = ExtUtil.readString(in);
         this.isApkUpdate = ExtUtil.readBool(in);
-        this.hasForceByDate = ExtUtil.readBool(in);
+        boolean hasForceByDate = ExtUtil.readBool(in);
         if (hasForceByDate) {
             this.forceByDate = ExtUtil.readDate(in);
         }
@@ -150,8 +148,10 @@ public class UpdateToPrompt implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, versionString);
         ExtUtil.writeBool(out, isApkUpdate);
-        ExtUtil.writeBool(out, hasForceByDate);
-        if (hasForceByDate) {
+        // Write this out first so that we know whether or not to try to read back a forceByDate
+        // in readExternal()
+        ExtUtil.writeBool(out, forceByDate != null);
+        if (forceByDate != null) {
             ExtUtil.writeDate(out, forceByDate);
         }
     }
