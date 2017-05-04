@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-    >
+<resources xmlns:android="http://schemas.android.com/apk/res/android" >
+    <style name="SplashTheme" parent="AppBaseTheme">
+        <item name="android:windowBackground">@drawable/background_splash</item>
+    </style>
 
     <style name="NotificationText">
         <item name="android:textColor">@color/white</item>
