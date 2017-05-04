@@ -11,6 +11,7 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -140,10 +141,7 @@ public class UpdateToPrompt implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.versionString = ExtUtil.readString(in);
         this.isApkUpdate = ExtUtil.readBool(in);
-        boolean hasForceByDate = ExtUtil.readBool(in);
-        if (hasForceByDate) {
-            this.forceByDate = ExtUtil.readDate(in);
-        }
+        this.forceByDate = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
         buildFromVersionString();
     }
 
@@ -151,11 +149,6 @@ public class UpdateToPrompt implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, versionString);
         ExtUtil.writeBool(out, isApkUpdate);
-        // Write this out first so that we know whether or not to try to read back a forceByDate
-        // in readExternal()
-        ExtUtil.writeBool(out, forceByDate != null);
-        if (forceByDate != null) {
-            ExtUtil.writeDate(out, forceByDate);
-        }
+        ExtUtil.write(out, new ExtWrapNullable(forceByDate));
     }
 }
