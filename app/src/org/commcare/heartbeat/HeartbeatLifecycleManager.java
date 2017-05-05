@@ -1,9 +1,10 @@
 package org.commcare.heartbeat;
 
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.utils.SessionUnavailableException;
-import org.javarosa.core.model.User;
+import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.services.CommCareSessionService;
 import org.javarosa.core.services.Logger;
 
 import java.util.Date;
@@ -23,51 +24,84 @@ import java.util.TimerTask;
  */
 public class HeartbeatLifecycleManager {
 
-    private static final long ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
+    private static final long FIVE_MIN_IN_MS = 5 * 60 * 1000;
 
-    private Timer heartbeatTimer;
+    private TimerTask heartbeatRequestTask;
     private HeartbeatRequester requester = new HeartbeatRequester();
+    private CommCareSessionService enclosingSessionService;
 
-    private static HeartbeatLifecycleManager INSTANCE;
-    public static HeartbeatLifecycleManager instance() {
-        if (INSTANCE == null) {
-            INSTANCE = new HeartbeatLifecycleManager();
-        }
-        return INSTANCE;
+    public HeartbeatLifecycleManager(CommCareSessionService sessionService) {
+        this.enclosingSessionService = sessionService;
     }
 
     public void startHeartbeatCommunications() {
-        if (heartbeatTimer != null) {
-            // Make sure we end anything still in progress
-            heartbeatTimer.cancel();
-        }
-        heartbeatTimer = new Timer();
-        heartbeatTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    User currentUser = CommCareApplication.instance().getSession().getLoggedInUser();
-                    //requester.simulateRequestGettingStuck();
-                    //requester.requestHeartbeat(currentUser);
-                    requester.parseTestHeartbeatResponse();
-                } catch (SessionUnavailableException e) {
-                    // Means the session has ended, so we should stop these requests
-                    stopHeartbeatCommunications();
-                } catch (Exception e) {
-                    // Encountered a different, unexpected issue
-                    stopHeartbeatCommunications();
-                    Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
-                            "Encountered unexpected exception during heartbeat communications: "
-                                    + e.getMessage() + ". Stopping the heartbeat thread.");
+        if (shouldStartHeartbeatRequests()) {
+            this.heartbeatRequestTask = new TimerTask() {
+                @Override
+                public void run() {
+                    if (shouldStopHeartbeatRequests()) {
+                        HeartbeatLifecycleManager.this.endCurrentHeartbeatTask();
+                    } else {
+                        try {
+                            //requester.requestHeartbeat();
+                            requester.parseTestHeartbeatResponse();
+                        } catch (Exception e) {
+                            // Encountered an unexpected issue, should just bail on this thread
+                            HeartbeatLifecycleManager.this.endCurrentHeartbeatTask();
+                            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                                    "Encountered unexpected exception during heartbeat communications: "
+                                            + e.getMessage() + ". Stopping the heartbeat thread.");
+                        }
+                    }
                 }
-            }
-        }, new Date(), ONE_DAY_IN_MS);
+            };
+            (new Timer()).schedule(heartbeatRequestTask, new Date(), FIVE_MIN_IN_MS);
+        }
     }
 
-    public void stopHeartbeatCommunications() {
-        if (heartbeatTimer != null) {
-            heartbeatTimer.cancel();
+    private boolean shouldStartHeartbeatRequests() {
+        //return appHasHeartbeatUrl() && !hasSucceededOnThisLogin() && endCurrentHeartbeatTask();
+        return !hasSucceededOnThisLogin() && endCurrentHeartbeatTask();
+    }
+
+    private boolean shouldStopHeartbeatRequests() {
+        return sessionHasDied() || hasSucceededOnThisLogin();
+    }
+
+    private boolean appHasHeartbeatUrl() {
+        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+        String urlString = currentApp.getAppPreferences().getString(
+                CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
+        return urlString != null;
+    }
+
+    private boolean hasSucceededOnThisLogin() {
+        return enclosingSessionService.heartbeatSucceededForSession();
+    }
+
+    private boolean sessionHasDied() {
+        return !enclosingSessionService.isActive();
+    }
+
+    public void endHeartbeatCommunications() {
+        endCurrentHeartbeatTask();
+        this.enclosingSessionService = null;
+    }
+
+    /**
+     *
+     * @return true if we have successfully canceled the current heartbeat task, or there is no
+     * current heartbeat task
+     */
+    private boolean endCurrentHeartbeatTask() {
+        if (heartbeatRequestTask == null) {
+            return true;
         }
+        if (heartbeatRequestTask.cancel()) {
+            heartbeatRequestTask = null;
+            return true;
+        }
+        return false;
     }
 
 }

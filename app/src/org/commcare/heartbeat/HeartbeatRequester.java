@@ -13,7 +13,6 @@ import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +31,7 @@ import java.util.HashMap;
 public class HeartbeatRequester {
 
     private static final String TEST_RESPONSE =
-            "{\"latest_apk_version\":{\"value\":\"2.36.1\"},\"latest_ccz_version\":{\"value\":\"197\", \"force_by_date\":\"2017-04-24\"}}";
+            "{\"app_id\":\"73d5f08b9d55fe48602906a89672c214\",\"latest_apk_version\":{\"value\":\"2.36.1\"},\"latest_ccz_version\":{\"value\":\"75\", \"force_by_date\":\"2017-05-01\"}}";
 
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
     private static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
@@ -109,17 +108,9 @@ public class HeartbeatRequester {
         System.out.println("After sleeping");
     }
 
-    protected void requestHeartbeat(User currentUser) {
-        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-        String urlString = currentApp.getAppPreferences().getString(
-                CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
-        if (urlString == null) {
-            // This app was generated before the heartbeat URL started being included, so we
-            // can't make the request
-            HeartbeatLifecycleManager.instance().stopHeartbeatCommunications();
-            return;
-        }
-
+    protected void requestHeartbeat() {
+        String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
         try {
             ModernHttpRequester requester =
                     CommCareApplication.instance().buildHttpRequesterForLoggedInUser(
@@ -142,41 +133,69 @@ public class HeartbeatRequester {
     }
 
     private static void parseHeartbeatResponse(final JSONObject responseAsJson) {
-        try {
-            // Make sure we still have an active session before parsing the response
-            CommCareApplication.instance().getSession();
-
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    // will run on UI thread
+        // will run on UI thread
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if (checkForAppIdMatch(responseAsJson)) {
+                    // We only want to register this response if the current app is still the
+                    // same as the one that sent the request originally
                     try {
-                        if (responseAsJson.has("latest_apk_version")) {
-                            JSONObject latestApkVersionInfo =
-                                    responseAsJson.getJSONObject("latest_apk_version");
-                            parseUpdateToPrompt(latestApkVersionInfo, true);
-                        }
-                    } catch (JSONException e) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
-                                "Latest apk version object in heartbeat response was not " +
-                                        "formatted properly: " + e.getMessage());
+                        CommCareApplication.instance().getSession().setHeartbeatSuccess();
+                    } catch (SessionUnavailableException e) {
+                        // Do nothing -- the session expired, so we just don't register the response
+                        return;
                     }
-
-                    try {
-                        if (responseAsJson.has("latest_ccz_version")) {
-                            JSONObject latestCczVersionInfo = responseAsJson.getJSONObject("latest_ccz_version");
-                            parseUpdateToPrompt(latestCczVersionInfo, false);
-                        }
-                    } catch (JSONException e) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
-                                "Latest ccz version object in heartbeat response was not " +
-                                        "formatted properly: " + e.getMessage());
-                    }
+                    attemptApkUpdateParse(responseAsJson);
+                    attemptCczUpdateParse(responseAsJson);
                 }
-            });
-        } catch (SessionUnavailableException e) {
-            // Don't do anything, since we don't want to parse the response if the session service
-            // has ended.
+            }
+        });
+    }
+
+    private static boolean checkForAppIdMatch(JSONObject responseAsJson) {
+        try {
+            if (responseAsJson.has("app_id")) {
+                CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+                if (currentApp != null) {
+                    String appIdOfResponse = responseAsJson.getString("app_id");
+                    String currentAppId = currentApp.getAppRecord().getApplicationId();
+                    return appIdOfResponse.equals(currentAppId);
+                }
+            }
+            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                    "Heartbeat response did not have required app_id param");
+        } catch (JSONException e) {
+            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                    "App id in heartbeat response was not formatted properly: " + e.getMessage());
+        }
+        return false;
+    }
+
+    private static void attemptApkUpdateParse(JSONObject responseAsJson) {
+        try {
+            if (responseAsJson.has("latest_apk_version")) {
+                JSONObject latestApkVersionInfo =
+                        responseAsJson.getJSONObject("latest_apk_version");
+                parseUpdateToPrompt(latestApkVersionInfo, true);
+            }
+        } catch (JSONException e) {
+            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                    "Latest apk version object in heartbeat response was not " +
+                            "formatted properly: " + e.getMessage());
+        }
+    }
+
+    private static void attemptCczUpdateParse(JSONObject responseAsJson) {
+        try {
+            if (responseAsJson.has("latest_ccz_version")) {
+                JSONObject latestCczVersionInfo = responseAsJson.getJSONObject("latest_ccz_version");
+                parseUpdateToPrompt(latestCczVersionInfo, false);
+            }
+        } catch (JSONException e) {
+            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                    "Latest ccz version object in heartbeat response was not " +
+                            "formatted properly: " + e.getMessage());
         }
     }
 

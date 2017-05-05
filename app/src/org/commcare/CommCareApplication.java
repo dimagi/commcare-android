@@ -713,7 +713,7 @@ public class CommCareApplication extends Application {
                         }
                     }
 
-                    HeartbeatLifecycleManager.instance().startHeartbeatCommunications();
+                    mBoundService.initHeartbeatLifecycle();
                     TimedStatsTracker.registerStartSession();
                 }
             }
@@ -725,7 +725,6 @@ public class CommCareApplication extends Application {
                 // Because it is running in our same process, we should never
                 // see this happen.
                 mBoundService = null;
-                HeartbeatLifecycleManager.instance().stopHeartbeatCommunications();
             }
         };
 
@@ -813,8 +812,6 @@ public class CommCareApplication extends Application {
                     sessionWrapper.reset();
                 }
                 sessionServiceIsBound = false;
-
-                HeartbeatLifecycleManager.instance().stopHeartbeatCommunications();
 
                 // Detach our existing connection.
                 unbindService(mConnection);
