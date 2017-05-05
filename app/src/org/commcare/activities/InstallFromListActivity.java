@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,6 +51,7 @@ import java.util.List;
  */
 public class InstallFromListActivity<T> extends CommCareActivity<T> implements HttpResponseProcessor {
 
+    private static final String TAG = InstallFromListActivity.class.getSimpleName();
     public static final String PROFILE_REF = "profile-ref-selected";
 
     private static final String REQUESTED_FROM_PROD_KEY = "have-requested-from-prod";
@@ -292,7 +294,6 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
-        System.out.println("Request to " + urlCurrentlyRequestingFrom + " had success response");
         processResponseIntoAppsList(responseData);
         repeatRequestOrShowResults(false);
     }
@@ -333,7 +334,9 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void handleRequestError(int responseCode) {
-        System.out.println("Request to " + urlCurrentlyRequestingFrom + " had error code response: " + responseCode);
+        Log.e(TAG,
+                "Request to " + urlCurrentlyRequestingFrom + " in get available apps request " +
+                        "had error code response: " + responseCode);
         repeatRequestOrShowResults(true);
     }
 
