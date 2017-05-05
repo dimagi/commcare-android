@@ -588,8 +588,10 @@ public class CommCareSessionService extends Service {
     }
 
     private void endHeartbeatLifecycle() {
-        heartbeatManager.endHeartbeatCommunications();
-        this.heartbeatManager = null;
+        if (heartbeatManager != null) {
+            heartbeatManager.endHeartbeatCommunications();
+            this.heartbeatManager = null;
+        }
     }
 
     public void setHeartbeatSuccess() {
