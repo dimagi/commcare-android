@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.heartbeat.UpdateToPrompt;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
@@ -192,7 +193,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 showDemoModeWarning();
                 return;
             }
-            if (UpdateToPrompt.promptForUpdateIfNeeded(this)) {
+            if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
                 return;
             }
             if (checkForPinLaunchConditions()) {
