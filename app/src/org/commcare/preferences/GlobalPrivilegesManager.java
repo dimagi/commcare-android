@@ -2,21 +2,11 @@ package org.commcare.preferences;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Base64;
 
 import org.commcare.CommCareApplication;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
-import org.commcare.suite.model.AppAvailableForInstall;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapList;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Vector;
 
 /**
  * Manages privileges/authentications that are global to a device running CommCare,
@@ -27,8 +17,6 @@ import java.util.Vector;
 public class GlobalPrivilegesManager {
 
     private static final String GLOBAL_PRIVELEGES_FILENAME = "global-preferences-filename";
-
-    private static final String RETRIEVED_AVAILABLE_APPS = "available-apps-already-retrieved";
 
     public static final String PRIVILEGE_MULTIPLE_APPS = "multiple_apps_unlimited";
     public static final String PRIVILEGE_ADVANCED_SETTINGS = "advanced_settings_access";
@@ -99,66 +87,6 @@ public class GlobalPrivilegesManager {
             default:
                 return "";
         }
-    }
-
-    public static void storeRetrievedAvailableApps(Vector<AppAvailableForInstall> availableAppsRetrieved) {
-        if (availableAppsRetrieved != null && availableAppsRetrieved.size() > 0) {
-            ByteArrayOutputStream baos = null;
-            DataOutputStream serializedStream = null;
-            try {
-                baos = new ByteArrayOutputStream();
-                serializedStream = new DataOutputStream(baos);
-                try {
-                    ExtUtil.write(serializedStream, new ExtWrapList(availableAppsRetrieved));
-                    String serializedAppsList = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-                    getGlobalPrivilegesRecord().edit()
-                            .putString(RETRIEVED_AVAILABLE_APPS, serializedAppsList).commit();
-                    baos.close();
-                    serializedStream.close();
-                } catch (IOException e) {
-                    // Means something went wrong serializing the available apps objects, so we just
-                    // won't save them for later, but we should also clear out anything that was
-                    // previously saved, since the user will be expecting the latest request
-                    System.out.println("IO error encountered while serializing retrieved available apps");
-                    clearPreviouslyRetrivedApps();
-                }
-            } finally {
-                try {
-                    if (baos != null) {
-                        baos.close();
-                    }
-                    if (serializedStream != null) {
-                        serializedStream.close();
-                    }
-                } catch (IOException e) {
-                    // Nothing we can do
-                }
-            }
-        }
-    }
-
-    public static Vector<AppAvailableForInstall> restorePreviouslyRetrievedAvailableApps() {
-        String serializedAppsList = getGlobalPrivilegesRecord().getString(RETRIEVED_AVAILABLE_APPS, null);
-        if (serializedAppsList != null) {
-            try {
-                byte[] appListBytes = Base64.decode(serializedAppsList, Base64.DEFAULT);
-                DataInputStream stream = new DataInputStream(new ByteArrayInputStream(appListBytes));
-
-                Vector<AppAvailableForInstall> previouslyRetrievedApps =
-                        (Vector<AppAvailableForInstall>) ExtUtil.read(stream,
-                                new ExtWrapList((AppAvailableForInstall.class)), ExtUtil.defaultPrototypes());
-                return previouslyRetrievedApps;
-            } catch (Exception e) {
-                // Something went wrong, so clear out whatever is there
-                System.out.println("IO error encountered while de-serializing retrieved available apps");
-                clearPreviouslyRetrivedApps();
-            }
-        }
-        return null;
-    }
-
-    public static void clearPreviouslyRetrivedApps() {
-        getGlobalPrivilegesRecord().edit().putString(RETRIEVED_AVAILABLE_APPS, null).commit();
     }
 
 }

@@ -47,5 +47,6 @@ toggle.web.user.mode=Web User
 toggle.mobile.user.mode=Mobile User
 missing.fields=Please enter all required fields.
 email.address.invalid=Please enter a valid email address.
-invalid.user.entered=Invalid user provided. Please make sure all of the fields you entered are spelled correctly.
+invalid.fields.entered.mobile=An invalid username, domain, or password was provided. Please make sure all of the fields you entered are correct.
+invalid.fields.entered.web=An invalid email or password was provided. Please make sure all of the fields you entered are correct.
 no.apps.available=No apps are available for download for this user.

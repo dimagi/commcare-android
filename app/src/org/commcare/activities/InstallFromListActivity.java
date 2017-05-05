@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,13 +20,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
-import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.util.Pair;
-import org.commcare.preferences.GlobalPrivilegesManager;
-import org.commcare.suite.model.AppAvailableForInstall;
+import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.xml.AvailableAppsParser;
@@ -41,15 +42,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Created by amstone326 on 2/3/17.
  */
 public class InstallFromListActivity<T> extends CommCareActivity<T> implements HttpResponseProcessor {
 
+    private static final String TAG = InstallFromListActivity.class.getSimpleName();
     public static final String PROFILE_REF = "profile-ref-selected";
 
     private static final String REQUESTED_FROM_PROD_KEY = "have-requested-from-prod";
@@ -73,14 +75,14 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private View appsListContainer;
     private ListView appsListView;
 
-    private Vector<AppAvailableForInstall> availableApps = new Vector<>();
+    private List<AppAvailableToInstall> availableApps = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadStateFromSavedInstance(savedInstanceState);
         setupUI();
-        checkForPreviouslyRetrievedApps();
+        loadPreviouslyRetrievedAvailableApps();
     }
 
     private void setupUI() {
@@ -90,15 +92,6 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         setUpGetAppsButton();
         setUpAppsList();
         setUpToggle();
-    }
-
-    private void checkForPreviouslyRetrievedApps() {
-        Vector<AppAvailableForInstall> previouslyRetrievedApps =
-                GlobalPrivilegesManager.restorePreviouslyRetrievedAvailableApps();
-        if (previouslyRetrievedApps != null && previouslyRetrievedApps.size() > 0) {
-            this.availableApps = previouslyRetrievedApps;
-            showResults();
-        }
     }
 
     private void setUpGetAppsButton() {
@@ -124,7 +117,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position < availableApps.size()) {
-                    AppAvailableForInstall app = availableApps.get(position);
+                    AppAvailableToInstall app = availableApps.get(position);
                     Intent i = new Intent(getIntent());
                     i.putExtra(PROFILE_REF, app.getMediaProfileRef());
                     setResult(RESULT_OK, i);
@@ -243,9 +236,9 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             };
 
             task.connect((CommCareTaskConnector)this);
-            task.executeParallel();
             task.setResponseProcessor(this);
             setAttemptedRequestFlag();
+            task.executeParallel();
             return true;
         }
         return false;
@@ -308,7 +301,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private void processResponseIntoAppsList(InputStream responseData) {
         try {
             KXmlParser baseParser = ElementParser.instantiateParser(responseData);
-            List<AppAvailableForInstall> apps = (new AvailableAppsParser(baseParser)).parse();
+            List<AppAvailableToInstall> apps = (new AvailableAppsParser(baseParser)).parse();
             availableApps.addAll(apps);
         } catch (IOException | InvalidStructureException | XmlPullParserException | UnfullfilledRequirementsException e) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "Error encountered while parsing apps available for install");
@@ -341,21 +334,23 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void handleRequestError(int responseCode) {
-        System.out.println(responseCode);
+        Log.e(TAG,
+                "Request to " + urlCurrentlyRequestingFrom + " in get available apps request " +
+                        "had error code response: " + responseCode);
         repeatRequestOrShowResults(true);
     }
 
     private void repeatRequestOrShowResults(final boolean responseWasError) {
         if (!requestAppList()) {
             // Means we've tried requesting to both endpoints
-            GlobalPrivilegesManager.storeRetrievedAvailableApps(availableApps);
 
             this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if (availableApps.size() == 0) {
                         if (responseWasError) {
-                            enterErrorState(Localization.get("invalid.user.entered"));
+                            enterErrorState(Localization.get("invalid.fields.entered." +
+                                    (inMobileUserAuthMode ? "mobile" : "web")));
                         } else {
                             enterErrorState(Localization.get("no.apps.available"));
                         }
@@ -370,7 +365,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private void showResults() {
         appsListContainer.setVisibility(View.VISIBLE);
         authenticateView.setVisibility(View.GONE);
-        appsListView.setAdapter(new ArrayAdapter<AppAvailableForInstall>(this,
+        appsListView.setAdapter(new ArrayAdapter<AppAvailableToInstall>(this,
                 android.R.layout.simple_list_item_1, availableApps) {
 
             @Override
@@ -381,7 +376,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                     v = View.inflate(context, R.layout.single_available_app_view, null);
                 }
 
-                AppAvailableForInstall app = this.getItem(position);
+                AppAvailableToInstall app = this.getItem(position);
                 TextView appName = (TextView)v.findViewById(R.id.app_name);
                 appName.setText(app.getAppName());
                 TextView domain = (TextView)v.findViewById(R.id.domain);
@@ -412,7 +407,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == RETRIEVE_APPS_FOR_DIFF_USER) {
-            GlobalPrivilegesManager.clearPreviouslyRetrivedApps();
+            clearPreviouslyRetrievedApps();
             availableApps.clear();
             appsListContainer.setVisibility(View.GONE);
             authenticateView.setVisibility(View.VISIBLE);
@@ -420,6 +415,24 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void loadPreviouslyRetrievedAvailableApps() {
+        for (AppAvailableToInstall availableApp : storage()) {
+            this.availableApps.add(availableApp);
+        }
+        if (this.availableApps.size() > 0) {
+            showResults();
+        }
+    }
+
+    private void clearPreviouslyRetrievedApps() {
+        storage().removeAll();
+    }
+
+    private SqlStorage<AppAvailableToInstall> storage() {
+        return CommCareApplication.instance()
+                .getGlobalStorage(AppAvailableToInstall.STORAGE_KEY, AppAvailableToInstall.class);
     }
 
 }

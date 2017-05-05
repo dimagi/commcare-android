@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.models.database.AndroidTableBuilder;
@@ -28,8 +29,9 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
      * V.3 - ApplicationRecord has new fields to support multiple app seating, FormsProvider
      * and InstanceProvider use per-app databases
      * V.4 - Add table for storing force close log entries that occur outside of an active session
+     * V.5 - Add table for storing apps available for install
      */
-    private static final int GLOBAL_DB_VERSION = 4;
+    private static final int GLOBAL_DB_VERSION = 5;
 
     private static final String GLOBAL_DB_LOCATOR = "database_global";
 
@@ -58,6 +60,10 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
 
             builder = new AndroidTableBuilder(ForceCloseLogEntry.STORAGE_KEY);
             builder.addData(new ForceCloseLogEntry());
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new AndroidTableBuilder(AppAvailableToInstall.STORAGE_KEY);
+            builder.addData(new AppAvailableToInstall());
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
