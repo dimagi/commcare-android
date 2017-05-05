@@ -42,22 +42,24 @@ public class UpdatePromptHelper {
                     UpdateToPrompt.KEY_APK_UPDATE_TO_PROMPT : UpdateToPrompt.KEY_CCZ_UPDATE_TO_PROMPT;
             String serializedUpdate = currentApp.getAppPreferences().getString(prefsKey, "");
             if (!"".equals(serializedUpdate)) {
+                byte[] updateBytes = Base64.decode(serializedUpdate, Base64.DEFAULT);
+                UpdateToPrompt update;
                 try {
-                    byte[] updateBytes = Base64.decode(serializedUpdate, Base64.DEFAULT);
-                    UpdateToPrompt update = SerializationUtil.deserialize(updateBytes, UpdateToPrompt.class);
-                    if (update.isNewerThanCurrentVersion(currentApp)) {
-                        return update;
-                    } else {
-                        // The update we had stored is no longer relevant, so wipe it and return nothing
-                        wipeStoredUpdate(forApkUpdate);
-                        return null;
-                    }
+                     update = SerializationUtil.deserialize(updateBytes, UpdateToPrompt.class);
                 } catch (Exception e) {
                     // Something went wrong, so clear out whatever is there
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                             "Error encountered while de-serializing saved UpdateToPrompt: "
                                     + e.getMessage());
                     wipeStoredUpdate(forApkUpdate);
+                    return null;
+                }
+                if (update.isNewerThanCurrentVersion(currentApp)) {
+                    return update;
+                } else {
+                    // The update we had stored is no longer relevant, so wipe it and return nothing
+                    wipeStoredUpdate(forApkUpdate);
+                    return null;
                 }
             }
         }
