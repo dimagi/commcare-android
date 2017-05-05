@@ -281,7 +281,7 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathIdCompressFunc"
 
             // Added in 2.36
-            , "org.commcare.UpdateToPrompt"
+            , "org.commcare.heartbeat.UpdateToPrompt"
             
             );
 
