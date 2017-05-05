@@ -114,7 +114,9 @@ public class EntityListCalloutDataTest {
 
         // receive the (faked) callout result
         Callout identificationScanCallout = getEntitySelectCallout();
-        Intent calloutIntent = EntitySelectCalloutSetup.buildCalloutIntent(identificationScanCallout);
+        Intent calloutIntent = EntitySelectCalloutSetup.buildCalloutIntent(
+                identificationScanCallout,
+                entitySelectActivity.evalContext());
         Intent responseIntent = buildIdentificationResultIntent();
         ShadowActivity shadowEntitySelect = Shadows.shadowOf(entitySelectActivity);
         shadowEntitySelect.receiveResult(calloutIntent, Activity.RESULT_OK, responseIntent);

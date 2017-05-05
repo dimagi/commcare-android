@@ -427,7 +427,7 @@ refresh.build.up.to.date=Your app is already up to date, so no refresh occurred.
 refresh.build.update.error=An error occurred while attempting to update, so no refresh occurred.
 refresh.build.update.canceled=The update was canceled, so no refresh occurred.
 refresh.build.session.error=The refresh build utility cannot be used when you are not logged in, so no refresh occurred.
-refresh.build.settings.error=No refresh occurred. In order to use this utility, please turn on the "Enable Session Saving" setting in the Developer Preferences menu.
+refresh.build.settings.error=No refresh occurred. In order to use this utility, please turn on the "Enable Session Saving" setting in the Developer Options menu.
 
 login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
@@ -715,12 +715,13 @@ intent.callout.update=Update Data
 intent.callout.cancelled=Question callout cancelled
 intent.callout.unable.to.process=Unable to process callout result
 intent.callout.activity.missing=Couldn't find intent for callout!
+intent.callout.not.supported=This intent callout is not supported on this device
 fingerprints.scanned=Fingerprints scanned: ${0}
 
 settings.server.listing=Server Settings
 settings.server.title=CommCare > Server Settings
 settings.developer.options=Developer Options
-settings.main.title=CommCare > Application Preferences
+settings.main.title=CommCare > Settings
 settings.advanced.title=CommCare > Advanced
 clear.user.data=Clear User Data
 clear.user.data.warning.title=Clear User Data

@@ -93,7 +93,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefMgr.setSharedPreferencesName((CommCareApplication.instance().getCurrentApp().getPreferencesFilename()));
 
         addPreferencesFromResource(R.xml.preferences_developer);
-        setTitle("Developer Preferences");
+        setTitle("Developer Options");
 
         populatePrefKeyToEventLabelMapping();
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(

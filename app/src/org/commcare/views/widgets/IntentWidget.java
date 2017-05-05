@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.util.TypedValue;
@@ -127,14 +128,23 @@ public class IntentWidget extends QuestionWidget {
     }
 
     private void performCallout() {
-        try {
-            loadCurrentAnswerToIntent();
-            ((Activity)getContext()).startActivityForResult(intent, FormEntryConstants.INTENT_CALLOUT);
-            pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-        } catch (ActivityNotFoundException e) {
+        if (calloutIsSupportedOnDevice()) {
+            try {
+                loadCurrentAnswerToIntent();
+                ((Activity) getContext()).startActivityForResult(intent, FormEntryConstants.INTENT_CALLOUT);
+                pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(getContext(),
+                        Localization.get(missingCalloutKey), Toast.LENGTH_SHORT).show();
+            }
+        } else {
             Toast.makeText(getContext(),
-                    Localization.get(missingCalloutKey), Toast.LENGTH_SHORT).show();
+                    Localization.get("intent.callout.not.supported"), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public boolean calloutIsSupportedOnDevice() {
+        return !(ic.isSimprintsCallout() && Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH);
     }
 
     protected void loadCurrentAnswerToIntent() {
@@ -211,4 +221,5 @@ public class IntentWidget extends QuestionWidget {
             return compoundedCallout;
         }
     }
+
 }

@@ -25,12 +25,12 @@ import android.widget.VideoView;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.QRCodeEncoder;
 import org.commcare.views.ResizingImageView;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
 
 import java.io.File;
 
@@ -166,10 +166,10 @@ public class MediaLayout extends RelativeLayout {
                     }
 
                     Intent i = new Intent("android.intent.action.VIEW");
-                    i.setDataAndType(Uri.fromFile(videoFile), "video/*");
+                    Uri videoFileUri = FileUtil.getUriForExternalFile(getContext(), videoFile);
+                    i.setDataAndType(videoFileUri, "video/*");
+                    i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     try {
-                        String uri = Uri.fromFile(videoFile).getPath().replaceAll("^.*\\/", "");
-                        Logger.log("media", "start " + uri);
                         getContext().startActivity(i);
                     } catch (ActivityNotFoundException e) {
                         Toast.makeText(getContext(),
