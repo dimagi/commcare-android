@@ -128,6 +128,12 @@ public class CommCareHeartbeatManager {
                 } catch (SessionUnavailableException e) {
                     // Means the session has ended, so we should stop these requests
                     stopHeartbeatCommunications();
+                } catch (Exception e) {
+                    // Encountered a different, unexpected issue
+                    stopHeartbeatCommunications();
+                    Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                            "Encountered unexpected exception during heartbeat communications: "
+                                    + e.getMessage() + ". Stopping the heartbeat thread.");
                 }
             }
         };
