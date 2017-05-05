@@ -10,8 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.commcare.HeartbeatLifecycleManager;
-import org.commcare.UpdateToPrompt;
+import org.commcare.heartbeat.UpdateToPrompt;
 import org.commcare.dalvik.R;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;

@@ -16,8 +16,7 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.HeartbeatLifecycleManager;
-import org.commcare.UpdateToPrompt;
+import org.commcare.heartbeat.UpdateToPrompt;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;

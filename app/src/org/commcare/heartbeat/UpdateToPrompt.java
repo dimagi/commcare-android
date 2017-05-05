@@ -1,4 +1,4 @@
-package org.commcare;
+package org.commcare.heartbeat;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,6 +8,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.util.Base64;
 
+import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
 import org.commcare.activities.PromptUpdateActivity;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.utils.SerializationUtil;
@@ -19,7 +21,6 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

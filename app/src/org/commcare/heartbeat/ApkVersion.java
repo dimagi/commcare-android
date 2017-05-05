@@ -1,4 +1,4 @@
-package org.commcare;
+package org.commcare.heartbeat;
 
 public class ApkVersion implements Comparable<ApkVersion> {
 
