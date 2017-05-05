@@ -702,7 +702,7 @@ public class FileUtil {
      * supported by a FileProvider are able to be shared externally by these URI's
      */
     public static Uri getUriForExternalFile(Context context, File file) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return FileProvider.getUriForFile(context,
                     context.getApplicationContext().getPackageName() + ".external.files.provider",
                     file);
