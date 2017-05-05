@@ -324,4 +324,8 @@ public class IntentCallout implements Externalizable {
     public String getAppearance() {
         return appearance;
     }
+
+    public boolean isSimprintsCallout() {
+        return "com.simprints.id.REGISTER".equals(className);
+    }
 }
