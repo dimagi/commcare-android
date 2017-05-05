@@ -25,9 +25,13 @@ import java.util.Date;
 import java.util.HashMap;
 
 /**
+ * Responsible for making a heartbeat request to the server when signaled to do so by the current
+ * session's HeartbeatLifecycleManager, and then parsing and handling the response. Currently,
+ * the primary content of the server's response to the heartbeat request will be information
+ * about potential binary or app updates that the app should prompt users to conduct.
+ *
  * Created by amstone326 on 5/5/17.
  */
-
 public class HeartbeatRequester {
 
     private static final String TEST_RESPONSE =

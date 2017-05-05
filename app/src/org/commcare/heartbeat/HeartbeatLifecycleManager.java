@@ -12,13 +12,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * While active, this class is responsible for using a TimerTask to periodically ping the server
- * with a "heartbeat" request, and then handle the response. The lifecycle of the TimerTask is
- * tied to that of the CommCareSessionService; it should be started whenever a session service is
- * started, and ended whenever a session service is ended for any reason.
- *
- * Currently, the primary content of the server's response to the heartbeat request will be
- * information about potential binary or app updates that the app should prompt users to conduct.
+ * While active, this class is responsible controlling a TimerTask that periodically pings the
+ * server with a "heartbeat" request. The lifecycle of this object is tied directly to that of
+ * the CommCareSessionService; it should be started whenever a session service is started,
+ * and ended whenever a session service is ended for any reason.
  *
  * Created by amstone326 on 4/13/17.
  */
@@ -60,8 +57,7 @@ public class HeartbeatLifecycleManager {
     }
 
     private boolean shouldStartHeartbeatRequests() {
-        //return appHasHeartbeatUrl() && !hasSucceededOnThisLogin() && endCurrentHeartbeatTask();
-        return !hasSucceededOnThisLogin() && endCurrentHeartbeatTask();
+        return appHasHeartbeatUrl() && !hasSucceededOnThisLogin() && endCurrentHeartbeatTask();
     }
 
     private boolean shouldStopHeartbeatRequests() {
