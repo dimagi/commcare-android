@@ -1,12 +1,8 @@
 package org.commcare;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Base64;
 
-import org.commcare.activities.PromptUpdateActivity;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.logging.AndroidLogger;
@@ -17,12 +13,9 @@ import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.util.externalizable.ExtUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -43,7 +36,7 @@ import java.util.TimerTask;
  *
  * Created by amstone326 on 4/13/17.
  */
-public class CommCareHeartbeatManager {
+public class HeartbeatLifecycleManager {
 
     private static final long ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
@@ -108,10 +101,10 @@ public class CommCareHeartbeatManager {
         }
     };
 
-    private static CommCareHeartbeatManager INSTANCE;
-    public static CommCareHeartbeatManager instance() {
+    private static HeartbeatLifecycleManager INSTANCE;
+    public static HeartbeatLifecycleManager instance() {
         if (INSTANCE == null) {
-            INSTANCE = new CommCareHeartbeatManager();
+            INSTANCE = new HeartbeatLifecycleManager();
         }
         return INSTANCE;
     }
@@ -254,62 +247,6 @@ public class CommCareHeartbeatManager {
                     "Encountered malformed json while trying to parse server response into an " +
                             "UpdateToPrompt object : " + e.getMessage());
         }
-    }
-
-    /**
-     * @return - If the user was prompted to update
-     */
-    public static boolean promptForUpdateIfNeeded(Activity context) {
-        UpdateToPrompt cczUpdate = getCurrentUpdateToPrompt(false);
-        UpdateToPrompt apkUpdate = getCurrentUpdateToPrompt(true);
-        if (cczUpdate != null || apkUpdate != null) {
-            Intent i = new Intent(context, PromptUpdateActivity.class);
-            context.startActivity(i);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @return an UpdateToPrompt that has been stored in SharedPreferences and is still relevant
-     * (i.e. the user hasn't updated to or past this version since we stored it)
-     */
-    public static UpdateToPrompt getCurrentUpdateToPrompt(boolean forApkUpdate) {
-        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-        if (currentApp != null) {
-            String prefsKey = forApkUpdate ?
-                    UpdateToPrompt.KEY_APK_UPDATE_TO_PROMPT : UpdateToPrompt.KEY_CCZ_UPDATE_TO_PROMPT;
-            String serializedUpdate = currentApp.getAppPreferences().getString(prefsKey, "");
-            if (!"".equals(serializedUpdate)) {
-                try {
-                    byte[] updateBytes = Base64.decode(serializedUpdate, Base64.DEFAULT);
-                    DataInputStream stream = new DataInputStream(new ByteArrayInputStream(updateBytes));
-                    UpdateToPrompt update = (UpdateToPrompt)
-                            ExtUtil.read(stream, UpdateToPrompt.class, ExtUtil.defaultPrototypes());
-                    if (update.isNewerThanCurrentVersion(currentApp)) {
-                        return update;
-                    } else {
-                        // The update we had stored is no longer relevant, so wipe it and return nothing
-                        wipeStoredUpdate(forApkUpdate);
-                        return null;
-                    }
-                } catch (Exception e) {
-                    // Something went wrong, so clear out whatever is there
-                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                            "IO error encountered while de-serializing saved UpdateToPrompt: "
-                                    + e.getMessage());
-                    wipeStoredUpdate(forApkUpdate);
-                }
-            }
-        }
-        return null;
-    }
-
-    public static void wipeStoredUpdate(boolean forApkUpdate) {
-        String prefsKey = forApkUpdate ?
-                UpdateToPrompt.KEY_APK_UPDATE_TO_PROMPT : UpdateToPrompt.KEY_CCZ_UPDATE_TO_PROMPT;
-        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(prefsKey, "").commit();
     }
 
 }

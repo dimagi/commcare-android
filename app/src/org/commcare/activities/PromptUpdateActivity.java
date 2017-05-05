@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.commcare.CommCareHeartbeatManager;
+import org.commcare.HeartbeatLifecycleManager;
 import org.commcare.UpdateToPrompt;
 import org.commcare.dalvik.R;
 import org.commcare.views.ManagedUi;
@@ -57,8 +57,8 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
     }
 
     private void refreshUpdateToPromptObjects() {
-        cczUpdate = CommCareHeartbeatManager.getCurrentUpdateToPrompt(false);
-        apkUpdate = CommCareHeartbeatManager.getCurrentUpdateToPrompt(true);
+        cczUpdate = UpdateToPrompt.getCurrentUpdateToPrompt(false);
+        apkUpdate = UpdateToPrompt.getCurrentUpdateToPrompt(true);
     }
 
     @Override
