@@ -5,6 +5,7 @@ import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -42,6 +43,11 @@ class GlobalDatabaseUpgrader {
         if (oldVersion == 3) {
             if (upgradeThreeFour(db)) {
                 oldVersion = 4;
+            }
+        }
+        if (oldVersion == 4) {
+            if (upgradeFourFive(db)) {
+                oldVersion = 5;
             }
         }
     }
@@ -104,10 +110,19 @@ class GlobalDatabaseUpgrader {
     }
 
     private boolean upgradeThreeFour(SQLiteDatabase db) {
+        return addTableForNewModel(db, ForceCloseLogEntry.STORAGE_KEY, new ForceCloseLogEntry());
+    }
+
+    private boolean upgradeFourFive(SQLiteDatabase db) {
+        return addTableForNewModel(db, AppAvailableToInstall.STORAGE_KEY, new AppAvailableToInstall());
+    }
+
+    private static boolean addTableForNewModel(SQLiteDatabase db, String storageKey,
+                                               Persistable modelToAdd) {
         db.beginTransaction();
         try {
-            AndroidTableBuilder builder = new AndroidTableBuilder(ForceCloseLogEntry.STORAGE_KEY);
-            builder.addData(new ForceCloseLogEntry());
+            AndroidTableBuilder builder = new AndroidTableBuilder(storageKey);
+            builder.addData(modelToAdd);
             db.execSQL(builder.getTableCreateString());
 
             db.setTransactionSuccessful();

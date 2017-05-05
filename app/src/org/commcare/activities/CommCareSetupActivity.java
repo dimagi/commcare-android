@@ -402,6 +402,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return;
         }
 
+        if (lastInstallMode == INSTALL_MODE_FROM_LIST) {
+            GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_INSTALL_FROM_LIST);
+        }
         setReadyToInstall(result);
     }
 
