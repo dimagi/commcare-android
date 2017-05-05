@@ -110,7 +110,12 @@ public class HeartbeatLifecycleManager {
     }
 
     public void startHeartbeatCommunications() {
-        TimerTask heartbeatTimerTask = new TimerTask() {
+        if (heartbeatTimer != null) {
+            // Make sure we end anything still in progress
+            heartbeatTimer.cancel();
+        }
+        heartbeatTimer = new Timer();
+        heartbeatTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 try {
@@ -129,10 +134,7 @@ public class HeartbeatLifecycleManager {
                                     + e.getMessage() + ". Stopping the heartbeat thread.");
                 }
             }
-        };
-
-        heartbeatTimer = new Timer();
-        heartbeatTimer.schedule(heartbeatTimerTask, new Date(), ONE_DAY_IN_MS);
+        }, new Date(), ONE_DAY_IN_MS);
     }
 
     public void stopHeartbeatCommunications() {
