@@ -33,6 +33,7 @@ public class HeartbeatRequester {
     private static final String TEST_RESPONSE =
             "{\"app_id\":\"73d5f08b9d55fe48602906a89672c214\",\"latest_apk_version\":{\"value\":\"2.36.1\"},\"latest_ccz_version\":{\"value\":\"75\", \"force_by_date\":\"2017-05-01\"}}";
 
+    private static final String APP_ID = "app_id";
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
     private static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
     private static final String LAST_SYNC_TIME_PARAM = "last_sync_time";
@@ -126,6 +127,7 @@ public class HeartbeatRequester {
 
     private static HashMap<String, String> getParamsForHeartbeatRequest() {
         HashMap<String, String> params = new HashMap<>();
+        params.put(APP_ID, CommCareApplication.instance().getCurrentApp().getUniqueId());
         params.put(QUARANTINED_FORMS_PARAM, "" + StorageUtils.getNumQuarantinedForms());
         params.put(UNSENT_FORMS_PARAM, "" + StorageUtils.getNumUnsentForms());
         params.put(LAST_SYNC_TIME_PARAM, new Date(SyncDetailCalculations.getLastSyncTime()).toString());
@@ -159,7 +161,7 @@ public class HeartbeatRequester {
                 CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
                 if (currentApp != null) {
                     String appIdOfResponse = responseAsJson.getString("app_id");
-                    String currentAppId = currentApp.getAppRecord().getApplicationId();
+                    String currentAppId = currentApp.getAppRecord().getUniqueId();
                     return appIdOfResponse.equals(currentAppId);
                 }
             }
