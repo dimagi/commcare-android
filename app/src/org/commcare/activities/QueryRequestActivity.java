@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.network.ModernHttpRequester;
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.models.AndroidSessionWrapper;

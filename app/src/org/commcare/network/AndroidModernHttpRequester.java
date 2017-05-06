@@ -2,6 +2,7 @@ package org.commcare.network;
 
 import android.net.Uri;
 
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.User;
