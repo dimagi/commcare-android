@@ -40,8 +40,8 @@ public class HeartbeatLifecycleManager {
                         HeartbeatLifecycleManager.this.endCurrentHeartbeatTask();
                     } else {
                         try {
-                            //requester.requestHeartbeat();
-                            requester.parseTestHeartbeatResponse();
+                            requester.requestHeartbeat();
+                            //requester.parseTestHeartbeatResponse();
                         } catch (Exception e) {
                             // Encountered an unexpected issue, should just bail on this thread
                             HeartbeatLifecycleManager.this.endCurrentHeartbeatTask();

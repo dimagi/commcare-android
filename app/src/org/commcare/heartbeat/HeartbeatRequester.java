@@ -2,6 +2,7 @@ package org.commcare.heartbeat;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -34,6 +35,7 @@ import java.util.HashMap;
  */
 public class HeartbeatRequester {
 
+    private static final String TAG = HeartbeatRequester.class.getSimpleName();
     private static final String TEST_RESPONSE =
             "{\"app_id\":\"73d5f08b9d55fe48602906a89672c214\",\"latest_apk_version\":{\"value\":\"2.36.1\"},\"latest_ccz_version\":{\"value\":\"75\", \"force_by_date\":\"2017-05-01\"}}";
 
@@ -47,7 +49,7 @@ public class HeartbeatRequester {
         @Override
         public void processSuccess(int responseCode, InputStream responseData) {
             try {
-                String responseAsString = StreamsUtil.inputStreamToByteArray(responseData).toString();
+                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                 JSONObject jsonResponse = new JSONObject(responseAsString);
                 parseHeartbeatResponse(jsonResponse);
             }
@@ -117,6 +119,7 @@ public class HeartbeatRequester {
         String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getString(CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
         try {
+            Log.i(TAG, "Requesting heartbeat from " + urlString);
             ModernHttpRequester requester =
                     CommCareApplication.instance().buildHttpRequesterForLoggedInUser(
                             CommCareApplication.instance(), new URL(urlString),
@@ -152,6 +155,7 @@ public class HeartbeatRequester {
                         // Do nothing -- the session expired, so we just don't register the response
                         return;
                     }
+                    Log.i(TAG, "Parsing heartbeat response");
                     attemptApkUpdateParse(responseAsJson);
                     attemptCczUpdateParse(responseAsJson);
                 }

@@ -701,6 +701,7 @@ public class CommCareApplication extends Application {
                         syncPending = PendingCalcs.getPendingSyncStatus();
 
                         doReportMaintenance(false);
+                        mBoundService.initHeartbeatLifecycle();
 
                         // Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
@@ -713,7 +714,6 @@ public class CommCareApplication extends Application {
                         }
                     }
 
-                    mBoundService.initHeartbeatLifecycle();
                     TimedStatsTracker.registerStartSession();
                 }
             }
