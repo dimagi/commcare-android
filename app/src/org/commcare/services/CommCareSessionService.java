@@ -582,15 +582,16 @@ public class CommCareSessionService extends Service {
     }
 
     public void initHeartbeatLifecycle() {
-        this.heartbeatManager = new HeartbeatLifecycleManager(this);
-        this.heartbeatSucceededForSession = false;
+        if (heartbeatManager == null) {
+            heartbeatManager = new HeartbeatLifecycleManager(this);
+        }
         heartbeatManager.startHeartbeatCommunications();
     }
 
     private void endHeartbeatLifecycle() {
         if (heartbeatManager != null) {
             heartbeatManager.endHeartbeatCommunications();
-            this.heartbeatManager = null;
+            heartbeatManager = null;
         }
     }
 
