@@ -21,7 +21,7 @@ import java.util.TimerTask;
  */
 public class HeartbeatLifecycleManager {
 
-    private static final long FIVE_MIN_IN_MS = 5 * 60 * 1000;
+    private static final long ONE_HOUR_IN_MS = 60 * 60 * 1000;
 
     private TimerTask heartbeatRequestTask;
     private HeartbeatRequester requester = new HeartbeatRequester();
@@ -52,7 +52,7 @@ public class HeartbeatLifecycleManager {
                     }
                 }
             };
-            (new Timer()).schedule(heartbeatRequestTask, new Date(), FIVE_MIN_IN_MS);
+            (new Timer()).schedule(heartbeatRequestTask, new Date(), ONE_HOUR_IN_MS);
         }
     }
 

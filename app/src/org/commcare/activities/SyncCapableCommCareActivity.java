@@ -192,6 +192,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     public void handleFormSendResult(String message, boolean success) {
         updateUiAfterDataPullOrSend(message, success);
+        if (success) {
+            CommCareApplication.instance().getSession().initHeartbeatLifecycle();
+        }
     }
 
     abstract void updateUiAfterDataPullOrSend(String message, boolean success);
