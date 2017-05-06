@@ -7,7 +7,7 @@ import android.util.Log;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
-import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.network.ModernHttpRequester;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.utils.SessionUnavailableException;

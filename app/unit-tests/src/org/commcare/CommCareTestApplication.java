@@ -8,7 +8,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
 import org.commcare.core.encryption.CryptUtil;
-import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;

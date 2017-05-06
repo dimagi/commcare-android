@@ -5,7 +5,7 @@ import android.content.Context;
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
-import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.network.ModernHttpRequester;
 import org.commcare.modern.util.Pair;
 import org.commcare.network.AndroidModernHttpRequester;
 import org.commcare.tasks.templates.CommCareTask;
