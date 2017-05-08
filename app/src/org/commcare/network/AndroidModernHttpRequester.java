@@ -2,6 +2,7 @@ package org.commcare.network;
 
 import android.net.Uri;
 
+import org.commcare.CommCareApplication;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.commcare.modern.util.Pair;
@@ -41,6 +42,11 @@ public class AndroidModernHttpRequester extends ModernHttpRequester {
         for (Map.Entry<String, String> param : params.entrySet()) {
             b.appendQueryParameter(param.getKey(), param.getValue());
         }
+
+        // include IMEI and user id in request for general auditing purposes, if available
+        b.appendQueryParameter("device_id", CommCareApplication.instance().getPhoneId());
+        b.appendQueryParameter("user_id", CommCareApplication.instance().getCurrentUserId());
+
         return new URL(b.build().toString());
     }
 }

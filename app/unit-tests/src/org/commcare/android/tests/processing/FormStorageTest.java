@@ -280,8 +280,8 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathIdCompressFunc"
 
             // Added in 2.36
+            , "org.commcare.heartbeat.UpdateToPrompt"
             , "org.commcare.android.database.global.models.AppAvailableToInstall"
-
             );
 
     @Before

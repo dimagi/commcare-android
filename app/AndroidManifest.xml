@@ -403,6 +403,7 @@
             android:name="org.commcare.activities.PinAuthenticationActivity"
             android:windowSoftInputMode="stateVisible|adjustResize">
         </activity>
+        <activity android:name="org.commcare.activities.PromptUpdateActivity"/>
 
         <!-- Start Collect Manifest -->
 

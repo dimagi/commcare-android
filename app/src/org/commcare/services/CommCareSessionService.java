@@ -17,6 +17,7 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
+import org.commcare.heartbeat.HeartbeatLifecycleManager;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -105,6 +106,8 @@ public class CommCareSessionService extends Service {
     // save the current form if it exists.
     private FormSaveCallback formSaver;
 
+    private HeartbeatLifecycleManager heartbeatManager;
+    private boolean heartbeatSucceededForSession;
 
     /**
      * Class for clients to access.  Because we know this service always
@@ -425,6 +428,7 @@ public class CommCareSessionService extends Service {
             logoutStartedAt = -1;
 
             pool.expire();
+            endHeartbeatLifecycle();
         }
     }
 
@@ -575,5 +579,27 @@ public class CommCareSessionService extends Service {
     public void setCurrentUser(User user, String password) {
         this.user = user;
         this.user.setCachedPwd(password);
+    }
+
+    public void initHeartbeatLifecycle() {
+        if (heartbeatManager == null) {
+            heartbeatManager = new HeartbeatLifecycleManager(this);
+        }
+        heartbeatManager.startHeartbeatCommunications();
+    }
+
+    private void endHeartbeatLifecycle() {
+        if (heartbeatManager != null) {
+            heartbeatManager.endHeartbeatCommunications();
+            heartbeatManager = null;
+        }
+    }
+
+    public void setHeartbeatSuccess() {
+        this.heartbeatSucceededForSession = true;
+    }
+
+    public boolean heartbeatSucceededForSession() {
+        return heartbeatSucceededForSession;
     }
 }

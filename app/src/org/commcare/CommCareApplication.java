@@ -40,6 +40,7 @@ import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.heartbeat.HeartbeatLifecycleManager;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
@@ -700,6 +701,7 @@ public class CommCareApplication extends Application {
                         syncPending = PendingCalcs.getPendingSyncStatus();
 
                         doReportMaintenance(false);
+                        mBoundService.initHeartbeatLifecycle();
 
                         // Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
@@ -810,6 +812,7 @@ public class CommCareApplication extends Application {
                     sessionWrapper.reset();
                 }
                 sessionServiceIsBound = false;
+
                 // Detach our existing connection.
                 unbindService(mConnection);
                 stopService(new Intent(this, CommCareSessionService.class));
@@ -1017,4 +1020,5 @@ public class CommCareApplication extends Application {
     public static CommCareNoficationManager notificationManager() {
         return app.noficationManager;
     }
+
 }
