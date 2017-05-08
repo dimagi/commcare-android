@@ -40,8 +40,7 @@ public class HeartbeatLifecycleManager {
                         HeartbeatLifecycleManager.this.endCurrentHeartbeatTask();
                     } else {
                         try {
-                            requester.requestHeartbeat();
-                            //requester.parseTestHeartbeatResponse();
+                            makeRequest();
                         } catch (Exception e) {
                             // Encountered an unexpected issue, should just bail on this thread
                             HeartbeatLifecycleManager.this.endCurrentHeartbeatTask();
@@ -54,6 +53,10 @@ public class HeartbeatLifecycleManager {
             };
             (new Timer()).schedule(heartbeatRequestTask, new Date(), ONE_HOUR_IN_MS);
         }
+    }
+
+    protected void makeRequest() {
+        requester.requestHeartbeat();
     }
 
     private boolean shouldStartHeartbeatRequests() {
