@@ -46,6 +46,7 @@ public class DemoUserRestoreTest {
         TestAppInstaller.installApp(REF_BASE_DIR +
                 "app_without_demo_user_restore/profile.ccpr");
         CommCareApplication.instance().getCurrentApp().setMMResourcesValidated();
+
         loginAsDemoUser();
         launchHomeActivityForDemoUser();
     }
