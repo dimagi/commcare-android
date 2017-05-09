@@ -392,7 +392,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, RETRIEVE_APPS_FOR_DIFF_USER, 0,
-                Localization.get("menu.admin.install.other.user"));
+                Localization.get("menu.app.list.install.other.user"));
         return true;
     }
 
