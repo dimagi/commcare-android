@@ -521,7 +521,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
-        menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.admin.install"));
+        menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.app.list.install"));
         return true;
     }
 

@@ -12,6 +12,17 @@
         android:orientation="vertical"
         android:gravity="center">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/feature_prompt"
+            android:textSize="@dimen/text_medium"
+            android:text="@string/install_from_list_prompt"
+            android:textColor="@color/cc_brand_text"
+            android:gravity="center"
+            android:layout_margin="@dimen/content_min_margin"
+            android:layout_marginBottom="@dimen/standard_spacer_large"/>
+
         <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

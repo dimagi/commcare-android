@@ -51,6 +51,7 @@
     <string name="privilege_claim_failed">Could not claim privileges</string>
     <string name="privilege_instructions">If you have a superuser account on HQ, you can enable certain privileges on your device by going to the \'Enable Privileges on Mobile\' tab of your \'My Account Settings\' page, and then scanning the barcode that appears there.</string>
     <string name="see_available_apps">See Available Apps</string>
+    <string name="install_from_list_prompt">Log in as a mobile or web user to see a list of apps available to download</string>
 
     <!-- endregion -->
 
