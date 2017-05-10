@@ -134,4 +134,8 @@ public class UpdateToPrompt implements Externalizable {
         ExtUtil.writeBool(out, isApkUpdate);
         ExtUtil.write(out, new ExtWrapNullable(forceByDate));
     }
+
+    public int getCczVersion() {
+        return cczVersion;
+    }
 }
