@@ -26,6 +26,7 @@ public class TestHeartbeatRequester extends HeartbeatRequester {
     }
 
     public static void setNextResponseStrings(String[] responses) {
+        nextResponseStrings.clear();
         for (int i = 0; i < responses.length; i++) {
             nextResponseStrings.add(responses[i]);
         }

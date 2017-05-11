@@ -574,7 +574,6 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     protected boolean shouldIgnoreNavigationAction() {
-        //return (blockingActionsManager == null ? false : blockingActionsManager.isBlocked());
         return blockingActionsManager.isBlocked();
     }
 
