@@ -64,10 +64,9 @@ public class UpdateToPrompt implements Externalizable {
     }
 
     public void registerWithSystem() {
-        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-        if (isNewerThanCurrentVersion(currentApp)) {
+        if (isNewerThanCurrentVersion()) {
             printDebugStatement();
-            writeToPrefsObject(currentApp.getAppPreferences());
+            writeToPrefsObject(CommCareApplication.instance().getCurrentApp().getAppPreferences());
         } else {
             // If the latest signal we're getting is that our current version is up-to-date,
             // then we should wipe any update prompt for this type that was previously stored
@@ -86,7 +85,7 @@ public class UpdateToPrompt implements Externalizable {
         }
     }
 
-    public boolean isNewerThanCurrentVersion(CommCareApp currentApp) {
+    public boolean isNewerThanCurrentVersion() {
         if (isApkUpdate) {
             try {
                 Context c = CommCareApplication.instance();
@@ -102,7 +101,7 @@ public class UpdateToPrompt implements Externalizable {
                 return false;
             }
         } else {
-            int currentVersion = currentApp.getCommCarePlatform().getCurrentProfile().getVersion();
+            int currentVersion = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile().getVersion();
             return currentVersion < this.cczVersion;
         }
     }

@@ -9,22 +9,20 @@ import org.json.JSONObject;
 public class TestHeartbeatRequester extends HeartbeatRequester {
 
     private static String nextResponseString;
+    public static boolean responseWasParsed;
 
     @Override
     protected void requestHeartbeat() {
-        parseTestHeartbeatResponse();
+        try {
+            parseHeartbeatResponse(new JSONObject(nextResponseString));
+            responseWasParsed = true;
+        } catch (JSONException e) {
+            System.out.println("Test response was not properly formed JSON");
+        }
     }
 
     public static void setNextResponseString(String s) {
         nextResponseString = s;
-    }
-
-    protected static void parseTestHeartbeatResponse() {
-        try {
-            parseHeartbeatResponse(new JSONObject(nextResponseString));
-        } catch (JSONException e) {
-            System.out.println("Test response was not properly formed JSON");
-        }
     }
 
     protected static void simulateRequestGettingStuck() {

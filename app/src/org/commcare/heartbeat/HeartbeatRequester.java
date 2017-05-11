@@ -49,7 +49,7 @@ public class HeartbeatRequester {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                 JSONObject jsonResponse = new JSONObject(responseAsString);
-                parseHeartbeatResponse(jsonResponse);
+                passResponseToUiThread(jsonResponse);
             }
             catch (JSONException e) {
                 Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
@@ -120,26 +120,30 @@ public class HeartbeatRequester {
         return params;
     }
 
-    protected static void parseHeartbeatResponse(final JSONObject responseAsJson) {
+    protected static void passResponseToUiThread(final JSONObject responseAsJson) {
         // will run on UI thread
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if (checkForAppIdMatch(responseAsJson)) {
-                    // We only want to register this response if the current app is still the
-                    // same as the one that sent the request originally
-                    try {
-                        CommCareApplication.instance().getSession().setHeartbeatSuccess();
-                    } catch (SessionUnavailableException e) {
-                        // Do nothing -- the session expired, so we just don't register the response
-                        return;
-                    }
-                    Log.i(TAG, "Parsing heartbeat response");
-                    attemptApkUpdateParse(responseAsJson);
-                    attemptCczUpdateParse(responseAsJson);
-                }
+                parseHeartbeatResponse(responseAsJson);
             }
         });
+    }
+
+    protected static void parseHeartbeatResponse(JSONObject responseAsJson) {
+        if (checkForAppIdMatch(responseAsJson)) {
+            // We only want to register this response if the current app is still the
+            // same as the one that sent the request originally
+            try {
+                CommCareApplication.instance().getSession().setHeartbeatSuccess();
+            } catch (SessionUnavailableException e) {
+                // Do nothing -- the session expired, so we just don't register the response
+                return;
+            }
+            Log.i(TAG, "Parsing heartbeat response");
+            attemptApkUpdateParse(responseAsJson);
+            attemptCczUpdateParse(responseAsJson);
+        }
     }
 
     private static boolean checkForAppIdMatch(JSONObject responseAsJson) {
