@@ -32,13 +32,4 @@ public class TestHeartbeatRequester extends HeartbeatRequester {
         }
     }
 
-    protected static void simulateRequestGettingStuck() {
-        System.out.println("Before sleeping");
-        try {
-            Thread.sleep(5*1000);
-        } catch (InterruptedException e) {
-            System.out.println("TEST ERROR: sleep was interrupted");
-        }
-        System.out.println("After sleeping");
-    }
 }

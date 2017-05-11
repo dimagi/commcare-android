@@ -8,6 +8,7 @@ import org.commcare.activities.StandardHomeActivity;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.android.util.TestAppInstaller;
+import org.commcare.heartbeat.ApkVersion;
 import org.commcare.heartbeat.TestHeartbeatRequester;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.heartbeat.UpdateToPrompt;
@@ -24,7 +25,7 @@ import static junit.framework.Assert.assertTrue;
  */
 @Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
-public class HeartbeatTests {
+public class HeartbeatAndPromptedUpdateTests {
 
     private static final String RESPONSE_CorrectApp_CczUpdateNeeded =
             "{\"app_id\":\"36c0bdd028d14a52cbff95bb1bfd0962\"," +
@@ -53,6 +54,18 @@ public class HeartbeatTests {
         // The app version for this app is 95
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/form_entry_tests/profile.ccpr", "test", "123");
+    }
+
+    @Test
+    public void testApkComparator() {
+        ApkVersion version2x35x1 = new ApkVersion("2.35.1");
+        ApkVersion version2x35x3 = new ApkVersion("2.35.3");
+        ApkVersion version2x36 = new ApkVersion("2.36");
+        ApkVersion version2x36x0 = new ApkVersion("2.36.0");
+
+        assertTrue(version2x36.compareTo(version2x36x0) == 0);
+        assertTrue(version2x35x3.compareTo(version2x36x0) < 0);
+        assertTrue(version2x35x3.compareTo(version2x35x1) > 0);
     }
 
     @Test
