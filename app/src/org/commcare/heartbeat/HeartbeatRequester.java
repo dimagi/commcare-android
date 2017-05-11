@@ -135,6 +135,7 @@ public class HeartbeatRequester {
             // We only want to register this response if the current app is still the
             // same as the one that sent the request originally
             try {
+                //System.out.println("HERE: made it to before getSession() call");
                 CommCareApplication.instance().getSession().setHeartbeatSuccess();
             } catch (SessionUnavailableException e) {
                 // Do nothing -- the session expired, so we just don't register the response
