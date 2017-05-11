@@ -159,6 +159,8 @@ public class HeartbeatAndPromptedUpdateTests {
             if (System.currentTimeMillis() - waitTimeStart > 5000) {
                 Assert.fail("Taking too long to parse the test heartbeat response");
             } else {
+                // do not delete this print statement; for some reason that I haven't figured out,
+                // the while loop never exits if this isn't here...
                 System.out.println("Waiting for the test heartbeat response to be parsed");
             }
         }
