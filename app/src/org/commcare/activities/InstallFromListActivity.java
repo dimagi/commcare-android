@@ -29,6 +29,7 @@ import org.commcare.modern.util.Pair;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.utils.ConnectivityStatus;
 import org.commcare.xml.AvailableAppsParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -101,10 +102,14 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             public void onClick(View v) {
                 errorMessageBox.setVisibility(View.INVISIBLE);
                 if (inputIsValid()) {
-                    authenticateView.setVisibility(View.GONE);
-                    requestedFromIndia = false;
-                    requestedFromProd = false;
-                    requestAppList();
+                    if (ConnectivityStatus.isNetworkAvailable(InstallFromListActivity.this)) {
+                        authenticateView.setVisibility(View.GONE);
+                        requestedFromIndia = false;
+                        requestedFromProd = false;
+                        requestAppList();
+                    } else {
+                        enterErrorState(Localization.get("updates.check.network_unavailable"));
+                    }
                 }
             }
         });
