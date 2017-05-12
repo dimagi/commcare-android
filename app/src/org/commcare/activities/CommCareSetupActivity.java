@@ -414,7 +414,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         try {
             ReferenceManager.instance().DeriveReference(incomingRef);
-            if (lastInstallMode == INSTALL_MODE_OFFLINE) {
+            if (lastInstallMode == INSTALL_MODE_OFFLINE || lastInstallMode == INSTALL_MODE_FROM_LIST) {
                 onStartInstallClicked();
             } else {
                 uiStateScreenTransition();
