@@ -143,11 +143,6 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
             Log.d(TAG, "Privilege claim failed because the user scanned a barcode for an unknown privilege");
             return false;
         }
-        if (!username.endsWith("@dimagi.com")) {
-            Log.d(TAG, "Privilege claim failed because the encoded username was not a " +
-                    "@dimagi.com email address");
-            return false;
-        }
         try {
             byte[] signatureBytes = SigningUtil.getBytesFromString(signature);
             String expectedUnsignedValue = getExpectedUnsignedValue(flag, username);
