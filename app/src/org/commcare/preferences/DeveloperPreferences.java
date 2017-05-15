@@ -9,17 +9,19 @@ import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.GlobalPrivilegeClaimingActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.services.locale.Localization;
 
@@ -33,6 +35,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static final int RESULT_SYNC_CUSTOM = Activity.RESULT_FIRST_USER + 1;
     public static final int REQUEST_SYNC_FILE = 1;
+
+    private static final int MENU_ENABLE_PRIVILEGES = 0;
 
     // REGION - all Developer Preference keys
 
@@ -86,23 +90,23 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
+        populatePrefKeyToEventLabelMapping();
+        initAllPrefs();
+    }
 
+    private void initAllPrefs() {
         PreferenceManager prefMgr = getPreferenceManager();
         prefMgr.setSharedPreferencesName((CommCareApplication.instance().getCurrentApp().getPreferencesFilename()));
-
         addPreferencesFromResource(R.xml.preferences_developer);
         setTitle("Developer Options");
 
-        populatePrefKeyToEventLabelMapping();
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(
                 prefMgr, prefKeyToAnalyticsEvent, GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
 
         savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
         setSessionEditText();
         createOnCustomRestoreOption(prefMgr);
-        hideDangerousDeveloperPrefsIfNeeded();
     }
 
     private void createOnCustomRestoreOption(PreferenceManager prefMgr) {
@@ -145,8 +149,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
             }
         }
     }
-
-
 
     private static void populatePrefKeyToEventLabelMapping() {
         prefKeyToAnalyticsEvent.put(SUPERUSER_ENABLED, GoogleAnalyticsFields.LABEL_DEV_MODE);
@@ -250,6 +252,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
         getPreferenceScreen().getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(this);
+
+        hideOrShowDangerousSettings();
     }
 
     @Override
@@ -389,14 +393,22 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 CommCarePreferences.YES) || BuildConfig.DEBUG;
     }
 
-    private void hideDangerousDeveloperPrefsIfNeeded() {
+    private void hideOrShowDangerousSettings() {
+        Preference[] onScreenPrefs = getOnScreenPrefs();
         if (!GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled() && !BuildConfig.DEBUG) {
             // Dangerous privileges should not be showing
             PreferenceScreen prefScreen = getPreferenceScreen();
-            for (Preference p : getOnScreenPrefs()) {
+            for (Preference p : onScreenPrefs) {
                 if (p != null && !WHITELISTED_DEVELOPER_PREF_KEYS.contains(p.getKey())) {
                     prefScreen.removePreference(p);
                 }
+            }
+        } else {
+            // Dangerous privileges should be be showing
+            if (onScreenPrefs.length == WHITELISTED_DEVELOPER_PREF_KEYS.size()) {
+                // If we're currently showing only white-listed prefs, reset
+                getPreferenceScreen().removeAll();
+                initAllPrefs();
             }
         }
     }
@@ -408,6 +420,25 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
             prefs[i] = prefScreen.getPreference(i);
         }
         return prefs;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_ENABLE_PRIVILEGES, 0, Localization.get("menu.enable.privileges"))
+                .setIcon(android.R.drawable.ic_menu_preferences);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case MENU_ENABLE_PRIVILEGES:
+                Intent i = new Intent(this, GlobalPrivilegeClaimingActivity.class);
+                startActivity(i);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }
