@@ -305,6 +305,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         authenticateView.setVisibility(View.VISIBLE);
         errorMessageBox.setVisibility(View.VISIBLE);
         errorMessageBox.setText(errorMessage);
+        errorMessageBox.requestFocus();
     }
 
     @Override
