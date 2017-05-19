@@ -58,6 +58,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private static final String REQUESTED_FROM_PROD_KEY = "have-requested-from-prod";
     private static final String REQUESTED_FROM_INDIA_KEY = "have-requested-from-india";
     private static final String ERROR_MESSAGE_KEY = "error-message-key";
+    private static final String AUTH_MODE_KEY = "auth-mode-key";
 
     private static final String PROD_URL = "https://www.commcarehq.org/phone/list_apps";
     private static final String INDIA_URL = "https://india.commcarehq.org/phone/list_apps";
@@ -81,8 +82,11 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadStateFromSavedInstance(savedInstanceState);
+        setInitialValues(savedInstanceState);
         setupUI();
+        if (errorMessage != null) {
+            enterErrorState(errorMessage);
+        }
         loadPreviouslyRetrievedAvailableApps();
     }
 
@@ -93,6 +97,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         setUpGetAppsButton();
         setUpAppsList();
         setUpToggle();
+        setProperAuthView();
     }
 
     private void setUpGetAppsButton() {
@@ -147,26 +152,31 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             userTypeToggler = toggleButton;
         }
 
-        final View mobileUserView = findViewById(R.id.mobile_user_view);
-        final View webUserView = findViewById(R.id.web_user_view);
         userTypeToggler.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 inMobileUserAuthMode = isChecked;
-                if (inMobileUserAuthMode) {
-                    mobileUserView.setVisibility(View.VISIBLE);
-                    webUserView.setVisibility(View.GONE);
-                } else {
-                    mobileUserView.setVisibility(View.GONE);
-                    webUserView.setVisibility(View.VISIBLE);
-                }
+                setProperAuthView();
+                errorMessage = null;
                 errorMessageBox.setVisibility(View.INVISIBLE);
                 ((EditText)findViewById(R.id.edit_password)).setText("");
             }
         });
 
-        userTypeToggler.setChecked(true);
+        userTypeToggler.setChecked(inMobileUserAuthMode);
         toggleContainer.addView(userTypeToggler);
+    }
+
+    private void setProperAuthView() {
+        final View mobileUserView = findViewById(R.id.mobile_user_view);
+        final View webUserView = findViewById(R.id.web_user_view);
+        if (inMobileUserAuthMode) {
+            mobileUserView.setVisibility(View.VISIBLE);
+            webUserView.setVisibility(View.GONE);
+        } else {
+            mobileUserView.setVisibility(View.GONE);
+            webUserView.setVisibility(View.VISIBLE);
+        }
     }
 
     private boolean inputIsValid() {
@@ -198,11 +208,14 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         return true;
     }
 
-    private void loadStateFromSavedInstance(Bundle savedInstanceState) {
+    private void setInitialValues(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             requestedFromIndia = savedInstanceState.getBoolean(REQUESTED_FROM_INDIA_KEY);
             requestedFromProd = savedInstanceState.getBoolean(REQUESTED_FROM_PROD_KEY);
             errorMessage = savedInstanceState.getString(ERROR_MESSAGE_KEY);
+            inMobileUserAuthMode = savedInstanceState.getBoolean(AUTH_MODE_KEY);
+        } else {
+            inMobileUserAuthMode = true;
         }
     }
 
@@ -212,6 +225,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         savedInstanceState.putBoolean(REQUESTED_FROM_INDIA_KEY, requestedFromIndia);
         savedInstanceState.putBoolean(REQUESTED_FROM_PROD_KEY, requestedFromProd);
         savedInstanceState.putString(ERROR_MESSAGE_KEY, errorMessage);
+        savedInstanceState.putBoolean(AUTH_MODE_KEY, inMobileUserAuthMode);
     }
 
     /**
@@ -288,10 +302,6 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     private void enterErrorState(String message) {
         errorMessage = message;
-        enterErrorState();
-    }
-
-    private void enterErrorState() {
         authenticateView.setVisibility(View.VISIBLE);
         errorMessageBox.setVisibility(View.VISIBLE);
         errorMessageBox.setText(errorMessage);
