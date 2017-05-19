@@ -13,6 +13,7 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/auth_scroll_view"
             android:scrollbars="none">
 
             <LinearLayout

@@ -16,6 +16,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -152,6 +153,9 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             userTypeToggler = toggleButton;
         }
 
+        // Important for this call to come first; we don't want the listener to be invoked on the
+        // first auto-setting, just on user-triggered ones
+        userTypeToggler.setChecked(inMobileUserAuthMode);
         userTypeToggler.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -163,7 +167,6 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             }
         });
 
-        userTypeToggler.setChecked(inMobileUserAuthMode);
         toggleContainer.addView(userTypeToggler);
     }
 
@@ -305,7 +308,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         authenticateView.setVisibility(View.VISIBLE);
         errorMessageBox.setVisibility(View.VISIBLE);
         errorMessageBox.setText(errorMessage);
-        errorMessageBox.requestFocus();
+        findViewById(R.id.auth_scroll_view).scrollTo(0, errorMessageBox.getBottom());
     }
 
     @Override
