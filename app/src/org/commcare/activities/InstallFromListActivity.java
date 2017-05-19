@@ -430,10 +430,18 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             availableApps.clear();
             appsListContainer.setVisibility(View.GONE);
             authenticateView.setVisibility(View.VISIBLE);
+            clearAllFields();
             rebuildOptionsMenu();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void clearAllFields() {
+        ((TextView)findViewById(R.id.edit_username)).setText("");
+        ((TextView)findViewById(R.id.edit_password)).setText("");
+        ((TextView)findViewById(R.id.edit_domain)).setText("");
+        ((TextView)findViewById(R.id.edit_email)).setText("");
     }
 
     private void loadPreviouslyRetrievedAvailableApps() {
