@@ -128,8 +128,8 @@ public class ResizingImageView extends ImageView {
             File bigImage = new File(imageFilename);
 
             Intent i = new Intent("android.intent.action.VIEW");
-            Uri videoFileUri = FileUtil.getUriForExternalFile(getContext(), bigImage);
-            i.setDataAndType(videoFileUri, "image/*");
+            Uri imageFileUri = FileUtil.getUriForExternalFile(getContext(), bigImage);
+            i.setDataAndType(imageFileUri, "image/*");
             i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             getContext().startActivity(i);
