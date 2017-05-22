@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
+import org.commcare.utils.FileUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -127,7 +128,10 @@ public class ResizingImageView extends ImageView {
             File bigImage = new File(imageFilename);
 
             Intent i = new Intent("android.intent.action.VIEW");
-            i.setDataAndType(Uri.fromFile(bigImage), "image/*");
+            Uri imageFileUri = FileUtil.getUriForExternalFile(getContext(), bigImage);
+            i.setDataAndType(imageFileUri, "image/*");
+            i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
             getContext().startActivity(i);
         } catch (InvalidReferenceException e1) {
             e1.printStackTrace();
