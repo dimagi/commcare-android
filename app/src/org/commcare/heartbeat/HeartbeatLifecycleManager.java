@@ -24,11 +24,12 @@ public class HeartbeatLifecycleManager {
     private static final long ONE_HOUR_IN_MS = 60 * 60 * 1000;
 
     private TimerTask heartbeatRequestTask;
-    private HeartbeatRequester requester = new HeartbeatRequester();
+    private HeartbeatRequester requester;
     private CommCareSessionService enclosingSessionService;
 
     public HeartbeatLifecycleManager(CommCareSessionService sessionService) {
         this.enclosingSessionService = sessionService;
+        this.requester = CommCareApplication.instance().getHeartbeatRequester();
     }
 
     public void startHeartbeatCommunications() {
@@ -41,7 +42,6 @@ public class HeartbeatLifecycleManager {
                     } else {
                         try {
                             requester.requestHeartbeat();
-                            //requester.parseTestHeartbeatResponse();
                         } catch (Exception e) {
                             // Encountered an unexpected issue, should just bail on this thread
                             HeartbeatLifecycleManager.this.endCurrentHeartbeatTask();

@@ -36,8 +36,6 @@ import java.util.HashMap;
 public class HeartbeatRequester {
 
     private static final String TAG = HeartbeatRequester.class.getSimpleName();
-    private static final String TEST_RESPONSE =
-            "{\"app_id\":\"73d5f08b9d55fe48602906a89672c214\",\"latest_apk_version\":{\"value\":\"2.36.1\"},\"latest_ccz_version\":{\"value\":\"75\", \"force_by_date\":\"2017-05-01\"}}";
 
     private static final String APP_ID = "app_id";
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
@@ -51,7 +49,7 @@ public class HeartbeatRequester {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                 JSONObject jsonResponse = new JSONObject(responseAsString);
-                parseHeartbeatResponse(jsonResponse);
+                passResponseToUiThread(jsonResponse);
             }
             catch (JSONException e) {
                 Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
@@ -96,25 +94,6 @@ public class HeartbeatRequester {
         }
     };
 
-    protected static void parseTestHeartbeatResponse() {
-        System.out.println("NOTE: Testing heartbeat response processing");
-        try {
-            parseHeartbeatResponse(new JSONObject(TEST_RESPONSE));
-        } catch (JSONException e) {
-            System.out.println("Test response was not properly formed JSON");
-        }
-    }
-
-    protected static void simulateRequestGettingStuck() {
-        System.out.println("Before sleeping");
-        try {
-            Thread.sleep(5*1000);
-        } catch (InterruptedException e) {
-            System.out.println("TEST ERROR: sleep was interrupted");
-        }
-        System.out.println("After sleeping");
-    }
-
     protected void requestHeartbeat() {
         String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getString(CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
@@ -141,26 +120,30 @@ public class HeartbeatRequester {
         return params;
     }
 
-    private static void parseHeartbeatResponse(final JSONObject responseAsJson) {
+    protected static void passResponseToUiThread(final JSONObject responseAsJson) {
         // will run on UI thread
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if (checkForAppIdMatch(responseAsJson)) {
-                    // We only want to register this response if the current app is still the
-                    // same as the one that sent the request originally
-                    try {
-                        CommCareApplication.instance().getSession().setHeartbeatSuccess();
-                    } catch (SessionUnavailableException e) {
-                        // Do nothing -- the session expired, so we just don't register the response
-                        return;
-                    }
-                    Log.i(TAG, "Parsing heartbeat response");
-                    attemptApkUpdateParse(responseAsJson);
-                    attemptCczUpdateParse(responseAsJson);
-                }
+                parseHeartbeatResponse(responseAsJson);
             }
         });
+    }
+
+    protected static void parseHeartbeatResponse(JSONObject responseAsJson) {
+        if (checkForAppIdMatch(responseAsJson)) {
+            // We only want to register this response if the current app is still the
+            // same as the one that sent the request originally
+            try {
+                CommCareApplication.instance().getSession().setHeartbeatSuccess();
+            } catch (SessionUnavailableException e) {
+                // Do nothing -- the session expired, so we just don't register the response
+                return;
+            }
+            Log.i(TAG, "Parsing heartbeat response");
+            attemptApkUpdateParse(responseAsJson);
+            attemptCczUpdateParse(responseAsJson);
+        }
     }
 
     private static boolean checkForAppIdMatch(JSONObject responseAsJson) {

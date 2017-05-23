@@ -54,7 +54,7 @@ public class UpdatePromptHelper {
                     wipeStoredUpdate(forApkUpdate);
                     return null;
                 }
-                if (update.isNewerThanCurrentVersion(currentApp)) {
+                if (update.isNewerThanCurrentVersion()) {
                     return update;
                 } else {
                     // The update we had stored is no longer relevant, so wipe it and return nothing

@@ -41,6 +41,7 @@ import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.heartbeat.HeartbeatLifecycleManager;
+import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
@@ -994,6 +995,10 @@ public class CommCareApplication extends Application {
 
     public DataPullRequester getDataPullRequester() {
         return DataPullResponseFactory.INSTANCE;
+    }
+
+    public HeartbeatRequester getHeartbeatRequester() {
+        return new HeartbeatRequester();
     }
 
     /**
