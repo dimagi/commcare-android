@@ -27,12 +27,20 @@ public class CustomBanner {
                                           int screenHeight, int screenWidth,
                                           @NonNull ImageView topBannerImageView) {
         CommCareApp app = CommCareApplication.instance().getCurrentApp();
+
         if (app == null) {
             return false;
         }
 
         String customBannerURI =
                 app.getAppPreferences().getString(CommCarePreferences.BRAND_BANNER_HOME, "");
+
+        if (CommCareApplication.instance().isInDemoMode(false)) {
+            customBannerURI =
+                    app.getAppPreferences().getString(CommCarePreferences.BRAND_BANNER_HOME_DEMO,
+                            customBannerURI);
+        }
+
         if (!"".equals(customBannerURI)) {
             int maxBannerHeight = screenHeight / 4;
 
