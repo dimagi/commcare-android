@@ -169,9 +169,19 @@ public class FormUploadUtil {
             return FormUploadResult.TRANSPORT_FAILURE;
         } catch (IOException | IllegalStateException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
-                    "Error reading form during submission: " + e.getMessage());
-            return FormUploadResult.TRANSPORT_FAILURE;
+            if (e instanceof InputIOException) {
+                // EncryptedFileBody.writeTo(), which is responsible for writing the encrypted form
+                // to the submission entity, separates out InputIOExceptions, which indicate that
+                // IOException was caused by something with the file itself, and not anything related
+                // to the network
+                Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
+                        "Error writing form during submission: " + e.getMessage());
+                return FormUploadResult.RECORD_FAILURE;
+            } else {
+                Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                        "IO error encountered during server communications: " + e.getMessage());
+                return FormUploadResult.TRANSPORT_FAILURE;
+            }
         }
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
