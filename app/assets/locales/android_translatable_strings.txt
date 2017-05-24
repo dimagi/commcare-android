@@ -90,6 +90,9 @@ menu.save.session=Save Your Session
 menu.clear.saved.session=Clear Saved Session
 menu.print.detail=Print Case Detail
 
+menu.enable.privileges=Mobile Privileges
+menu.privilege.claim.disable=Disable Privileges
+
 sync.success.sent.singular=Form sent to server!
 sync.success.sent=${0} forms sent to server!
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.

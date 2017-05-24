@@ -41,6 +41,7 @@ import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.heartbeat.HeartbeatLifecycleManager;
+import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
@@ -798,12 +799,22 @@ public class CommCareApplication extends Application {
      * be triggered.
      */
     private static boolean areAutomatedActionsInvalid() {
+        return isInDemoMode(true);
+    }
+
+    /**
+     * Whether the current login is a "demo" mode login.
+     *
+     * Returns a provided default value if there is no active user login
+     */
+    public static boolean isInDemoMode(boolean defaultValue) {
         try {
             return User.TYPE_DEMO.equals(CommCareApplication.instance().getSession().getLoggedInUser().getUserType());
         } catch (SessionUnavailableException sue) {
-            return true;
+            return defaultValue;
         }
     }
+
 
     private void unbindUserSessionService() {
         synchronized (serviceLock) {
@@ -994,6 +1005,10 @@ public class CommCareApplication extends Application {
 
     public DataPullRequester getDataPullRequester() {
         return DataPullResponseFactory.INSTANCE;
+    }
+
+    public HeartbeatRequester getHeartbeatRequester() {
+        return new HeartbeatRequester();
     }
 
     /**

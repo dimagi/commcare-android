@@ -104,6 +104,7 @@ public class CommCarePreferences
     public final static String PREFS_LOCALE_KEY = "cur_locale";
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
+    public final static String BRAND_BANNER_HOME_DEMO = "brand-banner-home-demo";
     public final static String LOGIN_DURATION = "cc-login-duration-seconds";
     public final static String GPS_AUTO_CAPTURE_ACCURACY = "cc-gps-auto-capture-accuracy";
     public final static String GPS_AUTO_CAPTURE_TIMEOUT_MINS = "cc-gps-auto-capture-timeout";

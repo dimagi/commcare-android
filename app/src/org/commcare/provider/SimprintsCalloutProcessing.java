@@ -87,14 +87,23 @@ public class SimprintsCalloutProcessing {
                                                       Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         Registration registration = getRegistrationData(intent);
 
+        // Store all the fingerprint responses
         int numOfFingersScanned = 0;
         for (FingerIdentifier fingerIdentifier : FingerIdentifier.values()) {
             Vector<TreeReference> fingerRefs =  responseToRefMap.get(fingerIdentifier.toString());
             if (fingerRefs != null && !fingerRefs.isEmpty()) {
                 byte[] template = registration.getTemplate(fingerIdentifier);
-                storeFingerprintTemplate(formDef, fingerRefs, intentQuestionRef, template);
+                storeValueFromRegistrationResponse(formDef, fingerRefs, intentQuestionRef,
+                        Base64.encodeToString(template, Base64.DEFAULT));
                 numOfFingersScanned += countTemplateScanned(template);
             }
+        }
+
+        // Store the guid response
+        String guid = registration.getGuid();
+        Vector<TreeReference> refsToStoreGuidAt = responseToRefMap.get("guid");
+        if (refsToStoreGuidAt != null && guid != null) {
+            storeValueFromRegistrationResponse(formDef, refsToStoreGuidAt, intentQuestionRef, guid);
         }
 
         String resultMessage =
@@ -108,16 +117,18 @@ public class SimprintsCalloutProcessing {
         return (template == null || template.length == 0) ? 0 : 1;
     }
 
-    private static void storeFingerprintTemplate(FormDef formDef, Vector<TreeReference> treeRefs,
-                                                 TreeReference contextRef, byte[] digitTemplate) {
+    private static void storeValueFromRegistrationResponse(FormDef formDef,
+                                                           Vector<TreeReference> treeRefs,
+                                                           TreeReference contextRef,
+                                                           String responseValue) {
         for (TreeReference ref : treeRefs) {
-            storeFingerprintTemplateAtReference(formDef, ref, contextRef, digitTemplate);
+            storeValueFromRegistrationResponse(formDef, ref, contextRef, responseValue);
         }
     }
 
-    private static void storeFingerprintTemplateAtReference(FormDef formDef, TreeReference ref,
-                                                            TreeReference contextRef,
-                                                            byte[] digitTemplate) {
+    private static void storeValueFromRegistrationResponse(FormDef formDef, TreeReference ref,
+                                                           TreeReference contextRef,
+                                                           String responseValue) {
         EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), contextRef);
         TreeReference fullRef = ref.contextualize(contextRef);
         AbstractTreeElement node = context.resolveReference(fullRef);
@@ -128,6 +139,6 @@ public class SimprintsCalloutProcessing {
         }
         int dataType = node.getDataType();
 
-        IntentCallout.setValueInFormDef(formDef, fullRef, Base64.encodeToString(digitTemplate, Base64.DEFAULT), dataType);
+        IntentCallout.setValueInFormDef(formDef, fullRef, responseValue, dataType);
     }
 }

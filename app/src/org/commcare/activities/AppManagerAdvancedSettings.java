@@ -27,7 +27,7 @@ public class AppManagerAdvancedSettings extends PreferenceActivity {
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
 
     static {
-        keyToTitleMap.put(ENABLE_PRIVILEGE, "menu.enable.privilege");
+        keyToTitleMap.put(ENABLE_PRIVILEGE, "menu.enable.privileges");
         keyToTitleMap.put(CLEAR_USER_DATA, "clear.user.data");
     }
 
