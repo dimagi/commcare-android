@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -61,6 +62,7 @@ import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.LocationNotificationHandler;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -124,6 +126,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private EntitySelectSearchUI entitySelectSearchUI;
 
     private Detail shortSelect;
+    private Callout customCallout;
 
     private DataSetObserver mListStateObserver;
     public OnClickListener barcodeScanOnClickListener;
@@ -172,6 +175,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             if (shortSelect.forcesLandscape()) {
                 this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             }
+            this.customCallout = initCustomCallout();
 
             mNoDetailMode = selectDatum.getLongDetail() == null;
             mViewMode = session.isViewCommand(session.getCommand());
@@ -186,6 +190,16 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             boolean isOrientationChange = savedInstanceState != null;
             setupUI(isOrientationChange);
         }
+    }
+
+    private Callout initCustomCallout() {
+        Callout customCallout = shortSelect.getCallout();
+        if (customCallout != null && customCallout.isSimprintsCallout()
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            // If this device can't support the simprints library, don't create the callout
+            return null;
+        }
+        return customCallout;
     }
 
     private void createDataSetObserver() {
@@ -241,20 +255,21 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         entitySelectSearchUI = new EntitySelectSearchUI(this);
         restoreLastQueryString();
         persistAdapterState(visibleView);
-        attemptInitCallout();
-        entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, shortSelect.getCallout());
+        setUpCalloutClickListener();
+        entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, this.customCallout);
         setupMapNav();
         AdMobManager.requestBannerAdForView(this, (FrameLayout)findViewById(R.id.ad_container),
                 AdLocation.EntitySelect);
     }
 
-    private void attemptInitCallout() {
-        Callout callout = shortSelect.getCallout();
-        if (callout == null) {
+    private void setUpCalloutClickListener() {
+        if (this.customCallout == null) {
             barcodeScanOnClickListener = EntitySelectCalloutSetup.makeBarcodeClickListener(this);
         } else {
-            isCalloutAutoLaunching = callout.isAutoLaunching();
-            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeCalloutClickListener(this, callout);
+            isCalloutAutoLaunching = this.customCallout.isAutoLaunching();
+            barcodeScanOnClickListener =
+                    EntitySelectCalloutSetup.makeCalloutClickListener(this, this.customCallout,
+                            evalContext());
         }
     }
 
@@ -357,7 +372,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private boolean resumeSelectedEntity() {
         TreeReference selectedEntity =
-                selectDatum.getEntityFromID(asw.getEvaluationContext(),
+                selectDatum.getEntityFromID(evalContext(),
                         this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
 
         if (selectedEntity != null) {
@@ -427,7 +442,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
-            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, evalContext());
             entityLoader.attachListener(this);
             entityLoader.executeParallel(selectDatum.getNodeset());
             return true;
@@ -603,7 +618,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (result != null) {
             entitySelectSearchUI.setSearchText(result.trim());
         } else {
-            for (String key : shortSelect.getCallout().getResponses()) {
+            for (String key : this.customCallout.getResponses()) {
                 result = intent.getExtras().getString(key);
                 if (result != null) {
                     entitySelectSearchUI.setSearchText(result);
@@ -652,13 +667,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void setupActionOptionsMenu(Menu menu) {
         if (shortSelect != null && !hideActionsFromOptionsMenu) {
             int indexToAddActionAt = MENU_ACTION;
-            for (Action action : shortSelect.getCustomActions(asw.getEvaluationContext())) {
+            for (Action action : shortSelect.getCustomActions(evalContext())) {
                 if (action != null) {
                     ViewUtil.addActionToMenu(this, action, menu, indexToAddActionAt, MENU_ACTION_GROUP);
                     indexToAddActionAt += 1;
                 }
             }
-            entitySelectSearchUI.setupActionImage(shortSelect.getCallout());
+            entitySelectSearchUI.setupActionImage(this.customCallout);
         }
     }
 
@@ -700,7 +715,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void triggerDetailAction(int index) {
-        Action action = shortSelect.getCustomActions(asw.getEvaluationContext()).get(index);
+        Action action = shortSelect.getCustomActions(evalContext()).get(index);
 
         triggerDetailAction(action, this);
     }
@@ -794,16 +809,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         adapter = new EntityListAdapter(this, shortSelect, references, entities,
                 order, factory, hideActionsFromEntityList,
-                shortSelect.getCustomActions(asw.getEvaluationContext()), inAwesomeMode);
+                shortSelect.getCustomActions(evalContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);
 
         // Pre-select entity if one was provided in original intent
         if (!resuming && !mNoDetailMode && inAwesomeMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-            TreeReference entity =
-                    selectDatum.getEntityFromID(asw.getEvaluationContext(),
-                            this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+            TreeReference entity = selectDatum.getEntityFromID(evalContext(),
+                    this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
 
             if (entity != null) {
                 displayReferenceAwesome(entity, adapter.getPosition(entity));
@@ -1009,5 +1023,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     protected EntityListAdapter getAdapter() {
         return adapter;
+    }
+
+    public EvaluationContext evalContext() {
+        return asw.getEvaluationContext();
     }
 }

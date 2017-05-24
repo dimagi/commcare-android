@@ -4,36 +4,43 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.GlobalPrivilegeClaimingActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
-import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class DeveloperPreferences extends SessionAwarePreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
+
     public static final int RESULT_SYNC_CUSTOM = Activity.RESULT_FIRST_USER + 1;
     public static final int REQUEST_SYNC_FILE = 1;
 
-    public final static String PREFS_CUSTOM_RESTORE_DOC_LOCATION = "cc-custom-restore-doc-location";
+    private static final int MENU_ENABLE_PRIVILEGES = 0;
 
+    // REGION - all Developer Preference keys
+
+    public final static String PREFS_CUSTOM_RESTORE_DOC_LOCATION = "cc-custom-restore-doc-location";
     public static final String SUPERUSER_ENABLED = "cc-superuser-enabled";
     public static final String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     public static final String CSS_ENABLED = "cc-css-enabled";
@@ -49,26 +56,33 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static final String USE_OBFUSCATED_PW = "cc-use-pw-obfuscation";
     public static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
     public static final String SHOW_UPDATE_OPTIONS_SETTING = "cc-show-update-target-options";
-
     /**
      * Stores last used password and performs auto-login when that password is
      * present
      */
     public final static String ENABLE_AUTO_LOGIN = "cc-enable-auto-login";
     public final static String ENABLE_SAVE_SESSION = "cc-enable-session-saving";
-
     /**
      * Stores the navigation and form entry sessions as one string for user manipulation
      */
     public final static String EDIT_SAVE_SESSION = "__edit_session_save";
+    public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
+    public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
+
+    // ENDREGION
+
+    private static final Set<String> WHITELISTED_DEVELOPER_PREF_KEYS = new HashSet<>();
+    static {
+        WHITELISTED_DEVELOPER_PREF_KEYS.add(SUPERUSER_ENABLED);
+        WHITELISTED_DEVELOPER_PREF_KEYS.add(SHOW_UPDATE_OPTIONS_SETTING);
+        WHITELISTED_DEVELOPER_PREF_KEYS.add(AUTO_PURGE_ENABLED);
+        WHITELISTED_DEVELOPER_PREF_KEYS.add(ALTERNATE_QUESTION_LAYOUT_ENABLED);
+    }
+
     /**
      * Spacer to distinguish between the saved navigation session and form entry session
      */
     private static final String NAV_AND_FORM_SESSION_SPACER = "@@@@@";
-    public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
-
-    public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
-
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
     private Preference savedSessionEditTextPreference;
@@ -76,16 +90,17 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
+        populatePrefKeyToEventLabelMapping();
+        initAllPrefs();
+    }
 
+    private void initAllPrefs() {
         PreferenceManager prefMgr = getPreferenceManager();
         prefMgr.setSharedPreferencesName((CommCareApplication.instance().getCurrentApp().getPreferencesFilename()));
-
         addPreferencesFromResource(R.xml.preferences_developer);
-        setTitle("Developer Preferences");
+        setTitle("Developer Options");
 
-        populatePrefKeyToEventLabelMapping();
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(
                 prefMgr, prefKeyToAnalyticsEvent, GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
 
@@ -134,8 +149,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
             }
         }
     }
-
-
 
     private static void populatePrefKeyToEventLabelMapping() {
         prefKeyToAnalyticsEvent.put(SUPERUSER_ENABLED, GoogleAnalyticsFields.LABEL_DEV_MODE);
@@ -239,6 +252,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
         getPreferenceScreen().getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(this);
+
+        hideOrShowDangerousSettings();
     }
 
     @Override
@@ -376,6 +391,54 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static boolean shouldShowUpdateOptionsSetting() {
         return doesPropertyMatch(SHOW_UPDATE_OPTIONS_SETTING, CommCarePreferences.NO,
                 CommCarePreferences.YES) || BuildConfig.DEBUG;
+    }
+
+    private void hideOrShowDangerousSettings() {
+        Preference[] onScreenPrefs = getOnScreenPrefs();
+        if (!GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled() && !BuildConfig.DEBUG) {
+            // Dangerous privileges should not be showing
+            PreferenceScreen prefScreen = getPreferenceScreen();
+            for (Preference p : onScreenPrefs) {
+                if (p != null && !WHITELISTED_DEVELOPER_PREF_KEYS.contains(p.getKey())) {
+                    prefScreen.removePreference(p);
+                }
+            }
+        } else {
+            // Dangerous privileges should be be showing
+            if (onScreenPrefs.length == WHITELISTED_DEVELOPER_PREF_KEYS.size()) {
+                // If we're currently showing only white-listed prefs, reset
+                getPreferenceScreen().removeAll();
+                initAllPrefs();
+            }
+        }
+    }
+
+    private Preference[] getOnScreenPrefs() {
+        PreferenceScreen prefScreen = getPreferenceScreen();
+        Preference[] prefs = new Preference[prefScreen.getPreferenceCount()];
+        for (int i = 0; i < prefScreen.getPreferenceCount(); i++) {
+            prefs[i] = prefScreen.getPreference(i);
+        }
+        return prefs;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_ENABLE_PRIVILEGES, 0, Localization.get("menu.enable.privileges"))
+                .setIcon(android.R.drawable.ic_menu_preferences);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case MENU_ENABLE_PRIVILEGES:
+                Intent i = new Intent(this, GlobalPrivilegeClaimingActivity.class);
+                startActivity(i);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }

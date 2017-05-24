@@ -44,7 +44,7 @@ public class GridMenuAdapter extends MenuAdapter {
 
         // set up the image, if available
         ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
-        setupImageView(mIconView, menuDisplayable);
+        setupImageView(mIconView, menuDisplayable, (int)context.getResources().getDimension(R.dimen.list_grid_bounding_dimension));
 
         setupBadgeView(menuListItem, menuDisplayable);
 

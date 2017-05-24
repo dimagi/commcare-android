@@ -115,17 +115,15 @@ var intervalID = setInterval(function() {
 
         // Configure data labels, which we use as intended and also to display annotations
         var showDataLabels = !!config.data.labels;
-        if (showDataLabels) {
-            config.data.labels = {
-                format: function(value, id, index) {
-                    if (data.isData[id]) {
-                        return value || '';
-                    } else {
-                      return data.annotations[id] || '';
-                    }
-                },
-            };
-        }
+        config.data.labels = {
+            format: function(value, id, index) {
+                if (showDataLabels && data.isData[id]) {
+                    return value || '';
+                } else {
+                  return data.annotations[id] || '';
+                }
+            },
+        };
 
         // Don't use C3's default ordering for stacked series, use the order series are defined
         config.data.order = false;

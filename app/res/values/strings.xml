@@ -10,6 +10,7 @@
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
+    <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
 
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
@@ -50,12 +51,13 @@
     <string name="privilege_claim_failed">Could not claim privileges</string>
     <string name="privilege_instructions">If you have a superuser account on HQ, you can enable certain privileges on your device by going to the \'Enable Privileges on Mobile\' tab of your \'My Account Settings\' page, and then scanning the barcode that appears there.</string>
     <string name="see_available_apps">See Available Apps</string>
+    <string name="install_from_list_prompt">Log in as a mobile or web user to see a list of apps you can install</string>
 
     <!-- endregion -->
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>36</item>
+        <item>37</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>

@@ -57,6 +57,11 @@ public class AndroidLogger implements ILogger {
     public static final String TYPE_WARNING_NETWORK = "warning-network";
 
     /**
+     * We were incapable of processing or understanding something that the server sent down
+     */
+    public static final String TYPE_ERROR_SERVER_COMMS = "error-server-comms";
+
+    /**
      * Logs relating to user events (login/logout/restore, etc) *
      */
     public static final String TYPE_USER = "user";
@@ -80,6 +85,11 @@ public class AndroidLogger implements ILogger {
      * Form submission messages *
      */
     public static final String TYPE_FORM_SUBMISSION = "form-submission";
+
+    /**
+     * Used to track when we knowingly delete a form record
+     */
+    public static final String TYPE_FORM_DELETION = "form-deletion";
 
     /**
      * Problem reported via report activity at home screen *

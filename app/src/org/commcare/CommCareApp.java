@@ -39,11 +39,12 @@ import java.io.File;
 /**
  * This (awkwardly named!) container is responsible for keeping track of a single
  * CommCare "App". It should be able to set up an App, break it back down, and
- * maintain all of the code needed to sandbox applicaitons
+ * maintain all of the code needed to sandbox applications
  *
  * @author ctsims
  */
 public class CommCareApp implements AppFilePathBuilder {
+
     private ApplicationRecord record;
 
     protected JavaFileRoot fileRoot;
@@ -354,4 +355,5 @@ public class CommCareApp implements AppFilePathBuilder {
             throw new RuntimeException("For testing purposes only!");
         }
     }
+
 }

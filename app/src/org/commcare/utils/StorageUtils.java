@@ -53,6 +53,18 @@ public class StorageUtils {
     }
 
     public static int getNumIncompleteForms() {
+        return getNumFormsWithStatus(FormRecord.STATUS_INCOMPLETE);
+    }
+
+    public static int getNumQuarantinedForms() {
+        return getNumFormsWithStatus(FormRecord.STATUS_LIMBO);
+    }
+
+    public static int getNumUnsentForms() {
+        return getNumFormsWithStatus(FormRecord.STATUS_UNSENT);
+    }
+
+    private static int getNumFormsWithStatus(String status) {
         SqlStorage<FormRecord> formsStorage =
                 CommCareApplication.instance().getUserStorage(FormRecord.class);
         String currentAppId =
@@ -60,7 +72,7 @@ public class StorageUtils {
 
         return formsStorage.getIDsForValues(
                 new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
-                new String[]{FormRecord.STATUS_INCOMPLETE, currentAppId}).size();
+                new String[]{status, currentAppId}).size();
     }
 
     public static FormRecord[] getUnsentRecordsForCurrentApp(SqlStorage<FormRecord> storage) {

@@ -23,6 +23,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
@@ -103,6 +104,7 @@ public class CommCarePreferences
     public final static String PREFS_LOCALE_KEY = "cur_locale";
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
+    public final static String BRAND_BANNER_HOME_DEMO = "brand-banner-home-demo";
     public final static String LOGIN_DURATION = "cc-login-duration-seconds";
     public final static String GPS_AUTO_CAPTURE_ACCURACY = "cc-gps-auto-capture-accuracy";
     public final static String GPS_AUTO_CAPTURE_TIMEOUT_MINS = "cc-gps-auto-capture-timeout";
@@ -152,6 +154,17 @@ public class CommCarePreferences
 
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
                 GoogleAnalyticsFields.CATEGORY_CC_PREFS);
+        hideServerPrefsIfNeeded();
+    }
+
+    private void hideServerPrefsIfNeeded() {
+        if (!GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled() && !BuildConfig.DEBUG) {
+            PreferenceScreen prefScreen = getPreferenceScreen();
+            Preference serverSettingsAccessPref = findPreference(SERVER_SETTINGS);
+            if (serverSettingsAccessPref != null) {
+                prefScreen.removePreference(serverSettingsAccessPref);
+            }
+        }
     }
 
     private void setupUI() {

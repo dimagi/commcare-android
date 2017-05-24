@@ -46,7 +46,6 @@ public abstract class DelayedBlockingAction implements Runnable {
         this.delay = delay;
         this.timeout = timeout;
         this.timeInitiated = System.currentTimeMillis();
-
     }
 
     @Override

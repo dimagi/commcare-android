@@ -265,7 +265,6 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathUuidFunc"
             , "org.javarosa.xpath.expr.XPathWeightedChecklistFunc"
             , "org.javarosa.xpath.expr.XpathCoalesceFunc"
-            , "org.commcare.suite.model.AppAvailableForInstall"
             
             // Migrated in 2.28
             , "org.odk.collect.android.jr.extensions.AndroidXFormExtensions"
@@ -280,7 +279,9 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathJoinChunkFunc"
             , "org.javarosa.xpath.expr.XPathIdCompressFunc"
 
-
+            // Added in 2.36
+            , "org.commcare.heartbeat.UpdateToPrompt"
+            , "org.commcare.android.database.global.models.AppAvailableToInstall"
             );
 
     @Before

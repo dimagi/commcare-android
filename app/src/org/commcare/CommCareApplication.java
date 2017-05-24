@@ -40,6 +40,8 @@ import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.heartbeat.HeartbeatLifecycleManager;
+import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
@@ -700,6 +702,7 @@ public class CommCareApplication extends Application {
                         syncPending = PendingCalcs.getPendingSyncStatus();
 
                         doReportMaintenance(false);
+                        mBoundService.initHeartbeatLifecycle();
 
                         // Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
@@ -796,12 +799,22 @@ public class CommCareApplication extends Application {
      * be triggered.
      */
     private static boolean areAutomatedActionsInvalid() {
+        return isInDemoMode(true);
+    }
+
+    /**
+     * Whether the current login is a "demo" mode login.
+     *
+     * Returns a provided default value if there is no active user login
+     */
+    public static boolean isInDemoMode(boolean defaultValue) {
         try {
             return User.TYPE_DEMO.equals(CommCareApplication.instance().getSession().getLoggedInUser().getUserType());
         } catch (SessionUnavailableException sue) {
-            return true;
+            return defaultValue;
         }
     }
+
 
     private void unbindUserSessionService() {
         synchronized (serviceLock) {
@@ -810,6 +823,7 @@ public class CommCareApplication extends Application {
                     sessionWrapper.reset();
                 }
                 sessionServiceIsBound = false;
+
                 // Detach our existing connection.
                 unbindService(mConnection);
                 stopService(new Intent(this, CommCareSessionService.class));
@@ -993,6 +1007,10 @@ public class CommCareApplication extends Application {
         return DataPullResponseFactory.INSTANCE;
     }
 
+    public HeartbeatRequester getHeartbeatRequester() {
+        return new HeartbeatRequester();
+    }
+
     /**
      * A consumer app is a CommCare build flavor in which the .ccz and restore file for a specific
      * app and user have been pre-packaged along with CommCare into a custom .apk, and placed on
@@ -1017,4 +1035,5 @@ public class CommCareApplication extends Application {
     public static CommCareNoficationManager notificationManager() {
         return app.noficationManager;
     }
+
 }

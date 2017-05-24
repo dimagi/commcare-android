@@ -291,7 +291,7 @@ public class EntityDetailActivity
     private void printDetail() {
         Intent i = new Intent(this, TemplatePrinterActivity.class);
         i.putExtra(TemplatePrinterActivity.PRINT_TEMPLATE_REF_STRING,
-                detail.getDerivedPrintTemplatePath());
+                detail.getPrintTemplatePath());
 
         HashMap<String, DetailFieldPrintInfo> keyValueMap =
                 detail.getKeyValueMapForPrint(mTreeReference, asw.getEvaluationContext());

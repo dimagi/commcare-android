@@ -19,6 +19,16 @@ updates.pinned.download=Downloading updates
 updates.pinned.progress=${0}/${1}
 install.current.version=Current version: ${0}
 
+updates.available.title=Updates Available
+update.required.title=Update Required
+update.later.option=I'll update later.
+prompted.apk.update.info=There is a newer version of CommCare available, and it is recommended that you update now.
+forced.apk.update.info=There is a newer version of CommCare available. You must update before continuing to use CommCare.
+apk.update.action=Update CommCare via the Play Store
+prompted.ccz.update.info=There is a newer version of your app available, and it is recommended that you update now.
+forced.ccz.update.info=There is a newer version of your app available. You must update before continuing to use CommCare.
+ccz.update.action=Update to the Latest App Version
+
 verify.retry=Retry
 verify.checking=Verifying media...
 exception.during.verification=Verification could not complete due to the following exception. This error must be resolved before verification can proceed:\n\n${0}
@@ -79,6 +89,9 @@ home.developer.options.enabled=Developer Mode Enabled
 menu.save.session=Save Your Session
 menu.clear.saved.session=Clear Saved Session
 menu.print.detail=Print Case Detail
+
+menu.enable.privileges=Mobile Privileges
+menu.privilege.claim.disable=Disable Privileges
 
 sync.success.sent.singular=Form sent to server!
 sync.success.sent=${0} forms sent to server!
@@ -417,7 +430,7 @@ refresh.build.up.to.date=Your app is already up to date, so no refresh occurred.
 refresh.build.update.error=An error occurred while attempting to update, so no refresh occurred.
 refresh.build.update.canceled=The update was canceled, so no refresh occurred.
 refresh.build.session.error=The refresh build utility cannot be used when you are not logged in, so no refresh occurred.
-refresh.build.settings.error=No refresh occurred. In order to use this utility, please turn on the "Enable Session Saving" setting in the Developer Preferences menu.
+refresh.build.settings.error=No refresh occurred. In order to use this utility, please turn on the "Enable Session Saving" setting in the Developer Options menu.
 
 login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
@@ -705,12 +718,13 @@ intent.callout.update=Update Data
 intent.callout.cancelled=Question callout cancelled
 intent.callout.unable.to.process=Unable to process callout result
 intent.callout.activity.missing=Couldn't find intent for callout!
+intent.callout.not.supported=This intent callout is not supported on this device
 fingerprints.scanned=Fingerprints scanned: ${0}
 
 settings.server.listing=Server Settings
 settings.server.title=CommCare > Server Settings
 settings.developer.options=Developer Options
-settings.main.title=CommCare > Application Preferences
+settings.main.title=CommCare > Settings
 settings.advanced.title=CommCare > Advanced
 clear.user.data=Clear User Data
 clear.user.data.warning.title=Clear User Data
