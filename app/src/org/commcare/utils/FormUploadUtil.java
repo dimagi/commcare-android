@@ -171,9 +171,9 @@ public class FormUploadUtil {
             e.printStackTrace();
             if (e instanceof InputIOException) {
                 // EncryptedFileBody.writeTo(), which is responsible for writing the encrypted form
-                // to the submission entity, separates out InputIOExceptions, which indicate that
-                // IOException was caused by something with the file itself, and not anything related
-                // to the network
+                // to the submission entity, separates out InputIOExceptions, which indicate that the
+                // exception was caused by something with the file itself, as opposed to an issue
+                // on the network
                 Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
                         "Error writing form during submission: " + e.getMessage());
                 return FormUploadResult.RECORD_FAILURE;
