@@ -71,7 +71,7 @@ public class EndOfFormTest {
         assertStoredForms();
     }
 
-    private ShadowActivity navigateFormEntry(Intent formEntryIntent) {
+    public static ShadowActivity navigateFormEntry(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
                 Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)

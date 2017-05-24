@@ -10,6 +10,8 @@ import org.commcare.android.util.TestUtils;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.heartbeat.HeartbeatRequester;
+import org.commcare.heartbeat.TestHeartbeatRequester;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
@@ -220,6 +222,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     @Override
     public DataPullRequester getDataPullRequester() {
         return LocalReferencePullResponseFactory.INSTANCE;
+    }
+
+    @Override
+    public HeartbeatRequester getHeartbeatRequester() {
+        return new TestHeartbeatRequester();
     }
 
     @Override

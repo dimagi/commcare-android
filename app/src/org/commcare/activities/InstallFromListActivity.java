@@ -16,6 +16,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -29,6 +30,7 @@ import org.commcare.modern.util.Pair;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.utils.ConnectivityStatus;
 import org.commcare.xml.AvailableAppsParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -57,6 +59,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private static final String REQUESTED_FROM_PROD_KEY = "have-requested-from-prod";
     private static final String REQUESTED_FROM_INDIA_KEY = "have-requested-from-india";
     private static final String ERROR_MESSAGE_KEY = "error-message-key";
+    private static final String AUTH_MODE_KEY = "auth-mode-key";
 
     private static final String PROD_URL = "https://www.commcarehq.org/phone/list_apps";
     private static final String INDIA_URL = "https://india.commcarehq.org/phone/list_apps";
@@ -80,8 +83,11 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadStateFromSavedInstance(savedInstanceState);
+        setInitialValues(savedInstanceState);
         setupUI();
+        if (errorMessage != null) {
+            enterErrorState(errorMessage);
+        }
         loadPreviouslyRetrievedAvailableApps();
     }
 
@@ -92,6 +98,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         setUpGetAppsButton();
         setUpAppsList();
         setUpToggle();
+        setProperAuthView();
     }
 
     private void setUpGetAppsButton() {
@@ -101,10 +108,14 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             public void onClick(View v) {
                 errorMessageBox.setVisibility(View.INVISIBLE);
                 if (inputIsValid()) {
-                    authenticateView.setVisibility(View.GONE);
-                    requestedFromIndia = false;
-                    requestedFromProd = false;
-                    requestAppList();
+                    if (ConnectivityStatus.isNetworkAvailable(InstallFromListActivity.this)) {
+                        authenticateView.setVisibility(View.GONE);
+                        requestedFromIndia = false;
+                        requestedFromProd = false;
+                        requestAppList();
+                    } else {
+                        enterErrorState(Localization.get("updates.check.network_unavailable"));
+                    }
                 }
             }
         });
@@ -142,26 +153,33 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             userTypeToggler = toggleButton;
         }
 
-        final View mobileUserView = findViewById(R.id.mobile_user_view);
-        final View webUserView = findViewById(R.id.web_user_view);
+        // Important for this call to come first; we don't want the listener to be invoked on the
+        // first auto-setting, just on user-triggered ones
+        userTypeToggler.setChecked(inMobileUserAuthMode);
         userTypeToggler.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 inMobileUserAuthMode = isChecked;
-                if (inMobileUserAuthMode) {
-                    mobileUserView.setVisibility(View.VISIBLE);
-                    webUserView.setVisibility(View.GONE);
-                } else {
-                    mobileUserView.setVisibility(View.GONE);
-                    webUserView.setVisibility(View.VISIBLE);
-                }
+                setProperAuthView();
+                errorMessage = null;
                 errorMessageBox.setVisibility(View.INVISIBLE);
                 ((EditText)findViewById(R.id.edit_password)).setText("");
             }
         });
 
-        userTypeToggler.setChecked(true);
         toggleContainer.addView(userTypeToggler);
+    }
+
+    private void setProperAuthView() {
+        final View mobileUserView = findViewById(R.id.mobile_user_view);
+        final View webUserView = findViewById(R.id.web_user_view);
+        if (inMobileUserAuthMode) {
+            mobileUserView.setVisibility(View.VISIBLE);
+            webUserView.setVisibility(View.GONE);
+        } else {
+            mobileUserView.setVisibility(View.GONE);
+            webUserView.setVisibility(View.VISIBLE);
+        }
     }
 
     private boolean inputIsValid() {
@@ -193,11 +211,14 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         return true;
     }
 
-    private void loadStateFromSavedInstance(Bundle savedInstanceState) {
+    private void setInitialValues(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             requestedFromIndia = savedInstanceState.getBoolean(REQUESTED_FROM_INDIA_KEY);
             requestedFromProd = savedInstanceState.getBoolean(REQUESTED_FROM_PROD_KEY);
             errorMessage = savedInstanceState.getString(ERROR_MESSAGE_KEY);
+            inMobileUserAuthMode = savedInstanceState.getBoolean(AUTH_MODE_KEY);
+        } else {
+            inMobileUserAuthMode = true;
         }
     }
 
@@ -207,6 +228,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         savedInstanceState.putBoolean(REQUESTED_FROM_INDIA_KEY, requestedFromIndia);
         savedInstanceState.putBoolean(REQUESTED_FROM_PROD_KEY, requestedFromProd);
         savedInstanceState.putString(ERROR_MESSAGE_KEY, errorMessage);
+        savedInstanceState.putBoolean(AUTH_MODE_KEY, inMobileUserAuthMode);
     }
 
     /**
@@ -283,13 +305,10 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     private void enterErrorState(String message) {
         errorMessage = message;
-        enterErrorState();
-    }
-
-    private void enterErrorState() {
         authenticateView.setVisibility(View.VISIBLE);
         errorMessageBox.setVisibility(View.VISIBLE);
         errorMessageBox.setText(errorMessage);
+        findViewById(R.id.auth_scroll_view).scrollTo(0, errorMessageBox.getBottom());
     }
 
     @Override
@@ -392,7 +411,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, RETRIEVE_APPS_FOR_DIFF_USER, 0,
-                Localization.get("menu.admin.install.other.user"));
+                Localization.get("menu.app.list.install.other.user"));
         return true;
     }
 
@@ -411,10 +430,18 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             availableApps.clear();
             appsListContainer.setVisibility(View.GONE);
             authenticateView.setVisibility(View.VISIBLE);
+            clearAllFields();
             rebuildOptionsMenu();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void clearAllFields() {
+        ((TextView)findViewById(R.id.edit_username)).setText("");
+        ((TextView)findViewById(R.id.edit_password)).setText("");
+        ((TextView)findViewById(R.id.edit_domain)).setText("");
+        ((TextView)findViewById(R.id.edit_email)).setText("");
     }
 
     private void loadPreviouslyRetrievedAvailableApps() {
