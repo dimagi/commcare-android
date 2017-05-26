@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,10 +57,15 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         initDisplay();
         initWeekDays();
         initOnClick();
-        refresh();
         setWindowSize();
 
         return layout;
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        refresh();
     }
 
     private void initWeekDays() {
@@ -252,8 +258,6 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             gridPopulator.setTime(date);
 
             text.setText(String.valueOf(gridPopulator.get(Calendar.DAY_OF_MONTH)));
-
-            Date current = calendar.getTime();
 
             highlightCalendarGridCell(text, gridPopulator, calendar);
             return text;
