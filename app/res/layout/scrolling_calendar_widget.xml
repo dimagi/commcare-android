@@ -3,17 +3,9 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:layout_gravity="center_horizontal"
+    android:gravity="center_horizontal"
     android:paddingLeft="20dp"
     android:paddingRight="20dp">
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/transparent"
-        android:text="Today"
-        android:textStyle="bold"
-        android:id="@+id/today"/>
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -113,10 +105,8 @@
         android:layout_weight=".5"
         android:numColumns="7"
         android:gravity="center"
-        android:layout_marginTop="10dp"
         android:horizontalSpacing="3dp"
-        android:verticalSpacing="3dp"
-        android:layout_marginBottom="20dp"/>
+        android:verticalSpacing="3dp"/>
 
     <View
         android:layout_width="match_parent"
@@ -129,13 +119,24 @@
         android:layout_weight=".1">
 
         <ImageButton
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="30dp"
+            android:layout_height="40dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/icon_exit_form"
             android:id="@+id/cancel_calendar"
             android:layout_marginBottom="10dp"
             android:layout_alignParentLeft="true"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/lightest_grey"
+            android:text="Today"
+            android:textStyle="bold"
+            android:id="@+id/today"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/standard_spacer_half"
+            android:layout_marginBottom="@dimen/standard_spacer_half"/>
 
         <ImageButton
             android:layout_width="25dp"
