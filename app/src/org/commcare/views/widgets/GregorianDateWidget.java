@@ -78,7 +78,9 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         fm = ((FragmentActivity)getContext()).getSupportFragmentManager();
 
         myCalendarFragment = new CalendarFragment();
-        setupCalendarFragment();
+        myCalendarFragment.setListener(this);
+        myCalendarFragment.setCancelable(false);
+        myCalendarFragment.setToday(todaysDateInMillis);
 
         openCalButton = (ImageButton)findViewById(R.id.open_calendar_bottom);
         openCalButton.setOnClickListener(new OnClickListener() {
@@ -89,12 +91,6 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         });
 
         setAnswer();
-    }
-
-    private void setupCalendarFragment() {
-        myCalendarFragment.setCalendar(calendar, todaysDateInMillis);
-        myCalendarFragment.setListener(this);
-        myCalendarFragment.setCancelable(false);
     }
 
     @Override
@@ -179,7 +175,8 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         validateDayText();
         updateCalendar();
         int day = Integer.parseInt(dayText.getText().toString());
-        int month = monthArrayPointer + 1;              //monthArray and Java calendar assume january = 0, millis from java epoch assumes january = 1
+        // monthArray and Java calendar assume january = 0, millis from java epoch assumes january = 1
+        int month = monthArrayPointer + 1;
         int year = Integer.parseInt(yearText.getText().toString());
         return toMillisFromJavaEpoch(year, month, day);
     }
@@ -361,7 +358,6 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         super.setFocus(context);
         dayText.setCursorVisible(false);
         yearText.setCursorVisible(false);
-
     }
 
     private void refreshDisplay() {
@@ -370,7 +366,9 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
 
     private void openCalendar() {
         setFocus(getContext());
-        timeBeforeCalendarOpened = calendar.getTimeInMillis();
+        timeBeforeCalendarOpened = getCurrentMillis();
+        calendar.setTimeInMillis(timeBeforeCalendarOpened);
+        myCalendarFragment.updateUnderlyingCalendar(calendar);
         myCalendarFragment.show(fm, "Calendar Popup");
     }
 

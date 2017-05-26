@@ -46,17 +46,11 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     private long todaysDateInMillis;
     private static final int DAYSINWEEK = 7;
-    private static final String TIME = "TIME";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         inflateView(inflater, container);
-
-        if (savedInstanceState != null && savedInstanceState.containsKey(TIME)) {
-            calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(savedInstanceState.getLong(TIME));
-        }
 
         disableScreenRotation();
         initDisplay();
@@ -191,7 +185,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         });
     }
 
-    //Redraws the calendar display
+    // Redraws the calendar display
     private void refresh() {
         ArrayList<Date> dateList = new ArrayList<>();
         Calendar populator = (Calendar)calendar.clone();
@@ -286,14 +280,12 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         layout = (LinearLayout)inflater.inflate(R.layout.scrolling_calendar_widget, container);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle bundle) {
-        bundle.putLong(TIME, calendar.getTimeInMillis());
+    public void setToday(long currentDayInMillis) {
+        todaysDateInMillis = currentDayInMillis;
     }
 
-    public void setCalendar(Calendar cal, long currentDayInMillis) {
-        todaysDateInMillis = currentDayInMillis;
-        calendar = cal;
+    public void updateUnderlyingCalendar(Calendar cal) {
+        this.calendar = cal;
     }
 
     public interface CalendarCloseListener {
