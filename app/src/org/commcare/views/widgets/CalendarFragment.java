@@ -53,7 +53,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         inflateView(inflater, container);
 
-        disableScreenRotation();
+        //disableScreenRotation();
         initDisplay();
         initWeekDays();
         initOnClick();
@@ -304,7 +304,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        enableScreenRotation();
+        //enableScreenRotation();
     }
 
 

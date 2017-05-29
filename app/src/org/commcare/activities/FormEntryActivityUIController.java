@@ -761,4 +761,13 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
         formRelevanciesUpdateInProgress = false;
     }
+
+    public boolean hasWidgetThatForcesPortrait() {
+        for (QuestionWidget w : this.questionsView.getWidgets()) {
+            if (w.forcesPortrait()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

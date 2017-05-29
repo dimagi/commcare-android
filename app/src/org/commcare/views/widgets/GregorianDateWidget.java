@@ -405,4 +405,9 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
             super.clearAnswer();
         }
     }
+
+    @Override
+    public boolean forcesPortrait() {
+        return true;
+    }
 }
