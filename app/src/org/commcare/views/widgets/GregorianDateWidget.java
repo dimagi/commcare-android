@@ -46,21 +46,20 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     private static final int EMPTY_MONTH_ENTRY_INDEX = 12;
 
     private List<String> monthList;
-    private final int maxYear;
     private final long todaysDateInMillis;
     private long timeBeforeCalendarOpened;
 
     private final CalendarFragment myCalendarFragment;
     private final FragmentManager fm;
 
-    public static final int MINYEAR = 1900;
+    public static final int MIN_YEAR = 1900;
+    public static final int MAX_YEAR = 2100;
+
     private static final String DAYFORMAT = "%02d";
     private static final String YEARFORMAT = "%04d";
-    public static final int YEARSINFUTURE = 4;
 
     public GregorianDateWidget(Context context, FormEntryPrompt prompt, boolean closeButton) {
         super(context, prompt);
-        maxYear = calendar.get(Calendar.YEAR) + YEARSINFUTURE;
         todaysDateInMillis = calendar.getTimeInMillis();
         ImageButton clearAll = (ImageButton)findViewById(R.id.clear_all);
 
@@ -311,9 +310,9 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         }
 
         //Invalid year (too low)
-        if (Integer.parseInt(year) < MINYEAR) {
+        if (Integer.parseInt(year) < MIN_YEAR) {
             setFocus(getContext());
-            return new InvalidDateData(Localization.get("calendar.low.year", "" + MINYEAR), new DateData(calendar.getTime()), day, month, year);
+            return new InvalidDateData(Localization.get("calendar.low.year", "" + MIN_YEAR), new DateData(calendar.getTime()), day, month, year);
         }
 
         //Invalid day (too high)
@@ -329,9 +328,9 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         }
 
         //Invalid year (too high)
-        if (Integer.parseInt(year) > maxYear) {
+        if (Integer.parseInt(year) > MAX_YEAR) {
             setFocus(getContext());
-            return new InvalidDateData(Localization.get("calendar.high.year", "" + maxYear), new DateData(calendar.getTime()), day, month, year);
+            return new InvalidDateData(Localization.get("calendar.high.year", "" + MAX_YEAR), new DateData(calendar.getTime()), day, month, year);
         }
 
         return super.getAnswer();

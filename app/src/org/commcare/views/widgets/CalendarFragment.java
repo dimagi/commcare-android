@@ -145,7 +145,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
         ArrayList<String> years = new ArrayList<>();
 
-        for (int i = GregorianDateWidget.MINYEAR; i <= getMaxYearForCalendar(); i++) {
+        for (int i = GregorianDateWidget.MIN_YEAR; i <= GregorianDateWidget.MAX_YEAR; i++) {
             years.add(String.valueOf(i));
         }
 
@@ -155,19 +155,13 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                calendar.set(Calendar.YEAR, position+GregorianDateWidget.MINYEAR);
+                calendar.set(Calendar.YEAR, position+GregorianDateWidget.MIN_YEAR);
                 refresh();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
-    }
-
-    private int getMaxYearForCalendar() {
-        Calendar now = Calendar.getInstance();
-        int currentYear = now.get(Calendar.YEAR);
-        return currentYear + GregorianDateWidget.YEARSINFUTURE;
     }
 
     //Have to sort month names because Calendar can't return them in order
@@ -199,7 +193,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         int totalDays = getNumDaysInMonth(populator);
         populateListOfDates(dateList, populator, totalDays);
 
-        yearSpinner.setSelection(calendar.get(Calendar.YEAR)-GregorianDateWidget.MINYEAR);
+        yearSpinner.setSelection(calendar.get(Calendar.YEAR)-GregorianDateWidget.MIN_YEAR);
         monthSpinner.setSelection(calendar.get(Calendar.MONTH));
         calendarGrid.setAdapter(new CalendarAdapter(getContext(), dateList));
     }
