@@ -53,7 +53,6 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         inflateView(inflater, container);
 
-        //disableScreenRotation();
         initDisplay();
         initWeekDays();
         initOnClick();
@@ -295,25 +294,4 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         calendarCloseListener = listener;
     }
 
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        super.onDismiss(dialog);
-        //enableScreenRotation();
-    }
-
-
-    private void disableScreenRotation() {
-        int currentOrientation = getResources().getConfiguration().orientation;
-
-        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            ((Activity)getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        }
-        else {
-            ((Activity)getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-        }
-    }
-
-    private void enableScreenRotation() {
-        ((Activity)getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-    }
 }
