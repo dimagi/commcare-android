@@ -15,6 +15,7 @@ import org.commcare.cases.entity.EntitySortNotificationInterface;
 import org.commcare.cases.entity.EntitySorter;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.SortableEntityAdapter;
 import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.session.SessionInstanceBuilder;
@@ -44,11 +45,10 @@ import java.util.List;
  * @author ctsims
  * @author wspride
  */
-public class EntityListAdapter implements ListAdapter, EntitySortNotificationInterface {
+public class EntityListAdapter extends SortableEntityAdapter implements ListAdapter {
     public static final int ENTITY_TYPE = 0;
     public static final int ACTION_TYPE = 1;
     public static final int DIVIDER_TYPE = 2;
-    public static final int DIVIDER_ID = -2;
 
     private int dividerPosition = 0;
     private final int actionsCount;
@@ -69,11 +69,7 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
 
     private TreeReference selected;
 
-    private int[] currentSort = {};
-    private boolean reverseSort = false;
-
     private final NodeEntityFactory mNodeFactory;
-    private boolean mAsyncMode = false;
 
     private String[] currentSearchTerms;
     private String searchQuery = "";
@@ -93,9 +89,9 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
 
     public EntityListAdapter(CommCareActivity activity, Detail detail,
                              List<TreeReference> references,
-                             List<Entity<TreeReference>> full,
-                             int[] sort, NodeEntityFactory factory,
+                             List<Entity<TreeReference>> full, NodeEntityFactory factory,
                              boolean hideActions, List<Action> actions, boolean inAwesomeMode) {
+        super(full, detail, factory);
         this.detail = detail;
         this.selectActivityInAwesomeMode = inAwesomeMode;
         this.actions = actions;
@@ -112,17 +108,6 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
         this.commCareActivity = activity;
         this.observers = new ArrayList<>();
         this.mNodeFactory = factory;
-
-        //TODO: I am a bad person and I should feel bad. This should get encapsulated 
-        //somewhere in the factory as a callback (IE: How to sort/or whether to or  something)
-        mAsyncMode = (factory instanceof AsyncNodeEntityFactory);
-
-        //TODO: Maybe we can actually just replace by checking whether the node is ready?
-        if (!mAsyncMode) {
-            if (sort.length != 0) {
-                sort(sort);
-            }
-        }
 
         if (android.os.Build.VERSION.SDK_INT >= 14) {
             mImageLoader = new CachingAsyncImageLoader(commCareActivity);
@@ -156,18 +141,6 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
         isFilteringByCalloutResult = false;
         setCurrent(full);
         calloutResponseData.clear();
-    }
-
-    private void sort(int[] fields) {
-        //The reversing here is only relevant if there's only one sort field and we're on it
-        sort(fields, (currentSort.length == 1 && currentSort[0] == fields[0]) && !reverseSort);
-    }
-
-    private void sort(int[] fields, boolean reverse) {
-        this.reverseSort = reverse;
-        currentSort = fields;
-
-        java.util.Collections.sort(full, new EntitySorter(detail.getFields(), reverseSort, currentSort, this));
     }
 
     @Override
@@ -391,14 +364,6 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
         sort(keys);
     }
 
-    public int[] getCurrentSort() {
-        return currentSort;
-    }
-
-    public boolean isCurrentSortReversed() {
-        return reverseSort;
-    }
-
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
         if (!observers.contains(observer)) {
@@ -477,8 +442,4 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
         }
     }
 
-    @Override
-    public void notifyBadfilter(String[] args) {
-        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Case_Filter, args));
-    }
 }

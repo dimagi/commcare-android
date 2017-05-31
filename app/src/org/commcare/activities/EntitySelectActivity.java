@@ -790,14 +790,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                                   NodeEntityFactory factory, int focusTargetIndex) {
         loader = null;
 
-        int[] order = shortSelect.getSortOrder();
-        for (int i = 0; i < shortSelect.getFields().length; ++i) {
-            String header = shortSelect.getFields()[i].getHeader().evaluate();
-            if (order.length == 0 && !"".equals(header)) {
-                order = new int[]{i};
-            }
-        }
-
         AdapterView visibleView;
         if (shortSelect.shouldBeLaidOutInGrid()) {
             visibleView = ((GridView)this.findViewById(R.id.screen_entity_select_grid));
@@ -807,9 +799,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             visibleView = listView;
         }
 
-        adapter = new EntityListAdapter(this, shortSelect, references, entities,
-                order, factory, hideActionsFromEntityList,
-                shortSelect.getCustomActions(evalContext()), inAwesomeMode);
+        adapter = new EntityListAdapter(this, shortSelect, references, entities, factory,
+                hideActionsFromEntityList, shortSelect.getCustomActions(evalContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);

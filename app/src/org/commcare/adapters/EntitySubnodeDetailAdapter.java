@@ -7,7 +7,9 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.interfaces.ModifiableEntityDetailAdapter;
+import org.commcare.interfaces.SortableEntityAdapter;
 import org.commcare.suite.model.Detail;
 import org.commcare.views.EntityView;
 import org.javarosa.core.model.instance.TreeReference;
@@ -21,7 +23,8 @@ import java.util.List;
  * Adapter for taking a nodeset, contextualizing it against an entity,
  * and then displaying one item for each node in the resulting set.
  */
-public class EntitySubnodeDetailAdapter implements ListAdapter, ModifiableEntityDetailAdapter {
+public class EntitySubnodeDetailAdapter extends SortableEntityAdapter
+        implements ListAdapter, ModifiableEntityDetailAdapter {
 
     private final Context context;
     private final Detail detail;
@@ -29,10 +32,10 @@ public class EntitySubnodeDetailAdapter implements ListAdapter, ModifiableEntity
     private List<Entity<TreeReference>> entities;
     private ListItemViewModifier modifier;
 
-    public EntitySubnodeDetailAdapter(Context context, Detail detail,
-                                      List<TreeReference> references,
+    public EntitySubnodeDetailAdapter(Context context, Detail detail, List<TreeReference> references,
                                       List<Entity<TreeReference>> entities,
-                                      ListItemViewModifier modifier) {
+                                      ListItemViewModifier modifier, NodeEntityFactory factory) {
+        super(entities, detail, factory);
         this.context = context;
         this.detail = detail;
         this.modifier = modifier;
@@ -132,4 +135,5 @@ public class EntitySubnodeDetailAdapter implements ListAdapter, ModifiableEntity
     public void setModifier(ListItemViewModifier modifier) {
         this.modifier = modifier;
     }
+
 }
