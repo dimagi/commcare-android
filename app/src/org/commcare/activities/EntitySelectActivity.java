@@ -28,6 +28,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.activities.components.EntitySelectViewSetup;
 import org.commcare.adapters.EntityListAdapter;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
@@ -80,6 +81,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         implements EntityLoaderListener, OnItemClickListener, DetailCalloutListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
+
+    private static final String ICDS_DOMAIN_NAME = "icds-cas.commcarehq.org";
 
     public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
     private static final String CONTAINS_HERE_FUNCTION = "contains_here_function";
@@ -198,6 +201,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 && Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             // If this device can't support the simprints library, don't create the callout
             return null;
+        }
+        if (ICDS_DOMAIN_NAME.equals(ReportingUtils.getDomain())) {
+            customCallout.setAssumePlainTextValues();
         }
         return customCallout;
     }
