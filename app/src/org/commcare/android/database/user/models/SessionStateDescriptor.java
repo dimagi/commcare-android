@@ -3,7 +3,7 @@ package org.commcare.android.database.user.models;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
-import org.commcare.models.framework.Table;
+import org.commcare.modern.database.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
 import org.commcare.session.SessionDescriptorUtil;

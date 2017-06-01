@@ -1,13 +1,13 @@
 package org.commcare.models.database;
 
 import android.content.ContentValues;
-import android.util.Pair;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.logging.AndroidLogger;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
 

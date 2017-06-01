@@ -2,7 +2,6 @@ package org.commcare.models.database;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -10,6 +9,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.interfaces.AppFilePathBuilder;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.database.TableBuilder;
+import org.commcare.modern.util.Pair;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.io.StreamsUtil;
@@ -453,7 +454,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             List<String> filesToRemove;
             try {
                 filesToRemove = HybridFileBackedSqlHelpers.getFilesToRemove(ids, helper, table);
-                List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
+                List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(ids);
                 for (Pair<String, String[]> whereParams : whereParamList) {
                     String whereClause = DatabaseHelper.ID_COL + " IN " + whereParams.first;
                     db.delete(table, whereClause, whereParams.second);
@@ -502,7 +503,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
         if (removed.size() > 0) {
             List<Pair<String, String[]>> whereParamList =
-                    AndroidTableBuilder.sqlList(removed);
+                    TableBuilder.sqlList(removed);
 
             SQLiteDatabase db = getDbOrThrow();
 

@@ -7,7 +7,7 @@ import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.engine.resource.AndroidResourceManager;
-import org.commcare.models.database.AndroidTableBuilder;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.modern.database.DatabaseIndexingUtils;
@@ -53,29 +53,29 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         try {
             database.beginTransaction();
-            AndroidTableBuilder builder = new AndroidTableBuilder("GLOBAL_RESOURCE_TABLE");
+            TableBuilder builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder("UPGRADE_RESOURCE_TABLE");
+            builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder(AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY);
+            builder = new TableBuilder(AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY);
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder("RECOVERY_RESOURCE_TABLE");
+            builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder("fixture");
+            builder = new TableBuilder("fixture");
             builder.addFileBackedData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createOrphanedFileTable(database);
 
-            builder = new AndroidTableBuilder(UserKeyRecord.class);
+            builder = new TableBuilder(UserKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             database.execSQL(indexOnTableWithPGUIDCommand("global_index_id", "GLOBAL_RESOURCE_TABLE"));

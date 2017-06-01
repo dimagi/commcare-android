@@ -8,10 +8,10 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
-import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -148,7 +148,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     private String buildKeyNameWhereClause(String[] names) {
         String whereClause = "";
         for (int i = 0; i < names.length; ++i) {
-            whereClause += AndroidTableBuilder.scrubName(names[i]) + " = ?";
+            whereClause += TableBuilder.scrubName(names[i]) + " = ?";
             if (i + 1 < names.length) {
                 whereClause += " AND ";
             }
