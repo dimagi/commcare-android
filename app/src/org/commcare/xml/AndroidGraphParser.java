@@ -1,9 +1,9 @@
 package org.commcare.xml;
 
-import org.commcare.graph.util.GraphUtil;
+import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.suite.model.Text;
-import org.commcare.suite.model.graph.Annotation;
-import org.commcare.suite.model.graph.BubbleSeries;
+import org.commcare.core.graph.suite.Annotation;
+import org.commcare.core.graph.suite.BubbleSeries;
 import org.commcare.suite.model.graph.Configurable;
 import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.XYSeries;
