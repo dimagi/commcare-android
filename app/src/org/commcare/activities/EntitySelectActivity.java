@@ -202,7 +202,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             // If this device can't support the simprints library, don't create the callout
             return null;
         }
-        if (ICDS_DOMAIN_NAME.equals(ReportingUtils.getDomain())) {
+        if (customCallout != null && ICDS_DOMAIN_NAME.equals(ReportingUtils.getDomain())) {
             customCallout.setAssumePlainTextValues();
         }
         return customCallout;
