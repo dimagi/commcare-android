@@ -701,4 +701,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         Logger.log(AndroidLogger.SOFT_ASSERT,
                 "Calling empty implementation of " + instanceClass + ".setBinaryData");
     }
+
+    public boolean forcesPortrait() {
+        return false;
+    }
 }

@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,45 +47,43 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     private long todaysDateInMillis;
     private static final int DAYSINWEEK = 7;
-    private static final String TIME = "TIME";
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         inflateView(inflater, container);
 
-        if(savedInstanceState != null && savedInstanceState.containsKey(TIME)){
-            calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(savedInstanceState.getLong(TIME));
-        }
-
-        disableScreenRotation();
         initDisplay();
         initWeekDays();
         initOnClick();
-        refresh();
         setWindowSize();
 
         return layout;
     }
 
-    private void initWeekDays(){
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        refresh();
+    }
+
+    private void initWeekDays() {
         final Map<String, Integer> weekDays = calendar.getDisplayNames(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault());
 
         ArrayList<String> weekDayList = new ArrayList<>(weekDays.keySet());
 
         DateListHelper.sortCalendarItems(weekDays, weekDayList);
 
-        ((TextView) layout.findViewById(R.id.day1)).setText(weekDayList.get(0));
-        ((TextView) layout.findViewById(R.id.day2)).setText(weekDayList.get(1));
-        ((TextView) layout.findViewById(R.id.day3)).setText(weekDayList.get(2));
-        ((TextView) layout.findViewById(R.id.day4)).setText(weekDayList.get(3));
-        ((TextView) layout.findViewById(R.id.day5)).setText(weekDayList.get(4));
-        ((TextView) layout.findViewById(R.id.day6)).setText(weekDayList.get(5));
-        ((TextView) layout.findViewById(R.id.day7)).setText(weekDayList.get(6));
+        ((TextView)layout.findViewById(R.id.day1)).setText(weekDayList.get(0));
+        ((TextView)layout.findViewById(R.id.day2)).setText(weekDayList.get(1));
+        ((TextView)layout.findViewById(R.id.day3)).setText(weekDayList.get(2));
+        ((TextView)layout.findViewById(R.id.day4)).setText(weekDayList.get(3));
+        ((TextView)layout.findViewById(R.id.day5)).setText(weekDayList.get(4));
+        ((TextView)layout.findViewById(R.id.day6)).setText(weekDayList.get(5));
+        ((TextView)layout.findViewById(R.id.day7)).setText(weekDayList.get(6));
     }
 
-    private void initOnClick(){
+    private void initOnClick() {
 
         calendarGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -99,7 +98,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             @Override
             public void onClick(View v) {
                 dismiss();
-                if(calendarCloseListener != null){
+                if (calendarCloseListener != null) {
                     calendarCloseListener.onCalendarCancel();
                 }
             }
@@ -110,7 +109,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             @Override
             public void onClick(View v) {
                 dismiss();
-                if(calendarCloseListener != null){
+                if (calendarCloseListener != null) {
                     calendarCloseListener.onCalendarClose();
                 }
             }
@@ -132,20 +131,20 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         layout.setMinimumWidth((int)(displayRectangle.width() * 0.9f));
     }
 
-    private void initDisplay(){
-        calendarGrid = (GridView) layout.findViewById(R.id.calendar_grid);
+    private void initDisplay() {
+        calendarGrid = (GridView)layout.findViewById(R.id.calendar_grid);
         setupMonthComponents();
         setupYearComponents();
-        cancel = (ImageButton) layout.findViewById(R.id.cancel_calendar);
-        today = (Button) layout.findViewById(R.id.today);
+        cancel = (ImageButton)layout.findViewById(R.id.cancel_calendar);
+        today = (Button)layout.findViewById(R.id.today);
     }
 
     private void setupYearComponents() {
-        yearSpinner = (Spinner) layout.findViewById(R.id.year_spinner);
+        yearSpinner = (Spinner)layout.findViewById(R.id.year_spinner);
 
         ArrayList<String> years = new ArrayList<>();
 
-        for(int i =GregorianDateWidget.MINYEAR; i <= calendar.get(Calendar.YEAR)+GregorianDateWidget.YEARSINFUTURE; i++){
+        for (int i = GregorianDateWidget.MIN_YEAR; i <= GregorianDateWidget.MAX_YEAR; i++) {
             years.add(String.valueOf(i));
         }
 
@@ -155,7 +154,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                calendar.set(Calendar.YEAR, position+GregorianDateWidget.MINYEAR);
+                calendar.set(Calendar.YEAR, position+GregorianDateWidget.MIN_YEAR);
                 refresh();
             }
 
@@ -166,7 +165,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     //Have to sort month names because Calendar can't return them in order
     private void setupMonthComponents() {
-        monthSpinner = (Spinner) layout.findViewById(R.id.calendar_spinner);
+        monthSpinner = (Spinner)layout.findViewById(R.id.calendar_spinner);
 
         final Map<String, Integer> monthMap = calendar.getDisplayNames(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
         ArrayList<String> monthList = new ArrayList<>(monthMap.keySet());
@@ -185,36 +184,36 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         });
     }
 
-    //Redraws the calendar display
-    private void refresh(){
+    // Redraws the calendar display
+    private void refresh() {
         ArrayList<Date> dateList = new ArrayList<>();
-        Calendar populator = (Calendar) calendar.clone();
+        Calendar populator = (Calendar)calendar.clone();
 
         int totalDays = getNumDaysInMonth(populator);
         populateListOfDates(dateList, populator, totalDays);
 
-        yearSpinner.setSelection(calendar.get(Calendar.YEAR)-GregorianDateWidget.MINYEAR);
+        yearSpinner.setSelection(calendar.get(Calendar.YEAR)-GregorianDateWidget.MIN_YEAR);
         monthSpinner.setSelection(calendar.get(Calendar.MONTH));
         calendarGrid.setAdapter(new CalendarAdapter(getContext(), dateList));
     }
 
     //Populates an arraylist with dates
     private static void populateListOfDates(ArrayList<Date> dateList, Calendar populator, int totalDays) {
-        while(dateList.size() < totalDays){
+        while(dateList.size() < totalDays) {
             dateList.add(populator.getTime());
             populator.add(Calendar.DAY_OF_MONTH, 1);
         }
 
         int remainingDays = ((DAYSINWEEK + 1)-(populator.get(Calendar.DAY_OF_WEEK)))%DAYSINWEEK;
 
-        for(int i = 0; i < remainingDays; i ++){
+        for (int i = 0; i < remainingDays; i++) {
             dateList.add(populator.getTime());
             populator.add(Calendar.DAY_OF_MONTH, 1);
         }
     }
 
     //Calculates the total number of days from most recent Sunday to the first Saturday following the end of the current month to fill the calendar view
-    private static int getNumDaysInMonth(Calendar cal){
+    private static int getNumDaysInMonth(Calendar cal) {
         int totalDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
         cal.set(Calendar.DAY_OF_MONTH, 1);
 
@@ -234,26 +233,24 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
         private final LayoutInflater mInflater;
 
-        public CalendarAdapter(Context context, ArrayList<Date> dates){
+        public CalendarAdapter(Context context, ArrayList<Date> dates) {
             super(context, R.layout.calendar_date, dates);
             mInflater = LayoutInflater.from(context);
         }
 
         @Override
-        public View getView(int position, View view, ViewGroup parent){
-            if(view == null){
+        public View getView(int position, View view, ViewGroup parent) {
+            if (view == null) {
                 view = mInflater.inflate(R.layout.calendar_date, null);
             }
 
-            TextView text = (TextView) view;
+            TextView text = (TextView)view;
 
             Date date = getItem(position);
-            Calendar gridPopulator = (Calendar) calendar.clone();
+            Calendar gridPopulator = (Calendar)calendar.clone();
             gridPopulator.setTime(date);
 
             text.setText(String.valueOf(gridPopulator.get(Calendar.DAY_OF_MONTH)));
-
-            Date current = calendar.getTime();
 
             highlightCalendarGridCell(text, gridPopulator, calendar);
             return text;
@@ -261,15 +258,15 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
         //Current month has white background, previous/next months have gray background, today's date has green background
         protected void highlightCalendarGridCell(TextView text, Calendar calendarDate, Calendar currentDate) {
-            if(calendarDate.equals(currentDate)){
+            if (calendarDate.equals(currentDate)) {
                 text.setTextColor(getResources().getColor(R.color.white));
                 text.setBackgroundColor(getResources().getColor(R.color.cc_attention_positive_color));
             }
-            else if(calendarDate.get(Calendar.MONTH) != currentDate.get(Calendar.MONTH)){
+            else if (calendarDate.get(Calendar.MONTH) != currentDate.get(Calendar.MONTH)) {
                 text.setTextColor(getResources().getColor(R.color.grey_dark));
                 text.setBackgroundColor(getResources().getColor(R.color.grey_lighter));
             }
-            else{
+            else {
                 text.setTextColor(getResources().getColor(R.color.black));
                 text.setBackgroundColor(getResources().getColor(R.color.transparent));
             }
@@ -277,17 +274,15 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
     }
 
     private void inflateView(LayoutInflater inflater, ViewGroup container) {
-        layout = (LinearLayout) inflater.inflate(R.layout.scrolling_calendar_widget, container);
+        layout = (LinearLayout)inflater.inflate(R.layout.scrolling_calendar_widget, container);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle bundle){
-        bundle.putLong(TIME, calendar.getTimeInMillis());
-    }
-
-    public void setCalendar(Calendar cal, long currentDayInMillis){
+    public void setToday(long currentDayInMillis) {
         todaysDateInMillis = currentDayInMillis;
-        calendar = cal;
+    }
+
+    public void updateUnderlyingCalendar(Calendar cal) {
+        this.calendar = cal;
     }
 
     public interface CalendarCloseListener {
@@ -295,29 +290,8 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         void onCalendarCancel();
     }
 
-    public void setListener(CalendarCloseListener listener){
+    public void setListener(CalendarCloseListener listener) {
         calendarCloseListener = listener;
     }
 
-    @Override
-    public void onDismiss(DialogInterface dialog){
-        super.onDismiss(dialog);
-        enableScreenRotation();
-    }
-
-
-    private void disableScreenRotation() {
-        int currentOrientation = getResources().getConfiguration().orientation;
-
-        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        }
-        else {
-            ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-        }
-    }
-
-    private void enableScreenRotation() {
-        ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-    }
 }
