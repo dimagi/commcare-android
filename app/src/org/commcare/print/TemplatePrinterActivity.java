@@ -161,13 +161,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         // Will return a reference of format jr://... if it has been set
         String path = data.getString(PRINT_TEMPLATE_REF_STRING);
         if (path != null && !path.equals(Detail.PRINT_TEMPLATE_PROVIDED_VIA_GLOBAL_SETTING)) {
-            try {
-                path = ReferenceManager.instance().DeriveReference(path).getLocalURI();
-                return path;
-            } catch (InvalidReferenceException e) {
-                showErrorDialog(Localization.get("template.invalid"));
-                return null;
-            }
+            return path;
         } else {
             // Try to use the document location that was set in Settings menu
             path = CommCarePreferences.getGlobalTemplatePath();
