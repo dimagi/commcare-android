@@ -113,7 +113,7 @@ public class EntityDetailFragment extends Fragment {
         final int childIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
         final boolean rootDetailIsCompound = childIndex != -1;
         if (rootDetailIsCompound) {
-            return detail.getDetails()[childIndex];
+            return detail.getDisplayableChildDetails(asw.getEvaluationContext())[childIndex];
         }
         return detail;
     }
