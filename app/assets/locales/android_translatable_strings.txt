@@ -133,6 +133,8 @@ form.entry.save.error=Sorry, form save failed. Please contact technical support 
 form.entry.save.invalid.unicode=Could not save '${0}' text in form.
 form.entry.finish.button=FINISH
 
+combobox.value.invalid=The text entered is not a valid answer choice
+
 login.attempt.badcred=Username or password are incorrect. Please try again.
 
 login.username=Username

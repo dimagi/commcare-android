@@ -17,6 +17,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.util.Vector;
@@ -138,7 +139,7 @@ public class ComboboxWidget extends QuestionWidget {
         } else if ("".equals(enteredText)) {
             return null;
         } else {
-            return new InvalidData("The text entered is not a valid answer choice",
+            return new InvalidData(Localization.get("combobox.value.invalid"),
                     new SelectOneData(new Selection(enteredText)));
         }
     }
@@ -157,6 +158,22 @@ public class ComboboxWidget extends QuestionWidget {
 
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
+    }
+
+    /**
+     *
+     * @return true if the saved value for this widget is out of sync with the text the user
+     * currently has entered (which means that we have not yet "locked in" their change)
+     */
+    public boolean checkForUncommittedChange() {
+        if (mPrompt.getAnswerValue() != null) {
+            String currentRegisteredAnswerText = mPrompt.getAnswerValue().getDisplayText();
+            String currentEnteredText = comboBox.getText().toString();
+            if (!currentEnteredText.equals(currentRegisteredAnswerText)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

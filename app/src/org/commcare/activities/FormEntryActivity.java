@@ -537,10 +537,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean saveAnswersForCurrentScreen(boolean evaluateConstraints,
                                                 boolean failOnRequired,
                                                 boolean headless) {
-        // only try to save if the current event is a question or a field-list
-        // group
+        // only try to save if the current event is a question or a field-list group
         boolean success = true;
+        boolean uncommittedChangesWerePresent = false;
         if (isEventQuestionOrListGroup()) {
+            uncommittedChangesWerePresent = uiController.questionsView.uncommittedChangesPresent();
+
             HashMap<FormIndex, IAnswerData> answers =
                     uiController.questionsView.getAnswers();
 
@@ -576,7 +578,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
             }
         }
-        return success;
+        if (uncommittedChangesWerePresent) {
+            // Lock in the uncommitted changes
+            uiController.updateFormRelevancies();
+        }
+        return success && !uncommittedChangesWerePresent;
     }
 
     private boolean isEventQuestionOrListGroup() {
@@ -706,10 +712,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             return;
         }
-        // save current answer; if headless, don't evaluate the constraints
-        // before doing so.
+        // Save current answer; if headless, don't evaluate the constraints before doing so.
+        boolean evaluateConstraints = !headless;
         boolean wasScreenSaved =
-                saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS, complete, headless);
+                saveAnswersForCurrentScreen(evaluateConstraints, complete, headless);
         if (!wasScreenSaved) {
             return;
         }
