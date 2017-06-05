@@ -247,7 +247,10 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 @Override
                 protected void onPostExecute(Void result) {
                     super.onPostExecute(result);
-                    processingRequestView.setVisibility(View.GONE);
+                    if (urlCurrentlyRequestingFrom == null) {
+                        // Only hide the spinner if we didn't start another request
+                        processingRequestView.setVisibility(View.GONE);
+                    }
                 }
 
             };
@@ -284,7 +287,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         } else if (!requestedFromIndia) {
             urlCurrentlyRequestingFrom = INDIA_URL;
         } else {
-            return null;
+            urlCurrentlyRequestingFrom = null;
         }
         return urlCurrentlyRequestingFrom;
     }
