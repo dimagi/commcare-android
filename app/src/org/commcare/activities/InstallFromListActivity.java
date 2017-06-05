@@ -16,7 +16,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -26,9 +25,8 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.modern.util.Pair;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
-import org.commcare.tasks.SimpleHttpTask;
+import org.commcare.tasks.SimpleGetTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.xml.AvailableAppsParser;
@@ -42,10 +40,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -236,12 +231,12 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
      * @return whether a request was initiated
      */
     private boolean requestAppList() {
-        URL urlToTry = getURLToTry();
+        String urlToTry = getURLToTry();
         if (urlToTry != null) {
             final View processingRequestView = findViewById(R.id.processing_request_view);
-            SimpleHttpTask task = new SimpleHttpTask(this, urlToTry, new HashMap<String, String>(),
-                    false, new Pair<>(getUsernameForAuth(),
-                    ((EditText)findViewById(R.id.edit_password)).getText().toString())) {
+            String username = getUsernameForAuth();
+            String password = ((EditText)findViewById(R.id.edit_password)).getText().toString();
+            SimpleGetTask task = new SimpleGetTask(username, password, this) {
 
                 @Override
                 protected void onPreExecute() {
@@ -258,9 +253,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             };
 
             task.connect((CommCareTaskConnector)this);
-            task.setResponseProcessor(this);
             setAttemptedRequestFlag();
-            task.executeParallel();
+            task.executeParallel(urlToTry);
             return true;
         }
         return false;
@@ -284,7 +278,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         }
     }
 
-    private URL getURLToTry() {
+    private String getURLToTry() {
         if (!requestedFromProd) {
             urlCurrentlyRequestingFrom = PROD_URL;
         } else if (!requestedFromIndia) {
@@ -292,15 +286,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         } else {
             return null;
         }
-
-        try {
-            return new URL(urlCurrentlyRequestingFrom);
-        } catch (MalformedURLException e) {
-            // This shouldn't ever happen because the URL is static
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Encountered exception while creating " +
-                    "URL for apps list request");
-            return null;
-        }
+        return urlCurrentlyRequestingFrom;
     }
 
     private void enterErrorState(String message) {
@@ -419,7 +405,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER)
-                .setVisible(appsListContainer.getVisibility() == View.VISIBLE);
+                .setVisible(appsListContainer.getVisibility() != View.GONE);
         return true;
     }
 

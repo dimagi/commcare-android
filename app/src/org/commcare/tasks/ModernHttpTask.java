@@ -21,7 +21,7 @@ import java.util.HashMap;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class SimpleHttpTask
+public class ModernHttpTask
         extends CommCareTask<Void, Void, Void, HttpResponseProcessor>
         implements HttpResponseProcessor, ResponseStreamAccessor {
 
@@ -32,7 +32,7 @@ public class SimpleHttpTask
     private InputStream responseDataStream;
     private IOException ioException;
 
-    public SimpleHttpTask(Context context, URL url, HashMap<String, String> params,
+    public ModernHttpTask(Context context, URL url, HashMap<String, String> params,
                           boolean isPostRequest,
                           Pair<String, String> usernameAndPasswordToAuthWith) {
         taskId = SIMPLE_HTTP_TASK_ID;

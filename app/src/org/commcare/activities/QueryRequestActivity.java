@@ -20,7 +20,7 @@ import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.suite.model.DisplayUnit;
-import org.commcare.tasks.SimpleHttpTask;
+import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
@@ -175,9 +175,9 @@ public class QueryRequestActivity
         clearErrorState();
         URL url = remoteQuerySessionManager.getBaseUrl();
 
-        SimpleHttpTask httpTask;
+        ModernHttpTask httpTask;
         try {
-            httpTask = new SimpleHttpTask(this, url,
+            httpTask = new ModernHttpTask(this, url,
                     new HashMap<>(remoteQuerySessionManager.getRawQueryParams()),
                     false, null);
         } catch (ModernHttpRequester.PlainTextPasswordException e) {
@@ -280,7 +280,7 @@ public class QueryRequestActivity
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;
         switch (taskId) {
-            case SimpleHttpTask.SIMPLE_HTTP_TASK_ID:
+            case ModernHttpTask.SIMPLE_HTTP_TASK_ID:
                 title = Localization.get("query.dialog.title");
                 message = Localization.get("query.dialog.body");
                 break;

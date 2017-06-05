@@ -11,7 +11,7 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.SimpleHttpTask;
+import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
@@ -108,9 +108,9 @@ public class PostRequestActivity
 
     private void makePostRequest() {
         if (!hasTaskLaunched && !inErrorState) {
-            SimpleHttpTask postTask;
+            ModernHttpTask postTask;
             try {
-                postTask = new SimpleHttpTask(this, url, params, true, null);
+                postTask = new ModernHttpTask(this, url, params, true, null);
             } catch (ModernHttpRequester.PlainTextPasswordException e) {
                 enterErrorState(Localization.get("post.not.using.https", url.toString()));
                 return;
@@ -217,7 +217,7 @@ public class PostRequestActivity
                 title = Localization.get("sync.communicating.title");
                 message = Localization.get("sync.progress.purge");
                 break;
-            case SimpleHttpTask.SIMPLE_HTTP_TASK_ID:
+            case ModernHttpTask.SIMPLE_HTTP_TASK_ID:
                 title = Localization.get("post.dialog.title");
                 message = Localization.get("post.dialog.body");
                 break;
