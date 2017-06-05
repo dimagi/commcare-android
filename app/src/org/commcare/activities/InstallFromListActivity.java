@@ -405,7 +405,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER)
-                .setVisible(appsListContainer.getVisibility() != View.GONE);
+                .setVisible(appsListContainer.getVisibility() == View.VISIBLE);
         return true;
     }
 
