@@ -84,7 +84,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         final int thisIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
         final boolean detailCompound = thisIndex != -1;
         if (detailCompound) {
-            childDetail = childDetail.getDetails()[thisIndex];
+            childDetail = childDetail.getDisplayableChildDetails(asw.getEvaluationContext())[thisIndex];
         }
 
         this.loader = null;
