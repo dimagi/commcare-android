@@ -8,7 +8,10 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import org.commcare.CommCareApplication;
 import org.commcare.fragments.EntityDetailFragment;
 import org.commcare.fragments.EntitySubnodeDetailFragment;
+import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Detail;
+import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -33,9 +36,8 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         this.detailIndex = detailIndex;
         this.mEntityReference = reference;
         this.modifier = modifier;
-        EvaluationContext evalContext =
-                CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
-        this.displayableChildDetails = detail.getDisplayableChildDetails(evalContext);
+        this.displayableChildDetails = detail.getDisplayableChildDetails(
+                getEvalContextForEntity(mEntityReference));
     }
 
     @Override
@@ -67,5 +69,13 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
         return detail.isCompound() ? displayableChildDetails.length : 1;
+    }
+
+    public static EvaluationContext getEvalContextForEntity(TreeReference ref) {
+        CommCareSession currentSession =
+                CommCareApplication.instance().getCurrentSessionWrapper().getSession();
+        EvaluationContext baseEvalContext = currentSession.getEvaluationContext(
+                new AndroidInstanceInitializer(currentSession));
+        return new EvaluationContext(baseEvalContext, ref);
     }
 }
