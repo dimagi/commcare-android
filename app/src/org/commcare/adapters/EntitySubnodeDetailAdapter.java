@@ -8,8 +8,8 @@ import android.widget.ListAdapter;
 
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.interfaces.AndroidSortableEntityAdapter;
 import org.commcare.interfaces.ModifiableEntityDetailAdapter;
-import org.commcare.interfaces.SortableEntityAdapter;
 import org.commcare.suite.model.Detail;
 import org.commcare.views.EntityView;
 import org.javarosa.core.model.instance.TreeReference;
@@ -23,7 +23,7 @@ import java.util.List;
  * Adapter for taking a nodeset, contextualizing it against an entity,
  * and then displaying one item for each node in the resulting set.
  */
-public class EntitySubnodeDetailAdapter extends SortableEntityAdapter
+public class EntitySubnodeDetailAdapter extends AndroidSortableEntityAdapter
         implements ListAdapter, ModifiableEntityDetailAdapter {
 
     private final Context context;
