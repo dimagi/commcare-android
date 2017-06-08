@@ -9,12 +9,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.EntityUtil;
 import org.commcare.fragments.EntityDetailFragment;
 import org.commcare.fragments.EntitySubnodeDetailFragment;
-import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Detail;
-import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.SerializationUtil;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 /**
