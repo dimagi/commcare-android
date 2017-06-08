@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import org.commcare.CommCareApplication;
+import org.commcare.cases.entity.EntityUtil;
 import org.commcare.fragments.EntityDetailFragment;
 import org.commcare.fragments.EntitySubnodeDetailFragment;
 import org.commcare.models.AndroidSessionWrapper;
@@ -37,7 +38,8 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         this.mEntityReference = reference;
         this.modifier = modifier;
         this.displayableChildDetails = detail.getDisplayableChildDetails(
-                getEvalContextForEntity(mEntityReference));
+                EntityUtil.prepareCompoundEvaluationContext(mEntityReference, detail,
+                        CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext()));
     }
 
     @Override
@@ -71,11 +73,4 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         return detail.isCompound() ? displayableChildDetails.length : 1;
     }
 
-    public static EvaluationContext getEvalContextForEntity(TreeReference ref) {
-        CommCareSession currentSession =
-                CommCareApplication.instance().getCurrentSessionWrapper().getSession();
-        EvaluationContext baseEvalContext = currentSession.getEvaluationContext(
-                new AndroidInstanceInitializer(currentSession));
-        return new EvaluationContext(baseEvalContext, ref);
-    }
 }

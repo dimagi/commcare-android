@@ -80,15 +80,15 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
                                   List<TreeReference> references,
                                   NodeEntityFactory factory, int focusTargetIndex) {
         Bundle args = getArguments();
-        Detail childDetail = asw.getSession().getDetail(args.getString(DETAIL_ID));
+        Detail detail = asw.getSession().getDetail(args.getString(DETAIL_ID));
         final int thisIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
         final boolean detailCompound = thisIndex != -1;
         if (detailCompound) {
-            childDetail = childDetail.getDisplayableChildDetails(asw.getEvaluationContext())[thisIndex];
+            detail = getChildDetailForDisplay(detail, thisIndex);
         }
 
         this.loader = null;
-        this.adapter = new EntitySubnodeDetailAdapter(getActivity(), childDetail, references,
+        this.adapter = new EntitySubnodeDetailAdapter(getActivity(), detail, references,
                 entities, modifier, factory);
         this.listView.setAdapter((ListAdapter)this.adapter);
         if (focusTargetIndex != -1) {

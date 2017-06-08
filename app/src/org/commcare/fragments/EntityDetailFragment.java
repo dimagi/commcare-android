@@ -113,9 +113,16 @@ public class EntityDetailFragment extends Fragment {
         final int childIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
         final boolean rootDetailIsCompound = childIndex != -1;
         if (rootDetailIsCompound) {
-            return detail.getDisplayableChildDetails(asw.getEvaluationContext())[childIndex];
+            return getChildDetailForDisplay(detail, childIndex);
         }
         return detail;
+    }
+
+    protected Detail getChildDetailForDisplay(Detail parentDetail, int childIndex) {
+        EvaluationContext contextForChildDetailDisplayConditions =
+                EntityUtil.prepareCompoundEvaluationContext(getReferenceToDisplay(), parentDetail,
+                        CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext());
+        return parentDetail.getDisplayableChildDetails(contextForChildDetailDisplayConditions)[childIndex];
     }
 
     /**
