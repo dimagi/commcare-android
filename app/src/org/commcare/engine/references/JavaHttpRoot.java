@@ -19,8 +19,13 @@ public class JavaHttpRoot implements ReferenceFactory {
 
     @Override
     public Reference derive(String URI, String context) throws InvalidReferenceException {
-        context = context.substring(0, context.lastIndexOf('/') + 1);
-        return new JavaHttpReference(context + URI, generator);
+        String rootPath = context.substring(0, context.lastIndexOf('/') + 1);
+        String derivedPath = rootPath + URI;
+        if (context.contains("?")) {
+            String paramsPath = context.substring(context.lastIndexOf('?'));
+            derivedPath = derivedPath + paramsPath;
+        }
+        return new JavaHttpReference(derivedPath, generator);
     }
 
     @Override
