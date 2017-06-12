@@ -639,4 +639,9 @@ public class CommCarePreferences
             return path;
         }
     }
+
+    public static void setCurrentLocale(String locale) {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        prefs.edit().putString(PREFS_LOCALE_KEY, locale).commit();
+    }
 }
