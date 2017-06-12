@@ -3,6 +3,11 @@ package org.commcare.models;
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.javarosa.PollSensorAction;
+import org.commcare.core.graph.suite.Annotation;
+import org.commcare.core.graph.suite.BubbleSeries;
+import org.commcare.core.graph.suite.Configurable;
+import org.commcare.core.graph.suite.Graph;
+import org.commcare.core.graph.suite.XYSeries;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.HashMap;
@@ -35,6 +40,14 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
                 IntentCallout.class);
         migratedClasses.put("org.odk.collect.android.jr.extensions.PollSensorAction",
                 PollSensorAction.class);
+        migratedClasses.put("org.commcare.suite.model.graph.Graph",
+                Graph.class);
+        migratedClasses.put("org.commcare.suite.model.graph.BubbleSeries",
+                BubbleSeries.class);
+        migratedClasses.put("org.commcare.suite.model.graph.Annotation",
+                Annotation.class);
+        migratedClasses.put("org.commcare.suite.model.graph.XYSeries",
+                XYSeries.class);
     }
 
     public AndroidPrototypeFactory(HashSet<String> classNames) {

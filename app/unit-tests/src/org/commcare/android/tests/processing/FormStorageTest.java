@@ -116,11 +116,11 @@ public class FormStorageTest {
             , "org.commcare.suite.model.PostRequest"
             , "org.commcare.suite.model.Text"
             , "org.commcare.suite.model.ViewEntry"
-            , "org.commcare.core.graph.suite.Annotation"
-            , "org.commcare.core.graph.suite.BubbleSeries"
+            , "org.commcare.suite.model.graph.Annotation"
+            , "org.commcare.suite.model.graph.BubbleSeries"
             , "org.commcare.suite.model.graph.Graph"
             , "org.commcare.suite.model.graph.XYSeries"
-            , "org.commcare.xml.DummyGraphParser$DummyGraphDetailTemplate"
+            //, "org.commcare.xml.DummyGraphParser$DummyGraphDetailTemplate"
             , "org.javarosa.core.log.LogEntry"
             , "org.javarosa.core.model.FormDef"
             , "org.javarosa.core.model.GroupDef"
@@ -282,7 +282,12 @@ public class FormStorageTest {
             // Added in 2.36
             , "org.commcare.heartbeat.UpdateToPrompt"
             , "org.commcare.android.database.global.models.AppAvailableToInstall"
-            );
+
+            // Added in 2.37
+            , "org.commcare.core.graph.suite.Graph"
+            , "org.commcare.core.graph.suite.Annotation"
+            , "org.commcare.core.graph.suite.BubbleSeries"
+            , "org.commcare.core.graph.suite.XYSeries");
 
     @Before
     public void setup() {
