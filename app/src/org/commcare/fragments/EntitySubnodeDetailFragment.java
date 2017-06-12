@@ -88,7 +88,8 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         }
 
         this.loader = null;
-        this.adapter = new EntitySubnodeDetailAdapter(getActivity(), childDetail, references, entities, modifier);
+        this.adapter = new EntitySubnodeDetailAdapter(getActivity(), childDetail, references,
+                entities, modifier, factory);
         this.listView.setAdapter((ListAdapter)this.adapter);
         if (focusTargetIndex != -1) {
             listView.setSelection(focusTargetIndex);
