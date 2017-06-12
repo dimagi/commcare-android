@@ -1,8 +1,8 @@
 package org.commcare.android.tests;
 
-import org.commcare.suite.model.graph.Graph;
-import org.commcare.suite.model.graph.XYSeries;
+import org.commcare.core.graph.suite.Graph;
 
+import org.commcare.core.graph.suite.XYSeries;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.StringData;
