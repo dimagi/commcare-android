@@ -14,6 +14,8 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.notifications.MessageTag;
+import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
 import org.javarosa.core.model.User;
@@ -352,23 +354,30 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
     }
 
+    /**
+     * We tried to submit multiple times and there was either a problem with the record that we
+     * found locally, or HQ could not process it
+     */
     private void quarantineRecordAndReport(FormRecord record, FormUploadResult result) {
-        // We tried to submit multiple times and there was either a problem with the record that we
-        // found locally, or HQ could not process it
         String reasonForQuarantine;
+        NotificationMessage messageForNotification;
         if (result == FormUploadResult.PROCESSING_FAILURE) {
             reasonForQuarantine = result.processingFailureReason;
+            messageForNotification = NotificationMessageFactory.message(
+                    ProcessIssues.RecordQuarantinedServerIssue,
+                    new String[] {null, reasonForQuarantine, null});
         } else {
             reasonForQuarantine = "There was a local issue with the record that prevented submission";
+            messageForNotification = NotificationMessageFactory.message(
+                    ProcessIssues.RecordQuarantinedLocalIssue);
         }
         processor.quarantineRecord(record, reasonForQuarantine);
+
         Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
                 String.format("Quarantining Form Record with id %s because %s",
                         record.getInstanceID(), reasonForQuarantine));
 
-
-        CommCareApplication.notificationManager().reportNotificationMessage(
-                NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
+        CommCareApplication.notificationManager().reportNotificationMessage(messageForNotification, true);
     }
 
     private static void logSubmissionAttempt(FormRecord record) {
