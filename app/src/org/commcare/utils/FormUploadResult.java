@@ -10,37 +10,39 @@ public enum FormUploadResult {
     FULL_SUCCESS(0),
 
     /**
-     * There was a problem with the server's response
+     * Non-specific error used as default assumption before attempting submission, and when
+     * certain exceptions are encountered (IOException or TaskCancelledException)
      */
     FAILURE(1),
 
     /**
-     * The server returned an authentication error
+     * There is a problem with this record that prevented submission success for this record
+     * specifically, but others will be allowed to continue trying
      */
-    AUTH_FAILURE(2),
-
-    /**
-     * There was a problem with the transport layer during transit
-     */
-    TRANSPORT_FAILURE(3),
-
-    /**
-     * There is a problem with this record that prevented submission success
-     */
-    RECORD_FAILURE(4),
-
-    /**
-     * The user session ended while trying to upload a form
-     */
-    PROGRESS_LOGGED_OUT(5),
-
-    PROGRESS_SDCARD_REMOVED(6),
+    RECORD_FAILURE(2),
 
     /**
      * HQ received the form submission but encountered an error while processing it, so the
      * form has not resulted in any changes to the HQ database
      */
-    PROCESSING_FAILURE(7);
+    PROCESSING_FAILURE(3),
+
+    /**
+     * The server returned an authentication error
+     */
+    AUTH_FAILURE(4),
+
+    /**
+     * There was a problem with the transport layer during transit
+     */
+    TRANSPORT_FAILURE(5),
+
+    /**
+     * The user session ended while trying to upload a form
+     */
+    PROGRESS_LOGGED_OUT(6),
+
+    PROGRESS_SDCARD_REMOVED(7);
 
     private final int orderVal;
     public String processingFailureReason;
