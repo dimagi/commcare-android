@@ -83,23 +83,31 @@ public class FormAndDataSyncer {
 
                 int successfulSends = this.getSuccessfulSends();
 
-                if (result == FormUploadResult.FULL_SUCCESS) {
-                    String label = Localization.get("sync.success.sent.singular",
-                            new String[]{String.valueOf(successfulSends)});
-                    if (successfulSends > 1) {
-                        label = Localization.get("sync.success.sent",
+                switch(result) {
+                    case FULL_SUCCESS:
+                        String label = Localization.get("sync.success.sent.singular",
                                 new String[]{String.valueOf(successfulSends)});
-                    }
-                    receiver.handleFormSendResult(label, true);
+                        if (successfulSends > 1) {
+                            label = Localization.get("sync.success.sent",
+                                    new String[]{String.valueOf(successfulSends)});
+                        }
+                        receiver.handleFormSendResult(label, true);
 
-                    if (syncAfterwards) {
-                        syncDataForLoggedInUser(receiver, true, userTriggered);
-                    }
-                } else if (result == FormUploadResult.AUTH_FAILURE) {
-                    receiver.handleFormSendResult(Localization.get("sync.fail.auth.loggedin"), false);
-                } else if (result != FormUploadResult.FAILURE) {
-                    // Tasks with failure result codes will have already created a notification
-                    receiver.handleFormSendResult(Localization.get("sync.fail.unsent"), false);
+                        if (syncAfterwards) {
+                            syncDataForLoggedInUser(receiver, true, userTriggered);
+                        }
+                        break;
+                    case AUTH_FAILURE:
+                        receiver.handleFormSendResult(Localization.get("sync.fail.auth.loggedin"), false);
+                        break;
+                    case TRANSPORT_FAILURE:
+                        receiver.handleFormSendResult(Localization.get("sync.fail.bad.network"), false);
+                        break;
+                    case FAILURE:
+                        receiver.handleFormSendResult(Localization.get("sync.fail.server.error"), false);
+                        break;
+                    default:
+                        receiver.handleFormSendResult(Localization.get("sync.fail.unsent"), false);
                 }
             }
 
