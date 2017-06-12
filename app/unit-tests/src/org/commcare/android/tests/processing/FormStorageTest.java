@@ -120,7 +120,6 @@ public class FormStorageTest {
             , "org.commcare.suite.model.graph.BubbleSeries"
             , "org.commcare.suite.model.graph.Graph"
             , "org.commcare.suite.model.graph.XYSeries"
-            //, "org.commcare.xml.DummyGraphParser$DummyGraphDetailTemplate"
             , "org.javarosa.core.log.LogEntry"
             , "org.javarosa.core.model.FormDef"
             , "org.javarosa.core.model.GroupDef"
@@ -287,7 +286,10 @@ public class FormStorageTest {
             , "org.commcare.core.graph.suite.Graph"
             , "org.commcare.core.graph.suite.Annotation"
             , "org.commcare.core.graph.suite.BubbleSeries"
-            , "org.commcare.core.graph.suite.XYSeries");
+            , "org.commcare.core.graph.suite.XYSeries"
+
+            // Removed in 2.37
+            //, "org.commcare.xml.DummyGraphParser$DummyGraphDetailTemplate");
 
     @Before
     public void setup() {
