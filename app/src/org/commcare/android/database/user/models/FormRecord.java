@@ -185,6 +185,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     }
 
     public void setReasonForQuarantine(String s) {
+        System.out.println("Setting reason for quarantine to: " + s);
         this.reasonForQuarantine = s;
     }
 

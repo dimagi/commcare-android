@@ -16,6 +16,7 @@ import org.commcare.network.DataSubmissionEntity;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.DataSubmissionListener;
+import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
@@ -26,6 +27,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -51,6 +53,11 @@ public class FormUploadUtil {
             {".xml", ".jpg", "jpeg", ".3gpp", ".3gp", ".3ga", ".3g2", ".mp3",
                     ".wav", ".amr", ".mp4", ".3gp2", ".mpg4", ".mpeg4",
                     ".m4v", ".mpg", ".mpeg", ".qcp", ".ogg"};
+
+    private static final String mockRestoreResponseWithProcessingFailure =
+            "<OpenRosaResponse xmlns=\"http://openrosa.org/http/response\"><message nature=" +
+                    "\"processing_failure\">Form record could not be processed because case ID" +
+                    " was unknown</message></OpenRosaResponse>";
 
     public static Cipher getDecryptCipher(SecretKeySpec key) {
         Cipher cipher;
@@ -191,17 +198,22 @@ public class FormUploadUtil {
         int responseCode = response.getStatusLine().getStatusCode();
         logResponse(responseCode, responseString);
 
-        if (responseCode >= 200 && responseCode < 300) {
+        // FOR TESTING ONLY
+        FormUploadResult result = FormUploadResult.PROCESSING_FAILURE;
+        result.setProcessingFailureReason(parseProcessingFailureResponse(response));
+        return result;
+
+        /*if (responseCode >= 200 && responseCode < 300) {
             return FormUploadResult.FULL_SUCCESS;
         } else if (responseCode == 400) {
             FormUploadResult result = FormUploadResult.PROCESSING_FAILURE;
-            result.setProcessingFailureReason(parseFormUploadResponseForProcessingFailureReason(response));
+            result.setProcessingFailureReason(parseProcessingFailureResponse(response));
             return result;
         } else if (responseCode == 401) {
             return FormUploadResult.AUTH_FAILURE;
         } else {
             return FormUploadResult.FAILURE;
-        }
+        }*/
     }
 
     private static void logResponse(int responseCode, String responseString) {
@@ -372,9 +384,11 @@ public class FormUploadUtil {
         return false;
     }
 
-    private static String parseFormUploadResponseForProcessingFailureReason(HttpResponse response) {
+    private static String parseProcessingFailureResponse(HttpResponse response) {
         try {
-            InputStream responseStream = response.getEntity().getContent();
+            //InputStream responseStream = response.getEntity().getContent();
+            InputStream responseStream =
+                    new ByteArrayInputStream(mockRestoreResponseWithProcessingFailure.getBytes());
             KXmlParser baseParser = ElementParser.instantiateParser(responseStream);
             ElementParser<String> responseParser = new ElementParser<String>(baseParser) {
                 @Override
@@ -382,9 +396,9 @@ public class FormUploadUtil {
                         XmlPullParserException, UnfullfilledRequirementsException {
                     checkNode("OpenRosaResponse");
                     nextTag("message");
-                    String nature = parser.getAttributeValue(null, "nature");
-                    if ("processing_failure".equals(nature)) {
-                        return parser.getAttributeValue(null, "reason");
+                    String natureOfResponse = parser.getAttributeValue(null, "nature");
+                    if ("processing_failure".equals(natureOfResponse)) {
+                        return parser.nextText();
                     }
                     return "";
                 }
