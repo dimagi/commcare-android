@@ -13,7 +13,7 @@ import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.cases.model.Case;
 import org.commcare.logging.XPathErrorEntry;
-import org.commcare.models.database.AndroidTableBuilder;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.android.database.user.models.ACase;
@@ -81,41 +81,41 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         try {
             database.beginTransaction();
 
-            AndroidTableBuilder builder = new AndroidTableBuilder(ACase.STORAGE_KEY);
+            TableBuilder builder = new TableBuilder(ACase.STORAGE_KEY);
             builder.addData(new ACase());
             builder.setUnique(ACase.INDEX_CASE_ID);
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder("USER");
+            builder = new TableBuilder("USER");
             builder.addData(new User());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder(FormRecord.class);
+            builder = new TableBuilder(FormRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder(SessionStateDescriptor.class);
+            builder = new TableBuilder(SessionStateDescriptor.class);
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder(DeviceReportRecord.class);
+            builder = new TableBuilder(DeviceReportRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             // add table for dedicated xpath error logging for reporting xpath
             // errors on specific cc app builds.
-            builder = new AndroidTableBuilder(XPathErrorEntry.STORAGE_KEY);
+            builder = new TableBuilder(XPathErrorEntry.STORAGE_KEY);
             builder.addData(new XPathErrorEntry());
             database.execSQL(builder.getTableCreateString());
 
             // Add tables for storing normal device logs and force close logs in user storage
             // (as opposed to global storage) whenever possible
-            builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);
+            builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
             builder.addData(new AndroidLogEntry());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder(ForceCloseLogEntry.STORAGE_KEY);
+            builder = new TableBuilder(ForceCloseLogEntry.STORAGE_KEY);
             builder.addData(new ForceCloseLogEntry());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder("fixture");
+            builder = new TableBuilder("fixture");
             builder.addFileBackedData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
 
@@ -123,7 +123,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
             IndexedFixturePathUtils.createStorageBackedFixtureIndexTable(database);
 
-            builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
+            builder = new TableBuilder(Ledger.STORAGE_KEY);
             builder.addData(new Ledger());
             builder.setUnique(Ledger.INDEX_ENTITY_ID);
             database.execSQL(builder.getTableCreateString());
@@ -196,7 +196,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         try {
             database.beginTransaction();
 
-            AndroidTableBuilder builder = new AndroidTableBuilder(tableName);
+            TableBuilder builder = new TableBuilder(tableName);
             builder.addData(dataObject);
             database.execSQL(builder.getTableCreateString());
             database.setTransactionSuccessful();

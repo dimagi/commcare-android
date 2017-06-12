@@ -11,7 +11,7 @@ import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.cases.model.Case;
 import org.commcare.logging.XPathErrorEntry;
-import org.commcare.models.database.AndroidTableBuilder;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IndexedFixturePathUtils;
@@ -356,7 +356,7 @@ class UserDatabaseUpgrader {
         try {
             // add table for dedicated xpath error logging for reporting xpath
             // errors on specific cc app builds.
-            AndroidTableBuilder builder = new AndroidTableBuilder(XPathErrorEntry.STORAGE_KEY);
+            TableBuilder builder = new TableBuilder(XPathErrorEntry.STORAGE_KEY);
             builder.addData(new XPathErrorEntry());
             db.execSQL(builder.getTableCreateString());
             db.setTransactionSuccessful();
@@ -382,11 +382,11 @@ class UserDatabaseUpgrader {
     private boolean upgradeTwelveThirteen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            AndroidTableBuilder builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);
+            TableBuilder builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
             builder.addData(new AndroidLogEntry());
             db.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder(ForceCloseLogEntry.STORAGE_KEY);
+            builder = new TableBuilder(ForceCloseLogEntry.STORAGE_KEY);
             builder.addData(new ForceCloseLogEntry());
             db.execSQL(builder.getTableCreateString());
 

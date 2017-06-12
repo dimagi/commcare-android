@@ -1,7 +1,6 @@
 package org.commcare.models.database;
 
 import android.database.Cursor;
-import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteQueryBuilder;
@@ -11,7 +10,9 @@ import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.models.EncryptedModel;
+import org.commcare.modern.util.Pair;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
@@ -160,7 +161,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     public String getMetaDataFieldForRecord(int recordId, String rawFieldName) {
         String rid = String.valueOf(recordId);
-        String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
+        String scrubbedName = TableBuilder.scrubName(rawFieldName);
         Cursor c = helper.getHandle().query(table, new String[]{scrubbedName}, DatabaseHelper.ID_COL + "=?", new String[]{rid}, null, null, null);
         try {
             if (c.getCount() == 0) {
@@ -386,9 +387,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @param primaryId   a metadata index that
      */
     public SqlStorageIterator<T> iterate(boolean includeData, String primaryId) {
-        String[] projection = includeData ? new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, AndroidTableBuilder.scrubName(primaryId)} : new String[]{DatabaseHelper.ID_COL, AndroidTableBuilder.scrubName(primaryId)};
+        String[] projection = includeData ? new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, TableBuilder.scrubName(primaryId)} : new String[]{DatabaseHelper.ID_COL, TableBuilder.scrubName(primaryId)};
         Cursor c = helper.getHandle().query(table, projection, null, null, null, null, DatabaseHelper.ID_COL);
-        return new SqlStorageIterator<>(c, this, AndroidTableBuilder.scrubName(primaryId));
+        return new SqlStorageIterator<>(c, this, TableBuilder.scrubName(primaryId));
     }
 
     @Override
@@ -434,7 +435,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
-            List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
+            List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(ids);
             for (Pair<String, String[]> whereParams : whereParamList) {
                 db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
             }
@@ -483,7 +484,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             return removed;
         }
 
-        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(removed);
+        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(removed);
 
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
@@ -595,7 +596,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap recordMap) {
-        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(cuedCases);
+        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(cuedCases);
         for (Pair<String, String[]> querySet : whereParamList) {
             Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + " IN " + querySet.first, querySet.second, null, null, null);
             try {
@@ -623,8 +624,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      */
     public List<T> getBulkRecordsForIndex(String indexName, Collection<String> matchingValues) {
         List<T> returnSet = new ArrayList<>();
-        String fieldName = AndroidTableBuilder.scrubName(indexName);
-        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(matchingValues, "?");
+        String fieldName = TableBuilder.scrubName(indexName);
+        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(matchingValues, "?");
         for (Pair<String, String[]> querySet : whereParamList) {
             Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, fieldName}, fieldName + " IN " + querySet.first, querySet.second, null, null, null);
             try {
