@@ -24,6 +24,9 @@ import java.util.Hashtable;
  */
 public class IncompleteFormRecordView extends LinearLayout {
 
+    private static final String QUARANTINED_MSG_SERVER = "Reason for quarantine: Server Processing Error";
+    private static final String QUARANTINED_MSG_LOCAL = "Reason for quarantine: Local Processing Error";
+
     public final TextView mPrimaryTextView;
     private final TextView mLowerTextView;
     public final TextView mRightTextView;
@@ -78,6 +81,15 @@ public class IncompleteFormRecordView extends LinearLayout {
         } else {
             mUpperRight.setText("");
             syncIcon.setVisibility(View.GONE);
+        }
+
+        if (FormRecord.STATUS_LIMBO.equals(record.getStatus()) && record.getReasonForQuarantine() != null) {
+            String reasonForQuarantine = record.getReasonForQuarantine();
+            if (reasonForQuarantine.equals(FormRecord.QUARANTINED_FOR_LOCAL_REASON)) {
+                mLowerTextView.setText(QUARANTINED_MSG_LOCAL);
+            } else {
+                mLowerTextView.setText(QUARANTINED_MSG_SERVER);
+            }
         }
     }
 }

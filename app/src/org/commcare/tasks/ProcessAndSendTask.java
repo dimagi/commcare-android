@@ -367,7 +367,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     ProcessIssues.RecordQuarantinedServerIssue,
                     new String[] {null, reasonForQuarantine, null});
         } else {
-            reasonForQuarantine = "There was a local issue with the record that prevented submission";
+            reasonForQuarantine = FormRecord.QUARANTINED_FOR_LOCAL_REASON;
             messageForNotification = NotificationMessageFactory.message(
                     ProcessIssues.RecordQuarantinedLocalIssue);
         }
