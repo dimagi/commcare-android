@@ -2,7 +2,7 @@ package org.commcare.android.database.app.models;
 
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
-import org.commcare.models.framework.Table;
+import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 
 import java.util.Date;

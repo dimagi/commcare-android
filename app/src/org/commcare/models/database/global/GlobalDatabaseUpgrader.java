@@ -7,7 +7,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.android.logging.ForceCloseLogEntry;
-import org.commcare.models.database.AndroidTableBuilder;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.MigrationException;
@@ -121,7 +121,7 @@ class GlobalDatabaseUpgrader {
                                                Persistable modelToAdd) {
         db.beginTransaction();
         try {
-            AndroidTableBuilder builder = new AndroidTableBuilder(storageKey);
+            TableBuilder builder = new TableBuilder(storageKey);
             builder.addData(modelToAdd);
             db.execSQL(builder.getTableCreateString());
 

@@ -12,11 +12,11 @@ import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -100,7 +100,7 @@ public class UserDbUpgradeUtils {
     }
 
     protected static void addStockTable(SQLiteDatabase db) {
-        AndroidTableBuilder builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
+        TableBuilder builder = new TableBuilder(Ledger.STORAGE_KEY);
         builder.addData(new Ledger());
         builder.setUnique(Ledger.INDEX_ENTITY_ID);
         db.execSQL(builder.getTableCreateString());

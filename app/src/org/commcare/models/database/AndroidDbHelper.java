@@ -3,7 +3,6 @@ package org.commcare.models.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.util.Log;
-import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -11,6 +10,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.RecordTooLargeException;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
