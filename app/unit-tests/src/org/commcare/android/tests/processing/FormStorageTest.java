@@ -264,7 +264,7 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathUuidFunc"
             , "org.javarosa.xpath.expr.XPathWeightedChecklistFunc"
             , "org.javarosa.xpath.expr.XpathCoalesceFunc"
-            
+
             // Migrated in 2.28
             , "org.odk.collect.android.jr.extensions.AndroidXFormExtensions"
             , "org.odk.collect.android.jr.extensions.IntentCallout"
@@ -286,10 +286,12 @@ public class FormStorageTest {
             , "org.commcare.core.graph.suite.Graph"
             , "org.commcare.core.graph.suite.Annotation"
             , "org.commcare.core.graph.suite.BubbleSeries"
-            , "org.commcare.core.graph.suite.XYSeries"
+            , "org.commcare.core.graph.suite.XYSeries");
 
             // Removed in 2.37
-            //, "org.commcare.xml.DummyGraphParser$DummyGraphDetailTemplate");
+            //, "org.commcare.xml.DummyGraphParser$DummyGraphDetailTemplate";
+
+
 
     @Before
     public void setup() {
