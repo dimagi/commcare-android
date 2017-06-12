@@ -12,7 +12,7 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
-import org.commcare.models.database.AndroidTableBuilder;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -48,21 +48,21 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
         try {
             database.beginTransaction();
             
-            AndroidTableBuilder builder = new AndroidTableBuilder(ApplicationRecord.class);
+            TableBuilder builder = new TableBuilder(ApplicationRecord.class);
             database.execSQL(builder.getTableCreateString());
             
-            builder = new AndroidTableBuilder(AndroidSharedKeyRecord.class);
+            builder = new TableBuilder(AndroidSharedKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);
+            builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
             builder.addData(new AndroidLogEntry());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder(ForceCloseLogEntry.STORAGE_KEY);
+            builder = new TableBuilder(ForceCloseLogEntry.STORAGE_KEY);
             builder.addData(new ForceCloseLogEntry());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new AndroidTableBuilder(AppAvailableToInstall.STORAGE_KEY);
+            builder = new TableBuilder(AppAvailableToInstall.STORAGE_KEY);
             builder.addData(new AppAvailableToInstall());
             database.execSQL(builder.getTableCreateString());
 

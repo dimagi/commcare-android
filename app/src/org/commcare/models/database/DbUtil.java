@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
 
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.database.TableBuilder;
 
 import java.io.File;
 
@@ -87,6 +88,6 @@ public class DbUtil {
      */
     public static String addColumnToTable(String tableName, String columnName, String dataType) {
         return "ALTER TABLE " + tableName + " ADD " +
-                AndroidTableBuilder.scrubName(columnName) + " " + dataType;
+                TableBuilder.scrubName(columnName) + " " + dataType;
     }
 }

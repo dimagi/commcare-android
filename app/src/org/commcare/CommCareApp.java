@@ -16,7 +16,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.models.framework.Table;
+import org.commcare.modern.database.Table;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.resources.model.Resource;

@@ -4,21 +4,17 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import org.commcare.CommCareApplication;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
-import org.commcare.models.framework.Table;
+import org.commcare.modern.database.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
-import org.commcare.utils.StorageUtils;
 import org.javarosa.core.services.Logger;
 
 import java.io.FileNotFoundException;
 import java.util.Date;
-import java.util.Vector;
 
 /**
  * @author ctsims

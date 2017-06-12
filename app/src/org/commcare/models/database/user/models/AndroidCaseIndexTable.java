@@ -1,7 +1,6 @@
 package org.commcare.models.database.user.models;
 
 import android.content.ContentValues;
-import android.util.Pair;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
@@ -11,12 +10,13 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.cases.query.queryset.DualTableSingleMatchModelQuerySet;
-import org.commcare.models.database.AndroidTableBuilder;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.modern.engine.cases.CaseIndexTable;
+import org.commcare.modern.util.Pair;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -116,7 +116,7 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
         }
         db.beginTransaction();
         try {
-            List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(idsToClear);
+            List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(idsToClear);
             for (Pair<String, String[]> whereParams : whereParamList) {
                 db.delete(TABLE_NAME, COL_CASE_RECORD_ID + " IN " + whereParams.first, whereParams.second);
             }
@@ -222,9 +222,9 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
      */
     public DualTableSingleMatchModelQuerySet bulkReadIndexToCaseIdMatch(String indexName, Collection<Integer> cuedCases) {
         DualTableSingleMatchModelQuerySet set = new DualTableSingleMatchModelQuerySet();
-        String caseIdIndex = AndroidTableBuilder.scrubName(Case.INDEX_CASE_ID);
+        String caseIdIndex = TableBuilder.scrubName(Case.INDEX_CASE_ID);
 
-        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(cuedCases, "CAST(? as INT)");
+        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(cuedCases, "CAST(? as INT)");
         for(Pair<String, String[]> querySet : whereParamList) {
 
             String query =String.format(

@@ -33,5 +33,4 @@ app/libs/javarosa-libraries.jar
 .gradle/
 build/
 **/*~
-gradle/
 app/google-services.json

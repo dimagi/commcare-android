@@ -3,39 +3,31 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:layout_gravity="center_horizontal"
+    android:gravity="center_horizontal"
     android:paddingLeft="20dp"
     android:paddingRight="20dp">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/transparent"
-        android:text="Today"
-        android:textStyle="bold"
-        android:id="@+id/today"/>
-
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight=".05"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal"
         android:layout_gravity="center">
 
-      <Spinner
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:id="@+id/calendar_spinner"
-          android:layout_alignParentLeft="true">
-      </Spinner>
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/calendar_spinner"
+            android:gravity="center"
+            android:layout_alignParentLeft="true">
+        </Spinner>
 
         <Spinner
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/year_spinner"
-            android:layout_alignParentRight="true">
-
+            android:layout_alignParentRight="true"
+            android:gravity="center">
         </Spinner>
 
     </RelativeLayout>
@@ -43,9 +35,9 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:weightSum="7"
         android:gravity="center_horizontal"
-        android:layout_marginLeft="10dp"
+        android:layout_marginTop="@dimen/standard_spacer_double"
         android:orientation="horizontal">
 
         <TextView
@@ -53,7 +45,7 @@
             android:textStyle="bold"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
             android:id="@+id/day1"/>
 
         <TextView
@@ -61,7 +53,7 @@
             android:textStyle="bold"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
             android:id="@+id/day2"/>
 
         <TextView
@@ -70,7 +62,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center_horizontal"/>
+            android:gravity="center_horizontal"/>
 
         <TextView
             android:id="@+id/day4"
@@ -78,7 +70,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center_horizontal"/>
+            android:gravity="center_horizontal"/>
 
         <TextView
             android:id="@+id/day5"
@@ -86,7 +78,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center_horizontal"/>
+            android:gravity="center_horizontal"/>
 
         <TextView
             android:id="@+id/day6"
@@ -94,7 +86,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center_horizontal" />
+            android:gravity="center_horizontal" />
 
         <TextView
             android:id="@+id/day7"
@@ -102,21 +94,19 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center_horizontal"/>
+            android:gravity="center_horizontal"/>
 
     </LinearLayout>
 
     <GridView
         android:id="@+id/calendar_grid"
         android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight=".5"
+        android:layout_height="wrap_content"
         android:numColumns="7"
         android:gravity="center"
-        android:layout_marginTop="10dp"
         android:horizontalSpacing="3dp"
         android:verticalSpacing="3dp"
-        android:layout_marginBottom="20dp"/>
+        android:layout_marginBottom="@dimen/standard_spacer"/>
 
     <View
         android:layout_width="match_parent"
@@ -125,29 +115,37 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight=".1">
+        android:layout_height="wrap_content">
 
         <ImageButton
-            android:layout_width="35dp"
+            android:layout_width="32dp"
             android:layout_height="35dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/standard_spacer"
             android:background="@drawable/icon_exit_form"
             android:id="@+id/cancel_calendar"
-            android:layout_marginBottom="10dp"
-            android:layout_alignParentLeft="true"/>
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/lightest_grey"
+            android:text="Today"
+            android:textStyle="bold"
+            android:id="@+id/today"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/standard_spacer"
+            android:layout_marginBottom="@dimen/standard_spacer"/>
 
         <ImageButton
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/standard_spacer"
             android:background="@drawable/green_check_mark"
             android:id="@+id/close_calendar"
-            android:layout_marginBottom="10dp"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
 
     </RelativeLayout>
-
-
 
 </LinearLayout>

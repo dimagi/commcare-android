@@ -11,11 +11,9 @@ import android.widget.ListAdapter;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.cases.entity.Entity;
-import org.commcare.cases.entity.EntitySortNotificationInterface;
-import org.commcare.cases.entity.EntitySorter;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
-import org.commcare.models.AsyncNodeEntityFactory;
+import org.commcare.interfaces.AndroidSortableEntityAdapter;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Action;
@@ -26,7 +24,6 @@ import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityActionViewUtils;
 import org.commcare.views.EntityView;
 import org.commcare.views.EntityViewTile;
-import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
@@ -44,11 +41,10 @@ import java.util.List;
  * @author ctsims
  * @author wspride
  */
-public class EntityListAdapter implements ListAdapter, EntitySortNotificationInterface {
+public class EntityListAdapter extends AndroidSortableEntityAdapter implements ListAdapter {
     public static final int ENTITY_TYPE = 0;
     public static final int ACTION_TYPE = 1;
     public static final int DIVIDER_TYPE = 2;
-    public static final int DIVIDER_ID = -2;
 
     private int dividerPosition = 0;
     private final int actionsCount;
@@ -69,11 +65,7 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
 
     private TreeReference selected;
 
-    private int[] currentSort = {};
-    private boolean reverseSort = false;
-
     private final NodeEntityFactory mNodeFactory;
-    private boolean mAsyncMode = false;
 
     private String[] currentSearchTerms;
     private String searchQuery = "";
@@ -93,9 +85,9 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
 
     public EntityListAdapter(CommCareActivity activity, Detail detail,
                              List<TreeReference> references,
-                             List<Entity<TreeReference>> full,
-                             int[] sort, NodeEntityFactory factory,
+                             List<Entity<TreeReference>> full, NodeEntityFactory factory,
                              boolean hideActions, List<Action> actions, boolean inAwesomeMode) {
+        super(full, detail, factory);
         this.detail = detail;
         this.selectActivityInAwesomeMode = inAwesomeMode;
         this.actions = actions;
@@ -112,17 +104,6 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
         this.commCareActivity = activity;
         this.observers = new ArrayList<>();
         this.mNodeFactory = factory;
-
-        //TODO: I am a bad person and I should feel bad. This should get encapsulated 
-        //somewhere in the factory as a callback (IE: How to sort/or whether to or  something)
-        mAsyncMode = (factory instanceof AsyncNodeEntityFactory);
-
-        //TODO: Maybe we can actually just replace by checking whether the node is ready?
-        if (!mAsyncMode) {
-            if (sort.length != 0) {
-                sort(sort);
-            }
-        }
 
         if (android.os.Build.VERSION.SDK_INT >= 14) {
             mImageLoader = new CachingAsyncImageLoader(commCareActivity);
@@ -156,18 +137,6 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
         isFilteringByCalloutResult = false;
         setCurrent(full);
         calloutResponseData.clear();
-    }
-
-    private void sort(int[] fields) {
-        //The reversing here is only relevant if there's only one sort field and we're on it
-        sort(fields, (currentSort.length == 1 && currentSort[0] == fields[0]) && !reverseSort);
-    }
-
-    private void sort(int[] fields, boolean reverse) {
-        this.reverseSort = reverse;
-        currentSort = fields;
-
-        java.util.Collections.sort(full, new EntitySorter(detail.getFields(), reverseSort, currentSort, this));
     }
 
     @Override
@@ -353,7 +322,7 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
         currentSearchTerms = searchTerms;
         searchQuery = filterRaw;
         entityFilterer =
-                new EntityStringFilterer(this, searchTerms, mAsyncMode,
+                new EntityStringFilterer(this, searchTerms, asyncMode,
                         mFuzzySearchEnabled, mNodeFactory, full, commCareActivity);
         entityFilterer.start();
     }
@@ -389,14 +358,6 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
 
     public void sortEntities(int[] keys) {
         sort(keys);
-    }
-
-    public int[] getCurrentSort() {
-        return currentSort;
-    }
-
-    public boolean isCurrentSortReversed() {
-        return reverseSort;
     }
 
     @Override
@@ -477,8 +438,4 @@ public class EntityListAdapter implements ListAdapter, EntitySortNotificationInt
         }
     }
 
-    @Override
-    public void notifyBadfilter(String[] args) {
-        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Case_Filter, args));
-    }
 }

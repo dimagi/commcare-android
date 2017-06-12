@@ -2,16 +2,16 @@ package org.commcare.models.database.user.models;
 
 import android.content.ContentValues;
 import android.util.Log;
-import android.util.Pair;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
-import org.commcare.models.database.AndroidTableBuilder;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.modern.util.Pair;
 
 import java.util.Collection;
 import java.util.List;
@@ -110,7 +110,7 @@ public class EntityStorageCache {
      * Removes cache records associated with the provided IDs
      */
     public void invalidateCaches(Collection<Integer> recordIds) {
-        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(recordIds);
+        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(recordIds);
         int removed = 0;
         for(Pair<String, String[]> querySet : whereParamList) {
             removed += db.delete(TABLE_NAME, COL_CACHE_NAME + " = '" + this.mCacheName + "' AND " + COL_ENTITY_KEY + " IN " + querySet.first, querySet.second);
