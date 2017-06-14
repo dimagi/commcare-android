@@ -5,6 +5,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import org.commcare.CommCareApplication;
+import org.commcare.cases.entity.EntityUtil;
 import org.commcare.fragments.EntityDetailFragment;
 import org.commcare.fragments.EntitySubnodeDetailFragment;
 import org.commcare.suite.model.Detail;
@@ -22,6 +24,7 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
     private final Detail detail;
     private final int detailIndex;
     private final TreeReference mEntityReference;
+    private final Detail[] displayableChildDetails;
 
     public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex,
                                     TreeReference reference, ListItemViewModifier modifier) {
@@ -30,12 +33,15 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         this.detailIndex = detailIndex;
         this.mEntityReference = reference;
         this.modifier = modifier;
+        this.displayableChildDetails = detail.getDisplayableChildDetails(
+                EntityUtil.prepareCompoundEvaluationContext(mEntityReference, detail,
+                        CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext()));
     }
 
     @Override
     public Fragment getItem(int i) {
         EntityDetailFragment fragment;
-        if (detail.getNodeset() != null || (detail.isCompound() && detail.getDetails()[i].getNodeset() != null)) {
+        if (detail.getNodeset() != null || (detail.isCompound() && displayableChildDetails[i].getNodeset() != null)) {
             fragment = new EntitySubnodeDetailFragment();
         } else {
             fragment = new EntityDetailFragment();
@@ -54,11 +60,13 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return (detail.isCompound() ? detail.getDetails()[position] : detail).getTitle().getText().evaluate();
+        Detail detailShowing = detail.isCompound() ? displayableChildDetails[position] : detail;
+        return detailShowing.getTitle().getText().evaluate();
     }
 
     @Override
     public int getCount() {
-        return detail.isCompound() ? detail.getDetails().length : 1;
+        return detail.isCompound() ? displayableChildDetails.length : 1;
     }
+
 }
