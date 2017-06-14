@@ -34,6 +34,7 @@ git clone https://github.com/dimagi/commcare-core.git
 - Click "OK" to use the Gradle wrapper
 - Wait while Android Studio spins its wheels
 - Download any build dependencies that the SDK Manager tells you you need.
+- Disable _Instant Run_ found in Settings > Build, Execution, Deployment > Instant Run. (It does not play well with multidexing, which we have enabled, or with some of the processes we have set up for Google Services)
 
 ## Building
 
