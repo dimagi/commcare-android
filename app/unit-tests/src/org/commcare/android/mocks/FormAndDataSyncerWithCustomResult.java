@@ -44,6 +44,8 @@ public class FormAndDataSyncerWithCustomResult extends FormAndDataSyncer {
                     }
                 };
 
+        processAndSendTask.connect(activity);
+        processAndSendTask.executeParallel(records);
     }
 
     @Override

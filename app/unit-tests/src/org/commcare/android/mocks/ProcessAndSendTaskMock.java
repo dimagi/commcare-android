@@ -7,7 +7,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.model.User;
-import org.robolectric.annotation.Implementation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,6 +30,8 @@ public abstract class ProcessAndSendTaskMock extends ProcessAndSendTask<SyncCapa
     @Override
     protected FormUploadResult sendInstance(int i, File folder, FormRecord record, User user)
             throws FileNotFoundException {
+        System.out.println("attempting to remove a FormUploadResult from the list");
         return formUploadResultsToFake.remove(0);
     }
+
 }
