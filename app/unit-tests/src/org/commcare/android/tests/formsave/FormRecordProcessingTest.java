@@ -164,5 +164,3 @@ public class FormRecordProcessingTest {
         assertEquals("There shouldn't be any forms saved as incomplete", 0, incompleteForms);
     }
 }
-
-
