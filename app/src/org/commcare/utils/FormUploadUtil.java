@@ -198,22 +198,23 @@ public class FormUploadUtil {
         int responseCode = response.getStatusLine().getStatusCode();
         logResponse(responseCode, responseString);
 
-        // FOR TESTING ONLY
-        FormUploadResult result = FormUploadResult.PROCESSING_FAILURE;
-        result.setProcessingFailureReason(parseProcessingFailureResponse(response));
-        return result;
-
-        /*if (responseCode >= 200 && responseCode < 300) {
+        if (responseCode >= 200 && responseCode < 300) {
             return FormUploadResult.FULL_SUCCESS;
         } else if (responseCode == 400) {
             FormUploadResult result = FormUploadResult.PROCESSING_FAILURE;
-            result.setProcessingFailureReason(parseProcessingFailureResponse(response));
+            try {
+                result.setProcessingFailureReason(parseProcessingFailureResponse(
+                        response.getEntity().getContent()));
+            } catch (IOException e) {
+                Log.e(TAG, "Error while getting response stream from form upload response");
+                e.printStackTrace();
+            }
             return result;
         } else if (responseCode == 401) {
             return FormUploadResult.AUTH_FAILURE;
         } else {
             return FormUploadResult.FAILURE;
-        }*/
+        }
     }
 
     private static void logResponse(int responseCode, String responseString) {
@@ -384,11 +385,8 @@ public class FormUploadUtil {
         return false;
     }
 
-    private static String parseProcessingFailureResponse(HttpResponse response) {
+    public static String parseProcessingFailureResponse(InputStream responseStream) {
         try {
-            //InputStream responseStream = response.getEntity().getContent();
-            InputStream responseStream =
-                    new ByteArrayInputStream(mockRestoreResponseWithProcessingFailure.getBytes());
             KXmlParser baseParser = ElementParser.instantiateParser(responseStream);
             ElementParser<String> responseParser = new ElementParser<String>(baseParser) {
                 @Override
@@ -404,12 +402,10 @@ public class FormUploadUtil {
                 }
             };
             return responseParser.parse();
-        } catch (IOException e) {
-            Log.e(TAG, "Error while getting response stream or instantiating parser for form " +
-                    "upload response");
-        } catch (InvalidStructureException | XmlPullParserException |
+        } catch (IOException | InvalidStructureException | XmlPullParserException |
                 UnfullfilledRequirementsException e) {
             Log.e(TAG, "Error while parsing form upload response");
+            e.printStackTrace();
         }
         return "";
     }

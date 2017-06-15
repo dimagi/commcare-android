@@ -14,7 +14,6 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
@@ -285,7 +284,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     //Good!
                     //Time to Send!
                     try {
-                        User mUser = CommCareApplication.instance().getSession().getLoggedInUser();
+                        User user = CommCareApplication.instance().getSession().getLoggedInUser();
                         int attemptsMade = 0;
                         logSubmissionAttempt(record);
                         while (attemptsMade < SUBMISSION_ATTEMPTS) {
@@ -293,8 +292,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Retrying submission. "
                                         + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
                             }
-                            results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"),
-                                    url, this, mUser);
+                            results[i] = sendInstance(i, folder, record, user);
                             if (results[i] == FormUploadResult.FULL_SUCCESS) {
                                 logSubmissionSuccess(record);
                                 break;
@@ -352,6 +350,12 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
             }
         }
+    }
+
+    protected FormUploadResult sendInstance(int i, File folder, FormRecord record, User user)
+            throws FileNotFoundException {
+        return FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"),
+                url, this, user);
     }
 
     /**
