@@ -26,7 +26,6 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -199,10 +198,7 @@ public class FormUploadUtil {
         int responseCode = response.getStatusLine().getStatusCode();
         logResponse(responseCode, responseString);
 
-        // TODO: FOR TESTING ONLY, REMOVE
-        return handleProcessingFailure(responseStream);
-
-        /*if (responseCode >= 200 && responseCode < 300) {
+        if (responseCode >= 200 && responseCode < 300) {
             return FormUploadResult.FULL_SUCCESS;
         } else if (responseCode == 400) {
             return handleProcessingFailure(responseStream);
@@ -210,7 +206,7 @@ public class FormUploadUtil {
             return FormUploadResult.AUTH_FAILURE;
         } else {
             return FormUploadResult.FAILURE;
-        }*/
+        }
     }
 
     private static FormUploadResult handleProcessingFailure(InputStream responseStream) {
@@ -389,7 +385,6 @@ public class FormUploadUtil {
 
     public static String parseProcessingFailureResponse(InputStream responseStream) {
         try {
-            responseStream = new ByteArrayInputStream(mockRestoreResponseWithProcessingFailure.getBytes());
             KXmlParser baseParser = ElementParser.instantiateParser(responseStream);
             ElementParser<String> responseParser = new ElementParser<String>(baseParser) {
                 @Override

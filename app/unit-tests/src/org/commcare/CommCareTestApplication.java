@@ -63,8 +63,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         // allow "jr://resource" references
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
 
-        initializeDefaultLocalizerData();
-
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable ex) {
