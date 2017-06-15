@@ -467,7 +467,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                             break;
                     }
                 } while (event != FormEntryController.EVENT_END_OF_FORM);
-            } catch (XPathTypeMismatchException e) {
+            } catch (XPathException e) {
                 UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
             }
         }
