@@ -16,7 +16,6 @@ import org.commcare.network.DataSubmissionEntity;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.DataSubmissionListener;
-import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
@@ -27,7 +26,6 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
