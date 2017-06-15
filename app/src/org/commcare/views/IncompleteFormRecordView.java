@@ -24,14 +24,15 @@ import java.util.Hashtable;
  */
 public class IncompleteFormRecordView extends LinearLayout {
 
-    private static final String QUARANTINED_MSG_SERVER = "Reason for quarantine: Server Processing Error";
-    private static final String QUARANTINED_MSG_LOCAL = "Reason for quarantine: Local Processing Error";
+    private static final String QUARANTINED_MSG_SERVER = "Quarantined due to: Server Processing Error";
+    private static final String QUARANTINED_MSG_LOCAL = "Quarantined due to: Local Record Issue";
 
     public final TextView mPrimaryTextView;
     private final TextView mLowerTextView;
     public final TextView mRightTextView;
     private final TextView mUpperRight;
     private final ImageView syncIcon;
+    private final TextView reasonForQuarantineView;
 
     private final Date start;
 
@@ -44,6 +45,7 @@ public class IncompleteFormRecordView extends LinearLayout {
         mRightTextView = (TextView)vg.findViewById(R.id.formrecord_txt_right);
         mUpperRight = (TextView)vg.findViewById(R.id.formrecord_txt_upp_right);
         syncIcon = (ImageView)vg.findViewById(R.id.formrecord_sync_icon);
+        reasonForQuarantineView = (TextView)vg.findViewById(R.id.reason_for_quarantine_display);
 
         mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
         mUpperRight.setTextAppearance(context, android.R.style.TextAppearance_Large);
@@ -84,12 +86,15 @@ public class IncompleteFormRecordView extends LinearLayout {
         }
 
         if (FormRecord.STATUS_LIMBO.equals(record.getStatus()) && record.getReasonForQuarantine() != null) {
+            reasonForQuarantineView.setVisibility(View.VISIBLE);
             String reasonForQuarantine = record.getReasonForQuarantine();
             if (reasonForQuarantine.equals(FormRecord.QUARANTINED_FOR_LOCAL_REASON)) {
-                mLowerTextView.setText(QUARANTINED_MSG_LOCAL);
+                reasonForQuarantineView.setText(QUARANTINED_MSG_LOCAL);
             } else {
-                mLowerTextView.setText(QUARANTINED_MSG_SERVER);
+                reasonForQuarantineView.setText(QUARANTINED_MSG_SERVER);
             }
+        } else {
+            reasonForQuarantineView.setVisibility(View.GONE);
         }
     }
 }

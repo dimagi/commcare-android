@@ -112,7 +112,7 @@ public class FormRecordProcessor {
     }
 
     public void quarantineRecord(FormRecord record, String reasonForQuarantine) {
-        updateRecordStatus(record, FormRecord.STATUS_LIMBO);
+        record = updateRecordStatus(record, FormRecord.STATUS_LIMBO);
         record.setReasonForQuarantine(reasonForQuarantine);
         storage.write(record);
     }

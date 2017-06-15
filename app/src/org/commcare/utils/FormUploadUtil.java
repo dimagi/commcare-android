@@ -26,6 +26,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -185,9 +186,11 @@ public class FormUploadUtil {
             return FormUploadResult.TRANSPORT_FAILURE;
         }
 
+        InputStream responseStream = null;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            StreamsUtil.writeFromInputToOutputNew(response.getEntity().getContent(), bos);
+            responseStream = response.getEntity().getContent();
+            StreamsUtil.writeFromInputToOutputNew(responseStream, bos);
         } catch (IllegalStateException | IOException e) {
             e.printStackTrace();
         }
@@ -196,23 +199,24 @@ public class FormUploadUtil {
         int responseCode = response.getStatusLine().getStatusCode();
         logResponse(responseCode, responseString);
 
-        if (responseCode >= 200 && responseCode < 300) {
+        // TODO: FOR TESTING ONLY, REMOVE
+        return handleProcessingFailure(responseStream);
+
+        /*if (responseCode >= 200 && responseCode < 300) {
             return FormUploadResult.FULL_SUCCESS;
         } else if (responseCode == 400) {
-            FormUploadResult result = FormUploadResult.PROCESSING_FAILURE;
-            try {
-                result.setProcessingFailureReason(parseProcessingFailureResponse(
-                        response.getEntity().getContent()));
-            } catch (IOException e) {
-                Log.e(TAG, "Error while getting response stream from form upload response");
-                e.printStackTrace();
-            }
-            return result;
+            return handleProcessingFailure(responseStream);
         } else if (responseCode == 401) {
             return FormUploadResult.AUTH_FAILURE;
         } else {
             return FormUploadResult.FAILURE;
-        }
+        }*/
+    }
+
+    private static FormUploadResult handleProcessingFailure(InputStream responseStream) {
+        FormUploadResult result = FormUploadResult.PROCESSING_FAILURE;
+        result.setProcessingFailureReason(parseProcessingFailureResponse(responseStream));
+        return result;
     }
 
     private static void logResponse(int responseCode, String responseString) {
@@ -385,6 +389,7 @@ public class FormUploadUtil {
 
     public static String parseProcessingFailureResponse(InputStream responseStream) {
         try {
+            responseStream = new ByteArrayInputStream(mockRestoreResponseWithProcessingFailure.getBytes());
             KXmlParser baseParser = ElementParser.instantiateParser(responseStream);
             ElementParser<String> responseParser = new ElementParser<String>(baseParser) {
                 @Override
