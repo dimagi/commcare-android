@@ -7,7 +7,6 @@ import android.widget.ImageButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.activities.FormAndDataSyncer;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
@@ -66,7 +65,7 @@ public class FormRecordProcessingTest {
         CaseDbQueryTest.evaluate("instance('casedb')/casedb/case[@case_type = 'followup'][index/parent = 'worker_one']/@case_id",
                 "constant_id", ec);
 
-        fillOutFormWithCaseUpdate(new FormAndDataSyncerFake());
+        fillOutFormWithCaseUpdate();
 
         // TODO PLM: I would expect the following evaluation to not result in 'constant_id'
         CaseDbQueryTest.evaluate("instance('casedb')/casedb/case[@case_type = 'followup'][index/parent = 'worker_one']/@case_id",
@@ -82,16 +81,15 @@ public class FormRecordProcessingTest {
      * parser used during form save was using the wrong parser.
      *
      * Test steps through form and saves it, passing if upon returning to the
-     * home screen w/ the form successfully saved.
+     * home screen w/ the form sucessfully saved.
      */
     @Test
     public void testFormRecordProcessingDuringFormSave() {
-        fillOutFormWithCaseUpdate(new FormAndDataSyncerFake());
-        assertStoredForms();
+        fillOutFormWithCaseUpdate();
     }
 
-    public static void fillOutFormWithCaseUpdate(FormAndDataSyncer formAndDataSyncerToUse) {
-        StandardHomeActivity homeActivity = buildHomeActivityForFormEntryLaunch(formAndDataSyncerToUse);
+    private void fillOutFormWithCaseUpdate() {
+        StandardHomeActivity homeActivity = buildHomeActivityForFormEntryLaunch();
 
         ShadowActivity shadowActivity = Shadows.shadowOf(homeActivity);
         Intent formEntryIntent = shadowActivity.getNextStartedActivity();
@@ -107,10 +105,10 @@ public class FormRecordProcessingTest {
         shadowActivity.receiveResult(formEntryIntent,
                 shadowFormEntryActivity.getResultCode(),
                 shadowFormEntryActivity.getResultIntent());
+        assertStoredFroms();
     }
 
-    private static StandardHomeActivity buildHomeActivityForFormEntryLaunch(
-            FormAndDataSyncer formAndDataSyncerToUse) {
+    private StandardHomeActivity buildHomeActivityForFormEntryLaunch() {
         AndroidSessionWrapper sessionWrapper =
                 CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
@@ -119,13 +117,13 @@ public class FormRecordProcessingTest {
         StandardHomeActivity homeActivity =
                 Robolectric.buildActivity(StandardHomeActivity.class).create().get();
         // make sure we don't actually submit forms by using a fake form submitter
-        homeActivity.setFormAndDataSyncer(formAndDataSyncerToUse);
+        homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake());
         SessionNavigator sessionNavigator = homeActivity.getSessionNavigator();
         sessionNavigator.startNextSessionStep();
         return homeActivity;
     }
 
-    private static ShadowActivity navigateFormEntry(Intent formEntryIntent) {
+    private ShadowActivity navigateFormEntry(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
                 Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
@@ -154,7 +152,7 @@ public class FormRecordProcessingTest {
         return shadowFormEntryActivity;
     }
 
-    private void assertStoredForms() {
+    private void assertStoredFroms() {
         SqlStorage<FormRecord> formsStorage =
                 CommCareApplication.instance().getUserStorage(FormRecord.class);
 
@@ -166,3 +164,5 @@ public class FormRecordProcessingTest {
         assertEquals("There shouldn't be any forms saved as incomplete", 0, incompleteForms);
     }
 }
+
+
