@@ -292,7 +292,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Retrying submission. "
                                         + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
                             }
-                            results[i] = sendInstance(i, folder, record, user);
+                            results[i] = FormUploadUtil.sendInstance(i, folder,
+                                    new SecretKeySpec(record.getAesKey(), "AES"), url, this, user);
                             if (results[i] == FormUploadResult.FULL_SUCCESS) {
                                 logSubmissionSuccess(record);
                                 break;
@@ -350,12 +351,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
             }
         }
-    }
-
-    protected FormUploadResult sendInstance(int i, File folder, FormRecord record, User user)
-            throws FileNotFoundException {
-        return FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"),
-                url, this, user);
     }
 
     /**
