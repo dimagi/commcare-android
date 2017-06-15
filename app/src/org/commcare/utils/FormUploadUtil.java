@@ -55,8 +55,8 @@ public class FormUploadUtil {
 
     private static final String mockRestoreResponseWithProcessingFailure =
             "<OpenRosaResponse xmlns=\"http://openrosa.org/http/response\"><message nature=" +
-                    "\"processing_failure\">Form record could not be processed because case ID" +
-                    " was unknown</message></OpenRosaResponse>";
+                    "\"processing_failure\">The submission's case ID was unknown</message>" +
+                    "</OpenRosaResponse>";
 
     public static Cipher getDecryptCipher(SecretKeySpec key) {
         Cipher cipher;

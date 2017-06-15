@@ -32,8 +32,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String META_APP_ID = "APP_ID";
     public static final String META_SUBMISSION_ORDERING_NUMBER = "SUBMISSION_ORDERING_NUMBER";
 
-    public static final String QUARANTINED_FOR_LOCAL_REASON =
-            "There was a local issue with the record that prevented submission";
+    public static final String QUARANTINED_FOR_LOCAL_REASON = "This form was quarantined because " +
+            "there was a local issue with the record that prevented submission";
 
     /**
      * This form record is a stub that hasn't actually had data saved for it yet

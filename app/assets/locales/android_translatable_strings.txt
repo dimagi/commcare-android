@@ -179,6 +179,10 @@ app.workflow.forms.scan=Scan Record Integrity
 app.workflow.forms.scan.title.valid=Integrity Scan: PASS
 app.workflow.forms.scan.title.invalid=Integrity Scan: FAIL
 app.workflow.forms.quarantine.report=Submit Quarantine Report
+app.workflow.forms.view.quarantine.reason=View Reason for Quarantine in Full
+
+reason.for.quarantine.title=Reason for Quarantine
+processing.error.reason.prefix=This form was quarantined because the server could not process the submission for the following reason:
 
 notifications.prompt.details=Select for details. ${0}
 notifications.prompt.more=(${0} More...)

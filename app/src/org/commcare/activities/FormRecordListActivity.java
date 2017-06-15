@@ -68,6 +68,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private static final int DELETE_RECORD = Menu.FIRST + 1;
     private static final int RESTORE_RECORD = Menu.FIRST + 2;
     private static final int SCAN_RECORD = Menu.FIRST + 3;
+    private static final int VIEW_QUARANTINE_REASON = Menu.FIRST + 4;
 
     private static final int DOWNLOAD_FORMS = Menu.FIRST;
     private static final int MENU_SUBMIT_QUARANTINE_REPORT = Menu.FIRST + 1;
@@ -393,6 +394,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
         if (FormRecord.STATUS_LIMBO.equals(value.getStatus())) {
             menu.add(Menu.NONE, RESTORE_RECORD, RESTORE_RECORD, Localization.get("app.workflow.forms.restore"));
+            menu.add(Menu.NONE, VIEW_QUARANTINE_REASON, VIEW_QUARANTINE_REASON, Localization.get("app.workflow.forms.view.quarantine.reason"));
         }
 
         menu.add(Menu.NONE, SCAN_RECORD, SCAN_RECORD, Localization.get("app.workflow.forms.scan"));
@@ -402,6 +404,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public boolean onContextItemSelected(MenuItem item) {
         try {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+            FormRecord selectedRecord = (FormRecord)adapter.getItem(info.position);
             switch (item.getItemId()) {
                 case OPEN_RECORD:
                     returnItem(info.position);
@@ -419,15 +422,18 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     });
                     return true;
                 case RESTORE_RECORD:
-                    FormRecord record = (FormRecord)adapter.getItem(info.position);
-                    new FormRecordProcessor(this).updateRecordStatus(record, FormRecord.STATUS_UNSENT);
+                    new FormRecordProcessor(this).updateRecordStatus(selectedRecord, FormRecord.STATUS_UNSENT);
                     adapter.resetRecords();
                     adapter.notifyDataSetChanged();
                     return true;
                 case SCAN_RECORD:
-                    FormRecord theRecord = (FormRecord)adapter.getItem(info.position);
-                    Pair<Boolean, String> result = new FormRecordProcessor(this).verifyFormRecordIntegrity(theRecord);
+                    Pair<Boolean, String> result = new FormRecordProcessor(this)
+                            .verifyFormRecordIntegrity(selectedRecord);
                     createFormRecordScanResultDialog(result);
+                    return true;
+                case VIEW_QUARANTINE_REASON:
+                    createQuarantineReasonDialog(selectedRecord);
+                    return true;
             }
             return true;
         } catch (SessionUnavailableException e) {
@@ -446,6 +452,17 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         int resId = result.first ? R.drawable.checkmark : R.drawable.redx;
         showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
                 result.second, resId, null));
+    }
+
+    private void createQuarantineReasonDialog(FormRecord record) {
+        String title = Localization.get("reason.for.quarantine.title");
+        String message = "";
+        String reasonForQuarantineBase = record.getReasonForQuarantine();
+        if (!FormRecord.QUARANTINED_FOR_LOCAL_REASON.equals(reasonForQuarantineBase)) {
+            message += (Localization.get("processing.error.reason.prefix") + " ");
+        }
+        message += reasonForQuarantineBase;
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, message, null));
     }
 
     /**
