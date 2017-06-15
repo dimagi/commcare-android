@@ -59,7 +59,7 @@ CommCare has several different build variants. The normal build variant is `comm
 
 ```bash
 cd commcare-android
-gradle assembleCommcareDebug
+./gradlew assembleCommcareDebug
 # the apk can now be found in the build/outputs/apk/ directory
 ```
 
