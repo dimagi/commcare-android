@@ -71,7 +71,7 @@ The commcare-android repository uses [Robolectric](http://robolectric.org/), whi
 
 ```bash
 cd commcare-android
-gradle testCommcareDebugUnitTest
+./gradlew testCommcareDebug
 ```
 
 and view the results from the output file generated.
