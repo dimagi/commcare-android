@@ -419,7 +419,7 @@ public abstract class DataPullTask<R>
     }
 
     private void onSuccessfulSync() {
-        recordSuccessfulSyncTime();
+        recordSuccessfulSyncTime(username);
 
         Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
         this.context.sendBroadcast(i);
@@ -458,9 +458,9 @@ public abstract class DataPullTask<R>
                 .putLong("last-ota-restore", new Date().getTime()).commit();
     }
 
-    private static void recordSuccessfulSyncTime() {
+    private static void recordSuccessfulSyncTime(String username) {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putLong(SyncDetailCalculations.getLastSyncKey(), new Date().getTime()).commit();
+                .putLong(SyncDetailCalculations.getLastSyncKey(username), new Date().getTime()).commit();
     }
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
