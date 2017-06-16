@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
@@ -12,6 +13,8 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.core.graph.model.GraphData;
 import org.commcare.core.graph.util.GraphUtil;
+import org.commcare.logging.AndroidLogger;
+import org.javarosa.core.services.Logger;
 
 /**
  * View containing a graph. Note that this does not derive from View; call renderView to get a view for adding to other views, etc.
@@ -82,12 +85,14 @@ public class GraphView {
         protected void onAttachedToWindow() {
             super.onAttachedToWindow();
             GoogleAnalyticsUtils.reportGraphViewAttached();
+            Logger.log(AndroidLogger.TYPE_GRAPHING, "Start viewing graph in list");
         }
 
         @Override
         protected void onDetachedFromWindow() {
             super.onDetachedFromWindow();
             GoogleAnalyticsUtils.reportGraphViewDetached();
+            Logger.log(AndroidLogger.TYPE_GRAPHING, "End viewing graph in list");
         }
     }
 
