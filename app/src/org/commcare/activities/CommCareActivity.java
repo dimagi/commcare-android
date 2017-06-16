@@ -143,6 +143,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             if (bar == null) {
                 bar = new BreadcrumbBarFragment();
                 fm.beginTransaction().add(bar, "breadcrumbs").commit();
+            } else {
+                // If we rotated while the persistent tile was expanded, it will not have gotten
+                // re-expanded, so reset the tracking variable to reflect that
+                bar.persistentCaseTileIsExpanded = false;
             }
         }
 
@@ -740,9 +744,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-
-        AudioController.INSTANCE.releaseCurrentMediaEntity();
+        FragmentManager fm = this.getSupportFragmentManager();
+        BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
+        if (bar != null && bar.persistentCaseTileIsExpanded) {
+            bar.collapsePersistentCaseTile(this);
+        } else {
+            super.onBackPressed();
+            AudioController.INSTANCE.releaseCurrentMediaEntity();
+        }
     }
 
     @Override
