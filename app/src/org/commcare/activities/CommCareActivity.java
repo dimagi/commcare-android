@@ -745,8 +745,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void onBackPressed() {
         FragmentManager fm = this.getSupportFragmentManager();
-        BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
-        if (bar.persistentCaseTileIsExpanded) {
+        BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
+        if (bar != null && bar.persistentCaseTileIsExpanded) {
             bar.collapsePersistentCaseTile(this);
         } else {
             super.onBackPressed();
