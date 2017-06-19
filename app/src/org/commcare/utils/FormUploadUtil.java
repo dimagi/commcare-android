@@ -200,10 +200,10 @@ public class FormUploadUtil {
 
         if (responseCode >= 200 && responseCode < 300) {
             return FormUploadResult.FULL_SUCCESS;
-        } else if (responseCode == 400) {
-            return handleProcessingFailure(responseStream);
         } else if (responseCode == 401) {
             return FormUploadResult.AUTH_FAILURE;
+        } else if (responseCode == 422) {
+            return handleProcessingFailure(responseStream);
         } else {
             return FormUploadResult.FAILURE;
         }
