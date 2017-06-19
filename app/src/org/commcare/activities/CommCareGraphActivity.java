@@ -6,6 +6,8 @@ import android.os.Bundle;
 
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.graph.activities.GraphActivityStateHandler;
+import org.commcare.logging.AndroidLogger;
+import org.javarosa.core.services.Logger;
 
 /**
  * Full-screen view of a graph.
@@ -20,11 +22,13 @@ public class CommCareGraphActivity extends CommCareActivity {
         super.onCreate(savedInstanceState);
         (new GraphActivityStateHandler(this)).setContent();
         GoogleAnalyticsUtils.reportGraphViewFullScreenOpened();
+        Logger.log(AndroidLogger.TYPE_GRAPHING, "Start viewing full screen graph");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         GoogleAnalyticsUtils.reportGraphViewFullScreenClosed();
+        Logger.log(AndroidLogger.TYPE_GRAPHING, "End viewing full screen graph");
     }
 }
