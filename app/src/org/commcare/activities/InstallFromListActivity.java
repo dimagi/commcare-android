@@ -168,10 +168,10 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 inMobileUserAuthMode = isChecked;
-                setProperAuthView();
                 errorMessage = null;
                 errorMessageBox.setVisibility(View.INVISIBLE);
                 ((EditText)findViewById(R.id.edit_password)).setText("");
+                setProperAuthView();
             }
         });
 
@@ -184,9 +184,11 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         if (inMobileUserAuthMode) {
             mobileUserView.setVisibility(View.VISIBLE);
             webUserView.setVisibility(View.GONE);
+            findViewById(R.id.edit_username).requestFocus();
         } else {
             mobileUserView.setVisibility(View.GONE);
             webUserView.setVisibility(View.VISIBLE);
+            findViewById(R.id.edit_email).requestFocus();
         }
     }
 
