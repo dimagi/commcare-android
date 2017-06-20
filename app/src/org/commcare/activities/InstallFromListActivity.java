@@ -2,10 +2,12 @@ package org.commcare.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +28,7 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
+import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.tasks.SimpleGetTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.ConnectivityStatus;
@@ -50,6 +53,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     private static final String TAG = InstallFromListActivity.class.getSimpleName();
     public static final String PROFILE_REF = "profile-ref-selected";
+    private static final String KEY_LAST_SUCCESSFUL_USERNAME = "last-successful-username";
+    private static final String KEY_LAST_SUCCESSFUL_PW = "last-successful-password";
 
     private static final String REQUESTED_FROM_PROD_KEY = "have-requested-from-prod";
     private static final String REQUESTED_FROM_INDIA_KEY = "have-requested-from-india";
@@ -72,6 +77,9 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private TextView errorMessageBox;
     private View appsListContainer;
     private ListView appsListView;
+
+    private String lastUsernameUsed;
+    private String lastPasswordUsed;
 
     private List<AppAvailableToInstall> availableApps = new ArrayList<>();
 
@@ -104,16 +112,21 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 errorMessageBox.setVisibility(View.INVISIBLE);
                 if (inputIsValid()) {
                     if (ConnectivityStatus.isNetworkAvailable(InstallFromListActivity.this)) {
-                        authenticateView.setVisibility(View.GONE);
-                        requestedFromIndia = false;
-                        requestedFromProd = false;
-                        requestAppList();
+                        startRequests(getUsernameForAuth(), getPassword());
                     } else {
                         enterErrorState(Localization.get("updates.check.network_unavailable"));
                     }
                 }
             }
         });
+    }
+
+    private void startRequests(String username, String password) {
+        authenticateView.setVisibility(View.GONE);
+        appsListContainer.setVisibility(View.GONE);
+        requestedFromIndia = false;
+        requestedFromProd = false;
+        requestAppList(username, password);
     }
 
     private void setUpAppsList() {
@@ -230,12 +243,12 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
      *
      * @return whether a request was initiated
      */
-    private boolean requestAppList() {
+    private boolean requestAppList(String username, String password) {
         String urlToTry = getURLToTry();
         if (urlToTry != null) {
+            this.lastUsernameUsed = username;
+            this.lastPasswordUsed = password;
             final View processingRequestView = findViewById(R.id.processing_request_view);
-            String username = getUsernameForAuth();
-            String password = ((EditText)findViewById(R.id.edit_password)).getText().toString();
             SimpleGetTask task = new SimpleGetTask(username, password, this) {
 
                 @Override
@@ -265,12 +278,16 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     private String getUsernameForAuth() {
         if (inMobileUserAuthMode) {
-            String username =  ((EditText)findViewById(R.id.edit_username)).getText().toString();
-            String domain =  ((EditText)findViewById(R.id.edit_domain)).getText().toString();
+            String username = ((EditText)findViewById(R.id.edit_username)).getText().toString();
+            String domain = ((EditText)findViewById(R.id.edit_domain)).getText().toString();
             return username + "@" + domain + ".commcarehq.org";
         } else {
             return ((EditText)findViewById(R.id.edit_email)).getText().toString();
         }
+    }
+
+    private String getPassword() {
+        return ((EditText)findViewById(R.id.edit_password)).getText().toString();
     }
 
     private void setAttemptedRequestFlag() {
@@ -303,6 +320,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
         processResponseIntoAppsList(responseData);
+        saveLastSuccessfulCredentials();
         repeatRequestOrShowResults(false);
     }
 
@@ -314,6 +332,12 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         } catch (IOException | InvalidStructureException | XmlPullParserException | UnfullfilledRequirementsException e) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "Error encountered while parsing apps available for install");
         }
+    }
+
+    private void saveLastSuccessfulCredentials() {
+        SharedPreferences globalPrefsObject = GlobalPrivilegesManager.getGlobalPrefsRecord();
+        globalPrefsObject.edit().putString(KEY_LAST_SUCCESSFUL_USERNAME, lastUsernameUsed).apply();
+        globalPrefsObject.edit().putString(KEY_LAST_SUCCESSFUL_PW, lastPasswordUsed).apply();
     }
 
     @Override
@@ -349,7 +373,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void repeatRequestOrShowResults(final boolean responseWasError) {
-        if (!requestAppList()) {
+        if (!requestAppList(getUsernameForAuth(), getPassword())) {
             // Means we've tried requesting to both endpoints
 
             this.runOnUiThread(new Runnable() {
@@ -401,29 +425,56 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         super.onCreateOptionsMenu(menu);
         menu.add(0, RETRIEVE_APPS_FOR_DIFF_USER, 0,
                 Localization.get("menu.app.list.install.other.user"));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.install_from_list_menu, menu);
+        }
+
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER)
-                .setVisible(appsListContainer.getVisibility() == View.VISIBLE);
+        boolean appListIsShowing = appsListContainer.getVisibility() == View.VISIBLE;
+        menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER).setVisible(appListIsShowing);
+        menu.findItem(R.id.refresh_app_list_item).setVisible(appListIsShowing);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == RETRIEVE_APPS_FOR_DIFF_USER) {
-            clearPreviouslyRetrievedApps();
-            availableApps.clear();
-            appsListContainer.setVisibility(View.GONE);
-            authenticateView.setVisibility(View.VISIBLE);
-            clearAllFields();
-            rebuildOptionsMenu();
+            retrieveAppsForDiffUser();
             return true;
+        } else if (item.getItemId() == R.id.refresh_app_list_item) {
+            attemptRefresh();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void attemptRefresh() {
+        SharedPreferences globalPrefsObject = GlobalPrivilegesManager.getGlobalPrefsRecord();
+        String username = globalPrefsObject.getString(KEY_LAST_SUCCESSFUL_USERNAME, "");
+        String password = globalPrefsObject.getString(KEY_LAST_SUCCESSFUL_PW, "");
+        if (!"".equals(username) && !"".equals(password)) {
+            this.availableApps.clear();
+            clearPreviouslyRetrievedApps();
+            startRequests(username, password);
+        } else {
+            retrieveAppsForDiffUser();
+            enterErrorState(Localization.get("could.not.refresh.apps"));
+        }
+    }
+
+    private void retrieveAppsForDiffUser() {
+        clearPreviouslyRetrievedApps();
+        availableApps.clear();
+        appsListContainer.setVisibility(View.GONE);
+        authenticateView.setVisibility(View.VISIBLE);
+        clearAllFields();
+        rebuildOptionsMenu();
     }
 
     private void clearAllFields() {
