@@ -53,7 +53,6 @@ import java.util.List;
  */
 public class InstallFromListActivity<T> extends CommCareActivity<T> implements HttpResponseProcessor {
 
-    private static final String TAG = InstallFromListActivity.class.getSimpleName();
     public static final String PROFILE_REF = "profile-ref-selected";
     private static final String KEY_LAST_SUCCESSFUL_USERNAME = "last-successful-username";
     private static final String KEY_LAST_SUCCESSFUL_PW = "last-successful-password";
@@ -366,11 +365,13 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     @Override
     public void handleIOException(IOException exception) {
+        Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                "An IOException was encountered during get available apps request: " + exception.getMessage());
         repeatRequestOrShowResults(true);
     }
 
     private void handleRequestError(int responseCode) {
-        Log.e(TAG,
+        Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
                 "Request to " + urlCurrentlyRequestingFrom + " in get available apps request " +
                         "had error code response: " + responseCode);
         repeatRequestOrShowResults(true);
