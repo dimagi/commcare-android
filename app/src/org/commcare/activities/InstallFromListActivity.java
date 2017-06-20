@@ -44,6 +44,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -397,6 +399,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void showResults() {
+        sortAppList();
         appsListContainer.setVisibility(View.VISIBLE);
         authenticateView.setVisibility(View.GONE);
         appsListView.setAdapter(new ArrayAdapter<AppAvailableToInstall>(this,
@@ -420,6 +423,20 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             }
         });
         rebuildOptionsMenu();
+    }
+
+    private void sortAppList() {
+        Collections.sort(this.availableApps, new Comparator<AppAvailableToInstall>() {
+            @Override
+            public int compare(AppAvailableToInstall o1, AppAvailableToInstall o2) {
+                int domainDifferential = o1.getDomainName().compareTo(o2.getDomainName());
+                if (domainDifferential != 0) {
+                    return domainDifferential;
+                } else {
+                    return o1.getAppName().compareTo(o2.getAppName());
+                }
+            }
+        });
     }
 
     @Override
