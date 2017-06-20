@@ -665,7 +665,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     android.R.drawable.ic_menu_mapmode);
         }
 
-        tryToAddSearchActionToAppBar(this, menu, entitySelectSearchUI.getActionBarInstantiator());
+        tryToAddSearchActionToAppBar(menu, entitySelectSearchUI.getActionBarInstantiator());
         setupActionOptionsMenu(menu);
         return true;
     }

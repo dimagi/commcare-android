@@ -652,18 +652,16 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     /**
-     * Tries to add a SearchView action to the app bar of the current Activity. If it is added,
+     * Tries to add a SearchView action to the app bar of this Activity. If it is added,
      * the alternative search widget is removed, and ActionBarInstantiator is run, if it exists.
-     * Used in EntitySelectActivity and FormRecordListActivity.
+     * Used in EntitySelectActivity, FormRecordListActivity and InstallFromListActivity
      *
-     * @param activity          Current activity
      * @param menu         Menu passed through onCreateOptionsMenu
      * @param instantiator Optional ActionBarInstantiator for additional setup code.
      */
-    protected void tryToAddSearchActionToAppBar(Activity activity, Menu menu,
-                                                ActionBarInstantiator instantiator) {
+    protected void tryToAddSearchActionToAppBar(Menu menu, ActionBarInstantiator instantiator) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            MenuInflater inflater = activity.getMenuInflater();
+            MenuInflater inflater = getMenuInflater();
             inflater.inflate(org.commcare.dalvik.R.menu.action_bar_search_view, menu);
 
             MenuItem searchMenuItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
@@ -684,7 +682,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 }
             }
 
-            View bottomSearchWidget = activity.findViewById(org.commcare.dalvik.R.id.searchfooter);
+            View bottomSearchWidget = findViewById(org.commcare.dalvik.R.id.searchfooter);
             if (bottomSearchWidget != null) {
                 bottomSearchWidget.setVisibility(View.GONE);
             }

@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/refresh_app_list_item"
+        android:id="@+id/app_list_refresh_item"
         android:title="Refresh Apps"
         android:icon="@drawable/ic_refresh_white"
-        android:showAsAction="always"/>
+        android:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/app_list_search_item"
+        android:title="Search"
+        android:icon="@drawable/icon_search_white"
+        android:showAsAction="always"
+        android:actionViewClass="android.widget.SearchView"/>
 </menu>
