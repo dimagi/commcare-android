@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -324,7 +323,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     public void processSuccess(int responseCode, InputStream responseData) {
         processResponseIntoAppsList(responseData);
         saveLastSuccessfulCredentials();
-        repeatRequestOrShowResults(false);
+        repeatRequestOrShowResultsAfterSuccess();
     }
 
     private void processResponseIntoAppsList(InputStream responseData) {
@@ -345,39 +344,44 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     @Override
     public void processRedirection(int responseCode) {
-        handleRequestError(responseCode);
+        handleRequestError(responseCode, false);
     }
 
     @Override
     public void processClientError(int responseCode) {
-        handleRequestError(responseCode);
+        handleRequestError(responseCode, true);
     }
 
     @Override
     public void processServerError(int responseCode) {
-        handleRequestError(responseCode);
+        handleRequestError(responseCode, false);
     }
 
     @Override
     public void processOther(int responseCode) {
-        handleRequestError(responseCode);
+        handleRequestError(responseCode, true);
     }
 
     @Override
     public void handleIOException(IOException exception) {
         Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
                 "An IOException was encountered during get available apps request: " + exception.getMessage());
-        repeatRequestOrShowResults(true);
+        repeatRequestOrShowResults(true, false);
     }
 
-    private void handleRequestError(int responseCode) {
+    private void handleRequestError(int responseCode, boolean couldBeUserError) {
         Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
                 "Request to " + urlCurrentlyRequestingFrom + " in get available apps request " +
                         "had error code response: " + responseCode);
-        repeatRequestOrShowResults(true);
+        repeatRequestOrShowResults(true, couldBeUserError);
     }
 
-    private void repeatRequestOrShowResults(final boolean responseWasError) {
+    private void repeatRequestOrShowResultsAfterSuccess() {
+        repeatRequestOrShowResults(false, false);
+    }
+
+    private void repeatRequestOrShowResults(final boolean responseWasError,
+                                            final boolean couldBeUserError) {
         if (!requestAppList(getUsernameForAuth(), getPassword())) {
             // Means we've tried requesting to both endpoints
 
@@ -386,8 +390,12 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 public void run() {
                     if (availableApps.size() == 0) {
                         if (responseWasError) {
-                            enterErrorState(Localization.get("invalid.fields.entered." +
-                                    (inMobileUserAuthMode ? "mobile" : "web")));
+                            if (couldBeUserError) {
+                                enterErrorState(Localization.get("get.app.list.user.error." +
+                                        (inMobileUserAuthMode ? "mobile" : "web")));
+                            } else {
+                                enterErrorState(Localization.get("get.app.list.unknown.error"));
+                            }
                         } else {
                             enterErrorState(Localization.get("no.apps.available"));
                         }
