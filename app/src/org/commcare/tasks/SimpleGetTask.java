@@ -11,9 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ * A bare-bones task for making a GET request using the old HTTP libs
+ *
  * Created by amstone326 on 6/4/17.
  */
-
 public class SimpleGetTask extends CommCareTask<String, Void, Void, HttpResponseProcessor>
         implements ResponseStreamAccessor {
 
