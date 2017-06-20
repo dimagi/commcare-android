@@ -34,6 +34,7 @@ git clone https://github.com/dimagi/commcare-core.git
 - Click "OK" to use the Gradle wrapper
 - Wait while Android Studio spins its wheels
 - Download any build dependencies that the SDK Manager tells you you need.
+- Disable _Instant Run_ found in Settings > Build, Execution, Deployment > Instant Run. (It does not play well with multidexing, which we have enabled, or with some of the processes we have set up for Google Services)
 
 ## Building
 
@@ -58,7 +59,7 @@ CommCare has several different build variants. The normal build variant is `comm
 
 ```bash
 cd commcare-android
-gradle assembleCommcareDebug
+./gradlew assembleCommcareDebug
 # the apk can now be found in the build/outputs/apk/ directory
 ```
 
@@ -70,7 +71,7 @@ The commcare-android repository uses [Robolectric](http://robolectric.org/), whi
 
 ```bash
 cd commcare-android
-gradle testCommcareDebugUnitTest
+./gradlew testCommcareDebug
 ```
 
 and view the results from the output file generated.

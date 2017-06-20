@@ -4,7 +4,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
-import org.commcare.models.framework.Table;
+import org.commcare.modern.database.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;

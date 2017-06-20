@@ -302,7 +302,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 if (position >= localeCodes.length) {
                     Localization.setLocale("default");
                 } else {
-                    Localization.setLocale(localeCodes[position]);
+                    String selectedLocale = localeCodes[position];
+                    CommCarePreferences.setCurrentLocale(selectedLocale);
+                    Localization.setLocale(selectedLocale);
                 }
                 // rebuild home buttons in case language changed;
                 if (uiController != null) {

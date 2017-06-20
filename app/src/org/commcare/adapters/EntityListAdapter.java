@@ -11,12 +11,9 @@ import android.widget.ListAdapter;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.cases.entity.Entity;
-import org.commcare.cases.entity.EntitySortNotificationInterface;
-import org.commcare.cases.entity.EntitySorter;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
-import org.commcare.interfaces.SortableEntityAdapter;
-import org.commcare.models.AsyncNodeEntityFactory;
+import org.commcare.interfaces.AndroidSortableEntityAdapter;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Action;
@@ -27,7 +24,6 @@ import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityActionViewUtils;
 import org.commcare.views.EntityView;
 import org.commcare.views.EntityViewTile;
-import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
@@ -45,7 +41,7 @@ import java.util.List;
  * @author ctsims
  * @author wspride
  */
-public class EntityListAdapter extends SortableEntityAdapter implements ListAdapter {
+public class EntityListAdapter extends AndroidSortableEntityAdapter implements ListAdapter {
     public static final int ENTITY_TYPE = 0;
     public static final int ACTION_TYPE = 1;
     public static final int DIVIDER_TYPE = 2;
@@ -326,7 +322,7 @@ public class EntityListAdapter extends SortableEntityAdapter implements ListAdap
         currentSearchTerms = searchTerms;
         searchQuery = filterRaw;
         entityFilterer =
-                new EntityStringFilterer(this, searchTerms, mAsyncMode,
+                new EntityStringFilterer(this, searchTerms, asyncMode,
                         mFuzzySearchEnabled, mNodeFactory, full, commCareActivity);
         entityFilterer.start();
     }

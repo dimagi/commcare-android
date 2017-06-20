@@ -55,6 +55,8 @@ public class BreadcrumbBarFragment extends Fragment {
 
     private TabbedDetailView mInternalDetailView = null;
     private View tile;
+    private View currentTileHolder;
+    public boolean persistentCaseTileIsExpanded;
 
     /**
      * This method will only be called once when the retained
@@ -211,52 +213,56 @@ public class BreadcrumbBarFragment extends Fragment {
         if (tileData == null || tileData.first == null) {
             return null;
         }
+
+        holder.findViewById(R.id.com_tile_holder_btn_open).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!persistentCaseTileIsExpanded) {
+                    expandPersistentCaseTile(activity, holder, tileData);
+                } else {
+                    collapsePersistentCaseTile(activity);
+                }
+            }
+        });
+        return holder;
+    }
+
+    public void expandPersistentCaseTile(Activity activity, View holder,
+                                         Pair<View, TreeReference> tileData) {
         View tile = tileData.first;
-
         final String inlineDetail = (String)tile.getTag();
-
         ((ViewGroup)holder.findViewById(R.id.com_tile_holder_frame)).addView(tile, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-        final ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
-
+        ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
         if (inlineDetail == null) {
             infoButton.setVisibility(View.GONE);
         }
 
-        OnClickListener toggleButtonClickListener = new OnClickListener() {
+        if (mInternalDetailView == null) {
+            mInternalDetailView = (TabbedDetailView)holder.findViewById(R.id.com_tile_holder_detail_frame);
+            mInternalDetailView.setRoot(mInternalDetailView);
 
-            private boolean isClosed = true;
+            AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
+            CommCareSession session = asw.getSession();
 
-            @Override
-            public void onClick(View v) {
-                if (isClosed) {
-                    if (mInternalDetailView == null) {
-                        mInternalDetailView = (TabbedDetailView)holder.findViewById(R.id.com_tile_holder_detail_frame);
-                        mInternalDetailView.setRoot(mInternalDetailView);
-
-                        AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
-                        CommCareSession session = asw.getSession();
-
-                        Detail detail = session.getDetail(inlineDetail);
-                        mInternalDetailView.showMenu();
-                        mInternalDetailView.refresh(detail, tileData.second, 0);
-                    }
-                    expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
-                    infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
-                    isClosed = false;
-                } else {
-                    collapse(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
-                    infoButton.setImageResource(R.drawable.icon_info_outline_brandbg);
-                    isClosed = true;
-                }
-            }
-        };
-
-        infoButton.setOnClickListener(toggleButtonClickListener);
-
-        return holder;
+            Detail detail = session.getDetail(inlineDetail);
+            mInternalDetailView.showMenu();
+            mInternalDetailView.refresh(detail, tileData.second, 0);
+        }
+        BreadcrumbBarFragment.this.currentTileHolder = holder;
+        expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
+        infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
+        persistentCaseTileIsExpanded = true;
     }
 
+    public void collapsePersistentCaseTile(Activity activity) {
+        collapse(activity, this.currentTileHolder.findViewById(R.id.com_tile_holder_detail_master));
+
+        ImageButton infoButton = ((ImageButton)this.currentTileHolder.findViewById(R.id.com_tile_holder_btn_open));
+        infoButton.setImageResource(R.drawable.icon_info_outline_brandbg);
+
+        persistentCaseTileIsExpanded = false;
+    }
 
     private Pair<View, TreeReference> loadTile(Activity activity) {
         AndroidSessionWrapper asw;

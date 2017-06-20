@@ -17,6 +17,6 @@ public class AndroidDetailParser extends DetailParser {
 
     @Override
     protected GraphParser getGraphParser() {
-        return new AndroidGraphParser(parser);
+        return new GraphParser(parser);
     }
 }

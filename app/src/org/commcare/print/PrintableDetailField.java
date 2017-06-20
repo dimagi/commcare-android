@@ -1,8 +1,8 @@
 package org.commcare.print;
 
 import org.commcare.cases.entity.Entity;
-import org.commcare.graph.model.GraphData;
-import org.commcare.graph.util.GraphException;
+import org.commcare.core.graph.model.GraphData;
+import org.commcare.core.graph.util.GraphException;
 import org.commcare.suite.model.DetailField;
 import org.commcare.util.DetailFieldPrintInfo;
 import org.jsoup.Jsoup;

@@ -9,6 +9,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -72,11 +73,11 @@ public class SyncDetailCalculations {
 
     public static long getLastSyncTime() {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return prefs.getLong(getLastSyncKey(), 0);
+        return prefs.getLong(getLastSyncKey(ReportingUtils.getUser()), 0);
     }
 
-    public static String getLastSyncKey() {
-        return LAST_SYNC_KEY_BASE + CommCareApplication.instance().getCurrentUserId();
+    public static String getLastSyncKey(String username) {
+        return LAST_SYNC_KEY_BASE + username;
     }
 
     private static void setSyncSubtextColor(TextView subtext, int numUnsentForms, long lastSyncTime,

@@ -3,13 +3,13 @@ package org.commcare.models.legacy;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Pair;
 
-import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.models.EncryptedModel;
+import org.commcare.modern.util.Pair;
 import org.commcare.utils.Base64;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -128,7 +128,7 @@ public abstract class LegacyDbHelper {
                 }
                 String value = o.toString();
                 if (encrypt && ((EncryptedModel)e).isEncrypted(key)) {
-                    values.put(AndroidTableBuilder.scrubName(key), encrypt(value));
+                    values.put(TableBuilder.scrubName(key), encrypt(value));
                 } else {
                     values.put(LegacyTableBuilder.scrubName(key), value);
                 }

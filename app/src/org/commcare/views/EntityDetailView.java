@@ -25,8 +25,8 @@ import android.widget.TextView;
 import org.commcare.activities.CommCareGraphActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
-import org.commcare.graph.model.GraphData;
-import org.commcare.graph.util.GraphException;
+import org.commcare.core.graph.model.GraphData;
+import org.commcare.core.graph.util.GraphException;
 import org.commcare.graph.view.GraphLoader;
 import org.commcare.graph.view.GraphView;
 import org.commcare.logging.AndroidLogger;
@@ -44,7 +44,6 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;

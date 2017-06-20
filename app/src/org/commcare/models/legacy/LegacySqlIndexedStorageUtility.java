@@ -2,13 +2,13 @@ package org.commcare.models.legacy;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Pair;
 
-import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.models.EncryptedModel;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
@@ -102,7 +102,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     @Override
     public String getMetaDataFieldForRecord(int recordId, String rawFieldName) {
         String rid = String.valueOf(recordId);
-        String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
+        String scrubbedName = TableBuilder.scrubName(rawFieldName);
         Cursor c = helper.getHandle().query(table, new String[]{scrubbedName}, DatabaseHelper.ID_COL + "=?", new String[]{rid}, null, null, null);
         if (c.getCount() == 0) {
             c.close();
@@ -134,7 +134,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     @Override
     public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
         Pair<String, String[]> whereClause = helper.createWhere(new String[]{rawFieldName}, new Object[]{value}, em, t);
-        String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
+        String scrubbedName = TableBuilder.scrubName(rawFieldName);
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
         if (c.getCount() == 0) {
             c.close();
@@ -286,7 +286,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
-            List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
+            List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(ids);
             for (Pair<String, String[]> whereParams : whereParamList) {
                 int rowsRemoved = db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
             }
@@ -334,7 +334,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
             return removed;
         }
 
-        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(removed);
+        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(removed);
 
 
         SQLiteDatabase db = helper.getHandle();

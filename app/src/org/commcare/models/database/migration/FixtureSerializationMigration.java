@@ -8,7 +8,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.models.database.AndroidTableBuilder;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
@@ -120,7 +120,7 @@ public class FixtureSerializationMigration {
             }
 
             // make new fixture db w/ filepath and encryption key columns
-            AndroidTableBuilder builder = new AndroidTableBuilder("fixture");
+            TableBuilder builder = new TableBuilder("fixture");
             builder.addFileBackedData(new FormInstance());
             db.execSQL(builder.getTableCreateString());
             db.setTransactionSuccessful();
