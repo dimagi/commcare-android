@@ -121,9 +121,8 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     }
 
     protected static String buildDomainUser(String username) {
-        if (username != null && CommCareApplication.instance().getCurrentApp() != null) {
+        if (username != null && !username.contains("@")) {
             SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-
             if (prefs.contains(USER_DOMAIN_SUFFIX)) {
                 username += "@" + prefs.getString(USER_DOMAIN_SUFFIX, null);
             }
