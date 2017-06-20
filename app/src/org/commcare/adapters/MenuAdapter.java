@@ -51,7 +51,7 @@ public class MenuAdapter extends BaseAdapter {
     protected final AndroidSessionWrapper asw;
     private Exception loadError;
     private String errorMessage = "";
-    final Context context;
+    final CommCareActivity context;
     final MenuDisplayable[] displayableData;
 
     class MenuLogger implements LoggerInterface {
@@ -75,7 +75,7 @@ public class MenuAdapter extends BaseAdapter {
         }
     }
 
-    public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
+    public MenuAdapter(CommCareActivity context, CommCarePlatform platform, String menuID) {
         this.context = context;
         asw = CommCareApplication.instance().getCurrentSessionWrapper();
         MenuLoader menuLoader = new MenuLoader(platform, asw, menuID, new MenuLogger());
@@ -148,7 +148,13 @@ public class MenuAdapter extends BaseAdapter {
         // set up the image, if available
         ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
         setupImageView(mIconView, menuDisplayable);
-        setupBadgeView(menuListItem, menuDisplayable);
+
+        try {
+            setupBadgeView(menuListItem, menuDisplayable);
+        } catch (Exception e) {
+            UserfacingErrorHandling.createErrorDialog(context, e.getLocalizedMessage(), true);
+        }
+
         return menuListItem;
     }
 
