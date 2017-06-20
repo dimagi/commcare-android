@@ -233,7 +233,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
     private void addHeaders(HttpRequestBase base, String lastToken) {
         //base.addHeader("Accept-Language", lang)
-        base.addHeader("X-OpenRosa-Version", "2.0");
+        base.addHeader("X-OpenRosa-Version", "3.0");
         if (lastToken != null) {
             base.addHeader("X-CommCareHQ-LastSyncToken", lastToken);
         }
