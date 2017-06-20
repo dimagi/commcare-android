@@ -18,7 +18,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -432,13 +431,6 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.install_from_list_menu, menu);
-
-            tryToAddSearchActionToAppBar(menu, new ActionBarInstantiator() {
-                @Override
-                public void onActionBarFound(MenuItem searchItem, SearchView searchView, MenuItem barcodeItem) {
-
-                }
-            });
         }
 
         return true;
@@ -449,22 +441,17 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         super.onPrepareOptionsMenu(menu);
         boolean appListIsShowing = appsListContainer.getVisibility() == View.VISIBLE;
         menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER).setVisible(appListIsShowing);
-        menu.findItem(R.id.app_list_refresh_item).setVisible(appListIsShowing);
-        menu.findItem(R.id.app_list_search_item).setVisible(appListIsShowing);
+        menu.findItem(R.id.refresh_app_list_item).setVisible(appListIsShowing);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case RETRIEVE_APPS_FOR_DIFF_USER:
-                retrieveAppsForDiffUser();
-                return true;
-            case R.id.app_list_refresh_item:
-                attemptRefresh();
-                return true;
-            case R.id.app_list_search_item:
-
+        if (item.getItemId() == RETRIEVE_APPS_FOR_DIFF_USER) {
+            retrieveAppsForDiffUser();
+            return true;
+        } else if (item.getItemId() == R.id.refresh_app_list_item) {
+            attemptRefresh();
         }
         return super.onOptionsItemSelected(item);
     }
