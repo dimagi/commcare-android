@@ -438,12 +438,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         Collections.sort(this.availableApps, new Comparator<AppAvailableToInstall>() {
             @Override
             public int compare(AppAvailableToInstall o1, AppAvailableToInstall o2) {
-                int domainDifferential = o1.getDomainName().compareTo(o2.getDomainName());
-                if (domainDifferential != 0) {
-                    return domainDifferential;
-                } else {
-                    return o1.getAppName().compareTo(o2.getAppName());
-                }
+                return o1.getAppName().toLowerCase().compareTo(o2.getAppName().toLowerCase());
             }
         });
     }
