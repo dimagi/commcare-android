@@ -8,6 +8,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.EntityStorageCache;
@@ -21,6 +23,7 @@ import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -73,6 +76,16 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         }
         return entity;
     }
+
+    @Override
+    protected void setEvaluationContextDefaultQuerySet(EvaluationContext ec,
+                                                       List<TreeReference> result) {
+
+        //Don't do anything for asynchronous lists. In theory the query set could help expand the
+        //first cache more quickly, but otherwise it's just keeping around tons of cases in memory
+        //that don't even need to be loaded.
+    }
+
 
     /**
      * Bulk loads search field cache from db.
