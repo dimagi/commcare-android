@@ -17,6 +17,7 @@ import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.modern.engine.cases.CaseGroupResultCache;
 import org.commcare.modern.engine.cases.CaseIndexQuerySetTransform;
 import org.commcare.modern.engine.cases.query.CaseIndexPrefetchHandler;
+import org.commcare.modern.util.PerformanceTuningUtil;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
@@ -148,7 +149,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             mPairedIndexCache.put(cacheKey, ids);
         }
 
-        if(ids.size() > 50 && ids.size() < CaseGroupResultCache.MAX_PREFETCH_CASE_BLOCK) {
+        if(ids.size() > 50 && ids.size() < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
             CaseGroupResultCache cue = currentQueryContext.getQueryCache(CaseGroupResultCache.class);
             cue.reportBulkCaseBody(cacheKey, ids);
         }
