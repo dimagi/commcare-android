@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.annotation.IdRes;
+import android.text.method.LinkMovementMethod;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -36,6 +37,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
@@ -87,6 +89,7 @@ public class EntityDetailView extends FrameLayout {
     private static final String FORM_IMAGE = MediaUtil.FORM_IMAGE;
     private static final String FORM_GRAPH = "graph";
     private static final String FORM_CALLOUT = "callout";
+    private static final String FORM_MARKDOWN = "markdown";
 
     @IdRes
     private static final int IMAGE_VIEW_ID = 23422634;
@@ -102,6 +105,7 @@ public class EntityDetailView extends FrameLayout {
     private static final int AUDIO = 5;
     private static final int GRAPH = 6;
     private static final int CALLOUT = 7;
+    private static final int MARKDOWN = 8;
 
     private int current = TEXT;
 
@@ -111,13 +115,13 @@ public class EntityDetailView extends FrameLayout {
                             int index, int detailNumber) {
         super(context);
 
-        detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
-        label = (TextView)detailRow.findViewById(R.id.detail_type_text);
-        spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer);
-        data = (TextView)detailRow.findViewById(R.id.detail_value_text);
+        detailRow = (LinearLayout) View.inflate(context, R.layout.component_entity_detail_item, null);
+        label = (TextView) detailRow.findViewById(R.id.detail_type_text);
+        spacer = (TextView) detailRow.findViewById(R.id.entity_detail_spacer);
+        data = (TextView) detailRow.findViewById(R.id.detail_value_text);
         currentView = data;
         valuePane = detailRow.findViewById(R.id.detail_value_pane);
-        videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
+        videoButton = (ImageButton) detailRow.findViewById(R.id.detail_video_button);
 
         ViewId uniqueId = ViewId.buildTableViewId(detailNumber, index, true);
         String audioText = e.getFieldString(index);
@@ -125,12 +129,12 @@ public class EntityDetailView extends FrameLayout {
         detailRow.addView(audioButton);
         audioButton.setVisibility(View.GONE);
 
-        callout = (Button)detailRow.findViewById(R.id.detail_value_phone);
+        callout = (Button) detailRow.findViewById(R.id.detail_value_phone);
         addressView = detailRow.findViewById(R.id.detail_address_view);
-        addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
-        addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
+        addressText = (TextView) addressView.findViewById(R.id.detail_address_text);
+        addressButton = (Button) addressView.findViewById(R.id.detail_address_button);
 
-        imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
+        imageView = (ImageView) detailRow.findViewById(R.id.detail_value_image);
         int height;
         if (CommCarePreferences.isSmartInflationEnabled()) {
             // If using smart inflation, we don't want to do any other artificial resizing of images
@@ -143,16 +147,16 @@ public class EntityDetailView extends FrameLayout {
                 new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, height);
         imageView.setLayoutParams(imageViewParams);
 
-        graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
+        graphLayout = (AspectRatioLayout) detailRow.findViewById(R.id.graph);
         calloutView = detailRow.findViewById(R.id.callout_view);
-        calloutText = (TextView)detailRow.findViewById(R.id.callout_text);
-        calloutButton = (Button)detailRow.findViewById(R.id.callout_button);
-        calloutImageButton = (ImageButton)detailRow.findViewById(R.id.callout_image_button);
+        calloutText = (TextView) detailRow.findViewById(R.id.callout_text);
+        calloutButton = (Button) detailRow.findViewById(R.id.callout_button);
+        calloutImageButton = (ImageButton) detailRow.findViewById(R.id.callout_image_button);
         graphViewsCache = new Hashtable<>();
         graphsWithErrors = new HashSet<>();
         graphIntentsCache = new Hashtable<>();
-        origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
-        origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
+        origLabel = (LinearLayout.LayoutParams) label.getLayoutParams();
+        origValue = (LinearLayout.LayoutParams) valuePane.getLayoutParams();
 
         fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         this.addView(detailRow, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
@@ -175,7 +179,7 @@ public class EntityDetailView extends FrameLayout {
         if (FORM_PHONE.equals(form)) {
             setupPhoneNumber(textField);
         } else if (FORM_CALLOUT.equals(form) && (field instanceof CalloutData)) {
-            veryLong = setupCallout((CalloutData)field);
+            veryLong = setupCallout((CalloutData) field);
         } else if (FORM_ADDRESS.equals(form)) {
             setupAddress(textField);
         } else if (FORM_IMAGE.equals(form)) {
@@ -189,13 +193,10 @@ public class EntityDetailView extends FrameLayout {
             updateCurrentView(AUDIO, audioButton);
         } else if (FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
             setupVideo(textField);
+        } else if (FORM_MARKDOWN.equals(form)) {
+            veryLong = setUpMarkdown(textField);
         } else {
-            data.setText((textField));
-            if (textField != null && textField.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
-                veryLong = true;
-            }
-
-            updateCurrentView(TEXT, data);
+            veryLong = setUpText(textField);
         }
 
         if (veryLong) {
@@ -211,6 +212,24 @@ public class EntityDetailView extends FrameLayout {
                 valuePane.setLayoutParams(origValue);
             }
         }
+    }
+
+    private boolean setUpText(String textField) {
+        data.setText((textField));
+        updateCurrentView(TEXT, data);
+        return isTextVeryLong(textField);
+    }
+
+    private boolean isTextVeryLong(String textField) {
+        return textField != null && textField.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff);
+    }
+
+    private boolean setUpMarkdown(String textField) {
+        // Links in a listview are not clickable by default - https://stackoverflow.com/questions/1697908/android-how-can-i-add-html-links-inside-a-listview
+        data.setMovementMethod(LinkMovementMethod.getInstance());
+        data.setText((MarkupUtil.returnMarkdown(getContext(), textField)));
+        updateCurrentView(MARKDOWN, data);
+        return isTextVeryLong(textField);
     }
 
     private void setupPhoneNumber(String textField) {
@@ -327,7 +346,7 @@ public class EntityDetailView extends FrameLayout {
         View graphView = getGraphViewFromCache(index, orientation);
         if (graphView == null) {
             cached = false;
-            graphView = getGraphView(index, labelText, (GraphData)field, orientation);
+            graphView = getGraphView(index, labelText, (GraphData) field, orientation);
         }
         final Intent finalIntent = getGraphIntent(index, labelText, (GraphData) field);
 
@@ -345,7 +364,7 @@ public class EntityDetailView extends FrameLayout {
 
         if (current != GRAPH) {
             // Hide field label and expand value to take up full screen width
-            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams)origValue);
+            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams) origValue);
             graphValueLayout.weight = 10;
             valuePane.setLayoutParams(graphValueLayout);
 
@@ -398,14 +417,14 @@ public class EntityDetailView extends FrameLayout {
 
         if (current != GRAPH) {
             label.setVisibility(View.VISIBLE);
-            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams)origValue);
+            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams) origValue);
             graphValueLayout.weight = 10;
             valuePane.setLayoutParams(origValue);
         }
     }
 
     private int getScreenWidth() {
-        Display display = ((WindowManager)this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        Display display = ((WindowManager) this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         return display.getWidth();
     }
 
@@ -450,12 +469,12 @@ public class EntityDetailView extends FrameLayout {
         try {
             String graphHTML = field.getGraphHTML(title);
             graphView = g.getView(graphHTML);
-            graphLayout.setRatio((float)g.getRatio(field), (float)1);
+            graphLayout.setRatio((float) g.getRatio(field), (float) 1);
         } catch (GraphException ex) {
             graphView = new TextView(context);
-            int padding = (int)context.getResources().getDimension(R.dimen.spacer_small);
+            int padding = (int) context.getResources().getDimension(R.dimen.spacer_small);
             graphView.setPadding(padding, padding, padding, padding);
-            ((TextView)graphView).setText(ex.getMessage());
+            ((TextView) graphView).setText(ex.getMessage());
             graphsWithErrors.add(index);
         }
         graphViewsCache.get(index).put(orientation, graphView);
