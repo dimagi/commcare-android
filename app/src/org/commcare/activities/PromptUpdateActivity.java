@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.commcare.heartbeat.UpdatePromptFieldTesting;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.heartbeat.UpdateToPrompt;
 import org.commcare.dalvik.R;
@@ -52,13 +53,9 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        refreshUpdateToPromptObjects();
+        cczUpdate = UpdatePromptFieldTesting.generateRandomUpdateToPrompt(false, false);
+        apkUpdate = UpdatePromptFieldTesting.generateRandomUpdateToPrompt(true, true);
         setupUI();
-    }
-
-    private void refreshUpdateToPromptObjects() {
-        cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(false);
-        apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(true);
     }
 
     @Override
@@ -70,6 +67,15 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
             } else {
                 updateVisibilities();
             }
+        }
+    }
+
+    private void refreshUpdateToPromptObjects() {
+        if (cczUpdate != null && !cczUpdate.isNewerThanCurrentVersion()) {
+            cczUpdate = null;
+        }
+        if (apkUpdate != null && !apkUpdate.isNewerThanCurrentVersion()) {
+            apkUpdate = null;
         }
     }
 
