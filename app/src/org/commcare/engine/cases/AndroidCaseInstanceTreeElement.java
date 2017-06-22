@@ -18,6 +18,7 @@ import org.commcare.modern.engine.cases.CaseGroupResultCache;
 import org.commcare.modern.engine.cases.CaseIndexQuerySetTransform;
 import org.commcare.modern.engine.cases.CaseObjectCache;
 import org.commcare.modern.engine.cases.query.CaseIndexPrefetchHandler;
+import org.commcare.modern.util.Pair;
 import org.commcare.modern.util.PerformanceTuningUtil;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -291,10 +292,12 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
                 (caseObjectCache.isLoaded(recordId) || canLoadCaseFromGroup(caseGroupCache, recordId))) {
 
             if(!caseObjectCache.isLoaded(recordId)) {
-                EvaluationTrace loadTrace = new EvaluationTrace("Bulk Case Load");
+                Pair<String, LinkedHashSet<Integer>> tranche = caseGroupCache.getTranche(recordId);
+                EvaluationTrace loadTrace =
+                        new EvaluationTrace(String.format("Bulk Case Load [%s]", tranche.first));
                 SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
-                LinkedHashSet<Integer>  body = caseGroupCache.getTranche(recordId);
 
+                LinkedHashSet<Integer>  body = tranche.second;
                 sqlStorage.bulkRead(body, caseObjectCache.getLoadedCaseMap());
                 loadTrace.setOutcome("Loaded: " + body.size());
                 context.reportTrace(loadTrace);
