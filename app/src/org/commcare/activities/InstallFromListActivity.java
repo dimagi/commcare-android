@@ -2,10 +2,11 @@ package org.commcare.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -26,9 +26,9 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.modern.util.Pair;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
-import org.commcare.tasks.SimpleHttpTask;
+import org.commcare.preferences.GlobalPrivilegesManager;
+import org.commcare.tasks.SimpleGetTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.xml.AvailableAppsParser;
@@ -42,10 +42,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -53,8 +52,9 @@ import java.util.List;
  */
 public class InstallFromListActivity<T> extends CommCareActivity<T> implements HttpResponseProcessor {
 
-    private static final String TAG = InstallFromListActivity.class.getSimpleName();
     public static final String PROFILE_REF = "profile-ref-selected";
+    private static final String KEY_LAST_SUCCESSFUL_USERNAME = "last-successful-username";
+    private static final String KEY_LAST_SUCCESSFUL_PW = "last-successful-password";
 
     private static final String REQUESTED_FROM_PROD_KEY = "have-requested-from-prod";
     private static final String REQUESTED_FROM_INDIA_KEY = "have-requested-from-india";
@@ -77,6 +77,9 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     private TextView errorMessageBox;
     private View appsListContainer;
     private ListView appsListView;
+
+    private String lastUsernameUsed;
+    private String lastPasswordUsed;
 
     private List<AppAvailableToInstall> availableApps = new ArrayList<>();
 
@@ -109,16 +112,21 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 errorMessageBox.setVisibility(View.INVISIBLE);
                 if (inputIsValid()) {
                     if (ConnectivityStatus.isNetworkAvailable(InstallFromListActivity.this)) {
-                        authenticateView.setVisibility(View.GONE);
-                        requestedFromIndia = false;
-                        requestedFromProd = false;
-                        requestAppList();
+                        startRequests(getUsernameForAuth(), getPassword());
                     } else {
                         enterErrorState(Localization.get("updates.check.network_unavailable"));
                     }
                 }
             }
         });
+    }
+
+    private void startRequests(String username, String password) {
+        authenticateView.setVisibility(View.GONE);
+        appsListContainer.setVisibility(View.GONE);
+        requestedFromIndia = false;
+        requestedFromProd = false;
+        requestAppList(username, password);
     }
 
     private void setUpAppsList() {
@@ -160,10 +168,10 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 inMobileUserAuthMode = isChecked;
-                setProperAuthView();
                 errorMessage = null;
                 errorMessageBox.setVisibility(View.INVISIBLE);
                 ((EditText)findViewById(R.id.edit_password)).setText("");
+                setProperAuthView();
             }
         });
 
@@ -176,9 +184,11 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         if (inMobileUserAuthMode) {
             mobileUserView.setVisibility(View.VISIBLE);
             webUserView.setVisibility(View.GONE);
+            findViewById(R.id.edit_username).requestFocus();
         } else {
             mobileUserView.setVisibility(View.GONE);
             webUserView.setVisibility(View.VISIBLE);
+            findViewById(R.id.edit_email).requestFocus();
         }
     }
 
@@ -235,13 +245,13 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
      *
      * @return whether a request was initiated
      */
-    private boolean requestAppList() {
-        URL urlToTry = getURLToTry();
+    private boolean requestAppList(String username, String password) {
+        String urlToTry = getURLToTry();
         if (urlToTry != null) {
+            this.lastUsernameUsed = username;
+            this.lastPasswordUsed = password;
             final View processingRequestView = findViewById(R.id.processing_request_view);
-            SimpleHttpTask task = new SimpleHttpTask(this, urlToTry, new HashMap<String, String>(),
-                    false, new Pair<>(getUsernameForAuth(),
-                    ((EditText)findViewById(R.id.edit_password)).getText().toString())) {
+            SimpleGetTask task = new SimpleGetTask(username, password, this) {
 
                 @Override
                 protected void onPreExecute() {
@@ -252,15 +262,17 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 @Override
                 protected void onPostExecute(Void result) {
                     super.onPostExecute(result);
-                    processingRequestView.setVisibility(View.GONE);
+                    if (urlCurrentlyRequestingFrom == null) {
+                        // Only hide the spinner if we didn't start another request
+                        processingRequestView.setVisibility(View.GONE);
+                    }
                 }
 
             };
 
             task.connect((CommCareTaskConnector)this);
-            task.setResponseProcessor(this);
             setAttemptedRequestFlag();
-            task.executeParallel();
+            task.executeParallel(urlToTry);
             return true;
         }
         return false;
@@ -268,12 +280,16 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     private String getUsernameForAuth() {
         if (inMobileUserAuthMode) {
-            String username =  ((EditText)findViewById(R.id.edit_username)).getText().toString();
-            String domain =  ((EditText)findViewById(R.id.edit_domain)).getText().toString();
+            String username = ((EditText)findViewById(R.id.edit_username)).getText().toString();
+            String domain = ((EditText)findViewById(R.id.edit_domain)).getText().toString();
             return username + "@" + domain + ".commcarehq.org";
         } else {
             return ((EditText)findViewById(R.id.edit_email)).getText().toString();
         }
+    }
+
+    private String getPassword() {
+        return ((EditText)findViewById(R.id.edit_password)).getText().toString();
     }
 
     private void setAttemptedRequestFlag() {
@@ -284,23 +300,15 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         }
     }
 
-    private URL getURLToTry() {
+    private String getURLToTry() {
         if (!requestedFromProd) {
             urlCurrentlyRequestingFrom = PROD_URL;
         } else if (!requestedFromIndia) {
             urlCurrentlyRequestingFrom = INDIA_URL;
         } else {
-            return null;
+            urlCurrentlyRequestingFrom = null;
         }
-
-        try {
-            return new URL(urlCurrentlyRequestingFrom);
-        } catch (MalformedURLException e) {
-            // This shouldn't ever happen because the URL is static
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Encountered exception while creating " +
-                    "URL for apps list request");
-            return null;
-        }
+        return urlCurrentlyRequestingFrom;
     }
 
     private void enterErrorState(String message) {
@@ -314,7 +322,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
         processResponseIntoAppsList(responseData);
-        repeatRequestOrShowResults(false);
+        saveLastSuccessfulCredentials();
+        repeatRequestOrShowResultsAfterSuccess();
     }
 
     private void processResponseIntoAppsList(InputStream responseData) {
@@ -327,40 +336,53 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         }
     }
 
+    private void saveLastSuccessfulCredentials() {
+        SharedPreferences globalPrefsObject = GlobalPrivilegesManager.getGlobalPrefsRecord();
+        globalPrefsObject.edit().putString(KEY_LAST_SUCCESSFUL_USERNAME, lastUsernameUsed).apply();
+        globalPrefsObject.edit().putString(KEY_LAST_SUCCESSFUL_PW, lastPasswordUsed).apply();
+    }
+
     @Override
     public void processRedirection(int responseCode) {
-        handleRequestError(responseCode);
+        handleRequestError(responseCode, false);
     }
 
     @Override
     public void processClientError(int responseCode) {
-        handleRequestError(responseCode);
+        handleRequestError(responseCode, true);
     }
 
     @Override
     public void processServerError(int responseCode) {
-        handleRequestError(responseCode);
+        handleRequestError(responseCode, false);
     }
 
     @Override
     public void processOther(int responseCode) {
-        handleRequestError(responseCode);
+        handleRequestError(responseCode, true);
     }
 
     @Override
     public void handleIOException(IOException exception) {
-        repeatRequestOrShowResults(true);
+        Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                "An IOException was encountered during get available apps request: " + exception.getMessage());
+        repeatRequestOrShowResults(true, false);
     }
 
-    private void handleRequestError(int responseCode) {
-        Log.e(TAG,
+    private void handleRequestError(int responseCode, boolean couldBeUserError) {
+        Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
                 "Request to " + urlCurrentlyRequestingFrom + " in get available apps request " +
                         "had error code response: " + responseCode);
-        repeatRequestOrShowResults(true);
+        repeatRequestOrShowResults(true, couldBeUserError);
     }
 
-    private void repeatRequestOrShowResults(final boolean responseWasError) {
-        if (!requestAppList()) {
+    private void repeatRequestOrShowResultsAfterSuccess() {
+        repeatRequestOrShowResults(false, false);
+    }
+
+    private void repeatRequestOrShowResults(final boolean responseWasError,
+                                            final boolean couldBeUserError) {
+        if (!requestAppList(getUsernameForAuth(), getPassword())) {
             // Means we've tried requesting to both endpoints
 
             this.runOnUiThread(new Runnable() {
@@ -368,8 +390,12 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 public void run() {
                     if (availableApps.size() == 0) {
                         if (responseWasError) {
-                            enterErrorState(Localization.get("invalid.fields.entered." +
-                                    (inMobileUserAuthMode ? "mobile" : "web")));
+                            if (couldBeUserError) {
+                                enterErrorState(Localization.get("get.app.list.user.error." +
+                                        (inMobileUserAuthMode ? "mobile" : "web")));
+                            } else {
+                                enterErrorState(Localization.get("get.app.list.unknown.error"));
+                            }
                         } else {
                             enterErrorState(Localization.get("no.apps.available"));
                         }
@@ -382,6 +408,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void showResults() {
+        sortAppList();
         appsListContainer.setVisibility(View.VISIBLE);
         authenticateView.setVisibility(View.GONE);
         appsListView.setAdapter(new ArrayAdapter<AppAvailableToInstall>(this,
@@ -407,34 +434,70 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         rebuildOptionsMenu();
     }
 
+    private void sortAppList() {
+        Collections.sort(this.availableApps, new Comparator<AppAvailableToInstall>() {
+            @Override
+            public int compare(AppAvailableToInstall o1, AppAvailableToInstall o2) {
+                return o1.getAppName().toLowerCase().compareTo(o2.getAppName().toLowerCase());
+            }
+        });
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, RETRIEVE_APPS_FOR_DIFF_USER, 0,
                 Localization.get("menu.app.list.install.other.user"));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.install_from_list_menu, menu);
+        }
+
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER)
-                .setVisible(appsListContainer.getVisibility() == View.VISIBLE);
+        boolean appListIsShowing = appsListContainer.getVisibility() == View.VISIBLE;
+        menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER).setVisible(appListIsShowing);
+        menu.findItem(R.id.refresh_app_list_item).setVisible(appListIsShowing);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == RETRIEVE_APPS_FOR_DIFF_USER) {
-            clearPreviouslyRetrievedApps();
-            availableApps.clear();
-            appsListContainer.setVisibility(View.GONE);
-            authenticateView.setVisibility(View.VISIBLE);
-            clearAllFields();
-            rebuildOptionsMenu();
+            retrieveAppsForDiffUser();
             return true;
+        } else if (item.getItemId() == R.id.refresh_app_list_item) {
+            attemptRefresh();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void attemptRefresh() {
+        SharedPreferences globalPrefsObject = GlobalPrivilegesManager.getGlobalPrefsRecord();
+        String username = globalPrefsObject.getString(KEY_LAST_SUCCESSFUL_USERNAME, "");
+        String password = globalPrefsObject.getString(KEY_LAST_SUCCESSFUL_PW, "");
+        if (!"".equals(username) && !"".equals(password)) {
+            this.availableApps.clear();
+            clearPreviouslyRetrievedApps();
+            startRequests(username, password);
+        } else {
+            retrieveAppsForDiffUser();
+            enterErrorState(Localization.get("could.not.refresh.apps"));
+        }
+    }
+
+    private void retrieveAppsForDiffUser() {
+        clearPreviouslyRetrievedApps();
+        availableApps.clear();
+        appsListContainer.setVisibility(View.GONE);
+        authenticateView.setVisibility(View.VISIBLE);
+        clearAllFields();
+        rebuildOptionsMenu();
     }
 
     private void clearAllFields() {
