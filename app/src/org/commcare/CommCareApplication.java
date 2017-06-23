@@ -2,6 +2,7 @@ package org.commcare;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
@@ -63,6 +64,7 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.modern.database.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.util.Pair;
+import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.AndroidModernHttpRequester;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
@@ -168,9 +170,7 @@ public class CommCareApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // Sets the static strategy for the deserialization code to be based on an optimized
-        // md5 hasher. Major speed improvements.
-        AndroidClassHasher.registerAndroidClassHashStrategy();
+        configureCommCareEngineConstantsAndStaticRegistrations();
 
         CommCareApplication.app = this;
         noficationManager = new CommCareNoficationManager(this);
@@ -223,6 +223,22 @@ public class CommCareApplication extends Application {
             analyticsInstance = GoogleAnalytics.getInstance(this);
             GoogleAnalyticsUtils.reportAndroidApiLevelAtStartup();
         }
+    }
+
+    /**
+     * configure internal constants required (or available) for static behaviors in the CommCare
+     * library to reflect the current platform capabilities
+     */
+    private void configureCommCareEngineConstantsAndStaticRegistrations() {
+        // Sets the static strategy for the deserialization code to be based on an optimized
+        // md5 hasher. Major speed improvements.
+        AndroidClassHasher.registerAndroidClassHashStrategy();
+
+        ActivityManager am = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+        int memoryClass = am.getMemoryClass();
+
+        PerformanceTuningUtil.updateMaxPrefetchCaseBlock(
+                PerformanceTuningUtil.guessLargestSupportedBulkCaseFetchSizeFromHeap(memoryClass * 1024 * 1024));
     }
 
     public void startUserSession(byte[] symmetricKey, UserKeyRecord record, boolean restoreSession) {
