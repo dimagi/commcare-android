@@ -234,7 +234,7 @@ public class CommCareApplication extends Application {
         // md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
 
-        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        ActivityManager am = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
         int memoryClass = am.getMemoryClass();
 
         PerformanceTuningUtil.updateMaxPrefetchCaseBlock(

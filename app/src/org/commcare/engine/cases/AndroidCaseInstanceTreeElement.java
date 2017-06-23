@@ -288,10 +288,10 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
         CaseObjectCache caseObjectCache = getCaseObjectCacheIfRelevant(context);
 
-        if(caseObjectCache != null &&
+        if (caseObjectCache != null &&
                 (caseObjectCache.isLoaded(recordId) || canLoadCaseFromGroup(caseGroupCache, recordId))) {
 
-            if(!caseObjectCache.isLoaded(recordId)) {
+            if (!caseObjectCache.isLoaded(recordId)) {
                 Pair<String, LinkedHashSet<Integer>> tranche = caseGroupCache.getTranche(recordId);
                 EvaluationTrace loadTrace =
                         new EvaluationTrace(String.format("Bulk Case Load [%s]", tranche.first));
@@ -315,8 +315,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
      * Get a case object cache if it's appropriate in the current context.
      */
     private CaseObjectCache getCaseObjectCacheIfRelevant(QueryContext context) {
-        //If the query isn't currently in a bulk mode, don't force an object cache to exist unless
-        //it already does
+        // If the query isn't currently in a bulk mode, don't force an object cache to exist unless
+        // it already does
         if (context.getScope() < QueryContext.BULK_QUERY_THRESHOLD) {
             return context.getQueryCacheOrNull(CaseObjectCache.class);
         } else {
