@@ -6,7 +6,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.util.Base64;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.utils.SerializationUtil;
@@ -38,10 +37,12 @@ public class UpdateToPrompt implements Externalizable {
     private Date forceByDate;
     protected boolean isApkUpdate;
 
-    public UpdateToPrompt(String version, String forceByDate, boolean isApkUpdate) {
-        if (forceByDate != null) {
-            this.forceByDate = DateUtils.parseDate(forceByDate);
-        }
+    public UpdateToPrompt(String version, String date, boolean isApkUpdate) {
+        this(version, date == null ? null : DateUtils.parseDate(date), isApkUpdate);
+    }
+
+    public UpdateToPrompt(String version, Date forceByDate, boolean isApkUpdate) {
+        this.forceByDate = forceByDate;
         this.isApkUpdate = isApkUpdate;
         this.versionString = version;
         buildFromVersionString();

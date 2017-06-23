@@ -16,8 +16,7 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.heartbeat.UpdatePromptHelper;
-import org.commcare.heartbeat.UpdateToPrompt;
+import org.commcare.heartbeat.UpdatePromptFieldTesting;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
@@ -189,16 +188,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 checkAndStartUnsentFormsTask(false, false);
             }
 
-            if (isDemoUser()) {
-                showDemoModeWarning();
-                return;
-            }
-            if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
-                return;
-            }
-            if (checkForPinLaunchConditions()) {
-                return;
-            }
+            UpdatePromptFieldTesting.promptForUpdate(this);
+            return;
         }
     }
 
