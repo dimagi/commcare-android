@@ -16,6 +16,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
 
 import java.net.MalformedURLException;
@@ -223,6 +224,20 @@ public class ResourceInstallUtils {
             } else {
                 return profileRef + "?target=" + targetParam;
             }
+        }
+
+        String username;
+        try {
+            username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
+            if (username != null & !"".equals(username)) {
+                if (profileUrl.getQuery() != null) {
+                    return profileRef + "&username=" + username;
+                } else {
+                    return profileRef + "?username=" + username;
+                }
+            }
+        } catch (SessionUnavailableException e) {
+            // Must be updating from the app manager, in which case we don't have a current user
         }
 
         return profileRef;
