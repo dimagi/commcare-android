@@ -284,15 +284,19 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         if (context == null) {
             return super.getElement(recordId, context);
         }
-        CaseSetResultCache caseGroupCache = context.getQueryCacheOrNull(CaseSetResultCache.class);
+        CaseSetResultCache caseSetCache = context.getQueryCacheOrNull(CaseSetResultCache.class);
 
         CaseObjectCache caseObjectCache = getCaseObjectCacheIfRelevant(context);
 
-        if (caseObjectCache != null &&
-                (caseObjectCache.isLoaded(recordId) || canLoadCaseFromGroup(caseGroupCache, recordId))) {
 
-            if (!caseObjectCache.isLoaded(recordId)) {
-                Pair<String, LinkedHashSet<Integer>> tranche = caseGroupCache.getCaseSetForRecord(recordId);
+        if(caseObjectCache != null) {
+
+            if (caseObjectCache.isLoaded(recordId)) {
+                return caseObjectCache.getLoadedCase(recordId);
+            }
+
+            if (canLoadCaseFromGroup(caseSetCache, recordId)) {
+                Pair<String, LinkedHashSet<Integer>> tranche = caseSetCache.getCaseSetForRecord(recordId);
                 EvaluationTrace loadTrace =
                         new EvaluationTrace(String.format("Bulk Case Load [%s]", tranche.first));
                 SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
@@ -301,9 +305,11 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
                 sqlStorage.bulkRead(body, caseObjectCache.getLoadedCaseMap());
                 loadTrace.setOutcome("Loaded: " + body.size());
                 context.reportTrace(loadTrace);
+
+                return caseObjectCache.getLoadedCase(recordId);
             }
-            return caseObjectCache.getLoadedCase(recordId);
         }
+
         return super.getElement(recordId, context);
     }
 
