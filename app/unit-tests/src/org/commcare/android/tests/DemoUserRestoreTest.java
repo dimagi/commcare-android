@@ -79,7 +79,7 @@ public class DemoUserRestoreTest {
      * update that changes the user restore (including the username), assert
      * that associated fixture and case data is correctly updated
      */
-    @Test
+    /*@Test
     public void demoUserRestoreAndUpdateTest() {
         TestAppInstaller.installApp(REF_BASE_DIR +
                 "app_with_demo_user_restore/profile.ccpr");
@@ -122,5 +122,5 @@ public class DemoUserRestoreTest {
 
         adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(1, adapter.getCount());
-    }
+    }*/
 }
