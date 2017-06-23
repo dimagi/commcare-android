@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.annotation.IdRes;
+import android.text.method.LinkMovementMethod;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -36,6 +37,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
@@ -87,6 +89,7 @@ public class EntityDetailView extends FrameLayout {
     private static final String FORM_IMAGE = MediaUtil.FORM_IMAGE;
     private static final String FORM_GRAPH = "graph";
     private static final String FORM_CALLOUT = "callout";
+    private static final String FORM_MARKDOWN = "markdown";
 
     @IdRes
     private static final int IMAGE_VIEW_ID = 23422634;
@@ -102,6 +105,7 @@ public class EntityDetailView extends FrameLayout {
     private static final int AUDIO = 5;
     private static final int GRAPH = 6;
     private static final int CALLOUT = 7;
+    private static final int MARKDOWN = 8;
 
     private int current = TEXT;
 
@@ -189,13 +193,10 @@ public class EntityDetailView extends FrameLayout {
             updateCurrentView(AUDIO, audioButton);
         } else if (FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
             setupVideo(textField);
+        } else if (FORM_MARKDOWN.equals(form)) {
+            veryLong = setUpMarkdown(textField);
         } else {
-            data.setText((textField));
-            if (textField != null && textField.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
-                veryLong = true;
-            }
-
-            updateCurrentView(TEXT, data);
+            veryLong = setUpText(textField);
         }
 
         if (veryLong) {
@@ -211,6 +212,24 @@ public class EntityDetailView extends FrameLayout {
                 valuePane.setLayoutParams(origValue);
             }
         }
+    }
+
+    private boolean setUpText(String textField) {
+        data.setText((textField));
+        updateCurrentView(TEXT, data);
+        return isTextVeryLong(textField);
+    }
+
+    private boolean isTextVeryLong(String textField) {
+        return textField != null && textField.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff);
+    }
+
+    private boolean setUpMarkdown(String textField) {
+        // Links in a listview are not clickable by default - https://stackoverflow.com/questions/1697908/android-how-can-i-add-html-links-inside-a-listview
+        data.setMovementMethod(LinkMovementMethod.getInstance());
+        data.setText((MarkupUtil.returnMarkdown(getContext(), textField)));
+        updateCurrentView(MARKDOWN, data);
+        return isTextVeryLong(textField);
     }
 
     private void setupPhoneNumber(String textField) {
@@ -329,18 +348,18 @@ public class EntityDetailView extends FrameLayout {
             cached = false;
             graphView = getGraphView(index, labelText, (GraphData)field, orientation);
         }
-        final Intent finalIntent = getGraphIntent(index, labelText, (GraphData) field);
+        final Intent finalIntent = getGraphIntent(index, labelText, (GraphData)field);
 
         // Open full-screen graph intent on double tap
         if (!graphsWithErrors.contains(index)) {
-            enableGraphIntent((WebView) graphView, finalIntent);
+            enableGraphIntent((WebView)graphView, finalIntent);
         }
 
         // Add graph child views to graph layout
         graphLayout.removeAllViews();
         graphLayout.addView(graphView, GraphView.getLayoutParams());
         if (!cached && !graphsWithErrors.contains(index)) {
-            addSpinnerToGraph((WebView) graphView, graphLayout);
+            addSpinnerToGraph((WebView)graphView, graphLayout);
         }
 
         if (current != GRAPH) {
@@ -419,7 +438,7 @@ public class EntityDetailView extends FrameLayout {
 
         final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
         spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-        GraphLoader graphLoader = new GraphLoader((Activity) this.getContext(), spinner);
+        GraphLoader graphLoader = new GraphLoader((Activity)this.getContext(), spinner);
 
         // Set up interface that JavaScript will call to hide the spinner
         // once the graph has finished rendering.
