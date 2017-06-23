@@ -238,7 +238,7 @@ public class CommCareApplication extends Application {
         int memoryClass = am.getMemoryClass();
 
         PerformanceTuningUtil.updateMaxPrefetchCaseBlock(
-                PerformanceTuningUtil.identifyDefaultPrefetchBlockSize(memoryClass * 1024 * 1024));
+                PerformanceTuningUtil.guessLargestSupportedBulkCaseFetchSizeFromHeap(memoryClass * 1024 * 1024));
     }
 
     public void startUserSession(byte[] symmetricKey, UserKeyRecord record, boolean restoreSession) {

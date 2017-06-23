@@ -14,7 +14,7 @@ import org.commcare.cases.query.handlers.ModelQueryLookupHandler;
 import org.commcare.cases.query.queryset.CaseModelQuerySetMatcher;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
-import org.commcare.modern.engine.cases.CaseGroupResultCache;
+import org.commcare.modern.engine.cases.CaseSetResultCache;
 import org.commcare.modern.engine.cases.CaseIndexQuerySetTransform;
 import org.commcare.modern.engine.cases.CaseObjectCache;
 import org.commcare.modern.engine.cases.query.CaseIndexPrefetchHandler;
@@ -152,8 +152,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         }
 
         if(ids.size() > 50 && ids.size() < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
-            CaseGroupResultCache cue = currentQueryContext.getQueryCache(CaseGroupResultCache.class);
-            cue.reportBulkCaseBody(cacheKey, ids);
+            CaseSetResultCache cue = currentQueryContext.getQueryCache(CaseSetResultCache.class);
+            cue.reportBulkCaseSet(cacheKey, ids);
         }
 
         //Ok, we matched! Remove all of the keys that we matched
@@ -284,7 +284,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         if (context == null) {
             return super.getElement(recordId, context);
         }
-        CaseGroupResultCache caseGroupCache = context.getQueryCacheOrNull(CaseGroupResultCache.class);
+        CaseSetResultCache caseGroupCache = context.getQueryCacheOrNull(CaseSetResultCache.class);
 
         CaseObjectCache caseObjectCache = getCaseObjectCacheIfRelevant(context);
 
@@ -292,7 +292,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
                 (caseObjectCache.isLoaded(recordId) || canLoadCaseFromGroup(caseGroupCache, recordId))) {
 
             if (!caseObjectCache.isLoaded(recordId)) {
-                Pair<String, LinkedHashSet<Integer>> tranche = caseGroupCache.getTranche(recordId);
+                Pair<String, LinkedHashSet<Integer>> tranche = caseGroupCache.getCaseSetForRecord(recordId);
                 EvaluationTrace loadTrace =
                         new EvaluationTrace(String.format("Bulk Case Load [%s]", tranche.first));
                 SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
@@ -307,7 +307,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         return super.getElement(recordId, context);
     }
 
-    private boolean canLoadCaseFromGroup(CaseGroupResultCache caseGroupCache, int recordId) {
+    private boolean canLoadCaseFromGroup(CaseSetResultCache caseGroupCache, int recordId) {
         return caseGroupCache != null && caseGroupCache.hasMatchingCaseSet(recordId);
     }
 
