@@ -16,6 +16,8 @@ import java.util.Date;
  */
 public class UpdatePromptFieldTesting {
 
+    public static boolean ALREADY_PERFORMED_CCZ_UPDATE = false;
+
     private static final String APK_VERSION_FOR_UPDATE = "2.37.0";
     private static final long DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -53,5 +55,9 @@ public class UpdatePromptFieldTesting {
 
         Date twoDaysAgo = new Date(System.currentTimeMillis() - (2*DAY_IN_MS));
         return twoDaysAgo;
+    }
+
+    public static void setPerformedCczUpdate() {
+        ALREADY_PERFORMED_CCZ_UPDATE = true;
     }
 }

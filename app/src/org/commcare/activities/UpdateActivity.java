@@ -19,6 +19,7 @@ import org.commcare.android.nsd.NsdServiceListener;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
+import org.commcare.heartbeat.UpdatePromptFieldTesting;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
@@ -437,6 +438,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private void logoutOnSuccessfulUpdate() {
         final String upgradeFinishedText =
                 Localization.get("updates.install.finished");
+        UpdatePromptFieldTesting.setPerformedCczUpdate();
         CommCareApplication.instance().expireUserSession();
         if (proceedAutomatically) {
             finishWithResult(RefreshToLatestBuildActivity.UPDATE_SUCCESS);

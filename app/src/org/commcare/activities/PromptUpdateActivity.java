@@ -56,8 +56,11 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        cczUpdate = UpdatePromptFieldTesting.generateRandomUpdateToPrompt(false, false);
-        apkUpdate = UpdatePromptFieldTesting.generateRandomUpdateToPrompt(true, true);
+        if (!UpdatePromptFieldTesting.ALREADY_PERFORMED_CCZ_UPDATE) {
+            cczUpdate = UpdatePromptFieldTesting.generateRandomUpdateToPrompt(false, false);
+        }
+        apkUpdate = UpdatePromptFieldTesting.generateRandomUpdateToPrompt(true,
+                !UpdatePromptFieldTesting.ALREADY_PERFORMED_CCZ_UPDATE);
         setupUI();
     }
 
