@@ -115,13 +115,13 @@ public class EntityDetailView extends FrameLayout {
                             int index, int detailNumber) {
         super(context);
 
-        detailRow = (LinearLayout) View.inflate(context, R.layout.component_entity_detail_item, null);
-        label = (TextView) detailRow.findViewById(R.id.detail_type_text);
-        spacer = (TextView) detailRow.findViewById(R.id.entity_detail_spacer);
-        data = (TextView) detailRow.findViewById(R.id.detail_value_text);
+        detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
+        label = (TextView)detailRow.findViewById(R.id.detail_type_text);
+        spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer);
+        data = (TextView)detailRow.findViewById(R.id.detail_value_text);
         currentView = data;
         valuePane = detailRow.findViewById(R.id.detail_value_pane);
-        videoButton = (ImageButton) detailRow.findViewById(R.id.detail_video_button);
+        videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
 
         ViewId uniqueId = ViewId.buildTableViewId(detailNumber, index, true);
         String audioText = e.getFieldString(index);
@@ -129,12 +129,12 @@ public class EntityDetailView extends FrameLayout {
         detailRow.addView(audioButton);
         audioButton.setVisibility(View.GONE);
 
-        callout = (Button) detailRow.findViewById(R.id.detail_value_phone);
+        callout = (Button)detailRow.findViewById(R.id.detail_value_phone);
         addressView = detailRow.findViewById(R.id.detail_address_view);
-        addressText = (TextView) addressView.findViewById(R.id.detail_address_text);
-        addressButton = (Button) addressView.findViewById(R.id.detail_address_button);
+        addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
+        addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
 
-        imageView = (ImageView) detailRow.findViewById(R.id.detail_value_image);
+        imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
         int height;
         if (CommCarePreferences.isSmartInflationEnabled()) {
             // If using smart inflation, we don't want to do any other artificial resizing of images
@@ -147,16 +147,16 @@ public class EntityDetailView extends FrameLayout {
                 new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, height);
         imageView.setLayoutParams(imageViewParams);
 
-        graphLayout = (AspectRatioLayout) detailRow.findViewById(R.id.graph);
+        graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
         calloutView = detailRow.findViewById(R.id.callout_view);
-        calloutText = (TextView) detailRow.findViewById(R.id.callout_text);
-        calloutButton = (Button) detailRow.findViewById(R.id.callout_button);
-        calloutImageButton = (ImageButton) detailRow.findViewById(R.id.callout_image_button);
+        calloutText = (TextView)detailRow.findViewById(R.id.callout_text);
+        calloutButton = (Button)detailRow.findViewById(R.id.callout_button);
+        calloutImageButton = (ImageButton)detailRow.findViewById(R.id.callout_image_button);
         graphViewsCache = new Hashtable<>();
         graphsWithErrors = new HashSet<>();
         graphIntentsCache = new Hashtable<>();
-        origLabel = (LinearLayout.LayoutParams) label.getLayoutParams();
-        origValue = (LinearLayout.LayoutParams) valuePane.getLayoutParams();
+        origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
+        origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
 
         fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         this.addView(detailRow, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
@@ -179,7 +179,7 @@ public class EntityDetailView extends FrameLayout {
         if (FORM_PHONE.equals(form)) {
             setupPhoneNumber(textField);
         } else if (FORM_CALLOUT.equals(form) && (field instanceof CalloutData)) {
-            veryLong = setupCallout((CalloutData) field);
+            veryLong = setupCallout((CalloutData)field);
         } else if (FORM_ADDRESS.equals(form)) {
             setupAddress(textField);
         } else if (FORM_IMAGE.equals(form)) {
@@ -346,25 +346,25 @@ public class EntityDetailView extends FrameLayout {
         View graphView = getGraphViewFromCache(index, orientation);
         if (graphView == null) {
             cached = false;
-            graphView = getGraphView(index, labelText, (GraphData) field, orientation);
+            graphView = getGraphView(index, labelText, (GraphData)field, orientation);
         }
-        final Intent finalIntent = getGraphIntent(index, labelText, (GraphData) field);
+        final Intent finalIntent = getGraphIntent(index, labelText, (GraphData)field);
 
         // Open full-screen graph intent on double tap
         if (!graphsWithErrors.contains(index)) {
-            enableGraphIntent((WebView) graphView, finalIntent);
+            enableGraphIntent((WebView)graphView, finalIntent);
         }
 
         // Add graph child views to graph layout
         graphLayout.removeAllViews();
         graphLayout.addView(graphView, GraphView.getLayoutParams());
         if (!cached && !graphsWithErrors.contains(index)) {
-            addSpinnerToGraph((WebView) graphView, graphLayout);
+            addSpinnerToGraph((WebView)graphView, graphLayout);
         }
 
         if (current != GRAPH) {
             // Hide field label and expand value to take up full screen width
-            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams) origValue);
+            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams)origValue);
             graphValueLayout.weight = 10;
             valuePane.setLayoutParams(graphValueLayout);
 
@@ -417,14 +417,14 @@ public class EntityDetailView extends FrameLayout {
 
         if (current != GRAPH) {
             label.setVisibility(View.VISIBLE);
-            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams) origValue);
+            LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams)origValue);
             graphValueLayout.weight = 10;
             valuePane.setLayoutParams(origValue);
         }
     }
 
     private int getScreenWidth() {
-        Display display = ((WindowManager) this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        Display display = ((WindowManager)this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         return display.getWidth();
     }
 
@@ -438,7 +438,7 @@ public class EntityDetailView extends FrameLayout {
 
         final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
         spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-        GraphLoader graphLoader = new GraphLoader((Activity) this.getContext(), spinner);
+        GraphLoader graphLoader = new GraphLoader((Activity)this.getContext(), spinner);
 
         // Set up interface that JavaScript will call to hide the spinner
         // once the graph has finished rendering.
@@ -469,12 +469,12 @@ public class EntityDetailView extends FrameLayout {
         try {
             String graphHTML = field.getGraphHTML(title);
             graphView = g.getView(graphHTML);
-            graphLayout.setRatio((float) g.getRatio(field), (float) 1);
+            graphLayout.setRatio((float)g.getRatio(field), (float)1);
         } catch (GraphException ex) {
             graphView = new TextView(context);
-            int padding = (int) context.getResources().getDimension(R.dimen.spacer_small);
+            int padding = (int)context.getResources().getDimension(R.dimen.spacer_small);
             graphView.setPadding(padding, padding, padding, padding);
-            ((TextView) graphView).setText(ex.getMessage());
+            ((TextView)graphView).setText(ex.getMessage());
             graphsWithErrors.add(index);
         }
         graphViewsCache.get(index).put(orientation, graphView);
