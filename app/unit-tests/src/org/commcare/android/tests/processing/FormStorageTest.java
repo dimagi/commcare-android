@@ -282,6 +282,7 @@ public class FormStorageTest {
             // Added in 2.36
             , "org.commcare.heartbeat.UpdateToPrompt"
             , "org.commcare.android.database.global.models.AppAvailableToInstall"
+            , "org.javarosa.xpath.expr.XPathFuncExpr"
             );
 
     @Before
