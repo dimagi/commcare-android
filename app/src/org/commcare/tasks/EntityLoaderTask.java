@@ -74,7 +74,7 @@ public class EntityLoaderTask
             return new Pair<>(full, references);
         } catch (XPathException xe) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xe);
-            XPathException me = new XPathException("Encountered an xpath error while trying to load and filter the list.");
+            XPathException me = new XPathException("Encountered an xpath error while trying to load the list.");
             me.setSource(xe.getSource());
             xe.printStackTrace();
             Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, ForceCloseLogger.getStackTrace(me));

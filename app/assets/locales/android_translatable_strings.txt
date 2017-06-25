@@ -609,7 +609,7 @@ wifi.direct.base.folder=wifidirect
 wifi.direct.submit.missing=The folder ${0} you are trying to submit does not exist. Please verify that this file is where it should be.
 
 notification.case.predicate.title=List failed to load
-notification.case.predicate.action=Filtering your list failed with a bad filter expression. Please fix this and re-deploy your app. Error was ${0}.
+notification.case.predicate.action=Loading your list failed with a bad expression. Please fix this and re-deploy your app. Error: ${0}.
 
 archive.install.title=Unzipping your Application Resources
 archive.install.progress=Unzipped ${0} out of ${1} resources
