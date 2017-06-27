@@ -1,9 +1,11 @@
 package org.commcare.activities;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
@@ -35,7 +37,7 @@ public class CommCarePreferenceActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addBackButtonToActionBar();
+        addBackButtonToActionBar(this);
 
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra(EXTRA_PREF_TYPE)) {
@@ -74,9 +76,9 @@ public class CommCarePreferenceActivity extends FragmentActivity {
         }
     }
 
-    private void addBackButtonToActionBar() {
+    public static void addBackButtonToActionBar(@NonNull Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar actionBar = getActionBar();
+            ActionBar actionBar = activity.getActionBar();
             if (actionBar != null) {
                 actionBar.setDisplayShowHomeEnabled(true);
                 actionBar.setDisplayHomeAsUpEnabled(true);
