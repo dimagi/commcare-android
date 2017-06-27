@@ -376,7 +376,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
 
-    public static boolean collectAndDisplayEntityTrances() {
+    public static boolean collectAndDisplayEntityTraces() {
         return doesPropertyMatch(SHOW_ADB_ENTITY_LIST_TRACES, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
