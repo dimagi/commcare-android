@@ -18,6 +18,9 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.util.Map;
 
+/**
+ * Common PreferenceFragment class from which all other preferences extend.
+ */
 public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -37,14 +40,6 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
             PreferenceManager prefMgr = getPreferenceManager();
             prefMgr.setSharedPreferencesName((CommCareApplication.instance().getCurrentApp().getPreferencesFilename()));
         }
-    }
-
-    /**
-     *
-     * @return whether the preference should be stored in app specific preference file.
-     */
-    protected boolean isAppLevelPreference() {
-        return false;
     }
 
     @CallSuper
@@ -106,6 +101,14 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
     protected void reset() {
         getPreferenceScreen().removeAll();
         loadPrefs();
+    }
+
+    /**
+     *
+     * @return whether the preference should be stored in app specific preference file.
+     */
+    protected boolean isAppLevelPreference() {
+        return false;
     }
 
 
