@@ -167,8 +167,13 @@ public class CommCarePreferences
     }
 
     @Override
-    protected int getPreferenceXmlFile() {
+    protected int getPreferencesResource() {
         return R.xml.commcare_preferences;
+    }
+
+    @Override
+    protected boolean isAppLevelPreference() {
+        return true;
     }
 
     @Override

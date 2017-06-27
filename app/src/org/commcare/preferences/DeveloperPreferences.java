@@ -132,7 +132,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     @NonNull
     @Override
-    protected int getPreferenceXmlFile() {
+    protected int getPreferencesResource() {
         return R.xml.preferences_developer;
     }
 
@@ -140,6 +140,11 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         super.onCreatePreferences(savedInstanceState, rootKey);
         savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
+    }
+
+    @Override
+    protected boolean isAppLevelPreference() {
+        return true;
     }
 
     @Override

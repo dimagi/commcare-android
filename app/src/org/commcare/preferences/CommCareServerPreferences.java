@@ -68,7 +68,7 @@ public class CommCareServerPreferences
 
     @NonNull
     @Override
-    protected int getPreferenceXmlFile() {
+    protected int getPreferencesResource() {
         return R.xml.server_preferences;
     }
 
@@ -80,6 +80,11 @@ public class CommCareServerPreferences
     @Override
     protected void setupPrefClickListeners() {
         // No listeners
+    }
+
+    @Override
+    protected boolean isAppLevelPreference() {
+        return true;
     }
 
     public static String getSupportEmailAddress() {

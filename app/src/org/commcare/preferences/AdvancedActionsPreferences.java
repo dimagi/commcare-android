@@ -98,7 +98,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
 
     @NonNull
     @Override
-    protected int getPreferenceXmlFile() {
+    protected int getPreferencesResource() {
         return R.xml.advanced_actions;
     }
 

@@ -50,7 +50,7 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
     }
 
     @Override
-    protected int getPreferenceXmlFile() {
+    protected int getPreferencesResource() {
         return R.xml.preferences;
     }
 

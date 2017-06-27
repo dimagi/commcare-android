@@ -52,7 +52,7 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
 
     @NonNull
     @Override
-    protected int getPreferenceXmlFile() {
+    protected int getPreferencesResource() {
         return R.xml.app_manager_preferences;
     }
 

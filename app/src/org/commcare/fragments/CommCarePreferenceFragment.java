@@ -33,14 +33,24 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
 
     @CallSuper
     protected void initPrefs() {
-        PreferenceManager prefMgr = getPreferenceManager();
-        prefMgr.setSharedPreferencesName((CommCareApplication.instance().getCurrentApp().getPreferencesFilename()));
+        if(isAppLevelPreference()) {
+            PreferenceManager prefMgr = getPreferenceManager();
+            prefMgr.setSharedPreferencesName((CommCareApplication.instance().getCurrentApp().getPreferencesFilename()));
+        }
+    }
+
+    /**
+     *
+     * @return whether the preference should be stored in app specific preference file.
+     */
+    protected boolean isAppLevelPreference() {
+        return false;
     }
 
     @CallSuper
     protected void loadPrefs() {
         // Add 'general' preferences, defined in the XML file
-        addPreferencesFromResource(getPreferenceXmlFile());
+        addPreferencesFromResource(getPreferencesResource());
 
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(getPreferenceManager(), getPrefKeyAnalyticsEventMap(),
                 GoogleAnalyticsFields.CATEGORY_CC_PREFS);
@@ -111,7 +121,7 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
     protected abstract Map<String, String> getPrefKeyTitleMap();
 
     @NonNull
-    protected abstract int getPreferenceXmlFile();
+    protected abstract int getPreferencesResource();
 
     @Override
     public abstract void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key);
