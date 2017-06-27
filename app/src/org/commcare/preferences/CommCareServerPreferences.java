@@ -3,6 +3,8 @@ package org.commcare.preferences;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.MenuItem;
 
 import org.commcare.CommCareApp;
@@ -10,6 +12,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.javarosa.core.services.locale.Localization;
@@ -23,7 +26,7 @@ import java.util.Map;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class CommCareServerPreferences
-        extends SessionAwarePreferenceActivity {
+        extends CommCarePreferenceFragment {
 
     public final static String PREFS_APP_SERVER_KEY = "default_app_server";
     public final static String PREFS_DATA_SERVER_KEY = "ota-restore-url";
@@ -45,32 +48,38 @@ public class CommCareServerPreferences
         prefKeyToAnalyticsEvent.put(PREFS_SUPPORT_ADDRESS_KEY, GoogleAnalyticsFields.LABEL_SUPPORT_EMAIL);
     }
 
+    @NonNull
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected String getTitle() {
+        return Localization.get("settings.server.title");
+    }
 
-        PreferenceManager prefMgr = getPreferenceManager();
-        prefMgr.setSharedPreferencesName(CommCareApplication.instance().getCurrentApp().getPreferencesFilename());
-        addPreferencesFromResource(R.xml.server_preferences);
+    @Nullable
+    @Override
+    protected Map<String, String> getPrefKeyAnalyticsEventMap() {
+        return prefKeyToAnalyticsEvent;
+    }
 
-        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_SERVER_PREFS);
+    @Nullable
+    @Override
+    protected Map<String, String> getPrefKeyTitleMap() {
+        return null;
+    }
 
-        setTitle(Localization.get("settings.server.title"));
-        CommCarePreferences.addBackButtonToActionBar(this);
-
-        GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
-                GoogleAnalyticsFields.CATEGORY_SERVER_PREFS);
+    @NonNull
+    @Override
+    protected int getPreferenceXmlFile() {
+        return R.xml.server_preferences;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        // No listeners
+    }
+
+    @Override
+    protected void setupPrefClickListeners() {
+        // No listeners
     }
 
     public static String getSupportEmailAddress() {
@@ -85,6 +94,5 @@ public class CommCareServerPreferences
         SharedPreferences properties = app.getAppPreferences();
         return properties.getString(key, defaultValue);
     }
-
 
 }

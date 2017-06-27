@@ -1,16 +1,17 @@
 package org.commcare.activities;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.view.MenuItem;
+import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.preference.Preference;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.AdvancedActionsPreferences;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
@@ -19,7 +20,7 @@ import java.util.Map;
 /**
  * @author Aliza Stone (astone@dimagi.com), created 6/9/16.
  */
-public class AppManagerAdvancedSettings extends PreferenceActivity {
+public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
 
     private final static String ENABLE_PRIVILEGE = "enable-mobile-privilege";
     private final static String CLEAR_USER_DATA = "clear-user-data";
@@ -31,22 +32,36 @@ public class AppManagerAdvancedSettings extends PreferenceActivity {
         keyToTitleMap.put(CLEAR_USER_DATA, "clear.user.data");
     }
 
+    @NonNull
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.app_manager_preferences);
-        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_APP_MANAGER);
-        setupUI();
+    protected String getTitle() {
+        return Localization.get("app.manager.advanced.settings.title");
     }
 
-    private void setupUI() {
-        setTitle(Localization.get("app.manager.advanced.settings.title"));
-        CommCarePreferences.addBackButtonToActionBar(this);
-        CommCarePreferences.setupLocalizedText(this, keyToTitleMap);
-        setupButtons();
+    @Nullable
+    @Override
+    protected Map<String, String> getPrefKeyAnalyticsEventMap() {
+        return null;
     }
 
-    private void setupButtons() {
+    @Nullable
+    @Override
+    protected Map<String, String> getPrefKeyTitleMap() {
+        return keyToTitleMap;
+    }
+
+    @NonNull
+    @Override
+    protected int getPreferenceXmlFile() {
+        return R.xml.app_manager_preferences;
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    }
+
+    @Override
+    protected void setupPrefClickListeners() {
         Preference enablePrivilegesButton = findPreference(ENABLE_PRIVILEGE);
         enablePrivilegesButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -63,25 +78,14 @@ public class AppManagerAdvancedSettings extends PreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_CLEAR_USER_DATA);
-                AdvancedActionsActivity.clearUserData(AppManagerAdvancedSettings.this);
+                AdvancedActionsPreferences.clearUserData(getActivity());
                 return true;
             }
         });
     }
 
     private void launchPrivilegeClaimActivity() {
-        Intent i = new Intent(this, GlobalPrivilegeClaimingActivity.class);
+        Intent i = new Intent(getActivity(), GlobalPrivilegeClaimingActivity.class);
         startActivity(i);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

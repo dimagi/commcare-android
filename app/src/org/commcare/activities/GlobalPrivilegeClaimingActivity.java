@@ -54,7 +54,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
             }
         });
 
-        CommCarePreferences.addBackButtonToActionBar(this);
+//        CommCarePreferences.addBackButtonToActionBar(this);
     }
 
     @Override

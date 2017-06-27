@@ -1,30 +1,24 @@
 package org.commcare.preferences;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceScreen;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCarePreferenceActivity;
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.FileUtil;
@@ -34,14 +28,15 @@ import org.commcare.utils.UriToFilePath;
 import org.commcare.views.PasswordShow;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static android.app.Activity.RESULT_OK;
+
 public class CommCarePreferences
-        extends SessionAwarePreferenceActivity
+        extends CommCarePreferenceFragment
         implements OnSharedPreferenceChangeListener {
 
     private final static String TAG = CommCarePreferences.class.getSimpleName();
@@ -141,19 +136,8 @@ public class CommCarePreferences
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        PreferenceManager prefMgr = getPreferenceManager();
-        prefMgr.setSharedPreferencesName((CommCareApplication.instance().getCurrentApp().getPreferencesFilename()));
-        addPreferencesFromResource(R.xml.commcare_preferences);
-
-        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
-
-        setupUI();
-
-        GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
-                GoogleAnalyticsFields.CATEGORY_CC_PREFS);
+    protected void loadPrefs() {
+        super.loadPrefs();
         hideServerPrefsIfNeeded();
     }
 
@@ -167,40 +151,34 @@ public class CommCarePreferences
         }
     }
 
-    private void setupUI() {
-        setTitle(Localization.get("settings.main.title"));
-        addBackButtonToActionBar(this);
-        setupLocalizedText(this, keyToTitleMap);
-        setupButtons();
+    @Override
+    protected String getTitle() {
+        return Localization.get("settings.main.title");
     }
 
-    public static void setupLocalizedText(PreferenceActivity activity,
-                                          Map<String, String> prefToTitleMap) {
-        PreferenceScreen screen = activity.getPreferenceScreen();
-        for (int i = 0; i < screen.getPreferenceCount(); i++) {
-            String key = screen.getPreference(i).getKey();
-            if (prefToTitleMap.containsKey(key)) {
-                try {
-                    String localizedString = Localization.get(prefToTitleMap.get(key));
-                    screen.getPreference(i).setTitle(localizedString);
-                } catch (NoLocalizedTextException nle) {
-                    Log.w(TAG, "Unable to localize: " + prefToTitleMap.get(key));
-                }
-            }
-        }
+    @Override
+    protected Map<String, String> getPrefKeyAnalyticsEventMap() {
+        return prefKeyToAnalyticsEvent;
     }
 
-    public static void addBackButtonToActionBar(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar actionBar = activity.getActionBar();
-            if (actionBar != null) {
-                actionBar.setDisplayShowHomeEnabled(true);
-                actionBar.setDisplayHomeAsUpEnabled(true);
-            }
-        }
+    @Override
+    protected Map<String, String> getPrefKeyTitleMap() {
+        return keyToTitleMap;
     }
 
-    private void setupButtons() {
+    @Override
+    protected int getPreferenceXmlFile() {
+        return R.xml.commcare_preferences;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        setVisibilityOfUpdateOptionsPref();
+    }
+
+    @Override
+    protected void setupPrefClickListeners() {
         Preference serverSettingsButton = findPreference(SERVER_SETTINGS);
         serverSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -252,17 +230,6 @@ public class CommCarePreferences
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        setVisibilityOfUpdateOptionsPref();
-
-        // Set up a listener whenever a key changes
-        getPreferenceScreen().getSharedPreferences()
-                .registerOnSharedPreferenceChangeListener(this);
-    }
-
     private void setVisibilityOfUpdateOptionsPref() {
         Preference updateOptionsPref = getPreferenceManager().findPreference(UPDATE_TARGET);
         if (!DeveloperPreferences.shouldShowUpdateOptionsSetting() && updateOptionsPref != null) {
@@ -272,15 +239,12 @@ public class CommCarePreferences
         } else if (DeveloperPreferences.shouldShowUpdateOptionsSetting() &&
                 updateOptionsPref == null) {
             // If the pref isn't showing and it should be
-            getPreferenceScreen().removeAll();
-            addPreferencesFromResource(R.xml.commcare_preferences);
-            setupLocalizedText(this, keyToTitleMap);
-            setupButtons();
+            reset();
         }
     }
 
     private void showAnalyticsOptOutDialog() {
-        StandardAlertDialog f = new StandardAlertDialog(this,
+        StandardAlertDialog f = new StandardAlertDialog(getActivity(),
                 Localization.get("analytics.opt.out.title"),
                 Localization.get("analytics.opt.out.message"));
 
@@ -307,7 +271,7 @@ public class CommCarePreferences
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TEMPLATE) {
             if (resultCode == RESULT_OK && data != null) {
                 Uri uri = data.getData();
@@ -318,32 +282,23 @@ public class CommCarePreferences
                             getAppPreferences().edit();
                     editor.putString(PREFS_PRINT_DOC_LOCATION, filePath);
                     editor.commit();
-                    Toast.makeText(this, Localization.get("template.success"), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), Localization.get("template.success"), Toast.LENGTH_SHORT).show();
                 } else {
-                    TemplatePrinterUtils.showAlertDialog(this, Localization.get("template.not.set"),
+                    TemplatePrinterUtils.showAlertDialog(getActivity(), Localization.get("template.not.set"),
                             Localization.get("template.warning"), false);
                 }
             } else {
                 //No file selected
-                Toast.makeText(this, Localization.get("template.not.set"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), Localization.get("template.not.set"), Toast.LENGTH_SHORT).show();
             }
         }
         if (requestCode == REQUEST_DEVELOPER_PREFERENCES) {
             if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM && data != null) {
-                this.setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM, data);
-                this.finish();
+                getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM, data);
+                getActivity().finish();
             }
         }
 
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // Unregister the listener whenever a key changes
-        getPreferenceScreen().getSharedPreferences()
-                .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -383,16 +338,6 @@ public class CommCarePreferences
                 prefKeyToAnalyticsEvent.get(key), editPrefValue);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     public static boolean isIncompleteFormsEnabled() {
         if (CommCareApplication.instance().isConsumerApp()) {
@@ -577,18 +522,20 @@ public class CommCarePreferences
             startActivityForResult(chooseTemplateIntent, REQUEST_TEMPLATE);
         } catch (ActivityNotFoundException e) {
             // Means that there is no file browser installed on the device
-            TemplatePrinterUtils.showAlertDialog(this, Localization.get("cannot.set.template"),
+            TemplatePrinterUtils.showAlertDialog(getActivity(), Localization.get("cannot.set.template"),
                     Localization.get("no.file.browser"), false);
         }
     }
 
     private void startServerSettings() {
-        Intent i = new Intent(this, CommCareServerPreferences.class);
+        Intent i = new Intent(getActivity(), SessionAwarePreferenceActivity.class);
+        i.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE,CommCarePreferenceActivity.PREF_TYPE_SERVER);
         startActivity(i);
     }
 
     private void startDeveloperOptions() {
-        Intent intent = new Intent(this, DeveloperPreferences.class);
+        Intent intent = new Intent(getActivity(), SessionAwarePreferenceActivity.class);
+        intent.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE,CommCarePreferenceActivity.PREF_TYPE_DEVELOPER);
         startActivityForResult(intent, REQUEST_DEVELOPER_PREFERENCES);
     }
 

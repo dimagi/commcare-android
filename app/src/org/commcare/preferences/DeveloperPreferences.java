@@ -5,23 +5,25 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.preference.EditTextPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceScreen;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GlobalPrivilegeClaimingActivity;
-import org.commcare.activities.SessionAwarePreferenceActivity;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.services.locale.Localization;
 
@@ -30,8 +32,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class DeveloperPreferences extends SessionAwarePreferenceActivity
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+import static android.app.Activity.RESULT_OK;
+
+public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     public static final int RESULT_SYNC_CUSTOM = Activity.RESULT_FIRST_USER + 1;
     public static final int REQUEST_SYNC_FILE = 1;
@@ -72,11 +75,29 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     // ENDREGION
 
     private static final Set<String> WHITELISTED_DEVELOPER_PREF_KEYS = new HashSet<>();
+    private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
+
     static {
         WHITELISTED_DEVELOPER_PREF_KEYS.add(SUPERUSER_ENABLED);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(SHOW_UPDATE_OPTIONS_SETTING);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(AUTO_PURGE_ENABLED);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(ALTERNATE_QUESTION_LAYOUT_ENABLED);
+
+        prefKeyToAnalyticsEvent.put(SUPERUSER_ENABLED, GoogleAnalyticsFields.LABEL_DEV_MODE);
+        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);
+        prefKeyToAnalyticsEvent.put(NAV_UI_ENABLED, GoogleAnalyticsFields.LABEL_NAV_UI);
+        prefKeyToAnalyticsEvent.put(LIST_REFRESH_ENABLED, GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH);
+        prefKeyToAnalyticsEvent.put(ENABLE_AUTO_LOGIN, GoogleAnalyticsFields.LABEL_AUTO_LOGIN);
+        prefKeyToAnalyticsEvent.put(ENABLE_SAVE_SESSION, GoogleAnalyticsFields.LABEL_SESSION_SAVING);
+        prefKeyToAnalyticsEvent.put(EDIT_SAVE_SESSION, GoogleAnalyticsFields.LABEL_EDIT_SAVED_SESSION);
+        prefKeyToAnalyticsEvent.put(CSS_ENABLED, GoogleAnalyticsFields.LABEL_CSS);
+        prefKeyToAnalyticsEvent.put(MARKDOWN_ENABLED, GoogleAnalyticsFields.LABEL_MARKDOWN);
+        prefKeyToAnalyticsEvent.put(ALTERNATE_QUESTION_LAYOUT_ENABLED, GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT);
+        prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
+        prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
+        prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
+        prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
+        prefKeyToAnalyticsEvent.put(PREFS_CUSTOM_RESTORE_DOC_LOCATION, GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
     }
 
     /**
@@ -84,33 +105,52 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      */
     private static final String NAV_AND_FORM_SESSION_SPACER = "@@@@@";
 
-    private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
     private Preference savedSessionEditTextPreference;
 
+    @NonNull
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
-        populatePrefKeyToEventLabelMapping();
-        initAllPrefs();
+    protected String getTitle() {
+        return "Developer Options";
     }
 
-    private void initAllPrefs() {
-        PreferenceManager prefMgr = getPreferenceManager();
-        prefMgr.setSharedPreferencesName((CommCareApplication.instance().getCurrentApp().getPreferencesFilename()));
-        addPreferencesFromResource(R.xml.preferences_developer);
-        setTitle("Developer Options");
+    @Nullable
+    @Override
+    protected Map<String, String> getPrefKeyAnalyticsEventMap() {
+        return prefKeyToAnalyticsEvent;
+    }
 
-        GoogleAnalyticsUtils.createPreferenceOnClickListeners(
-                prefMgr, prefKeyToAnalyticsEvent, GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
+    @Override
+    protected void setupPrefClickListeners() {
+        createOnCustomRestoreOption();
+    }
 
+    @Nullable
+    @Override
+    protected Map<String, String> getPrefKeyTitleMap() {
+        return null;
+    }
+
+    @NonNull
+    @Override
+    protected int getPreferenceXmlFile() {
+        return R.xml.preferences_developer;
+    }
+
+    @Override
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        super.onCreatePreferences(savedInstanceState, rootKey);
         savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
-        setSessionEditText();
-        createOnCustomRestoreOption(prefMgr);
     }
 
-    private void createOnCustomRestoreOption(PreferenceManager prefMgr) {
-        Preference pref = prefMgr.findPreference(PREFS_CUSTOM_RESTORE_DOC_LOCATION);
+    @Override
+    public void onStart() {
+        super.onStart();
+        hideOrShowDangerousSettings();
+        setSessionEditText();
+    }
+
+    private void createOnCustomRestoreOption() {
+        Preference pref = findPreference(PREFS_CUSTOM_RESTORE_DOC_LOCATION);
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -132,41 +172,24 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
             startActivityForResult(chooseTemplateIntent, REQUEST_SYNC_FILE);
         } catch (ActivityNotFoundException e) {
             // Means that there is no file browser installed on the device
-            TemplatePrinterUtils.showAlertDialog(this, "Can't restore custom XML File",
+            TemplatePrinterUtils.showAlertDialog(getActivity(), "Can't restore custom XML File",
                     Localization.get("no.file.browser"), false);
         }
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SYNC_FILE) {
             if (resultCode == RESULT_OK && data != null) {
-                this.setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM, data);
-                this.finish();
+                getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM, data);
+                getActivity().finish();
             } else {
                 //No file selected
-                Toast.makeText(this, "No file requested...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "No file requested...", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    private static void populatePrefKeyToEventLabelMapping() {
-        prefKeyToAnalyticsEvent.put(SUPERUSER_ENABLED, GoogleAnalyticsFields.LABEL_DEV_MODE);
-        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);
-        prefKeyToAnalyticsEvent.put(NAV_UI_ENABLED, GoogleAnalyticsFields.LABEL_NAV_UI);
-        prefKeyToAnalyticsEvent.put(LIST_REFRESH_ENABLED, GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH);
-        prefKeyToAnalyticsEvent.put(ENABLE_AUTO_LOGIN, GoogleAnalyticsFields.LABEL_AUTO_LOGIN);
-        prefKeyToAnalyticsEvent.put(ENABLE_SAVE_SESSION, GoogleAnalyticsFields.LABEL_SESSION_SAVING);
-        prefKeyToAnalyticsEvent.put(EDIT_SAVE_SESSION, GoogleAnalyticsFields.LABEL_EDIT_SAVED_SESSION);
-        prefKeyToAnalyticsEvent.put(CSS_ENABLED, GoogleAnalyticsFields.LABEL_CSS);
-        prefKeyToAnalyticsEvent.put(MARKDOWN_ENABLED, GoogleAnalyticsFields.LABEL_MARKDOWN);
-        prefKeyToAnalyticsEvent.put(ALTERNATE_QUESTION_LAYOUT_ENABLED, GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT);
-        prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
-        prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
-        prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
-        prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
-        prefKeyToAnalyticsEvent.put(PREFS_CUSTOM_RESTORE_DOC_LOCATION, GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
-    }
 
     private void setSessionEditText() {
         if (isSessionSavingEnabled()) {
@@ -246,23 +269,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        getPreferenceScreen().getSharedPreferences()
-                .registerOnSharedPreferenceChangeListener(this);
-
-        hideOrShowDangerousSettings();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        getPreferenceScreen().getSharedPreferences()
-                .unregisterOnSharedPreferenceChangeListener(this);
-    }
 
     /**
      * Try to lookup key in app preferences and test equality of the result to
@@ -404,11 +410,10 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 }
             }
         } else {
-            // Dangerous privileges should be be showing
+            // Dangerous privileges should be showing
             if (onScreenPrefs.length == WHITELISTED_DEVELOPER_PREF_KEYS.size()) {
                 // If we're currently showing only white-listed prefs, reset
-                getPreferenceScreen().removeAll();
-                initAllPrefs();
+                reset();
             }
         }
     }
@@ -423,18 +428,18 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
         menu.add(0, MENU_ENABLE_PRIVILEGES, 0, Localization.get("menu.enable.privileges"))
                 .setIcon(android.R.drawable.ic_menu_preferences);
-        return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case MENU_ENABLE_PRIVILEGES:
-                Intent i = new Intent(this, GlobalPrivilegeClaimingActivity.class);
+                Intent i = new Intent(getActivity(), GlobalPrivilegeClaimingActivity.class);
                 startActivity(i);
                 return true;
         }
