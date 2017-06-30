@@ -166,6 +166,14 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="panes">one</string>
     <string name="restore_session_prompt">Restore saved session upon login</string>
 
+    <string name="managed_configuration_username">Mobile Worker Username</string>
+    <string name="managed_configuration_password">Mobile Worker Password</string>
+    <string name="managed_configuration_profile_url">CommCare App Link</string>
+
+    <string name="managed_configuration_username_description">The username of the CommCare mobile worker to login and restore on the device</string>
+    <string name="managed_configuration_password_description">The password of the mobile user</string>
+    <string name="managed_configuration_profile_url_description">The URL to your CommCare Application from the CommCareHQ publish page</string>
+
 
     <!-- Start Collect Strings -->
 
