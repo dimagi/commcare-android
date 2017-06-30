@@ -3,7 +3,9 @@ package org.commcare.activities;
 import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.RestrictionsManager;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -172,6 +174,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             if (isSingleAppBuild()) {
                 SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
             } else if (uiState == UiState.CHOOSE_INSTALL_ENTRY_METHOD) {
+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    // Check for managed configuration
+                    RestrictionsManager restrictionsManager =
+                            (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
+                    Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
+                    if (appRestrictions.containsKey("downloadOnCellular")) {
+                        incomingRef = appRestrictions.getString("managed_configuration_profile_url");
+                        startResourceInstall();
+                    }
+                }
+
+
                 // Don't perform SMS install if we aren't on base setup state
                 // (i.e. in the middle of an install)
 
