@@ -64,6 +64,10 @@ public class IndexedFixturePathUtils {
         db.execSQL(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEXING_STMT);
     }
 
+    public static void dropStorageBackedFixtureIndexTable(SQLiteDatabase db) {
+        db.execSQL("DROP TABLE IF EXISTS " + IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE + ";");
+    }
+
     public static void buildFixtureIndices(SQLiteDatabase database,
                                            String tableName,
                                            Set<String> indices) {

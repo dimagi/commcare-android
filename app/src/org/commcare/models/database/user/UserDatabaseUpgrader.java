@@ -9,7 +9,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
-import org.commcare.cases.model.Case;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -27,8 +26,10 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.modern.database.DatabaseIndexingUtils;
-import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.model.User;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.util.Set;
@@ -148,6 +149,11 @@ class UserDatabaseUpgrader {
         if (oldVersion == 17) {
             if (upgradeSeventeenEighteen(db)) {
                 oldVersion = 18;
+            }
+        }
+        if (oldVersion == 18) {
+            if (upgradeEighteenNineteen(db)) {
+                oldVersion = 19;
             }
         }
     }
@@ -506,6 +512,29 @@ class UserDatabaseUpgrader {
             db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
                     "case_owner_id_index", "AndroidCase", "owner_id"));
             db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeEighteenNineteen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            // Step 1: Delete existing fixture indexes table
+            IndexedFixturePathUtils.dropStorageBackedFixtureIndexTable(db);
+
+            // Step 2: Recreate table
+            IndexedFixturePathUtils.createStorageBackedFixtureIndexTable(db);
+
+            // Step 3: Re-parse the indexes for all fixtures in storage
+            IStorageUtilityIndexed<FormInstance> userFixtureStorage =
+                    CommCareApplication.instance().getUserStorage("fixture", FormInstance.class);
+            for (IStorageIterator<FormInstance> userFixtures = userFixtureStorage.iterate(); userFixtures.hasMore();) {
+                FormInstance fi = userFixtures.nextRecord();
+                // TODO: what now??
+            }
+
             return true;
         } finally {
             db.endTransaction();
