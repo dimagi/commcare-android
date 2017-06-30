@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<restrictions xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <restriction
+        android:key="username"
+        android:title="@string/managed_configuration_username"
+        android:restrictionType="string"
+        android:description="@string/managed_configuration_username_description" />
+
+    <restriction
+        android:key="password"
+        android:title="@string/managed_configuration_password"
+        android:restrictionType="string"
+        android:description="@string/managed_configuration_password_description" />
+
+    <restriction
+        android:key="profileUrl"
+        android:title="@string/managed_configuration_profile_url"
+        android:restrictionType="string"
+        android:description="@string/managed_configuration_profile_url_description" />
+
+</restrictions>
