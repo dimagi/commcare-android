@@ -175,17 +175,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
             } else if (uiState == UiState.CHOOSE_INSTALL_ENTRY_METHOD) {
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    // Check for managed configuration
-                    RestrictionsManager restrictionsManager =
-                            (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
-                    Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
-                    if (appRestrictions.containsKey("downloadOnCellular")) {
-                        incomingRef = appRestrictions.getString("managed_configuration_profile_url");
-                        startResourceInstall();
-                    }
-                }
-
+                checkManagedConfiguration();
 
                 // Don't perform SMS install if we aren't on base setup state
                 // (i.e. in the middle of an install)
@@ -937,6 +927,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 return GoogleAnalyticsFields.ACTION_URL_INSTALL;
             default:
                 return "";
+        }
+    }
+
+    private void checkManagedConfiguration() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            // Check for managed configuration
+            RestrictionsManager restrictionsManager =
+                    (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
+            Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
+            if (appRestrictions.containsKey("downloadOnCellular")) {
+                incomingRef = appRestrictions.getString("managed_configuration_profile_url");
+                startResourceInstall();
+            }
         }
     }
 }

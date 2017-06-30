@@ -94,18 +94,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            // Check for managed configuration
-            RestrictionsManager restrictionsManager =
-                    (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
-            Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
-            if (appRestrictions.containsKey("managed_configuration_username") &&
-                    appRestrictions.containsKey("managed_configuration_password")) {
-                uiController.setUsername(appRestrictions.getString("managed_configuration_username"));
-                uiController.setPasswordOrPin(appRestrictions.getString("managed_configuration_password"));
-                initiateLoginAttempt(false);
-            }
-        }
+        checkManagedConfiguration();
 
         if (shouldFinish()) {
             // If we're going to finish in onResume() because there is no usable seated app,
@@ -655,5 +644,20 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void handlePullTaskError() {
         raiseLoginMessage(StockMessages.Restore_Unknown, true);
+    }
+    
+    private void checkManagedConfiguration() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            // Check for managed configuration
+            RestrictionsManager restrictionsManager =
+                    (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
+            Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
+            if (appRestrictions.containsKey("managed_configuration_username") &&
+                    appRestrictions.containsKey("managed_configuration_password")) {
+                uiController.setUsername(appRestrictions.getString("managed_configuration_username"));
+                uiController.setPasswordOrPin(appRestrictions.getString("managed_configuration_password"));
+                initiateLoginAttempt(false);
+            }
+        }
     }
 }
