@@ -128,7 +128,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
     }
 
     /**
-     * Call to bind Activity Fragment onDestory to MenuList
+     * Call to bind Activity/Fragment onDestory to MenuList
      */
     public void onDestroy() {
         adapter.onDestory();
