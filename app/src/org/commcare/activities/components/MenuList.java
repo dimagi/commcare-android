@@ -2,6 +2,7 @@ package org.commcare.activities.components;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
@@ -33,8 +34,9 @@ public class MenuList implements AdapterView.OnItemClickListener {
      * Injects a list (or grid) of CommCare modules/forms for the given menu id into the UI of
      * the given activity
      */
+    @NonNull
     public static MenuList setupMenuViewInActivity(CommCareActivity activity, String menuId,
-                                               boolean useGridMenu, boolean beingUsedInHomeScreen) {
+                                                   boolean useGridMenu, boolean beingUsedInHomeScreen) {
         MenuList menuView;
         if (useGridMenu) {
             menuView = new MenuGrid();
@@ -125,4 +127,10 @@ public class MenuList implements AdapterView.OnItemClickListener {
         }
     }
 
+    /**
+     * Call to bind Activity Fragment onDestory to MenuList
+     */
+    public void onDestroy() {
+        adapter.onDestory();
+    }
 }
