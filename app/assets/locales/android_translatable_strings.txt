@@ -93,7 +93,7 @@ menu.print.detail=Print Case Detail
 menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 
-sync.success.sent.singular=Form sent to server!
+sync.success.sent.singular=${0} form sent to server!
 sync.success.sent=${0} forms sent to server!
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
@@ -329,6 +329,7 @@ title.datum.wrapper=[${0}]
 activity.task.error.generic=Unexpected error! Please try again.
 activity.task.cancelling.title=Cancelling: ${0}
 activity.task.cancelling.message=Cancelling...
+activity.task.cancelled.message=Task Cancelled.
 
 connection.test.prompt=This will try to fix connection problems that you may be having.
 connection.test.run=Run Connection Test
