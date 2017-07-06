@@ -10,6 +10,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import retrofit2.Response;
+
 /**
  * Data pulling requester that gets data from a local file on the android filesystem.
  *
@@ -19,7 +21,7 @@ public class LocalFilePullResponse extends RemoteDataPullResponse {
     private InputStream debugStream = null;
 
     public LocalFilePullResponse(File xmlPayload,
-                                 HttpResponse response) throws IOException {
+                                 Response response) throws IOException {
         super(null, response);
 
         try {

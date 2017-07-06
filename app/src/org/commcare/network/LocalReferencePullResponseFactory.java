@@ -38,7 +38,8 @@ public enum LocalReferencePullResponseFactory implements DataPullRequester {
                                                       boolean includeSyncToken) throws IOException {
         numTries++;
         HttpResponse response = requestor.makeCaseFetchRequest(server, includeSyncToken);
-        return new LocalReferencePullResponse(xmlPayloadReferences.remove(0), response);
+//   todo     return new LocalReferencePullResponse(xmlPayloadReferences.remove(0), response);
+        return null;
     }
 
     @Override

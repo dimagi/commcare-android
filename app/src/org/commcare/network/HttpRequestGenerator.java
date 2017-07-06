@@ -32,7 +32,7 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.DebugControlsReceiver;
 import org.commcare.utils.CredentialUtil;
@@ -45,7 +45,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Authenticator;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.ResponseBody;
+import okhttp3.Route;
+import retrofit2.Response;
 
 /**
  * @author ctsims
@@ -211,6 +221,65 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     }
 
     @Override
+    public Response<ResponseBody> makeCaseFetchRequest(boolean includeStateFlags) throws IOException {
+
+        CommCareNetworkService commCareNetworkService = CommCareNetworkServiceProvider.provideCommCareNetworkService(OkHttpClient());
+
+//      todo  String vparam = serverUri.getQueryParameter("version");
+//        if (vparam == null) {
+//            serverUri = serverUri.buildUpon().appendQueryParameter("version", "2.0").build();
+//        }
+
+
+        Map<String, String> params = new HashMap<>();
+
+        params.put("version", "2.0");
+
+        // include IMEI in key fetch request for auditing large deployments
+        params.put("device_id", CommCareApplication.instance().getPhoneId());
+
+        if (userId != null) {
+            params.put("user_id", userId);
+        }
+
+        String syncToken = null;
+        if (includeStateFlags) {
+            syncToken = getSyncToken(username);
+            String digest = getDigest();
+
+            if (syncToken != null) {
+                params.put("since", syncToken);
+            }
+            if (digest != null) {
+                params.put("state", "ccsh:" + digest);
+            }
+        }
+
+        //Add items count to fetch request
+        params.put("items", "true");
+
+        if (CommCareApplication.instance().shouldInvalidateCacheOnRestore()) {
+            // Currently used for testing purposes only, in order to ensure that a full sync will
+            // occur when we want to test one
+            params.put("overwrite_cache", "true");
+            // Always wipe this flag after we have used it once
+            CommCareApplication.instance().setInvalidateCacheFlag(false);
+        }
+
+        return commCareNetworkService.makeCaseFetchRequest(params, getHeaders(syncToken)).execute();
+    }
+
+    private Map<String, String> getHeaders(String lastToken) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("X-OpenRosa-Version", "2.0");
+        if (lastToken != null) {
+            headers.put("X-CommCareHQ-LastSyncToken", lastToken);
+        }
+        headers.put("x-openrosa-deviceid", CommCareApplication.instance().getPhoneId());
+        return headers;
+    }
+
+    @Override
     public HttpResponse makeKeyFetchRequest(String baseUri, Date lastRequest) throws ClientProtocolException, IOException {
         HttpClient client = client();
 
@@ -294,6 +363,35 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
         DefaultHttpClient client = new DefaultHttpClient(params);
         client.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
+
+        System.setProperty("http.keepAlive", "false");
+
+        return client;
+    }
+
+
+    private OkHttpClient OkHttpClient() {
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(ModernHttpRequester.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
+                .readTimeout(ModernHttpRequester.CONNECTION_SO_TIMEOUT, TimeUnit.MILLISECONDS)
+                .followRedirects(true)
+                .followSslRedirects(false)
+                .authenticator(new Authenticator() {
+                    @Override
+                    public Request authenticate(Route route, okhttp3.Response response) throws IOException {
+                        String credential = okhttp3.Credentials.basic(buildDomainUser(username), password);
+
+                        if (credential.equals(response.request().header("Authorization"))) {
+                            return null; // If we already failed with these credentials, don't retry.
+                        }
+
+                        return response.request().newBuilder()
+                                .header("Authorization", credential)
+                                .build();
+                    }
+                })
+                .build();
 
         System.setProperty("http.keepAlive", "false");
 

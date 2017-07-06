@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import retrofit2.Response;
+
 /**
  * Mocks for different types of http requests commcare mobile makes to the server
  *
@@ -54,6 +56,11 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
         } else {
             return HttpResponseMock.buildHttpResponseMock(responseCode, null);
         }
+    }
+
+    @Override
+    public Response makeCaseFetchRequest(boolean includeStateFlags) throws IOException {
+        return null;
     }
 
     @Override

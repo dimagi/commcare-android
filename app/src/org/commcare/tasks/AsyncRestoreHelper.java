@@ -32,12 +32,12 @@ public class AsyncRestoreHelper {
     }
 
     protected ResultAndError<DataPullTask.PullTaskResult> handleRetryResponseCode(RemoteDataPullResponse response) {
-        Header retryHeader = response.getRetryHeader();
+        String retryHeader = response.getRetryHeader();
         if (retryHeader == null) {
             return new ResultAndError<>(DataPullTask.PullTaskResult.BAD_DATA);
         }
         try {
-            long waitTimeInMilliseconds = Integer.parseInt(retryHeader.getValue()) * 1000;
+            long waitTimeInMilliseconds = Integer.parseInt(retryHeader) * 1000;
             retryAtTime = System.currentTimeMillis() + waitTimeInMilliseconds;
             if (!parseProgressFromRetryResult(response)) {
                 return new ResultAndError<>(DataPullTask.PullTaskResult.BAD_DATA);
@@ -45,7 +45,7 @@ public class AsyncRestoreHelper {
             return new ResultAndError<>(DataPullTask.PullTaskResult.RETRY_NEEDED);
         } catch (NumberFormatException e) {
             Logger.log(AndroidLogger.TYPE_USER, "Invalid Retry-After header value: "
-                    + retryHeader.getValue());
+                    + retryHeader);
             return new ResultAndError<>(DataPullTask.PullTaskResult.BAD_DATA);
         }
     }

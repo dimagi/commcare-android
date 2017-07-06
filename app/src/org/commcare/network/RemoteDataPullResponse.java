@@ -16,6 +16,11 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
+
+import okhttp3.Headers;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * Performs data pulling http request and provides logic to retrieve the
@@ -26,7 +31,7 @@ import java.io.OutputStream;
 public class RemoteDataPullResponse {
     private final DataPullTask task;
     public final int responseCode;
-    private final HttpResponse response;
+    private final Response<ResponseBody> response;
 
     /**
      * Makes data pulling request and keeps response for local caching
@@ -35,9 +40,9 @@ public class RemoteDataPullResponse {
      * @param response Contains data pull response stream and status code
      */
     protected RemoteDataPullResponse(DataPullTask task,
-                                     HttpResponse response) throws IOException {
+                                     Response response) throws IOException {
         this.response = response;
-        this.responseCode = response.getStatusLine().getStatusCode();
+        this.responseCode = response.code();
         this.task = task;
     }
 
@@ -111,11 +116,13 @@ public class RemoteDataPullResponse {
     }
 
     protected InputStream getInputStream() throws IOException {
-        return AndroidHttpClient.getUngzippedContent(response.getEntity());
+//        return AndroidHttpClient.getUngzippedContent(response.getEntity());
+        return response.body().byteStream();
     }
 
     public String getShortBody() throws IOException {
-        return new String(StreamsUtil.inputStreamToByteArray(AndroidHttpClient.getUngzippedContent(response.getEntity())));
+        return response.body().toString();
+//        return new String(StreamsUtil.inputStreamToByteArray(AndroidHttpClient.getUngzippedContent(response.getEntity())));
     }
 
     /**
@@ -124,8 +131,8 @@ public class RemoteDataPullResponse {
      * @return -1 for unknown.
      */
     protected long guessDataSize() {
-        if (response.containsHeader("Content-Length")) {
-            String length = response.getFirstHeader("Content-Length").getValue();
+        String length = getFirstHeader("Content-Length");
+        if (length != null) {
             try {
                 return Long.parseLong(length);
             } catch (Exception e) {
@@ -135,7 +142,15 @@ public class RemoteDataPullResponse {
         return -1;
     }
 
-    public Header getRetryHeader() {
-        return response.getFirstHeader("Retry-After");
+    public String getRetryHeader() {
+        return getFirstHeader("Retry-After");
+    }
+
+    private String getFirstHeader(String s) {
+        List<String> headers = response.headers().values(s);
+        if (headers.size() > 0) {
+            return headers.get(0);
+        }
+        return null;
     }
 }

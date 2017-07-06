@@ -9,6 +9,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
 
+import okhttp3.ResponseBody;
+import retrofit2.Response;
+
 /**
  * Types of http requests made by CommCare mobile to server
  *
@@ -16,6 +19,8 @@ import java.util.Date;
  */
 public interface HttpRequestEndpoints {
     HttpResponse makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws ClientProtocolException, IOException;
+
+    Response<ResponseBody> makeCaseFetchRequest(boolean includeStateFlags) throws IOException;
 
     HttpResponse makeKeyFetchRequest(String baseUri, Date lastRequest) throws ClientProtocolException, IOException;
 
