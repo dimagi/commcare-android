@@ -469,11 +469,17 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
     protected String getLabelForFormsSent() {
         int successfulSends = getSuccessfulSends();
-        String label = Localization.get("sync.success.sent",
-                new String[]{String.valueOf(successfulSends)});
-        if (successfulSends == 1) {
-            label = Localization.get("sync.success.sent.singular",
-                    new String[]{String.valueOf(successfulSends)});
+        String label;
+        switch (successfulSends) {
+            case 0:
+                label = Localization.get("sync.success.sent.none");
+                break;
+            case 1:
+                label = Localization.get("sync.success.sent.singular");
+                break;
+            default:
+                label = Localization.get("sync.success.sent",
+                        new String[]{String.valueOf(successfulSends)});
         }
         return label;
     }
