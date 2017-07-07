@@ -28,15 +28,15 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
-        setupUI();
-        initPrefs();
+        GoogleAnalyticsUtils.reportPrefActivityEntry(getAnalyticsCategory());
+        setTitle();
+        initPrefsFile();
         loadPrefs();
     }
 
     @CallSuper
-    protected void initPrefs() {
-        if(isAppLevelPreference()) {
+    protected void initPrefsFile() {
+        if (isPersistentAppPreference()) {
             PreferenceManager prefMgr = getPreferenceManager();
             prefMgr.setSharedPreferencesName((CommCareApplication.instance().getCurrentApp().getPreferencesFilename()));
         }
@@ -54,7 +54,7 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
     }
 
     @CallSuper
-    protected void setupUI() {
+    protected void setTitle() {
         if (getActivity() != null) {
             getActivity().setTitle(getTitle());
         }
@@ -78,17 +78,19 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
         }
     }
 
+
+
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
         // register the preference change listener
         getPreferenceScreen().getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
         // unregister the preference change listener
         getPreferenceScreen().getSharedPreferences()
                 .unregisterOnSharedPreferenceChangeListener(this);
@@ -104,16 +106,18 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
     }
 
     /**
-     *
      * @return whether the preference should be stored in app specific preference file.
      */
-    protected boolean isAppLevelPreference() {
+    protected boolean isPersistentAppPreference() {
         return false;
     }
 
 
     @NonNull
     protected abstract String getTitle();
+
+    @NonNull
+    protected abstract String getAnalyticsCategory();
 
     @Nullable
     protected abstract Map<String, String> getPrefKeyAnalyticsEventMap();
@@ -123,7 +127,6 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
     @Nullable
     protected abstract Map<String, String> getPrefKeyTitleMap();
 
-    @NonNull
     protected abstract int getPreferencesResource();
 
     @Override

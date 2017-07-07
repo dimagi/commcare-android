@@ -17,9 +17,6 @@ import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.FormEntryPreferences;
 
-/**
- * Created by dimagi on 26/06/17.
- */
 
 public class CommCarePreferenceActivity extends FragmentActivity {
 
@@ -65,8 +62,6 @@ public class CommCarePreferenceActivity extends FragmentActivity {
                 default:
                     throw new IllegalStateException("Invalid prefType : " + prefType);
             }
-
-            assert commCarePreferenceFragment != null;
 
             getSupportFragmentManager().beginTransaction()
                     .replace(android.R.id.content, commCarePreferenceFragment)

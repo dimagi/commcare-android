@@ -38,6 +38,12 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
         return Localization.get("app.manager.advanced.settings.title");
     }
 
+    @NonNull
+    @Override
+    protected String getAnalyticsCategory() {
+        return GoogleAnalyticsFields.CATEGORY_APP_MANAGER;
+    }
+
     @Nullable
     @Override
     protected Map<String, String> getPrefKeyAnalyticsEventMap() {
@@ -50,7 +56,6 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
         return keyToTitleMap;
     }
 
-    @NonNull
     @Override
     protected int getPreferencesResource() {
         return R.xml.app_manager_preferences;
@@ -58,6 +63,7 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        // No listeners
     }
 
     @Override

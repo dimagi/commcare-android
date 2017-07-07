@@ -110,7 +110,13 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     @NonNull
     @Override
     protected String getTitle() {
-        return "Developer Options";
+        return Localization.get("settings.developer.title");
+    }
+
+    @NonNull
+    @Override
+    protected String getAnalyticsCategory() {
+        return GoogleAnalyticsFields.CATEGORY_DEV_PREFS;
     }
 
     @Nullable
@@ -130,7 +136,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         return null;
     }
 
-    @NonNull
     @Override
     protected int getPreferencesResource() {
         return R.xml.preferences_developer;
@@ -143,7 +148,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     }
 
     @Override
-    protected boolean isAppLevelPreference() {
+    protected boolean isPersistentAppPreference() {
         return true;
     }
 

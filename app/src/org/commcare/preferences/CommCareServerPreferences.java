@@ -54,6 +54,12 @@ public class CommCareServerPreferences
         return Localization.get("settings.server.title");
     }
 
+    @NonNull
+    @Override
+    protected String getAnalyticsCategory() {
+        return GoogleAnalyticsFields.CATEGORY_SERVER_PREFS;
+    }
+
     @Nullable
     @Override
     protected Map<String, String> getPrefKeyAnalyticsEventMap() {
@@ -66,7 +72,6 @@ public class CommCareServerPreferences
         return null;
     }
 
-    @NonNull
     @Override
     protected int getPreferencesResource() {
         return R.xml.server_preferences;
@@ -83,7 +88,7 @@ public class CommCareServerPreferences
     }
 
     @Override
-    protected boolean isAppLevelPreference() {
+    protected boolean isPersistentAppPreference() {
         return true;
     }
 

@@ -2,6 +2,7 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.support.annotation.NonNull;
 import android.support.v7.preference.ListPreference;
 
 import org.commcare.dalvik.R;
@@ -29,9 +30,16 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
         prefKeyToAnalyticsEvent.put(KEY_HELP_MODE_TRAY, GoogleAnalyticsFields.LABEL_INLINE_HELP);
     }
 
+    @NonNull
     @Override
     protected String getTitle() {
         return getString(R.string.application_name) + " > " + getString(R.string.form_entry_settings);
+    }
+
+    @NonNull
+    @Override
+    protected String getAnalyticsCategory() {
+        return GoogleAnalyticsFields.CATEGORY_FORM_ENTRY;
     }
 
     @Override

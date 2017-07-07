@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceScreen;
 import android.util.DisplayMetrics;
@@ -151,9 +152,16 @@ public class CommCarePreferences
         }
     }
 
+    @NonNull
     @Override
     protected String getTitle() {
         return Localization.get("settings.main.title");
+    }
+
+    @NonNull
+    @Override
+    protected String getAnalyticsCategory() {
+        return GoogleAnalyticsFields.CATEGORY_CC_PREFS;
     }
 
     @Override
@@ -172,7 +180,7 @@ public class CommCarePreferences
     }
 
     @Override
-    protected boolean isAppLevelPreference() {
+    protected boolean isPersistentAppPreference() {
         return true;
     }
 
