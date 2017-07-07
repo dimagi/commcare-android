@@ -510,6 +510,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private int determineAuthorityForInstall() {
+        // Note that this is an imperfect way to determine the resource authority; we should
+        // really be looking at the nature of the reference that is being used itself (i.e. is it
+        // a file reference or a URL)
         return lastInstallMode == INSTALL_MODE_OFFLINE ?
                 Resource.RESOURCE_AUTHORITY_LOCAL : Resource.RESOURCE_AUTHORITY_REMOTE;
     }
