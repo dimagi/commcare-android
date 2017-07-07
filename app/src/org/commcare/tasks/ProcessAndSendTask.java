@@ -18,6 +18,7 @@ import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -465,6 +466,24 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
         return successes;
     }
+
+    protected String getLabelForFormsSent() {
+        int successfulSends = getSuccessfulSends();
+        String label;
+        switch (successfulSends) {
+            case 0:
+                label = Localization.get("sync.success.sent.none");
+                break;
+            case 1:
+                label = Localization.get("sync.success.sent.singular");
+                break;
+            default:
+                label = Localization.get("sync.success.sent",
+                        new String[]{String.valueOf(successfulSends)});
+        }
+        return label;
+    }
+
 
     //Wrappers for the internal stuff
     @Override
