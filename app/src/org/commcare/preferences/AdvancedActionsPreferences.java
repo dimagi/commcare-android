@@ -109,7 +109,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
+        // No listeners
     }
 
 
