@@ -9,6 +9,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -27,11 +28,10 @@ import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.javarosa.core.model.User;
-import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
@@ -521,18 +521,15 @@ class UserDatabaseUpgrader {
     private boolean upgradeEighteenNineteen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            // Step 1: Delete existing fixture indexes table
-            IndexedFixturePathUtils.dropStorageBackedFixtureIndexTable(db);
-
-            // Step 2: Recreate table
-            IndexedFixturePathUtils.createStorageBackedFixtureIndexTable(db);
-
-            // Step 3: Re-parse the indexes for all fixtures in storage
-            IStorageUtilityIndexed<FormInstance> userFixtureStorage =
-                    CommCareApplication.instance().getUserStorage("fixture", FormInstance.class);
-            for (IStorageIterator<FormInstance> userFixtures = userFixtureStorage.iterate(); userFixtures.hasMore();) {
-                FormInstance fi = userFixtures.nextRecord();
-                // TODO: what now??
+            List<String> allIndexedFixtures = IndexedFixturePathUtils.getAllIndexedFixtureNames(db);
+            for (String fixtureName : allIndexedFixtures) {
+                String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
+                SqlStorage<StorageIndexedTreeElementModel> storageForThisFixture =
+                        new SqlStorage<>(tableName, StorageIndexedTreeElementModel.class,
+                                new ConcreteAndroidDbHelper(c, db));
+                StorageIndexedTreeElementModel exampleChildElement =
+                        storageForThisFixture.iterate().nextRecord();
+                IndexedFixturePathUtils.buildFixtureIndices(db, tableName, new HashSet<>(exampleChildElement.getIndices()));
             }
 
             return true;
