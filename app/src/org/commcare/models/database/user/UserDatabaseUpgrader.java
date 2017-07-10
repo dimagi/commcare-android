@@ -531,7 +531,7 @@ class UserDatabaseUpgrader {
                         storageForThisFixture.iterate().nextRecord();
                 IndexedFixturePathUtils.buildFixtureIndices(db, tableName, new HashSet<>(exampleChildElement.getIndices()));
             }
-
+            db.setTransactionSuccessful();
             return true;
         } finally {
             db.endTransaction();
