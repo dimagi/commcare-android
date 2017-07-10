@@ -64,62 +64,61 @@ public class FormAndDataSyncer {
         ProcessAndSendTask<SyncCapableCommCareActivity> processAndSendTask =
                 new ProcessAndSendTask<SyncCapableCommCareActivity>(activity, getFormPostURL(activity), syncAfterwards) {
 
-            @Override
-            protected void deliverResult(SyncCapableCommCareActivity receiver, FormUploadResult result) {
-                if (CommCareApplication.instance().isConsumerApp()) {
-                    // if this is a consumer app we don't want to show anything in the UI about
-                    // sending forms, or do a sync afterward
-                    return;
-                }
-
-                if (result == FormUploadResult.PROGRESS_LOGGED_OUT) {
-                    receiver.finish();
-                    return;
-                }
-
-                if (receiver instanceof WithUIController) {
-                    ((WithUIController)receiver).getUIController().refreshView();
-                }
-
-                int successfulSends = this.getSuccessfulSends();
-
-                switch(result) {
-                    case FULL_SUCCESS:
-                        String label = Localization.get("sync.success.sent.singular",
-                                new String[]{String.valueOf(successfulSends)});
-                        if (successfulSends > 1) {
-                            label = Localization.get("sync.success.sent",
-                                    new String[]{String.valueOf(successfulSends)});
+                    @Override
+                    protected void deliverResult(SyncCapableCommCareActivity receiver, FormUploadResult result) {
+                        if (CommCareApplication.instance().isConsumerApp()) {
+                            // if this is a consumer app we don't want to show anything in the UI about
+                            // sending forms, or do a sync afterward
+                            return;
                         }
-                        receiver.handleFormSendResult(label, true);
 
-                        if (syncAfterwards) {
-                            syncDataForLoggedInUser(receiver, true, userTriggered);
+                        if (result == FormUploadResult.PROGRESS_LOGGED_OUT) {
+                            receiver.finish();
+                            return;
                         }
-                        break;
-                    case AUTH_FAILURE:
-                        receiver.handleFormSendResult(Localization.get("sync.fail.auth.loggedin"), false);
-                        break;
-                    case TRANSPORT_FAILURE:
-                        receiver.handleFormSendResult(Localization.get("sync.fail.bad.network"), false);
-                        break;
-                    case FAILURE:
-                        receiver.handleFormSendResult(Localization.get("sync.fail.server.error"), false);
-                        break;
-                    default:
+
+                        if (receiver instanceof WithUIController) {
+                            ((WithUIController)receiver).getUIController().refreshView();
+                        }
+
+                        switch (result) {
+                            case FULL_SUCCESS:
+                                receiver.handleFormSendResult(getLabelForFormsSent(), true);
+
+                                if (syncAfterwards) {
+                                    syncDataForLoggedInUser(receiver, true, userTriggered);
+                                }
+                                break;
+                            case AUTH_FAILURE:
+                                receiver.handleFormSendResult(Localization.get("sync.fail.auth.loggedin"), false);
+                                break;
+                            case TRANSPORT_FAILURE:
+                                receiver.handleFormSendResult(Localization.get("sync.fail.bad.network"), false);
+                                break;
+                            case FAILURE:
+                                receiver.handleFormSendResult(Localization.get("sync.fail.server.error"), false);
+                                break;
+                            default:
+                                receiver.handleFormSendResult(Localization.get("sync.fail.unsent"), false);
+                        }
+                    }
+
+                    @Override
+                    protected void deliverUpdate(SyncCapableCommCareActivity receiver, Long... update) {
+                    }
+
+                    @Override
+                    protected void deliverError(SyncCapableCommCareActivity receiver, Exception e) {
                         receiver.handleFormSendResult(Localization.get("sync.fail.unsent"), false);
-                }
-            }
+                    }
 
-            @Override
-            protected void deliverUpdate(SyncCapableCommCareActivity receiver, Long... update) {
-            }
-
-            @Override
-            protected void deliverError(SyncCapableCommCareActivity receiver, Exception e) {
-                receiver.handleFormSendResult(Localization.get("sync.fail.unsent"), false);
-            }
-        };
+                    @Override
+                    protected void handleCancellation(SyncCapableCommCareActivity receiver) {
+                        super.handleCancellation(receiver);
+                        receiver.handleFormSendResult(Localization.get("activity.task.cancelled.message")
+                                + " " + getLabelForFormsSent(), false);
+                    }
+                };
 
         processAndSendTask.addSubmissionListener(
                 CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
