@@ -30,7 +30,6 @@ import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -529,7 +528,7 @@ class UserDatabaseUpgrader {
                                 new ConcreteAndroidDbHelper(c, db));
                 StorageIndexedTreeElementModel exampleChildElement =
                         storageForThisFixture.iterate().nextRecord();
-                IndexedFixturePathUtils.buildFixtureIndices(db, tableName, new HashSet<>(exampleChildElement.getIndices()));
+                IndexedFixturePathUtils.buildFixtureIndices(db, tableName, exampleChildElement.getIndexColumnNames());
             }
             db.setTransactionSuccessful();
             return true;
