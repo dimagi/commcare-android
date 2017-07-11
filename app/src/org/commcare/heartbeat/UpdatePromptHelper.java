@@ -25,12 +25,12 @@ public class UpdatePromptHelper {
      */
     public static boolean promptForUpdateIfNeeded(Activity context, int requestCode) {
         CommCareSessionService currentSession = CommCareApplication.instance().getSession();
-        if (!currentSession.apkUpdatePromptWasShown && getCurrentUpdateToPrompt(true) != null) {
+        if (!currentSession.apkUpdatePromptWasShown() && getCurrentUpdateToPrompt(true) != null) {
             // If there are updates to prompt for both, we'll show the apk one first
             Intent i = new Intent(context, PromptApkUpdateActivity.class);
             context.startActivityForResult(i, requestCode);
             return true;
-        } else if (!currentSession.cczUpdatePromptWasShown && getCurrentUpdateToPrompt(false) != null) {
+        } else if (!currentSession.cczUpdatePromptWasShown() && getCurrentUpdateToPrompt(false) != null) {
             Intent i = new Intent(context, PromptCczUpdateActivity.class);
             context.startActivityForResult(i, requestCode);
             return true;
