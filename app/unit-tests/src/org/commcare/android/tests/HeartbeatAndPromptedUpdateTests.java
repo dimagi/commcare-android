@@ -45,7 +45,7 @@ public class HeartbeatAndPromptedUpdateTests {
     private static final String RESPONSE_CorrectApp_CczUpdateNeeded_WithForce =
             "{\"app_id\":\"36c0bdd028d14a52cbff95bb1bfd0962\"," +
                     "\"latest_apk_version\":{\"value\":\"2.25.0\"}," +
-                    "\"latest_ccz_version\":{\"value\":\"97\", \"force_by_date\":\"2017-05-01\"}}";
+                    "\"latest_ccz_version\":{\"value\":\"97\", \"force\":\"true\"}}";
 
     private static final String EMPTY_RESPONSE = "{}";
 
@@ -72,13 +72,13 @@ public class HeartbeatAndPromptedUpdateTests {
     public void testHeartbeatForCorrectApp_needsCczUpdate() {
         requestAndParseHeartbeat(RESPONSE_CorrectApp_CczUpdateNeeded);
 
-        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(false);
+        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
         Assert.assertNotNull(cczUpdate);
         Assert.assertTrue(cczUpdate.isNewerThanCurrentVersion());
         Assert.assertEquals(97, cczUpdate.getCczVersion());
-        Assert.assertFalse(cczUpdate.isPastForceByDate());
+        Assert.assertFalse(cczUpdate.isForced());
 
-        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(true);
+        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
         Assert.assertNull(apkUpdate);
     }
 
@@ -86,13 +86,13 @@ public class HeartbeatAndPromptedUpdateTests {
     public void testHeartbeatForCorrectApp_needsCczUpdateWithForce() {
         requestAndParseHeartbeat(RESPONSE_CorrectApp_CczUpdateNeeded_WithForce);
 
-        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(false);
+        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
         Assert.assertNotNull(cczUpdate);
         Assert.assertTrue(cczUpdate.isNewerThanCurrentVersion());
         Assert.assertEquals(97, cczUpdate.getCczVersion());
-        Assert.assertTrue(cczUpdate.isPastForceByDate());
+        Assert.assertTrue(cczUpdate.isForced());
 
-        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(true);
+        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
         Assert.assertNull(apkUpdate);
     }
 
@@ -100,10 +100,10 @@ public class HeartbeatAndPromptedUpdateTests {
     public void testHeartbeatForCorrectApp_updateNotNeeded() {
         requestAndParseHeartbeat(RESPONSE_CorrectApp_NoUpdateNeeded);
 
-        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(false);
+        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
         Assert.assertNull(cczUpdate);
 
-        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(true);
+        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
         Assert.assertNull(apkUpdate);
     }
 
@@ -111,10 +111,10 @@ public class HeartbeatAndPromptedUpdateTests {
     public void testHeartbeatForWrongApp() {
         requestAndParseHeartbeat(RESPONSE_WrongApp_CczUpdateNeeded);
 
-        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(false);
+        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
         Assert.assertNull(cczUpdate);
 
-        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(true);
+        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
         Assert.assertNull(apkUpdate);
     }
 
@@ -123,13 +123,13 @@ public class HeartbeatAndPromptedUpdateTests {
         requestAndParseHeartbeat(
                 new String[]{EMPTY_RESPONSE, RESPONSE_CorrectApp_CczUpdateNeeded});
 
-        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(false);
+        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
         Assert.assertNull(cczUpdate);
 
         fakeSuccessfulFormSendToTriggerHeartbeatRequest();
         waitForHeartbeatParsing();
 
-        cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(false);
+        cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
         Assert.assertNotNull(cczUpdate);
         Assert.assertTrue(cczUpdate.isNewerThanCurrentVersion());
         Assert.assertEquals(97, cczUpdate.getCczVersion());
