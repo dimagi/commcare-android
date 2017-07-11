@@ -37,6 +37,8 @@ public class PromptCczUpdateActivity extends PromptUpdateActivity {
                 launchUpdateActivity();
             }
         });
+
+        imageCue.setVisibility(View.GONE);
     }
 
     private void launchUpdateActivity() {
