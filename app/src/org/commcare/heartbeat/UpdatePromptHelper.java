@@ -47,9 +47,7 @@ public class UpdatePromptHelper {
     public static UpdateToPrompt getCurrentUpdateToPrompt(UpdateToPrompt.Type type) {
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         if (currentApp != null) {
-            String prefsKey = (type == UpdateToPrompt.Type.APK_UPDATE) ?
-                    UpdateToPrompt.KEY_APK_UPDATE_TO_PROMPT : UpdateToPrompt.KEY_CCZ_UPDATE_TO_PROMPT;
-            String serializedUpdate = currentApp.getAppPreferences().getString(prefsKey, "");
+            String serializedUpdate = currentApp.getAppPreferences().getString(type.getPrefsKey(), "");
             if (!"".equals(serializedUpdate)) {
                 byte[] updateBytes = Base64.decode(serializedUpdate, Base64.DEFAULT);
                 UpdateToPrompt update;
@@ -76,10 +74,8 @@ public class UpdatePromptHelper {
     }
 
     protected static void wipeStoredUpdate(UpdateToPrompt.Type type) {
-        String prefsKey = (type == UpdateToPrompt.Type.APK_UPDATE) ?
-                UpdateToPrompt.KEY_APK_UPDATE_TO_PROMPT : UpdateToPrompt.KEY_CCZ_UPDATE_TO_PROMPT;
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(prefsKey, "").commit();
+                .putString(type.getPrefsKey(), "").commit();
     }
 
 }

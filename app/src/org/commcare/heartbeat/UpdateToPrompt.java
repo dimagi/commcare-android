@@ -6,22 +6,18 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.util.Base64;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.utils.SerializationUtil;
-import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Date;
 
 /**
  * Created by amstone326 on 4/13/17.
@@ -39,28 +35,19 @@ public class UpdateToPrompt implements Externalizable {
     protected Type updateType;
 
     public enum Type {
-        APK_UPDATE("apk"),
-        CCZ_UPDATE("ccz");
+        APK_UPDATE(KEY_APK_UPDATE_TO_PROMPT),
+        CCZ_UPDATE(KEY_CCZ_UPDATE_TO_PROMPT);
 
-        private String stringRepresentation;
+        private String prefsKey;
 
         Type(String s) {
-            this.stringRepresentation = s;
+            this.prefsKey = s;
         }
 
-        protected String getStringRep() {
-            return this.stringRepresentation;
+        protected String getPrefsKey() {
+            return this.prefsKey;
         }
 
-        static Type fromString(String s) {
-            if ("apk".equals(s)) {
-                return APK_UPDATE;
-            } else if ("ccz".equals(s)) {
-                return CCZ_UPDATE;
-            } else {
-                return null;
-            }
-        }
     }
 
     public UpdateToPrompt(String version, String forceString, Type type) {
@@ -133,9 +120,7 @@ public class UpdateToPrompt implements Externalizable {
         try {
             byte[] serializedBytes = SerializationUtil.serialize(this);
             String serializedString = Base64.encodeToString(serializedBytes, Base64.DEFAULT);
-            prefs.edit().putString(
-                    (this.updateType == Type.APK_UPDATE) ? KEY_APK_UPDATE_TO_PROMPT : KEY_CCZ_UPDATE_TO_PROMPT,
-                    serializedString).commit();
+            prefs.edit().putString(this.updateType.getPrefsKey(), serializedString).commit();
         } catch (Exception e) {
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                     "Error encountered while serializing UpdateToPrompt: " + e.getMessage());
@@ -145,7 +130,7 @@ public class UpdateToPrompt implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.versionString = ExtUtil.readString(in);
-        this.updateType = Type.fromString(ExtUtil.readString(in));
+        this.updateType = Type.valueOf(ExtUtil.readString(in));
         this.isForced = ExtUtil.readBool(in);
         buildFromVersionString();
     }
@@ -153,7 +138,7 @@ public class UpdateToPrompt implements Externalizable {
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, versionString);
-        ExtUtil.writeString(out, updateType.getStringRep());
+        ExtUtil.writeString(out, updateType.name());
         ExtUtil.writeBool(out, isForced);
     }
 
