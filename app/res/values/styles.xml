@@ -258,6 +258,8 @@
     <style name="PromptedUpdateButtonUpdateLater" parent="PromptedUpdateButtonBase">
         <item name="android:background">@color/cc_brand_color</item>
         <item name="android:textSize">@dimen/font_size_xlarge</item>
+        <item name="android:paddingLeft">@dimen/standard_spacer_large</item>
+        <item name="android:paddingRight">@dimen/standard_spacer_large</item>
     </style>
 
 

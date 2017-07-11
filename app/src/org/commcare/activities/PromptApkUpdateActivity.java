@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.R;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.javarosa.core.services.locale.Localization;
 
@@ -39,18 +40,18 @@ public class PromptApkUpdateActivity extends PromptUpdateActivity {
             }
         });
 
+        imageCue.setImageResource(R.drawable.apk_update_cue_lts);
     }
 
     private void launchCommCareOnPlayStore() {
-        final String appPackageName = getPackageName(); // getPackageName() from Context or Activity object
+        final String appPackageName = getPackageName();
         Intent intent;
         try {
-            intent = new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=" + appPackageName));
+            startActivityForResult(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=" + appPackageName)), DO_AN_UPDATE);
         } catch (android.content.ActivityNotFoundException e) {
-            intent = new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName));
+            startActivityForResult(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)), DO_AN_UPDATE);
         }
-        startActivityForResult(intent, DO_AN_UPDATE);
     }
 }
