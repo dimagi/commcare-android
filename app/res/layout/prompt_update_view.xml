@@ -59,21 +59,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/connection_needed_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@+id/update_later_option"
-        android:textSize="@dimen/font_size_medium"
-        android:layout_marginLeft="@dimen/standard_spacer"
-        android:layout_marginRight="@dimen/standard_spacer"
-        android:gravity="center"
-        android:textColor="@color/cc_attention_negative_text"
-        android:textStyle="bold"
-        android:visibility="gone"/>
-
-    <TextView
-        android:id="@id/update_later_option"
+        android:id="@+id/update_later_option"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

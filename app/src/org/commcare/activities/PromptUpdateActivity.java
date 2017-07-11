@@ -13,7 +13,6 @@ import android.widget.TextView;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.heartbeat.UpdateToPrompt;
 import org.commcare.dalvik.R;
-import org.commcare.utils.ConnectivityStatus;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
@@ -37,9 +36,6 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
 
     @UiElement(value = R.id.update_later_option)
     private TextView updateLaterText;
-
-    @UiElement(value = R.id.connection_needed_message, locale = "connectivity.needed.for.updates")
-    private TextView connectivityNeededMsg;
 
     @UiElement(value = R.id.ccz_update_info_text)
     private TextView cczUpdateInfoText;
@@ -86,7 +82,15 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
         updatesAvailableTitle.setText(
                 Localization.get(inForceMode() ? "update.required.title" : "updates.available.title"));
 
-        setUpUpdateLaterMessage();
+        SpannableString content = new SpannableString(Localization.get("update.later.option"));
+        content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
+        updateLaterText.setText(content);
+        updateLaterText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         cczUpdateInfoText.setText(Localization.get(
                 cczUpdateIsForced() ? "forced.ccz.update.info" : "prompted.ccz.update.info"));
@@ -117,29 +121,6 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
         }
     }
 
-    private void setUpUpdateLaterMessage() {
-        String updateLaterTextKey;
-        if (ConnectivityStatus.isNetworkAvailable(this)) {
-            updateLaterTextKey = "update.later.option";
-        } else {
-            updateLaterTextKey = "back.for.now";
-        }
-        SpannableString content = new SpannableString(Localization.get(updateLaterTextKey));
-        content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
-
-        if (!ConnectivityStatus.isNetworkAvailable(this)) {
-            updateLaterText.setTextColor(getResources().getColor(R.color.cc_attention_negative_text));
-        }
-
-        updateLaterText.setText(content);
-        updateLaterText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-    }
-
     private void updateVisibilities() {
         View cczView = findViewById(R.id.ccz_update_container);
         if (cczUpdate != null) {
@@ -155,16 +136,10 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
             apkView.setVisibility(View.GONE);
         }
 
-        if (!inForceMode() || !ConnectivityStatus.isNetworkAvailable(this)) {
-            updateLaterText.setVisibility(View.VISIBLE);
-        } else {
+        if (inForceMode()) {
             updateLaterText.setVisibility(View.GONE);
-        }
-
-        if (!ConnectivityStatus.isNetworkAvailable(this)) {
-            connectivityNeededMsg.setVisibility(View.VISIBLE);
         } else {
-            connectivityNeededMsg.setVisibility(View.GONE);
+            updateLaterText.setVisibility(View.VISIBLE);
         }
     }
 
