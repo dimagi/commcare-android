@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.javarosa.core.services.locale.Localization;
@@ -40,7 +41,11 @@ public class PromptApkUpdateActivity extends PromptUpdateActivity {
             }
         });
 
-        imageCue.setImageResource(R.drawable.apk_update_cue_lts);
+        if (BuildConfig.APPLICATION_ID.equals("org.commcare.lts")) {
+            imageCue.setImageResource(R.drawable.apk_update_cue_lts);
+        } else {
+            imageCue.setImageResource(R.drawable.apk_update_cue_commcare);
+        }
     }
 
     private void launchCommCareOnPlayStore() {
