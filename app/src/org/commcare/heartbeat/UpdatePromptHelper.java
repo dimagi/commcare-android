@@ -6,8 +6,11 @@ import android.util.Base64;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.PromptApkUpdateActivity;
+import org.commcare.activities.PromptCczUpdateActivity;
 import org.commcare.activities.PromptUpdateActivity;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.services.Logger;
 
@@ -20,12 +23,16 @@ public class UpdatePromptHelper {
     /**
      * @return - If the user was prompted to update
      */
-    public static boolean promptForUpdateIfNeeded(Activity context) {
-        UpdateToPrompt cczUpdate = getCurrentUpdateToPrompt(false);
-        UpdateToPrompt apkUpdate = getCurrentUpdateToPrompt(true);
-        if (cczUpdate != null || apkUpdate != null) {
-            Intent i = new Intent(context, PromptUpdateActivity.class);
-            context.startActivity(i);
+    public static boolean promptForUpdateIfNeeded(Activity context, int requestCode) {
+        CommCareSessionService currentSession = CommCareApplication.instance().getSession();
+        if (!currentSession.apkUpdatePromptWasShown && getCurrentUpdateToPrompt(true) != null) {
+            // If there are updates to prompt for both, we'll show the apk one first
+            Intent i = new Intent(context, PromptApkUpdateActivity.class);
+            context.startActivityForResult(i, requestCode);
+            return true;
+        } else if (!currentSession.cczUpdatePromptWasShown && getCurrentUpdateToPrompt(false) != null) {
+            Intent i = new Intent(context, PromptCczUpdateActivity.class);
+            context.startActivityForResult(i, requestCode);
             return true;
         }
         return false;

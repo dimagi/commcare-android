@@ -20,52 +20,38 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/apk_update_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/apk_update_info_text"
-                style="@style/PromptedUpdateInfoText"
-                android:layout_marginBottom="@dimen/standard_spacer"/>
-
-            <Button
-                android:id="@+id/apk_update_button"
-                style="@style/PromptedUpdateActionText" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ccz_update_container"
+            android:id="@+id/update_info_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/standard_spacer_large"
             android:gravity="center"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/ccz_update_info_text"
-                style="@style/PromptedUpdateInfoText"
-                android:layout_marginBottom="@dimen/standard_spacer"/>
+            <Button
+                android:id="@+id/update_button"
+                style="@style/PromptedUpdateButtonUpdate" />
 
             <Button
-                android:id="@+id/ccz_update_button"
-                style="@style/PromptedUpdateActionText" />
+                android:id="@+id/update_later_button"
+                style="@style/PromptedUpdateButtonUpdateLater" />
+
+            <ImageView
+                android:id="@+id/update_image_cue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/update_help_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/font_size_medium"
+                android:gravity="center"
+                android:layout_marginRight="@dimen/standard_spacer_double"
+                android:layout_marginLeft="@dimen/standard_spacer_double"/>
 
         </LinearLayout>
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/update_later_option"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/standard_spacer_double"
-        android:textSize="@dimen/font_size_medium"
-        android:gravity="center"/>
 
 </RelativeLayout>
