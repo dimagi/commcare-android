@@ -35,6 +35,9 @@ import java.util.HashMap;
  */
 public class HeartbeatRequester {
 
+    private static final String TEST_RESPONSE =
+            "{\"latest_apk_version\":{\"value\":\"2.37.0\"},\"latest_ccz_version\":{\"value\":\"1000\", \"force\":\"false\"}}";
+
     private static final String TAG = HeartbeatRequester.class.getSimpleName();
 
     private static final String APP_ID = "app_id";
@@ -95,7 +98,7 @@ public class HeartbeatRequester {
     };
 
     protected void requestHeartbeat() {
-        String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
+        /*String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getString(CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
         try {
             Log.i(TAG, "Requesting heartbeat from " + urlString);
@@ -108,6 +111,11 @@ public class HeartbeatRequester {
         } catch (MalformedURLException e) {
             Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE,
                     "Heartbeat URL was malformed: " + e.getMessage());
+        }*/
+        try {
+            parseTestHeartbeatResponse();
+        } catch (JSONException e) {
+            System.out.println("Encountered JSONException parsing test response: " + e.getMessage());
         }
     }
 
@@ -128,6 +136,10 @@ public class HeartbeatRequester {
                 parseHeartbeatResponse(responseAsJson);
             }
         });
+    }
+
+    public static void parseTestHeartbeatResponse() throws JSONException {
+        parseHeartbeatResponse(new JSONObject(TEST_RESPONSE));
     }
 
     protected static void parseHeartbeatResponse(JSONObject responseAsJson) {
