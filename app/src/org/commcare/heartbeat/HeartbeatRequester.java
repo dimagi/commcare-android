@@ -36,7 +36,7 @@ import java.util.HashMap;
 public class HeartbeatRequester {
 
     private static final String TEST_RESPONSE =
-            "{\"latest_apk_version\":{\"value\":\"2.37.0\"},\"latest_ccz_version\":{\"value\":\"1000\", \"force\":\"false\"}}";
+            "{\"app_id\":\"c98d43031ea64ea59995c3a42ae651d5\",\"latest_apk_version\":{\"value\":\"2.37.0\"},\"latest_ccz_version\":{\"value\":\"9999\", \"force\":\"false\"}}";
 
     private static final String TAG = HeartbeatRequester.class.getSimpleName();
 
