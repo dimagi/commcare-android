@@ -9,6 +9,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.heartbeat.UpdatePromptHelper;
+import org.commcare.heartbeat.UpdateToPrompt;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -25,7 +26,7 @@ public class PromptApkUpdateActivity extends PromptUpdateActivity {
 
     @Override
     void refreshUpdateToPromptObject() {
-        updateToPrompt = UpdatePromptHelper.getCurrentUpdateToPrompt(true);
+        updateToPrompt = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
     }
 
     @Override

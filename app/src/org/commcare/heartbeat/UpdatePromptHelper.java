@@ -25,12 +25,14 @@ public class UpdatePromptHelper {
      */
     public static boolean promptForUpdateIfNeeded(Activity context, int requestCode) {
         CommCareSessionService currentSession = CommCareApplication.instance().getSession();
-        if (!currentSession.apkUpdatePromptWasShown() && getCurrentUpdateToPrompt(true) != null) {
+        if (!currentSession.apkUpdatePromptWasShown() &&
+                getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE) != null) {
             // If there are updates to prompt for both, we'll show the apk one first
             Intent i = new Intent(context, PromptApkUpdateActivity.class);
             context.startActivityForResult(i, requestCode);
             return true;
-        } else if (!currentSession.cczUpdatePromptWasShown() && getCurrentUpdateToPrompt(false) != null) {
+        } else if (!currentSession.cczUpdatePromptWasShown() &&
+                getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE) != null) {
             Intent i = new Intent(context, PromptCczUpdateActivity.class);
             context.startActivityForResult(i, requestCode);
             return true;
@@ -42,10 +44,10 @@ public class UpdatePromptHelper {
      * @return an UpdateToPrompt that has been stored in SharedPreferences and is still relevant
      * (i.e. the user hasn't updated to or past this version since we stored it)
      */
-    public static UpdateToPrompt getCurrentUpdateToPrompt(boolean forApkUpdate) {
+    public static UpdateToPrompt getCurrentUpdateToPrompt(UpdateToPrompt.Type type) {
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         if (currentApp != null) {
-            String prefsKey = forApkUpdate ?
+            String prefsKey = (type == UpdateToPrompt.Type.APK_UPDATE) ?
                     UpdateToPrompt.KEY_APK_UPDATE_TO_PROMPT : UpdateToPrompt.KEY_CCZ_UPDATE_TO_PROMPT;
             String serializedUpdate = currentApp.getAppPreferences().getString(prefsKey, "");
             if (!"".equals(serializedUpdate)) {
@@ -58,14 +60,14 @@ public class UpdatePromptHelper {
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                             "Error encountered while de-serializing saved UpdateToPrompt: "
                                     + e.getMessage());
-                    wipeStoredUpdate(forApkUpdate);
+                    wipeStoredUpdate(type);
                     return null;
                 }
                 if (update.isNewerThanCurrentVersion()) {
                     return update;
                 } else {
                     // The update we had stored is no longer relevant, so wipe it and return nothing
-                    wipeStoredUpdate(forApkUpdate);
+                    wipeStoredUpdate(type);
                     return null;
                 }
             }
@@ -73,8 +75,8 @@ public class UpdatePromptHelper {
         return null;
     }
 
-    protected static void wipeStoredUpdate(boolean forApkUpdate) {
-        String prefsKey = forApkUpdate ?
+    protected static void wipeStoredUpdate(UpdateToPrompt.Type type) {
+        String prefsKey = (type == UpdateToPrompt.Type.APK_UPDATE) ?
                 UpdateToPrompt.KEY_APK_UPDATE_TO_PROMPT : UpdateToPrompt.KEY_CCZ_UPDATE_TO_PROMPT;
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putString(prefsKey, "").commit();

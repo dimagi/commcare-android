@@ -36,13 +36,38 @@ public class UpdateToPrompt implements Externalizable {
     private int cczVersion;
     private ApkVersion apkVersion;
     private boolean isForced;
-    protected boolean isApkUpdate;
+    protected Type updateType;
 
-    public UpdateToPrompt(String version, String forceString, boolean isApkUpdate) {
+    public enum Type {
+        APK_UPDATE("apk"),
+        CCZ_UPDATE("ccz");
+
+        private String stringRepresentation;
+
+        Type(String s) {
+            this.stringRepresentation = s;
+        }
+
+        protected String getStringRep() {
+            return this.stringRepresentation;
+        }
+
+        static Type fromString(String s) {
+            if ("apk".equals(s)) {
+                return APK_UPDATE;
+            } else if ("ccz".equals(s)) {
+                return CCZ_UPDATE;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public UpdateToPrompt(String version, String forceString, Type type) {
         if (forceString != null) {
             this.isForced = "true".equals(forceString);
         }
-        this.isApkUpdate = isApkUpdate;
+        this.updateType = type;
         this.versionString = version;
         buildFromVersionString();
     }
@@ -52,7 +77,7 @@ public class UpdateToPrompt implements Externalizable {
     }
 
     private void buildFromVersionString() {
-        if (isApkUpdate) {
+        if (this.updateType == Type.APK_UPDATE) {
             this.apkVersion = new ApkVersion(versionString);
         } else {
             this.cczVersion = Integer.parseInt(versionString);
@@ -66,12 +91,12 @@ public class UpdateToPrompt implements Externalizable {
         } else {
             // If the latest signal we're getting is that our current version is up-to-date,
             // then we should wipe any update prompt for this type that was previously stored
-            UpdatePromptHelper.wipeStoredUpdate(this.isApkUpdate);
+            UpdatePromptHelper.wipeStoredUpdate(this.updateType);
         }
     }
 
     private void printDebugStatement() {
-        if (isApkUpdate) {
+        if (this.updateType == Type.APK_UPDATE) {
             System.out.println(".apk version to prompt for update set to " + apkVersion);
         } else {
             System.out.println(".ccz version to prompt for update set to " + cczVersion);
@@ -84,7 +109,7 @@ public class UpdateToPrompt implements Externalizable {
     }
 
     public boolean isNewerThanCurrentVersion() {
-        if (isApkUpdate) {
+        if (this.updateType == Type.APK_UPDATE) {
             try {
                 Context c = CommCareApplication.instance();
                 PackageInfo pi = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
@@ -109,7 +134,7 @@ public class UpdateToPrompt implements Externalizable {
             byte[] serializedBytes = SerializationUtil.serialize(this);
             String serializedString = Base64.encodeToString(serializedBytes, Base64.DEFAULT);
             prefs.edit().putString(
-                    isApkUpdate ? KEY_APK_UPDATE_TO_PROMPT : KEY_CCZ_UPDATE_TO_PROMPT,
+                    (this.updateType == Type.APK_UPDATE) ? KEY_APK_UPDATE_TO_PROMPT : KEY_CCZ_UPDATE_TO_PROMPT,
                     serializedString).commit();
         } catch (Exception e) {
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
@@ -120,7 +145,7 @@ public class UpdateToPrompt implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.versionString = ExtUtil.readString(in);
-        this.isApkUpdate = ExtUtil.readBool(in);
+        this.updateType = Type.fromString(ExtUtil.readString(in));
         this.isForced = ExtUtil.readBool(in);
         buildFromVersionString();
     }
@@ -128,11 +153,12 @@ public class UpdateToPrompt implements Externalizable {
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, versionString);
-        ExtUtil.writeBool(out, isApkUpdate);
+        ExtUtil.writeString(out, updateType.getStringRep());
         ExtUtil.writeBool(out, isForced);
     }
 
     public int getCczVersion() {
         return cczVersion;
     }
+
 }

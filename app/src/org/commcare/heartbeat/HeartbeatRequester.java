@@ -170,7 +170,7 @@ public class HeartbeatRequester {
             if (responseAsJson.has("latest_apk_version")) {
                 JSONObject latestApkVersionInfo =
                         responseAsJson.getJSONObject("latest_apk_version");
-                parseUpdateToPrompt(latestApkVersionInfo, true);
+                parseUpdateToPrompt(latestApkVersionInfo, UpdateToPrompt.Type.APK_UPDATE);
             }
         } catch (JSONException e) {
             Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
@@ -183,7 +183,7 @@ public class HeartbeatRequester {
         try {
             if (responseAsJson.has("latest_ccz_version")) {
                 JSONObject latestCczVersionInfo = responseAsJson.getJSONObject("latest_ccz_version");
-                parseUpdateToPrompt(latestCczVersionInfo, false);
+                parseUpdateToPrompt(latestCczVersionInfo, UpdateToPrompt.Type.CCZ_UPDATE);
             }
         } catch (JSONException e) {
             Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
@@ -192,7 +192,7 @@ public class HeartbeatRequester {
         }
     }
 
-    private static void parseUpdateToPrompt(JSONObject latestVersionInfo, boolean isForApk) {
+    private static void parseUpdateToPrompt(JSONObject latestVersionInfo, UpdateToPrompt.Type updateType) {
         try {
             if (latestVersionInfo.has("value")) {
                 String versionValue = latestVersionInfo.getString("value");
@@ -200,7 +200,7 @@ public class HeartbeatRequester {
                 if (latestVersionInfo.has("force")) {
                     forceString = latestVersionInfo.getString("force");
                 }
-                UpdateToPrompt updateToPrompt = new UpdateToPrompt(versionValue, forceString, isForApk);
+                UpdateToPrompt updateToPrompt = new UpdateToPrompt(versionValue, forceString, updateType);
                 updateToPrompt.registerWithSystem();
             }
         } catch (JSONException e) {

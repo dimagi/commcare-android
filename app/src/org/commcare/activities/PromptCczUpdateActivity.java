@@ -6,6 +6,7 @@ import android.view.View;
 
 import org.commcare.CommCareApplication;
 import org.commcare.heartbeat.UpdatePromptHelper;
+import org.commcare.heartbeat.UpdateToPrompt;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -22,7 +23,7 @@ public class PromptCczUpdateActivity extends PromptUpdateActivity {
 
     @Override
     void refreshUpdateToPromptObject() {
-        updateToPrompt = UpdatePromptHelper.getCurrentUpdateToPrompt(false);
+        updateToPrompt = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
     }
 
     @Override
