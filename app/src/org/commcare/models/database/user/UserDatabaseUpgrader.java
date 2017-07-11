@@ -9,7 +9,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
-import org.commcare.cases.model.Case;
+import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -27,10 +27,10 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.modern.database.DatabaseIndexingUtils;
-import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
@@ -148,6 +148,11 @@ class UserDatabaseUpgrader {
         if (oldVersion == 17) {
             if (upgradeSeventeenEighteen(db)) {
                 oldVersion = 18;
+            }
+        }
+        if (oldVersion == 18) {
+            if (upgradeEighteenNineteen(db)) {
+                oldVersion = 19;
             }
         }
     }
@@ -505,6 +510,26 @@ class UserDatabaseUpgrader {
 
             db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
                     "case_owner_id_index", "AndroidCase", "owner_id"));
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeEighteenNineteen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            List<String> allIndexedFixtures = IndexedFixturePathUtils.getAllIndexedFixtureNames(db);
+            for (String fixtureName : allIndexedFixtures) {
+                String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
+                SqlStorage<StorageIndexedTreeElementModel> storageForThisFixture =
+                        new SqlStorage<>(tableName, StorageIndexedTreeElementModel.class,
+                                new ConcreteAndroidDbHelper(c, db));
+                StorageIndexedTreeElementModel exampleChildElement =
+                        storageForThisFixture.iterate().nextRecord();
+                IndexedFixturePathUtils.buildFixtureIndices(db, tableName, exampleChildElement.getIndexColumnNames());
+            }
             db.setTransactionSuccessful();
             return true;
         } finally {
