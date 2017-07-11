@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.heartbeat.UpdateToPrompt;
 import org.commcare.dalvik.R;
 import org.commcare.views.ManagedUi;
@@ -89,6 +90,10 @@ public abstract class PromptUpdateActivity extends SessionAwareCommCareActivity 
         } else {
             updateLaterButton.setVisibility(View.VISIBLE);
         }
+    }
+
+    protected String getCurrentClientName() {
+        return (BuildConfig.APPLICATION_ID.equals("org.commcare.lts") ? "CommCare LTS" : "CommCare");
     }
 
     protected boolean inForceMode() {

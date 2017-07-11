@@ -31,13 +31,14 @@ public class PromptApkUpdateActivity extends PromptUpdateActivity {
     @Override
     protected void setUpTypeSpecificUIComponents() {
         updatesAvailableTitle.setText(
-                Localization.get(inForceMode() ? "apk.update.required.title" : "apk.update.available.title"));
+                Localization.get(inForceMode() ? "apk.update.required.title" : "apk.update.available.title",
+                        getCurrentClientName()));
 
-        updateButton.setText(Localization.get("apk.update.action"));
+        updateButton.setText(Localization.get("apk.update.action", getCurrentClientName()));
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                launchCommCareOnPlayStore();
+                launchCurrentAppOnPlayStore();
             }
         });
 
@@ -48,9 +49,8 @@ public class PromptApkUpdateActivity extends PromptUpdateActivity {
         }
     }
 
-    private void launchCommCareOnPlayStore() {
+    private void launchCurrentAppOnPlayStore() {
         final String appPackageName = getPackageName();
-        Intent intent;
         try {
             startActivityForResult(new Intent(Intent.ACTION_VIEW,
                     Uri.parse("market://details?id=" + appPackageName)), DO_AN_UPDATE);
