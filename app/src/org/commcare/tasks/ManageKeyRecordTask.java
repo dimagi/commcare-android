@@ -3,7 +3,6 @@ package org.commcare.tasks;
 import android.content.Context;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DataPullController;
@@ -33,6 +32,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * This task is responsible for taking user credentials and attempting to
@@ -317,7 +319,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     //CTS: These will be fleshed out to comply with the server's Key Request/response protocol
 
     @Override
-    protected HttpResponse doHttpRequest() throws ClientProtocolException, IOException {
+    protected Response<ResponseBody> doHttpRequest() throws IOException {
         HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
         return requestor.makeKeyFetchRequest(keyServerUrl, null);
     }
@@ -601,7 +603,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     }
 
     @Override
-    protected HttpCalloutOutcomes doResponseOther(HttpResponse response) {
+    protected HttpCalloutOutcomes doResponseOther(Response response) {
         return HttpCalloutOutcomes.BadResponse;
     }
 

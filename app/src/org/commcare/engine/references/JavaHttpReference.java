@@ -36,8 +36,7 @@ public class JavaHttpReference implements Reference {
 
     @Override
     public InputStream getStream() throws IOException {
-        URL url = new URL(uri);
-        return generator.simpleGet(url);
+        return generator.simpleGet(uri).body().byteStream();
     }
 
     @Override

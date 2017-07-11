@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
@@ -18,15 +22,13 @@ import retrofit2.Response;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public interface HttpRequestEndpoints {
-    HttpResponse makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws ClientProtocolException, IOException;
+    Response<ResponseBody> makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws IOException;
 
-    Response<ResponseBody> makeCaseFetchRequest(boolean includeStateFlags) throws IOException;
-
-    HttpResponse makeKeyFetchRequest(String baseUri, Date lastRequest) throws ClientProtocolException, IOException;
+    Response<ResponseBody> makeKeyFetchRequest(String baseUri, Date lastRequest) throws IOException;
 
     HttpResponse postData(String url, MultipartEntity entity) throws ClientProtocolException, IOException;
 
-    InputStream simpleGet(URL url) throws IOException;
+    Response<ResponseBody> simpleGet(String uri) throws IOException;
 
     void abortCurrentRequest();
 }

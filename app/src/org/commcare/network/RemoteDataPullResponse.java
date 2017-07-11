@@ -1,11 +1,8 @@
 package org.commcare.network;
 
 import android.content.Context;
-import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
@@ -16,9 +13,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 
-import okhttp3.Headers;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
@@ -56,7 +51,7 @@ public class RemoteDataPullResponse {
     public BitCache writeResponseToCache(Context c) throws IOException {
         BitCache cache = null;
         try {
-            final long dataSizeGuess = guessDataSize();
+            final long dataSizeGuess = HttpRequestGenerator.getContentLength(response);
 
             cache = BitCacheFactory.getCache(new AndroidCacheDirSetup(c), dataSizeGuess);
 
@@ -116,11 +111,11 @@ public class RemoteDataPullResponse {
     }
 
     protected InputStream getInputStream() throws IOException {
-//        return AndroidHttpClient.getUngzippedContent(response.getEntity());
         return response.body().byteStream();
     }
 
     public String getShortBody() throws IOException {
+        // todo test this
         return response.body().toString();
 //        return new String(StreamsUtil.inputStreamToByteArray(AndroidHttpClient.getUngzippedContent(response.getEntity())));
     }
@@ -131,7 +126,7 @@ public class RemoteDataPullResponse {
      * @return -1 for unknown.
      */
     protected long guessDataSize() {
-        String length = getFirstHeader("Content-Length");
+        String length = HttpRequestGenerator.getFirstHeader(response, "Content-Length");
         if (length != null) {
             try {
                 return Long.parseLong(length);
@@ -143,14 +138,6 @@ public class RemoteDataPullResponse {
     }
 
     public String getRetryHeader() {
-        return getFirstHeader("Retry-After");
-    }
-
-    private String getFirstHeader(String s) {
-        List<String> headers = response.headers().values(s);
-        if (headers.size() > 0) {
-            return headers.get(0);
-        }
-        return null;
+        return HttpRequestGenerator.getFirstHeader(response, "Retry-After");
     }
 }

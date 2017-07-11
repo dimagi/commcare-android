@@ -22,7 +22,7 @@ public enum DataPullResponseFactory implements DataPullRequester {
                                                       HttpRequestEndpoints requestor,
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
-        Response response = requestor.makeCaseFetchRequest(includeSyncToken);
+        Response response = requestor.makeCaseFetchRequest(server, includeSyncToken);
         return new RemoteDataPullResponse(task, response);
     }
 

@@ -10,6 +10,9 @@ import org.commcare.tasks.templates.CommCareTask;
 import java.io.IOException;
 import java.io.InputStream;
 
+import okhttp3.ResponseBody;
+import retrofit2.Response;
+
 /**
  * A bare-bones task for making a GET request using the old HTTP libs
  *
@@ -20,7 +23,7 @@ public class SimpleGetTask extends CommCareTask<String, Void, Void, HttpResponse
 
     private HttpRequestGenerator requestGenerator;
     private HttpResponseProcessor responseProcessor;
-    private HttpResponse lastResponse;
+    private Response<ResponseBody> lastResponse;
 
     public SimpleGetTask(String username, String password,
                          HttpResponseProcessor responseProcessor) {
@@ -31,9 +34,9 @@ public class SimpleGetTask extends CommCareTask<String, Void, Void, HttpResponse
     @Override
     protected Void doTaskBackground(String... params) {
         try {
-            this.lastResponse = requestGenerator.get(params[0]);
-            ModernHttpRequester.processResponse(this.responseProcessor,
-                    lastResponse.getStatusLine().getStatusCode(), this);
+            this.lastResponse = requestGenerator.simpleGet(params[0]);
+            ModernHttpRequester.processResponse(responseProcessor,
+                    lastResponse.code(), this);
         } catch (IOException e) {
             responseProcessor.handleIOException(e);
         }
@@ -57,6 +60,6 @@ public class SimpleGetTask extends CommCareTask<String, Void, Void, HttpResponse
 
     @Override
     public InputStream getResponseStream() throws IOException {
-        return lastResponse.getEntity().getContent();
+        return lastResponse.body().byteStream();
     }
 }

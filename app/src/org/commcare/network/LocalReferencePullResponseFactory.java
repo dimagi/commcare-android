@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import okhttp3.ResponseBody;
+import retrofit2.Response;
+
 /**
  * Builds data pull requester that gets data from a local CommCare reference.
  *
@@ -37,9 +40,8 @@ public enum LocalReferencePullResponseFactory implements DataPullRequester {
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
         numTries++;
-        HttpResponse response = requestor.makeCaseFetchRequest(server, includeSyncToken);
-//   todo     return new LocalReferencePullResponse(xmlPayloadReferences.remove(0), response);
-        return null;
+        Response<ResponseBody> response = requestor.makeCaseFetchRequest(server, includeSyncToken);
+        return new LocalReferencePullResponse(xmlPayloadReferences.remove(0), response);
     }
 
     @Override

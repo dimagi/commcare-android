@@ -14,10 +14,10 @@ import java.util.ArrayList;
 
 /**
  * API wrapper class for services provided by CommCare micronodes.
- *
+ * <p>
  * Micronodes are HTTP services which provide access to CommCare user and applicaiton level data
  * across local networks.
- *
+ * <p>
  * Created by ctsims on 2/19/2016.
  */
 public class MicroNode {
@@ -35,7 +35,9 @@ public class MicroNode {
 
             try {
                 InputStream is = new BufferedInputStream(
-                        HttpRequestGenerator.buildNoAuthGenerator().simpleGet(new URL(serviceUrlRoot + "/apps/manifest")));
+                        HttpRequestGenerator.buildNoAuthGenerator()
+                                .simpleGet(serviceUrlRoot + "/apps/manifest")
+                                .body().byteStream());
                 byte[] manifest = StreamsUtil.inputStreamToByteArray(is);
 
                 JSONObject object = new JSONObject(new String(manifest));

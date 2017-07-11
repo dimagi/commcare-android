@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import okhttp3.ResponseBody;
+import retrofit2.Response;
+
 /**
  * Builds data pull requester that gets data from a local file on the android filesystem.
  *
@@ -41,9 +44,8 @@ public enum LocalFilePullResponseFactory implements DataPullRequester {
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
         numTries++;
-        HttpResponse response = requestor.makeCaseFetchRequest(server, includeSyncToken);
-//   todo     return new LocalFilePullResponse(xmlPayloadReferences.remove(0), response);
-        return null;
+        Response<ResponseBody> response = requestor.makeCaseFetchRequest(server, includeSyncToken);
+        return new LocalFilePullResponse(xmlPayloadReferences.remove(0), response);
     }
 
     @Override

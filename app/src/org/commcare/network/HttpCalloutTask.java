@@ -2,7 +2,6 @@ package org.commcare.network;
 
 import android.content.Context;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -23,6 +22,9 @@ import java.io.OutputStream;
 import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
+
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * @author ctsims
@@ -67,9 +69,9 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
             HttpCalloutOutcomes outcome;
 
             try {
-                HttpResponse response = doHttpRequest();
+                Response response = doHttpRequest();
 
-                int responseCode = response.getStatusLine().getStatusCode();
+                int responseCode = response.code();
 
                 if (responseCode >= 200 && responseCode < 300) {
                     outcome = doResponseSuccess(response);
@@ -117,9 +119,9 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         return null;
     }
 
-    protected abstract HttpResponse doHttpRequest() throws ClientProtocolException, IOException;
+    protected abstract Response<ResponseBody> doHttpRequest() throws IOException;
 
-    protected HttpCalloutOutcomes doResponseSuccess(HttpResponse response) throws IOException {
+    protected HttpCalloutOutcomes doResponseSuccess(Response<ResponseBody> response) throws IOException {
         beginResponseHandling(response);
 
         InputStream input = cacheResponseOpenHandle(response);
@@ -150,40 +152,33 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
 
     protected abstract TransactionParserFactory getTransactionParserFactory();
 
-    protected InputStream cacheResponseOpenHandle(HttpResponse response) throws IOException {
-        int dataSizeGuess = -1;
-        if (response.containsHeader("Content-Length")) {
-            String length = response.getFirstHeader("Content-Length").getValue();
-            try {
-                dataSizeGuess = Integer.parseInt(length);
-            } catch (Exception e) {
-                //Whatever.
-            }
-        }
+    protected InputStream cacheResponseOpenHandle(Response<ResponseBody> response) throws IOException {
+        long dataSizeGuess = HttpRequestGenerator.getContentLength(response);
 
         BitCache cache = BitCacheFactory.getCache(new AndroidCacheDirSetup(c), dataSizeGuess);
-
         cache.initializeCache();
 
         OutputStream cacheOut = cache.getCacheStream();
-        StreamsUtil.writeFromInputToOutputNew(response.getEntity().getContent(), cacheOut);
+        StreamsUtil.writeFromInputToOutputNew(response.body().byteStream(), cacheOut);
 
         return cache.retrieveCache();
     }
 
-    protected void beginResponseHandling(HttpResponse response) {
+    protected void beginResponseHandling(Response response) {
         //Nothing unless required
     }
 
-    protected HttpCalloutOutcomes doResponseAuthFailed(HttpResponse response) {
+    protected HttpCalloutOutcomes doResponseAuthFailed(Response response) {
         return HttpCalloutOutcomes.AuthFailed;
     }
 
-    protected abstract HttpCalloutOutcomes doResponseOther(HttpResponse response);
+    protected abstract HttpCalloutOutcomes doResponseOther(Response response);
 
-    /** Indicates whether, after doSetupTaskBeforeRequest() is executed, we actually need to
-     *  execute the http callout. If this is false, doSetupTaskBeforeRequest() will just be
-     *  followed by doPostCalloutTask() */
+    /**
+     * Indicates whether, after doSetupTaskBeforeRequest() is executed, we actually need to
+     * execute the http callout. If this is false, doSetupTaskBeforeRequest() will just be
+     * followed by doPostCalloutTask()
+     */
     protected abstract boolean shouldMakeHttpCallout();
 
     /**

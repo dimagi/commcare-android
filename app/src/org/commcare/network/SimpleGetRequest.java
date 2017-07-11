@@ -31,7 +31,7 @@ class SimpleGetRequest {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(
-                            HttpRequestGenerator.buildDomainUser(username),
+                             HttpRequestGenerator.buildDomainUser(username),
                             password.toCharArray());
                 }
             });

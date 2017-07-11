@@ -2,7 +2,7 @@ package org.commcare.network;
 
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.net.http.AndroidHttpClient;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.apache.http.HttpHost;
@@ -12,7 +12,6 @@ import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -42,20 +41,16 @@ import org.javarosa.core.services.Logger;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.concurrent.TimeUnit;
 
-import okhttp3.Authenticator;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.ResponseBody;
-import okhttp3.Route;
 import retrofit2.Response;
+
 
 /**
  * @author ctsims
@@ -144,96 +139,30 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         return new HttpRequestGenerator(null, null, null, null);
     }
 
-    public HttpResponse get(String uri) throws ClientProtocolException, IOException {
-        HttpClient client = client();
-
+    @NonNull
+    private Response<ResponseBody> get(@NonNull String uri, @NonNull Map params, @NonNull Map headers) throws IOException {
+        CommCareNetworkService commCareNetworkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(getCredentials(username, password));
         Log.d(TAG, "Fetching from: " + uri);
-        HttpGet request = new HttpGet(uri);
-        addHeaders(request, "");
-        HttpResponse response = execute(client, request);
+        return commCareNetworkService.makeGetRequest(uri, params, headers).execute();
+    }
 
-        //May need to manually process a valid redirect
-        if (response.getStatusLine().getStatusCode() == 301) {
-            String newGetUri = request.getURI().toString();
-            Log.d(LOG_COMMCARE_NETWORK, "Following valid redirect from " + uri + " to " + newGetUri);
-            request.abort();
-
-            //Make a new response to the redirect
-            request = new HttpGet(newGetUri);
-            addHeaders(request, "");
-            response = execute(client, request);
+    private static String getCredentials(String username, String password) {
+        if (username == null || password == null) {
+            return null;
+        } else {
+            return okhttp3.Credentials.basic(buildDomainUser(username), password);
         }
-
-        return response;
-
     }
 
     @Override
-    public HttpResponse makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws ClientProtocolException, IOException {
-        HttpClient client = client();
+    public Response<ResponseBody> makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws IOException {
+        Map<String, String> params = new HashMap<>();
 
         Uri serverUri = Uri.parse(baseUri);
         String vparam = serverUri.getQueryParameter("version");
         if (vparam == null) {
-            serverUri = serverUri.buildUpon().appendQueryParameter("version", "2.0").build();
+            params.put("version", "2.0");
         }
-
-        // include IMEI in key fetch request for auditing large deployments
-        serverUri = serverUri.buildUpon().appendQueryParameter("device_id",
-                CommCareApplication.instance().getPhoneId()).build();
-
-        if (userId != null) {
-            serverUri = serverUri.buildUpon().appendQueryParameter("user_id", userId).build();
-        }
-
-        String syncToken = null;
-        if (includeStateFlags) {
-            syncToken = getSyncToken(username);
-            String digest = getDigest();
-
-            if (syncToken != null) {
-                serverUri = serverUri.buildUpon().appendQueryParameter("since", syncToken).build();
-            }
-            if (digest != null) {
-                serverUri = serverUri.buildUpon().appendQueryParameter("state", "ccsh:" + digest).build();
-            }
-        }
-
-        //Add items count to fetch request
-        serverUri = serverUri.buildUpon().appendQueryParameter("items", "true").build();
-
-        if (CommCareApplication.instance().shouldInvalidateCacheOnRestore()) {
-            // Currently used for testing purposes only, in order to ensure that a full sync will
-            // occur when we want to test one
-            serverUri = serverUri.buildUpon().appendQueryParameter("overwrite_cache", "true").build();
-            // Always wipe this flag after we have used it once
-            CommCareApplication.instance().setInvalidateCacheFlag(false);
-        }
-
-        String uri = serverUri.toString();
-        Log.d(TAG, "Fetching from: " + uri);
-        currentRequest = new HttpGet(uri);
-        AndroidHttpClient.modifyRequestToAcceptGzipResponse(currentRequest);
-        addHeaders(currentRequest, syncToken);
-        HttpResponse response = execute(client, currentRequest);
-        currentRequest = null;
-        return response;
-    }
-
-    @Override
-    public Response<ResponseBody> makeCaseFetchRequest(boolean includeStateFlags) throws IOException {
-
-        CommCareNetworkService commCareNetworkService = CommCareNetworkServiceProvider.provideCommCareNetworkService(OkHttpClient());
-
-//      todo  String vparam = serverUri.getQueryParameter("version");
-//        if (vparam == null) {
-//            serverUri = serverUri.buildUpon().appendQueryParameter("version", "2.0").build();
-//        }
-
-
-        Map<String, String> params = new HashMap<>();
-
-        params.put("version", "2.0");
 
         // include IMEI in key fetch request for auditing large deployments
         params.put("device_id", CommCareApplication.instance().getPhoneId());
@@ -266,7 +195,9 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             CommCareApplication.instance().setInvalidateCacheFlag(false);
         }
 
-        return commCareNetworkService.makeCaseFetchRequest(params, getHeaders(syncToken)).execute();
+        return get(CommCareServerPreferences.getDataServerKey(),
+                params,
+                getHeaders(syncToken));
     }
 
     private Map<String, String> getHeaders(String lastToken) {
@@ -280,23 +211,17 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     }
 
     @Override
-    public HttpResponse makeKeyFetchRequest(String baseUri, Date lastRequest) throws ClientProtocolException, IOException {
-        HttpClient client = client();
-
-
-        Uri url = Uri.parse(baseUri);
+    public Response<ResponseBody> makeKeyFetchRequest(String baseUri, Date lastRequest) throws IOException {
+        Map<String, String> params = new HashMap<>();
 
         if (lastRequest != null) {
-            url = url.buildUpon().appendQueryParameter("last_issued", DateUtils.formatTime(lastRequest, DateUtils.FORMAT_ISO8601)).build();
+            params.put("last_issued", DateUtils.formatTime(lastRequest, DateUtils.FORMAT_ISO8601));
         }
 
         // include IMEI in key fetch request for auditing large deployments
-        url = url.buildUpon().appendQueryParameter("device_id",
-                CommCareApplication.instance().getPhoneId()).build();
+        params.put("device_id", CommCareApplication.instance().getPhoneId());
 
-        HttpGet get = new HttpGet(url.toString());
-
-        return execute(client, get);
+        return get(baseUri, params, new HashMap());
     }
 
     private void addHeaders(HttpRequestBase base, String lastToken) {
@@ -337,8 +262,8 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         // setup client
         HttpClient httpclient = client();
 
-        //If we're going to try to post with no credentials, we need to be explicit about the fact that we're 
-        //not ready 
+        //If we're going to try to post with no credentials, we need to be explicit about the fact that we're
+        //not ready
         if (credentials == null) {
             url = Uri.parse(url).buildUpon().appendQueryParameter(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH).build().toString();
         }
@@ -363,35 +288,6 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
         DefaultHttpClient client = new DefaultHttpClient(params);
         client.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
-
-        System.setProperty("http.keepAlive", "false");
-
-        return client;
-    }
-
-
-    private OkHttpClient OkHttpClient() {
-
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(ModernHttpRequester.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)
-                .readTimeout(ModernHttpRequester.CONNECTION_SO_TIMEOUT, TimeUnit.MILLISECONDS)
-                .followRedirects(true)
-                .followSslRedirects(false)
-                .authenticator(new Authenticator() {
-                    @Override
-                    public Request authenticate(Route route, okhttp3.Response response) throws IOException {
-                        String credential = okhttp3.Credentials.basic(buildDomainUser(username), password);
-
-                        if (credential.equals(response.request().header("Authorization"))) {
-                            return null; // If we already failed with these credentials, don't retry.
-                        }
-
-                        return response.request().newBuilder()
-                                .header("Authorization", credential)
-                                .build();
-                    }
-                })
-                .build();
 
         System.setProperty("http.keepAlive", "false");
 
@@ -423,7 +319,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         return response;
     }
 
-    public static boolean isValidRedirect(URL url, URL newUrl) {
+    private static boolean isValidRedirect(URL url, URL newUrl) {
         //unless it's https, don't worry about it
         if (!url.getProtocol().equals("https")) {
             return true;
@@ -436,25 +332,12 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     }
 
     @Override
-    public InputStream simpleGet(URL url) throws IOException {
-        if (android.os.Build.VERSION.SDK_INT > 11) {
-            InputStream requestResult = SimpleGetRequest.makeRequest(username, password, url);
-
-            if (requestResult != null) {
-                return requestResult;
-            }
+    public Response<ResponseBody> simpleGet(String uri) throws IOException {
+        Response<ResponseBody> response = get(uri, new HashMap(), getHeaders(""));
+        if (response.code() == 404) {
+            throw new FileNotFoundException("No Data available at URL " + uri);
         }
-
-        // On earlier versions of android use the apache libraries, they work much much better.
-        Log.i(LOG_COMMCARE_NETWORK, "Falling back to Apache libs for network request");
-        HttpResponse get = get(url.toString());
-
-        if (get.getStatusLine().getStatusCode() == 404) {
-            throw new FileNotFoundException("No Data available at URL " + url.toString());
-        }
-
-        //TODO: Double check response code
-        return get.getEntity().getContent();
+        return response;
     }
 
     @Override
@@ -466,6 +349,25 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
                 Log.i(TAG, "Error thrown while aborting http: " + e.getMessage());
             }
         }
+    }
+
+    public static long getContentLength(retrofit2.Response response) {
+        long contentLength = -1;
+        String length = getFirstHeader(response, "Content-Length");
+        try {
+            contentLength = Long.parseLong(length);
+        } catch (Exception e) {
+            //Whatever.
+        }
+        return contentLength;
+    }
+
+    public static String getFirstHeader(retrofit2.Response response, String headerName) {
+        List<String> headers = response.headers().values(headerName);
+        if (headers.size() > 0) {
+            return headers.get(0);
+        }
+        return null;
     }
 
 }
