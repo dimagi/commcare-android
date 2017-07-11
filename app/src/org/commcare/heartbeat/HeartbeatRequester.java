@@ -196,11 +196,11 @@ public class HeartbeatRequester {
         try {
             if (latestVersionInfo.has("value")) {
                 String versionValue = latestVersionInfo.getString("value");
-                String forceByDate = null;
-                if (latestVersionInfo.has("force_by_date")) {
-                    forceByDate = latestVersionInfo.getString("force_by_date");
+                String forceString = null;
+                if (latestVersionInfo.has("force")) {
+                    forceString = latestVersionInfo.getString("force");
                 }
-                UpdateToPrompt updateToPrompt = new UpdateToPrompt(versionValue, forceByDate, isForApk);
+                UpdateToPrompt updateToPrompt = new UpdateToPrompt(versionValue, forceString, isForApk);
                 updateToPrompt.registerWithSystem();
             }
         } catch (JSONException e) {

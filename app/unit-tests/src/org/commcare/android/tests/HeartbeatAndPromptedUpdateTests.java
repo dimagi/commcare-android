@@ -45,7 +45,7 @@ public class HeartbeatAndPromptedUpdateTests {
     private static final String RESPONSE_CorrectApp_CczUpdateNeeded_WithForce =
             "{\"app_id\":\"36c0bdd028d14a52cbff95bb1bfd0962\"," +
                     "\"latest_apk_version\":{\"value\":\"2.25.0\"}," +
-                    "\"latest_ccz_version\":{\"value\":\"97\", \"force_by_date\":\"2017-05-01\"}}";
+                    "\"latest_ccz_version\":{\"value\":\"97\", \"force\":\"true\"}}";
 
     private static final String EMPTY_RESPONSE = "{}";
 
@@ -76,7 +76,7 @@ public class HeartbeatAndPromptedUpdateTests {
         Assert.assertNotNull(cczUpdate);
         Assert.assertTrue(cczUpdate.isNewerThanCurrentVersion());
         Assert.assertEquals(97, cczUpdate.getCczVersion());
-        Assert.assertFalse(cczUpdate.isPastForceByDate());
+        Assert.assertFalse(cczUpdate.isForced());
 
         UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(true);
         Assert.assertNull(apkUpdate);
@@ -90,7 +90,7 @@ public class HeartbeatAndPromptedUpdateTests {
         Assert.assertNotNull(cczUpdate);
         Assert.assertTrue(cczUpdate.isNewerThanCurrentVersion());
         Assert.assertEquals(97, cczUpdate.getCczVersion());
-        Assert.assertTrue(cczUpdate.isPastForceByDate());
+        Assert.assertTrue(cczUpdate.isForced());
 
         UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(true);
         Assert.assertNull(apkUpdate);

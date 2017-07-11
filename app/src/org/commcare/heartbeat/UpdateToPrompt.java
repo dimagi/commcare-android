@@ -35,12 +35,12 @@ public class UpdateToPrompt implements Externalizable {
     private String versionString;
     private int cczVersion;
     private ApkVersion apkVersion;
-    private Date forceByDate;
+    private boolean isForced;
     protected boolean isApkUpdate;
 
-    public UpdateToPrompt(String version, String forceByDate, boolean isApkUpdate) {
-        if (forceByDate != null) {
-            this.forceByDate = DateUtils.parseDate(forceByDate);
+    public UpdateToPrompt(String version, String forceString, boolean isApkUpdate) {
+        if (forceString != null) {
+            this.isForced = "true".equals(forceString);
         }
         this.isApkUpdate = isApkUpdate;
         this.versionString = version;
@@ -57,10 +57,6 @@ public class UpdateToPrompt implements Externalizable {
         } else {
             this.cczVersion = Integer.parseInt(versionString);
         }
-    }
-
-    public boolean isPastForceByDate() {
-        return forceByDate != null && (forceByDate.getTime() < System.currentTimeMillis());
     }
 
     public void registerWithSystem() {
@@ -80,9 +76,11 @@ public class UpdateToPrompt implements Externalizable {
         } else {
             System.out.println(".ccz version to prompt for update set to " + cczVersion);
         }
-        if (this.forceByDate != null) {
-            System.out.println("force-by date is " + forceByDate);
-        }
+        System.out.println("Is forced?: " + isForced);
+    }
+
+    public boolean isForced() {
+        return isForced;
     }
 
     public boolean isNewerThanCurrentVersion() {
@@ -123,7 +121,7 @@ public class UpdateToPrompt implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.versionString = ExtUtil.readString(in);
         this.isApkUpdate = ExtUtil.readBool(in);
-        this.forceByDate = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
+        this.isForced = ExtUtil.readBool(in);
         buildFromVersionString();
     }
 
@@ -131,7 +129,7 @@ public class UpdateToPrompt implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, versionString);
         ExtUtil.writeBool(out, isApkUpdate);
-        ExtUtil.write(out, new ExtWrapNullable(forceByDate));
+        ExtUtil.writeBool(out, isForced);
     }
 
     public int getCczVersion() {

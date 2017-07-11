@@ -173,11 +173,11 @@ public class PromptUpdateActivity extends SessionAwareCommCareActivity {
     }
 
     private boolean cczUpdateIsForced() {
-        return cczUpdate != null && cczUpdate.isPastForceByDate();
+        return cczUpdate != null && cczUpdate.isForced();
     }
 
     private boolean apkUpdateIsForced() {
-        return apkUpdate != null && apkUpdate.isPastForceByDate();
+        return apkUpdate != null && apkUpdate.isForced();
     }
 
     private void launchUpdateActivity() {
