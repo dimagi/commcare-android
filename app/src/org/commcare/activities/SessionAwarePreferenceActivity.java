@@ -9,7 +9,7 @@ import org.commcare.utils.SessionActivityRegistration;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class SessionAwarePreferenceActivity extends PreferenceActivity {
+public class SessionAwarePreferenceActivity extends CommCarePreferenceActivity {
 
     @Override
     protected void onResume() {
