@@ -12,6 +12,7 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.utils.MultipleAppsUtil;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -105,7 +106,12 @@ public class AppUtils {
 
     public static void wipeSandboxForUser(final String username) {
         // manually clear file-backed fixture storage to ensure files are removed
-        CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
+        try {
+            CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
+        } catch (SessionUnavailableException e) {
+            // this will sometimes get called from outside of a session; we want to proceed with
+            // the other parts of wiping the sandbox that haven't already been done by logging out
+        }
 
         // wipe the user's db
         final Set<String> dbIdsToRemove = new HashSet<>();
