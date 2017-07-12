@@ -196,12 +196,14 @@ public class HeartbeatRequester {
         try {
             if (latestVersionInfo.has("value")) {
                 String versionValue = latestVersionInfo.getString("value");
-                String forceString = null;
-                if (latestVersionInfo.has("force")) {
-                    forceString = latestVersionInfo.getString("force");
+                if (!"".equals(versionValue)) {
+                    String forceString = null;
+                    if (latestVersionInfo.has("force")) {
+                        forceString = latestVersionInfo.getString("force");
+                    }
+                    UpdateToPrompt updateToPrompt = new UpdateToPrompt(versionValue, forceString, updateType);
+                    updateToPrompt.registerWithSystem();
                 }
-                UpdateToPrompt updateToPrompt = new UpdateToPrompt(versionValue, forceString, updateType);
-                updateToPrompt.registerWithSystem();
             }
         } catch (JSONException e) {
             Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
