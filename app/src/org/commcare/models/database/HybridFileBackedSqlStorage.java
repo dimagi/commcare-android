@@ -41,7 +41,8 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
     private final File dbDir;
-    public final static int ONE_MB_DB_SIZE_LIMIT = 1000000;
+    public static final int ONE_MB_DB_SIZE_LIMIT = 1000000;
+    public static final String FIXTURE_STORAGE_TABLE_NAME = "fixture";
 
     /**
      * Column selection used for reading file data:
@@ -72,10 +73,13 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                                       String directoryName,
                                       AppFilePathBuilder fsPathBuilder) {
         super(tableName, classType, dbHelper);
-
-        final String subPath = GlobalConstants.FILE_CC_DB + directoryName + "/_" + tableName;
-        dbDir = new File(fsPathBuilder.fsPath(subPath));
+        dbDir = getStorageFile(directoryName, tableName, fsPathBuilder);
         setupDir();
+    }
+
+    public static File getStorageFile(String directoryName, String tableName, AppFilePathBuilder fsPathBuilder) {
+        String subPath = GlobalConstants.FILE_CC_DB + directoryName + "/_" + tableName;
+        return new File(fsPathBuilder.fsPath(subPath));
     }
 
     private void setupDir() {
