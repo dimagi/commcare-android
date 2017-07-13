@@ -19,15 +19,14 @@ updates.pinned.download=Downloading updates
 updates.pinned.progress=${0}/${1}
 install.current.version=Current version: ${0}
 
-updates.available.title=Updates Available
-update.required.title=Update Required
-update.later.option=I'll update later.
-prompted.apk.update.info=There is a newer version of CommCare available, and it is recommended that you update now.
-forced.apk.update.info=There is a newer version of CommCare available. You must update before continuing to use CommCare.
-apk.update.action=Update CommCare via the Play Store
-prompted.ccz.update.info=There is a newer version of your app available, and it is recommended that you update now.
-forced.ccz.update.info=There is a newer version of your app available. You must update before continuing to use CommCare.
+apk.update.available.title=New version of ${0} is Available
+apk.update.required.title=New version of ${0} is Required
+ccz.update.available.title=New version of the application is available
+ccz.update.required.title=New version of the application is required
+prompted.update.help.text=If you have any issues updating, please contact your Helpdesk
+update.later.button.text=I'll update later
 ccz.update.action=Update to the Latest App Version
+apk.update.action=Update ${0} via the Play Store
 
 verify.retry=Retry
 verify.checking=Verifying media...
