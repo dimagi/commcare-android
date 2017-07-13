@@ -49,6 +49,11 @@ public class HeartbeatAndPromptedUpdateTests {
 
     private static final String EMPTY_RESPONSE = "{}";
 
+    private static final String NO_OP_RESPONSE =
+            "{\"app_id\":\"36c0bdd028d14a52cbff95bb1bfd0962\"," +
+                    "\"latest_apk_version\":{}," +
+                    "\"latest_ccz_version\":{}}";
+
     @Before
     public void setup() {
         // The app version for this app is 95
@@ -110,6 +115,17 @@ public class HeartbeatAndPromptedUpdateTests {
     @Test
     public void testHeartbeatForWrongApp() {
         requestAndParseHeartbeat(RESPONSE_WrongApp_CczUpdateNeeded);
+
+        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
+        Assert.assertNull(cczUpdate);
+
+        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
+        Assert.assertNull(apkUpdate);
+    }
+
+    @Test
+    public void testNoOpResponse() {
+        requestAndParseHeartbeat(NO_OP_RESPONSE);
 
         UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
         Assert.assertNull(cczUpdate);
