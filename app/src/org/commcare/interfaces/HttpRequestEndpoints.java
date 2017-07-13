@@ -26,7 +26,7 @@ public interface HttpRequestEndpoints {
 
     Response<ResponseBody> makeKeyFetchRequest(String baseUri, Date lastRequest) throws IOException;
 
-    HttpResponse postData(String url, MultipartEntity entity) throws ClientProtocolException, IOException;
+    Response<ResponseBody> postData(String url, List<MultipartBody.Part> parts) throws IOException;
 
     Response<ResponseBody> simpleGet(String uri) throws IOException;
 

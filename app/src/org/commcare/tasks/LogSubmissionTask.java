@@ -24,6 +24,7 @@ import org.commcare.network.HttpRequestGenerator;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.LogSubmissionTask.LogSubmitOutcomes;
+import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -36,10 +37,16 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * @author ctsims
@@ -253,14 +260,17 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
         generator = new HttpRequestGenerator(user);
 
-        MultipartEntity entity = new DataSubmissionEntity(listener, index);
+        List<MultipartBody.Part> parts = new ArrayList<>();
 
-        EncryptedFileBody fb = new EncryptedFileBody(f, getDecryptCipher(new SecretKeySpec(slr.getKey(), "AES")), ContentType.TEXT_XML);
-        entity.addPart("xml_submission_file", fb);
+        parts.add(FormUploadUtil.createEncryptedFilePart(
+                "xml_submission_file",
+                f,
+                "text/xml",
+                new SecretKeySpec(slr.getKey(), "AES")));
 
-        HttpResponse response;
+        Response<ResponseBody> response;
         try {
-            response = generator.postData(submissionUrl, entity);
+            response = generator.postData(submissionUrl, parts);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
             return false;
@@ -272,14 +282,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return false;
         }
 
-        int responseCode = response.getStatusLine().getStatusCode();
-
+        int responseCode = response.code();
         return (responseCode >= 200 && responseCode < 300);
     }
 
     private static boolean removeLocalReports(SqlStorage<DeviceReportRecord> storage,
-                                       ArrayList<Integer> submittedSuccesfullyIds,
-                                       ArrayList<DeviceReportRecord> submittedSuccesfully) {
+                                              ArrayList<Integer> submittedSuccesfullyIds,
+                                              ArrayList<DeviceReportRecord> submittedSuccesfully) {
         try {
             //Wipe the DB entries
             storage.remove(submittedSuccesfullyIds);

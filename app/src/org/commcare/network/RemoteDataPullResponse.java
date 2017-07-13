@@ -3,6 +3,7 @@ package org.commcare.network;
 import android.content.Context;
 import android.util.Log;
 
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
@@ -51,7 +52,7 @@ public class RemoteDataPullResponse {
     public BitCache writeResponseToCache(Context c) throws IOException {
         BitCache cache = null;
         try {
-            final long dataSizeGuess = HttpRequestGenerator.getContentLength(response);
+            final long dataSizeGuess = ModernHttpRequester.getContentLength(response);
 
             cache = BitCacheFactory.getCache(new AndroidCacheDirSetup(c), dataSizeGuess);
 
@@ -117,7 +118,6 @@ public class RemoteDataPullResponse {
     public String getShortBody() throws IOException {
         // todo test this
         return response.body().toString();
-//        return new String(StreamsUtil.inputStreamToByteArray(AndroidHttpClient.getUngzippedContent(response.getEntity())));
     }
 
     /**
@@ -126,7 +126,7 @@ public class RemoteDataPullResponse {
      * @return -1 for unknown.
      */
     protected long guessDataSize() {
-        String length = HttpRequestGenerator.getFirstHeader(response, "Content-Length");
+        String length = ModernHttpRequester.getFirstHeader(response, "Content-Length");
         if (length != null) {
             try {
                 return Long.parseLong(length);
@@ -138,6 +138,6 @@ public class RemoteDataPullResponse {
     }
 
     public String getRetryHeader() {
-        return HttpRequestGenerator.getFirstHeader(response, "Retry-After");
+        return ModernHttpRequester.getFirstHeader(response, "Retry-After");
     }
 }

@@ -5,14 +5,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.network.DataSubmissionEntity;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.DataSubmissionListener;
@@ -28,10 +21,18 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 public class FormUploadUtil {
     private static final String TAG = FormUploadUtil.class.getSimpleName();
@@ -134,14 +135,17 @@ public class FormUploadUtil {
         }
 
         // mime post
-        MultipartEntity entity =
-                new DataSubmissionEntity(myListener, submissionNumber);
-        if (!buildMultipartEntity(entity, key, files)) {
+//        MultipartEntity entity =
+//                new DataSubmissionEntity(myListener, submissionNumber);
+
+        List<MultipartBody.Part> parts = new ArrayList<>();
+
+        if (!buildMultipartEntity(parts, key, files)) {
             return FormUploadResult.RECORD_FAILURE;
         }
 
         HttpRequestGenerator generator = new HttpRequestGenerator(user);
-        return submitEntity(entity, url, generator);
+        return submitEntity(parts, url, generator);
     }
 
     /**
@@ -149,12 +153,12 @@ public class FormUploadUtil {
      *
      * @return submission status of multipart entity post
      */
-    private static FormUploadResult submitEntity(MultipartEntity entity, String url,
+    private static FormUploadResult submitEntity(List<MultipartBody.Part> parts, String url,
                                                  HttpRequestGenerator generator) {
-        HttpResponse response;
+        Response<ResponseBody> response;
 
         try {
-            response = generator.postData(url, entity);
+            response = generator.postData(url, parts);
         } catch (InputIOException ioe) {
             // This implies that there was a problem with the _source_ of the
             // transmission, not the processing or receiving end.
@@ -162,7 +166,7 @@ public class FormUploadUtil {
                     "Internal error reading form record during submission: " +
                             ioe.getWrapped().getMessage());
             return FormUploadResult.RECORD_FAILURE;
-        } catch (ClientProtocolException | UnknownHostException e) {
+        } catch (UnknownHostException e) {
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
                     "Client network issues during submission: " + e.getMessage());
@@ -176,13 +180,13 @@ public class FormUploadUtil {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            StreamsUtil.writeFromInputToOutputNew(response.getEntity().getContent(), bos);
+            StreamsUtil.writeFromInputToOutputNew(response.body().byteStream(), bos);
         } catch (IllegalStateException | IOException e) {
             e.printStackTrace();
         }
 
         String responseString = new String(bos.toByteArray());
-        int responseCode = response.getStatusLine().getStatusCode();
+        int responseCode = response.code();
         logResponse(responseCode, responseString);
 
         if (responseCode >= 200 && responseCode < 300) {
@@ -208,10 +212,10 @@ public class FormUploadUtil {
 
     /**
      * Validate the content body of the XML submission file.
-     *
+     * <p>
      * TODO: this should really be the responsibility of the form record, not
      * of the submission process, persay.
-     *
+     * <p>
      * NOTE: this is a shallow validation (everything should be more or else
      * constant time).  Throws an exception if the file is gone because that's
      * a common issue that gets caught to check if storage got removed
@@ -261,69 +265,81 @@ public class FormUploadUtil {
      * Add files of supported type to the multipart entity, encrypting xml
      * files.
      *
-     * @param entity Add files to this
+     * @param parts Add files to this
      * @param key    Used to encrypt xml files
      * @param files  The files to be added to the entity,
      * @return false if invalid xml files are found; otherwise true.
      * @throws FileNotFoundException Is raised when an xml doesn't exist on the
      *                               file-system
      */
-    private static boolean buildMultipartEntity(MultipartEntity entity,
+    private static boolean buildMultipartEntity(List<MultipartBody.Part> parts,
                                                 SecretKeySpec key,
                                                 File[] files)
             throws FileNotFoundException {
-        for (File f : files) {
-            ContentBody fb;
 
+        for (File f : files) {
             if (f.getName().endsWith(".xml")) {
                 if (key != null) {
                     if (!validateSubmissionFile(f)) {
                         return false;
                     }
-                    fb = new EncryptedFileBody(f, FormUploadUtil.getDecryptCipher(key),
-                            ContentType.TEXT_XML);
+                    parts.add(createEncryptedFilePart("xml_submission_file", f, "text/xml", key));
                 } else {
-                    fb = new FileBody(f, ContentType.TEXT_XML, f.getName());
+                    parts.add(createFilePart("xml_submission_file", f, "text/xml"));
                 }
-                entity.addPart("xml_submission_file", fb);
-            } else if (f.getName().endsWith(".jpg")) {
-                fb = new FileBody(f, ContentType.create("image/jpeg"), f.getName());
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart(f.getName(), fb);
-                    Log.i(TAG, "added image file " + f.getName());
-                } else {
-                    Log.i(TAG, "file " + f.getName() + " is too big");
-                }
-            } else if (f.getName().endsWith(".3gpp")) {
-                fb = new FileBody(f, ContentType.create("audio/3gpp"), f.getName());
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart(f.getName(), fb);
-                    Log.i(TAG, "added audio file " + f.getName());
-                } else {
-                    Log.i(TAG, "file " + f.getName() + " is too big");
-                }
-            } else if (f.getName().endsWith(".3gp")) {
-                fb = new FileBody(f, ContentType.create("video/3gpp"), f.getName());
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart(f.getName(), fb);
-                    Log.i(TAG, "added video file " + f.getName());
-                } else {
-                    Log.i(TAG, "file " + f.getName() + " is too big");
-                }
-            } else if (isSupportedMultimediaFile(f.getName())) {
-                fb = new FileBody(f, ContentType.APPLICATION_OCTET_STREAM, f.getName());
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart(f.getName(), fb);
+            } else if (f.length() > MAX_BYTES) {
+                Log.i(TAG, "file " + f.getName() + " is too big");
+            } else {
+                String contentType = getFileContentType(f);
+                if (contentType != null) {
+                    parts.add(createFilePart(f.getName(), f, contentType));
+                    Log.i(TAG, "file " + f.getName() + " of type " + contentType.substring(0, contentType.indexOf("/")) + " added");
+                }else if (isSupportedMultimediaFile(f.getName())) {
+                    parts.add(createFilePart(f.getName(), f, "application/octet-stream"));
                     Log.i(TAG, "added unknown file " + f.getName());
                 } else {
-                    Log.i(TAG, "file " + f.getName() + " is too big");
+                    Log.w(TAG, "unsupported file type, not adding file: " + f.getName());
                 }
-            } else {
-                Log.w(TAG, "unsupported file type, not adding file: " +
-                        f.getName());
             }
         }
         return true;
+    }
+
+    private static String getFileContentType(File f) {
+        if (f.getName().endsWith(".xml")) {
+            return "text/xml";
+        } else if (f.getName().endsWith(".jpg")) {
+            return "image/jpeg";
+        } else if (f.getName().endsWith(".3gpp")) {
+            return "audio/3gpp";
+        } else if (f.getName().endsWith(".3gp")) {
+            return "video/3gpp";
+        }
+        return null;
+    }
+
+    private static MultipartBody.Part createFilePart(String partName, File file, String contentType) {
+
+        // create RequestBody instance from file
+        RequestBody requestFile = RequestBody.create(
+                MediaType.parse(contentType),
+                file);
+
+        // MultipartBody.Part is used to send also the actual file name
+        return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
+    }
+
+
+    public static MultipartBody.Part createEncryptedFilePart(String partName, File file, String contentType, SecretKeySpec key) {
+
+        // create RequestBody instance from file
+        RequestBody requestFile = new EncryptedFileBody(
+                MediaType.parse(contentType),
+                file,
+                FormUploadUtil.getDecryptCipher(key));
+
+        // MultipartBody.Part is used to send also the actual file name
+        return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
     }
 
     /**

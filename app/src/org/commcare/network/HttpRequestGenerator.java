@@ -27,6 +27,8 @@ import org.apache.http.protocol.HttpContext;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
+import org.commcare.core.network.CommCareNetworkService;
+import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
@@ -48,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
@@ -258,26 +261,22 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     }
 
     @Override
-    public HttpResponse postData(String url, MultipartEntity entity) throws ClientProtocolException, IOException {
-        // setup client
-        HttpClient httpclient = client();
+    public Response<ResponseBody> postData(String url, List<MultipartBody.Part> parts) throws IOException {
 
-        //If we're going to try to post with no credentials, we need to be explicit about the fact that we're
-        //not ready
+        HashMap<String, String> params = new HashMap<>();
+
+
+        //If we're going to try to post with no credentials, we need to be explicit about the fact that we're not ready
         if (credentials == null) {
-            url = Uri.parse(url).buildUpon().appendQueryParameter(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH).build().toString();
+            params.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
         }
 
         if (User.TYPE_DEMO.equals(userType)) {
-            url = Uri.parse(url).buildUpon().appendQueryParameter(SUBMIT_MODE, SUBMIT_MODE_DEMO).build().toString();
+            params.put(SUBMIT_MODE, SUBMIT_MODE);
         }
 
-        HttpPost httppost = new HttpPost(url);
-
-        httppost.setEntity(entity);
-        addHeaders(httppost, this.getSyncToken(username));
-
-        return execute(httpclient, httppost);
+        CommCareNetworkService commCareNetworkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(getCredentials(username, password));
+        return commCareNetworkService.makeMultipartPostRequest(url, params, getHeaders(getSyncToken(username)), parts).execute();
     }
 
     private HttpClient client() {
@@ -319,7 +318,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         return response;
     }
 
-    private static boolean isValidRedirect(URL url, URL newUrl) {
+    protected static boolean isValidRedirect(URL url, URL newUrl) {
         //unless it's https, don't worry about it
         if (!url.getProtocol().equals("https")) {
             return true;
@@ -349,25 +348,6 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
                 Log.i(TAG, "Error thrown while aborting http: " + e.getMessage());
             }
         }
-    }
-
-    public static long getContentLength(retrofit2.Response response) {
-        long contentLength = -1;
-        String length = getFirstHeader(response, "Content-Length");
-        try {
-            contentLength = Long.parseLong(length);
-        } catch (Exception e) {
-            //Whatever.
-        }
-        return contentLength;
-    }
-
-    public static String getFirstHeader(retrofit2.Response response, String headerName) {
-        List<String> headers = response.headers().values(headerName);
-        if (headers.size() > 0) {
-            return headers.get(0);
-        }
-        return null;
     }
 
 }

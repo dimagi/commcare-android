@@ -34,13 +34,4 @@ public class AndroidModernHttpRequester extends ModernHttpRequester {
                                       boolean isPostRequest) {
         super(cacheDirSetup, url, params, usernameAndPasswordToAuthWith, isPostRequest);
     }
-
-    @Override
-    protected URL buildUrlWithParams() throws MalformedURLException {
-        Uri.Builder b = Uri.parse(url.toString()).buildUpon();
-        for (Map.Entry<String, String> param : params.entrySet()) {
-            b.appendQueryParameter(param.getKey(), param.getValue());
-        }
-        return new URL(b.build().toString());
-    }
 }

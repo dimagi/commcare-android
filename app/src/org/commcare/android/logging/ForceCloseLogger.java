@@ -14,6 +14,7 @@ import org.commcare.logging.DeviceReportWriter;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.preferences.CommCareServerPreferences;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 
 import java.io.ByteArrayOutputStream;
@@ -22,7 +23,15 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * Catch exceptions that are going to crash the phone, grab the stack trace,
@@ -88,19 +97,15 @@ public class ForceCloseLogger {
         String payload = new String(dataToSend);
         Log.d(TAG, "Outgoing payload: " + payload);
 
-        MultipartEntity entity = new MultipartEntity();
+        List<MultipartBody.Part> parts = new ArrayList<>();
         try {
             //Apparently if you don't have a filename in the multipart wrapper, some receivers
             //don't properly receive this post.
-            StringBody body = new StringBody(payload, "text/xml", MIME.DEFAULT_CHARSET) {
-                @Override
-                public String getFilename() {
-                    return "exceptionreport.xml";
-                }
-            };
-            entity.addPart("xml_submission_file", body);
-        } catch (IllegalCharsetNameException | UnsupportedEncodingException
-                | UnsupportedCharsetException e1) {
+            parts.add(MultipartBody.Part.createFormData(
+                    "xml_submission_file",
+                    "exceptionreport.xml",
+                    RequestBody.create(MediaType.parse("text/xml"), payload)));
+        } catch (IllegalCharsetNameException | UnsupportedCharsetException e1) {
             e1.printStackTrace();
             return false;
         }
@@ -114,9 +119,9 @@ public class ForceCloseLogger {
         }
 
         try {
-            HttpResponse response = generator.postData(submissionUri, entity);
+            Response<ResponseBody> response = generator.postData(submissionUri, parts);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            response.getEntity().writeTo(bos);
+            StreamsUtil.writeFromInputToOutput(response.body().byteStream(), bos);
             Log.d(TAG, "Response: " + new String(bos.toByteArray()));
         } catch (IOException e) {
             e.printStackTrace();

@@ -65,9 +65,6 @@ dependencies {
     compile 'com.google.firebase:firebase-core:10.0.1'
     compile 'com.google.firebase:firebase-ads:10.0.1'
     compile 'com.carrotsearch:hppc:0.7.2'
-
-    compile "com.squareup.retrofit2:retrofit:2.3.0"
-    compile 'com.squareup.okhttp3:logging-interceptor:3.8.0'
 }
 
 ext {

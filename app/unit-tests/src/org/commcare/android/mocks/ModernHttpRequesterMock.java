@@ -59,7 +59,6 @@ public class ModernHttpRequesterMock extends AndroidModernHttpRequester {
         Collections.addAll(requestPayloadStack, payloadReferences);
     }
 
-    @Override
     protected HttpURLConnection setupConnection(URL builtUrl) throws IOException {
         if (!expectedUrlStack.isEmpty()) {
             assertUrlsEqual(expectedUrlStack.remove(0), builtUrl.toString());
@@ -94,5 +93,3 @@ public class ModernHttpRequesterMock extends AndroidModernHttpRequester {
         }
     }
 }
-
-

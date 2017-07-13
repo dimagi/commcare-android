@@ -3,6 +3,7 @@ package org.commcare.network;
 import android.content.Context;
 
 import org.apache.http.client.ClientProtocolException;
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.logging.AndroidLogger;
@@ -153,7 +154,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
     protected abstract TransactionParserFactory getTransactionParserFactory();
 
     protected InputStream cacheResponseOpenHandle(Response<ResponseBody> response) throws IOException {
-        long dataSizeGuess = HttpRequestGenerator.getContentLength(response);
+        long dataSizeGuess = ModernHttpRequester.getContentLength(response);
 
         BitCache cache = BitCacheFactory.getCache(new AndroidCacheDirSetup(c), dataSizeGuess);
         cache.initializeCache();

@@ -70,7 +70,7 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
     }
 
     @Override
-    public HttpResponse postData(String url, MultipartEntity entity) throws ClientProtocolException, IOException {
+    public Response<ResponseBody> postData(String url, List<MultipartBody.Part> parts) throws IOException{
         throw new RuntimeException("Not yet mocked");
     }
 
