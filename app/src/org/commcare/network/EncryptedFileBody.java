@@ -32,7 +32,7 @@ public class EncryptedFileBody extends RequestBody {
 
     @Override
     public long contentLength() {
-        return file.length();
+        return -1;
     }
 
     @Override

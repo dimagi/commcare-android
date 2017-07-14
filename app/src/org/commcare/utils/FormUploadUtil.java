@@ -266,8 +266,8 @@ public class FormUploadUtil {
      * files.
      *
      * @param parts Add files to this
-     * @param key    Used to encrypt xml files
-     * @param files  The files to be added to the entity,
+     * @param key   Used to encrypt xml files
+     * @param files The files to be added to the entity,
      * @return false if invalid xml files are found; otherwise true.
      * @throws FileNotFoundException Is raised when an xml doesn't exist on the
      *                               file-system
@@ -294,7 +294,7 @@ public class FormUploadUtil {
                 if (contentType != null) {
                     parts.add(createFilePart(f.getName(), f, contentType));
                     Log.i(TAG, "file " + f.getName() + " of type " + contentType.substring(0, contentType.indexOf("/")) + " added");
-                }else if (isSupportedMultimediaFile(f.getName())) {
+                } else if (isSupportedMultimediaFile(f.getName())) {
                     parts.add(createFilePart(f.getName(), f, "application/octet-stream"));
                     Log.i(TAG, "added unknown file " + f.getName());
                 } else {
