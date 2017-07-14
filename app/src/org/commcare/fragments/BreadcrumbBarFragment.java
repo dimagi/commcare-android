@@ -55,8 +55,10 @@ public class BreadcrumbBarFragment extends Fragment {
 
     private TabbedDetailView mInternalDetailView = null;
     private View tile;
-    private View currentTileHolder;
-    public boolean persistentCaseTileIsExpanded;
+
+    private final static String INLINE_TILE_COLLAPSED = "collapsed";
+    private final static String INLINE_TILE_EXPANDED = "expanded";
+
 
     /**
      * This method will only be called once when the retained
@@ -214,21 +216,6 @@ public class BreadcrumbBarFragment extends Fragment {
             return null;
         }
 
-        holder.findViewById(R.id.com_tile_holder_btn_open).setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!persistentCaseTileIsExpanded) {
-                    expandPersistentCaseTile(activity, holder, tileData);
-                } else {
-                    collapsePersistentCaseTile(activity);
-                }
-            }
-        });
-        return holder;
-    }
-
-    public void expandPersistentCaseTile(Activity activity, View holder,
-                                         Pair<View, TreeReference> tileData) {
         View tile = tileData.first;
         final String inlineDetail = (String)tile.getTag();
         ((ViewGroup)holder.findViewById(R.id.com_tile_holder_frame)).addView(tile, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -238,6 +225,26 @@ public class BreadcrumbBarFragment extends Fragment {
             infoButton.setVisibility(View.GONE);
         }
 
+        holder.setTag(INLINE_TILE_COLLAPSED);
+
+        infoButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isCollapsed = INLINE_TILE_COLLAPSED.equals(holder.getTag());
+                if (isCollapsed) {
+                    expandInlineTile(activity, holder, tileData, inlineDetail);
+                } else {
+                    collapseTileIfExpanded(activity);
+                }
+            }
+        });
+        return holder;
+    }
+
+    public void expandInlineTile(Activity activity, View holder,
+                                 Pair<View, TreeReference> tileData,
+                                 String inlineDetailId) {
+
         if (mInternalDetailView == null) {
             mInternalDetailView = (TabbedDetailView)holder.findViewById(R.id.com_tile_holder_detail_frame);
             mInternalDetailView.setRoot(mInternalDetailView);
@@ -245,23 +252,40 @@ public class BreadcrumbBarFragment extends Fragment {
             AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
             CommCareSession session = asw.getSession();
 
-            Detail detail = session.getDetail(inlineDetail);
+            Detail detail = session.getDetail(inlineDetailId);
             mInternalDetailView.showMenu();
             mInternalDetailView.refresh(detail, tileData.second, 0);
         }
-        BreadcrumbBarFragment.this.currentTileHolder = holder;
         expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
+
+        ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
         infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
-        persistentCaseTileIsExpanded = true;
+        holder.setTag(INLINE_TILE_EXPANDED);
     }
 
-    public void collapsePersistentCaseTile(Activity activity) {
-        collapse(activity, this.currentTileHolder.findViewById(R.id.com_tile_holder_detail_master));
+    /**
+     * Collapses the context tile currently display, if one exists and is expanded.
+     *
+     * Returns true if a tile exists and was expanded, false if no tile existed or if it was not
+     * expanded.
+     */
+    public boolean collapseTileIfExpanded(Activity activity) {
+        View holder = tile;
+        if(holder == null) {
+            return false;
+        }
 
-        ImageButton infoButton = ((ImageButton)this.currentTileHolder.findViewById(R.id.com_tile_holder_btn_open));
+        boolean isExpanded = INLINE_TILE_EXPANDED.equals(holder.getTag());
+        if(!isExpanded) {
+            return false;
+        }
+
+        collapse(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
+
+        ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
         infoButton.setImageResource(R.drawable.icon_info_outline_brandbg);
-
-        persistentCaseTileIsExpanded = false;
+        holder.setTag(INLINE_TILE_COLLAPSED);
+        return true;
     }
 
     private Pair<View, TreeReference> loadTile(Activity activity) {
