@@ -37,8 +37,14 @@ public class CommCarePreferenceActivity extends FragmentActivity {
         addBackButtonToActionBar(this);
 
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(EXTRA_PREF_TYPE)) {
-            String prefType = intent.getStringExtra(EXTRA_PREF_TYPE);
+        if (intent == null && !intent.hasExtra(EXTRA_PREF_TYPE)) {
+            throw new IllegalStateException("Must pass an intent with key extra_pref_type to " + CommCarePreferenceActivity.class.getSimpleName());
+        }
+
+        String prefType = intent.getStringExtra(EXTRA_PREF_TYPE);
+
+        if (getSupportFragmentManager().findFragmentById(android.R.id.content) == null) {
+
             CommCarePreferenceFragment commCarePreferenceFragment;
             switch (prefType) {
                 case PREF_TYPE_COMMCARE:
@@ -66,8 +72,6 @@ public class CommCarePreferenceActivity extends FragmentActivity {
             getSupportFragmentManager().beginTransaction()
                     .replace(android.R.id.content, commCarePreferenceFragment)
                     .commit();
-        } else {
-            throw new IllegalStateException("Must pass an intent with key extra_pref_type to " + CommCarePreferenceActivity.class.getSimpleName());
         }
     }
 
