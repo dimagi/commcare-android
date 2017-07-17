@@ -88,11 +88,10 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
-        } catch (InvalidStructureException e) {
+        } catch (InvalidStructureException | XPathException e) {
             // push up suite config issues so user can act on them
             throw new InvalidResourceException(r.getDescriptor(), e.getMessage());
-        } catch (XmlPullParserException  | InvalidReferenceException
-                | IOException | XPathException e) {
+        } catch (XmlPullParserException  | InvalidReferenceException | IOException e) {
             e.printStackTrace();
         }
 

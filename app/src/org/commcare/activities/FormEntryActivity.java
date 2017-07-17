@@ -490,7 +490,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 startActivityForResult(i, FormEntryConstants.HIERARCHY_ACTIVITY);
                 return true;
             case FormEntryConstants.MENU_PREFERENCES:
-                Intent pref = new Intent(this, FormEntryPreferences.class);
+                Intent pref = new Intent(this, SessionAwarePreferenceActivity.class);
+                pref.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE,CommCarePreferenceActivity.PREF_TYPE_FORM_ENTRY);
                 startActivityForResult(pref, FormEntryConstants.FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:

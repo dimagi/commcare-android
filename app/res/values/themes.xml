@@ -20,6 +20,11 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+    <style name="PreferenceTheme" parent="AppBaseTheme">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="alertDialogTheme">@style/Theme.AppCompat.Light.Dialog.Alert</item>
+    </style>
+
     <style name="fading_edge" parent="android:Widget.ListView">
         <item name="android:requiresFadingEdge">vertical</item>
         <item name="android:fadingEdgeLength">48dp</item>
@@ -59,5 +64,6 @@
     <style name="Theme.Dialog.NoTitle" parent="@android:style/Theme.Dialog">
         <item name="android:windowNoTitle">true</item>
     </style>
+
 
 </resources>

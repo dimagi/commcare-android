@@ -93,7 +93,8 @@ menu.print.detail=Print Case Detail
 menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 
-sync.success.sent.singular=Form sent to server!
+sync.success.sent.none=No forms sent to server!
+sync.success.sent.singular=1 form sent to server!
 sync.success.sent=${0} forms sent to server!
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
@@ -329,6 +330,7 @@ title.datum.wrapper=[${0}]
 activity.task.error.generic=Unexpected error! Please try again.
 activity.task.cancelling.title=Cancelling: ${0}
 activity.task.cancelling.message=Cancelling...
+activity.task.cancelled.message=Form sending cancelled.
 
 connection.test.prompt=This will try to fix connection problems that you may be having.
 connection.test.run=Run Connection Test
@@ -609,7 +611,7 @@ wifi.direct.base.folder=wifidirect
 wifi.direct.submit.missing=The folder ${0} you are trying to submit does not exist. Please verify that this file is where it should be.
 
 notification.case.predicate.title=List failed to load
-notification.case.predicate.action=Filtering your list failed with a bad filter expression. Please fix this and re-deploy your app. Error was ${0}.
+notification.case.predicate.action=Loading your list failed with a bad expression. Please fix this and re-deploy your app. Error: ${0}.
 
 archive.install.title=Unzipping your Application Resources
 archive.install.progress=Unzipped ${0} out of ${1} resources
@@ -724,6 +726,7 @@ fingerprints.scanned=Fingerprints scanned: ${0}
 settings.server.listing=Server Settings
 settings.server.title=CommCare > Server Settings
 settings.developer.options=Developer Options
+settings.developer.title=Developer Options
 settings.main.title=CommCare > Settings
 settings.advanced.title=CommCare > Advanced
 clear.user.data=Clear User Data

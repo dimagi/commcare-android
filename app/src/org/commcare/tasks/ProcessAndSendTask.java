@@ -18,6 +18,7 @@ import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -135,7 +136,12 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
             // Ok, all forms are now processed. Time to focus on sending
             dispatchBeginSubmissionProcessToListeners(records.length);
-            sendForms(records);
+
+            try {
+                sendForms(records);
+            } catch (TaskCancelledException e) {
+                return FormUploadResult.FAILURE;
+            }
 
             return FormUploadResult.getWorstResult(results);
         } catch (SessionUnavailableException sue) {
@@ -210,7 +216,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     "Removing form record due to bad xml|" + getExceptionText(e);
             formDeletionLogMessage =
                     "we encountered an XmlPullParserException while processing the record";
-        } else if (e instanceof  UnfullfilledRequirementsException) {
+        } else if (e instanceof UnfullfilledRequirementsException) {
             generalLogMessage =
                     "Removing form record due to bad requirements|" + getExceptionText(e);
             formDeletionLogMessage =
@@ -256,7 +262,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         return needToRefresh;
     }
 
-    private void sendForms(FormRecord[] records) {
+    private void sendForms(FormRecord[] records) throws TaskCancelledException {
         for (int i = 0; i < records.length; ++i) {
             //See whether we are OK to proceed based on the last form. We're now guaranteeing
             //that forms are sent in order, so we won't proceed unless we succeed. We'll also permit
@@ -266,6 +272,11 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 //Something went wrong with the last form, so we need to cancel this whole shebang
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Cancelling submission due to network errors. " + (i - 1) + " forms succesfully sent.");
                 break;
+            }
+
+            if (isCancelled()) {
+                Logger.log(AndroidLogger.TYPE_USER, "Cancelling submission due to a manual stop. " + (i - 1) + " forms succesfully sent.");
+                throw new TaskCancelledException();
             }
 
             FormRecord record = records[i];
@@ -312,10 +323,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             // Log with multiple tags so we can track more easily
                             Logger.log(AndroidLogger.SOFT_ASSERT, String.format(
                                     "Removed form record with id %s because file was missing| %s",
-                                            record.getInstanceID(), getExceptionText(e)));
+                                    record.getInstanceID(), getExceptionText(e)));
                             Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, String.format(
                                     "Removed form record with id %s because file was missing| %s",
-                                            record.getInstanceID(), getExceptionText(e)));
+                                    record.getInstanceID(), getExceptionText(e)));
                             record.logPendingDeletion(TAG,
                                     "the xml submission file associated with the record was missing");
                             CommCareApplication.notificationManager().reportNotificationMessage(
@@ -456,6 +467,24 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         return successes;
     }
 
+    protected String getLabelForFormsSent() {
+        int successfulSends = getSuccessfulSends();
+        String label;
+        switch (successfulSends) {
+            case 0:
+                label = Localization.get("sync.success.sent.none");
+                break;
+            case 1:
+                label = Localization.get("sync.success.sent.singular");
+                break;
+            default:
+                label = Localization.get("sync.success.sent",
+                        new String[]{String.valueOf(successfulSends)});
+        }
+        return label;
+    }
+
+
     //Wrappers for the internal stuff
     @Override
     public void beginSubmissionProcess(int totalItems) {
@@ -496,7 +525,13 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         super.onCancelled();
 
         dispatchEndSubmissionProcessToListeners(false);
-        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+
+        // If cancellation happened due to logout, notify user
+        try {
+            CommCareApplication.instance().getSession().getLoggedInUser();
+        } catch (SessionUnavailableException e) {
+            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+        }
 
         clearState();
     }

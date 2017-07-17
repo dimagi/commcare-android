@@ -356,12 +356,14 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 title = Localization.get("sync.progress.submitting.title");
                 message = Localization.get("sync.progress.submitting");
                 dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                dialog.addCancelButton();
                 break;
             case ProcessAndSendTask.PROCESSING_PHASE_ID:
                 title = Localization.get("form.entry.processing.title");
                 message = Localization.get("form.entry.processing");
                 dialog = CustomProgressDialog.newInstance(title, message, taskId);
                 dialog.addProgressBar();
+                dialog.addCancelButton();
                 break;
             case DataPullTask.DATA_PULL_TASK_ID:
                 title = Localization.get("sync.communicating.title");

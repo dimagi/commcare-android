@@ -9,6 +9,8 @@ import org.commcare.modern.util.Pair;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -32,6 +34,29 @@ public class IndexedFixturePathUtils {
             }
         } finally {
             c.close();
+        }
+    }
+
+    public static List<String> getAllIndexedFixtureNames(SQLiteDatabase db) {
+        Cursor c = db.query(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
+                new String[]{IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME},
+                null, null, null, null, null);
+        List<String> fixtureNames = new ArrayList<>();
+        try {
+            if (c.moveToFirst()) {
+                int desiredColumnIndex = c.getColumnIndexOrThrow(
+                        IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME);
+                while (!c.isAfterLast()) {
+                    String name = c.getString(desiredColumnIndex);
+                    fixtureNames.add(name);
+                    c.moveToNext();
+                }
+            }
+            return fixtureNames;
+        } finally {
+            if (c != null) {
+                c.close();
+            }
         }
     }
 
