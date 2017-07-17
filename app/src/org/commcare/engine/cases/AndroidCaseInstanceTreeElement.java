@@ -14,9 +14,9 @@ import org.commcare.cases.query.handlers.ModelQueryLookupHandler;
 import org.commcare.cases.query.queryset.CaseModelQuerySetMatcher;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
-import org.commcare.modern.engine.cases.CaseSetResultCache;
+import org.commcare.modern.engine.cases.RecordSetResultCache;
 import org.commcare.modern.engine.cases.CaseIndexQuerySetTransform;
-import org.commcare.modern.engine.cases.CaseObjectCache;
+import org.commcare.modern.engine.cases.RecordObjectCache;
 import org.commcare.modern.engine.cases.query.CaseIndexPrefetchHandler;
 import org.commcare.modern.util.Pair;
 import org.commcare.modern.util.PerformanceTuningUtil;
@@ -152,8 +152,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         }
 
         if(ids.size() > 50 && ids.size() < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
-            CaseSetResultCache cue = currentQueryContext.getQueryCache(CaseSetResultCache.class);
-            cue.reportBulkCaseSet(cacheKey, ids);
+            RecordSetResultCache cue = currentQueryContext.getQueryCache(RecordSetResultCache.class);
+            cue.reportBulkRecordSet(cacheKey, getStorageCacheName(), ids);
         }
 
         //Ok, we matched! Remove all of the keys that we matched
@@ -277,57 +277,4 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     public String[][] getCachePrimeGuess() {
         return mMostRecentBatchFetch;
     }
-
-
-    @Override
-    protected Case getElement(int recordId, QueryContext context) {
-        if (context == null) {
-            return super.getElement(recordId, context);
-        }
-        CaseSetResultCache caseSetCache = context.getQueryCacheOrNull(CaseSetResultCache.class);
-
-        CaseObjectCache caseObjectCache = getCaseObjectCacheIfRelevant(context);
-
-
-        if(caseObjectCache != null) {
-
-            if (caseObjectCache.isLoaded(recordId)) {
-                return caseObjectCache.getLoadedCase(recordId);
-            }
-
-            if (canLoadCaseFromGroup(caseSetCache, recordId)) {
-                Pair<String, LinkedHashSet<Integer>> tranche = caseSetCache.getCaseSetForRecord(recordId);
-                EvaluationTrace loadTrace =
-                        new EvaluationTrace(String.format("Bulk Case Load [%s]", tranche.first));
-                SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
-
-                LinkedHashSet<Integer>  body = tranche.second;
-                sqlStorage.bulkRead(body, caseObjectCache.getLoadedCaseMap());
-                loadTrace.setOutcome("Loaded: " + body.size());
-                context.reportTrace(loadTrace);
-
-                return caseObjectCache.getLoadedCase(recordId);
-            }
-        }
-
-        return super.getElement(recordId, context);
-    }
-
-    private boolean canLoadCaseFromGroup(CaseSetResultCache caseGroupCache, int recordId) {
-        return caseGroupCache != null && caseGroupCache.hasMatchingCaseSet(recordId);
-    }
-
-    /**
-     * Get a case object cache if it's appropriate in the current context.
-     */
-    private CaseObjectCache getCaseObjectCacheIfRelevant(QueryContext context) {
-        // If the query isn't currently in a bulk mode, don't force an object cache to exist unless
-        // it already does
-        if (context.getScope() < QueryContext.BULK_QUERY_THRESHOLD) {
-            return context.getQueryCacheOrNull(CaseObjectCache.class);
-        } else {
-            return context.getQueryCache(CaseObjectCache.class);
-        }
-    }
-
 }
