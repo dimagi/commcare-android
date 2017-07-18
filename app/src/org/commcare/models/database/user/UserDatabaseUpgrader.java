@@ -411,15 +411,15 @@ class UserDatabaseUpgrader {
 
         db.beginTransaction();
         try {
-            SqlStorage<FormRecord> formRecordSqlStorage = new SqlStorage<>(
+            SqlStorage<FormRecordV2> formRecordSqlStorage = new SqlStorage<>(
                     FormRecord.STORAGE_KEY,
-                    FormRecord.class,
+                    FormRecordV2.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             // Re-store all the form records, forcing new date representation
             // to be used.  Must happen proactively because the date parsing
             // code was updated to handle new representation
-            for (FormRecord formRecord : formRecordSqlStorage) {
+            for (FormRecordV2 formRecord : formRecordSqlStorage) {
                 formRecordSqlStorage.write(formRecord);
             }
 
