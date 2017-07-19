@@ -164,7 +164,6 @@ post.io.error=Error reading server response: ${0}
 post.unknown.response=Received unknown resonse code (${0}) from server
 post.client.error=Client-side error (code ${0}) received from network request.
 post.server.error=Server-side error (code ${0}) received from network request.
-post.redirection.error=Network request resulted in redirection (code ${0}). Please use a non-redirecting url.
 post.gone.error=Case is not present on server.
 post.conflict.error=You have already claimed this case.
 

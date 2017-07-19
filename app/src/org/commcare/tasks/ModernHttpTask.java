@@ -5,9 +5,10 @@ import android.content.Context;
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
+import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.modern.util.Pair;
-import org.commcare.network.AndroidModernHttpRequester;
+import org.commcare.network.HttpUtils;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.AndroidCacheDirSetup;
 
@@ -15,6 +16,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+
+import javax.annotation.Nullable;
+
+import okhttp3.RequestBody;
 
 /**
  * Makes get/post request and delegates http response to receiver on completion
@@ -33,20 +38,18 @@ public class ModernHttpTask
     private IOException ioException;
 
     public ModernHttpTask(Context context, URL url, HashMap<String, String> params,
-                          boolean isPostRequest,
-                          Pair<String, String> usernameAndPasswordToAuthWith) {
+                          @Nullable RequestBody requestBody,
+                          HTTPMethod method,
+                          @Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
         taskId = SIMPLE_HTTP_TASK_ID;
-        if (usernameAndPasswordToAuthWith != null) {
-            // Means the the user for which we are submitting this request is not yet logged in
-            requestor =
-                    new AndroidModernHttpRequester(new AndroidCacheDirSetup(context), url, params,
-                            usernameAndPasswordToAuthWith, isPostRequest);
-        } else {
-            // Means the the user for which we are submitting this request is already logged in
-            requestor =
-                    CommCareApplication.instance().buildHttpRequesterForLoggedInUser(context, url,
-                            params, true, isPostRequest);
-        }
+        requestor = CommCareApplication.instance().buildHttpRequester(
+                context,
+                url,
+                params,
+                new HashMap(),
+                requestBody,
+                null,
+                method, usernameAndPasswordToAuthWith);
         requestor.setResponseProcessor(this);
     }
 
@@ -90,11 +93,6 @@ public class ModernHttpTask
     public void processSuccess(int responseCode, InputStream responseData) {
         this.responseCode = responseCode;
         responseDataStream = responseData;
-    }
-
-    @Override
-    public void processRedirection(int responseCode) {
-        this.responseCode = responseCode;
     }
 
     @Override

@@ -2,10 +2,9 @@ package org.commcare;
 
 import android.content.Context;
 
-import org.apache.http.client.ClientProtocolException;
 import org.commcare.activities.DataPullControllerMock;
 import org.commcare.activities.LoginMode;
-import org.commcare.network.HttpResponseMock;
+import org.commcare.network.FakeResponseBody;
 import org.commcare.tasks.ManageKeyRecordTask;
 
 import java.io.IOException;
@@ -19,6 +18,7 @@ import retrofit2.Response;
  */
 public class ManageKeyRecordTaskFake extends ManageKeyRecordTask<DataPullControllerMock> {
     private final String resourcePath;
+
     public ManageKeyRecordTaskFake(Context c, int taskId, String username, String passwordOrPin,
                                    LoginMode loginMode, CommCareApp app,
                                    boolean restoreSession, boolean triggerMultipleUserWarning,
@@ -35,7 +35,7 @@ public class ManageKeyRecordTaskFake extends ManageKeyRecordTask<DataPullControl
     @Override
     protected Response<ResponseBody> doHttpRequest() throws IOException {
         InputStream is = System.class.getResourceAsStream(resourcePath);
-// todo        return HttpResponseMock.buildHttpResponseMock(200, is);
-        return null;
+        ResponseBody responseBody = new FakeResponseBody(is);
+        return Response.success(responseBody);
     }
 }

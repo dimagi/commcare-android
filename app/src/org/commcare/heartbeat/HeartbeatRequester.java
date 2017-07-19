@@ -7,9 +7,12 @@ import android.util.Log;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.network.HttpUtils;
 import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
@@ -62,11 +65,6 @@ public class HeartbeatRequester {
         }
 
         @Override
-        public void processRedirection(int responseCode) {
-            processErrorResponse(responseCode);
-        }
-
-        @Override
         public void processClientError(int responseCode) {
             processErrorResponse(responseCode);
         }
@@ -99,10 +97,15 @@ public class HeartbeatRequester {
                 .getString(CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
         try {
             Log.i(TAG, "Requesting heartbeat from " + urlString);
-            ModernHttpRequester requester =
-                    CommCareApplication.instance().buildHttpRequesterForLoggedInUser(
-                            CommCareApplication.instance(), new URL(urlString),
-                            getParamsForHeartbeatRequest(), true, false);
+            ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
+                    CommCareApplication.instance(),
+                    new URL(urlString),
+                    getParamsForHeartbeatRequest(),
+                    new HashMap(),
+                    null,
+                    null,
+                    HTTPMethod.GET,
+                    null);
             requester.setResponseProcessor(responseProcessor);
             requester.request();
         } catch (MalformedURLException e) {

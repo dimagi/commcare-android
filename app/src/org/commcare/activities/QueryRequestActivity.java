@@ -12,6 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
 import org.commcare.core.interfaces.HttpResponseProcessor;
@@ -178,9 +180,9 @@ public class QueryRequestActivity
         ModernHttpTask httpTask;
         try {
             httpTask = new ModernHttpTask(this, url,
-                    new HashMap<>(remoteQuerySessionManager.getRawQueryParams()),
-                    false, null);
-        } catch (ModernHttpRequester.PlainTextPasswordException e) {
+                    new HashMap<>(remoteQuerySessionManager.getRawQueryParams()), null,
+                    HTTPMethod.GET, null);
+        } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
             enterErrorState(Localization.get("post.not.using.https", url.toString()));
             return;
         }
@@ -249,11 +251,6 @@ public class QueryRequestActivity
 
     private boolean isResponseEmpty(ExternalDataInstance instance) {
         return !instance.getRoot().hasChildren();
-    }
-
-    @Override
-    public void processRedirection(int responseCode) {
-        enterErrorState(Localization.get("post.redirection.error", responseCode + ""));
     }
 
     @Override

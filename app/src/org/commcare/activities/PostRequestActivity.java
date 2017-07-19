@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
@@ -22,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+
+import okhttp3.RequestBody;
 
 /**
  * Perform post request to external server and trigger a sync upon success.
@@ -110,8 +114,9 @@ public class PostRequestActivity
         if (!hasTaskLaunched && !inErrorState) {
             ModernHttpTask postTask;
             try {
-                postTask = new ModernHttpTask(this, url, params, true, null);
-            } catch (ModernHttpRequester.PlainTextPasswordException e) {
+                RequestBody requestBody = ModernHttpRequester.getPostBody(params);
+                postTask = new ModernHttpTask(this, url, new HashMap(), requestBody, HTTPMethod.POST, null);
+            } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
                 enterErrorState(Localization.get("post.not.using.https", url.toString()));
                 return;
             }
@@ -163,11 +168,6 @@ public class PostRequestActivity
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
         performSync();
-    }
-
-    @Override
-    public void processRedirection(int responseCode) {
-        enterErrorState(Localization.get("post.redirection.error", responseCode + ""));
     }
 
     @Override

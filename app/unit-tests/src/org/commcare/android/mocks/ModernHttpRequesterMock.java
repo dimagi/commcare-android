@@ -4,38 +4,46 @@ import android.annotation.TargetApi;
 import android.net.Uri;
 import android.os.Build;
 
+import org.commcare.core.network.CommCareNetworkService;
+import org.commcare.core.network.HTTPMethod;
+import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.core.network.OkHTTPResponseMock;
 import org.commcare.core.network.bitcache.BitCacheFactory;
-import org.commcare.network.AndroidModernHttpRequester;
-import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class ModernHttpRequesterMock extends AndroidModernHttpRequester {
+public class ModernHttpRequesterMock extends ModernHttpRequester {
+
+    public final static String ioErrorMessage = "uhh ohh, io error oh";
+
     private static final List<Integer> responseCodeStack = new ArrayList<>();
     private static final List<String> expectedUrlStack = new ArrayList<>();
     private static final List<String> requestPayloadStack = new ArrayList<>();
 
-    public ModernHttpRequesterMock(BitCacheFactory.CacheDirSetup cacheDirSetup,
-                                   URL url, HashMap<String, String> params,
-                                   User user, String domain,
-                                   boolean isAuthenticatedRequest,
-                                   boolean isPostRequest) {
-        super(cacheDirSetup, url, params, user, domain,
-                isAuthenticatedRequest, isPostRequest);
+    public ModernHttpRequesterMock(BitCacheFactory.CacheDirSetup cacheDirSetup, URL url, HashMap<String, String> params, HashMap<String, String> headers, @Nullable RequestBody requestBody, @Nullable List<MultipartBody.Part> parts, CommCareNetworkService commCareNetworkService, HTTPMethod method) {
+        super(cacheDirSetup, url, params, headers, requestBody, parts, commCareNetworkService, method);
     }
 
     /**
@@ -59,17 +67,18 @@ public class ModernHttpRequesterMock extends AndroidModernHttpRequester {
         Collections.addAll(requestPayloadStack, payloadReferences);
     }
 
-    protected HttpURLConnection setupConnection(URL builtUrl) throws IOException {
+    @Override
+    protected Response<ResponseBody> makeRequest() throws IOException {
         if (!expectedUrlStack.isEmpty()) {
-            assertUrlsEqual(expectedUrlStack.remove(0), builtUrl.toString());
+            assertUrlsEqual(expectedUrlStack.remove(0), buildUrlWithParams().toString());
         }
 
         if (requestPayloadStack.isEmpty()) {
-            return HttpURLConnectionMock.mockWithEmptyStream(builtUrl, responseCodeStack.remove(0));
+            return OkHTTPResponseMock.createResponse(responseCodeStack.remove(0));
         } else {
             String payloadReference = requestPayloadStack.remove(0);
             if (payloadReference == null) {
-                return HttpURLConnectionMock.mockWithErroringStream(builtUrl, responseCodeStack.remove(0));
+                throw new IOException(ioErrorMessage);
             } else {
                 InputStream payloadStream;
                 try {
@@ -78,9 +87,17 @@ public class ModernHttpRequesterMock extends AndroidModernHttpRequester {
                 } catch (InvalidReferenceException ire) {
                     throw new IOException("No payload available at " + payloadReference);
                 }
-                return HttpURLConnectionMock.mockWithStream(builtUrl, responseCodeStack.remove(0), payloadStream);
+                return OkHTTPResponseMock.createResponse(responseCodeStack.remove(0),payloadStream);
             }
         }
+    }
+
+    private URL buildUrlWithParams() throws MalformedURLException {
+        Uri.Builder b = Uri.parse(url.toString()).buildUpon();
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            b.appendQueryParameter(param.getKey(), param.getValue());
+        }
+        return new URL(b.build().toString());
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)

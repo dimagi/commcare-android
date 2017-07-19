@@ -3,16 +3,22 @@ package org.commcare.network;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.commcare.core.network.FakeResponseBody;
+import org.commcare.core.network.OkHTTPResponseMock;
 import org.commcare.interfaces.HttpRequestEndpoints;
+import org.javarosa.core.io.StreamsUtil;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.Headers;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -42,7 +48,6 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
         errorMessagePayload = body;
     }
 
-    // TODO: 07/07/17 Implement mock
     @Override
     public Response<ResponseBody> makeCaseFetchRequest(String baseUri, boolean includeStateFlags)
             throws IOException {
@@ -53,14 +58,18 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
             responseCode = 200;
         }
         if (responseCode == 202) {
-//            return HttpResponseMock.buildHttpResponseMockForAsyncRestore();
-            return null;
+            Headers headers = new Headers.Builder()
+                    .add("Retry-After", "2")
+                    .build();
+            return OkHTTPResponseMock.createResponse(202, headers);
         } else if (responseCode == 406) {
-//            return HttpResponseMock.buildHttpResponseMock(responseCode, new ByteArrayInputStream(errorMessagePayload.getBytes("UTF-8")));
-            return null;
+            ResponseBody responseBody = new FakeResponseBody(StreamsUtil.toInputStream(errorMessagePayload));
+            return Response.error(responseCode, responseBody);
+        } else if (responseCode < 400) {
+            return Response.success(null);
         } else {
-//            return HttpResponseMock.buildHttpResponseMock(responseCode, null);
-            return null;
+            ResponseBody responseBody = new FakeResponseBody(StreamsUtil.toInputStream(""));
+            return Response.error(responseCode, responseBody);
         }
     }
 
@@ -70,7 +79,7 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
     }
 
     @Override
-    public Response<ResponseBody> postData(String url, List<MultipartBody.Part> parts) throws IOException{
+    public Response<ResponseBody> postData(String url, List<MultipartBody.Part> parts) throws IOException {
         throw new RuntimeException("Not yet mocked");
     }
 

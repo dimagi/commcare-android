@@ -106,15 +106,8 @@ public class PostRequestActivityTest {
     private static void assertPostFailureMessage(String expectedErrorMessage,
                                                  int responseCode) {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{responseCode});
-
         PostRequestActivity postRequestActivity = buildPostActivity("https://www.fake.com");
         assertErrorMessage(postRequestActivity, true, expectedErrorMessage);
-    }
-
-    @Test
-    public void redirectErrorResponseFromServerTest() {
-        int responseCode = 320;
-        assertPostFailureMessage(Localization.get("post.redirection.error", responseCode + ""), responseCode);
     }
 
     @Test

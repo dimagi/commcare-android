@@ -343,11 +343,6 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     @Override
-    public void processRedirection(int responseCode) {
-        handleRequestError(responseCode, false);
-    }
-
-    @Override
     public void processClientError(int responseCode) {
         handleRequestError(responseCode, true);
     }

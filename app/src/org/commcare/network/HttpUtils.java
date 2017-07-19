@@ -3,11 +3,16 @@ package org.commcare.network;
 import android.content.SharedPreferences;
 
 import org.commcare.CommCareApplication;
+import org.commcare.core.network.CommCareNetworkService;
+import org.commcare.core.network.CommCareNetworkServiceGenerator;
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.modern.util.Pair;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
 
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import retrofit2.Response;
 
@@ -30,5 +35,17 @@ public class HttpUtils {
             }
         }
         return new Pair<>(user, domain);
+    }
+
+    public static String getCredential(@Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
+        String credential;
+        if (usernameAndPasswordToAuthWith == null) {
+            // User already logged in
+            Pair<User, String> userAndDomain = getUserAndDomain(true);
+            credential = ModernHttpRequester.getCredential(userAndDomain.first, userAndDomain.second);
+        } else {
+            credential = ModernHttpRequester.getCredential(usernameAndPasswordToAuthWith.first, usernameAndPasswordToAuthWith.second);
+        }
+        return credential;
     }
 }
