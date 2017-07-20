@@ -651,6 +651,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             // Check for managed configuration
             RestrictionsManager restrictionsManager =
                     (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
+            if (restrictionsManager == null) {
+                return;
+            }
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
             if (appRestrictions.containsKey("managed_configuration_username") &&
                     appRestrictions.containsKey("managed_configuration_password")) {
