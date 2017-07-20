@@ -296,7 +296,9 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             if (dataFilePath != null) {
                 HybridFileBackedSqlHelpers.unsetFileAsOrphan(db, dataFilePath);
             }
-            db.setTransactionSuccessful();
+            if(startedTransaction) {
+                db.setTransactionSuccessful();
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
@@ -359,7 +361,8 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         SQLiteDatabase db = getDbOrThrow();
 
         ByteArrayOutputStream bos = null;
-        db.beginTransaction();
+        boolean startedTransaction = false;
+
         try {
             Pair<String, byte[]> filenameAndKey =
                     HybridFileBackedSqlHelpers.getEntryFilenameAndKey(helper, table, id);
@@ -369,16 +372,22 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
             bos = writeExternalizableToStream(extObj);
             if (blobFitsInDb(bos)) {
+                db.beginTransaction();
+                startedTransaction = true;
                 updateEntryToStoreInDb(extObj, objectInDb, filename, bos, db, id);
             } else {
                 String newFilePath = HybridFileBackedSqlHelpers.newFileForEntry(dbDir).getAbsolutePath();
                 HybridFileBackedSqlHelpers.setFileAsOrphan(db, newFilePath);
 
+                db.beginTransaction();
+                startedTransaction = true;
                 updateEntryToStoreInFs(extObj, objectInDb, filename,
                         newFilePath, fileEncryptionKey, bos, db, id);
             }
 
-            db.setTransactionSuccessful();
+            if(startedTransaction) {
+                db.setTransactionSuccessful();
+            }
         } catch (IOException e) {
             throw new RuntimeException("Unable update db entry to store data in filesystem", e);
         } finally {
@@ -389,7 +398,9 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     e.printStackTrace();
                 }
             }
-            db.endTransaction();
+            if(startedTransaction) {
+                db.endTransaction();
+            }
         }
     }
 
