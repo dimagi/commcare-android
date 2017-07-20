@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.heartbeat.UpdatePromptHelper;
-import org.commcare.heartbeat.UpdateToPrompt;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
@@ -34,6 +33,7 @@ import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.AdvancedActionsPreferences;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.FormsProviderAPI;
@@ -106,6 +106,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected static final int ADVANCED_ACTIONS_ACTIVITY = 8;
     protected static final int CREATE_PIN = 9;
     protected static final int AUTHENTICATION_FOR_PIN = 10;
+    protected static final int PROMPT_FOR_UPDATE = 11;
 
     private static final String KEY_PENDING_SESSION_DATA = "pending-session-data-id";
     private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
@@ -193,7 +194,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 showDemoModeWarning();
                 return;
             }
-            if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
+            if (UpdatePromptHelper.promptForUpdateIfNeeded(this, PROMPT_FOR_UPDATE)) {
                 return;
             }
             if (checkForPinLaunchConditions()) {
@@ -363,25 +364,25 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if(resultCode == RESULT_RESTART) {
+        if (resultCode == RESULT_RESTART) {
             sessionNavigator.startNextSessionStep();
         } else {
             // if handling new return code (want to return to home screen) but a return at the end of your statement
-            switch(requestCode) {
+            switch (requestCode) {
                 case PREFERENCES_ACTIVITY:
-                    if (resultCode == AdvancedActionsActivity.RESULT_DATA_RESET) {
+                    if (resultCode == AdvancedActionsPreferences.RESULT_DATA_RESET) {
                         finish();
                     } else if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
                         try {
                             Uri uri = intent.getData();
                             String filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uri);
-                            if(filePath != null) {
+                            if (filePath != null) {
                                 File f = new File(filePath);
                                 if (f != null && f.exists()) {
                                     formAndDataSyncer.performCustomRestoreFromFile(this, f);
                                 }
                             }
-                        } catch(Exception e) {
+                        } catch (Exception e) {
                             Toast.makeText(this, "Error loading custom sync...",
                                     Toast.LENGTH_LONG).show();
                         }
@@ -395,7 +396,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     if (resultCode == RESULT_CANCELED) {
                         refreshUI();
                         return;
-                    } else if(resultCode == RESULT_OK) {
+                    } else if (resultCode == RESULT_OK) {
                         int record = intent.getIntExtra("FORMRECORDS", -1);
                         if (record == -1) {
                             //Hm, what to do here?
@@ -461,6 +462,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case GET_REMOTE_DATA:
                     stepBackIfCancelled(resultCode);
                     break;
+                case PROMPT_FOR_UPDATE:
+                    // in order to make sure that we've shown both types
+                    UpdatePromptHelper.promptForUpdateIfNeeded(this, PROMPT_FOR_UPDATE);
+                    return;
             }
             sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();
@@ -531,9 +536,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void handleAdvancedActionResult(int resultCode, Intent intent) {
-        if (resultCode == AdvancedActionsActivity.RESULT_FORMS_PROCESSED) {
-            int formProcessCount = intent.getIntExtra(AdvancedActionsActivity.FORM_PROCESS_COUNT_KEY, 0);
-            String localizationKey = intent.getStringExtra(AdvancedActionsActivity.FORM_PROCESS_MESSAGE_KEY);
+        if (resultCode == AdvancedActionsPreferences.RESULT_FORMS_PROCESSED) {
+            int formProcessCount = intent.getIntExtra(AdvancedActionsPreferences.FORM_PROCESS_COUNT_KEY, 0);
+            String localizationKey = intent.getStringExtra(AdvancedActionsPreferences.FORM_PROCESS_MESSAGE_KEY);
             displayToast(Localization.get(localizationKey, new String[]{"" + formProcessCount}));
             refreshUI();
         }
@@ -764,7 +769,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void processSessionResponse(int statusCode) {
         AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
-        switch(statusCode) {
+        switch (statusCode) {
             case SessionNavigator.ASSERTION_FAILURE:
                 handleAssertionFailureFromSessionNav(asw);
                 break;
@@ -894,7 +899,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         CommCareSession session = asw.getSession();
         SessionDatum selectDatum = session.getNeededDatum();
         if (selectDatum instanceof EntityDatum) {
-            EntityDatum entityDatum = (EntityDatum) selectDatum;
+            EntityDatum entityDatum = (EntityDatum)selectDatum;
             TreeReference contextRef = sessionNavigator.getCurrentAutoSelection();
             if (this.getString(R.string.panes).equals("two")
                     && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -979,7 +984,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         // See if there's existing form data that we want to continue entering
         // (note, this should be stored in the form record as a URI link to
         // the instance provider in the future)
-        if(r.getInstanceURI() != null) {
+        if (r.getInstanceURI() != null) {
             i.setData(r.getInstanceURI());
         } else {
             i.setData(formUri);
@@ -1097,13 +1102,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     public static void createPreferencesMenu(Activity activity) {
-        Intent i = new Intent(activity, CommCarePreferences.class);
+        Intent i = new Intent(activity, SessionAwarePreferenceActivity.class);
+        i.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_COMMCARE);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
     }
 
-    protected void startAdvancedActionsActivity() {
-        startActivityForResult(new Intent(this, AdvancedActionsActivity.class),
-                ADVANCED_ACTIONS_ACTIVITY);
+    protected void showAdvancedActionsPreferences() {
+        Intent intent = new Intent(this, SessionAwarePreferenceActivity.class);
+        intent.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_ADVANCED_ACTIONS);
+        startActivityForResult(intent, ADVANCED_ACTIONS_ACTIVITY);
     }
 
     protected void showAboutCommCareDialog() {

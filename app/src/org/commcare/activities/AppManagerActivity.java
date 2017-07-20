@@ -69,7 +69,8 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                 startActivity(i);
                 return true;
             case MENU_ADVANCED_SETTINGS:
-                i = new Intent(this, AppManagerAdvancedSettings.class);
+                i = new Intent(this, CommCarePreferenceActivity.class);
+                i.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_APP_MANAGER_ADVANCED);
                 startActivity(i);
                 return true;
         }
@@ -138,12 +139,12 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                             StandardAlertDialog.getBasicAlertDialog(
                                     this, title, msg, new DialogInterface.OnClickListener() {
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dismissAlertDialog();
-                        }
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dismissAlertDialog();
+                                        }
 
-                    }));
+                                    }));
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }

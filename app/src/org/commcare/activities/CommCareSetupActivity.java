@@ -39,6 +39,7 @@ import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.model.InvalidResourceException;
+import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
@@ -455,7 +456,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
             ResourceEngineTask<CommCareSetupActivity> task =
                     new ResourceEngineTask<CommCareSetupActivity>(ccApp,
-                            DIALOG_INSTALL_PROGRESS, shouldSleep) {
+                            DIALOG_INSTALL_PROGRESS, shouldSleep, determineAuthorityForInstall()) {
 
                         @Override
                         protected void deliverResult(CommCareSetupActivity receiver,
@@ -511,6 +512,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
+    }
+
+    private int determineAuthorityForInstall() {
+        // Note that this is an imperfect way to determine the resource authority; we should
+        // really be looking at the nature of the reference that is being used itself (i.e. is it
+        // a file reference or a URL)
+        return lastInstallMode == INSTALL_MODE_OFFLINE ?
+                Resource.RESOURCE_AUTHORITY_LOCAL : Resource.RESOURCE_AUTHORITY_REMOTE;
     }
 
     public static CommCareApp getCommCareApp() {

@@ -53,10 +53,13 @@ public abstract class ResourceEngineTask<R>
     private final Object statusLock = new Object();
     private boolean statusCheckRunning = false;
 
-    public ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep) {
+    private int authorityForInstall;
+
+    public ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep, int authority) {
         this.app = app;
         this.taskId = taskId;
         this.shouldSleep = shouldSleep;
+        this.authorityForInstall = authority;
 
         TAG = ResourceEngineTask.class.getSimpleName();
     }
@@ -81,7 +84,7 @@ public abstract class ResourceEngineTask<R>
 
             global.setStateListener(this);
             try {
-                ResourceManager.installAppResources(platform, profileRef, global, false);
+                ResourceManager.installAppResources(platform, profileRef, global, false, authorityForInstall);
             } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
                         "Couldn't install file to local storage|");

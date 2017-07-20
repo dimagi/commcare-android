@@ -16,6 +16,7 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.preferences.AdvancedActionsPreferences;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.DumpTask;
@@ -96,7 +97,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                         if (result == Boolean.TRUE) {
                             CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
                             Intent i = new Intent(getIntent());
-                            i.putExtra(AdvancedActionsActivity.KEY_NUMBER_DUMPED, formsOnSD);
+                            i.putExtra(AdvancedActionsPreferences.KEY_NUMBER_DUMPED, formsOnSD);
                             receiver.setResult(BULK_SEND_ID, i);
                             Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully submitted " + formsOnSD + " forms.");
                             receiver.finish();
@@ -142,7 +143,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                     protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
                         if (result == Boolean.TRUE) {
                             Intent i = new Intent(getIntent());
-                            i.putExtra(AdvancedActionsActivity.KEY_NUMBER_DUMPED, formsOnPhone);
+                            i.putExtra(AdvancedActionsPreferences.KEY_NUMBER_DUMPED, formsOnPhone);
                             receiver.setResult(BULK_DUMP_ID, i);
                             Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully dumped " + formsOnPhone + " forms.");
                             receiver.finish();
