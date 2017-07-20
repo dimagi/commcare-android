@@ -194,6 +194,40 @@
           "status": 2
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:729925342863:android:3fcb586559e496d9",
+        "android_client_info": {
+          "package_name": "org.commcare.managed"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "729925342863-n2hj7r0d62d51uk62ts3b2k2j67k44b4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFDJv-bUIEUHuT_idSKb5QWmN2Aj6UUWw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-69708208-2"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
     }
   ],
   "configuration_version": "1"

@@ -105,6 +105,8 @@ afterEvaluate {
     processLtsReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
     processCommcareDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
     processCommcareReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processManagedDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processManagedReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
 }
 
 task injectGoogleServicesAPIKey(type: Copy) {
@@ -268,6 +270,10 @@ android {
             manifest.srcFile 'CommcareAndroidManifest.xml'
         }
 
+        managed {
+            manifest.srcFile 'CommcareAndroidManifest.xml'
+        }
+
         standalone {
             res.srcDirs = ['standalone/res']
             assets.srcDirs = ['standalone/assets']
@@ -291,6 +297,11 @@ android {
         commcare {
             // builds normal commcare
             // use the settings from defaultConfig
+        }
+
+        managed {
+            applicationId "org.commcare.managed"
+            resValue "string", "application_name", " CommCare Managed Configuration"
         }
 
         lts {
