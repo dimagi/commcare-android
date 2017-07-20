@@ -253,14 +253,16 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         }
         SQLiteDatabase db = getDbOrThrow();
 
-        try {
+        boolean startedTransaction = false;
 
+        try {
             long insertedId;
             ByteArrayOutputStream bos = writeExternalizableToStream(persistable);
             String dataFilePath = null;
             try {
                 if (blobFitsInDb(bos)) {
                     db.beginTransaction();
+                    startedTransaction = true;
                     // serialized object small enough to fit in db
                     ContentValues contentValues = helper.getNonDataContentValues(persistable);
                     contentValues.put(DatabaseHelper.DATA_COL, bos.toByteArray());
@@ -271,6 +273,8 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     HybridFileBackedSqlHelpers.setFileAsOrphan(db, dataFilePath);
 
                     db.beginTransaction();
+                    startedTransaction = true;
+
                     ContentValues contentValues = helper.getNonDataContentValues(persistable);
                     contentValues.put(DatabaseHelper.FILE_COL, dataFilePath);
                     byte[] key = generateKeyAndAdd(contentValues);
@@ -296,7 +300,9 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            db.endTransaction();
+            if (startedTransaction) {
+                db.endTransaction();
+            }
         }
     }
 
@@ -353,6 +359,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         SQLiteDatabase db = getDbOrThrow();
 
         ByteArrayOutputStream bos = null;
+        db.beginTransaction();
         try {
             Pair<String, byte[]> filenameAndKey =
                     HybridFileBackedSqlHelpers.getEntryFilenameAndKey(helper, table, id);
@@ -362,13 +369,11 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
             bos = writeExternalizableToStream(extObj);
             if (blobFitsInDb(bos)) {
-                db.beginTransaction();
                 updateEntryToStoreInDb(extObj, objectInDb, filename, bos, db, id);
             } else {
                 String newFilePath = HybridFileBackedSqlHelpers.newFileForEntry(dbDir).getAbsolutePath();
                 HybridFileBackedSqlHelpers.setFileAsOrphan(db, newFilePath);
 
-                db.beginTransaction();
                 updateEntryToStoreInFs(extObj, objectInDb, filename,
                         newFilePath, fileEncryptionKey, bos, db, id);
             }
@@ -454,8 +459,8 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     public void remove(List<Integer> ids) {
         if (ids.size() > 0) {
             SQLiteDatabase db = getDbOrThrow();
-            db.beginTransaction();
             List<String> filesToRemove;
+            db.beginTransaction();
             try {
                 filesToRemove = HybridFileBackedSqlHelpers.getFilesToRemove(ids, helper, table);
                 List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(ids);
