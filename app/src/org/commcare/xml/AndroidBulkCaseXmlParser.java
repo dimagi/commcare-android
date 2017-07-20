@@ -96,8 +96,9 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
     protected void performBulkWrite(LinkedHashMap<String, Case> writeLog) throws IOException {
         SQLiteDatabase db;
         db = getDbHandle();
-        db.beginTransaction();
         ArrayList<Integer> recordIdsToWipe = new ArrayList<>();
+
+        db.beginTransaction();
         try {
             for (String cid : writeLog.keySet()) {
                 Case c = writeLog.get(cid);

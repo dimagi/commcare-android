@@ -44,10 +44,8 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-
+        database.beginTransaction();
         try {
-            database.beginTransaction();
-            
             TableBuilder builder = new TableBuilder(ApplicationRecord.class);
             database.execSQL(builder.getTableCreateString());
             

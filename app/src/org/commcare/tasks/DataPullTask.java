@@ -563,8 +563,8 @@ public abstract class DataPullTask<R>
 
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
         SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
+        db.beginTransaction();
         try {
-            db.beginTransaction();
             parser = new DataModelPullParser(stream, factory, true, false, this);
             parser.parse();
             db.setTransactionSuccessful();
