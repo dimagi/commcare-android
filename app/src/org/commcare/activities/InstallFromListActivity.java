@@ -23,6 +23,7 @@ import android.widget.ToggleButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
@@ -242,7 +243,6 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     /**
-     *
      * @return whether a request was initiated
      */
     private boolean requestAppList(String username, String password) {
@@ -358,9 +358,13 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     @Override
-    public void handleIOException(IOException exception) {
-        Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
-                "An IOException was encountered during get available apps request: " + exception.getMessage());
+    public void handleException(Exception exception) {
+        if (exception instanceof IOException) {
+            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                    "An IOException was encountered during get available apps request: " + exception.getMessage());
+        } else if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
+            Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "PlainTextPasswordException: Sending password over HTTP");
+        }
         repeatRequestOrShowResults(true, false);
     }
 

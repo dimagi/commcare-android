@@ -952,7 +952,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // Generate a stub form record and commit it
             state.commitStub();
         } else {
-            Logger.log("form-entry", "Somehow ended up starting form entry with old state?");
+            Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Somehow ended up starting form entry with old state?");
         }
 
         FormRecord record = state.getFormRecord();

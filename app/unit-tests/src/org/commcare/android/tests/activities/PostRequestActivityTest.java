@@ -54,10 +54,8 @@ public class PostRequestActivityTest {
 
     @Test
     public void postingToNonHttpsURLTest() {
-        // NOTE PLM: we will eventually support 'http' urls, but won't include authentication credentials in them
         String urlString = "http://bad.url.com";
         PostRequestActivity postRequestActivity = buildPostActivity(urlString);
-
         assertErrorMessage(postRequestActivity, true, Localization.get("post.not.using.https", urlString));
     }
 

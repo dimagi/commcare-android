@@ -4,7 +4,7 @@ import android.content.Context;
 
 import org.commcare.activities.DataPullControllerMock;
 import org.commcare.activities.LoginMode;
-import org.commcare.network.FakeResponseBody;
+import org.commcare.core.network.FakeResponseBody;
 import org.commcare.tasks.ManageKeyRecordTask;
 
 import java.io.IOException;

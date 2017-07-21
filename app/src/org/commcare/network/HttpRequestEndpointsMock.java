@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import okhttp3.Headers;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -63,13 +64,10 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
                     .build();
             return OkHTTPResponseMock.createResponse(202, headers);
         } else if (responseCode == 406) {
-            ResponseBody responseBody = new FakeResponseBody(StreamsUtil.toInputStream(errorMessagePayload));
+            ResponseBody responseBody = ResponseBody.create(MediaType.parse("application/json"), errorMessagePayload);
             return Response.error(responseCode, responseBody);
-        } else if (responseCode < 400) {
-            return Response.success(null);
         } else {
-            ResponseBody responseBody = new FakeResponseBody(StreamsUtil.toInputStream(""));
-            return Response.error(responseCode, responseBody);
+            return OkHTTPResponseMock.createResponse(responseCode);
         }
     }
 

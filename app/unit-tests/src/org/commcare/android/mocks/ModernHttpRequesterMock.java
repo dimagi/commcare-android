@@ -4,11 +4,14 @@ import android.annotation.TargetApi;
 import android.net.Uri;
 import android.os.Build;
 
+import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CommCareNetworkService;
+import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.core.network.OkHTTPResponseMock;
 import org.commcare.core.network.bitcache.BitCacheFactory;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -42,6 +45,8 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
     private static final List<String> expectedUrlStack = new ArrayList<>();
     private static final List<String> requestPayloadStack = new ArrayList<>();
 
+    private static boolean isAuthenticated = true;
+
     public ModernHttpRequesterMock(BitCacheFactory.CacheDirSetup cacheDirSetup, URL url, HashMap<String, String> params, HashMap<String, String> headers, @Nullable RequestBody requestBody, @Nullable List<MultipartBody.Part> parts, CommCareNetworkService commCareNetworkService, HTTPMethod method) {
         super(cacheDirSetup, url, params, headers, requestBody, parts, commCareNetworkService, method);
     }
@@ -52,6 +57,10 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
     public static void setResponseCodes(Integer[] responseCodes) {
         responseCodeStack.clear();
         Collections.addAll(responseCodeStack, responseCodes);
+    }
+
+    public static void setAuthenticated(boolean authenticated) {
+        isAuthenticated = authenticated;
     }
 
     /**
@@ -69,6 +78,10 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
 
     @Override
     protected Response<ResponseBody> makeRequest() throws IOException {
+        if(isAuthenticated && !url.getProtocol().contentEquals("https")){
+            throw new AuthenticationInterceptor.PlainTextPasswordException();
+        }
+
         if (!expectedUrlStack.isEmpty()) {
             assertUrlsEqual(expectedUrlStack.remove(0), buildUrlWithParams().toString());
         }

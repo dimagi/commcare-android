@@ -302,7 +302,7 @@ public abstract class DataPullTask<R>
     private ResultAndError<PullTaskResult> processErrorResponseWithMessage(RemoteDataPullResponse pullResponse) throws IOException {
         String message;
         try {
-            JSONObject errorKeyAndDefault = new JSONObject(pullResponse.getShortBody());
+            JSONObject errorKeyAndDefault = new JSONObject(pullResponse.getErrorBody());
             message = Localization.getWithDefault(
                     errorKeyAndDefault.getString("error"),
                     errorKeyAndDefault.getString("default_response"));

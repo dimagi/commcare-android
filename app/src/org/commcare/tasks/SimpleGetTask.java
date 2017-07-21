@@ -3,6 +3,7 @@ package org.commcare.tasks;
 import org.apache.http.HttpResponse;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
+import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.templates.CommCareTask;
@@ -37,8 +38,8 @@ public class SimpleGetTask extends CommCareTask<String, Void, Void, HttpResponse
             this.lastResponse = requestGenerator.simpleGet(params[0]);
             ModernHttpRequester.processResponse(responseProcessor,
                     lastResponse.code(), this);
-        } catch (IOException e) {
-            responseProcessor.handleIOException(e);
+        } catch (IOException | AuthenticationInterceptor.PlainTextPasswordException e) {
+            responseProcessor.handleException(e);
         }
         return null;
     }

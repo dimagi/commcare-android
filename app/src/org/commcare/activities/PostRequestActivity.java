@@ -112,14 +112,8 @@ public class PostRequestActivity
 
     private void makePostRequest() {
         if (!hasTaskLaunched && !inErrorState) {
-            ModernHttpTask postTask;
-            try {
-                RequestBody requestBody = ModernHttpRequester.getPostBody(params);
-                postTask = new ModernHttpTask(this, url, new HashMap(), requestBody, HTTPMethod.POST, null);
-            } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
-                enterErrorState(Localization.get("post.not.using.https", url.toString()));
-                return;
-            }
+            RequestBody requestBody = ModernHttpRequester.getPostBody(params);
+            ModernHttpTask postTask = new ModernHttpTask(this, url, new HashMap(), requestBody, HTTPMethod.POST, null);
             postTask.connect((CommCareTaskConnector)this);
             postTask.executeParallel();
             hasTaskLaunched = true;
@@ -175,13 +169,13 @@ public class PostRequestActivity
         String clientErrorMessage;
         switch (responseCode) {
             case 409:
-                clientErrorMessage =Localization.get("post.conflict.error");
+                clientErrorMessage = Localization.get("post.conflict.error");
                 break;
             case 410:
-                clientErrorMessage =Localization.get("post.gone.error");
+                clientErrorMessage = Localization.get("post.gone.error");
                 break;
             default:
-                clientErrorMessage =Localization.get("post.client.error", responseCode + "");
+                clientErrorMessage = Localization.get("post.client.error", responseCode + "");
                 break;
         }
         enterErrorState(clientErrorMessage);
@@ -198,8 +192,12 @@ public class PostRequestActivity
     }
 
     @Override
-    public void handleIOException(IOException exception) {
-        enterErrorState(Localization.get("post.io.error", exception.getMessage()));
+    public void handleException(Exception exception) {
+        if (exception instanceof IOException) {
+            enterErrorState(Localization.get("post.io.error", exception.getMessage()));
+        } else if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
+            enterErrorState(Localization.get("post.not.using.https", url.toString()));
+        }
     }
 
     @Override

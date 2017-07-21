@@ -175,17 +175,11 @@ public class QueryRequestActivity
 
     private void makeQueryRequest() {
         clearErrorState();
-        URL url = remoteQuerySessionManager.getBaseUrl();
-
-        ModernHttpTask httpTask;
-        try {
-            httpTask = new ModernHttpTask(this, url,
-                    new HashMap<>(remoteQuerySessionManager.getRawQueryParams()), null,
-                    HTTPMethod.GET, null);
-        } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
-            enterErrorState(Localization.get("post.not.using.https", url.toString()));
-            return;
-        }
+        ModernHttpTask httpTask = new ModernHttpTask(this,
+                remoteQuerySessionManager.getBaseUrl(),
+                new HashMap<>(remoteQuerySessionManager.getRawQueryParams()),
+                null,
+                HTTPMethod.GET, null);
         httpTask.connect((CommCareTaskConnector)this);
         httpTask.executeParallel();
     }
@@ -269,8 +263,12 @@ public class QueryRequestActivity
     }
 
     @Override
-    public void handleIOException(IOException exception) {
-        enterErrorState(Localization.get("post.io.error", exception.getMessage()));
+    public void handleException(Exception exception) {
+        if (exception instanceof IOException) {
+            enterErrorState(Localization.get("post.io.error", exception.getMessage()));
+        } else if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
+            enterErrorState(Localization.get("post.not.using.https", remoteQuerySessionManager.getBaseUrl().toString()));
+        }
     }
 
     @Override

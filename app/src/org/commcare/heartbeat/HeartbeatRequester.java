@@ -7,6 +7,7 @@ import android.util.Log;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.logging.AndroidLogger;
@@ -80,10 +81,14 @@ public class HeartbeatRequester {
         }
 
         @Override
-        public void handleIOException(IOException exception) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
-                    "Encountered IOException while getting response stream for heartbeat response: "
-                            + exception.getMessage());
+        public void handleException(Exception exception) {
+            if(exception instanceof  IOException) {
+                Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                        "Encountered IOException while getting response stream for heartbeat response: "
+                                + exception.getMessage());
+            } else if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
+                Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "PlainTextPasswordException: Sending password over HTTP");
+            }
         }
 
         private void processErrorResponse(int responseCode) {

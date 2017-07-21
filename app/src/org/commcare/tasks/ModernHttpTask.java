@@ -8,9 +8,7 @@ import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.modern.util.Pair;
-import org.commcare.network.HttpUtils;
 import org.commcare.tasks.templates.CommCareTask;
-import org.commcare.utils.AndroidCacheDirSetup;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +33,7 @@ public class ModernHttpTask
     private final ModernHttpRequester requestor;
     private int responseCode;
     private InputStream responseDataStream;
-    private IOException ioException;
+    private Exception exception;
 
     public ModernHttpTask(Context context, URL url, HashMap<String, String> params,
                           @Nullable RequestBody requestBody,
@@ -66,8 +64,8 @@ public class ModernHttpTask
     @Override
     protected void deliverResult(HttpResponseProcessor httpResponseProcessor,
                                  Void result) {
-        if (ioException != null) {
-            httpResponseProcessor.handleIOException(ioException);
+        if (exception != null) {
+            httpResponseProcessor.handleException(exception);
         } else {
             // route to appropriate callback based on http response code
             ModernHttpRequester.processResponse(
@@ -111,8 +109,8 @@ public class ModernHttpTask
     }
 
     @Override
-    public void handleIOException(IOException exception) {
-        this.ioException = exception;
+    public void handleException(Exception exception) {
+        this.exception = exception;
     }
 
     @Override

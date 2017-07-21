@@ -115,9 +115,8 @@ public class RemoteDataPullResponse {
         return response.body().byteStream();
     }
 
-    public String getShortBody() throws IOException {
-        // todo test this
-        return response.body().toString();
+    public String getErrorBody() throws IOException {
+        return response.errorBody().string();
     }
 
     /**
