@@ -281,6 +281,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             setResult(RESULT_OK);
             finish();
         }
+        checkManagedConfiguration();
     }
 
     @Override
@@ -952,7 +953,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             if (appRestrictions.containsKey("profileUrl")) {
                 Toast.makeText(this,  "Contains URL! " + appRestrictions.getString("profileUrl"), Toast.LENGTH_LONG).show();
                 Log.d(TAG, "Contains URL! " + appRestrictions.getString("profileUrl"));
-                incomingRef = appRestrictions.getString("profileUrl");
+                String ref = appRestrictions.getString("profileUrl");
+                onURLChosen(ref);
                 startResourceInstall();
             } else {
                 Toast.makeText(this, "Not contains URL", Toast.LENGTH_LONG).show();
