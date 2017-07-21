@@ -655,10 +655,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return;
             }
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
-            if (appRestrictions.containsKey("managed_configuration_username") &&
-                    appRestrictions.containsKey("managed_configuration_password")) {
-                uiController.setUsername(appRestrictions.getString("managed_configuration_username"));
-                uiController.setPasswordOrPin(appRestrictions.getString("managed_configuration_password"));
+            if (appRestrictions.containsKey("username") &&
+                    appRestrictions.containsKey("password")) {
+                uiController.setUsername(appRestrictions.getString("username"));
+                uiController.setPasswordOrPin(appRestrictions.getString("password"));
                 initiateLoginAttempt(false);
             }
         }
