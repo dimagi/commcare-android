@@ -943,29 +943,22 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void checkManagedConfiguration() {
-        Toast.makeText(this, "Checking managed configuration", Toast.LENGTH_LONG).show();
         Log.d(TAG, "Checking managed configuration");
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            Toast.makeText(this,  "SDK Version OK", Toast.LENGTH_LONG).show();
-            Log.d(TAG, "SDK Version OK");
             // Check for managed configuration
             RestrictionsManager restrictionsManager =
                     (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
             if (appRestrictions.containsKey("profileUrl")) {
-                Toast.makeText(this,  "Contains URL! " + appRestrictions.getString("profileUrl"), Toast.LENGTH_LONG).show();
-                Log.d(TAG, "Contains URL! " + appRestrictions.getString("profileUrl"));
+                Toast.makeText(this,  "Found managed configuration install URL "
+                        + appRestrictions.getString("profileUrl"), Toast.LENGTH_LONG).show();
+                Log.d(TAG, "Found managed configuration install URL "
+                        + appRestrictions.getString("profileUrl"));
                 incomingRef = appRestrictions.getString("profileUrl");
                 uiState = UiState.READY_TO_INSTALL;
                 uiStateScreenTransition();
                 startResourceInstall();
-            } else {
-                Toast.makeText(this, "Not contains URL", Toast.LENGTH_LONG).show();
-                Log.d(TAG, "Not contains URL");
             }
-        } else {
-            Toast.makeText(this,  "SDK Version Failed", Toast.LENGTH_LONG).show();
-            Log.d(TAG, "SDK Version Failed");
         }
     }
 }
