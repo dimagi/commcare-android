@@ -323,7 +323,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 fragment = restoreInstallSetupFragment();
                 break;
             case CHOOSE_INSTALL_ENTRY_METHOD:
-                checkManagedConfiguration();
                 fragment = installFragment;
                 break;
             case NEEDS_PERMS:
@@ -951,9 +950,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
             if (appRestrictions.containsKey("profileUrl")) {
-                Toast.makeText(this,  "Contains URL! " + appRestrictions.getString("managed_configuration_profile_url"), Toast.LENGTH_LONG).show();
-                Log.d(TAG, "Contains URL! " + appRestrictions.getString("managed_configuration_profile_url"));
-                incomingRef = appRestrictions.getString("managed_configuration_profile_url");
+                Toast.makeText(this,  "Contains URL! " + appRestrictions.getString("profileUrl"), Toast.LENGTH_LONG).show();
+                Log.d(TAG, "Contains URL! " + appRestrictions.getString("profileUrl"));
+                incomingRef = appRestrictions.getString("profileUrl");
                 startResourceInstall();
             } else {
                 Toast.makeText(this, "Not contains URL", Toast.LENGTH_LONG).show();
