@@ -119,13 +119,14 @@ public class DataPullTaskTest {
     @Test
     public void asyncRestoreTest() {
         installAndUseLocalKeys();
+        int initialCount = LocalReferencePullResponseFactory.getNumRequestsMade();
         runDataPullWithAsyncRestore();
 
         Assert.assertEquals(DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS, dataPullResult.data);
         
         // Indicates that the task executed all of the retries we indicated, and then successfully
         // parsed the final success response
-        Assert.assertEquals(4, LocalReferencePullResponseFactory.getNumRequestsMade());
+        Assert.assertEquals(4, LocalReferencePullResponseFactory.getNumRequestsMade() - initialCount);
 
         // Indicates that the mock retry result was parsed correctly
         Assert.assertTrue(pullTask.getAsyncRestoreHelper().serverProgressCompletedSoFar == 55);

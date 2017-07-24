@@ -21,7 +21,7 @@ public enum LocalReferencePullResponseFactory implements DataPullRequester {
 
     // data pull requests will pop off and use the top reference in this list
     private final List<String> xmlPayloadReferences = new ArrayList<>();
-    public int numTries = 0;
+    private int numTries = 0;
 
     public static void setRequestPayloads(String[] payloadReferences) {
         INSTANCE.xmlPayloadReferences.clear();
