@@ -16,7 +16,7 @@ import java.util.ArrayList;
  */
 public class GlobalPrivilegesManager {
 
-    private static final String GLOBAL_PRIVELEGES_FILENAME = "global-preferences-filename";
+    private static final String GLOBAL_SETTINGS_FILENAME = "global-preferences-filename";
 
     public static final String PRIVILEGE_MULTIPLE_APPS = "multiple_apps_unlimited";
     public static final String PRIVILEGE_ADVANCED_SETTINGS = "advanced_settings_access";
@@ -26,8 +26,8 @@ public class GlobalPrivilegesManager {
         allGlobalPrivilegesList.add(PRIVILEGE_MULTIPLE_APPS);
     }
 
-    private static SharedPreferences getGlobalPrivilegesRecord() {
-        return CommCareApplication.instance().getSharedPreferences(GLOBAL_PRIVELEGES_FILENAME,
+    public static SharedPreferences getGlobalPrefsRecord() {
+        return CommCareApplication.instance().getSharedPreferences(GLOBAL_SETTINGS_FILENAME,
                 Context.MODE_PRIVATE);
     }
 
@@ -35,12 +35,12 @@ public class GlobalPrivilegesManager {
      * @param username - the HQ web user associated with the privilege being granted
      */
     public static void enablePrivilege(String privilegeName, String username) {
-        getGlobalPrivilegesRecord().edit().putBoolean(privilegeName, true).commit();
+        getGlobalPrefsRecord().edit().putBoolean(privilegeName, true).commit();
         GoogleAnalyticsUtils.reportPrivilegeEnabled(privilegeName, username);
     }
 
     public static void disablePrivilege(String privilegeName) {
-        getGlobalPrivilegesRecord().edit().putBoolean(privilegeName, false).commit();
+        getGlobalPrefsRecord().edit().putBoolean(privilegeName, false).commit();
     }
 
     public static ArrayList<String> getEnabledPrivileges() {
@@ -62,7 +62,7 @@ public class GlobalPrivilegesManager {
     }
 
     private static boolean isPrivilegeEnabled(String privilegeName) {
-        return getGlobalPrivilegesRecord().getBoolean(privilegeName, false);
+        return getGlobalPrefsRecord().getBoolean(privilegeName, false);
     }
 
     public static boolean isMultipleAppsPrivilegeEnabled() {

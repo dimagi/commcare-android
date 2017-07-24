@@ -8,9 +8,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.views.UserfacingErrorHandling;
 
 /**
  * Overrides MenuAdapter to provide a different tile (MenuGridEntryView)
@@ -21,7 +23,7 @@ import org.commcare.util.CommCarePlatform;
 
 public class GridMenuAdapter extends MenuAdapter {
 
-    public GridMenuAdapter(Context context, CommCarePlatform platform,
+    public GridMenuAdapter(CommCareActivity context, CommCarePlatform platform,
                            String menuID) {
         super(context, platform, menuID);
     }
@@ -46,7 +48,11 @@ public class GridMenuAdapter extends MenuAdapter {
         ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
         setupImageView(mIconView, menuDisplayable, (int)context.getResources().getDimension(R.dimen.list_grid_bounding_dimension));
 
-        setupBadgeView(menuListItem, menuDisplayable);
+        try {
+            setupBadgeView(menuListItem, menuDisplayable);
+        } catch (Exception e) {
+            UserfacingErrorHandling.createErrorDialog(context, e.getLocalizedMessage(), true);
+        }
 
         return menuListItem;
     }

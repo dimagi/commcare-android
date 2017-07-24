@@ -281,12 +281,17 @@ public class FormStorageTest {
             // Added in 2.36
             , "org.commcare.heartbeat.UpdateToPrompt"
             , "org.commcare.android.database.global.models.AppAvailableToInstall"
-
+            , "org.javarosa.xpath.expr.XPathChecksumFunc"
+            
             // Added in 2.37
             , "org.commcare.core.graph.suite.Graph"
             , "org.commcare.core.graph.suite.Annotation"
             , "org.commcare.core.graph.suite.BubbleSeries"
-            , "org.commcare.core.graph.suite.XYSeries");
+            , "org.commcare.core.graph.suite.XYSeries"
+
+            // Added in 2.38
+            , "org.javarosa.xpath.expr.XPathSortFunc"
+            , "org.javarosa.xpath.expr.XPathSortByFunc");
 
             // Removed in 2.37
             //, "org.commcare.xml.DummyGraphParser$DummyGraphDetailTemplate";

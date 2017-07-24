@@ -3,6 +3,7 @@ package org.commcare.engine.resource.installers;
 import org.commcare.CommCareApp;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.resources.model.Resource;
 import org.commcare.tasks.ResourceEngineTask;
 
 /**
@@ -23,7 +24,7 @@ public class SingleAppInstallation {
         CommCareApp app = CommCareSetupActivity.getCommCareApp();
 
         ResourceEngineTask<CommCareSetupActivity> task =
-                new ResourceEngineTask<CommCareSetupActivity>(app, dialogId, false) {
+                new ResourceEngineTask<CommCareSetupActivity>(app, dialogId, false, Resource.RESOURCE_AUTHORITY_LOCAL) {
                     @Override
                     protected void deliverResult(CommCareSetupActivity receiver,
                                                  AppInstallStatus result) {
