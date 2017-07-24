@@ -119,23 +119,6 @@ public class RemoteDataPullResponse {
         return response.errorBody().string();
     }
 
-    /**
-     * Get an estimation of how large the provided response is.
-     *
-     * @return -1 for unknown.
-     */
-    protected long guessDataSize() {
-        String length = ModernHttpRequester.getFirstHeader(response, "Content-Length");
-        if (length != null) {
-            try {
-                return Long.parseLong(length);
-            } catch (Exception e) {
-                //Whatever.
-            }
-        }
-        return -1;
-    }
-
     public String getRetryHeader() {
         return ModernHttpRequester.getFirstHeader(response, "Retry-After");
     }

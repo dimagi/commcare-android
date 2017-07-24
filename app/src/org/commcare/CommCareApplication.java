@@ -33,10 +33,12 @@ import org.acra.annotation.ReportsCrashes;
 import org.commcare.activities.LoginActivity;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.CommCareNetworkService;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
@@ -108,6 +110,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
 import okhttp3.MultipartBody;
@@ -1050,9 +1053,10 @@ public class CommCareApplication extends Application {
         return app.noficationManager;
     }
 
-    public ModernHttpRequester buildHttpRequester(Context context, URL url, HashMap<String, String> params,
-                                                  HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
-                                                  HTTPMethod method, Pair<String, String> usernameAndPasswordToAuthWith) {
+    public ModernHttpRequester buildHttpRequester(Context context, String url, HashMap<String, String> params,
+                                                         HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
+                                                         HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
+                                                         @Nullable HttpResponseProcessor responseProcessor) {
         return new ModernHttpRequester(new AndroidCacheDirSetup(context),
                 url,
                 params,
@@ -1060,6 +1064,13 @@ public class CommCareApplication extends Application {
                 requestBody,
                 parts,
                 CommCareNetworkServiceGenerator.createCommCareNetworkService(HttpUtils.getCredential(usernameAndPasswordToAuthWith)),
-                method);
+                method,
+                responseProcessor);
+    }
+
+    public ModernHttpRequester createGetRequestor(Context context, String url, HashMap<String, String> params,
+                                                         HashMap headers, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
+                                                         @Nullable HttpResponseProcessor responseProcessor) {
+        return buildHttpRequester(context, url, params, headers, null, null, HTTPMethod.GET, usernameAndPasswordToAuthWith, responseProcessor);
     }
 }

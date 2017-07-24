@@ -8,6 +8,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
 import org.commcare.core.encryption.CryptUtil;
+import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
@@ -43,6 +44,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -246,9 +249,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
-    public ModernHttpRequester buildHttpRequester(Context context, URL url, HashMap<String, String> params,
+    public ModernHttpRequester buildHttpRequester(Context context, String url, HashMap<String, String> params,
                                                   HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
-                                                  HTTPMethod method, Pair<String, String> usernameAndPasswordToAuthWith) {
+                                                  HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith, HttpResponseProcessor responseProcessor) {
         return new ModernHttpRequesterMock(new AndroidCacheDirSetup(context),
                 url,
                 params,
@@ -256,6 +259,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
                 requestBody,
                 parts,
                 CommCareNetworkServiceGenerator.createCommCareNetworkService(HttpUtils.getCredential(usernameAndPasswordToAuthWith)),
-                method);
+                method,
+                responseProcessor);
     }
 }

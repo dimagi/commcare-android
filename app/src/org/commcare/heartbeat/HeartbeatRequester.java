@@ -8,12 +8,9 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthenticationInterceptor;
-import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.network.HttpUtils;
 import org.commcare.preferences.CommCareServerPreferences;
-import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
@@ -34,7 +31,7 @@ import java.util.HashMap;
  * session's HeartbeatLifecycleManager, and then parsing and handling the response. Currently,
  * the primary content of the server's response to the heartbeat request will be information
  * about potential binary or app updates that the app should prompt users to conduct.
- *
+ * <p>
  * Created by amstone326 on 5/5/17.
  */
 public class HeartbeatRequester {
@@ -54,12 +51,10 @@ public class HeartbeatRequester {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                 JSONObject jsonResponse = new JSONObject(responseAsString);
                 passResponseToUiThread(jsonResponse);
-            }
-            catch (JSONException e) {
+            } catch (JSONException e) {
                 Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
                         "Heartbeat response was not properly-formed JSON: " + e.getMessage());
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
                         "IO error while processing heartbeat response: " + e.getMessage());
             }
@@ -82,7 +77,7 @@ public class HeartbeatRequester {
 
         @Override
         public void handleException(Exception exception) {
-            if(exception instanceof  IOException) {
+            if (exception instanceof IOException) {
                 Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
                         "Encountered IOException while getting response stream for heartbeat response: "
                                 + exception.getMessage());
@@ -100,23 +95,15 @@ public class HeartbeatRequester {
     protected void requestHeartbeat() {
         String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getString(CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
-        try {
-            Log.i(TAG, "Requesting heartbeat from " + urlString);
-            ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
-                    CommCareApplication.instance(),
-                    new URL(urlString),
-                    getParamsForHeartbeatRequest(),
-                    new HashMap(),
-                    null,
-                    null,
-                    HTTPMethod.GET,
-                    null);
-            requester.setResponseProcessor(responseProcessor);
-            requester.request();
-        } catch (MalformedURLException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE,
-                    "Heartbeat URL was malformed: " + e.getMessage());
-        }
+        Log.i(TAG, "Requesting heartbeat from " + urlString);
+        ModernHttpRequester requester = CommCareApplication.instance().createGetRequestor(
+                CommCareApplication.instance(),
+                urlString,
+                getParamsForHeartbeatRequest(),
+                new HashMap(),
+                null,
+                responseProcessor);
+        requester.processRequest();
     }
 
     private static HashMap<String, String> getParamsForHeartbeatRequest() {

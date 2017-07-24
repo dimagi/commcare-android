@@ -1,6 +1,5 @@
 package org.commcare.network;
 
-import org.apache.http.HttpResponse;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.tasks.DataPullTask;
 

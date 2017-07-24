@@ -35,7 +35,7 @@ public class ModernHttpTask
     private InputStream responseDataStream;
     private Exception exception;
 
-    public ModernHttpTask(Context context, URL url, HashMap<String, String> params,
+    public ModernHttpTask(Context context, String url, HashMap<String, String> params,
                           @Nullable RequestBody requestBody,
                           HTTPMethod method,
                           @Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
@@ -47,17 +47,14 @@ public class ModernHttpTask
                 new HashMap(),
                 requestBody,
                 null,
-                method, usernameAndPasswordToAuthWith);
-        requestor.setResponseProcessor(this);
-    }
-
-    public void setResponseProcessor(HttpResponseProcessor responseProcessor) {
-        requestor.setResponseProcessor(responseProcessor);
+                method,
+                usernameAndPasswordToAuthWith,
+                this);
     }
 
     @Override
     protected Void doTaskBackground(Void... params) {
-        requestor.request();
+        requestor.processRequest();
         return null;
     }
 

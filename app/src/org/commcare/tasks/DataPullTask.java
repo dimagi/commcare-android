@@ -6,19 +6,18 @@ import android.support.v4.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.core.encryption.CryptUtil;
+import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.core.encryption.CryptUtil;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.RemoteDataPullResponse;
@@ -30,7 +29,6 @@ import org.commcare.utils.FormSaveUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.utils.UnknownSyncError;
-import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
@@ -243,13 +241,6 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
             responseError = PullTaskResult.CONNECTION_TIMEOUT;
-        } catch (ConnectTimeoutException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-            responseError = PullTaskResult.CONNECTION_TIMEOUT;
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
         } catch (UnknownHostException e) {
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
@@ -276,6 +267,7 @@ public abstract class DataPullTask<R>
 
         RemoteDataPullResponse pullResponse =
                 dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded);
+
         int responseCode = pullResponse.responseCode;
         Logger.log(AndroidLogger.TYPE_USER,
                 "Request opened. Response code: " + responseCode);

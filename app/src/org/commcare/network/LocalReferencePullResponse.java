@@ -33,16 +33,4 @@ public class LocalReferencePullResponse extends RemoteDataPullResponse {
     protected InputStream getInputStream() throws IOException {
         return debugStream;
     }
-
-    @Override
-    protected long guessDataSize() {
-        try {
-            //Note: this is really stupid, but apparently you can't 
-            //retrieve the size of Assets due to some bullshit, so
-            //this is the closest you get.
-            return debugStream.available();
-        } catch (IOException e) {
-            return -1;
-        }
-    }
 }

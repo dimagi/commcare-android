@@ -4,14 +4,13 @@ import android.annotation.TargetApi;
 import android.net.Uri;
 import android.os.Build;
 
+import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CommCareNetworkService;
-import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.core.network.OkHTTPResponseMock;
 import org.commcare.core.network.bitcache.BitCacheFactory;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -47,8 +46,10 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
 
     private static boolean isAuthenticated = true;
 
-    public ModernHttpRequesterMock(BitCacheFactory.CacheDirSetup cacheDirSetup, URL url, HashMap<String, String> params, HashMap<String, String> headers, @Nullable RequestBody requestBody, @Nullable List<MultipartBody.Part> parts, CommCareNetworkService commCareNetworkService, HTTPMethod method) {
-        super(cacheDirSetup, url, params, headers, requestBody, parts, commCareNetworkService, method);
+    public ModernHttpRequesterMock(BitCacheFactory.CacheDirSetup cacheDirSetup, String url, HashMap<String, String> params,
+                                   HashMap<String, String> headers, @Nullable RequestBody requestBody, @Nullable List<MultipartBody.Part> parts,
+                                   CommCareNetworkService commCareNetworkService, HTTPMethod method, HttpResponseProcessor responseProcessor) {
+        super(cacheDirSetup, url, params, headers, requestBody, parts, commCareNetworkService, method, responseProcessor);
     }
 
     /**
@@ -77,8 +78,8 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
     }
 
     @Override
-    protected Response<ResponseBody> makeRequest() throws IOException {
-        if(isAuthenticated && !url.getProtocol().contentEquals("https")){
+    public Response<ResponseBody> makeRequest() throws IOException {
+        if(isAuthenticated && !new URL(url).getProtocol().contentEquals("https")){
             throw new AuthenticationInterceptor.PlainTextPasswordException();
         }
 
@@ -106,7 +107,7 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
     }
 
     private URL buildUrlWithParams() throws MalformedURLException {
-        Uri.Builder b = Uri.parse(url.toString()).buildUpon();
+        Uri.Builder b = Uri.parse(url).buildUpon();
         for (Map.Entry<String, String> param : params.entrySet()) {
             b.appendQueryParameter(param.getKey(), param.getValue());
         }

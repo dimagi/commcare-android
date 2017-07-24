@@ -1,6 +1,5 @@
 package org.commcare.network.mocks;
 
-import org.apache.http.HttpResponse;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.HttpRequestEndpointsMock;

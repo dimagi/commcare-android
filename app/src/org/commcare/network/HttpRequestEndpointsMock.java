@@ -1,27 +1,19 @@
 package org.commcare.network;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.commcare.core.network.FakeResponseBody;
 import org.commcare.core.network.OkHTTPResponseMock;
 import org.commcare.interfaces.HttpRequestEndpoints;
-import org.javarosa.core.io.StreamsUtil;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
@@ -72,7 +64,7 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
     }
 
     @Override
-    public Response<ResponseBody> makeKeyFetchRequest(String baseUri, Date lastRequest) throws IOException {
+    public Response<ResponseBody> makeKeyFetchRequest(String baseUri, @Nullable Date lastRequest) throws IOException {
         throw new RuntimeException("Not yet mocked");
     }
 

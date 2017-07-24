@@ -176,7 +176,7 @@ public class QueryRequestActivity
     private void makeQueryRequest() {
         clearErrorState();
         ModernHttpTask httpTask = new ModernHttpTask(this,
-                remoteQuerySessionManager.getBaseUrl(),
+                remoteQuerySessionManager.getBaseUrl().toString(),
                 new HashMap<>(remoteQuerySessionManager.getRawQueryParams()),
                 null,
                 HTTPMethod.GET, null);

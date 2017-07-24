@@ -1,22 +1,19 @@
 package org.commcare.network;
 
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.apache.http.client.methods.HttpRequestBase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
-import org.commcare.core.network.CommCareNetworkService;
-import org.commcare.core.network.CommCareNetworkServiceGenerator;
+import org.commcare.core.network.HTTPMethod;
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.modern.util.Pair;
 import org.commcare.preferences.CommCareServerPreferences;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.DebugControlsReceiver;
-import org.commcare.utils.CredentialUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 
@@ -25,8 +22,9 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
+
+import javax.annotation.Nullable;
 
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
@@ -38,11 +36,6 @@ import retrofit2.Response;
  */
 public class HttpRequestGenerator implements HttpRequestEndpoints {
     private static final String TAG = HttpRequestGenerator.class.getSimpleName();
-
-    /**
-     * A possible domain that further qualifies the username of any account in use
-     */
-    public static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
 
     /**
      * The type of authentication that we're capable of providing to the server (digest if this isn't present)
@@ -79,51 +72,19 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     }
 
     private HttpRequestGenerator(String username, String password, String userType, String userId) {
-        this.password = buildAppPassword(password);
+        this.password = password;
         this.userType = userType;
         this.username = username;
         this.userId = userId;
-    }
-
-    private String buildAppPassword(String password) {
-        if (DeveloperPreferences.useObfuscatedPassword()) {
-            return CredentialUtil.wrap(password);
-        }
-        return password;
-    }
-
-    protected static String buildDomainUser(String username) {
-        if (username != null && !username.contains("@")) {
-            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            if (prefs.contains(USER_DOMAIN_SUFFIX)) {
-                username += "@" + prefs.getString(USER_DOMAIN_SUFFIX, null);
-            }
-        }
-        return username;
     }
 
     public static HttpRequestGenerator buildNoAuthGenerator() {
         return new HttpRequestGenerator(null, null, null, null);
     }
 
-    @NonNull
-    private Response<ResponseBody> get(@NonNull String uri, @NonNull Map params, @NonNull Map headers) throws IOException {
-        CommCareNetworkService commCareNetworkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(getCredentials(username, password));
-        Log.d(TAG, "Fetching from: " + uri);
-        return commCareNetworkService.makeGetRequest(uri, params, headers).execute();
-    }
-
-    private static String getCredentials(String username, String password) {
-        if (username == null || password == null) {
-            return null;
-        } else {
-            return okhttp3.Credentials.basic(buildDomainUser(username), password);
-        }
-    }
-
     @Override
     public Response<ResponseBody> makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws IOException {
-        Map<String, String> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
 
         Uri serverUri = Uri.parse(baseUri);
         String vparam = serverUri.getQueryParameter("version");
@@ -162,13 +123,19 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             CommCareApplication.instance().setInvalidateCacheFlag(false);
         }
 
-        return get(CommCareServerPreferences.getDataServerKey(),
+        ModernHttpRequester requester = CommCareApplication.instance().createGetRequestor(
+                CommCareApplication.instance(),
+                CommCareServerPreferences.getDataServerKey(),
                 params,
-                getHeaders(syncToken));
+                getHeaders(syncToken),
+                new Pair(username, password),
+                null);
+
+        return requester.makeRequest();
     }
 
-    private Map<String, String> getHeaders(String lastToken) {
-        Map<String, String> headers = new HashMap<>();
+    private HashMap getHeaders(String lastToken) {
+        HashMap<String, String> headers = new HashMap<>();
         headers.put("X-OpenRosa-Version", "2.0");
         if (lastToken != null) {
             headers.put("X-CommCareHQ-LastSyncToken", lastToken);
@@ -178,8 +145,8 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     }
 
     @Override
-    public Response<ResponseBody> makeKeyFetchRequest(String baseUri, Date lastRequest) throws IOException {
-        Map<String, String> params = new HashMap<>();
+    public Response<ResponseBody> makeKeyFetchRequest(String baseUri, @Nullable Date lastRequest) throws IOException {
+        HashMap params = new HashMap<>();
 
         if (lastRequest != null) {
             params.put("last_issued", DateUtils.formatTime(lastRequest, DateUtils.FORMAT_ISO8601));
@@ -188,7 +155,15 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         // include IMEI in key fetch request for auditing large deployments
         params.put("device_id", CommCareApplication.instance().getPhoneId());
 
-        return get(baseUri, params, new HashMap());
+        ModernHttpRequester requester = CommCareApplication.instance().createGetRequestor(
+                CommCareApplication.instance(),
+                baseUri,
+                params,
+                new HashMap(),
+                new Pair(username, password),
+                null);
+
+        return requester.makeRequest();
     }
 
     private String getSyncToken(String username) {
@@ -229,13 +204,32 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             params.put(SUBMIT_MODE, SUBMIT_MODE);
         }
 
-        CommCareNetworkService commCareNetworkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(getCredentials(username, password));
-        return commCareNetworkService.makeMultipartPostRequest(url, params, getHeaders(getSyncToken(username)), parts).execute();
+        ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
+                CommCareApplication.instance(),
+                url,
+                params,
+                getHeaders(getSyncToken(username)),
+                null,
+                parts,
+                HTTPMethod.MULTIPART_POST,
+                new Pair(username, password),
+                null);
+
+        return requester.makeRequest();
     }
 
     @Override
     public Response<ResponseBody> simpleGet(String uri) throws IOException {
-        Response<ResponseBody> response = get(uri, new HashMap(), getHeaders(""));
+
+        ModernHttpRequester requester = CommCareApplication.instance().createGetRequestor(
+                CommCareApplication.instance(),
+                uri,
+                new HashMap(),
+                getHeaders(""),
+                new Pair(username, password),
+                null);
+
+        Response<ResponseBody> response = requester.makeRequest();
         if (response.code() == 404) {
             throw new FileNotFoundException("No Data available at URL " + uri);
         }
