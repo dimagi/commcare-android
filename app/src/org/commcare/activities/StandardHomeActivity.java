@@ -185,7 +185,7 @@ public class StandardHomeActivity
                 createPreferencesMenu(this);
                 return true;
             case MENU_ADVANCED:
-                startAdvancedActionsActivity();
+                showAdvancedActionsPreferences();
                 return true;
             case MENU_ABOUT:
                 showAboutCommCareDialog();

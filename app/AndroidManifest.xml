@@ -129,7 +129,11 @@
         </provider>
 
 
-        <activity android:name="org.commcare.preferences.CommCarePreferences">
+        <activity android:name="org.commcare.activities.CommCarePreferenceActivity"
+            android:theme="@style/PreferenceTheme">
+        </activity>
+        <activity android:name="org.commcare.activities.SessionAwarePreferenceActivity"
+                  android:theme="@style/PreferenceTheme">
         </activity>
         <activity android:name="org.commcare.activities.DotsEntryActivity">
             <intent-filter>
@@ -257,10 +261,6 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name="org.commcare.preferences.FormEntryPreferences"
-            android:windowSoftInputMode="adjustResize">
-        </activity>
-        <activity
             android:name="org.commcare.activities.InstallArchiveActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
@@ -272,8 +272,6 @@
         <activity android:name="org.commcare.activities.MultipleAppsLimitWarningActivity">
         </activity>
         <activity android:name="org.commcare.activities.GlobalPrivilegeClaimingActivity">
-        </activity>
-        <activity android:name="org.commcare.activities.AppManagerAdvancedSettings">
         </activity>
         <activity android:name="org.commcare.activities.InstallFromListActivity">
         </activity>
@@ -367,10 +365,6 @@
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
-            android:name="org.commcare.activities.AdvancedActionsActivity"/>
-        <activity
-            android:name="org.commcare.preferences.CommCareServerPreferences"/>
-        <activity
             android:name="org.commcare.activities.ConnectionDiagnosticActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
@@ -379,8 +373,6 @@
             android:screenOrientation="portrait">
         </activity>
         <activity android:name="org.commcare.activities.RecoveryActivity">
-        </activity>
-        <activity android:name="org.commcare.preferences.DeveloperPreferences">
         </activity>
         <activity
             android:name="org.commcare.print.TemplatePrinterActivity"
@@ -403,7 +395,8 @@
             android:name="org.commcare.activities.PinAuthenticationActivity"
             android:windowSoftInputMode="stateVisible|adjustResize">
         </activity>
-        <activity android:name="org.commcare.activities.PromptUpdateActivity"/>
+        <activity android:name="org.commcare.activities.PromptApkUpdateActivity"/>
+        <activity android:name="org.commcare.activities.PromptCczUpdateActivity"/>
 
         <!-- Start Collect Manifest -->
 

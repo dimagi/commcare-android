@@ -1,8 +1,8 @@
 package org.commcare.google.services.analytics;
 
 import android.os.Build;
-import android.preference.Preference;
-import android.preference.PreferenceManager;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceManager;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -375,9 +375,11 @@ public class GoogleAnalyticsUtils {
     public static void createPreferenceOnClickListeners(PreferenceManager prefManager,
                                                         Map<String, String> menuIdToAnalyticsEvent, String category) {
 
-        for (String prefKey : menuIdToAnalyticsEvent.keySet()) {
-            createPreferenceOnClickListener(prefManager, prefKey, category,
-                    menuIdToAnalyticsEvent.get(prefKey));
+        if (menuIdToAnalyticsEvent != null) {
+            for (String prefKey : menuIdToAnalyticsEvent.keySet()) {
+                createPreferenceOnClickListener(prefManager, prefKey, category,
+                        menuIdToAnalyticsEvent.get(prefKey));
+            }
         }
     }
 

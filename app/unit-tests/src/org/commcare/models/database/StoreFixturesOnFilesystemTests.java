@@ -218,7 +218,8 @@ public class StoreFixturesOnFilesystemTests {
     public void testUpdate() {
         // test encrypted update
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
-                CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class);
+                CommCareApplication.instance().getFileBackedUserStorage(
+                        HybridFileBackedSqlStorage.FIXTURE_STORAGE_TABLE_NAME, FormInstance.class);
         FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
                 new String[]{"commtrack:programs"});
 
@@ -249,7 +250,8 @@ public class StoreFixturesOnFilesystemTests {
     public void testRecordLookup() {
         // test encrypted record lookup
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
-                CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class);
+                CommCareApplication.instance().getFileBackedUserStorage(
+                        HybridFileBackedSqlStorage.FIXTURE_STORAGE_TABLE_NAME, FormInstance.class);
 
         Vector<FormInstance> forms = userFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID},
                 new String[]{"commtrack:programs"});
