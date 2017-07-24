@@ -109,6 +109,9 @@ public class CommCareSessionService extends Service {
     private HeartbeatLifecycleManager heartbeatManager;
     private boolean heartbeatSucceededForSession;
 
+    private boolean cczUpdatePromptWasShown;
+    private boolean apkUpdatePromptWasShown;
+
     /**
      * Class for clients to access.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with
@@ -601,5 +604,21 @@ public class CommCareSessionService extends Service {
 
     public boolean heartbeatSucceededForSession() {
         return heartbeatSucceededForSession;
+    }
+
+    public void setCczUpdatePromptWasShown() {
+        this.cczUpdatePromptWasShown = true;
+    }
+
+    public void setApkUpdatePromptWasShown() {
+        this.apkUpdatePromptWasShown = true;
+    }
+
+    public boolean cczUpdatePromptWasShown() {
+        return this.cczUpdatePromptWasShown;
+    }
+
+    public boolean apkUpdatePromptWasShown() {
+        return this.apkUpdatePromptWasShown;
     }
 }

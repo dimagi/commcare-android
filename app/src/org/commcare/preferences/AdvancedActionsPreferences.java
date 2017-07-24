@@ -1,22 +1,29 @@
-package org.commcare.activities;
+package org.commcare.preferences;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Bundle;
-import android.preference.Preference;
-import android.view.MenuItem;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.preference.Preference;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareFormDumpActivity;
+import org.commcare.activities.CommCareVerificationActivity;
+import org.commcare.activities.CommCareWiFiDirectActivity;
+import org.commcare.activities.ConnectionDiagnosticActivity;
+import org.commcare.activities.HomeScreenBaseActivity;
+import org.commcare.activities.RecoveryActivity;
+import org.commcare.activities.ReportProblemActivity;
 import org.commcare.dalvik.R;
+import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
-import org.commcare.preferences.CommCarePreferences;
-import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
@@ -33,7 +40,7 @@ import java.util.Map;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
+public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
 
     private final static String WIFI_DIRECT = "wifi-direct";
     private final static String DUMP_FORMS = "manage-sd-card";
@@ -55,7 +62,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
 
     public final static String FORM_PROCESS_COUNT_KEY = "forms-processed-count";
     public final static String FORM_PROCESS_MESSAGE_KEY = "forms-processed-message";
-    static final String KEY_NUMBER_DUMPED = "num_dumped";
+    public final static String KEY_NUMBER_DUMPED = "num_dumped";
 
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
 
@@ -71,26 +78,43 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
     }
 
+    @NonNull
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        addPreferencesFromResource(R.xml.advanced_actions);
-
-        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_ADVANCED_ACTIONS);
-
-        setupUI();
+    protected String getTitle() {
+        return Localization.get("settings.advanced.title");
     }
 
-    private void setupUI() {
-        setTitle(Localization.get("settings.advanced.title"));
-        CommCarePreferences.addBackButtonToActionBar(this);
-
-        CommCarePreferences.setupLocalizedText(this, keyToTitleMap);
-        setupButtons();
+    @NonNull
+    @Override
+    protected String getAnalyticsCategory() {
+        return GoogleAnalyticsFields.CATEGORY_ADVANCED_ACTIONS;
     }
 
-    private void setupButtons() {
+    @Nullable
+    @Override
+    protected Map<String, String> getPrefKeyAnalyticsEventMap() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    protected Map<String, String> getPrefKeyTitleMap() {
+        return keyToTitleMap;
+    }
+
+    @Override
+    protected int getPreferencesResource() {
+        return R.xml.advanced_actions;
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        // No listeners
+    }
+
+
+    @Override
+    protected void setupPrefClickListeners() {
         Preference serverSettingsButton = findPreference(REPORT_PROBLEM);
         serverSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -150,7 +174,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_CLEAR_USER_DATA);
-                clearUserData(AdvancedActionsActivity.this);
+                clearUserData(getActivity());
                 return true;
             }
         });
@@ -175,7 +199,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_FORCE_LOG_SUBMISSION);
-                CommCareUtil.triggerLogSubmission(AdvancedActionsActivity.this);
+                CommCareUtil.triggerLogSubmission(getActivity());
                 return true;
             }
         });
@@ -192,39 +216,39 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     }
 
     private void startReportActivity() {
-        Intent i = new Intent(this, ReportProblemActivity.class);
+        Intent i = new Intent(getActivity(), ReportProblemActivity.class);
         startActivityForResult(i, REPORT_PROBLEM_ACTIVITY);
     }
 
     private void startValidationActivity() {
-        Intent i = new Intent(this, CommCareVerificationActivity.class);
+        Intent i = new Intent(getActivity(), CommCareVerificationActivity.class);
         i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_SETTINGS, true);
         startActivityForResult(i, VALIDATE_MEDIA_ACTIVITY);
     }
 
     private void startWifiDirect() {
-        Intent i = new Intent(this, CommCareWiFiDirectActivity.class);
+        Intent i = new Intent(getActivity(), CommCareWiFiDirectActivity.class);
         startActivityForResult(i, WIFI_DIRECT_ACTIVITY);
     }
 
     private void startFormDump() {
-        Intent i = new Intent(this, CommCareFormDumpActivity.class);
+        Intent i = new Intent(getActivity(), CommCareFormDumpActivity.class);
         i.putExtra(CommCareFormDumpActivity.EXTRA_FILE_DESTINATION, CommCareApplication.instance().getCurrentApp().storageRoot());
         startActivityForResult(i, DUMP_FORMS_ACTIVITY);
     }
 
     private void startRecoveryMode() {
-        Intent i = new Intent(this, RecoveryActivity.class);
+        Intent i = new Intent(getActivity(), RecoveryActivity.class);
         this.startActivity(i);
     }
 
     private boolean hasP2p() {
         return Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH
-                && getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT);
+                && getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT);
     }
 
     private void startConnectionTest() {
-        Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
+        Intent i = new Intent(getActivity(), ConnectionDiagnosticActivity.class);
         startActivity(i);
     }
 
@@ -251,9 +275,9 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REPORT_PROBLEM_ACTIVITY || requestCode == VALIDATE_MEDIA_ACTIVITY) {
-            finish();
+            getActivity().finish();
         } else if (requestCode == WIFI_DIRECT_ACTIVITY || requestCode == DUMP_FORMS_ACTIVITY) {
             String messageKey = getBulkFormMessageKey(resultCode);
             if (messageKey == null) {
@@ -264,8 +288,8 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
             Intent returnIntent = new Intent();
             returnIntent.putExtra(FORM_PROCESS_COUNT_KEY, dumpedCount);
             returnIntent.putExtra(FORM_PROCESS_MESSAGE_KEY, messageKey);
-            setResult(RESULT_FORMS_PROCESSED, returnIntent);
-            finish();
+            getActivity().setResult(RESULT_FORMS_PROCESSED, returnIntent);
+            getActivity().finish();
         }
     }
 
@@ -279,17 +303,6 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         } else {
             return null;
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }
 

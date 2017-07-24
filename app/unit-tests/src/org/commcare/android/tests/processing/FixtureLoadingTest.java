@@ -35,7 +35,9 @@ public class FixtureLoadingTest {
     @Test
     public void testEmptyFixtureFollowedByNormalFixture() {
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
-                CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class);
+                CommCareApplication.instance().getFileBackedUserStorage(
+                        HybridFileBackedSqlStorage.FIXTURE_STORAGE_TABLE_NAME,
+                        FormInstance.class);
         boolean didntFindEmptyFixture = false;
         try {
             userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},

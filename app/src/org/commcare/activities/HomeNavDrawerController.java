@@ -147,7 +147,7 @@ public class HomeNavDrawerController {
                         HomeScreenBaseActivity.createPreferencesMenu(activity);
                         break;
                     case ADVANCED_DRAWER_ITEM_ID:
-                        activity.startAdvancedActionsActivity();
+                        activity.showAdvancedActionsPreferences();
                         break;
                     case CHANGE_LANGUAGE_DRAWER_ITEM_ID:
                         activity.showLocaleChangeMenu(null);

@@ -5,7 +5,9 @@ import android.util.Log;
 
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.utils.ACRAUtil;
+import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author ctsims
@@ -69,6 +71,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
                 connector.startTaskTransition();
                 connector.stopBlockingForTask(getTaskId());
                 connector.taskCancelled();
+                handleCancellation(connector.getReceiver());
                 connector.stopTaskTransition();
             }
         }
@@ -99,6 +102,10 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     protected abstract void deliverUpdate(Receiver receiver, Progress... update);
 
     protected abstract void deliverError(Receiver receiver, Exception e);
+
+    protected void handleCancellation(Receiver receiver){
+        // Do nothing by default
+    }
 
     @Override
     protected void onPreExecute() {

@@ -106,6 +106,12 @@ you will need to upgrade the JCE policy files that are being used. To do so:
 
 NOTE that if you are running the tests from Android Studio, it may be using a different version of Java than that in your java home directory. The first line of the test output will usually show the directory from which Android Studio is running Java. If it is indeed different, you should follow the steps above for that directory as well.
 
+#### If you experience the following exception when running individual tests from Android Studio Editor on Mac
+
+```
+No such manifest file: build/intermediates/bundles/debug/AndroidManifest.xml
+```
+If you are on a Mac, you will probably need to configure the default JUnit test runner configuration in order to work around a bug where IntelliJ / Android Studio does not set the working directory to the module being tested. This can be accomplished by editing the run configurations, Defaults -> JUnit and changing the working directory value to $MODULE_DIR$
 
 #### Error on attempt to install CommCare app on phone: _Unknown failure during app install_
 
