@@ -150,6 +150,11 @@ class UserDatabaseUpgrader {
                 oldVersion = 18;
             }
         }
+        if (oldVersion == 18) {
+            if (upgradeEighteenNineteen(db)) {
+                oldVersion = 19;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -506,6 +511,24 @@ class UserDatabaseUpgrader {
             db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
                     "case_owner_id_index", "AndroidCase", "owner_id"));
             db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+
+    private boolean upgradeEighteenNineteen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            AndroidCaseIndexTable indexTable = new AndroidCaseIndexTable(db);
+            indexTable.reIndexAllCases(caseStorage);
+
+            db.setTransactionSuccessful();
+            db.endTransaction();
             return true;
         } finally {
             db.endTransaction();
