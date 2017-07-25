@@ -528,7 +528,6 @@ class UserDatabaseUpgrader {
             indexTable.reIndexAllCases(caseStorage);
 
             db.setTransactionSuccessful();
-            db.endTransaction();
             return true;
         } finally {
             db.endTransaction();
