@@ -469,7 +469,8 @@ public abstract class DataPullTask<R>
     private Pair<Integer, String> recover(HttpRequestEndpoints requestor, AndroidTransactionParserFactory factory) {
         while (asyncRestoreHelper.retryWaitPeriodInProgress()) {
             if (isCancelled()) {
-                return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE, "DataPullTask was cancelled");
+                return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE,
+                        "Task was cancelled during recovery sync");
             }
         }
 
@@ -483,7 +484,8 @@ public abstract class DataPullTask<R>
                     dataPullRequester.makeDataPullRequest(this, requestor, server, false);
 
             if (!(pullResponse.responseCode >= 200 && pullResponse.responseCode < 300)) {
-                return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE, "");
+                return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE,
+                        "Received a non-success response during recovery sync");
             } else if (pullResponse.responseCode == 202) {
                 ResultAndError<PullTaskResult> result =
                         asyncRestoreHelper.handleRetryResponseCode(pullResponse);
