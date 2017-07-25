@@ -6,6 +6,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
@@ -27,7 +28,7 @@ import java.util.zip.ZipOutputStream;
  * Returns 1 for success, -1 for failure.
  */
 public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTaskResult, CommCareWiFiDirectActivity> {
-    private static final String TAG = AndroidLogger.TYPE_FORM_DUMP;
+    private static final String TAG = LogTypes.TYPE_FORM_DUMP;
 
     public enum ZipTaskResult {
         Success,

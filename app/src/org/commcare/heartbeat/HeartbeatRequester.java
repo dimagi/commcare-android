@@ -9,8 +9,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
@@ -21,8 +21,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -52,10 +50,10 @@ public class HeartbeatRequester {
                 JSONObject jsonResponse = new JSONObject(responseAsString);
                 passResponseToUiThread(jsonResponse);
             } catch (JSONException e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "Heartbeat response was not properly-formed JSON: " + e.getMessage());
             } catch (IOException e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "IO error while processing heartbeat response: " + e.getMessage());
             }
         }
@@ -78,16 +76,16 @@ public class HeartbeatRequester {
         @Override
         public void handleException(Exception exception) {
             if (exception instanceof IOException) {
-                Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "Encountered IOException while getting response stream for heartbeat response: "
                                 + exception.getMessage());
             } else if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
-                Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "PlainTextPasswordException: Sending password over HTTP");
+                Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Encountered PlainTextPasswordException while sending heartbeat request: Sending password over HTTP");
             }
         }
 
         private void processErrorResponse(int responseCode) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "Received error response from heartbeat request: " + responseCode);
         }
     };
@@ -151,10 +149,10 @@ public class HeartbeatRequester {
                     return appIdOfResponse.equals(currentAppId);
                 }
             }
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "Heartbeat response did not have required app_id param");
         } catch (JSONException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "App id in heartbeat response was not formatted properly: " + e.getMessage());
         }
         return false;
@@ -168,7 +166,7 @@ public class HeartbeatRequester {
                 parseUpdateToPrompt(latestApkVersionInfo, true);
             }
         } catch (JSONException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "Latest apk version object in heartbeat response was not " +
                             "formatted properly: " + e.getMessage());
         }
@@ -181,7 +179,7 @@ public class HeartbeatRequester {
                 parseUpdateToPrompt(latestCczVersionInfo, false);
             }
         } catch (JSONException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "Latest ccz version object in heartbeat response was not " +
                             "formatted properly: " + e.getMessage());
         }
@@ -199,7 +197,7 @@ public class HeartbeatRequester {
                 updateToPrompt.registerWithSystem();
             }
         } catch (JSONException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "Encountered malformed json while trying to parse server response into an " +
                             "UpdateToPrompt object : " + e.getMessage());
         }

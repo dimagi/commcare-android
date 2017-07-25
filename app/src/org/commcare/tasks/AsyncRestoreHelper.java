@@ -1,8 +1,7 @@
 package org.commcare.tasks;
 
-import org.apache.http.Header;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.network.RemoteDataPullResponse;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.ElementParser;
 import org.kxml2.io.KXmlParser;
@@ -44,7 +43,7 @@ public class AsyncRestoreHelper {
             }
             return new ResultAndError<>(DataPullTask.PullTaskResult.RETRY_NEEDED);
         } catch (NumberFormatException e) {
-            Logger.log(AndroidLogger.TYPE_USER, "Invalid Retry-After header value: "
+            Logger.log(LogTypes.TYPE_USER, "Invalid Retry-After header value: "
                     + retryHeader);
             return new ResultAndError<>(DataPullTask.PullTaskResult.BAD_DATA);
         }
@@ -69,7 +68,7 @@ public class AsyncRestoreHelper {
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
         } catch (IOException | XmlPullParserException e) {
-            Logger.log(AndroidLogger.TYPE_USER,
+            Logger.log(LogTypes.TYPE_USER,
                     "Error while parsing progress values of retry result");
         }
         return false;

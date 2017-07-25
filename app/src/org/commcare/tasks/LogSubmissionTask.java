@@ -3,27 +3,22 @@ package org.commcare.tasks;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntity;
 import org.commcare.CommCareApplication;
+import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogSerializer;
-import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.logging.AndroidLogSerializer;
-import org.commcare.logging.AndroidLogger;
-import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.logging.DeviceReportWriter;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorSerializer;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.network.DataSubmissionEntity;
-import org.commcare.network.EncryptedFileBody;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.LogSubmissionTask.LogSubmitOutcomes;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.MessageTag;
@@ -43,7 +38,6 @@ import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
@@ -294,7 +288,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             storage.remove(submittedSuccesfullyIds);
         } catch (Exception e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Error deleting logs!" + e.getMessage());
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Error deleting logs!" + e.getMessage());
             return false;
         }
         //Try to wipe the files, too, now that the file's submitted. (Not a huge deal if this fails, though)
@@ -312,13 +306,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     private LogSubmitOutcomes checkSubmissionResult(int numberOfLogsToSubmit,
                                                     ArrayList<DeviceReportRecord> submittedSuccesfully) {
         if (submittedSuccesfully.size() > 0) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Succesfully submitted " + submittedSuccesfully.size() + " device reports to server.");
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Succesfully submitted " + submittedSuccesfully.size() + " device reports to server.");
         }
         //Whether this is a full or partial success depends on how many logs were pending
         if (submittedSuccesfully.size() == numberOfLogsToSubmit) {
             return LogSubmitOutcomes.Submitted;
         } else {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, numberOfLogsToSubmit - submittedSuccesfully.size() + " logs remain on phone.");
+            Logger.log(LogTypes.TYPE_MAINTENANCE, numberOfLogsToSubmit - submittedSuccesfully.size() + " logs remain on phone.");
             //Some remain unsent
             return LogSubmitOutcomes.Serialized;
         }

@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import org.commcare.provider.SimprintsCalloutProcessing;
-import org.commcare.logging.AndroidLogger;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
@@ -136,7 +136,7 @@ public class IntentCallout implements Externalizable {
                 }
             }
         }
-        Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Generated Intent: " + i.toString());
+        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Generated Intent: " + i.toString());
         return i;
     }
 

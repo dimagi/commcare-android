@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.adapters.WiFiDirectUIController;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.DeviceDetailFragment;
 import org.commcare.fragments.DeviceListFragment;
@@ -34,9 +35,7 @@ import org.commcare.fragments.WiFiDirectManagementFragment;
 import org.commcare.fragments.WiFiDirectManagementFragment.WifiDirectManagerListener;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.services.WiFiDirectBroadcastReceiver;
 import org.commcare.tasks.FormRecordToFileTask;
@@ -46,11 +45,12 @@ import org.commcare.tasks.UnzipTask;
 import org.commcare.tasks.WipeTask;
 import org.commcare.tasks.ZipTask;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.StorageUtils;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -266,7 +266,7 @@ public class CommCareWiFiDirectActivity
 
     private void beReceiver() {
 
-        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Became receiver");
+        Logger.log(LogTypes.TYPE_FORM_DUMP, "Became receiver");
         myStatusText.setText(localize("wifi.direct.enter.receive.mode"));
 
         WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
@@ -302,7 +302,7 @@ public class CommCareWiFiDirectActivity
 
     private void beSubmitter() {
 
-        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Became submitter");
+        Logger.log(LogTypes.TYPE_FORM_DUMP, "Became submitter");
         unzipFilesHelper();
         myStatusText.setText(localize("wifi.direct.enter.submit.mode"));
 

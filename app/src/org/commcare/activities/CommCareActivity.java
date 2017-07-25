@@ -31,23 +31,23 @@ import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUiFramework;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogController;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.media.AudioController;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -559,7 +559,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         if(invalidTaskIdMessageThrown != taskId) {
             invalidTaskIdMessageThrown = taskId;
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, message);
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, message);
         } else {
             Log.w(TAG, message);
         }

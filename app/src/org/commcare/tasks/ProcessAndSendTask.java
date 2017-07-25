@@ -5,12 +5,12 @@ import android.os.AsyncTask;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.SyncCapableCommCareActivity;
-import org.commcare.logging.AndroidLogger;
-import org.commcare.models.FormRecordProcessor;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.models.FormRecordProcessor;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
@@ -181,7 +181,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 } catch (FileNotFoundException e) {
                     if (CommCareApplication.instance().isStorageAvailable()) {
                         //If storage is available generally, this is a bug in the app design
-                        Logger.log(AndroidLogger.TYPE_ERROR_DESIGN,
+                        Logger.log(LogTypes.TYPE_ERROR_DESIGN,
                                 "Removing form record because file was missing|" + getExceptionText(e));
                         record.logPendingDeletion(TAG,
                                 "the xml submission file associated with the record could not be found");
@@ -193,7 +193,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         throw e;
                     }
                 } catch (IOException e) {
-                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. " +
+                    Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. " +
                             "Tentatively not removing in case they are resolvable|" + getExceptionText(e));
                 }
             }
@@ -223,7 +223,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
         CommCareApplication.notificationManager().reportNotificationMessage(
                 NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-        Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, generalLogMessage);
+        Logger.log(LogTypes.TYPE_ERROR_DESIGN, generalLogMessage);
         record.logPendingDeletion(TAG, formDeletionLogMessage);
         FormRecordCleanupTask.wipeRecord(c, record);
     }
@@ -269,12 +269,12 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             //processing.
             if (i > 0 && !(results[i - 1] == FormUploadResult.FULL_SUCCESS || results[i - 1] == FormUploadResult.RECORD_FAILURE)) {
                 //Something went wrong with the last form, so we need to cancel this whole shebang
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Cancelling submission due to network errors. " + (i - 1) + " forms succesfully sent.");
+                Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Cancelling submission due to network errors. " + (i - 1) + " forms succesfully sent.");
                 break;
             }
 
             if (isCancelled()) {
-                Logger.log(AndroidLogger.TYPE_USER, "Cancelling submission due to a manual stop. " + (i - 1) + " forms succesfully sent.");
+                Logger.log(LogTypes.TYPE_USER, "Cancelling submission due to a manual stop. " + (i - 1) + " forms succesfully sent.");
                 throw new TaskCancelledException();
             }
 
@@ -286,7 +286,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     try {
                         folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
                     } catch (IOException e) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
+                        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
                         continue;
                     }
 
@@ -298,7 +298,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         logSubmissionAttempt(record);
                         while (attemptsMade < SUBMISSION_ATTEMPTS) {
                             if (attemptsMade > 0) {
-                                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Retrying submission. " + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
+                                Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Retrying submission. " + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
                             }
                             results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this, mUser);
                             if (results[i] == FormUploadResult.FULL_SUCCESS) {
@@ -313,17 +313,17 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             //We tried to submit multiple times and there was a local problem (not a remote problem).
                             //This implies that something is wrong with the current record, and we need to quarantine it.
                             processor.updateRecordStatus(record, FormRecord.STATUS_LIMBO);
-                            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Quarantined Form Record");
+                            Logger.log(LogTypes.TYPE_ERROR_STORAGE, "Quarantined Form Record");
                             CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
                         }
                     } catch (FileNotFoundException e) {
                         if (CommCareApplication.instance().isStorageAvailable()) {
                             // If storage is available generally, this is a bug in the app design
                             // Log with multiple tags so we can track more easily
-                            Logger.log(AndroidLogger.SOFT_ASSERT, String.format(
+                            Logger.log(LogTypes.SOFT_ASSERT, String.format(
                                     "Removed form record with id %s because file was missing| %s",
                                     record.getInstanceID(), getExceptionText(e)));
-                            Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, String.format(
+                            Logger.log(LogTypes.TYPE_FORM_SUBMISSION, String.format(
                                     "Removed form record with id %s because file was missing| %s",
                                     record.getInstanceID(), getExceptionText(e)));
                             record.logPendingDeletion(TAG,
@@ -358,7 +358,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 throw sue;
             } catch (Exception e) {
                 //Just try to skip for now. Hopefully this doesn't wreck the model :/
-                Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
+                Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
             }
         }
     }
@@ -368,7 +368,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 "Attempting to submit form with id %1$s and submission ordering number %2$s",
                 record.getInstanceID(),
                 record.getSubmissionOrderingNumber());
-        Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, attemptMesssage);
+        Logger.log(LogTypes.TYPE_FORM_SUBMISSION, attemptMesssage);
     }
 
     private static void logSubmissionSuccess(FormRecord record) {
@@ -376,7 +376,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 "Successfully submitted form with id %1$s and submission ordering number %2$s",
                 record.getInstanceID(),
                 record.getSubmissionOrderingNumber());
-        Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, successMessage);
+        Logger.log(LogTypes.TYPE_FORM_SUBMISSION, successMessage);
     }
 
     public static int pending() {

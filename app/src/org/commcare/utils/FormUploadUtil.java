@@ -5,10 +5,10 @@ import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import org.commcare.logging.AndroidLogger;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.DataSubmissionListener;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
@@ -162,18 +162,18 @@ public class FormUploadUtil {
         } catch (InputIOException ioe) {
             // This implies that there was a problem with the _source_ of the
             // transmission, not the processing or receiving end.
-            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
+            Logger.log(LogTypes.TYPE_ERROR_STORAGE,
                     "Internal error reading form record during submission: " +
                             ioe.getWrapped().getMessage());
             return FormUploadResult.RECORD_FAILURE;
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK,
                     "Client network issues during submission: " + e.getMessage());
             return FormUploadResult.TRANSPORT_FAILURE;
         } catch (IOException | IllegalStateException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
+            Logger.log(LogTypes.TYPE_ERROR_STORAGE,
                     "Error reading form during submission: " + e.getMessage());
             return FormUploadResult.TRANSPORT_FAILURE;
         }
@@ -203,9 +203,9 @@ public class FormUploadUtil {
         Log.e(TAG, responseCodeMessage);
         Log.d(TAG, responseString);
         if (!(responseCode >= 200 && responseCode < 300)) {
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, responseCodeMessage);
-            Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, responseCodeMessage);
-            Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION,
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, responseCodeMessage);
+            Logger.log(LogTypes.TYPE_FORM_SUBMISSION, responseCodeMessage);
+            Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
                     "Response string to failed form submission attempt: " + responseString);
         }
     }
@@ -234,7 +234,7 @@ public class FormUploadUtil {
         // Gotta check f exists here since f.length returns 0 if the file isn't
         // there for some reason.
         if (f.length() == 0 && f.exists()) {
-            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
+            Logger.log(LogTypes.TYPE_ERROR_STORAGE,
                     "Submission body has no content at: " + f.getAbsolutePath());
             return false;
         }

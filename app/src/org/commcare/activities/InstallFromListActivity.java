@@ -22,15 +22,15 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.dalvik.R;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.tasks.SimpleGetTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.xml.AvailableAppsParser;
 import org.javarosa.core.services.Logger;
@@ -332,7 +332,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             List<AppAvailableToInstall> apps = (new AvailableAppsParser(baseParser)).parse();
             availableApps.addAll(apps);
         } catch (IOException | InvalidStructureException | XmlPullParserException | UnfullfilledRequirementsException e) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "Error encountered while parsing apps available for install");
+            Logger.log(LogTypes.TYPE_RESOURCES, "Error encountered while parsing apps available for install");
         }
     }
 
@@ -360,16 +360,16 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     @Override
     public void handleException(Exception exception) {
         if (exception instanceof IOException) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "An IOException was encountered during get available apps request: " + exception.getMessage());
         } else if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
-            Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "PlainTextPasswordException: Sending password over HTTP");
+            Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Encountered PlainTextPasswordException while sending get available apps request: Sending password over HTTP");
         }
         repeatRequestOrShowResults(true, false);
     }
 
     private void handleRequestError(int responseCode, boolean couldBeUserError) {
-        Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+        Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                 "Request to " + urlCurrentlyRequestingFrom + " in get available apps request " +
                         "had error code response: " + responseCode);
         repeatRequestOrShowResults(true, couldBeUserError);

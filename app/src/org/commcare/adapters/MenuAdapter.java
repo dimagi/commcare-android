@@ -1,6 +1,5 @@
 package org.commcare.adapters;
 
-import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -15,7 +14,6 @@ import android.widget.TextView;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
@@ -26,6 +24,7 @@ import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LogTypes;
 import org.commcare.util.LoggerInterface;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.UserfacingErrorHandling;
@@ -64,14 +63,14 @@ public class MenuAdapter extends BaseAdapter {
             } else if (cause instanceof XPathException) {
                 errorMessage = Localization.get("app.menu.display.cond.xpath.err", new String[]{message, cause.getMessage()});
                 XPathErrorLogger.INSTANCE.logErrorToCurrentApp(((XPathException)cause).getSource(), message);
-                Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, message);
+                Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, message);
             }
         }
 
         @Override
         public void logError(String message) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(message);
-            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, message);
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, message);
         }
     }
 

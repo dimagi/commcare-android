@@ -7,14 +7,14 @@ import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
-import org.commcare.logging.AndroidLogger;
-import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
+import org.commcare.modern.database.TableBuilder;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
@@ -89,7 +89,7 @@ public class FixtureSerializationMigration {
             // restore, which ultimately has the same effect as running the
             // fixture serialization migration.
             db.setTransactionSuccessful();
-            Logger.log(AndroidLogger.SOFT_ASSERT, "fixture serialization db migration failed");
+            Logger.log(LogTypes.SOFT_ASSERT, "fixture serialization db migration failed");
             Logger.exception(e);
             // allow subsequent migrations to be processed. Will potentially
             // lead to failure if those migrations make use of fixtures.

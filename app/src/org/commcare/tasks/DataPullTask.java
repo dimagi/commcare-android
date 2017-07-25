@@ -15,7 +15,6 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.interfaces.HttpRequestEndpoints;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.models.RecordTooLargeException;
@@ -25,6 +24,7 @@ import org.commcare.preferences.CommCarePreferences;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FormSaveUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.SyncDetailCalculations;
@@ -137,7 +137,7 @@ public abstract class DataPullTask<R>
     private ResultAndError<PullTaskResult> doTaskBackgroundHelper() {
         publishProgress(PROGRESS_STARTED);
         recordSyncAttemptTime();
-        Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
+        Logger.log(LogTypes.TYPE_USER, "Starting Sync");
         determineIfLoginNeeded();
 
         AndroidTransactionParserFactory factory = getTransactionParserFactory();
@@ -209,7 +209,7 @@ public abstract class DataPullTask<R>
             ukrForLogin = UserKeyRecord.getCurrentValidRecordByPassword(
                     CommCareApplication.instance().getCurrentApp(), username, password, true);
             if (ukrForLogin == null) {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                         "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
             }
         }
@@ -239,18 +239,18 @@ public abstract class DataPullTask<R>
             }
         } catch (SocketTimeoutException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
             responseError = PullTaskResult.CONNECTION_TIMEOUT;
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
             responseError = PullTaskResult.UNREACHABLE_HOST;
         } catch (IOException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
         } catch (UnknownSyncError e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
         }
 
         wipeLoginIfItOccurred();
@@ -269,7 +269,7 @@ public abstract class DataPullTask<R>
                 dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded);
 
         int responseCode = pullResponse.responseCode;
-        Logger.log(AndroidLogger.TYPE_USER,
+        Logger.log(LogTypes.TYPE_USER,
                 "Request opened. Response code: " + responseCode);
 
         if (responseCode == 401) {
@@ -306,7 +306,7 @@ public abstract class DataPullTask<R>
 
     private ResultAndError<PullTaskResult> handleAuthFailed() {
         wipeLoginIfItOccurred();
-        Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
+        Logger.log(LogTypes.TYPE_USER, "Bad Auth Request for user!|" + username);
         return new ResultAndError<>(PullTaskResult.AUTH_FAILED);
     }
 
@@ -329,7 +329,7 @@ public abstract class DataPullTask<R>
         }
 
         this.publishProgress(PROGRESS_DOWNLOADING_COMPLETE, 0);
-        Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
+        Logger.log(LogTypes.TYPE_USER, "Remote Auth Successful|" + username);
 
         try {
             BitCache cache = pullResponse.writeResponseToCache(context);
@@ -341,36 +341,36 @@ public abstract class DataPullTask<R>
         } catch (XmlPullParserException e) {
             wipeLoginIfItOccurred();
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_USER,
+            Logger.log(LogTypes.TYPE_USER,
                     "User Sync failed due to bad payload|" + e.getMessage());
             return new ResultAndError<>(PullTaskResult.BAD_DATA, e.getMessage());
         } catch (ActionableInvalidStructureException e) {
             wipeLoginIfItOccurred();
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_USER,
+            Logger.log(LogTypes.TYPE_USER,
                     "User Sync failed due to bad payload|" + e.getMessage());
             return new ResultAndError<>(PullTaskResult.BAD_DATA_REQUIRES_INTERVENTION,
                     e.getLocalizedMessage());
         } catch (InvalidStructureException e) {
             wipeLoginIfItOccurred();
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_USER,
+            Logger.log(LogTypes.TYPE_USER,
                     "User Sync failed due to bad payload|" + e.getMessage());
             return new ResultAndError<>(PullTaskResult.BAD_DATA, e.getMessage());
         } catch (UnfullfilledRequirementsException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                     "User sync failed oddly, unfulfilled reqs |" + e.getMessage());
             throw new UnknownSyncError();
         } catch (IllegalStateException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                     "User sync failed oddly, ISE |" + e.getMessage());
             throw new UnknownSyncError();
         } catch (RecordTooLargeException e) {
             wipeLoginIfItOccurred();
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                     "Storage Full during user sync |" + e.getMessage());
             return new ResultAndError<>(PullTaskResult.STORAGE_FULL);
         }
@@ -420,14 +420,14 @@ public abstract class DataPullTask<R>
             CommCareApplication.instance().getAppStorage(UserKeyRecord.class).write(ukrForLogin);
         }
 
-        Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
+        Logger.log(LogTypes.TYPE_USER, "User Sync Successful|" + username);
         updateCurrentUser(password);
         this.publishProgress(PROGRESS_DONE);
     }
 
     private ResultAndError<PullTaskResult> handleServerError() {
         wipeLoginIfItOccurred();
-        Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
+        Logger.log(LogTypes.TYPE_USER, "500 Server Error|" + username);
         return new ResultAndError<>(PullTaskResult.SERVER_ERROR);
     }
 
@@ -459,7 +459,7 @@ public abstract class DataPullTask<R>
     private Pair<Integer, String> recover(HttpRequestEndpoints requestor, AndroidTransactionParserFactory factory) {
         this.publishProgress(PROGRESS_RECOVERY_NEEDED);
 
-        Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");
+        Logger.log(LogTypes.TYPE_USER, "Sync Recovery Triggered");
 
         BitCache cache;
 
@@ -481,12 +481,12 @@ public abstract class DataPullTask<R>
         } catch (IOException e) {
             e.printStackTrace();
             //Ok, well, we're bailing here, but we didn't make any changes
-            Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Failed due to IOException|" + e.getMessage());
+            Logger.log(LogTypes.TYPE_USER, "Sync Recovery Failed due to IOException|" + e.getMessage());
             return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE, "");
         }
 
         this.publishProgress(PROGRESS_RECOVERY_STARTED);
-        Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery payload downloaded");
+        Logger.log(LogTypes.TYPE_USER, "Sync Recovery payload downloaded");
 
         //Ok. Here's where things get real. We now have a stable copy of the fresh data from the
         //server, so it's "safe" for us to wipe the casedb copy of it.
@@ -503,7 +503,7 @@ public abstract class DataPullTask<R>
             //Get new data
             String syncToken = readInput(cache.retrieveCache(), factory);
             updateUserSyncToken(syncToken);
-            Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Succesful");
+            Logger.log(LogTypes.TYPE_USER, "Sync Recovery Succesful");
             return new Pair<>(PROGRESS_DONE, "");
         } catch (ActionableInvalidStructureException e) {
             e.printStackTrace();
@@ -521,7 +521,7 @@ public abstract class DataPullTask<R>
         //while trying to parse everything out. We need to recover from that error here and rollback the changes
 
         //TODO: Roll back changes
-        Logger.log(AndroidLogger.TYPE_USER, "Sync recovery failed|" + failureReason);
+        Logger.log(LogTypes.TYPE_USER, "Sync recovery failed|" + failureReason);
         return new Pair<>(PROGRESS_RECOVERY_FAIL_BAD, failureReason);
     }
 

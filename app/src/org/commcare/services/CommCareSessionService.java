@@ -16,18 +16,18 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.dalvik.R;
 import org.commcare.heartbeat.HeartbeatLifecycleManager;
 import org.commcare.interfaces.FormSaveCallback;
-import org.commcare.logging.AndroidLogger;
-import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
-import org.commcare.core.encryption.CryptUtil;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
@@ -132,7 +132,7 @@ public class CommCareSessionService extends Service {
         try {
             CommCareApplication.instance().getCurrentSessionWrapper().reset();
         } catch (SessionStateUninitException e) {
-            Log.e(AndroidLogger.SOFT_ASSERT,
+            Log.e(LogTypes.SOFT_ASSERT,
                     "Trying to wipe uninitialized session in session service tear-down");
         }
     }
@@ -272,7 +272,7 @@ public class CommCareSessionService extends Service {
     public void startSession(User user, UserKeyRecord record) {
         synchronized (lock) {
             if (user != null) {
-                Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
+                Logger.log(LogTypes.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
 
                 //Let anyone who is listening know!
                 Intent i = new Intent("org.commcare.dalvik.api.action.session.login");
@@ -410,7 +410,7 @@ public class CommCareSessionService extends Service {
             Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
             this.sendBroadcast(i);
 
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, msg);
+            Logger.log(LogTypes.TYPE_MAINTENANCE, msg);
 
             user = null;
 

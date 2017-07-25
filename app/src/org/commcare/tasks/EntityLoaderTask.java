@@ -6,12 +6,12 @@ import org.commcare.activities.EntitySelectActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.tasks.templates.ManagedAsyncTask;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -77,7 +77,7 @@ public class EntityLoaderTask
             XPathException me = new XPathException("Encountered an xpath error while trying to load the list.");
             me.setSource(xe.getSource());
             xe.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, ForceCloseLogger.getStackTrace(me));
+            Logger.log(LogTypes.TYPE_ERROR_DESIGN, ForceCloseLogger.getStackTrace(me));
             mException = me;
             return null;
         }
