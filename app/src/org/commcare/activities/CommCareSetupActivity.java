@@ -139,6 +139,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final int INSTALL_MODE_OFFLINE = 2;
     private static final int INSTALL_MODE_SMS = 3;
     private static final int INSTALL_MODE_FROM_LIST = 4;
+    private static final int INSTALL_MODE_MANAGED_CONFIGURATION = 5;
     private int lastInstallMode;
 
     /**
@@ -950,11 +951,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
             if (appRestrictions.containsKey("profileUrl")) {
-                Toast.makeText(this,  "Found managed configuration install URL "
-                        + appRestrictions.getString("profileUrl"), Toast.LENGTH_LONG).show();
                 Log.d(TAG, "Found managed configuration install URL "
                         + appRestrictions.getString("profileUrl"));
                 incomingRef = appRestrictions.getString("profileUrl");
+                lastInstallMode = INSTALL_MODE_MANAGED_CONFIGURATION;
                 uiState = UiState.READY_TO_INSTALL;
                 uiStateScreenTransition();
                 startResourceInstall();
