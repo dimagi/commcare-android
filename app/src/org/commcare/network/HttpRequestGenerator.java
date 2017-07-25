@@ -1,9 +1,7 @@
 package org.commcare.network;
 
 import android.net.Uri;
-import android.util.Log;
 
-import org.apache.http.client.methods.HttpRequestBase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
@@ -54,10 +52,8 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     private final String userType;
     private final String userId;
 
-    /**
-     * Keep track of current request to allow for early aborting
-     */
-    private HttpRequestBase currentRequest;
+    @Nullable
+    private ModernHttpRequester requester;
 
     public HttpRequestGenerator(User user) {
         this(user.getUsername(), user.getCachedPwd(), user.getUserType(), user.getUniqueId());
@@ -123,7 +119,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             CommCareApplication.instance().setInvalidateCacheFlag(false);
         }
 
-        ModernHttpRequester requester = CommCareApplication.instance().createGetRequestor(
+        requester = CommCareApplication.instance().createGetRequestor(
                 CommCareApplication.instance(),
                 CommCareServerPreferences.getDataServerKey(),
                 params,
@@ -155,7 +151,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         // include IMEI in key fetch request for auditing large deployments
         params.put("device_id", CommCareApplication.instance().getPhoneId());
 
-        ModernHttpRequester requester = CommCareApplication.instance().createGetRequestor(
+        requester = CommCareApplication.instance().createGetRequestor(
                 CommCareApplication.instance(),
                 baseUri,
                 params,
@@ -204,7 +200,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             params.put(SUBMIT_MODE, SUBMIT_MODE);
         }
 
-        ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
+       requester = CommCareApplication.instance().buildHttpRequester(
                 CommCareApplication.instance(),
                 url,
                 params,
@@ -238,12 +234,8 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
     @Override
     public void abortCurrentRequest() {
-        if (currentRequest != null) {
-            try {
-                currentRequest.abort();
-            } catch (Exception e) {
-                Log.i(TAG, "Error thrown while aborting http: " + e.getMessage());
-            }
+        if (requester != null) {
+            requester.cancelRequest();
         }
     }
 }
