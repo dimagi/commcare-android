@@ -55,9 +55,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.16 - Add type -> id index for case index storage
      * V.17 - Add global counter metadata field to form records, for use in submission ordering
      * V.18 - Add index on @owner_id for cases
+     * V.19 - Rebuild case index table due to the possibility of previous 412 indexing issues
      */
 
-    private static final int USER_DB_VERSION = 18;
+    private static final int USER_DB_VERSION = 19;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
