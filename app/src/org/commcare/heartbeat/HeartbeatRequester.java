@@ -29,7 +29,7 @@ import java.util.HashMap;
  * session's HeartbeatLifecycleManager, and then parsing and handling the response. Currently,
  * the primary content of the server's response to the heartbeat request will be information
  * about potential binary or app updates that the app should prompt users to conduct.
- * <p>
+ *
  * Created by amstone326 on 5/5/17.
  */
 public class HeartbeatRequester {

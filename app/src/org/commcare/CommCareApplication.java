@@ -828,7 +828,7 @@ public class CommCareApplication extends Application {
 
     /**
      * Whether the current login is a "demo" mode login.
-     * <p>
+     *
      * Returns a provided default value if there is no active user login
      */
     public static boolean isInDemoMode(boolean defaultValue) {
