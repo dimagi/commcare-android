@@ -32,14 +32,13 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.IncompleteFormListAdapter;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.dalvik.R;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.ArchivedFormRemoteRestore;
 import org.commcare.models.FormRecordProcessor;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
@@ -49,12 +48,13 @@ import org.commcare.tasks.FormRecordLoaderTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.IncompleteFormRecordView;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -584,12 +584,12 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
 
     private void generateQuarantineReport() {
-        Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Beginning form Quarantine report");
+        Logger.log(LogTypes.TYPE_ERROR_STORAGE, "Beginning form Quarantine report");
         for (int i = 0; i < adapter.getCount(); ++i) {
             FormRecord r = (FormRecord)adapter.getItem(i);
             Pair<Boolean, String> integrity = this.formRecordProcessor.verifyFormRecordIntegrity(r);
             String passfail = integrity.first ? "PASS:" : "FAIL:";
-            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, passfail + integrity.second);
+            Logger.log(LogTypes.TYPE_ERROR_STORAGE, passfail + integrity.second);
         }
         CommCareUtil.triggerLogSubmission(this);
     }

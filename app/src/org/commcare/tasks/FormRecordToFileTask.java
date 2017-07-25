@@ -9,10 +9,10 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
@@ -42,7 +42,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @author wspride
  */
 public abstract class FormRecordToFileTask extends CommCareTask<String, String, Pair<FormUploadResult, FormRecord[]>, CommCareWiFiDirectActivity> {
-    private static final String TAG = AndroidLogger.TYPE_FORM_DUMP;
+    private static final String TAG = LogTypes.TYPE_FORM_DUMP;
 
     private final Context c;
     // this is where the forms that have been pulled from FormRecord storage to the file system live
@@ -187,7 +187,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
                         try {
                             folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
                         } catch (IOException e) {
-                            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
+                            Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
                             continue;
                         }
 
@@ -200,7 +200,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
                     }
                 } catch (Exception e) {
                     //Just try to skip for now. Hopefully this doesn't wreck the model :/
-                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
+                    Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
                 }
             }
 
