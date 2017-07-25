@@ -3,7 +3,9 @@ package org.commcare.activities;
 import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.RestrictionsManager;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -106,6 +108,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final int MENU_ARCHIVE = Menu.FIRST;
     private static final int MENU_SMS = Menu.FIRST + 2;
     private static final int MENU_FROM_LIST = Menu.FIRST + 3;
+    private static final int MENU_FROM_CONFIGURATION = Menu.FIRST + 4;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
@@ -136,6 +139,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final int INSTALL_MODE_OFFLINE = 2;
     private static final int INSTALL_MODE_SMS = 3;
     private static final int INSTALL_MODE_FROM_LIST = 4;
+    private static final int INSTALL_MODE_MANAGED_CONFIGURATION = 5;
     private int lastInstallMode;
 
     /**
@@ -531,6 +535,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         menu.add(0, MENU_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
         menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.app.list.install"));
+        menu.add(0, MENU_FROM_CONFIGURATION, 2, Localization.get("menu.app.list.configuration"));
         return true;
     }
 
@@ -646,6 +651,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 clearErrorMessage();
                 i = new Intent(getApplicationContext(), InstallFromListActivity.class);
                 startActivityForResult(i, GET_APPS_FROM_HQ);
+                break;
+            case MENU_FROM_CONFIGURATION:
+                clearErrorMessage();
+                checkManagedConfiguration();
                 break;
         }
         return true;
@@ -931,6 +940,25 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 return GoogleAnalyticsFields.ACTION_URL_INSTALL;
             default:
                 return "";
+        }
+    }
+
+    private void checkManagedConfiguration() {
+        Log.d(TAG, "Checking managed configuration");
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            // Check for managed configuration
+            RestrictionsManager restrictionsManager =
+                    (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
+            Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
+            if (appRestrictions.containsKey("profileUrl")) {
+                Log.d(TAG, "Found managed configuration install URL "
+                        + appRestrictions.getString("profileUrl"));
+                incomingRef = appRestrictions.getString("profileUrl");
+                lastInstallMode = INSTALL_MODE_MANAGED_CONFIGURATION;
+                uiState = UiState.READY_TO_INSTALL;
+                uiStateScreenTransition();
+                startResourceInstall();
+            }
         }
     }
 }
