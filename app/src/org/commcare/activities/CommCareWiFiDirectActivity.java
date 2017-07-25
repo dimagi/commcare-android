@@ -36,6 +36,7 @@ import org.commcare.fragments.WiFiDirectManagementFragment.WifiDirectManagerList
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.AdvancedActionsPreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.services.WiFiDirectBroadcastReceiver;
 import org.commcare.tasks.FormRecordToFileTask;
@@ -416,7 +417,7 @@ public class CommCareWiFiDirectActivity
             protected void deliverResult(CommCareWiFiDirectActivity receiver, Boolean result) {
                 if (result == Boolean.TRUE) {
                     Intent i = new Intent(getIntent());
-                    i.putExtra(AdvancedActionsActivity.KEY_NUMBER_DUMPED, formsOnSD);
+                    i.putExtra(AdvancedActionsPreferences.KEY_NUMBER_DUMPED, formsOnSD);
                     receiver.setResult(BULK_SEND_ID, i);
                     Logger.log(TAG, "Sucessfully dumped " + formsOnSD);
                     receiver.finish();

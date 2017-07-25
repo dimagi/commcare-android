@@ -9,18 +9,15 @@ import android.util.Base64;
 import org.commcare.CommCareApplication;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SerializationUtil;
-import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Date;
 
 /**
  * Created by amstone326 on 4/13/17.
@@ -34,14 +31,30 @@ public class UpdateToPrompt implements Externalizable {
     private String versionString;
     private int cczVersion;
     private ApkVersion apkVersion;
-    private Date forceByDate;
-    protected boolean isApkUpdate;
+    private boolean isForced;
+    protected Type updateType;
 
-    public UpdateToPrompt(String version, String forceByDate, boolean isApkUpdate) {
-        if (forceByDate != null) {
-            this.forceByDate = DateUtils.parseDate(forceByDate);
+    public enum Type {
+        APK_UPDATE(KEY_APK_UPDATE_TO_PROMPT),
+        CCZ_UPDATE(KEY_CCZ_UPDATE_TO_PROMPT);
+
+        private String prefsKey;
+
+        Type(String s) {
+            this.prefsKey = s;
         }
-        this.isApkUpdate = isApkUpdate;
+
+        protected String getPrefsKey() {
+            return this.prefsKey;
+        }
+
+    }
+
+    public UpdateToPrompt(String version, String forceString, Type type) {
+        if (forceString != null) {
+            this.isForced = "true".equals(forceString);
+        }
+        this.updateType = type;
         this.versionString = version;
         buildFromVersionString();
     }
@@ -51,15 +64,11 @@ public class UpdateToPrompt implements Externalizable {
     }
 
     private void buildFromVersionString() {
-        if (isApkUpdate) {
+        if (this.updateType == Type.APK_UPDATE) {
             this.apkVersion = new ApkVersion(versionString);
         } else {
             this.cczVersion = Integer.parseInt(versionString);
         }
-    }
-
-    public boolean isPastForceByDate() {
-        return forceByDate != null && (forceByDate.getTime() < System.currentTimeMillis());
     }
 
     public void registerWithSystem() {
@@ -69,23 +78,25 @@ public class UpdateToPrompt implements Externalizable {
         } else {
             // If the latest signal we're getting is that our current version is up-to-date,
             // then we should wipe any update prompt for this type that was previously stored
-            UpdatePromptHelper.wipeStoredUpdate(this.isApkUpdate);
+            UpdatePromptHelper.wipeStoredUpdate(this.updateType);
         }
     }
 
     private void printDebugStatement() {
-        if (isApkUpdate) {
+        if (this.updateType == Type.APK_UPDATE) {
             System.out.println(".apk version to prompt for update set to " + apkVersion);
         } else {
             System.out.println(".ccz version to prompt for update set to " + cczVersion);
         }
-        if (this.forceByDate != null) {
-            System.out.println("force-by date is " + forceByDate);
-        }
+        System.out.println("Is forced?: " + isForced);
+    }
+
+    public boolean isForced() {
+        return isForced;
     }
 
     public boolean isNewerThanCurrentVersion() {
-        if (isApkUpdate) {
+        if (this.updateType == Type.APK_UPDATE) {
             try {
                 Context c = CommCareApplication.instance();
                 PackageInfo pi = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
@@ -109,9 +120,7 @@ public class UpdateToPrompt implements Externalizable {
         try {
             byte[] serializedBytes = SerializationUtil.serialize(this);
             String serializedString = Base64.encodeToString(serializedBytes, Base64.DEFAULT);
-            prefs.edit().putString(
-                    isApkUpdate ? KEY_APK_UPDATE_TO_PROMPT : KEY_CCZ_UPDATE_TO_PROMPT,
-                    serializedString).commit();
+            prefs.edit().putString(this.updateType.getPrefsKey(), serializedString).commit();
         } catch (Exception e) {
             Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                     "Error encountered while serializing UpdateToPrompt: " + e.getMessage());
@@ -121,19 +130,20 @@ public class UpdateToPrompt implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.versionString = ExtUtil.readString(in);
-        this.isApkUpdate = ExtUtil.readBool(in);
-        this.forceByDate = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
+        this.updateType = Type.valueOf(ExtUtil.readString(in));
+        this.isForced = ExtUtil.readBool(in);
         buildFromVersionString();
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, versionString);
-        ExtUtil.writeBool(out, isApkUpdate);
-        ExtUtil.write(out, new ExtWrapNullable(forceByDate));
+        ExtUtil.writeString(out, updateType.name());
+        ExtUtil.writeBool(out, isForced);
     }
 
     public int getCczVersion() {
         return cczVersion;
     }
+
 }

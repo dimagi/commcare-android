@@ -76,7 +76,8 @@ public class AndroidSandbox extends UserSandbox {
 
     @Override
     public IStorageUtilityIndexed<FormInstance> getUserFixtureStorage() {
-        return app.getFileBackedUserStorage("fixture", FormInstance.class);
+        return app.getFileBackedUserStorage(
+                HybridFileBackedSqlStorage.FIXTURE_STORAGE_TABLE_NAME, FormInstance.class);
     }
 
     @Override

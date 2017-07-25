@@ -40,6 +40,10 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.File;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
+
 /**
  * Load module menu items
  *
@@ -52,6 +56,7 @@ public class MenuAdapter extends BaseAdapter {
     private String errorMessage = "";
     final CommCareActivity context;
     final MenuDisplayable[] displayableData;
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     class MenuLogger implements LoggerInterface {
 
@@ -148,12 +153,7 @@ public class MenuAdapter extends BaseAdapter {
         ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
         setupImageView(mIconView, menuDisplayable);
 
-        try {
-            setupBadgeView(menuListItem, menuDisplayable);
-        } catch (Exception e) {
-            UserfacingErrorHandling.createErrorDialog(context, e.getLocalizedMessage(), true);
-        }
-
+        setupBadgeView(menuListItem, menuDisplayable);
         return menuListItem;
     }
 
@@ -176,7 +176,7 @@ public class MenuAdapter extends BaseAdapter {
             audioPlaybackButton.modifyButtonForNewView(viewId, audioURI, true);
         } else {
             if (audioPlaybackButton != null) {
-                audioPlaybackButton.modifyButtonForNewView(viewId,audioURI, false);
+                audioPlaybackButton.modifyButtonForNewView(viewId, audioURI, false);
                 ((LinearLayout)audioPlaybackButton.getParent()).removeView(audioPlaybackButton);
             }
         }
@@ -214,14 +214,23 @@ public class MenuAdapter extends BaseAdapter {
 
     protected void setupBadgeView(View menuListItem, MenuDisplayable menuDisplayable) {
         View badgeView = menuListItem.findViewById(R.id.badge_view);
-        String badgeText = menuDisplayable.getTextForBadge(
-                asw.getEvaluationContext(menuDisplayable.getCommandID()));
+        compositeDisposable.add(
+                menuDisplayable.getTextForBadge(asw.getEvaluationContext(menuDisplayable.getCommandID()))
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(badgeText -> updateBadgeView(badgeView, badgeText),
+                                throwable -> UserfacingErrorHandling.createErrorDialog(context, throwable.getLocalizedMessage(), true)
+                        )
+        );
+    }
+
+    private void updateBadgeView(View badgeView, String badgeText) {
         if (badgeText != null && !"".equals(badgeText) && !"0".equals(badgeText)) {
             if (badgeText.length() > 2) {
                 // A badge can only fit up to 2 characters
                 badgeText = badgeText.substring(0, 2);
             }
-            TextView badgeTextView = (TextView)menuListItem.findViewById(R.id.badge_text);
+            TextView badgeTextView = (TextView)badgeView.findViewById(R.id.badge_text);
             badgeTextView.setText(badgeText);
             badgeView.setVisibility(View.VISIBLE);
         } else {
@@ -259,6 +268,14 @@ public class MenuAdapter extends BaseAdapter {
                     break;
             }
         }
+    }
+
+    /**
+     * Must be called in the activity/fragment containing the adapter onDestroy
+     * to clear Rx subscriptions
+     */
+    public void onDestory() {
+        compositeDisposable.clear();
     }
 
     @Override

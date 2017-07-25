@@ -7,16 +7,18 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.MultipleAppsUtil;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -104,10 +106,7 @@ public class AppUtils {
     }
 
     public static void wipeSandboxForUser(final String username) {
-        // manually clear file-backed fixture storage to ensure files are removed
-        CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
-
-        // wipe the user's db
+        // Get the uuids that match this username
         final Set<String> dbIdsToRemove = new HashSet<>();
         CommCareApplication.instance().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
             @Override
@@ -119,8 +118,22 @@ public class AppUtils {
                 return false;
             }
         });
+
+        // Wipe the file-backed fixture storage for all matching UKRs
+        wipeFileBackedFixtureStorage(dbIdsToRemove);
+
+        // Wipe the user db for all matching UKRs
         for (String id : dbIdsToRemove) {
             CommCareApplication.instance().getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
+        }
+    }
+
+    private static void wipeFileBackedFixtureStorage(Set<String> matchingUkrUuids) {
+        for (String ukrUuid : matchingUkrUuids) {
+            File fixtureStorageFile = HybridFileBackedSqlStorage.getStorageFile(ukrUuid,
+                    HybridFileBackedSqlStorage.FIXTURE_STORAGE_TABLE_NAME,
+                    CommCareApplication.instance().getCurrentApp());
+            FileUtil.deleteFileOrDir(fixtureStorageFile);
         }
     }
 

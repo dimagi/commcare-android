@@ -1,7 +1,9 @@
 package org.commcare.activities;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.content.RestrictionsManager;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -91,6 +93,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        checkManagedConfiguration();
 
         if (shouldFinish()) {
             // If we're going to finish in onResume() because there is no usable seated app,
@@ -640,5 +644,23 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void handlePullTaskError() {
         raiseLoginMessage(StockMessages.Restore_Unknown, true);
+    }
+    
+    private void checkManagedConfiguration() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            // Check for managed configuration
+            RestrictionsManager restrictionsManager =
+                    (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
+            if (restrictionsManager == null) {
+                return;
+            }
+            Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
+            if (appRestrictions.containsKey("username") &&
+                    appRestrictions.containsKey("password")) {
+                uiController.setUsername(appRestrictions.getString("username"));
+                uiController.setPasswordOrPin(appRestrictions.getString("password"));
+                initiateLoginAttempt(false);
+            }
+        }
     }
 }

@@ -39,6 +39,7 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     public void onResume() {
         super.onResume();
         navDrawerController.reopenDrawerIfNeeded();
+        menuView.refreshItems(); // Otherwise adapter will show obsolete data
     }
 
     @Override
@@ -90,4 +91,9 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
         return true;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        menuView.onDestroy();
+    }
 }

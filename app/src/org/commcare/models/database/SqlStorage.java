@@ -595,7 +595,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return new IndexSpanningIterator<>(c, this, minValue, maxValue, countValue);
     }
 
-    public void bulkRead(LinkedHashSet<Integer> cuedCases, HashMap recordMap) {
+    @Override
+    public void bulkRead(LinkedHashSet cuedCases, HashMap recordMap) {
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(cuedCases);
         for (Pair<String, String[]> querySet : whereParamList) {
             Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + " IN " + querySet.first, querySet.second, null, null, null);
