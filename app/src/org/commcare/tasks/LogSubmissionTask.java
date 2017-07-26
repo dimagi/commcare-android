@@ -264,7 +264,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
         Response<ResponseBody> response;
         try {
-            response = generator.postData(submissionUrl, parts);
+            response = generator.postMultipart(submissionUrl, parts);
         } catch (ClientProtocolException e) {
             e.printStackTrace();
             return false;

@@ -29,7 +29,7 @@ public interface HttpRequestEndpoints {
 
     Response<ResponseBody> makeKeyFetchRequest(String baseUri, @Nullable Date lastRequest) throws IOException;
 
-    Response<ResponseBody> postData(String url, List<MultipartBody.Part> parts) throws IOException;
+    Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts) throws IOException;
 
     Response<ResponseBody> simpleGet(String uri) throws IOException;
 

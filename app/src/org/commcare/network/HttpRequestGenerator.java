@@ -187,7 +187,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     }
 
     @Override
-    public Response<ResponseBody> postData(String url, List<MultipartBody.Part> parts) throws IOException {
+    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts) throws IOException {
 
         HashMap<String, String> params = new HashMap<>();
 

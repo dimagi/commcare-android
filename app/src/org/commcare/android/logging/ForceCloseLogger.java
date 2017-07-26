@@ -2,10 +2,6 @@ package org.commcare.android.logging;
 
 import android.util.Log;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.entity.mime.MIME;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.StringBody;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
@@ -20,7 +16,6 @@ import org.javarosa.core.model.User;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
@@ -119,7 +114,7 @@ public class ForceCloseLogger {
         }
 
         try {
-            Response<ResponseBody> response = generator.postData(submissionUri, parts);
+            Response<ResponseBody> response = generator.postMultipart(submissionUri, parts);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             StreamsUtil.writeFromInputToOutput(response.body().byteStream(), bos);
             Log.d(TAG, "Response: " + new String(bos.toByteArray()));

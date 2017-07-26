@@ -69,7 +69,7 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
     }
 
     @Override
-    public Response<ResponseBody> postData(String url, List<MultipartBody.Part> parts) throws IOException {
+    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts) throws IOException {
         throw new RuntimeException("Not yet mocked");
     }
 
