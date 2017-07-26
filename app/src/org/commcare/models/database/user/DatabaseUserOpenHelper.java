@@ -79,9 +79,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
+        database.beginTransaction();
         try {
-            database.beginTransaction();
-
             TableBuilder builder = new TableBuilder(ACase.STORAGE_KEY);
             builder.addData(new ACase());
             builder.setUnique(ACase.INDEX_CASE_ID);
@@ -194,9 +193,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
     public static void buildTable(SQLiteDatabase database,
                                   String tableName,
                                   Persistable dataObject) {
+        database.beginTransaction();
         try {
-            database.beginTransaction();
-
             TableBuilder builder = new TableBuilder(tableName);
             builder.addData(dataObject);
             database.execSQL(builder.getTableCreateString());
@@ -208,8 +206,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
     public static void dropTable(SQLiteDatabase database,
                                  String tableName) {
+        database.beginTransaction();
         try {
-            database.beginTransaction();
             database.execSQL("DROP TABLE IF EXISTS '" + tableName + "'");
             database.setTransactionSuccessful();
         } finally {
