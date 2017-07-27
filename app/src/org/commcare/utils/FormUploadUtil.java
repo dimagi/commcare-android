@@ -322,7 +322,7 @@ public class FormUploadUtil {
             return 1;
         } else {
             Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION,
-                    "Failed to add attachment to submission entity: " + f.getName());
+                    "Failed to add attachment to submission entity (too large): " + f.getName());
             return 0;
         }
     }
