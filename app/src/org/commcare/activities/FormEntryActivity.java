@@ -56,7 +56,6 @@ import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
-import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
@@ -128,6 +127,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static AndroidFormController mFormController;
 
     private boolean mIncompleteEnabled = true;
+    private boolean instanceIsReadOnly = false;
     private boolean hasFormLoadBeenTriggered = false;
     private boolean hasFormLoadFailed = false;
     private String locationRecieverErrorAction = null;
@@ -450,7 +450,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         menu.removeItem(FormEntryConstants.MENU_SAVE);
         menu.removeItem(FormEntryConstants.MENU_PREFERENCES);
 
-        if (mIncompleteEnabled) {
+        if (mIncompleteEnabled && !instanceIsReadOnly) {
             menu.add(0, FormEntryConstants.MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers)).setIcon(
                     android.R.drawable.ic_menu_save);
         }
@@ -885,13 +885,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return;
             }
 
-            boolean isInstanceReadOnly = false;
             try {
                 switch (contentType) {
                     case InstanceColumns.CONTENT_ITEM_TYPE:
                         Pair<Uri, Boolean> instanceAndStatus = FormEntryInstanceState.getInstanceUri(this, uri, formProviderContentURI, instanceState);
                         formUri = instanceAndStatus.first;
-                        isInstanceReadOnly = instanceAndStatus.second;
+                        this.instanceIsReadOnly = instanceAndStatus.second;
                         break;
                     case FormsColumns.CONTENT_ITEM_TYPE:
                         formUri = uri;
@@ -913,7 +912,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return;
             }
 
-            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, formEntryRestoreSession.isRecording(), this) {
+            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, this.instanceIsReadOnly, formEntryRestoreSession.isRecording(), this) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
