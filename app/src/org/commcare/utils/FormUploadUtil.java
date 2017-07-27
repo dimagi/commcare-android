@@ -272,6 +272,8 @@ public class FormUploadUtil {
                                                 SecretKeySpec key,
                                                 File[] files)
             throws FileNotFoundException {
+        int numAttachmentsInInstanceFolder = 0;
+        int numAttachmentsSuccessfullyAdded = 0;
         for (File f : files) {
             ContentBody fb;
 
@@ -287,43 +289,42 @@ public class FormUploadUtil {
                 }
                 entity.addPart("xml_submission_file", fb);
             } else if (f.getName().endsWith(".jpg")) {
+                numAttachmentsInInstanceFolder++;
                 fb = new FileBody(f, ContentType.create("image/jpeg"), f.getName());
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart(f.getName(), fb);
-                    Log.i(TAG, "added image file " + f.getName());
-                } else {
-                    Log.i(TAG, "file " + f.getName() + " is too big");
-                }
+                numAttachmentsSuccessfullyAdded += addPartToEntity(entity, f, fb);
             } else if (f.getName().endsWith(".3gpp")) {
+                numAttachmentsInInstanceFolder++;
                 fb = new FileBody(f, ContentType.create("audio/3gpp"), f.getName());
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart(f.getName(), fb);
-                    Log.i(TAG, "added audio file " + f.getName());
-                } else {
-                    Log.i(TAG, "file " + f.getName() + " is too big");
-                }
+                numAttachmentsSuccessfullyAdded += addPartToEntity(entity, f, fb);
             } else if (f.getName().endsWith(".3gp")) {
+                numAttachmentsInInstanceFolder++;
                 fb = new FileBody(f, ContentType.create("video/3gpp"), f.getName());
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart(f.getName(), fb);
-                    Log.i(TAG, "added video file " + f.getName());
-                } else {
-                    Log.i(TAG, "file " + f.getName() + " is too big");
-                }
+                numAttachmentsSuccessfullyAdded += addPartToEntity(entity, f, fb);
             } else if (isSupportedMultimediaFile(f.getName())) {
+                numAttachmentsInInstanceFolder++;
                 fb = new FileBody(f, ContentType.APPLICATION_OCTET_STREAM, f.getName());
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart(f.getName(), fb);
-                    Log.i(TAG, "added unknown file " + f.getName());
-                } else {
-                    Log.i(TAG, "file " + f.getName() + " is too big");
-                }
+                numAttachmentsSuccessfullyAdded += addPartToEntity(entity, f, fb);
             } else {
-                Log.w(TAG, "unsupported file type, not adding file: " +
-                        f.getName());
+                Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION,
+                        "Could not add unsupported file type to submission entity: " + f.getName());
             }
         }
+        Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, "Attempted to add "
+                + numAttachmentsInInstanceFolder + " attachments to submission entity");
+        Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, "Successfully added "
+                + numAttachmentsSuccessfullyAdded + " attachments to submission entity");
         return true;
+    }
+
+    private static int addPartToEntity(MultipartEntity entity, File f, ContentBody fb) {
+        if (fb.getContentLength() <= MAX_BYTES) {
+            entity.addPart(f.getName(), fb);
+            return 1;
+        } else {
+            Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION,
+                    "Failed to add attachment to submission entity: " + f.getName());
+            return 0;
+        }
     }
 
     /**
