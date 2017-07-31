@@ -1,223 +1,32 @@
 {
   "project_info": {
-    "project_number": "768065119425",
-    "firebase_url": "https://commcare-a57e4.firebaseio.com",
-    "project_id": "commcare-a57e4",
-    "storage_bucket": "commcare-a57e4.appspot.com"
+    "project_number": "802648190770",
+    "project_id": "managed-configuration"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:768065119425:android:bf4b2396fb9805b2",
+        "mobilesdk_app_id": "1:802648190770:android:0b77c97a78cb82ea",
         "android_client_info": {
-          "package_name": "org.commcare.dalvik"
+          "package_name": "org.commcare.private"
         }
       },
       "oauth_client": [
         {
-          "client_id": "768065119425-hg10t0osvjqrt6pne3toaobabn5gobqs.apps.googleusercontent.com",
+          "client_id": "802648190770-nioi4r5tsommnntrqnure9u87qilab7u.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "@apiKey@"
+          "current_key": "AIzaSyATmS9VPSH2KqoCazxH7RqOLA6ex335d4Y"
         }
       ],
       "services": {
         "analytics_service": {
           "status": 2,
           "analytics_property": {
-            "tracking_id": "UA-69708208-1"
-          }
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:768065119425:android:e07510ddb3459ee3",
-        "android_client_info": {
-          "package_name": "org.commcare.lts"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "768065119425-hg10t0osvjqrt6pne3toaobabn5gobqs.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "@apiKey@"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:768065119425:android:5d470198e0a973a5",
-        "android_client_info": {
-          "package_name": "org.commcare.consumerapps.clinicalscales"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "768065119425-hg10t0osvjqrt6pne3toaobabn5gobqs.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "@apiKey@"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:768065119425:android:455113c70d7e361f",
-        "android_client_info": {
-          "package_name": "org.commcare.consumerapps.germygameshindi"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "768065119425-hg10t0osvjqrt6pne3toaobabn5gobqs.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "@apiKey@"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:768065119425:android:caa6bc665dc6c381",
-        "android_client_info": {
-          "package_name": "org.commcare.consumerapps.womenshealthhindi"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "768065119425-hg10t0osvjqrt6pne3toaobabn5gobqs.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "@apiKey@"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:768065119425:android:c3c3abf2cc22a9d8",
-        "android_client_info": {
-          "package_name": "org.commcare.consumerapps.savingmoney"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "768065119425-hg10t0osvjqrt6pne3toaobabn5gobqs.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "@apiKey@"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:729925342863:android:3fcb586559e496d9",
-        "android_client_info": {
-          "package_name": "org.commcare.managed"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "729925342863-n2hj7r0d62d51uk62ts3b2k2j67k44b4.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDFDJv-bUIEUHuT_idSKb5QWmN2Aj6UUWw"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 2,
-          "analytics_property": {
-            "tracking_id": "UA-69708208-2"
+            "tracking_id": "UA-103739022-1"
           }
         },
         "appinvite_service": {
