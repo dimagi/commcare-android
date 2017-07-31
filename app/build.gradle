@@ -109,6 +109,8 @@ afterEvaluate {
     processCommcareReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
     processManagedDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
     processManagedReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processPrivateHostDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processPrivateHostReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
 }
 
 task injectGoogleServicesAPIKey(type: Copy) {
@@ -276,6 +278,10 @@ android {
             manifest.srcFile 'CommcareAndroidManifest.xml'
         }
 
+        privateHost {
+            manifest.srcFile 'CommcareAndroidManifest.xml'
+        }
+
         standalone {
             res.srcDirs = ['standalone/res']
             assets.srcDirs = ['standalone/assets']
@@ -299,6 +305,11 @@ android {
         commcare {
             // builds normal commcare
             // use the settings from defaultConfig
+        }
+
+        privateHost {
+            applicationId "org.commcare.private"
+            resValue "string", "application_name", " CommCare Private Hosting"
         }
 
         managed {
