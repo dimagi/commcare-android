@@ -1,7 +1,9 @@
 package org.commcare.activities;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.content.RestrictionsManager;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -91,6 +93,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        checkManagedConfiguration();
 
         if (shouldFinish()) {
             // If we're going to finish in onResume() because there is no usable seated app,
@@ -296,15 +300,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         return uiController.getEnteredUsername().toLowerCase().trim();
     }
 
-    private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession) {
+    private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession,
+                                  boolean blockRemoteKeyManagement) {
         //TODO: check username/password for emptiness
         return tryLocalLogin(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
-                warnMultipleAccounts, restoreSession, uiController.getLoginMode(), false);
+                warnMultipleAccounts, restoreSession, uiController.getLoginMode(),
+                blockRemoteKeyManagement, DataPullMode.NORMAL);
     }
 
     private boolean tryLocalLogin(final String username, String passwordOrPin,
                                   final boolean warnMultipleAccounts, final boolean restoreSession,
-                                  LoginMode loginMode, boolean forCustomDemoUser) {
+                                  LoginMode loginMode, boolean blockRemoteKeyManagement,
+                                  DataPullMode pullModeToUse) {
         try {
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
@@ -313,7 +320,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username,
                             passwordOrPin, loginMode,
                             CommCareApplication.instance().getCurrentApp(), restoreSession,
-                            triggerMultipleUsersWarning, forCustomDemoUser) {
+                            triggerMultipleUsersWarning, blockRemoteKeyManagement, pullModeToUse) {
 
                         @Override
                         protected void deliverUpdate(LoginActivity receiver, String... update) {
@@ -404,11 +411,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         OfflineUserRestore offlineUserRestore = CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
         if (offlineUserRestore != null) {
             tryLocalLogin(offlineUserRestore.getUsername(), OfflineUserRestore.DEMO_USER_PASSWORD,
-                    false, false, LoginMode.PASSWORD, true);
+                    false, false, LoginMode.PASSWORD, true, DataPullMode.CCZ_DEMO);
         } else {
             DemoUserBuilder.build(this, CommCareApplication.instance().getCurrentApp());
             tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
-                    false, LoginMode.PASSWORD, false);
+                    false, LoginMode.PASSWORD, false, DataPullMode.NORMAL);
         }
     }
 
@@ -562,7 +569,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void localLoginOrPullAndLogin(boolean restoreSession) {
-        if (tryLocalLogin(false, restoreSession)) {
+        if (tryLocalLogin(false, restoreSession, false)) {
             return;
         }
 
@@ -585,7 +592,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
-    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage, boolean userTriggeredSync, boolean formsToSend) {
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
+                                     boolean userTriggeredSync, boolean formsToSend,
+                                     boolean usingRemoteKeyManagement) {
         DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
         if (result == null) {
             // The task crashed unexpectedly
@@ -607,7 +616,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 raiseLoginMessage(StockMessages.Storage_Full, true);
                 break;
             case DOWNLOAD_SUCCESS:
-                if (!tryLocalLogin(true, uiController.isRestoreSessionChecked())) {
+                if (!tryLocalLogin(true, uiController.isRestoreSessionChecked(), !usingRemoteKeyManagement)) {
                     raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
                 }
                 break;
@@ -640,5 +649,23 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void handlePullTaskError() {
         raiseLoginMessage(StockMessages.Restore_Unknown, true);
+    }
+    
+    private void checkManagedConfiguration() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            // Check for managed configuration
+            RestrictionsManager restrictionsManager =
+                    (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
+            if (restrictionsManager == null) {
+                return;
+            }
+            Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
+            if (appRestrictions.containsKey("username") &&
+                    appRestrictions.containsKey("password")) {
+                uiController.setUsername(appRestrictions.getString("username"));
+                uiController.setPasswordOrPin(appRestrictions.getString("password"));
+                initiateLoginAttempt(false);
+            }
+        }
     }
 }

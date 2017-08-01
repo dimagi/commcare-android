@@ -126,6 +126,18 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
         }
     }
 
+    /**
+     * Removes all records from the case index table
+     */
+    public void wipeTable() {
+        db.beginTransaction();
+        try {
+            db.delete(TABLE_NAME, null, null);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
 
     /**
      * Get a list of Case Record id's for cases which index a provided value.
@@ -277,6 +289,19 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
         }
         sb.append(")");
         return sb.toString();
+    }
+
+    public void reIndexAllCases(SqlStorage<ACase> caseStorage) {
+        db.beginTransaction();
+        try {
+            wipeTable();
+            for(ACase c : caseStorage) {
+                indexCase(c);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
 }

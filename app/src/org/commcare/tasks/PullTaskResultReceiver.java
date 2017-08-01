@@ -6,7 +6,8 @@ package org.commcare.tasks;
 public interface PullTaskResultReceiver {
 
     void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError,
-                              boolean userTriggeredSync, boolean formsToSend);
+                              boolean userTriggeredSync, boolean formsToSend,
+                              boolean usingRemoteKeyManagement);
 
     void handlePullTaskUpdate(Integer... update);
 

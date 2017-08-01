@@ -12,6 +12,7 @@ import com.android.builder.core.DefaultManifestParser
 // these directories MUST be named like this, or it won't work
 
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
 
 repositories {
     mavenCentral()
@@ -66,6 +67,7 @@ dependencies {
     compile 'com.google.firebase:firebase-core:10.0.1'
     compile 'com.google.firebase:firebase-ads:10.0.1'
     compile 'com.carrotsearch:hppc:0.7.2'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
 }
 
 ext {
@@ -105,6 +107,8 @@ afterEvaluate {
     processLtsReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
     processCommcareDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
     processCommcareReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processManagedDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processManagedReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
 }
 
 task injectGoogleServicesAPIKey(type: Copy) {
@@ -233,8 +237,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     signingConfigs {
@@ -268,6 +272,10 @@ android {
             manifest.srcFile 'CommcareAndroidManifest.xml'
         }
 
+        managed {
+            manifest.srcFile 'CommcareAndroidManifest.xml'
+        }
+
         standalone {
             res.srcDirs = ['standalone/res']
             assets.srcDirs = ['standalone/assets']
@@ -291,6 +299,11 @@ android {
         commcare {
             // builds normal commcare
             // use the settings from defaultConfig
+        }
+
+        managed {
+            applicationId "org.commcare.managed"
+            resValue "string", "application_name", " CommCare Managed Configuration"
         }
 
         lts {
