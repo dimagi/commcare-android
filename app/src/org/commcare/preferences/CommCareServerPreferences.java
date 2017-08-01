@@ -96,6 +96,10 @@ public class CommCareServerPreferences
         return getServerProperty(PREFS_SUPPORT_ADDRESS_KEY, CommCareApplication.instance().getString(R.string.support_email_address_default)) ;
     }
 
+    public static String getFormRecordKey() {
+        return getServerProperty(PREFS_FORM_RECORD_KEY, CommCareApplication.instance().getString(R.string.form_record_url)) ;
+    }
+
     private static String getServerProperty(String key, String defaultValue) {
         CommCareApp app = CommCareApplication.instance().getCurrentApp();
         if (app == null) {

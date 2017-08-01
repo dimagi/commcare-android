@@ -176,6 +176,7 @@ app.workflow.saved.heading=Saved Forms
 app.workflow.forms.open=Open
 app.workflow.forms.delete=Delete Record
 app.workflow.forms.fetch=Fetch Forms from Server
+app.workflow.forms.fetch.file=Fetch Forms from File
 app.workflow.forms.restore=Add Record Back to Unsent Queue
 app.workflow.forms.scan=Scan Record Integrity
 app.workflow.forms.scan.title.valid=Integrity Scan: PASS

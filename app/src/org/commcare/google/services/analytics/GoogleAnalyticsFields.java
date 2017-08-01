@@ -159,6 +159,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_DETAIL_TAB_SWIPE_ACTION = "Detail tab final swipe action enabled";
     public static final String LABEL_OFFLINE_UPDATE = "Offline Updates enabled";
     public static final String LABEL_CUSTOM_RESTORE = "Custom Restore Requested";
+    public static final String LABEL_FORM_RECORD_FILE_PATH = "Form Record File";
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
     public static final String LABEL_SETTINGS = "Settings";

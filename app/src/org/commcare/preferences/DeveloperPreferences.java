@@ -59,6 +59,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public static final String USE_OBFUSCATED_PW = "cc-use-pw-obfuscation";
     public static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
     public static final String SHOW_UPDATE_OPTIONS_SETTING = "cc-show-update-target-options";
+    public static final String FORM_RECORD_FILE_PATH = "cc-form-record-file-path";
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -98,6 +99,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
         prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
         prefKeyToAnalyticsEvent.put(PREFS_CUSTOM_RESTORE_DOC_LOCATION, GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
+        prefKeyToAnalyticsEvent.put(FORM_RECORD_FILE_PATH, GoogleAnalyticsFields.LABEL_FORM_RECORD_FILE_PATH);
     }
 
     /**
@@ -407,6 +409,11 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public static boolean shouldShowUpdateOptionsSetting() {
         return doesPropertyMatch(SHOW_UPDATE_OPTIONS_SETTING, CommCarePreferences.NO,
                 CommCarePreferences.YES) || BuildConfig.DEBUG;
+    }
+
+    public static String getFormRecordFilePath() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(FORM_RECORD_FILE_PATH, "");
     }
 
     private void hideOrShowDangerousSettings() {

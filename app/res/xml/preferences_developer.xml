@@ -85,6 +85,11 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-auto-purge"
         android:title="Detect and Trigger Purge on Form Save"/>
+    <EditTextPreference
+        android:defaultValue=""
+        android:enabled="true"
+        android:key="cc-form-record-file-path"
+        android:title="Form Record File"/>
     <ListPreference
         android:defaultValue="saved"
         android:enabled="true"
