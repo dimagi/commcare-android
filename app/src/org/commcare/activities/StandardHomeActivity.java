@@ -220,8 +220,9 @@ public class StandardHomeActivity
 
     @Override
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
-                                     boolean userTriggeredSync, boolean formsToSend) {
-        super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend);
+                                     boolean userTriggeredSync, boolean formsToSend,
+                                     boolean usingRemoteKeyManagement) {
+        super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend, usingRemoteKeyManagement);
         uiController.refreshView();
     }
 
