@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<profile version="30"
+         update="https://www.commcarehq.org/a/consumer-apps/apps/download/8d0bcd04c6184937cc1cf48ce28ea1c3/media_profile.ccpr?latest=true&amp;profile=None"
+         requiredMajor="2"
+         requiredMinor="27"
+         uniqueid="724e68e27df8087ad8024d9cb2d0f401"
+         name="Women&#39;s Health Hindi"
+         descriptor="Profile File">
+    <property key="BackupMode" value="file_mode" force="true"/>
+    <property key="backup-url" value="file:///E:/CommCare.Backup" force="true"/>
+    <property key="restore-url" value="file:///E:/CommCare.Backup" force="true"/>
+    <property key="ota-restore-url" value="https://www.commcarehq.org/a/consumer-apps/phone/restore/8d0bcd04c6184937cc1cf48ce28ea1c3/" force="true"/>
+    <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/consumer-apps/phone/restore/8d0bcd04c6184937cc1cf48ce28ea1c3/" force="true"/>
+    <property key="PostURL" value="https://www.commcarehq.org/a/consumer-apps/receiver/8d0bcd04c6184937cc1cf48ce28ea1c3/" force="true"/>
+    <property key="PostTestURL" value="https://www.commcarehq.org/a/consumer-apps/receiver/8d0bcd04c6184937cc1cf48ce28ea1c3/" force="true"/>
+    <property key="key_server" value="https://www.commcarehq.org/a/consumer-apps/phone/keys/" force="true"/>
+    <property key="cur_locale" value="hin" force="false"/>
+    <property key="cc_user_domain" value="consumer-apps.commcarehq.org" force="true"/>
+    <property key="jr_openrosa_api" value="1.0" force="true"/>
+
+    <!-- Properties configured on CommCare HQ 1.0 -->
+    
+        <property key="cc-days-form-retain" value="-1" force="true"/>
+    
+        <property key="cc-show-saved" value="no" force="true"/>
+    
+        <property key="unsent-time-limit" value="5" force="true"/>
+    
+        <property key="cc-autosync-freq" value="freq-weekly" force="true"/>
+    
+        <property key="restore-tolerance" value="loose" force="true"/>
+    
+        <property key="cc-user-mode" value="cc-u-normal" force="true"/>
+    
+        <property key="cc-autoup-freq" value="freq-weekly" force="true"/>
+    
+        <property key="purge-freq" value="0" force="true"/>
+    
+        <property key="server-tether" value="sync" force="true"/>
+    
+        <property key="user_reg_server" value="required" force="true"/>
+    
+        <property key="extra_key_action" value="audio" force="true"/>
+    
+        <property key="log_prop_daily" value="log_never" force="true"/>
+    
+        <property key="ViewStyle" value="v_singlequestionscreen" force="true"/>
+    
+        <property key="cc-resize-images" value="none" force="true"/>
+    
+        <property key="cc-entry-mode" value="cc-entry-quick" force="true"/>
+    
+        <property key="cc-send-procedure" value="cc-send-http" force="true"/>
+    
+        <property key="cc-login-images" value="Yes" force="true"/>
+    
+        <property key="log_prop_weekly" value="log_short" force="true"/>
+    
+        <property key="cc-show-incomplete" value="no" force="true"/>
+    
+        <property key="cc-send-unsent" value="cc-su-auto" force="true"/>
+    
+        <property key="loose_media" value="no" force="true"/>
+    
+        <property key="password_format" value="n" force="true"/>
+    
+        <property key="unsent-number-limit" value="5" force="true"/>
+    
+        <property key="cc-content-valid" value="yes" force="true"/>
+    
+        <property key="logenabled" value="Enabled" force="true"/>
+    
+
+    <!-- end -->
+
+    
+
+    <features>
+        <checkoff active="true"/>
+        <reminders active="false">
+            <time>0</time>
+        </reminders>
+        <package active="false"/>
+        
+            <sense active="true" />
+        
+        <users active="true">
+        </users>
+    </features>
+
+    <suite><resource id="suite" version="30">
+        
+            <location authority="local">./suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/consumer-apps/apps/download/8d0bcd04c6184937cc1cf48ce28ea1c3/suite.xml</location>
+    </resource></suite>
+    
+    <suite><resource id="media-suite" version="30">
+        
+            <location authority="local">./media_suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/consumer-apps/apps/download/8d0bcd04c6184937cc1cf48ce28ea1c3/media_suite.xml</location>
+    </resource></suite>
+    
+</profile>

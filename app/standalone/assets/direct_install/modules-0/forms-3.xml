@@ -1,0 +1,766 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Germ Quiz</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/2856671B-D3CE-40F1-A73D-AD092E1BA7FC" uiVersion="1" version="91" name="Germ Quiz">
+					<germ_quiz/>
+					<see_germs/>
+					<people_sick/>
+					<germs_adults/>
+					<germs_spread>
+						<droplets/>
+						<staring/>
+						<bathroom/>
+						<contaminated_food/>
+						<outside_caste/>
+						<religion/>
+						<contaminated_surfaces/>
+						<touching_hands/>
+					</germs_spread>
+					<germs_give>
+						<diarrhea/>
+						<eye_infection/>
+						<frown/>
+						<rash/>
+						<broken_leg/>
+						<blue_hair/>
+					</germs_give>
+					<low_score/>
+					<mid_score/>
+					<high_score/>
+					<score_calc/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/germ_quiz"/>
+			<bind nodeset="/data/see_germs" required="true()"/>
+			<bind nodeset="/data/people_sick" required="true()"/>
+			<bind nodeset="/data/germs_adults" required="true()"/>
+			<bind nodeset="/data/germs_spread"/>
+			<bind nodeset="/data/germs_spread/droplets" required="true()"/>
+			<bind nodeset="/data/germs_spread/staring" required="true()"/>
+			<bind nodeset="/data/germs_spread/bathroom" required="true()"/>
+			<bind nodeset="/data/germs_spread/contaminated_food" required="true()"/>
+			<bind nodeset="/data/germs_spread/outside_caste" required="true()"/>
+			<bind nodeset="/data/germs_spread/religion" required="true()"/>
+			<bind nodeset="/data/germs_spread/contaminated_surfaces" required="true()"/>
+			<bind nodeset="/data/germs_spread/touching_hands" required="true()"/>
+			<bind nodeset="/data/germs_give"/>
+			<bind nodeset="/data/germs_give/diarrhea" required="true()"/>
+			<bind nodeset="/data/germs_give/eye_infection" required="true()"/>
+			<bind nodeset="/data/germs_give/frown" required="true()"/>
+			<bind nodeset="/data/germs_give/rash" required="true()"/>
+			<bind nodeset="/data/germs_give/broken_leg" required="true()"/>
+			<bind nodeset="/data/germs_give/blue_hair" required="true()"/>
+			<bind nodeset="/data/low_score" relevant="/data/score_calc &lt;= 8"/>
+			<bind nodeset="/data/mid_score" relevant="/data/score_calc &gt;= 9 and /data/score_calc &lt;= 14"/>
+			<bind nodeset="/data/high_score" relevant="/data/score_calc &gt;= 15"/>
+			<bind nodeset="/data/score_calc" calculate="/data/see_germs + /data/people_sick + /data/germs_adults + /data/germs_spread/droplets + /data/germs_spread/staring + /data/germs_spread/bathroom + /data/germs_spread/contaminated_food + /data/germs_spread/outside_caste + /data/germs_spread/religion + /data/germs_spread/contaminated_surfaces + /data/germs_spread/touching_hands + /data/germs_give/diarrhea + /data/germs_give/eye_infection + /data/germs_give/frown + /data/germs_give/rash + /data/germs_give/broken_leg + /data/germs_give/blue_hair"/>
+			<itext>
+				<translation lang="en">
+					<text id="germ_quiz-label">
+						<value>Let's see how much you've learned about me and my germ friends!</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germ_quiz.mp3</value>
+					</text>
+					<text id="see_germs-label">
+						<value>Can you see germs?</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/see_germs.mp3</value>
+						<value form="image">jr://file/commcare/image/data/see_germs.png</value>
+					</text>
+					<text id="see_germs-0-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/see_germs-0.mp3</value>
+					</text>
+					<text id="see_germs-1-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/see_germs-1.mp3</value>
+					</text>
+					<text id="people_sick-label">
+						<value>Germs can make humans and animals sick.</value>
+						<value form="image">jr://file/commcare/image/data/germy_sick_info.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/people_sick.mp3</value>
+					</text>
+					<text id="people_sick-1-label">
+						<value>TRUE</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/people_sick-1.mp3</value>
+					</text>
+					<text id="people_sick-0-label">
+						<value>FALSE</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/people_sick-0.mp3</value>
+					</text>
+					<text id="germs_adults-label">
+						<value>Germs only make children sick, not adults.</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_adults.mp3</value>
+						<value form="image">jr://file/commcare/image/data/germs_adults.png</value>
+					</text>
+					<text id="germs_adults-0-label">
+						<value>TRUE</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_adults-0.mp3</value>
+					</text>
+					<text id="germs_adults-1-label">
+						<value>FALSE</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_adults-1.mp3</value>
+					</text>
+					<text id="germs_spread-label">
+						<value>Can germs spread through...</value>
+					</text>
+					<text id="droplets-label">
+						<value>Droplets when someone coughs or sneezes?</value>
+						<value form="image">jr://file/commcare/image/data/transmission_cough_sneeze.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/droplets.mp3</value>
+					</text>
+					<text id="droplets-1-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/droplets-1.mp3</value>
+					</text>
+					<text id="droplets-0-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/droplets-0.mp3</value>
+					</text>
+					<text id="staring-label">
+						<value>Staring at someone</value>
+						<value form="image">jr://file/commcare/image/data/staring.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/staring.mp3</value>
+					</text>
+					<text id="staring-0-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/staring-0.mp3</value>
+					</text>
+					<text id="staring-1-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/staring-1.mp3</value>
+					</text>
+					<text id="bathroom-label">
+						<value>Touching urine or feces when going to the bathroom</value>
+						<value form="image">jr://file/commcare/image/data/transmission_bathroom.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/bathroom.mp3</value>
+					</text>
+					<text id="bathroom-1-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/bathroom-1.mp3</value>
+					</text>
+					<text id="bathroom-0-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/bathroom-0.mp3</value>
+					</text>
+					<text id="contaminated_food-label">
+						<value>Eating or drinking contaminated food and water</value>
+						<value form="image">jr://file/commcare/image/data/transmission_food_water.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/contaminated_food.mp3</value>
+					</text>
+					<text id="contaminated_food-1-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/contaminated_food-1.mp3</value>
+					</text>
+					<text id="contaminated_food-0-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/contaminated_food-0.mp3</value>
+					</text>
+					<text id="outside_caste-label">
+						<value>Having friends from another caste</value>
+						<value form="image">jr://file/commcare/image/data/outside_caste.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/outside_caste.mp3</value>
+					</text>
+					<text id="outside_caste-0-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/outside_caste-0.mp3</value>
+					</text>
+					<text id="outside_caste-1-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/outside_caste-1.mp3</value>
+					</text>
+					<text id="religion-label">
+						<value>Being a certain religion</value>
+						<value form="image">jr://file/commcare/image/data/religion.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/religion.mp3</value>
+					</text>
+					<text id="religion-0-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/religion-0.mp3</value>
+					</text>
+					<text id="religion-1-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/religion-1.mp3</value>
+					</text>
+					<text id="contaminated_surfaces-label">
+						<value>Touching contaminated surfaces</value>
+						<value form="image">jr://file/commcare/image/data/dirty_surfaces.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/contaminated_surfaces.mp3</value>
+					</text>
+					<text id="contaminated_surfaces-1-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/contaminated_surfaces-1.mp3</value>
+					</text>
+					<text id="contaminated_surfaces-0-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/contaminated_surfaces-0.mp3</value>
+					</text>
+					<text id="touching_hands-label">
+						<value>Touching dirty hands</value>
+						<value form="image">jr://file/commcare/image/data/transmission_dirty_hands.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/touching_hands.mp3</value>
+					</text>
+					<text id="touching_hands-1-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/touching_hands-1.mp3</value>
+					</text>
+					<text id="touching_hands-0-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/touching_hands-0.mp3</value>
+					</text>
+					<text id="germs_give-label">
+						<value>Can germs give you...</value>
+					</text>
+					<text id="diarrhea-label">
+						<value>Diarrhea?</value>
+						<value form="image">jr://file/commcare/image/data/germs_stomach_diarrhea.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/diarrhea.mp3</value>
+					</text>
+					<text id="diarrhea-1-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/diarrhea-1.mp3</value>
+					</text>
+					<text id="diarrhea-0-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/diarrhea-0.mp3</value>
+					</text>
+					<text id="eye_infection-label">
+						<value>An eye infection?</value>
+						<value form="image">jr://file/commcare/image/data/sickness_eye_infection.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/eye_infection.mp3</value>
+					</text>
+					<text id="eye_infection-1-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/eye_infection-1.mp3</value>
+					</text>
+					<text id="eye_infection-0-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/eye_infection-0.mp3</value>
+					</text>
+					<text id="frown-label">
+						<value>A frown?</value>
+						<value form="image">jr://file/commcare/image/data/frown.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/frown.mp3</value>
+					</text>
+					<text id="frown-0-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/frown-0.mp3</value>
+					</text>
+					<text id="frown-1-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/frown-1.mp3</value>
+					</text>
+					<text id="rash-label">
+						<value>Rash?</value>
+						<value form="image">jr://file/commcare/image/data/sickness_skin_rash.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/rash.mp3</value>
+					</text>
+					<text id="rash-1-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/rash-1.mp3</value>
+					</text>
+					<text id="rash-0-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/rash-0.mp3</value>
+					</text>
+					<text id="broken_leg-label">
+						<value>A broken leg?</value>
+						<value form="image">jr://file/commcare/image/data/broken_leg.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/broken_leg.mp3</value>
+					</text>
+					<text id="broken_leg-0-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/broken_leg-0.mp3</value>
+					</text>
+					<text id="broken_leg-1-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/broken_leg-1.mp3</value>
+					</text>
+					<text id="blue_hair-label">
+						<value>Blue hair?</value>
+						<value form="image">jr://file/commcare/image/data/blue_hair.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/blue_hair.mp3</value>
+					</text>
+					<text id="blue_hair-0-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/blue_hair-0.mp3</value>
+					</text>
+					<text id="blue_hair-1-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/blue_hair-1.mp3</value>
+					</text>
+					<text id="low_score-label">
+						<value>Uh-oh, you got  <output value="/data/score_calc"/> / 17 points. Visit the All About Germs section to learn more about germs to stay healthy!</value>
+						<value form="image">jr://file/commcare/image/data/low_score.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/low_score.mp3</value>
+					</text>
+					<text id="mid_score-label">
+						<value>You got <output value="/data/score_calc"/> / 17 points.  You still have some studying to do. Visit the All About Germs section to learn more about germs to stay healthy!</value>
+						<value form="image">jr://file/commcare/image/data/mid_score.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/mid_score.mp3</value>
+					</text>
+					<text id="high_score-label">
+						<value>You're a germ pro! You got <output value="/data/score_calc"/> / 17 points. Keep fighting germs and stay healthy!</value>
+						<value form="image">jr://file/commcare/image/data/high_score.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/high_score.mp3</value>
+					</text>
+				</translation>
+				<translation lang="hin" default="">
+					<text id="germ_quiz-label">
+						<value>&#2310;&#2312;&#2351;&#2375; &#2332;&#2366;&#2344;&#2340;&#2375; &#2361;&#2376;&#2306; &#2310;&#2346;&#2344;&#2375; &#2350;&#2375;&#2352;&#2375; &#2324;&#2352; &#2350;&#2375;&#2352;&#2375; &#2350;&#2367;&#2340;&#2381;&#2352;&#2379; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2325;&#2367;&#2340;&#2344;&#2366; &#2360;&#2367;&#2326;&#2366; !</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germ_quiz.mp3</value>
+					</text>
+					<text id="see_germs-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346;&#2344;&#2375; &#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2325;&#2379; &#2342;&#2375;&#2326;&#2366; &#2361;&#2376; ?</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/see_germs.mp3</value>
+						<value form="image">jr://file/commcare/image/data/see_germs.png</value>
+					</text>
+					<text id="see_germs-0-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/see_germs-0.mp3</value>
+					</text>
+					<text id="see_germs-1-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/see_germs-1.mp3</value>
+					</text>
+					<text id="people_sick-label">
+						<value>&#2325;&#2368;&#2335;&#2366;&#2339;&#2369; &#2350;&#2344;&#2369;&#2359;&#2381;&#2351; &#2324;&#2352; &#2332;&#2366;&#2344;&#2357;&#2352; &#2325;&#2379; &#2348;&#2368;&#2350;&#2366;&#2352; &#2348;&#2344;&#2366; &#2360;&#2325;&#2340;&#2375; &#2361;&#2376; |</value>
+						<value form="image">jr://file/commcare/image/data/people_sick.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/people_sick.mp3</value>
+					</text>
+					<text id="people_sick-1-label">
+						<value>&#2360;&#2361;&#2368; &#2361;&#2376;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/people_sick-1.mp3</value>
+					</text>
+					<text id="people_sick-0-label">
+						<value>&#2327;&#2354;&#2340;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/people_sick-0.mp3</value>
+					</text>
+					<text id="germs_adults-label">
+						<value>&#2325;&#2368;&#2335;&#2366;&#2339;&#2369; &#2325;&#2375;&#2357;&#2354; &#2348;&#2330;&#2381;&#2330;&#2379; &#2325;&#2379; &#2348;&#2368;&#2350;&#2366;&#2352; &#2325;&#2352;&#2340;&#2375; &#2361;&#2376;&#2306; &#2348;&#2396;&#2379;&#2306; &#2325;&#2379; &#2344;&#2361;&#2368;&#2306; |</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_adults.mp3</value>
+						<value form="image">jr://file/commcare/image/data/germs_adults.png</value>
+					</text>
+					<text id="germs_adults-0-label">
+						<value>&#2360;&#2361;&#2368; &#2361;&#2376;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_adults-0.mp3</value>
+					</text>
+					<text id="germs_adults-1-label">
+						<value>&#2327;&#2354;&#2340;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_adults-1.mp3</value>
+					</text>
+					<text id="germs_spread-label">
+						<value>&#2325;&#2368;&#2335;&#2366;&#2339;&#2369; &#2325;&#2367;&#2360; &#2350;&#2366;&#2343;&#2381;&#2351;&#2350; &#2360;&#2375; &#2347;&#2376;&#2354; &#2360;&#2325;&#2340;&#2366; &#2361;&#2376; ?</value>
+					</text>
+					<text id="droplets-label">
+						<value>&#2325;&#2367;&#2360;&#2368; &#2325;&#2368; &#2326;&#2366;&#2306;&#2360;&#2368; &#2351;&#2366; &#2331;&#2368;&#2306;&#2325; &#2325;&#2375; &#2360;&#2306;&#2346;&#2352;&#2381;&#2325; &#2350;&#2375;&#2306; &#2310;&#2344;&#2375; &#2360;&#2375; ?</value>
+						<value form="image">jr://file/commcare/image/data/transmission_cough_sneeze.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/droplets.mp3</value>
+					</text>
+					<text id="droplets-1-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/droplets-1.mp3</value>
+					</text>
+					<text id="droplets-0-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/droplets-0.mp3</value>
+					</text>
+					<text id="staring-label">
+						<value>&#2325;&#2367;&#2360;&#2368; &#2325;&#2379; &#2328;&#2370;&#2352;&#2344;&#2375; &#2360;&#2375; ?</value>
+						<value form="image">jr://file/commcare/image/data/staring.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/staring.mp3</value>
+					</text>
+					<text id="staring-0-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/staring-0.mp3</value>
+					</text>
+					<text id="staring-1-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/staring-1.mp3</value>
+					</text>
+					<text id="bathroom-label">
+						<value>&#2348;&#2366;&#2341;&#2352;&#2370;&#2350; &#2332;&#2366;&#2344;&#2375; &#2360;&#2375; &#2361;&#2366;&#2305;&#2341; &#2327;&#2344;&#2381;&#2342;&#2366; &#2361;&#2379;&#2344;&#2375; &#2346;&#2352; ?</value>
+						<value form="image">jr://file/commcare/image/data/transmission_bathroom.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/bathroom.mp3</value>
+					</text>
+					<text id="bathroom-1-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/bathroom-1.mp3</value>
+					</text>
+					<text id="bathroom-0-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/bathroom-0.mp3</value>
+					</text>
+					<text id="contaminated_food-label">
+						<value>&#2342;&#2370;&#2359;&#2367;&#2340; &#2349;&#2379;&#2332;&#2344; &#2326;&#2366;&#2344;&#2375; &#2351;&#2366; &#2327;&#2344;&#2381;&#2342;&#2366; &#2346;&#2366;&#2344;&#2368; &#2346;&#2368;&#2344;&#2375; &#2360;&#2375; ?</value>
+						<value form="image">jr://file/commcare/image/data/transmission_food_water.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/contaminated_food.mp3</value>
+					</text>
+					<text id="contaminated_food-1-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/contaminated_food-1.mp3</value>
+					</text>
+					<text id="contaminated_food-0-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/contaminated_food-0.mp3</value>
+					</text>
+					<text id="outside_caste-label">
+						<value>&#2325;&#2367;&#2360;&#2368; &#2342;&#2370;&#2360;&#2352;&#2368; &#2332;&#2366;&#2340;&#2367; &#2325;&#2375; &#2350;&#2367;&#2340;&#2381;&#2352; &#2360;&#2375; &#2350;&#2367;&#2354;&#2344;&#2375; &#2346;&#2352; ?</value>
+						<value form="image">jr://file/commcare/image/data/outside_caste.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/outside_caste.mp3</value>
+					</text>
+					<text id="outside_caste-0-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/outside_caste-0.mp3</value>
+					</text>
+					<text id="outside_caste-1-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/outside_caste-1.mp3</value>
+					</text>
+					<text id="religion-label">
+						<value>&#2325;&#2367;&#2360;&#2368; &#2357;&#2367;&#2358;&#2375;&#2359; &#2343;&#2352;&#2381;&#2350; &#2325;&#2375; &#2361;&#2379;&#2344;&#2375; &#2325;&#2375; &#2344;&#2366;&#2340;&#2375; ?</value>
+						<value form="image">jr://file/commcare/image/data/religion.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/religion.mp3</value>
+					</text>
+					<text id="religion-0-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/religion-0.mp3</value>
+					</text>
+					<text id="religion-1-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/religion-1.mp3</value>
+					</text>
+					<text id="contaminated_surfaces-label">
+						<value>&#2327;&#2344;&#2381;&#2342;&#2368; &#2360;&#2340;&#2361; &#2325;&#2379; &#2331;&#2370;&#2344;&#2375; &#2346;&#2352; ?</value>
+						<value form="image">jr://file/commcare/image/data/contaminated_surfaces.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/contaminated_surfaces.mp3</value>
+					</text>
+					<text id="contaminated_surfaces-1-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/contaminated_surfaces-1.mp3</value>
+					</text>
+					<text id="contaminated_surfaces-0-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/contaminated_surfaces-0.mp3</value>
+					</text>
+					<text id="touching_hands-label">
+						<value>&#2342;&#2370;&#2359;&#2367;&#2340; &#2361;&#2366;&#2306;&#2341;&#2379;&#2306; &#2325;&#2379; &#2331;&#2370;&#2344;&#2375; &#2346;&#2352; ?</value>
+						<value form="image">jr://file/commcare/image/data/touching_hands.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/touching_hands.mp3</value>
+					</text>
+					<text id="touching_hands-1-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/touching_hands-1.mp3</value>
+					</text>
+					<text id="touching_hands-0-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_spread/touching_hands-0.mp3</value>
+					</text>
+					<text id="germs_give-label">
+						<value>&#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2360;&#2375; &#2310;&#2346;&#2325;&#2379; &#2325;&#2381;&#2351;&#2366; &#2361;&#2379; &#2360;&#2325;&#2340;&#2366; &#2361;&#2376; ?</value>
+					</text>
+					<text id="diarrhea-label">
+						<value>&#2337;&#2366;&#2351;&#2352;&#2367;&#2351;&#2366; &#2361;&#2379;&#2344;&#2366; ?</value>
+						<value form="image">jr://file/commcare/image/data/diarrhea.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/diarrhea.mp3</value>
+					</text>
+					<text id="diarrhea-1-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/diarrhea-1.mp3</value>
+					</text>
+					<text id="diarrhea-0-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/diarrhea-0.mp3</value>
+					</text>
+					<text id="eye_infection-label">
+						<value>&#2344;&#2375;&#2340;&#2381;&#2352; &#2352;&#2379;&#2327; &#2351;&#2366; &#2310;&#2305;&#2326; &#2350;&#2375;&#2306; &#2360;&#2306;&#2325;&#2381;&#2352;&#2350;&#2339; ?</value>
+						<value form="image">jr://file/commcare/image/data/eye_infection.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/eye_infection.mp3</value>
+					</text>
+					<text id="eye_infection-1-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/eye_infection-1.mp3</value>
+					</text>
+					<text id="eye_infection-0-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/eye_infection-0.mp3</value>
+					</text>
+					<text id="frown-label">
+						<value>&#2325;&#2381;&#2352;&#2379;&#2343; &#2310;&#2344;&#2366; ?</value>
+						<value form="image">jr://file/commcare/image/data/frown.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/frown.mp3</value>
+					</text>
+					<text id="frown-0-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/frown-0.mp3</value>
+					</text>
+					<text id="frown-1-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/frown-1.mp3</value>
+					</text>
+					<text id="rash-label">
+						<value>&#2358;&#2352;&#2368;&#2352; &#2346;&#2352; &#2342;&#2366;&#2344;&#2375; &#2346;&#2396;&#2344;&#2366; ?</value>
+						<value form="image">jr://file/commcare/image/data/sickness_skin_rash.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/rash.mp3</value>
+					</text>
+					<text id="rash-1-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/rash-1.mp3</value>
+					</text>
+					<text id="rash-0-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/rash-0.mp3</value>
+					</text>
+					<text id="broken_leg-label">
+						<value>&#2346;&#2376;&#2352; &#2335;&#2370;&#2335;&#2344;&#2366; ?</value>
+						<value form="image">jr://file/commcare/image/data/broken_leg.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/broken_leg.mp3</value>
+					</text>
+					<text id="broken_leg-0-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/broken_leg-0.mp3</value>
+					</text>
+					<text id="broken_leg-1-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/broken_leg-1.mp3</value>
+					</text>
+					<text id="blue_hair-label">
+						<value>&#2348;&#2366;&#2354; &#2325;&#2366; &#2344;&#2368;&#2354;&#2366; &#2361;&#2379;&#2344;&#2366; ?</value>
+						<value form="image">jr://file/commcare/image/data/blue_hair.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/blue_hair.mp3</value>
+					</text>
+					<text id="blue_hair-0-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/blue_hair-0.mp3</value>
+					</text>
+					<text id="blue_hair-1-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/germs_give/blue_hair-1.mp3</value>
+					</text>
+					<text id="low_score-label">
+						<value>&#2350;&#2366;&#2398; &#2325;&#2368;&#2332;&#2367;&#2351;&#2375; , &#2310;&#2346;&#2325;&#2379; <output value="/data/score_calc"/> / 17 &#2309;&#2306;&#2325; &#2350;&#2367;&#2354;&#2375; &#2361;&#2376;&#2306; | &#2360;&#2368;&#2326;&#2379; &#2357;&#2366;&#2354;&#2375; &#2349;&#2366;&#2327; &#2346;&#2352; &#2332;&#2366;&#2351;&#2375;&#2306; ! &#2360;&#2381;&#2357;&#2360;&#2381;&#2341; &#2352;&#2361;&#2344;&#2375; &#2325;&#2375; &#2354;&#2367;&#2319; &#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306; &#2324;&#2352; &#2309;&#2343;&#2367;&#2325; &#2332;&#2366;&#2344;&#2375;&#2306; !</value>
+						<value form="image">jr://file/commcare/image/data/low_score.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/low_score.mp3</value>
+					</text>
+					<text id="mid_score-label">
+						<value>&#2310;&#2346;&#2325;&#2379; <output value="/data/score_calc"/> / 17 &#2309;&#2306;&#2325; &#2350;&#2367;&#2354;&#2375; &#2361;&#2376;&#2306; |  &#2310;&#2346;&#2325;&#2379; &#2309;&#2349;&#2368; &#2324;&#2352; &#2346;&#2338;&#2344;&#2366; &#2330;&#2366;&#2361;&#2367;&#2319; . &#2360;&#2368;&#2326;&#2379; &#2357;&#2366;&#2354;&#2375; &#2349;&#2366;&#2327; &#2346;&#2352; &#2332;&#2366;&#2351;&#2375;&#2306; ! ! &#2360;&#2381;&#2357;&#2360;&#2381;&#2341; &#2352;&#2361;&#2344;&#2375; &#2325;&#2375; &#2354;&#2367;&#2319; &#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306; &#2324;&#2352; &#2309;&#2343;&#2367;&#2325; &#2332;&#2366;&#2344;&#2375;&#2306; !!</value>
+						<value form="image">jr://file/commcare/image/data/mid_score.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/mid_score.mp3</value>
+					</text>
+					<text id="high_score-label">
+						<value>&#2310;&#2346; &#2325;&#2368;&#2335;&#2366;&#2339;&#2369; &#2360;&#2375; &#2354;&#2396;&#2344;&#2375; &#2350;&#2375;&#2306; &#2360;&#2348;&#2360;&#2375; &#2309;&#2343;&#2367;&#2325; &#2360;&#2350;&#2352;&#2381;&#2341; &#2361;&#2376; !&#2310;&#2346;&#2325;&#2379; <output value="/data/score_calc"/> / 17 &#2309;&#2306;&#2325; &#2350;&#2367;&#2354;&#2375; &#2361;&#2376;&#2306; ! &#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2360;&#2375; &#2354;&#2396;&#2340;&#2375; &#2352;&#2361;&#2375; &#2324;&#2352; &#2360;&#2381;&#2357;&#2360;&#2381;&#2341; &#2352;&#2361;&#2375; !</value>
+						<value form="image">jr://file/commcare/image/data/high_score.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/germygame/data/high_score.mp3</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/germ_quiz" appearance="minimal">
+			<label ref="jr:itext('germ_quiz-label')"/>
+		</trigger>
+		<select1 ref="/data/see_germs">
+			<label ref="jr:itext('see_germs-label')"/>
+			<item>
+				<label ref="jr:itext('see_germs-0-label')"/>
+				<value>0</value>
+			</item>
+			<item>
+				<label ref="jr:itext('see_germs-1-label')"/>
+				<value>1</value>
+			</item>
+		</select1>
+		<select1 ref="/data/people_sick">
+			<label ref="jr:itext('people_sick-label')"/>
+			<item>
+				<label ref="jr:itext('people_sick-1-label')"/>
+				<value>1</value>
+			</item>
+			<item>
+				<label ref="jr:itext('people_sick-0-label')"/>
+				<value>0</value>
+			</item>
+		</select1>
+		<select1 ref="/data/germs_adults">
+			<label ref="jr:itext('germs_adults-label')"/>
+			<item>
+				<label ref="jr:itext('germs_adults-0-label')"/>
+				<value>0</value>
+			</item>
+			<item>
+				<label ref="jr:itext('germs_adults-1-label')"/>
+				<value>1</value>
+			</item>
+		</select1>
+		<group ref="/data/germs_spread" appearance="field-list">
+			<label ref="jr:itext('germs_spread-label')"/>
+			<select1 ref="/data/germs_spread/droplets">
+				<label ref="jr:itext('droplets-label')"/>
+				<item>
+					<label ref="jr:itext('droplets-1-label')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('droplets-0-label')"/>
+					<value>0</value>
+				</item>
+			</select1>
+			<select1 ref="/data/germs_spread/staring">
+				<label ref="jr:itext('staring-label')"/>
+				<item>
+					<label ref="jr:itext('staring-0-label')"/>
+					<value>0</value>
+				</item>
+				<item>
+					<label ref="jr:itext('staring-1-label')"/>
+					<value>1</value>
+				</item>
+			</select1>
+			<select1 ref="/data/germs_spread/bathroom">
+				<label ref="jr:itext('bathroom-label')"/>
+				<item>
+					<label ref="jr:itext('bathroom-1-label')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bathroom-0-label')"/>
+					<value>0</value>
+				</item>
+			</select1>
+			<select1 ref="/data/germs_spread/contaminated_food">
+				<label ref="jr:itext('contaminated_food-label')"/>
+				<item>
+					<label ref="jr:itext('contaminated_food-1-label')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('contaminated_food-0-label')"/>
+					<value>0</value>
+				</item>
+			</select1>
+			<select1 ref="/data/germs_spread/outside_caste">
+				<label ref="jr:itext('outside_caste-label')"/>
+				<item>
+					<label ref="jr:itext('outside_caste-0-label')"/>
+					<value>0</value>
+				</item>
+				<item>
+					<label ref="jr:itext('outside_caste-1-label')"/>
+					<value>1</value>
+				</item>
+			</select1>
+			<select1 ref="/data/germs_spread/religion">
+				<label ref="jr:itext('religion-label')"/>
+				<item>
+					<label ref="jr:itext('religion-0-label')"/>
+					<value>0</value>
+				</item>
+				<item>
+					<label ref="jr:itext('religion-1-label')"/>
+					<value>1</value>
+				</item>
+			</select1>
+			<select1 ref="/data/germs_spread/contaminated_surfaces">
+				<label ref="jr:itext('contaminated_surfaces-label')"/>
+				<item>
+					<label ref="jr:itext('contaminated_surfaces-1-label')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('contaminated_surfaces-0-label')"/>
+					<value>0</value>
+				</item>
+			</select1>
+			<select1 ref="/data/germs_spread/touching_hands">
+				<label ref="jr:itext('touching_hands-label')"/>
+				<item>
+					<label ref="jr:itext('touching_hands-1-label')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('touching_hands-0-label')"/>
+					<value>0</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/germs_give" appearance="field-list">
+			<label ref="jr:itext('germs_give-label')"/>
+			<select1 ref="/data/germs_give/diarrhea">
+				<label ref="jr:itext('diarrhea-label')"/>
+				<item>
+					<label ref="jr:itext('diarrhea-1-label')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('diarrhea-0-label')"/>
+					<value>0</value>
+				</item>
+			</select1>
+			<select1 ref="/data/germs_give/eye_infection">
+				<label ref="jr:itext('eye_infection-label')"/>
+				<item>
+					<label ref="jr:itext('eye_infection-1-label')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('eye_infection-0-label')"/>
+					<value>0</value>
+				</item>
+			</select1>
+			<select1 ref="/data/germs_give/frown">
+				<label ref="jr:itext('frown-label')"/>
+				<item>
+					<label ref="jr:itext('frown-0-label')"/>
+					<value>0</value>
+				</item>
+				<item>
+					<label ref="jr:itext('frown-1-label')"/>
+					<value>1</value>
+				</item>
+			</select1>
+			<select1 ref="/data/germs_give/rash">
+				<label ref="jr:itext('rash-label')"/>
+				<item>
+					<label ref="jr:itext('rash-1-label')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('rash-0-label')"/>
+					<value>0</value>
+				</item>
+			</select1>
+			<select1 ref="/data/germs_give/broken_leg">
+				<label ref="jr:itext('broken_leg-label')"/>
+				<item>
+					<label ref="jr:itext('broken_leg-0-label')"/>
+					<value>0</value>
+				</item>
+				<item>
+					<label ref="jr:itext('broken_leg-1-label')"/>
+					<value>1</value>
+				</item>
+			</select1>
+			<select1 ref="/data/germs_give/blue_hair">
+				<label ref="jr:itext('blue_hair-label')"/>
+				<item>
+					<label ref="jr:itext('blue_hair-0-label')"/>
+					<value>0</value>
+				</item>
+				<item>
+					<label ref="jr:itext('blue_hair-1-label')"/>
+					<value>1</value>
+				</item>
+			</select1>
+		</group>
+		<trigger ref="/data/low_score" appearance="minimal">
+			<label ref="jr:itext('low_score-label')"/>
+		</trigger>
+		<trigger ref="/data/mid_score" appearance="minimal">
+			<label ref="jr:itext('mid_score-label')"/>
+		</trigger>
+		<trigger ref="/data/high_score" appearance="minimal">
+			<label ref="jr:itext('high_score-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

@@ -1,0 +1,600 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Handwashing Quiz</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/1914D867-921C-4DF4-8473-5F0894209C38" uiVersion="1" version="91" name="Handwashing Quiz">
+					<handwash_overview/>
+					<soap_importance/>
+					<scrub_20_seconds/>
+					<scrubbing_importance/>
+					<wash_once_daily/>
+					<after_wash/>
+					<should_wash>
+						<after_school/>
+						<before_eating_q/>
+						<after_reading_book/>
+						<after_bathroom/>
+						<after_outside/>
+						<after_bath/>
+						<after_masi/>
+						<before_cooking/>
+					</should_wash>
+					<low_score/>
+					<mid_score/>
+					<high_score/>
+					<score_calc/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/handwash_overview"/>
+			<bind nodeset="/data/soap_importance" required="true()"/>
+			<bind nodeset="/data/scrub_20_seconds" required="true()"/>
+			<bind nodeset="/data/scrubbing_importance" required="true()"/>
+			<bind nodeset="/data/wash_once_daily" required="true()"/>
+			<bind nodeset="/data/after_wash" required="true()"/>
+			<bind nodeset="/data/should_wash"/>
+			<bind nodeset="/data/should_wash/after_school" required="true()"/>
+			<bind nodeset="/data/should_wash/before_eating_q" required="true()"/>
+			<bind nodeset="/data/should_wash/after_reading_book" required="true()"/>
+			<bind nodeset="/data/should_wash/after_bathroom" required="true()"/>
+			<bind nodeset="/data/should_wash/after_outside" required="true()"/>
+			<bind nodeset="/data/should_wash/after_bath" required="true()"/>
+			<bind nodeset="/data/should_wash/after_masi" required="true()"/>
+			<bind nodeset="/data/should_wash/before_cooking" required="true()"/>
+			<bind nodeset="/data/low_score" relevant="/data/score_calc &lt;= 7"/>
+			<bind nodeset="/data/mid_score" relevant="/data/score_calc &gt;= 8 and /data/score_calc &lt;= 10"/>
+			<bind nodeset="/data/high_score" relevant="/data/score_calc &gt;= 11"/>
+			<bind nodeset="/data/score_calc" calculate="/data/soap_importance + /data/scrub_20_seconds + /data/scrubbing_importance + /data/wash_once_daily + /data/after_wash + /data/should_wash/after_school + /data/should_wash/before_eating_q + /data/should_wash/after_reading_book + /data/should_wash/after_bathroom + /data/should_wash/after_outside + /data/should_wash/after_bath + /data/should_wash/after_masi + /data/should_wash/before_cooking"/>
+			<itext>
+				<translation lang="en">
+					<text id="handwash_overview-label">
+						<value>Let's see how much you know about handwashing!</value>
+						<value form="image">jr://file/commcare/image/data/handwash_overview.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/handwash_overview.mp3</value>
+					</text>
+					<text id="soap_importance-label">
+						<value>It doesn't matter if you use soap or not to wash your hands.</value>
+						<value form="image">jr://file/commcare/image/data/soap_importance.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/soap_importance.mp3</value>
+					</text>
+					<text id="soap_importance-0-label">
+						<value>TRUE</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/soap_importance-0.mp3</value>
+					</text>
+					<text id="soap_importance-1-label">
+						<value>FALSE</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/soap_importance-1.mp3</value>
+					</text>
+					<text id="scrub_20_seconds-label">
+						<value>You should scrub your hands for 20 seconds with soap.</value>
+						<value form="image">jr://file/commcare/image/data/scrubbing_importance.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/scrub_20_seconds.mp3</value>
+					</text>
+					<text id="scrub_20_seconds-1-label">
+						<value>TRUE</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/scrub_20_seconds-1.mp3</value>
+					</text>
+					<text id="scrub_20_seconds-0-label">
+						<value>FALSE</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/scrub_20_seconds-0.mp3</value>
+					</text>
+					<text id="scrubbing_importance-label">
+						<value>Scrubbing hands is just as important as using soap.</value>
+						<value form="image">jr://file/commcare/image/data/scrubbing_importance.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/scrubbing_importance.mp3</value>
+					</text>
+					<text id="scrubbing_importance-1-label">
+						<value>TRUE</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/scrubbing_importance-1.mp3</value>
+					</text>
+					<text id="scrubbing_importance-0-label">
+						<value>FALSE</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/scrubbing_importance-0.mp3</value>
+					</text>
+					<text id="wash_once_daily-label">
+						<value>You only need to wash your hands once daily.</value>
+						<value form="image">jr://file/commcare/image/data/wash_once_daily.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/wash_once_daily.mp3</value>
+					</text>
+					<text id="wash_once_daily-0-label">
+						<value>TRUE</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/wash_once_daily-0.mp3</value>
+					</text>
+					<text id="wash_once_daily-1-label">
+						<value>FALSE</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/wash_once_daily-1.mp3</value>
+					</text>
+					<text id="after_wash-label">
+						<value>The last step after you wash your hands is to dry them off.</value>
+						<value form="image">jr://file/commcare/image/data/dry.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/after_wash.mp3</value>
+					</text>
+					<text id="after_wash-1-label">
+						<value>TRUE</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/after_wash-1.mp3</value>
+					</text>
+					<text id="after_wash-0-label">
+						<value>FALSE</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/after_wash-0.mp3</value>
+					</text>
+					<text id="should_wash-label">
+						<value>Should you wash your hands...</value>
+					</text>
+					<text id="after_school-label">
+						<value>After school?</value>
+						<value form="image">jr://file/commcare/image/data/after_school.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_school.mp3</value>
+					</text>
+					<text id="after_school-1-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_school-1.mp3</value>
+					</text>
+					<text id="after_school-0-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_school-0.mp3</value>
+					</text>
+					<text id="before_eating_q-label">
+						<value>Before you eat?</value>
+						<value form="image">jr://file/commcare/image/data/before_eating_q.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/before_eating_q.mp3</value>
+					</text>
+					<text id="after_school-1-label2">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/before_eating_q-1.mp3</value>
+					</text>
+					<text id="after_school-0-label2">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/before_eating_q-0.mp3</value>
+					</text>
+					<text id="after_reading_book-label">
+						<value>After reading a book?</value>
+						<value form="image">jr://file/commcare/image/data/after_reading_book.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_reading_book.mp3</value>
+					</text>
+					<text id="after_reading_book-0-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_reading_book-0.mp3</value>
+					</text>
+					<text id="after_reading_book-1-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_reading_book-1.mp3</value>
+					</text>
+					<text id="after_bathroom-label">
+						<value>After you go to the bathroom?</value>
+						<value form="image">jr://file/commcare/image/data/after_bathroom.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_bathroom.mp3</value>
+					</text>
+					<text id="after_school-1-label3">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_bathroom-1.mp3</value>
+					</text>
+					<text id="after_school-0-label3">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_bathroom-0.mp3</value>
+					</text>
+					<text id="after_outside-label">
+						<value>After being outside?</value>
+						<value form="image">jr://file/commcare/image/data/after_outside.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_outside.mp3</value>
+					</text>
+					<text id="after_school-1-label4">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_outside-1.mp3</value>
+					</text>
+					<text id="after_school-0-label4">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_outside-0.mp3</value>
+					</text>
+					<text id="after_bath-label">
+						<value>After a bath?</value>
+						<value form="image">jr://file/commcare/image/data/after_bath.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_bath.mp3</value>
+					</text>
+					<text id="after_bath-0-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_bath-0.mp3</value>
+					</text>
+					<text id="after_bath-1-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_bath-1.mp3</value>
+					</text>
+					<text id="after_masi-label">
+						<value>After visiting your sick Masi?</value>
+						<value form="image">jr://file/commcare/image/data/sick_friends.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_masi.mp3</value>
+					</text>
+					<text id="after_masi-1-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_masi-1.mp3</value>
+					</text>
+					<text id="after_masi-0-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_masi-0.mp3</value>
+					</text>
+					<text id="before_cooking-label">
+						<value>Before cooking rotis with your mom?</value>
+						<value form="image">jr://file/commcare/image/data/before_cooking.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/before_cooking.mp3</value>
+					</text>
+					<text id="after_outside-1-label">
+						<value>Yes</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/before_cooking-1.mp3</value>
+					</text>
+					<text id="after_outside-0-label">
+						<value>No</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/before_cooking-0.mp3</value>
+					</text>
+					<text id="low_score-label">
+						<value>Uh-oh, you got <output value="/data/score_calc"/> / 13 points. Visit the All About Handwashing section to learn more about handwashing and staying healthy!</value>
+						<value form="image">jr://file/commcare/image/data/low_score.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/low_score.mp3</value>
+					</text>
+					<text id="mid_score-label">
+						<value>You got <output value="/data/score_calc"/> / 13 points.  You still have some studying to do. Visit the All About Handwashing section to learn more about handwashing and staying healthy!</value>
+						<value form="image">jr://file/commcare/image/data/mid_score.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/mid_score.mp3</value>
+					</text>
+					<text id="high_score-label">
+						<value>You're a handwashing pro! You got <output value="/data/score_calc"/> / 13 points. Keep washing your hands and stay healthy!</value>
+						<value form="image">jr://file/commcare/image/data/high_score.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/high_score.mp3</value>
+					</text>
+				</translation>
+				<translation lang="hin" default="">
+					<text id="handwash_overview-label">
+						<value>&#2310;&#2312;&#2351;&#2375; &#2332;&#2366;&#2344;&#2340;&#2375; &#2361;&#2376;&#2306; &#2325;&#2367; &#2361;&#2366;&#2341; &#2325;&#2379; &#2360;&#2366;&#2398; &#2352;&#2326;&#2344;&#2375; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375; &#2350;&#2375;&#2306; &#2310;&#2346;&#2344;&#2375; &#2325;&#2367;&#2340;&#2344;&#2366; &#2360;&#2367;&#2326;&#2366; ?</value>
+						<value form="image">jr://file/commcare/image/data/handwash_overview.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/handwash_overview.mp3</value>
+					</text>
+					<text id="soap_importance-label">
+						<value>&#2351;&#2361; &#2332;&#2352;&#2369;&#2352;&#2368; &#2344;&#2361;&#2368;&#2306; &#2361;&#2376; &#2325;&#2367; &#2310;&#2346; &#2309;&#2346;&#2344;&#2366; &#2361;&#2366;&#2341; &#2360;&#2366;&#2348;&#2369;&#2344; &#2360;&#2375; &#2343;&#2379;&#2319;&#2306; |</value>
+						<value form="image">jr://file/commcare/image/data/soap_importance.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/soap_importance.mp3</value>
+					</text>
+					<text id="soap_importance-0-label">
+						<value>&#2360;&#2361;&#2368; &#2361;&#2376;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/soap_importance-0.mp3</value>
+					</text>
+					<text id="soap_importance-1-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/soap_importance-1.mp3</value>
+					</text>
+					<text id="scrub_20_seconds-label">
+						<value>&#2310;&#2346;&#2325;&#2379; &#2360;&#2366;&#2348;&#2369;&#2344; &#2360;&#2375; 20 &#2360;&#2375;&#2325;&#2306;&#2337; &#2340;&#2325; &#2309;&#2346;&#2344;&#2375; &#2361;&#2366;&#2341; &#2325;&#2379; &#2352;&#2327;&#2396; &#2325;&#2352; &#2343;&#2379;&#2344;&#2375; &#2330;&#2366;&#2361;&#2367;&#2319;.</value>
+						<value form="image">jr://file/commcare/image/data/scrubbing_importance.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/scrub_20_seconds.mp3</value>
+					</text>
+					<text id="scrub_20_seconds-1-label">
+						<value>&#2360;&#2361;&#2368; &#2361;&#2376;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/scrub_20_seconds-1.mp3</value>
+					</text>
+					<text id="scrub_20_seconds-0-label">
+						<value>&#2327;&#2354;&#2340;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/scrub_20_seconds-0.mp3</value>
+					</text>
+					<text id="scrubbing_importance-label">
+						<value>&#2309;&#2346;&#2344;&#2375; &#2361;&#2366;&#2341;&#2379;&#2306; &#2325;&#2379; &#2343;&#2379;&#2344;&#2375; &#2325;&#2375; &#2354;&#2367;&#2319; &#2360;&#2366;&#2348;&#2369;&#2344; &#2325;&#2366; &#2346;&#2381;&#2352;&#2351;&#2379;&#2327; &#2325;&#2352;&#2344;&#2366; &#2348;&#2361;&#2369;&#2340; &#2332;&#2352;&#2369;&#2352;&#2368; &#2361;&#2376; |</value>
+						<value form="image">jr://file/commcare/image/data/scrubbing_importance.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/scrubbing_importance.mp3</value>
+					</text>
+					<text id="scrubbing_importance-1-label">
+						<value>&#2360;&#2361;&#2368; &#2361;&#2376;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/scrubbing_importance-1.mp3</value>
+					</text>
+					<text id="scrubbing_importance-0-label">
+						<value>&#2327;&#2354;&#2340;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/scrubbing_importance-0.mp3</value>
+					</text>
+					<text id="wash_once_daily-label">
+						<value>&#2310;&#2346;&#2325;&#2379; &#2309;&#2346;&#2344;&#2375; &#2361;&#2366;&#2306;&#2341;&#2379;&#2306; &#2325;&#2379; &#2352;&#2379;&#2332; &#2325;&#2375;&#2357;&#2354; &#2319;&#2325; &#2348;&#2366;&#2352; &#2343;&#2379;&#2344;&#2366; &#2330;&#2366;&#2361;&#2367;&#2319; |</value>
+						<value form="image">jr://file/commcare/image/data/wash_once_daily.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/wash_once_daily.mp3</value>
+					</text>
+					<text id="wash_once_daily-0-label">
+						<value>&#2360;&#2361;&#2368; &#2361;&#2376;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/wash_once_daily-0.mp3</value>
+					</text>
+					<text id="wash_once_daily-1-label">
+						<value>&#2327;&#2354;&#2340;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/wash_once_daily-1.mp3</value>
+					</text>
+					<text id="after_wash-label">
+						<value>&#2310;&#2346;&#2325;&#2379; &#2309;&#2346;&#2344;&#2375; &#2361;&#2366;&#2341;&#2379;&#2306; &#2325;&#2379; &#2343;&#2379;&#2344;&#2375; &#2325;&#2375; &#2348;&#2366;&#2342; &#2310;&#2326;&#2367;&#2352;&#2368; &#2340;&#2352;&#2368;&#2325;&#2366; &#2313;&#2344;&#2325;&#2379; &#2360;&#2370;&#2326;&#2344;&#2375; &#2342;&#2375;&#2306; |</value>
+						<value form="image">jr://file/commcare/image/data/dry.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/after_wash.mp3</value>
+					</text>
+					<text id="after_wash-1-label">
+						<value>&#2360;&#2361;&#2368; &#2361;&#2376;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/after_wash-1.mp3</value>
+					</text>
+					<text id="after_wash-0-label">
+						<value>&#2327;&#2354;&#2340;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/after_wash-0.mp3</value>
+					</text>
+					<text id="should_wash-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346;&#2325;&#2379; &#2309;&#2346;&#2344;&#2375; &#2361;&#2366;&#2341;&#2379;&#2306; &#2325;&#2379; &#2343;&#2379;&#2344;&#2366; &#2330;&#2366;&#2361;&#2367;&#2319; ?</value>
+					</text>
+					<text id="after_school-label">
+						<value>&#2360;&#2381;&#2325;&#2370;&#2354; &#2360;&#2375; &#2310;&#2344;&#2375; &#2325;&#2375; &#2348;&#2366;&#2342; ?</value>
+						<value form="image">jr://file/commcare/image/data/after_school.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_school.mp3</value>
+					</text>
+					<text id="after_school-1-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_school-1.mp3</value>
+					</text>
+					<text id="after_school-0-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_school-0.mp3</value>
+					</text>
+					<text id="before_eating_q-label">
+						<value>&#2326;&#2366;&#2344;&#2366; &#2326;&#2366;&#2344;&#2375; &#2360;&#2375; &#2346;&#2361;&#2354;&#2375; ?</value>
+						<value form="image">jr://file/commcare/image/data/before_eating_q.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/before_eating_q.mp3</value>
+					</text>
+					<text id="after_school-1-label2">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/before_eating_q-1.mp3</value>
+					</text>
+					<text id="after_school-0-label2">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/before_eating_q-0.mp3</value>
+					</text>
+					<text id="after_reading_book-label">
+						<value>&#2325;&#2367;&#2340;&#2366;&#2348; &#2346;&#2397;&#2344;&#2375; &#2325;&#2375; &#2348;&#2366;&#2342; ?</value>
+						<value form="image">jr://file/commcare/image/data/after_reading_book.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_reading_book.mp3</value>
+					</text>
+					<text id="after_reading_book-0-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_reading_book-0.mp3</value>
+					</text>
+					<text id="after_reading_book-1-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_reading_book-1.mp3</value>
+					</text>
+					<text id="after_bathroom-label">
+						<value>&#2358;&#2380;&#2330;&#2366;&#2354;&#2351; &#2332;&#2366;&#2344;&#2375; &#2325;&#2375; &#2348;&#2366;&#2342; ?</value>
+						<value form="image">jr://file/commcare/image/data/after_bathroom.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_bathroom.mp3</value>
+					</text>
+					<text id="after_school-1-label3">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_bathroom-1.mp3</value>
+					</text>
+					<text id="after_school-0-label3">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_bathroom-0.mp3</value>
+					</text>
+					<text id="after_outside-label">
+						<value>&#2328;&#2352; &#2360;&#2375; &#2348;&#2366;&#2361;&#2352; &#2361;&#2379;&#2344;&#2375; &#2346;&#2352; ?</value>
+						<value form="image">jr://file/commcare/image/data/after_outside.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_outside.mp3</value>
+					</text>
+					<text id="after_school-1-label4">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_outside-1.mp3</value>
+					</text>
+					<text id="after_school-0-label4">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_outside-0.mp3</value>
+					</text>
+					<text id="after_bath-label">
+						<value>&#2344;&#2361;&#2366;&#2344;&#2375; &#2325;&#2375; &#2348;&#2366;&#2342; ?</value>
+						<value form="image">jr://file/commcare/image/data/after_bath.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_bath.mp3</value>
+					</text>
+					<text id="after_bath-0-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_bath-0.mp3</value>
+					</text>
+					<text id="after_bath-1-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_bath-1.mp3</value>
+					</text>
+					<text id="after_masi-label">
+						<value>&#2348;&#2368;&#2350;&#2366;&#2352; &#2357;&#2381;&#2351;&#2325;&#2381;&#2340;&#2367; &#2360;&#2375; &#2350;&#2367;&#2354;&#2344;&#2375; &#2325;&#2375; &#2348;&#2366;&#2342; ?</value>
+						<value form="image">jr://file/commcare/image/data/sick_friends.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_masi.mp3</value>
+					</text>
+					<text id="after_masi-1-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_masi-1.mp3</value>
+					</text>
+					<text id="after_masi-0-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/after_masi-0.mp3</value>
+					</text>
+					<text id="before_cooking-label">
+						<value>&#2309;&#2346;&#2344;&#2368; &#2350;&#2366;&#2305; &#2325;&#2375; &#2360;&#2366;&#2341; &#2352;&#2379;&#2335;&#2368; &#2348;&#2344;&#2366;&#2344;&#2375; &#2360;&#2375; &#2346;&#2361;&#2354;&#2375; ?</value>
+						<value form="image">jr://file/commcare/image/data/before_cooking.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/before_cooking.mp3</value>
+					</text>
+					<text id="after_outside-1-label">
+						<value>&#2361;&#2366;&#2305;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/before_cooking-1.mp3</value>
+					</text>
+					<text id="after_outside-0-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/should_wash/before_cooking-0.mp3</value>
+					</text>
+					<text id="low_score-label">
+						<value>&#2350;&#2366;&#2398; &#2325;&#2368;&#2332;&#2367;&#2351;&#2375; , &#2310;&#2346;&#2325;&#2379; <output value="/data/score_calc"/> / 13 &#2309;&#2306;&#2325; &#2350;&#2367;&#2354;&#2375; &#2361;&#2376;&#2306; | &#2360;&#2368;&#2326;&#2379; &#2357;&#2366;&#2354;&#2375; &#2349;&#2366;&#2327; &#2346;&#2352; &#2332;&#2366;&#2351;&#2375;&#2306; ! &#2360;&#2381;&#2357;&#2360;&#2381;&#2341; &#2352;&#2361;&#2344;&#2375; &#2325;&#2375; &#2354;&#2367;&#2319; &#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306; &#2324;&#2352; &#2309;&#2343;&#2367;&#2325; &#2332;&#2366;&#2344;&#2375;&#2306; !</value>
+						<value form="image">jr://file/commcare/image/data/low_score.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/low_score.mp3</value>
+					</text>
+					<text id="mid_score-label">
+						<value>&#2310;&#2346;&#2325;&#2379; <output value="/data/score_calc"/> / 13 &#2309;&#2306;&#2325; &#2350;&#2367;&#2354;&#2375; &#2361;&#2376;&#2306; |  &#2310;&#2346;&#2325;&#2379; &#2309;&#2349;&#2368; &#2324;&#2352; &#2346;&#2338;&#2344;&#2366; &#2330;&#2366;&#2361;&#2367;&#2319; . &#2360;&#2368;&#2326;&#2379; &#2357;&#2366;&#2354;&#2375; &#2349;&#2366;&#2327; &#2346;&#2352; &#2332;&#2366;&#2351;&#2375;&#2306; ! ! &#2360;&#2381;&#2357;&#2360;&#2381;&#2341; &#2352;&#2361;&#2344;&#2375; &#2325;&#2375; &#2354;&#2367;&#2319; &#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306; &#2324;&#2352; &#2309;&#2343;&#2367;&#2325; &#2332;&#2366;&#2344;&#2375;&#2306; !!</value>
+						<value form="image">jr://file/commcare/image/data/mid_score.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/mid_score.mp3</value>
+					</text>
+					<text id="high_score-label">
+						<value>&#2310;&#2346; &#2325;&#2368;&#2335;&#2366;&#2339;&#2369; &#2360;&#2375; &#2354;&#2396;&#2344;&#2375; &#2350;&#2375;&#2306; &#2360;&#2348;&#2360;&#2375; &#2309;&#2343;&#2367;&#2325; &#2360;&#2350;&#2352;&#2381;&#2341; &#2361;&#2376; !&#2310;&#2346;&#2325;&#2379; <output value="/data/score_calc"/> / 13 &#2309;&#2306;&#2325; &#2350;&#2367;&#2354;&#2375; &#2361;&#2376;&#2306; ! &#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2360;&#2375; &#2354;&#2396;&#2340;&#2375; &#2352;&#2361;&#2375; &#2324;&#2352; &#2360;&#2381;&#2357;&#2360;&#2381;&#2341; &#2352;&#2361;&#2375; !</value>
+						<value form="image">jr://file/commcare/image/data/high_score.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/handwashing/game/data/high_score.mp3</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/handwash_overview" appearance="minimal">
+			<label ref="jr:itext('handwash_overview-label')"/>
+		</trigger>
+		<select1 ref="/data/soap_importance">
+			<label ref="jr:itext('soap_importance-label')"/>
+			<item>
+				<label ref="jr:itext('soap_importance-0-label')"/>
+				<value>0</value>
+			</item>
+			<item>
+				<label ref="jr:itext('soap_importance-1-label')"/>
+				<value>1</value>
+			</item>
+		</select1>
+		<select1 ref="/data/scrub_20_seconds">
+			<label ref="jr:itext('scrub_20_seconds-label')"/>
+			<item>
+				<label ref="jr:itext('scrub_20_seconds-1-label')"/>
+				<value>1</value>
+			</item>
+			<item>
+				<label ref="jr:itext('scrub_20_seconds-0-label')"/>
+				<value>0</value>
+			</item>
+		</select1>
+		<select1 ref="/data/scrubbing_importance">
+			<label ref="jr:itext('scrubbing_importance-label')"/>
+			<item>
+				<label ref="jr:itext('scrubbing_importance-1-label')"/>
+				<value>1</value>
+			</item>
+			<item>
+				<label ref="jr:itext('scrubbing_importance-0-label')"/>
+				<value>0</value>
+			</item>
+		</select1>
+		<select1 ref="/data/wash_once_daily">
+			<label ref="jr:itext('wash_once_daily-label')"/>
+			<item>
+				<label ref="jr:itext('wash_once_daily-0-label')"/>
+				<value>0</value>
+			</item>
+			<item>
+				<label ref="jr:itext('wash_once_daily-1-label')"/>
+				<value>1</value>
+			</item>
+		</select1>
+		<select1 ref="/data/after_wash">
+			<label ref="jr:itext('after_wash-label')"/>
+			<item>
+				<label ref="jr:itext('after_wash-1-label')"/>
+				<value>1</value>
+			</item>
+			<item>
+				<label ref="jr:itext('after_wash-0-label')"/>
+				<value>0</value>
+			</item>
+		</select1>
+		<group ref="/data/should_wash" appearance="field-list">
+			<label ref="jr:itext('should_wash-label')"/>
+			<select1 ref="/data/should_wash/after_school">
+				<label ref="jr:itext('after_school-label')"/>
+				<item>
+					<label ref="jr:itext('after_school-1-label')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('after_school-0-label')"/>
+					<value>0</value>
+				</item>
+			</select1>
+			<select1 ref="/data/should_wash/before_eating_q">
+				<label ref="jr:itext('before_eating_q-label')"/>
+				<item>
+					<label ref="jr:itext('after_school-1-label2')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('after_school-0-label2')"/>
+					<value>0</value>
+				</item>
+			</select1>
+			<select1 ref="/data/should_wash/after_reading_book">
+				<label ref="jr:itext('after_reading_book-label')"/>
+				<item>
+					<label ref="jr:itext('after_reading_book-0-label')"/>
+					<value>0</value>
+				</item>
+				<item>
+					<label ref="jr:itext('after_reading_book-1-label')"/>
+					<value>1</value>
+				</item>
+			</select1>
+			<select1 ref="/data/should_wash/after_bathroom">
+				<label ref="jr:itext('after_bathroom-label')"/>
+				<item>
+					<label ref="jr:itext('after_school-1-label3')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('after_school-0-label3')"/>
+					<value>0</value>
+				</item>
+			</select1>
+			<select1 ref="/data/should_wash/after_outside">
+				<label ref="jr:itext('after_outside-label')"/>
+				<item>
+					<label ref="jr:itext('after_school-1-label4')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('after_school-0-label4')"/>
+					<value>0</value>
+				</item>
+			</select1>
+			<select1 ref="/data/should_wash/after_bath">
+				<label ref="jr:itext('after_bath-label')"/>
+				<item>
+					<label ref="jr:itext('after_bath-0-label')"/>
+					<value>0</value>
+				</item>
+				<item>
+					<label ref="jr:itext('after_bath-1-label')"/>
+					<value>1</value>
+				</item>
+			</select1>
+			<select1 ref="/data/should_wash/after_masi">
+				<label ref="jr:itext('after_masi-label')"/>
+				<item>
+					<label ref="jr:itext('after_masi-1-label')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('after_masi-0-label')"/>
+					<value>0</value>
+				</item>
+			</select1>
+			<select1 ref="/data/should_wash/before_cooking">
+				<label ref="jr:itext('before_cooking-label')"/>
+				<item>
+					<label ref="jr:itext('after_outside-1-label')"/>
+					<value>1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('after_outside-0-label')"/>
+					<value>0</value>
+				</item>
+			</select1>
+		</group>
+		<trigger ref="/data/low_score" appearance="minimal">
+			<label ref="jr:itext('low_score-label')"/>
+		</trigger>
+		<trigger ref="/data/mid_score" appearance="minimal">
+			<label ref="jr:itext('mid_score-label')"/>
+		</trigger>
+		<trigger ref="/data/high_score" appearance="minimal">
+			<label ref="jr:itext('high_score-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

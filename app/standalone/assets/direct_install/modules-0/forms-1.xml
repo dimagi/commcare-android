@@ -1,0 +1,319 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>&#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306;</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/6F77AE1B-2F34-4623-A33D-B8609A196E9B" uiVersion="1" version="91" name="&#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306;">
+					<germy_intro/>
+					<germy_sick_info/>
+					<microscope/>
+					<transmission_intro/>
+					<transmission_dirty_hands/>
+					<transmission_bathroom/>
+					<transmission_food_water/>
+					<transmission_cough_sneeze/>
+					<dirty_surfaces/>
+					<transmission_bodily_fluids/>
+					<sickness_intro/>
+					<sickness_eye/>
+					<sickness_eye_infection/>
+					<sickness_skin/>
+					<sickness_skin_rash/>
+					<germs_mouth/>
+					<germs_mouth_cold/>
+					<germs_stomach/>
+					<germs_stomach_diarrhea/>
+					<hand_washing/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/germy_intro"/>
+			<bind nodeset="/data/germy_sick_info"/>
+			<bind nodeset="/data/microscope"/>
+			<bind nodeset="/data/transmission_intro"/>
+			<bind nodeset="/data/transmission_dirty_hands"/>
+			<bind nodeset="/data/transmission_bathroom"/>
+			<bind nodeset="/data/transmission_food_water"/>
+			<bind nodeset="/data/transmission_cough_sneeze"/>
+			<bind nodeset="/data/dirty_surfaces"/>
+			<bind nodeset="/data/transmission_bodily_fluids"/>
+			<bind nodeset="/data/sickness_intro"/>
+			<bind nodeset="/data/sickness_eye"/>
+			<bind nodeset="/data/sickness_eye_infection"/>
+			<bind nodeset="/data/sickness_skin"/>
+			<bind nodeset="/data/sickness_skin_rash"/>
+			<bind nodeset="/data/germs_mouth"/>
+			<bind nodeset="/data/germs_mouth_cold"/>
+			<bind nodeset="/data/germs_stomach"/>
+			<bind nodeset="/data/germs_stomach_diarrhea"/>
+			<bind nodeset="/data/hand_washing"/>
+			<itext>
+				<translation lang="en">
+					<text id="germy_intro-label">
+						<value>Hi! My name is Germy, and I'm a germ. I'm so small that you can't see me with your own eyes, but my germ friends and I live all over! Our goal is to spread as far as we can.</value>
+						<value form="image">jr://file/commcare/image/data/germy_intro.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/germy_intro.mp3</value>
+					</text>
+					<text id="germy_sick_info-label">
+						<value>Germs can make humans and animals sick, in all different parts of your body. Let's learn more about me and my germ friends!</value>
+						<value form="image">jr://file/commcare/image/data/germy_sick_info.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/germy_sick_info.mp3</value>
+					</text>
+					<text id="microscope-label">
+						<value>We are VERY small, and you can't see us. But if you put us under a microscope, we look like this:</value>
+						<value form="image">jr://file/commcare/image/data/microscope.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/microscope.mp3</value>
+					</text>
+					<text id="transmission_intro-label">
+						<value>There are lots of ways YOU can get germs. Some common ones are...</value>
+						<value form="image">jr://file/commcare/image/data/transmission_intro.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/transmission_intro.mp3</value>
+					</text>
+					<text id="transmission_dirty_hands-label">
+						<value>Touching dirty hands</value>
+						<value form="image">jr://file/commcare/image/data/transmission_dirty_hands.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/transmission_dirty_hands.mp3</value>
+					</text>
+					<text id="transmission_bathroom-label">
+						<value>Going to the bathroom</value>
+						<value form="image">jr://file/commcare/image/data/transmission_bathroom.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/transmission_bathroom.mp3</value>
+					</text>
+					<text id="transmission_food_water-label">
+						<value>Through contaminated food or water</value>
+						<value form="image">jr://file/commcare/image/data/transmission_food_water.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/transmission_food_water.mp3</value>
+					</text>
+					<text id="transmission_cough_sneeze-label">
+						<value>Through droplets when people cough and sneeze</value>
+						<value form="image">jr://file/commcare/image/data/transmission_cough_sneeze.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/transmission_cough_sneeze.mp3</value>
+					</text>
+					<text id="dirty_surfaces-label">
+						<value>Touching dirty surfaces</value>
+						<value form="image">jr://file/commcare/image/data/dirty_surfaces.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/dirty_surfaces.mp3</value>
+					</text>
+					<text id="transmission_bodily_fluids-label">
+						<value>Through touching a sick person's bodily fluids (saliva, urine, feces, blood)</value>
+						<value form="image">jr://file/commcare/image/data/transmission_bodily_fluids.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/transmission_bodily_fluids.mp3</value>
+					</text>
+					<text id="sickness_intro-label">
+						<value>When germs touch different parts of you, they can make you sick.</value>
+						<value form="image">jr://file/commcare/image/data/sickness_intro.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/sickness_intro.mp3</value>
+					</text>
+					<text id="sickness_eye-label">
+						<value>If germs get into your eye...</value>
+						<value form="image">jr://file/commcare/image/data/sickness_eye.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/sickness_eye.mp3</value>
+					</text>
+					<text id="sickness_eye_infection-label">
+						<value>...you can get an infection</value>
+						<value form="image">jr://file/commcare/image/data/sickness_eye_infection.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/sickness_eye_infection.mp3</value>
+					</text>
+					<text id="sickness_skin-label">
+						<value>If germs stay on your skin...</value>
+						<value form="image">jr://file/commcare/image/data/sickness_skin.png</value>
+						<value form="audio">jr://file/commcare/audio/gergermy/aboutgerms/data/sickness_skin.mp3</value>
+					</text>
+					<text id="sickness_skin_rash-label">
+						<value>... they can cause a rash</value>
+						<value form="image">jr://file/commcare/image/data/sickness_skin_rash.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/sickness_skin_rash.mp3</value>
+					</text>
+					<text id="germs_mouth-label">
+						<value>If germs get in your mouth...</value>
+						<value form="image">jr://file/commcare/image/data/germs_mouth.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/germs_mouth.mp3</value>
+					</text>
+					<text id="germs_mouth_cold-label">
+						<value>...they can cause a cold or fever.</value>
+						<value form="image">jr://file/commcare/image/data/germs_mouth_cold.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/germs_mouth_cold.mp3</value>
+					</text>
+					<text id="germs_stomach-label">
+						<value>If germs get in your stomach...</value>
+						<value form="image">jr://file/commcare/image/data/germs_stomach.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/germs_stomach.mp3</value>
+					</text>
+					<text id="germs_stomach_diarrhea-label">
+						<value>... they can cause diarrhea.</value>
+						<value form="image">jr://file/commcare/image/data/germs_stomach_diarrhea.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/germs_stomach_diarrhea.mp3</value>
+					</text>
+					<text id="hand_washing-label">
+						<value>To kill germs and prevent yourself from getting sick, always wash your hands!</value>
+						<value form="image">jr://file/commcare/image/data/hand_washing.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/hand_washing.mp3</value>
+					</text>
+				</translation>
+				<translation lang="hin" default="">
+					<text id="germy_intro-label">
+						<value>&#2344;&#2350;&#2360;&#2381;&#2340;&#2375; ! &#2350;&#2375;&#2352;&#2366; &#2344;&#2366;&#2350; &#2325;&#2368;&#2335;&#2366;&#2339;&#2369; &#2361;&#2376;, &#2324;&#2352; &#2350;&#2376;&#2306; &#2319;&#2325; &#2325;&#2368;&#2396;&#2366; &#2361;&#2370;  &#2350;&#2376;&#2306; &#2311;&#2340;&#2344;&#2366; &#2360;&#2370;&#2325;&#2381;&#2359;&#2381;&#2350; &#2361;&#2370; &#2325;&#2368; &#2310;&#2346; &#2350;&#2369;&#2333;&#2375; &#2309;&#2346;&#2344;&#2368; &#2310;&#2326;&#2379;&#2306; &#2360;&#2375; &#2344;&#2361;&#2368;&#2306; &#2342;&#2375;&#2326; &#2360;&#2325;&#2340;&#2375; &#2361;&#2376;&#2306;  &#2354;&#2375;&#2325;&#2367;&#2344; &#2350;&#2376;&#2306; &#2324;&#2352; &#2350;&#2375;&#2352;&#2375; &#2325;&#2368;&#2335;&#2366;&#2339;&#2369; &#2350;&#2367;&#2340;&#2381;&#2352; &#2360;&#2348; &#2332;&#2327;&#2361; &#2352;&#2361;&#2340;&#2375; &#2361;&#2376;&#2306; &#2361;&#2350; &#2361;&#2352; &#2332;&#2327;&#2361; &#2347;&#2376;&#2354;&#2344;&#2366; &#2330;&#2366;&#2361;&#2340;&#2375; &#2361;&#2376;&#2306;</value>
+						<value form="image">jr://file/commcare/image/data/germy_intro.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/germy_intro.mp3</value>
+					</text>
+					<text id="germy_sick_info-label">
+						<value>&#2325;&#2368;&#2335;&#2366;&#2339;&#2369; &#2350;&#2344;&#2369;&#2359;&#2381;&#2351; &#2324;&#2352; &#2332;&#2366;&#2344;&#2357;&#2352; &#2325;&#2379; &#2348;&#2368;&#2350;&#2366;&#2352; &#2348;&#2344;&#2366; &#2360;&#2325;&#2340;&#2375; &#2361;&#2376;&#2306; |&#2351;&#2375; &#2358;&#2352;&#2368;&#2352; &#2325;&#2375; &#2360;&#2349;&#2368; &#2361;&#2367;&#2360;&#2381;&#2360;&#2379;&#2306; &#2350;&#2375;&#2306; &#2352;&#2361;&#2340;&#2375; &#2361;&#2376;&#2306; | &#2310;&#2311;&#2351;&#2375; &#2350;&#2369;&#2333;&#2375; &#2324;&#2352; &#2350;&#2375;&#2352;&#2375; &#2350;&#2367;&#2340;&#2381;&#2352;&#2379; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375; &#2350;&#2375;&#2306; &#2309;&#2343;&#2367;&#2325; &#2332;&#2366;&#2344;&#2340;&#2375; &#2361;&#2376;&#2306; |</value>
+						<value form="image">jr://file/commcare/image/data/germy_sick_info.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/germy_sick_info.mp3</value>
+					</text>
+					<text id="microscope-label">
+						<value>&#2361;&#2350; &#2311;&#2340;&#2344;&#2375; &#2360;&#2369;&#2325;&#2381;&#2359;&#2381;&#2350; &#2361;&#2376;&#2306; &#2325;&#2367; &#2310;&#2346; &#2361;&#2350;&#2375;&#2306; &#2309;&#2346;&#2344;&#2368; &#2310;&#2305;&#2326;&#2379;&#2306; &#2360;&#2375; &#2344;&#2361;&#2368;&#2306; &#2342;&#2375;&#2326; &#2360;&#2325;&#2340;&#2375; &#2361;&#2376;&#2306; | &#2354;&#2375;&#2325;&#2367;&#2344; &#2310;&#2346; &#2360;&#2370;&#2325;&#2381;&#2359;&#2381;&#2350;&#2342;&#2352;&#2381;&#2358;&#2368; &#2325;&#2368; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2360;&#2375; &#2361;&#2350;&#2375;&#2306; &#2342;&#2375;&#2326; &#2360;&#2325;&#2340;&#2375; &#2361;&#2376;&#2306; |</value>
+						<value form="image">jr://file/commcare/image/data/microscope.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/microscope.mp3</value>
+					</text>
+					<text id="transmission_intro-label">
+						<value>&#2325;&#2368;&#2335;&#2366;&#2339;&#2369; &#2310;&#2346;&#2325;&#2379; &#2348;&#2361;&#2369;&#2340; &#2360;&#2375; &#2360;&#2381;&#2341;&#2366;&#2344;&#2379;&#2306; &#2346;&#2352; &#2350;&#2367;&#2354;&#2340;&#2375; &#2361;&#2376;&#2306; | &#2325;&#2369;&#2331; &#2360;&#2366;&#2350;&#2366;&#2344;&#2381;&#2351; &#2360;&#2381;&#2341;&#2366;&#2344; &#2344;&#2367;&#2350;&#2381;&#2344; &#2361;&#2376;&#2306; |</value>
+						<value form="image">jr://file/commcare/image/data/transmission_intro.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/transmission_intro.mp3</value>
+					</text>
+					<text id="transmission_dirty_hands-label">
+						<value>&#2342;&#2370;&#2359;&#2367;&#2340; &#2361;&#2366;&#2306;&#2341;&#2379;&#2306; &#2325;&#2379; &#2331;&#2370;&#2344;&#2375; &#2360;&#2375; |</value>
+						<value form="image">jr://file/commcare/image/data/transmission_dirty_hands.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/transmission_dirty_hands.mp3</value>
+					</text>
+					<text id="transmission_bathroom-label">
+						<value>&#2358;&#2380;&#2330;&#2366;&#2354;&#2351; &#2350;&#2375;&#2306; |</value>
+						<value form="image">jr://file/commcare/image/data/transmission_bathroom.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/transmission_bathroom.mp3</value>
+					</text>
+					<text id="transmission_food_water-label">
+						<value>&#2342;&#2370;&#2359;&#2367;&#2340; &#2349;&#2379;&#2332;&#2344; &#2351;&#2366; &#2327;&#2306;&#2342;&#2375; &#2346;&#2366;&#2344;&#2368; &#2360;&#2375;</value>
+						<value form="image">jr://file/commcare/image/data/transmission_food_water.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/transmission_food_water.mp3</value>
+					</text>
+					<text id="transmission_cough_sneeze-label">
+						<value>&#2326;&#2366;&#2306;&#2360;&#2368; &#2351;&#2366; &#2331;&#2368;&#2306;&#2325; &#2325;&#2375; &#2360;&#2306;&#2346;&#2352;&#2381;&#2325; &#2350;&#2375;&#2306; &#2310;&#2344;&#2375; &#2360;&#2375; |</value>
+						<value form="image">jr://file/commcare/image/data/transmission_cough_sneeze.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/transmission_cough_sneeze.mp3</value>
+					</text>
+					<text id="dirty_surfaces-label">
+						<value>&#2327;&#2344;&#2381;&#2342;&#2368; &#2360;&#2340;&#2361; &#2325;&#2379; &#2331;&#2370;&#2344;&#2375; &#2360;&#2375; |</value>
+						<value form="image">jr://file/commcare/image/data/dirty_surfaces.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/dirty_surfaces.mp3</value>
+					</text>
+					<text id="transmission_bodily_fluids-label">
+						<value>&#2348;&#2368;&#2350;&#2366;&#2352; &#2357;&#2381;&#2351;&#2325;&#2381;&#2340;&#2367; &#2325;&#2375; &#2358;&#2352;&#2368;&#2352; &#2360;&#2375; &#2344;&#2367;&#2325;&#2354;&#2375; &#2361;&#2369;&#2319; &#2340;&#2352;&#2354; &#2346;&#2342;&#2366;&#2352;&#2381;&#2341; &#2332;&#2376;&#2360;&#2375; &#2350;&#2370;&#2340;&#2381;&#2352;, &#2354;&#2366;&#2352;, &#2350;&#2354; &#2324;&#2352; &#2352;&#2325;&#2381;&#2340; &#2325;&#2375; &#2360;&#2306;&#2346;&#2352;&#2381;&#2325; &#2350;&#2375;&#2306; &#2310;&#2344;&#2375; &#2360;&#2375; |</value>
+						<value form="image">jr://file/commcare/image/data/transmission_bodily_fluids.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/transmission_bodily_fluids.mp3</value>
+					</text>
+					<text id="sickness_intro-label">
+						<value>&#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2325;&#2379; &#2331;&#2370;&#2344;&#2375; &#2360;&#2375; &#2310;&#2346; &#2348;&#2368;&#2350;&#2366;&#2352; &#2361;&#2379; &#2360;&#2325;&#2340;&#2375; &#2361;&#2376;&#2306; |</value>
+						<value form="image">jr://file/commcare/image/data/sickness_intro.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/sickness_intro.mp3</value>
+					</text>
+					<text id="sickness_eye-label">
+						<value>&#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2325;&#2366; &#2310;&#2346;&#2325;&#2368; &#2310;&#2305;&#2326; &#2350;&#2375;&#2306; &#2332;&#2366;&#2344;&#2375; &#2360;&#2375; |</value>
+						<value form="image">jr://file/commcare/image/data/sickness_eye.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/sickness_eye.mp3</value>
+					</text>
+					<text id="sickness_eye_infection-label">
+						<value>&#2310;&#2346;&#2325;&#2379; &#2360;&#2306;&#2325;&#2381;&#2352;&#2350;&#2339; &#2361;&#2379; &#2360;&#2325;&#2340;&#2366; &#2361;&#2376; |</value>
+						<value form="image">jr://file/commcare/image/data/sickness_eye_infection.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/sickness_eye_infection.mp3</value>
+					</text>
+					<text id="sickness_skin-label">
+						<value>&#2351;&#2342;&#2367; &#2325;&#2368;&#2335;&#2366;&#2339;&#2369; &#2310;&#2346;&#2325;&#2368; &#2340;&#2381;&#2357;&#2330;&#2366; &#2346;&#2352; &#2361;&#2376; |</value>
+						<value form="image">jr://file/commcare/image/data/sickness_skin.png</value>
+						<value form="audio">jr://file/commcare/audio/gergermy/aboutgerms/data/sickness_skin.mp3</value>
+					</text>
+					<text id="sickness_skin_rash-label">
+						<value>&#2358;&#2352;&#2368;&#2352; &#2346;&#2352; &#2342;&#2366;&#2344;&#2375; &#2346;&#2396; &#2360;&#2325;&#2340;&#2375; &#2361;&#2376;&#2306; |</value>
+						<value form="image">jr://file/commcare/image/data/sickness_skin_rash.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/sickness_skin_rash.mp3</value>
+					</text>
+					<text id="germs_mouth-label">
+						<value>&#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2325;&#2366; &#2310;&#2346;&#2325;&#2375; &#2350;&#2369;&#2306;&#2361; &#2350;&#2375;&#2306; &#2361;&#2379;&#2344;&#2375; &#2346;&#2352; |</value>
+						<value form="image">jr://file/commcare/image/data/germs_mouth.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/germs_mouth.mp3</value>
+					</text>
+					<text id="germs_mouth_cold-label">
+						<value>&#2360;&#2352;&#2381;&#2342;&#2368; &#2324;&#2352; &#2348;&#2369;&#2326;&#2366;&#2352; &#2361;&#2379; &#2360;&#2325;&#2340;&#2366; &#2361;&#2376; |</value>
+						<value form="image">jr://file/commcare/image/data/germs_mouth_cold.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/germs_mouth_cold.mp3</value>
+					</text>
+					<text id="germs_stomach-label">
+						<value>&#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2325;&#2366; &#2310;&#2346;&#2325;&#2375; &#2346;&#2375;&#2335; &#2350;&#2375;&#2306; &#2361;&#2379;&#2344;&#2375; &#2346;&#2352; |</value>
+						<value form="image">jr://file/commcare/image/data/germs_stomach.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/germs_stomach.mp3</value>
+					</text>
+					<text id="germs_stomach_diarrhea-label">
+						<value>&#2311;&#2344;&#2360;&#2375; &#2337;&#2366;&#2351;&#2352;&#2367;&#2351;&#2366; &#2361;&#2379; &#2360;&#2325;&#2340;&#2366; &#2361;&#2376; |</value>
+						<value form="image">jr://file/commcare/image/data/germs_stomach_diarrhea.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/germs_stomach_diarrhea.mp3</value>
+					</text>
+					<text id="hand_washing-label">
+						<value>&#2325;&#2368;&#2335;&#2366;&#2339;&#2369;&#2323;&#2306; &#2325;&#2379; &#2350;&#2366;&#2352; &#2325;&#2352; &#2309;&#2346;&#2344;&#2375; &#2310;&#2346; &#2325;&#2379; &#2348;&#2368;&#2350;&#2366;&#2352; &#2361;&#2379;&#2344;&#2375; &#2360;&#2375; &#2348;&#2330;&#2366;&#2344;&#2375; &#2325;&#2375; &#2354;&#2367;&#2319; &#2309;&#2346;&#2344;&#2375; &#2361;&#2366;&#2306;&#2341;&#2379;&#2306; &#2325;&#2379; &#2361;&#2350;&#2375;&#2358;&#2366; &#2360;&#2366;&#2348;&#2369;&#2344; &#2360;&#2375; &#2343;&#2379;&#2344;&#2366; &#2330;&#2366;&#2361;&#2367;&#2319; |</value>
+						<value form="image">jr://file/commcare/image/data/hand_washing.png</value>
+						<value form="audio">jr://file/commcare/audio/germy/aboutgerms/data/hand_washing.mp3</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/germy_intro" appearance="minimal">
+			<label ref="jr:itext('germy_intro-label')"/>
+		</trigger>
+		<trigger ref="/data/germy_sick_info" appearance="minimal">
+			<label ref="jr:itext('germy_sick_info-label')"/>
+		</trigger>
+		<trigger ref="/data/microscope" appearance="minimal">
+			<label ref="jr:itext('microscope-label')"/>
+		</trigger>
+		<trigger ref="/data/transmission_intro" appearance="minimal">
+			<label ref="jr:itext('transmission_intro-label')"/>
+		</trigger>
+		<trigger ref="/data/transmission_dirty_hands" appearance="minimal">
+			<label ref="jr:itext('transmission_dirty_hands-label')"/>
+		</trigger>
+		<trigger ref="/data/transmission_bathroom" appearance="minimal">
+			<label ref="jr:itext('transmission_bathroom-label')"/>
+		</trigger>
+		<trigger ref="/data/transmission_food_water" appearance="minimal">
+			<label ref="jr:itext('transmission_food_water-label')"/>
+		</trigger>
+		<trigger ref="/data/transmission_cough_sneeze" appearance="minimal">
+			<label ref="jr:itext('transmission_cough_sneeze-label')"/>
+		</trigger>
+		<trigger ref="/data/dirty_surfaces" appearance="minimal">
+			<label ref="jr:itext('dirty_surfaces-label')"/>
+		</trigger>
+		<trigger ref="/data/transmission_bodily_fluids" appearance="minimal">
+			<label ref="jr:itext('transmission_bodily_fluids-label')"/>
+		</trigger>
+		<trigger ref="/data/sickness_intro" appearance="minimal">
+			<label ref="jr:itext('sickness_intro-label')"/>
+		</trigger>
+		<trigger ref="/data/sickness_eye" appearance="minimal">
+			<label ref="jr:itext('sickness_eye-label')"/>
+		</trigger>
+		<trigger ref="/data/sickness_eye_infection" appearance="minimal">
+			<label ref="jr:itext('sickness_eye_infection-label')"/>
+		</trigger>
+		<trigger ref="/data/sickness_skin" appearance="minimal">
+			<label ref="jr:itext('sickness_skin-label')"/>
+		</trigger>
+		<trigger ref="/data/sickness_skin_rash" appearance="minimal">
+			<label ref="jr:itext('sickness_skin_rash-label')"/>
+		</trigger>
+		<trigger ref="/data/germs_mouth" appearance="minimal">
+			<label ref="jr:itext('germs_mouth-label')"/>
+		</trigger>
+		<trigger ref="/data/germs_mouth_cold" appearance="minimal">
+			<label ref="jr:itext('germs_mouth_cold-label')"/>
+		</trigger>
+		<trigger ref="/data/germs_stomach" appearance="minimal">
+			<label ref="jr:itext('germs_stomach-label')"/>
+		</trigger>
+		<trigger ref="/data/germs_stomach_diarrhea" appearance="minimal">
+			<label ref="jr:itext('germs_stomach_diarrhea-label')"/>
+		</trigger>
+		<trigger ref="/data/hand_washing" appearance="minimal">
+			<label ref="jr:itext('hand_washing-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

@@ -261,7 +261,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (CommCareApplication.instance().isConsumerApp()) {
             uiController.setUsername(BuildConfig.CONSUMER_APP_USERNAME);
             uiController.setPasswordOrPin(BuildConfig.CONSUMER_APP_PASSWORD);
-            localLoginOrPullAndLogin(false, true);
+            localLoginOrPullAndLogin(false);
         } else {
             tryAutoLogin();
         }
@@ -569,11 +569,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void localLoginOrPullAndLogin(boolean restoreSession) {
-        localLoginOrPullAndLogin(restoreSession, false);
-    }
-
-    private void localLoginOrPullAndLogin(boolean restoreSession, boolean blockRemoteKeyManagement) {
-        if (tryLocalLogin(false, restoreSession, blockRemoteKeyManagement)) {
+        if (tryLocalLogin(false, restoreSession, false)) {
             return;
         }
 

@@ -1,0 +1,386 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>6. Different Paths</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/91499FB3-97BD-4BE9-A9F8-D296BD1DDB30" uiVersion="1" version="101" name="6. Different Paths">
+					<question1/>
+					<abusestarts/>
+					<moveback_family/>
+					<leavevillage_spathan/>
+					<question5/>
+					<leavevillage_ksaroj/>
+					<question7/>
+					<question8/>
+					<kamani/>
+					<question15/>
+					<question10/>
+					<bankposition/>
+					<question3/>
+					<question2/>
+					<violencefree/>
+					<dv_law/>
+					<lastkey_message/>
+					<deployment_date/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""/><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/question1"/>
+			<bind nodeset="/data/abusestarts"/>
+			<bind nodeset="/data/moveback_family" relevant="/data/abusestarts = 'abusestarts_leave'"/>
+			<bind nodeset="/data/leavevillage_spathan" relevant="/data/moveback_family = 'villagers_dontaccept'"/>
+			<bind nodeset="/data/question5" relevant="/data/leavevillage_spathan = 'leavevillage_spathan_independent'"/>
+			<bind nodeset="/data/leavevillage_ksaroj" relevant="/data/moveback_family = 'parents_dontaccept'"/>
+			<bind nodeset="/data/question7" relevant="/data/leavevillage_ksaroj = 'leavevillage_ksaroj_independent'"/>
+			<bind nodeset="/data/question8" relevant="/data/leavevillage_ksaroj = 'leavevillage_ksaroj_independent'"/>
+			<bind nodeset="/data/kamani" relevant="/data/leavevillage_ksaroj = 'leavevillage_ksaroj_independent'"/>
+			<bind nodeset="/data/question15" relevant="/data/kamani = 'kamani_no'" required="true()"/>
+			<bind nodeset="/data/question10" relevant="/data/kamani = 'kamani_yes'"/>
+			<bind nodeset="/data/bankposition" relevant="/data/kamani = 'kamani_yes'"/>
+			<bind nodeset="/data/question3" relevant="/data/bankposition = 'bankposition_no'"/>
+			<bind nodeset="/data/question2" relevant="/data/bankposition = 'bankposition_yes'"/>
+			<bind nodeset="/data/violencefree" relevant="/data/abusestarts = 'abusestarts_stay' or /data/leavevillage_spathan = 'leavevillage_spathan_husband' or /data/leavevillage_ksaroj = 'leavevillage_ksaroj_husband'"/>
+			<bind nodeset="/data/dv_law" relevant="/data/abusestarts = 'abusestarts_stay' or /data/leavevillage_spathan = 'leavevillage_spathan_husband' or /data/leavevillage_ksaroj = 'leavevillage_ksaroj_husband'"/>
+			<bind nodeset="/data/lastkey_message" relevant="/data/abusestarts = 'abusestarts_stay' or /data/leavevillage_spathan = 'leavevillage_spathan_husband' or /data/leavevillage_ksaroj = 'leavevillage_ksaroj_husband'"/>
+			<bind nodeset="/data/deployment_date"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="question1-label">
+						<value>You are born in a small, rural village, you have a happy childhood but it's cut short when at the age of 12 your parents marry you off to a man from a bigger town.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question1.mp3</value>
+					</text>
+					<text id="abusestarts-label">
+						<value>You live with your husband and bear a child at the age of 16. But your husband and his family beat and abuse you. The abuse is becoming intolerable. What do you do?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/abusestarts.mp3</value>
+					</text>
+					<text id="abusestarts-abusestarts_leave-label">
+						<value>Leave him, take your child with you and go back to live with your family in your village.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/abusestarts-abusestarts_leave.mp3</value>
+					</text>
+					<text id="abusestarts-abusestarts_stay-label">
+						<value>Stay with him. What else can you do?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/abusestarts-abusestarts_stay.mp3</value>
+					</text>
+					<text id="moveback_family-label">
+						<value>You move back in with your family in your village but then...</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/moveback_family.mp3</value>
+					</text>
+					<text id="moveback_family-parents_dontaccept-label">
+						<value>Your parents don't accept you. They want you to go back to your husband's house.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/moveback_family-parents_dontaccept.mp3</value>
+					</text>
+					<text id="moveback_family-villagers_dontaccept-label">
+						<value>The villagers harass you. You are miserable because of this.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/moveback_family-villagers_dontaccept.mp3</value>
+					</text>
+					<text id="leavevillage_spathan-label">
+						<value>What happens now?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/leavevillage_spathan.mp3</value>
+					</text>
+					<text id="leavevillage_spathan-leavevillage_spathan_husband-label">
+						<value>You leave the village and go back to your husband. What else can you do?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/leavevillage_spathan-leavevillage_spathan_husband.mp3</value>
+					</text>
+					<text id="leavevillage_spathan-leavevillage_spathan_independent-label">
+						<value>You leave the village but make a brave decision to try to become independent!</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/leavevillage_spathan-leavevillage_spathan_independent.mp3</value>
+					</text>
+					<text id="question5-label">
+						<value>You start making kites and then become a milk vendor. But finally you become a female truckdriver and successfully support you and your child. Shameem Pathan would be proud!</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question5.mp3</value>
+					</text>
+					<text id="leavevillage_ksaroj-label">
+						<value>What happens now?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/leavevillage_ksaroj.mp3</value>
+					</text>
+					<text id="leavevillage_ksaroj-leavevillage_ksaroj_husband-label">
+						<value>You leave the village and go back to your husband. What else can you do?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/leavevillage_ksaroj-leavevillage_ksaroj_husband.mp3</value>
+					</text>
+					<text id="leavevillage_ksaroj-leavevillage_ksaroj_independent-label">
+						<value>You leave the village but make a brave decision to try to become independent!</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/leavevillage_ksaroj-leavevillage_ksaroj_independent.mp3</value>
+					</text>
+					<text id="question7-label">
+						<value>You move back to the bigger town with your child. You start working in a garment factory. Utilizing government loans for lower-caste people, you successfully open a tailoring shop and then a furniture store.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question7.mp3</value>
+					</text>
+					<text id="question8-label">
+						<value>From the money you save from your stores and a piece of land you buy and later sell, you set up  a business complex called Kohinoor, with hope that one day you can buy yourself the most valuable diamond in the world.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question8.mp3</value>
+					</text>
+					<text id="kamani-label">
+						<value>A group of Dalit workers ask you to take over a failing company called Kamani by investing in it. You've worked hard for your money but do you take the risk and take over the company?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/kamani.mp3</value>
+					</text>
+					<text id="kamani-kamani_yes-label">
+						<value>Yes, I'll invest my money in the company Kamani</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/kamani-kamani_yes.mp3</value>
+					</text>
+					<text id="kamani-kamani_no-label">
+						<value>No, I'm happy with my situation the way it is.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/kamani-kamani_no.mp3</value>
+					</text>
+					<text id="question15-label">
+						<value>You lead a happy, fulfilled life helping other women who have faced the same challenges and abuse you've faced, encouraging them to speak out against violence in their home.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question15.mp3</value>
+					</text>
+					<text id="question10-label">
+						<value>You work very hard and now Kamani is a highly successful company, and does business all over the world. You have remarried and are now worth about Rs. 5,00,00,00,000.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question10.mp3</value>
+					</text>
+					<text id="bankposition-label">
+						<value>The government offers you a very prestigious and senior position at Bharatiya Mahila Bank, which is a bank primarily for women. Do you take it, even though it will involve even more hard work?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/bankposition.mp3</value>
+					</text>
+					<text id="bankposition-bankposition_yes-label">
+						<value>Yes, you take the position.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/bankposition-bankposition_yes.mp3</value>
+					</text>
+					<text id="bankposition-bankposition_no-label">
+						<value>No, you don't take the position,  you're happy with your life the way it is.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/bankposition-bankposition_no.mp3</value>
+					</text>
+					<text id="question3-label">
+						<value>You lead a happy, fulfilled life helping other women who have faced the same challenges and abuse you've faced, encouraging them to speak out against violence in their home.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question3.mp3</value>
+					</text>
+					<text id="question2-label">
+						<value>For all your services to Trade and Industry, the government of India awards you the Padma Shri in 2013. Kalpana Saroj would be proud of you!</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question2.mp3</value>
+					</text>
+					<text id="violencefree-label">
+						<value>A violence free life is a basic human right for every individual. Violence is not your fault and never acceptable, even if the abuser is your husband or family.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/violencefree.mp3</value>
+					</text>
+					<text id="dv_law-label">
+						<value>Domestic violence is a punishable offence. Under Protection of Women Against Domestic Violence Act &#8211; women experiencing Domestic violence can file for protection without going to the police station or leaving her marital home and children.</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/dv_law.mp3</value>
+					</text>
+					<text id="lastkey_message-label">
+						<value>Please talk to a friend, relative, sangha or community leader who you can trust about the violence you're facing and what can be done to change the situation. Remember the stories of Kalpana Saroj, Shameem Pathan and countless other brave women who changed their own lives for the better!</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/lastkey_message.mp3</value>
+					</text>
+				</translation>
+				<translation lang="hin">
+					<text id="question1-label">
+						<value>&#2310;&#2346; &#2319;&#2325; &#2331;&#2379;&#2335;&#2375; &#2327;&#2366;&#2306;&#2357; &#2350;&#2375;&#2306; &#2332;&#2344;&#2381;&#2350; &#2354;&#2375;&#2340;&#2375; &#2361;&#2376;&#2306;, &#2310;&#2346;&#2325;&#2366; &#2348;&#2330;&#2346;&#2344; &#2348;&#2361;&#2369;&#2340; &#2361;&#2368; &#2309;&#2330;&#2381;&#2331;&#2366; &#2348;&#2368;&#2340;&#2366; &#2361;&#2376; , &#2354;&#2375;&#2325;&#2367;&#2344; &#2310;&#2346;&#2325;&#2375; &#2350;&#2366;&#2340;&#2366; &#2346;&#2367;&#2340;&#2366; &#2310;&#2346;&#2325;&#2368; &#2358;&#2366;&#2342;&#2368; &#2319;&#2325; &#2348;&#2396;&#2375; &#2358;&#2361;&#2352; &#2350;&#2375;&#2306; &#2319;&#2325; &#2310;&#2342;&#2350;&#2368; &#2360;&#2375; 12 &#2360;&#2366;&#2354; &#2325;&#2368; &#2313;&#2350;&#2381;&#2352; &#2350;&#2375;&#2306; &#2325;&#2352; &#2342;&#2375;&#2340;&#2375; &#2361;&#2376;&#2306; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question1.mp3</value>
+					</text>
+					<text id="abusestarts-label">
+						<value>&#2310;&#2346; &#2309;&#2346;&#2344;&#2375; &#2346;&#2340;&#2367; &#2325;&#2375; &#2360;&#2366;&#2341; &#2352;&#2361;&#2340;&#2368; &#2361;&#2376;&#2306; &#2324;&#2352; &#2319;&#2325; 16 &#2360;&#2366;&#2354; &#2325;&#2368; &#2313;&#2350;&#2381;&#2352; &#2350;&#2375;&#2306; &#2319;&#2325; &#2348;&#2330;&#2381;&#2330;&#2375; &#2325;&#2379; &#2332;&#2344;&#2381;&#2350; &#2342;&#2375;&#2340;&#2368; &#2361;&#2376;&#2306; &#2354;&#2375;&#2325;&#2367;&#2344; &#2310;&#2346;&#2325;&#2375; &#2346;&#2340;&#2367; &#2324;&#2352; &#2310;&#2346;&#2325;&#2375; &#2360;&#2360;&#2369;&#2352;&#2366;&#2354; &#2357;&#2366;&#2354;&#2375; &#2310;&#2346;&#2325;&#2379; &#2350;&#2366;&#2352;&#2344;&#2366; &#2346;&#2368;&#2335;&#2344;&#2366; &#2358;&#2369;&#2352;&#2370; &#2325;&#2352; &#2342;&#2375;&#2340;&#2375; &#2361;&#2376;  | &#2332;&#2348; &#2310;&#2346;&#2360;&#2375; &#2309;&#2360;&#2361;&#2344;&#2368;&#2351; &#2361;&#2379; &#2332;&#2366;&#2351; &#2340;&#2379; &#2310;&#2346; &#2325;&#2381;&#2351;&#2366; &#2325;&#2352;&#2375;&#2306;&#2327;&#2368; ?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/abusestarts.mp3</value>
+					</text>
+					<text id="abusestarts-abusestarts_leave-label">
+						<value>&#2309;&#2346;&#2344;&#2375; &#2346;&#2340;&#2367; &#2325;&#2379; &#2331;&#2379;&#2396; &#2342;&#2375;&#2306;&#2327;&#2368; &#2324;&#2352; &#2348;&#2330;&#2381;&#2330;&#2379;&#2306; &#2325;&#2375; &#2360;&#2366;&#2341; &#2357;&#2366;&#2346;&#2360; &#2309;&#2346;&#2344;&#2375; &#2350;&#2366;&#2351;&#2325;&#2375; &#2330;&#2354;&#2368; &#2332;&#2366;&#2319;&#2305;&#2327;&#2368; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/abusestarts-abusestarts_leave.mp3</value>
+					</text>
+					<text id="abusestarts-abusestarts_stay-label">
+						<value>&#2346;&#2340;&#2367; &#2325;&#2375; &#2360;&#2366;&#2341; &#2352;&#2361;&#2375;&#2306;&#2327;&#2368; | &#2324;&#2352; &#2325;&#2381;&#2351;&#2366; &#2325;&#2352; &#2360;&#2325;&#2340;&#2368;  &#2361;&#2376;&#2306; ?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/abusestarts-abusestarts_stay.mp3</value>
+					</text>
+					<text id="moveback_family-label">
+						<value>&#2310;&#2346; &#2357;&#2366;&#2346;&#2360; &#2327;&#2366;&#2305;&#2357; &#2350;&#2375;&#2306; &#2309;&#2346;&#2344;&#2375; &#2346;&#2352;&#2367;&#2357;&#2366;&#2352; &#2325;&#2375; &#2346;&#2366;&#2360; &#2330;&#2354;&#2368; &#2332;&#2366;&#2319;&#2305;&#2327;&#2368; |&#2354;&#2375;&#2325;&#2367;&#2344; &#2347;&#2367;&#2352;.......</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/moveback_family.mp3</value>
+					</text>
+					<text id="moveback_family-parents_dontaccept-label">
+						<value>&#2310;&#2346;&#2325;&#2375; &#2350;&#2366;&#2340;&#2366; &#2346;&#2367;&#2340;&#2366; &#2310;&#2346;&#2325;&#2379; &#2360;&#2381;&#2357;&#2368;&#2325;&#2366;&#2352; &#2344;&#2361;&#2368;&#2306; &#2325;&#2352;&#2340;&#2375; &#2357;&#2375; &#2330;&#2366;&#2361;&#2340;&#2375; &#2361;&#2376;&#2306; &#2325;&#2368; &#2310;&#2346; &#2357;&#2366;&#2346;&#2360; &#2309;&#2346;&#2344;&#2375; &#2346;&#2340;&#2367; &#2325;&#2375; &#2346;&#2366;&#2360; &#2330;&#2354;&#2368; &#2332;&#2366;&#2351; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/moveback_family-parents_dontaccept.mp3</value>
+					</text>
+					<text id="moveback_family-villagers_dontaccept-label">
+						<value>&#2327;&#2366;&#2305;&#2357; &#2357;&#2366;&#2354;&#2375; &#2310;&#2346; &#2325;&#2379; &#2348;&#2361;&#2369;&#2340; &#2346;&#2352;&#2375;&#2358;&#2366;&#2344; &#2325;&#2352;&#2340;&#2375; &#2361;&#2376; &#2332;&#2367;&#2360;&#2360;&#2375; &#2310;&#2346; &#2348;&#2361;&#2369;&#2340; &#2342;&#2369;&#2326;&#2368; &#2361;&#2376;&#2306;</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/moveback_family-villagers_dontaccept.mp3</value>
+					</text>
+					<text id="leavevillage_spathan-label">
+						<value>&#2309;&#2348; &#2325;&#2381;&#2351;&#2366; &#2361;&#2379;&#2340;&#2366; &#2361;&#2376; ?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/leavevillage_spathan.mp3</value>
+					</text>
+					<text id="leavevillage_spathan-leavevillage_spathan_husband-label">
+						<value>&#2310;&#2346; &#2327;&#2366;&#2305;&#2357; &#2331;&#2379;&#2396; &#2325;&#2352; &#2357;&#2366;&#2346;&#2360; &#2309;&#2346;&#2344;&#2375; &#2346;&#2340;&#2367; &#2325;&#2375; &#2346;&#2366;&#2360; &#2330;&#2354;&#2368; &#2332;&#2366;&#2319;&#2305;&#2327;&#2368; | &#2310;&#2346; &#2311;&#2360;&#2325;&#2375; &#2310;&#2354;&#2366;&#2357;&#2366; &#2324;&#2352; &#2325;&#2381;&#2351;&#2366; &#2325;&#2352; &#2360;&#2325;&#2340;&#2368; &#2361;&#2376; ?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/leavevillage_spathan-leavevillage_spathan_husband.mp3</value>
+					</text>
+					<text id="leavevillage_spathan-leavevillage_spathan_independent-label">
+						<value>&#2310;&#2346; &#2327;&#2366;&#2305;&#2357; &#2331;&#2379;&#2396; &#2342;&#2375;&#2340;&#2368; &#2361;&#2376;&#2306; &#2324;&#2352; &#2309;&#2325;&#2375;&#2354;&#2375; &#2352;&#2361;&#2344;&#2375; &#2325;&#2366; &#2325;&#2336;&#2379;&#2352; &#2347;&#2376;&#2360;&#2354;&#2366; &#2354;&#2375;&#2340;&#2368; &#2361;&#2376;&#2306; ?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/leavevillage_spathan-leavevillage_spathan_independent.mp3</value>
+					</text>
+					<text id="question5-label">
+						<value>&#2310;&#2346; &#2346;&#2340;&#2306;&#2327; &#2348;&#2344;&#2366;&#2344;&#2366; &#2358;&#2369;&#2352;&#2370; &#2325;&#2352; &#2342;&#2375;&#2340;&#2368; &#2361;&#2376;&#2306; &#2324;&#2352; &#2347;&#2367;&#2352; &#2348;&#2366;&#2342; &#2350;&#2375;&#2306; &#2342;&#2370;&#2343; &#2348;&#2375;&#2330;&#2344;&#2375; &#2325;&#2366; &#2325;&#2366;&#2350; &#2349;&#2368; &#2325;&#2352;&#2340;&#2368; &#2361;&#2376;&#2306; | &#2324;&#2352; &#2309;&#2306;&#2340; &#2350;&#2375;&#2306; &#2319;&#2325; &#2350;&#2361;&#2367;&#2354;&#2366; &#2335;&#2381;&#2352;&#2325; &#2337;&#2381;&#2352;&#2366;&#2312;&#2357;&#2352; &#2348;&#2344; &#2332;&#2366;&#2340;&#2368; &#2361;&#2376;&#2306; | &#2358;&#2350;&#2368;&#2350; &#2346;&#2336;&#2366;&#2344; &#2325;&#2379; &#2327;&#2352;&#2381;&#2357; &#2350;&#2361;&#2360;&#2370;&#2360; &#2361;&#2379;&#2327;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question5.mp3</value>
+					</text>
+					<text id="leavevillage_ksaroj-label">
+						<value>&#2309;&#2348; &#2325;&#2381;&#2351;&#2366; &#2361;&#2379;&#2327;&#2366; ?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/leavevillage_ksaroj.mp3</value>
+					</text>
+					<text id="leavevillage_ksaroj-leavevillage_ksaroj_husband-label">
+						<value>&#2310;&#2346; &#2309;&#2346;&#2344;&#2366; &#2327;&#2366;&#2305;&#2357; &#2331;&#2379;&#2396; &#2325;&#2375; &#2357;&#2366;&#2346;&#2360; &#2309;&#2346;&#2344;&#2375; &#2346;&#2340;&#2367; &#2325;&#2375; &#2346;&#2366;&#2360; &#2330;&#2354;&#2368; &#2332;&#2366;&#2340;&#2368; &#2361;&#2376;&#2306; | &#2311;&#2360;&#2325;&#2375; &#2310;&#2354;&#2366;&#2357;&#2366; &#2310;&#2346; &#2325;&#2381;&#2351;&#2366; &#2325;&#2352; &#2360;&#2325;&#2340;&#2368; &#2361;&#2376;&#2306; ?</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/leavevillage_ksaroj-leavevillage_ksaroj_husband.mp3</value>
+					</text>
+					<text id="leavevillage_ksaroj-leavevillage_ksaroj_independent-label">
+						<value>&#2310;&#2346; &#2327;&#2366;&#2305;&#2357; &#2331;&#2379;&#2396; &#2342;&#2375;&#2340;&#2368; &#2361;&#2376;&#2306; &#2324;&#2352; &#2309;&#2325;&#2375;&#2354;&#2375; &#2352;&#2361;&#2344;&#2375; &#2325;&#2366; &#2325;&#2336;&#2379;&#2352; &#2347;&#2376;&#2360;&#2354;&#2366; &#2354;&#2375;&#2340;&#2368; &#2361;&#2376;&#2306; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/leavevillage_ksaroj-leavevillage_ksaroj_independent.mp3</value>
+					</text>
+					<text id="question7-label">
+						<value>&#2310;&#2346; &#2357;&#2366;&#2346;&#2360; &#2309;&#2346;&#2344;&#2375; &#2348;&#2330;&#2381;&#2330;&#2379;&#2306; &#2325;&#2375; &#2360;&#2366;&#2341; &#2358;&#2361;&#2352; &#2330;&#2354;&#2368; &#2310;&#2312; | &#2310;&#2346;&#2344;&#2375; &#2319;&#2325; &#2325;&#2346;&#2396;&#2375; &#2325;&#2368; &#2347;&#2376;&#2325;&#2381;&#2335;&#2381;&#2352;&#2368; &#2350;&#2375;&#2306; &#2325;&#2366;&#2350; &#2325;&#2352;&#2344;&#2366; &#2358;&#2369;&#2352;&#2370; &#2325;&#2367;&#2351;&#2366; | &#2344;&#2367;&#2350;&#2381;&#2344; &#2357;&#2352;&#2381;&#2327;&#2379;&#2306; &#2325;&#2379; &#2350;&#2367;&#2354;&#2344;&#2375; &#2357;&#2366;&#2354;&#2375; &#2354;&#2379;&#2344; &#2325;&#2375; &#2352;&#2369;&#2346;&#2351;&#2379;&#2306; &#2360;&#2375; &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2319;&#2325; &#2360;&#2367;&#2354;&#2366;&#2312; &#2325;&#2368; &#2342;&#2369;&#2325;&#2366;&#2344; &#2326;&#2379;&#2354;&#2368; &#2324;&#2352; &#2347;&#2367;&#2352; &#2348;&#2366;&#2342; &#2350;&#2375;&#2306; &#2319;&#2325; &#2347;&#2352;&#2381;&#2344;&#2368;&#2330;&#2352; &#2325;&#2368; &#2342;&#2370;&#2325;&#2366;&#2344; &#2326;&#2379;&#2354;&#2368; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question7.mp3</value>
+					</text>
+					<text id="question8-label">
+						<value>&#2309;&#2346;&#2344;&#2368; &#2342;&#2369;&#2325;&#2366;&#2344; &#2360;&#2375; &#2325;&#2350;&#2366;&#2351;&#2375; &#2361;&#2369;&#2319; &#2352;&#2369;&#2346;&#2351;&#2379;&#2306; &#2360;&#2375; &#2313;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2332;&#2350;&#2368;&#2344; &#2325;&#2366; &#2319;&#2325; &#2335;&#2369;&#2325;&#2396;&#2366; &#2393;&#2352;&#2368;&#2342;&#2366; &#2324;&#2352; &#2347;&#2367;&#2352; &#2348;&#2366;&#2342; &#2350;&#2375;&#2306; &#2313;&#2360;&#2375; &#2348;&#2375;&#2330; &#2342;&#2367;&#2351;&#2366; | &#2347;&#2367;&#2352; &#2325;&#2379;&#2361;&#2367;&#2344;&#2370;&#2352; &#2344;&#2366;&#2350; &#2325;&#2366; &#2319;&#2325; &#2357;&#2381;&#2351;&#2357;&#2360;&#2366;&#2351;&#2367;&#2325; &#2325;&#2366;&#2350;&#2381;&#2346;&#2381;&#2354;&#2375;&#2325;&#2381;&#2360; &#2348;&#2344;&#2357;&#2366;&#2351;&#2366; | &#2311;&#2360; &#2313;&#2350;&#2381;&#2350;&#2368;&#2342; &#2325;&#2375; &#2360;&#2366;&#2341; &#2325;&#2367; &#2357;&#2361; &#2319;&#2325; &#2342;&#2367;&#2344; &#2342;&#2369;&#2344;&#2367;&#2351;&#2366; &#2325;&#2366; &#2360;&#2348;&#2360;&#2375; &#2325;&#2368;&#2350;&#2340;&#2368; &#2361;&#2368;&#2352;&#2366; &#2326;&#2352;&#2368;&#2342;&#2375;&#2306;&#2327;&#2368; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question8.mp3</value>
+					</text>
+					<text id="kamani-label">
+						<value>&#2342;&#2354;&#2367;&#2340; &#2325;&#2366;&#2350;&#2327;&#2366;&#2352;&#2379;&#2306; &#2344;&#2375; &#2313;&#2360;&#2360;&#2375; &#2348;&#2306;&#2342; &#2346;&#2396;&#2368; &#2325;&#2350;&#2381;&#2346;&#2344;&#2368; &#2325;&#2379; &#2354;&#2375;&#2344;&#2375; &#2325;&#2375; &#2354;&#2367;&#2319; &#2325;&#2361;&#2366; &#2332;&#2367;&#2360;&#2375; &#2325;&#2366;&#2350;&#2344;&#2368; &#2325;&#2361;&#2340;&#2375; &#2341;&#2375; |&#2313;&#2360;&#2344;&#2375; &#2325;&#2336;&#2367;&#2344; &#2346;&#2352;&#2367;&#2358;&#2381;&#2352;&#2350; &#2325;&#2367;&#2351;&#2366; &#2309;&#2346;&#2344;&#2368; &#2346;&#2370;&#2306;&#2332;&#2368; &#2311;&#2360; &#2325;&#2350;&#2381;&#2346;&#2344;&#2368; &#2350;&#2375;&#2306; &#2354;&#2327;&#2366; &#2342;&#2368; | &#2325;&#2381;&#2351;&#2366; &#2310;&#2346; &#2311;&#2360; &#2340;&#2352;&#2361; &#2325;&#2368; &#2325;&#2306;&#2346;&#2344;&#2368; &#2350;&#2375;&#2306; &#2346;&#2376;&#2360;&#2366; &#2354;&#2327;&#2366;&#2344;&#2375; &#2325;&#2366; &#2332;&#2379;&#2326;&#2367;&#2350; &#2354;&#2375;&#2306;&#2327;&#2368; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/kamani.mp3</value>
+					</text>
+					<text id="kamani-kamani_yes-label">
+						<value>&#2361;&#2366;&#2305; ! &#2350;&#2376;&#2306; &#2309;&#2346;&#2344;&#2368; &#2346;&#2370;&#2306;&#2332;&#2368; &#2325;&#2366;&#2350;&#2367;&#2344;&#2368; &#2325;&#2350;&#2381;&#2346;&#2344;&#2368; &#2350;&#2375;&#2306; &#2354;&#2327;&#2366;&#2313;&#2306;&#2327;&#2368; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/kamani-kamani_yes.mp3</value>
+					</text>
+					<text id="kamani-kamani_no-label">
+						<value>&#2344;&#2361;&#2368;&#2306; , &#2350;&#2376;&#2306; &#2309;&#2346;&#2344;&#2368; &#2360;&#2381;&#2341;&#2367;&#2340;&#2367; &#2350;&#2375;&#2306; &#2336;&#2368;&#2325; &#2361;&#2370;&#2305; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/kamani-kamani_no.mp3</value>
+					</text>
+					<text id="question15-label">
+						<value>&#2357;&#2361; &#2393;&#2369;&#2358;&#2368; &#2346;&#2370;&#2352;&#2381;&#2357;&#2325; &#2332;&#2368;&#2357;&#2344; &#2357;&#2381;&#2351;&#2340;&#2368;&#2340; &#2325;&#2352;&#2340;&#2368; &#2361;&#2376;&#2306; | &#2324;&#2352; &#2309;&#2344;&#2381;&#2351; &#2342;&#2370;&#2360;&#2352;&#2368; &#2350;&#2361;&#2367;&#2354;&#2366;&#2323;&#2306; &#2325;&#2368; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2325;&#2352; &#2352;&#2361;&#2368; &#2361;&#2376;&#2306; &#2332;&#2379; &#2352;&#2379;&#2332; &#2328;&#2352;&#2375;&#2354;&#2369; &#2361;&#2367;&#2306;&#2360;&#2366; &#2325;&#2366; &#2358;&#2367;&#2325;&#2366;&#2352; &#2361;&#2379; &#2352;&#2361;&#2368; &#2361;&#2376;&#2306; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question15.mp3</value>
+					</text>
+					<text id="question10-label">
+						<value>&#2310;&#2346;&#2344;&#2375; &#2325;&#2336;&#2367;&#2344; &#2346;&#2352;&#2367;&#2358;&#2381;&#2352;&#2350; &#2325;&#2367;&#2351;&#2366; &#2324;&#2352; &#2309;&#2348; &#2325;&#2366;&#2350;&#2367;&#2344;&#2368; &#2319;&#2325; &#2360;&#2347;&#2354; &#2325;&#2350;&#2381;&#2346;&#2344;&#2368; &#2361;&#2376; &#2324;&#2352; &#2346;&#2369;&#2352;&#2375; &#2357;&#2367;&#2358;&#2381;&#2357; &#2350;&#2375;&#2306; &#2357;&#2381;&#2351;&#2357;&#2360;&#2366;&#2351; &#2325;&#2352;&#2340;&#2368; &#2361;&#2376; |&#2313;&#2360;&#2344;&#2375; &#2342;&#2369;&#2348;&#2366;&#2352;&#2366; &#2358;&#2366;&#2342;&#2368; &#2325;&#2368; &#2324;&#2352; &#2309;&#2349;&#2368; &#2313;&#2344;&#2325;&#2368; &#2325;&#2369;&#2354; &#2360;&#2306;&#2346;&#2340;&#2381;&#2340;&#2367; &#2354;&#2327;&#2349;&#2327; &#2346;&#2366;&#2306;&#2330; &#2309;&#2352;&#2348; &#2352;&#2369;&#2346;&#2351;&#2375; &#2361;&#2376; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question10.mp3</value>
+					</text>
+					<text id="bankposition-label">
+						<value>&#2360;&#2352;&#2325;&#2366;&#2352; &#2342;&#2381;&#2357;&#2366;&#2352;&#2366; &#2349;&#2366;&#2352;&#2340;&#2368;&#2351; &#2350;&#2361;&#2367;&#2354;&#2366; &#2348;&#2376;&#2306;&#2325; &#2350;&#2375;&#2306; &#2319;&#2325; &#2314;&#2305;&#2330;&#2366; &#2324;&#2352; &#2357;&#2352;&#2367;&#2359;&#2381;&#2336; &#2346;&#2342; &#2361;&#2376;&#2306; &#2332;&#2379; &#2325;&#2367; &#2351;&#2361; &#2348;&#2376;&#2306;&#2325; &#2350;&#2369;&#2326;&#2381;&#2351; &#2352;&#2370;&#2346; &#2360;&#2375; &#2350;&#2361;&#2367;&#2354;&#2366;&#2323;&#2306; &#2325;&#2375; &#2354;&#2367;&#2319; &#2361;&#2376; | &#2325;&#2381;&#2351;&#2366; &#2310;&#2346; &#2349;&#2368; &#2311;&#2360; &#2346;&#2342; &#2325;&#2379; &#2346;&#2366;&#2344;&#2366; &#2330;&#2366;&#2361;&#2340;&#2368; &#2361;&#2376;&#2306; ?  &#2332;&#2348;&#2325;&#2367; &#2311;&#2360;&#2325;&#2375; &#2354;&#2367;&#2319; &#2325;&#2336;&#2367;&#2344; &#2346;&#2352;&#2367;&#2358;&#2381;&#2352;&#2350; &#2325;&#2352;&#2344;&#2366; &#2361;&#2379;&#2327;&#2366; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/bankposition.mp3</value>
+					</text>
+					<text id="bankposition-bankposition_yes-label">
+						<value>&#2361;&#2366;&#2305; ! &#2350;&#2376;&#2306; &#2311;&#2360; &#2346;&#2342; &#2325;&#2379; &#2354;&#2375;&#2344;&#2366; &#2330;&#2366;&#2361;&#2370;&#2306;&#2327;&#2368; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/bankposition-bankposition_yes.mp3</value>
+					</text>
+					<text id="bankposition-bankposition_no-label">
+						<value>&#2344;&#2361;&#2368;&#2306; , &#2310;&#2346; &#2311;&#2360; &#2346;&#2342; &#2325;&#2379; &#2344;&#2361;&#2368;&#2306; &#2354;&#2375;&#2344;&#2366; &#2330;&#2366;&#2361;&#2340;&#2368; , &#2310;&#2346; &#2393;&#2369;&#2358;&#2368; &#2346;&#2370;&#2352;&#2381;&#2357;&#2325; &#2332;&#2368;&#2357;&#2344; &#2357;&#2381;&#2351;&#2340;&#2368;&#2340; &#2325;&#2352; &#2352;&#2361;&#2368; &#2361;&#2376;&#2306; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/bankposition-bankposition_no.mp3</value>
+					</text>
+					<text id="question3-label">
+						<value>&#2310;&#2346; &#2393;&#2369;&#2358;&#2368; &#2346;&#2370;&#2352;&#2381;&#2357;&#2325; &#2332;&#2368;&#2357;&#2344; &#2357;&#2381;&#2351;&#2340;&#2368;&#2340; &#2325;&#2352;&#2340;&#2368; &#2361;&#2376;&#2306; | &#2324;&#2352; &#2309;&#2344;&#2381;&#2351; &#2342;&#2370;&#2360;&#2352;&#2368; &#2350;&#2361;&#2367;&#2354;&#2366;&#2323;&#2306; &#2325;&#2368; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2325;&#2352; &#2352;&#2361;&#2368; &#2361;&#2376;&#2306; &#2332;&#2379; &#2352;&#2379;&#2332; &#2328;&#2352;&#2375;&#2354;&#2369; &#2361;&#2367;&#2306;&#2360;&#2366; &#2325;&#2366; &#2358;&#2367;&#2325;&#2366;&#2352; &#2361;&#2379; &#2352;&#2361;&#2368; &#2361;&#2376;&#2306; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question3.mp3</value>
+					</text>
+					<text id="question2-label">
+						<value>&#2313;&#2342;&#2381;&#2351;&#2379;&#2327; &#2324;&#2352; &#2357;&#2381;&#2351;&#2366;&#2346;&#2366;&#2352; &#2325;&#2368; &#2360;&#2347;&#2354;&#2340;&#2366;&#2323;&#2306; &#2325;&#2379; &#2342;&#2375;&#2326;&#2325;&#2352; &#2349;&#2366;&#2352;&#2340; &#2360;&#2352;&#2325;&#2366;&#2352; &#2344;&#2375; 2013   &#2350;&#2375;&#2306; &#2313;&#2344;&#2325;&#2379; &#2346;&#2342;&#2381;&#2350;&#2358;&#2381;&#2352;&#2368; &#2346;&#2369;&#2352;&#2360;&#2381;&#2325;&#2366;&#2352; &#2360;&#2375; &#2360;&#2350;&#2381;&#2350;&#2366;&#2344;&#2367;&#2340; &#2325;&#2367;&#2351;&#2366; | &#2361;&#2350;&#2375;&#2306; &#2325;&#2354;&#2381;&#2346;&#2344;&#2366; &#2360;&#2352;&#2379;&#2332; &#2346;&#2352; &#2327;&#2352;&#2381;&#2357; &#2361;&#2376; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/question2.mp3</value>
+					</text>
+					<text id="violencefree-label">
+						<value>&#2319;&#2325; &#2361;&#2367;&#2306;&#2360;&#2366; &#2350;&#2369;&#2325;&#2381;&#2340; &#2332;&#2368;&#2357;&#2344; &#2361;&#2352; &#2357;&#2381;&#2351;&#2325;&#2381;&#2340;&#2367; &#2325;&#2366; &#2348;&#2369;&#2344;&#2367;&#2351;&#2366;&#2342;&#2368; &#2350;&#2366;&#2344;&#2357; &#2309;&#2343;&#2367;&#2325;&#2366;&#2352; &#2361;&#2376; |&#2361;&#2367;&#2306;&#2360;&#2366; &#2325;&#2349;&#2368; &#2360;&#2361;&#2344; &#2344;&#2361;&#2368;&#2306; &#2325;&#2352;&#2344;&#2368; &#2330;&#2366;&#2361;&#2367;&#2319; &#2330;&#2366;&#2361;&#2375; &#2357;&#2361; &#2310;&#2346;&#2325;&#2375; &#2346;&#2340;&#2367; &#2351;&#2366; &#2310;&#2346;&#2325;&#2375; &#2346;&#2352;&#2367;&#2357;&#2366;&#2352; &#2357;&#2366;&#2354;&#2375; &#2361;&#2379; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/violencefree.mp3</value>
+					</text>
+					<text id="dv_law-label">
+						<value>&#2328;&#2352;&#2375;&#2354;&#2369; &#2361;&#2367;&#2306;&#2360;&#2366; &#2319;&#2325; &#2342;&#2306;&#2337;&#2344;&#2368;&#2351; &#2309;&#2346;&#2352;&#2366;&#2343; &#2361;&#2376; | &#2350;&#2361;&#2367;&#2354;&#2366;&#2323;&#2306; &#2325;&#2368; &#2360;&#2369;&#2352;&#2325;&#2381;&#2359;&#2366; &#2361;&#2375;&#2340;&#2369; &#2328;&#2352;&#2375;&#2354;&#2369; &#2361;&#2367;&#2306;&#2360;&#2366; &#2309;&#2343;&#2367;&#2344;&#2367;&#2351;&#2350; &#2325;&#2375; &#2309;&#2306;&#2340;&#2352;&#2381;&#2327;&#2340; &#2319;&#2325; &#2350;&#2361;&#2367;&#2354;&#2366; &#2348;&#2367;&#2344;&#2366; &#2346;&#2369;&#2354;&#2367;&#2360; &#2360;&#2381;&#2335;&#2375;&#2358;&#2344; &#2327;&#2319; &#2328;&#2352;&#2375;&#2354;&#2369; &#2361;&#2367;&#2306;&#2360;&#2366; &#2325;&#2375; &#2326;&#2367;&#2354;&#2366;&#2347; &#2352;&#2367;&#2346;&#2379;&#2352;&#2381;&#2335; &#2325;&#2352; &#2360;&#2325;&#2340;&#2368; &#2361;&#2376; &#2351;&#2366; &#2309;&#2346;&#2344;&#2375; &#2357;&#2376;&#2357;&#2366;&#2361;&#2367;&#2325; &#2328;&#2352; &#2351;&#2366; &#2348;&#2330;&#2381;&#2330;&#2379;&#2306; &#2325;&#2379; &#2331;&#2379;&#2396; &#2360;&#2325;&#2340;&#2368; &#2361;&#2376; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/dv_law.mp3</value>
+					</text>
+					<text id="lastkey_message-label">
+						<value>&#2351;&#2342;&#2367; &#2325;&#2379;&#2312; &#2328;&#2352;&#2375;&#2354;&#2369; &#2361;&#2367;&#2306;&#2360;&#2366; &#2325;&#2366; &#2360;&#2366;&#2350;&#2344;&#2366; &#2325;&#2352; &#2352;&#2361;&#2366; &#2361;&#2376; &#2332;&#2367;&#2360;&#2375; &#2310;&#2346; &#2332;&#2366;&#2344;&#2340;&#2368; &#2361;&#2376;&#2306; &#2340;&#2379; &#2325;&#2371;&#2346;&#2351;&#2366; &#2313;&#2344;&#2325;&#2375; &#2350;&#2367;&#2340;&#2381;&#2352;&#2379;&#2306; ,&#2352;&#2367;&#2358;&#2381;&#2340;&#2375;&#2342;&#2366;&#2352;&#2379;&#2306; ,&#2327;&#2366;&#2305;&#2357; &#2325;&#2375; &#2354;&#2379;&#2327;&#2379;&#2306; &#2360;&#2375; &#2348;&#2366;&#2340; &#2325;&#2352;&#2325;&#2375; &#2325;&#2375; &#2313;&#2360;&#2375; &#2346;&#2381;&#2352;&#2379;&#2340;&#2381;&#2360;&#2366;&#2361;&#2367;&#2340; &#2325;&#2352;&#2375;&#2306; &#2325;&#2367; &#2325;&#2376;&#2360;&#2375; &#2357;&#2361; &#2309;&#2346;&#2344;&#2368; &#2360;&#2381;&#2341;&#2367;&#2340;&#2367; &#2325;&#2379; &#2360;&#2369;&#2343;&#2366;&#2352; &#2360;&#2325;&#2340;&#2368; &#2361;&#2376; | &#2313;&#2344;&#2381;&#2361;&#2375;&#2306; &#2325;&#2354;&#2381;&#2346;&#2344;&#2366; &#2360;&#2352;&#2379;&#2332; , &#2358;&#2350;&#2368;&#2350; &#2346;&#2336;&#2366;&#2344; &#2324;&#2352; &#2309;&#2344;&#2327;&#2367;&#2344;&#2340; &#2348;&#2361;&#2366;&#2342;&#2369;&#2352; &#2350;&#2361;&#2367;&#2354;&#2366;&#2323;&#2306; &#2325;&#2368; &#2325;&#2361;&#2366;&#2344;&#2367;&#2351;&#2379;&#2306; &#2325;&#2375; &#2348;&#2366;&#2352;&#2375;&#2306; &#2350;&#2375;&#2306; &#2348;&#2340;&#2366;&#2319;&#2306; &#2332;&#2367;&#2344;&#2381;&#2361;&#2379;&#2306;&#2344;&#2375; &#2309;&#2346;&#2344;&#2375; &#2332;&#2368;&#2357;&#2344; &#2350;&#2375;&#2306; &#2348;&#2361;&#2369;&#2340; &#2360;&#2306;&#2328;&#2352;&#2381;&#2359; &#2325;&#2367;&#2351;&#2366; &#2361;&#2376; |</value>
+						<value form="audio">jr://file/commcare/audio/women in action/data/lastkey_message.mp3</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><setvalue event="xforms-ready" ref="/data/deployment_date" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/deployment_date"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/question1" appearance="minimal">
+			<label ref="jr:itext('question1-label')"/>
+		</trigger>
+		<select1 ref="/data/abusestarts">
+			<label ref="jr:itext('abusestarts-label')"/>
+			<item>
+				<label ref="jr:itext('abusestarts-abusestarts_leave-label')"/>
+				<value>abusestarts_leave</value>
+			</item>
+			<item>
+				<label ref="jr:itext('abusestarts-abusestarts_stay-label')"/>
+				<value>abusestarts_stay</value>
+			</item>
+		</select1>
+		<select1 ref="/data/moveback_family">
+			<label ref="jr:itext('moveback_family-label')"/>
+			<item>
+				<label ref="jr:itext('moveback_family-parents_dontaccept-label')"/>
+				<value>parents_dontaccept</value>
+			</item>
+			<item>
+				<label ref="jr:itext('moveback_family-villagers_dontaccept-label')"/>
+				<value>villagers_dontaccept</value>
+			</item>
+		</select1>
+		<select1 ref="/data/leavevillage_spathan">
+			<label ref="jr:itext('leavevillage_spathan-label')"/>
+			<item>
+				<label ref="jr:itext('leavevillage_spathan-leavevillage_spathan_husband-label')"/>
+				<value>leavevillage_spathan_husband</value>
+			</item>
+			<item>
+				<label ref="jr:itext('leavevillage_spathan-leavevillage_spathan_independent-label')"/>
+				<value>leavevillage_spathan_independent</value>
+			</item>
+		</select1>
+		<trigger ref="/data/question5" appearance="minimal">
+			<label ref="jr:itext('question5-label')"/>
+		</trigger>
+		<select1 ref="/data/leavevillage_ksaroj">
+			<label ref="jr:itext('leavevillage_ksaroj-label')"/>
+			<item>
+				<label ref="jr:itext('leavevillage_ksaroj-leavevillage_ksaroj_husband-label')"/>
+				<value>leavevillage_ksaroj_husband</value>
+			</item>
+			<item>
+				<label ref="jr:itext('leavevillage_ksaroj-leavevillage_ksaroj_independent-label')"/>
+				<value>leavevillage_ksaroj_independent</value>
+			</item>
+		</select1>
+		<trigger ref="/data/question7" appearance="minimal">
+			<label ref="jr:itext('question7-label')"/>
+		</trigger>
+		<trigger ref="/data/question8" appearance="minimal">
+			<label ref="jr:itext('question8-label')"/>
+		</trigger>
+		<select1 ref="/data/kamani">
+			<label ref="jr:itext('kamani-label')"/>
+			<item>
+				<label ref="jr:itext('kamani-kamani_yes-label')"/>
+				<value>kamani_yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('kamani-kamani_no-label')"/>
+				<value>kamani_no</value>
+			</item>
+		</select1>
+		<trigger ref="/data/question15" appearance="minimal">
+			<label ref="jr:itext('question15-label')"/>
+		</trigger>
+		<trigger ref="/data/question10" appearance="minimal">
+			<label ref="jr:itext('question10-label')"/>
+		</trigger>
+		<select1 ref="/data/bankposition">
+			<label ref="jr:itext('bankposition-label')"/>
+			<item>
+				<label ref="jr:itext('bankposition-bankposition_yes-label')"/>
+				<value>bankposition_yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('bankposition-bankposition_no-label')"/>
+				<value>bankposition_no</value>
+			</item>
+		</select1>
+		<trigger ref="/data/question3" appearance="minimal">
+			<label ref="jr:itext('question3-label')"/>
+		</trigger>
+		<trigger ref="/data/question2" appearance="minimal">
+			<label ref="jr:itext('question2-label')"/>
+		</trigger>
+		<trigger ref="/data/violencefree" appearance="minimal">
+			<label ref="jr:itext('violencefree-label')"/>
+		</trigger>
+		<trigger ref="/data/dv_law" appearance="minimal">
+			<label ref="jr:itext('dv_law-label')"/>
+		</trigger>
+		<trigger ref="/data/lastkey_message" appearance="minimal">
+			<label ref="jr:itext('lastkey_message-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

@@ -1,0 +1,252 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>&#2350;&#2375;&#2352;&#2375; &#2348;&#2368;&#2319;&#2350;&#2310;&#2312; &#2325;&#2368; &#2327;&#2339;&#2344;&#2366;</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/51BB492C-37DE-44D0-B431-ACC336F3360E" uiVersion="1" version="24" name="&#2350;&#2375;&#2352;&#2375; &#2348;&#2368;&#2319;&#2350;&#2310;&#2312; &#2325;&#2368; &#2327;&#2339;&#2344;&#2366;">
+					<intro/>
+					<weight/>
+					<height_unit/>
+					<height_in_units/>
+					<ft_in_height>
+						<ft_height/>
+						<in_height/>
+					</ft_in_height>
+					<bmi_info/>
+					<underweight>
+						<underweight_counsel/>
+					</underweight>
+					<normal_weight>
+						<normal_weight_counsel/>
+					</normal_weight>
+					<overweight>
+						<overweight_counsel/>
+					</overweight>
+					<obese>
+						<obese_counsel/>
+					</obese>
+					<height/>
+					<bmi/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><bmi/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/intro"/>
+			<bind nodeset="/data/weight" type="xsd:int" required="true()"/>
+			<bind nodeset="/data/height_unit" required="true()"/>
+			<bind nodeset="/data/height_in_units" type="xsd:double" relevant="/data/height_unit != 0.3048" required="true()"/>
+			<bind nodeset="/data/ft_in_height" relevant="/data/height_unit = 0.3048"/>
+			<bind nodeset="/data/ft_in_height/ft_height" type="xsd:int"/>
+			<bind nodeset="/data/ft_in_height/in_height" type="xsd:int"/>
+			<bind nodeset="/data/bmi_info"/>
+			<bind nodeset="/data/underweight" relevant="/data/bmi &lt; 18.5"/>
+			<bind nodeset="/data/underweight/underweight_counsel"/>
+			<bind nodeset="/data/normal_weight" relevant="/data/bmi &gt;= 18.5 and /data/bmi &lt; 24.9"/>
+			<bind nodeset="/data/normal_weight/normal_weight_counsel"/>
+			<bind nodeset="/data/overweight" relevant="/data/bmi &gt;= 25 and /data/bmi &lt; 29.9"/>
+			<bind nodeset="/data/overweight/overweight_counsel"/>
+			<bind nodeset="/data/obese" relevant="/data/bmi &gt;= 30 and /data/bmi &lt; 34.9"/>
+			<bind nodeset="/data/obese/obese_counsel"/>
+			<bind nodeset="/data/height" calculate="if(/data/height_unit = 0.3048, /data/ft_in_height/ft_height * 0.3048 + /data/ft_in_height/in_height * 0.0254, /data/height_in_units * /data/height_unit)"/>
+			<bind nodeset="/data/bmi" calculate="/data/weight div (/data/height * /data/height)"/>
+			<itext>
+				<translation lang="hin" default="">
+					<text id="intro-label">
+						<value>&#2351;&#2361; &#2347;&#2377;&#2352;&#2381;&#2350; &#2310;&#2346;&#2325;&#2368; &#2348;&#2377;&#2337;&#2368; &#2350;&#2366;&#2360; &#2311;&#2306;&#2337;&#2375;&#2325;&#2381;&#2360; /&#2348;&#2368;.&#2319;&#2350;&#2381;.&#2310;&#2312;. &#2348;&#2340;&#2366;&#2319;&#2327;&#2366; | &#2350;&#2340;&#2354;&#2348; &#2310;&#2346;&#2325;&#2375; &#2325;&#2342; &#2325;&#2375; &#2361;&#2367;&#2360;&#2366;&#2348; &#2360;&#2375; &#2325;&#2381;&#2351;&#2366; &#2310;&#2346;&#2325;&#2366; &#2357;&#2395;&#2344; &#2325;&#2350; &#2361;&#2376; , &#2332;&#2381;&#2351;&#2366;&#2342;&#2366; &#2361;&#2376; &#2351;&#2366; &#2348;&#2367;&#2354;&#2325;&#2369;&#2354; &#2336;&#2368;&#2325; &#2361;&#2376; |
+</value>
+					</text>
+					<text id="weight-label">
+						<value>&#2310;&#2346;&#2325;&#2366; &#2357;&#2395;&#2344; &#2354;&#2367;&#2326;&#2367;&#2319; 
+</value>
+					</text>
+					<text id="height_unit-label">
+						<value>&#2310;&#2346;&#2325;&#2366; &#2325;&#2342; &#2325;&#2367;&#2360; &#2361;&#2367;&#2360;&#2366;&#2348; &#2350;&#2375;&#2306; &#2354;&#2367;&#2326;&#2375;&#2306;&#2327;&#2368;?
+</value>
+						<value form="image">jr://file/commcare/womenHealth/image/data/height_unit.png</value>
+					</text>
+					<text id="height_unit-0.3048-label">
+						<value>&#2347;&#2370;&#2335; 
+</value>
+					</text>
+					<text id="height_unit-0.01-label">
+						<value>&#2360;&#2375;&#2306;&#2335;&#2368;&#2350;&#2368;&#2335;&#2352;
+</value>
+					</text>
+					<text id="height_in_units-label">
+						<value>&#2314;&#2346;&#2352; &#2330;&#2369;&#2344;&#2375; &#2327;&#2319; &#2361;&#2367;&#2360;&#2366;&#2348; &#2360;&#2375; &#2310;&#2346;&#2325;&#2366; &#2325;&#2342; &#2354;&#2367;&#2326;&#2367;&#2319; 
+</value>
+					</text>
+					<text id="ft_in_height-label">
+						<value>&#2310;&#2346;&#2325;&#2366; &#2325;&#2342; &#2325;&#2367;&#2360; &#2361;&#2367;&#2360;&#2366;&#2348; &#2350;&#2375;&#2306; &#2354;&#2367;&#2326;&#2375;&#2306;&#2327;&#2368;?
+</value>
+					</text>
+					<text id="ft_height-label">
+						<value>&#2347;&#2370;&#2335; 
+</value>
+					</text>
+					<text id="in_height-label">
+						<value>&#2311;&#2306;&#2330;
+</value>
+					</text>
+					<text id="bmi_info-label">
+						<value>&#2310;&#2346;&#2325;&#2366; &#2348;&#2368;.&#2319;&#2350;&#2381;.&#2310;&#2312; &#2361;&#2376; <output ref="/data/bmi"/>
+</value>
+					</text>
+					<text id="underweight-label">
+						<value>&#2310;&#2346;&#2325;&#2375; &#2325;&#2342; &#2325;&#2375; &#2361;&#2367;&#2360;&#2366;&#2348; &#2360;&#2375; &#2310;&#2346;&#2325;&#2366; &#2357;&#2395;&#2344; &#2325;&#2350; &#2361;&#2376; 
+</value>
+					</text>
+					<text id="underweight_counsel-label">
+						<value>&#2310;&#2346;&#2325;&#2375; &#2357;&#2395;&#2344; &#2325;&#2350; &#2361;&#2376; | &#2310;&#2346;&#2325;&#2379; &#2346;&#2380;&#2359;&#2381;&#2335;&#2367;&#2325; &#2349;&#2379;&#2332;&#2344; &#2325;&#2368; &#2395;&#2352;&#2369;&#2352;&#2340; &#2361;&#2376; &#2332;&#2376;&#2360;&#2375; &#2325;&#2368; &#2347;&#2354; , &#2361;&#2352;&#2368; &#2360;&#2348;&#2381;&#2332;&#2367;&#2351;&#2366;&#2306; , &#2327;&#2375;&#2361;&#2370;&#2306;, &#2342;&#2361;&#2368;, &#2342;&#2370;&#2343;, &#2342;&#2366;&#2354;, &#2309;&#2306;&#2337;&#2375;,   &#2332;&#2367;&#2360;&#2360;&#2375; &#2310;&#2346;&#2325;&#2379; &#2309;&#2343;&#2367;&#2325; &#2310;&#2351;&#2352;&#2344; &#2324;&#2352; &#2346;&#2381;&#2352;&#2379;&#2335;&#2368;&#2339; &#2350;&#2367;&#2354;&#2375; | &#2311;&#2360;&#2360;&#2375; &#2310;&#2346;&#2325;&#2375; &#2358;&#2366;&#2352;&#2368;&#2352; &#2325;&#2379; &#2354;&#2366;&#2349; &#2361;&#2379;&#2327;&#2366; |
+</value>
+						<value form="image">jr://file/commcare/womenHealth/image/data/underweight_counsel.png</value>
+					</text>
+					<text id="normal_weight-label">
+						<value>&#2310;&#2346;&#2325;&#2375; &#2325;&#2342; &#2325;&#2375; &#2361;&#2367;&#2360;&#2366;&#2348; &#2360;&#2375; &#2310;&#2346;&#2325;&#2366; &#2357;&#2395;&#2344; &#2348;&#2367;&#2354;&#2325;&#2369;&#2354; &#2336;&#2368;&#2325; &#2361;&#2376; |
+</value>
+					</text>
+					<text id="normal_weight_counsel-label">
+						<value>&#2346;&#2380;&#2359;&#2381;&#2335;&#2367;&#2325; &#2326;&#2366;&#2344;&#2366; &#2326;&#2366;&#2344;&#2366; &#2332;&#2366;&#2352;&#2368; &#2352;&#2326;&#2367;&#2351;&#2375; &#2332;&#2367;&#2360;&#2360;&#2375; &#2310;&#2346;&#2325;&#2379; &#2347;&#2354;, &#2360;&#2348;&#2381;&#2332;&#2367;&#2351;&#2366;&#2306; , &#2327;&#2375;&#2361;&#2379;&#2314;&#2305;, &#2342;&#2354;, &#2342;&#2361;&#2368; , &#2309;&#2306;&#2337;&#2375; &#2350;&#2367;&#2354;&#2375;&#2306; &#2324;&#2352; &#2309;&#2346;&#2381;&#2346;&#2325;&#2375; &#2358;&#2352;&#2368;&#2352; &#2325;&#2379; &#2310;&#2351;&#2352;&#2344; &#2324;&#2352; &#2346;&#2381;&#2352;&#2379;&#2335;&#2368;&#2344; &#2350;&#2367;&#2354;&#2375; |
+</value>
+						<value form="image">jr://file/commcare/womenHealth/image/data/underweight_counsel.png</value>
+					</text>
+					<text id="overweight-label">
+						<value>&#2310;&#2346;&#2325;&#2375; &#2325;&#2342; &#2325;&#2375; &#2361;&#2367;&#2360;&#2366;&#2348; &#2360;&#2375; &#2310;&#2346;&#2325;&#2366; &#2357;&#2395;&#2344; &#2332;&#2381;&#2351;&#2366;&#2342;&#2366; &#2361;&#2376; 
+</value>
+					</text>
+					<text id="overweight_counsel-label">
+						<value>&#2325;&#2350; &#2340;&#2375;&#2354; &#2324;&#2352; &#2330;&#2368;&#2344;&#2375; &#2350;&#2375;&#2306; &#2348;&#2344;&#2375; &#2346;&#2380;&#2359;&#2381;&#2335;&#2367;&#2325; &#2326;&#2366;&#2344;&#2366; &#2326;&#2366;&#2344;&#2375; &#2325;&#2368; &#2325;&#2379;&#2358;&#2367;&#2358; &#2325;&#2368;&#2332;&#2367;&#2351;&#2375;| &#2342;&#2367;&#2344; &#2349;&#2352; &#2309;&#2346;&#2344;&#2375; &#2310;&#2346; &#2325;&#2379; &#2330;&#2369;&#2360;&#2381;&#2340; &#2352;&#2326;&#2375;&#2306;  
+</value>
+						<value form="image">jr://file/commcare/womenHealth/image/data/underweight_counsel.png</value>
+					</text>
+					<text id="obese-label">
+						<value>&#2325;&#2342; &#2325;&#2375; &#2361;&#2367;&#2360;&#2366;&#2348; &#2360;&#2375; &#2310;&#2346;&#2325;&#2366; &#2357;&#2395;&#2344; &#2348;&#2361;&#2369;&#2340; &#2361;&#2368; &#2332;&#2381;&#2351;&#2366;&#2342;&#2366; &#2361;&#2376; |
+</value>
+					</text>
+					<text id="obese_counsel-label">
+						<value>&#2325;&#2350; &#2340;&#2375;&#2354; &#2324;&#2352; &#2330;&#2368;&#2344;&#2375; &#2350;&#2375;&#2306; &#2348;&#2344;&#2375; &#2346;&#2380;&#2359;&#2381;&#2335;&#2367;&#2325; &#2326;&#2366;&#2344;&#2366; &#2326;&#2366;&#2311;&#2319; | &#2342;&#2367;&#2344; &#2349;&#2352; &#2309;&#2346;&#2344;&#2375; &#2310;&#2346; &#2325;&#2379; &#2330;&#2369;&#2360;&#2381;&#2340; &#2352;&#2326;&#2375;&#2306; &#2324;&#2352; &#2357;&#2381;&#2351;&#2366;&#2351;&#2366;&#2350; &#2325;&#2352;&#2375;&#2306; |
+</value>
+						<value form="image">jr://file/commcare/womenHealth/image/data/underweight_counsel.png</value>
+					</text>
+				</translation>
+				<translation lang="en">
+					<text id="intro-label">
+						<value>This form will calculate your body mass index, or BMI. It will estimate if you are overweight, underweight, or normal weight.</value>
+					</text>
+					<text id="weight-label">
+						<value>Your weight in Kilos (KG)?</value>
+					</text>
+					<text id="height_unit-label">
+						<value>Choose units for Height?</value>
+						<value form="image">jr://file/commcare/womenHealth/image/data/height_unit.png</value>
+					</text>
+					<text id="height_unit-0.3048-label">
+						<value>Feet Inches (ft)</value>
+					</text>
+					<text id="height_unit-0.01-label">
+						<value>Centimeters (cm)</value>
+					</text>
+					<text id="height_in_units-label">
+						<value>Your height in the unit you chose?</value>
+					</text>
+					<text id="ft_in_height-label">
+						<value>Your height?</value>
+					</text>
+					<text id="ft_height-label">
+						<value>Feet</value>
+					</text>
+					<text id="in_height-label">
+						<value>Inches</value>
+					</text>
+					<text id="bmi_info-label">
+						<value>Your BMI is <output ref="/data/bmi"/></value>
+					</text>
+					<text id="underweight-label">
+						<value>You are underweight</value>
+					</text>
+					<text id="underweight_counsel-label">
+						<value>You are underweight. You should consume more, particularly healthy foods like like fruits, vegetables, and grains, focusing on foods rich in protein and iron. </value>
+						<value form="image">jr://file/commcare/womenHealth/image/data/underweight_counsel.png</value>
+					</text>
+					<text id="normal_weight-label">
+						<value>You are of normal weight.</value>
+					</text>
+					<text id="normal_weight_counsel-label">
+						<value>Continue eating healthy foods and maintaining a balanced diet, full of fruits, vegetables, and grains, focusing on foods rich in protein and iron. </value>
+						<value form="image">jr://file/commcare/womenHealth/image/data/underweight_counsel.png</value>
+					</text>
+					<text id="overweight-label">
+						<value>You are overweight.</value>
+					</text>
+					<text id="overweight_counsel-label">
+						<value>You should consume less food, and focus on eating healthy foods like fruits, vegetables, and grains, while limiting fats, oils, and sugars. Keep active and moving during the day. </value>
+						<value form="image">jr://file/commcare/womenHealth/image/data/underweight_counsel.png</value>
+					</text>
+					<text id="obese-label">
+						<value>You are obese</value>
+					</text>
+					<text id="obese_counsel-label">
+						<value>You should consume less food, and focus on eating healthy foods like fruits, vegetables, and grains, while limiting fats, oils, and sugars. Keep active and moving during the day. </value>
+						<value form="image">jr://file/commcare/womenHealth/image/data/underweight_counsel.png</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/bmi" nodeset="/data/case/update/bmi" relevant="count(/data/bmi) &gt; 0"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/intro" appearance="minimal">
+			<label ref="jr:itext('intro-label')"/>
+		</trigger>
+		<input ref="/data/weight">
+			<label ref="jr:itext('weight-label')"/>
+		</input>
+		<select1 ref="/data/height_unit">
+			<label ref="jr:itext('height_unit-label')"/>
+			<item>
+				<label ref="jr:itext('height_unit-0.3048-label')"/>
+				<value>0.3048</value>
+			</item>
+			<item>
+				<label ref="jr:itext('height_unit-0.01-label')"/>
+				<value>0.01</value>
+			</item>
+		</select1>
+		<input ref="/data/height_in_units">
+			<label ref="jr:itext('height_in_units-label')"/>
+		</input>
+		<group ref="/data/ft_in_height" appearance="field-list">
+			<label ref="jr:itext('ft_in_height-label')"/>
+			<input ref="/data/ft_in_height/ft_height">
+				<label ref="jr:itext('ft_height-label')"/>
+			</input>
+			<input ref="/data/ft_in_height/in_height">
+				<label ref="jr:itext('in_height-label')"/>
+			</input>
+		</group>
+		<trigger ref="/data/bmi_info" appearance="minimal">
+			<label ref="jr:itext('bmi_info-label')"/>
+		</trigger>
+		<group ref="/data/underweight" appearance="field-list">
+			<label ref="jr:itext('underweight-label')"/>
+			<trigger ref="/data/underweight/underweight_counsel" appearance="minimal">
+				<label ref="jr:itext('underweight_counsel-label')"/>
+			</trigger>
+		</group>
+		<group ref="/data/normal_weight" appearance="field-list">
+			<label ref="jr:itext('normal_weight-label')"/>
+			<trigger ref="/data/normal_weight/normal_weight_counsel" appearance="minimal">
+				<label ref="jr:itext('normal_weight_counsel-label')"/>
+			</trigger>
+		</group>
+		<group ref="/data/overweight" appearance="field-list">
+			<label ref="jr:itext('overweight-label')"/>
+			<trigger ref="/data/overweight/overweight_counsel" appearance="minimal">
+				<label ref="jr:itext('overweight_counsel-label')"/>
+			</trigger>
+		</group>
+		<group ref="/data/obese" appearance="field-list">
+			<label ref="jr:itext('obese-label')"/>
+			<trigger ref="/data/obese/obese_counsel" appearance="minimal">
+				<label ref="jr:itext('obese_counsel-label')"/>
+			</trigger>
+		</group>
+	</h:body>
+</h:html>
