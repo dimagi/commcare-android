@@ -1,6 +1,9 @@
 package org.commcare.android.logging;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
@@ -88,6 +91,16 @@ public class ReportingUtils {
             return AppUtils.getCurrentVersionString();
         } catch (Exception e) {
             return "Version not set.";
+        }
+    }
+
+    public static String getCommCareVersionString() {
+        Context c = CommCareApplication.instance();
+        try {
+            PackageInfo pi = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
+            return pi.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            return "";
         }
     }
 
