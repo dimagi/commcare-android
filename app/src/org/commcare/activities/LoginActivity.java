@@ -89,6 +89,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private LoginActivityUIController uiController;
     private FormAndDataSyncer formAndDataSyncer;
+    private DataPullController.DataPullMode lastDataPullMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,6 +199,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void startDataPull(DataPullMode mode) {
+        this.lastDataPullMode = mode;
         switch(mode) {
             case CONSUMER_APP:
                 formAndDataSyncer.performLocalRestore(this, getUniformUsername(),
@@ -300,10 +302,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         return uiController.getEnteredUsername().toLowerCase().trim();
     }
 
-    private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession) {
+    private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession,
+                                  boolean forCustomDemoUser) {
         //TODO: check username/password for emptiness
         return tryLocalLogin(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
-                warnMultipleAccounts, restoreSession, uiController.getLoginMode(), false);
+                warnMultipleAccounts, restoreSession, uiController.getLoginMode(), forCustomDemoUser);
     }
 
     private boolean tryLocalLogin(final String username, String passwordOrPin,
@@ -566,7 +569,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void localLoginOrPullAndLogin(boolean restoreSession) {
-        if (tryLocalLogin(false, restoreSession)) {
+        if (tryLocalLogin(false, restoreSession, false)) {
             return;
         }
 
@@ -611,7 +614,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 raiseLoginMessage(StockMessages.Storage_Full, true);
                 break;
             case DOWNLOAD_SUCCESS:
-                if (!tryLocalLogin(true, uiController.isRestoreSessionChecked())) {
+                if (!tryLocalLogin(true, uiController.isRestoreSessionChecked(),
+                        this.lastDataPullMode == DataPullMode.CCZ_DEMO)) {
                     raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
                 }
                 break;
