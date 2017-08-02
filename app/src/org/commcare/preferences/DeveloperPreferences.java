@@ -238,15 +238,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
                     DevSessionRestorer.clearSession();
                 }
                 setSessionEditText();
-
-                break;
-            case LOAD_FORM_PAYLOAD_AS:
-                if (!formLoadPayloadStatus().equals(FormRecord.STATUS_SAVED)) {
-                    // clear submission server so that 'unsent' forms that are loaded don't get sent to HQ
-                    CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                            .putString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, "")
-                            .apply();
-                }
                 break;
         }
     }
