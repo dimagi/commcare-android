@@ -474,6 +474,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 adapter.notifyDataSetInvalidated();
             }
         });
+        record.logManualQuarantine();
     }
 
     /**
