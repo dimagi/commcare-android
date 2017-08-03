@@ -313,7 +313,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         if (results[i] == FormUploadResult.RECORD_FAILURE) {
                             //We tried to submit multiple times and there was a local problem (not a remote problem).
                             //This implies that something is wrong with the current record, and we need to quarantine it.
-                            processor.updateRecordStatus(record, FormRecord.STATUS_LIMBO);
+                            processor.updateRecordStatus(record, FormRecord.STATUS_QUARANTINED);
                             Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Quarantined Form Record");
                             CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
                         }

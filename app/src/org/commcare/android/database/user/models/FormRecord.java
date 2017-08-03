@@ -61,7 +61,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * This form was complete, but something blocked it from processing and it's in a damaged
      * state (a.k.a. "quarantined")
      */
-    public static final String STATUS_LIMBO = "limbo";
+    public static final String STATUS_QUARANTINED = "limbo";
 
     /**
      * This form has been downloaded, but not processed for metadata

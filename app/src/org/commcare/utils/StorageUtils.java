@@ -8,7 +8,6 @@ import org.commcare.android.database.user.models.FormRecord;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Vector;
 
 /**
@@ -57,7 +56,7 @@ public class StorageUtils {
     }
 
     public static int getNumQuarantinedForms() {
-        return getNumFormsWithStatus(FormRecord.STATUS_LIMBO);
+        return getNumFormsWithStatus(FormRecord.STATUS_QUARANTINED);
     }
 
     public static int getNumUnsentForms() {

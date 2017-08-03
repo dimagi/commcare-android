@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -91,6 +92,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     private boolean incompleteMode;
 
+    private FormRecordProcessor formRecordProcessor;
+
     public enum FormRecordFilter {
 
         /**
@@ -116,7 +119,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         /**
          * Limbo forms
          **/
-        Limbo("form.record.filter.limbo", new String[]{FormRecord.STATUS_LIMBO});
+        Limbo("form.record.filter.limbo", new String[]{FormRecord.STATUS_QUARANTINED });
 
         FormRecordFilter(String message, String[] statuses) {
             this.message = message;
@@ -223,6 +226,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         if (!isUsingActionBar()) {
             setSearchText(lastQueryString);
         }
+        this.formRecordProcessor = new FormRecordProcessor(this);
     }
 
     private static void callBarcodeScanIntent(Activity act) {
@@ -389,9 +393,12 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         FormRecord value = (FormRecord)adapter.getItem(info.position);
 
         menu.add(Menu.NONE, OPEN_RECORD, OPEN_RECORD, Localization.get("app.workflow.forms.open"));
-        menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, Localization.get("app.workflow.forms.delete"));
 
-        if (FormRecord.STATUS_LIMBO.equals(value.getStatus())) {
+        if (!FormRecord.STATUS_UNSENT.equals(value.getStatus())) {
+            menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, Localization.get("app.workflow.forms.delete"));
+        }
+
+        if (FormRecord.STATUS_QUARANTINED.equals(value.getStatus())) {
             menu.add(Menu.NONE, RESTORE_RECORD, RESTORE_RECORD, Localization.get("app.workflow.forms.restore"));
         }
 
@@ -427,7 +434,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 case SCAN_RECORD:
                     FormRecord theRecord = (FormRecord)adapter.getItem(info.position);
                     Pair<Boolean, String> result = new FormRecordProcessor(this).verifyFormRecordIntegrity(theRecord);
-                    createFormRecordScanResultDialog(result);
+                    createFormRecordScanResultDialog(result, theRecord);
             }
             return true;
         } catch (SessionUnavailableException e) {
@@ -436,7 +443,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
     }
 
-    private void createFormRecordScanResultDialog(Pair<Boolean, String> result) {
+    private void createFormRecordScanResultDialog(Pair<Boolean, String> result, FormRecord record) {
         String title;
         if (result.first) {
             title = Localization.get("app.workflow.forms.scan.title.valid");
@@ -444,8 +451,21 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             title = Localization.get("app.workflow.forms.scan.title.invalid");
         }
         int resId = result.first ? R.drawable.checkmark : R.drawable.redx;
-        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
-                result.second, resId, null));
+
+        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
+                result.second, resId, null);
+
+        if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
+            dialog.setNegativeButton(Localization.get("app.workflow.forms.delete"), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    FormRecordListActivity.this.formRecordProcessor.updateRecordStatus(
+                            record, FormRecord.STATUS_QUARANTINED);
+                }
+            });
+        }
+
+        showAlertDialog(dialog);
     }
 
     /**
@@ -550,11 +570,10 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
 
     private void generateQuarantineReport() {
-        FormRecordProcessor processor = new FormRecordProcessor(this);
         Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Beginning form Quarantine report");
         for (int i = 0; i < adapter.getCount(); ++i) {
             FormRecord r = (FormRecord)adapter.getItem(i);
-            Pair<Boolean, String> integrity = processor.verifyFormRecordIntegrity(r);
+            Pair<Boolean, String> integrity = this.formRecordProcessor.verifyFormRecordIntegrity(r);
             String passfail = integrity.first ? "PASS:" : "FAIL:";
             Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, passfail + integrity.second);
         }
