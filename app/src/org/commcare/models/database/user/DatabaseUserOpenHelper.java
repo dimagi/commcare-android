@@ -55,7 +55,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.16 - Add type -> id index for case index storage
      * V.17 - Add global counter metadata field to form records, for use in submission ordering
      * V.18 - Add index on @owner_id for cases
-     * V.19 - Migrate index names on indexed fixtures so that multiple fixtures are able to have an index on the same column name
+     * V.19 - Rebuild case index table due to the possibility of previous 412 indexing issues
+     * V.20 - Migrate index names on indexed fixtures so that multiple fixtures are able to have an index on the same column name
      */
 
     private static final int USER_DB_VERSION = 19;
@@ -79,9 +80,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
+        database.beginTransaction();
         try {
-            database.beginTransaction();
-
             TableBuilder builder = new TableBuilder(ACase.STORAGE_KEY);
             builder.addData(new ACase());
             builder.setUnique(ACase.INDEX_CASE_ID);
@@ -194,9 +194,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
     public static void buildTable(SQLiteDatabase database,
                                   String tableName,
                                   Persistable dataObject) {
+        database.beginTransaction();
         try {
-            database.beginTransaction();
-
             TableBuilder builder = new TableBuilder(tableName);
             builder.addData(dataObject);
             database.execSQL(builder.getTableCreateString());
@@ -208,8 +207,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
     public static void dropTable(SQLiteDatabase database,
                                  String tableName) {
+        database.beginTransaction();
         try {
-            database.beginTransaction();
             database.execSQL("DROP TABLE IF EXISTS '" + tableName + "'");
             database.setTransactionSuccessful();
         } finally {

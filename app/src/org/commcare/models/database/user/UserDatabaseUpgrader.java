@@ -155,6 +155,11 @@ class UserDatabaseUpgrader {
                 oldVersion = 19;
             }
         }
+        if (oldVersion == 19) {
+            if (upgradeNineteenTwenty(db)) {
+                oldVersion = 20;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -517,7 +522,23 @@ class UserDatabaseUpgrader {
         }
     }
 
+
     private boolean upgradeEighteenNineteen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            AndroidCaseIndexTable indexTable = new AndroidCaseIndexTable(db);
+            indexTable.reIndexAllCases(caseStorage);
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+    
+    private boolean upgradeNineteenTwenty(SQLiteDatabase db) {
         db.beginTransaction();
         try {
             List<String> allIndexedFixtures = IndexedFixturePathUtils.getAllIndexedFixtureNames(db);

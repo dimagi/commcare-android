@@ -242,8 +242,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         SQLiteDatabase db;
         db = helper.getHandle();
         int i = -1;
+        db.beginTransaction();
         try {
-            db.beginTransaction();
             long ret = db.insertOrThrow(table, DatabaseHelper.DATA_COL, helper.getContentValues(e));
 
             if (ret > Integer.MAX_VALUE) {
@@ -519,8 +519,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             return;
         }
         SQLiteDatabase db = helper.getHandle();
+        db.beginTransaction();
         try {
-            db.beginTransaction();
             long ret = db.insertOrThrow(table, DatabaseHelper.DATA_COL, helper.getContentValues(p));
 
             if (ret > Integer.MAX_VALUE) {
@@ -543,10 +543,10 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, LegacyInstallUtils.CopyMapper<T> mapper) {
         to.removeAll();
         SQLiteDatabase toDb = to.helper.getHandle();
+        toDb.beginTransaction();
+
         try {
             Hashtable<Integer, Integer> idMapping = new Hashtable<>();
-            toDb.beginTransaction();
-
             for (T t : from) {
                 int key = t.getID();
                 //Clear the ID, we don't wanna guarantee it
