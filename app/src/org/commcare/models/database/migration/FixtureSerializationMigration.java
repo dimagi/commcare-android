@@ -52,9 +52,11 @@ public class FixtureSerializationMigration {
         // wait longer to make sure this can finish.
         CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
         long start = System.currentTimeMillis();
-        db.beginTransaction();
+
         ConcreteAndroidDbHelper helper = new ConcreteAndroidDbHelper(c, db);
         DataInputStream fixtureByteStream = null;
+
+        db.beginTransaction();
         try {
             HybridFileBackedSqlStorage<Persistable> fixtureStorage;
             if (fileMigrationKeySeed != null) {
@@ -109,9 +111,9 @@ public class FixtureSerializationMigration {
 
     public static void stageFixtureTables(SQLiteDatabase db) {
         db.beginTransaction();
-        boolean resumingMigration = doesTempFixtureTableExist(db);
-
         try {
+            boolean resumingMigration = doesTempFixtureTableExist(db);
+
             DbUtil.createOrphanedFileTable(db);
             if (resumingMigration) {
                 db.execSQL("DROP TABLE IF EXISTS fixture;");

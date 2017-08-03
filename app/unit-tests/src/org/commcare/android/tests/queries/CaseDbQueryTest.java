@@ -3,7 +3,14 @@ package org.commcare.android.tests.queries;
 import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestUtils;
+import org.commcare.cases.query.QueryContext;
+import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
+import org.javarosa.core.model.utils.InstrumentationUtils;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -13,6 +20,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.robolectric.annotation.Config;
+
+import java.util.Collection;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -129,6 +138,35 @@ public class CaseDbQueryTest {
         evaluate("join(',',instance('casedb')/casedb/case[selected('', index/parent)]/@case_id)", "", ec);
     }
 
+
+    @Test
+    public void testModelQueryTransformFallback() throws XPathSyntaxException {
+        TestUtils.processResourceTransaction("/inputs/case_test_model_query_fallbacks.xml");
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+
+        evaluate("join(',',instance('casedb')/casedb/case[@case_type='unit_test_child_child'][@status='open'][" +
+                "string(instance('casedb')/casedb/case[@case_id = instance('casedb')/casedb/case[@case_id=current()/index/parent]/index/parent]/case_name) = 'Valid']/@case_id)", "child_ptwo_one_one", ec);
+
+
+        TreeReference unexpanded=
+                XPathReference.getPathExpr("instance('casedb')/casedb/case[@case_type='unit_test_child_child'][@status='open']").getReference();
+
+
+        Collection<TreeReference> references = ec.expandReference(unexpanded);
+
+        QueryContext qc = ec.getCurrentQueryContext();
+        qc.setHackyOriginalContextBody(new CurrentModelQuerySet(references));
+        ec.setQueryContext(qc);
+
+        //TODO: Set up a trace reporter which tracks events specifically, and test that this
+        //full loop doesn't do model loads of any of the "Irrelevant" type cases
+        XPathExpression name = XPathParseTool.parseXPath("string(instance('casedb')/casedb/case[@case_id = instance('casedb')/casedb/case[@case_id=current()/index/parent]/index/parent]/case_name)");
+        for(TreeReference currentRef : references) {
+            EvaluationContext subEc = new EvaluationContext(ec, currentRef);
+            FunctionUtils.toString(name.eval(subEc));
+        }
+
+    }
 
 
     public static void evaluate(String xpath, String expectedValue, EvaluationContext ec) {

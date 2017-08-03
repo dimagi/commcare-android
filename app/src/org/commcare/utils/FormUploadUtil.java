@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import org.commcare.logging.AndroidLogger;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.DataSubmissionListener;
@@ -208,10 +209,10 @@ public class FormUploadUtil {
 
     /**
      * Validate the content body of the XML submission file.
-     *
+     * <p>
      * TODO: this should really be the responsibility of the form record, not
      * of the submission process, persay.
-     *
+     * <p>
      * NOTE: this is a shallow validation (everything should be more or else
      * constant time).  Throws an exception if the file is gone because that's
      * a common issue that gets caught to check if storage got removed
@@ -273,6 +274,9 @@ public class FormUploadUtil {
                                                 File[] files)
             throws FileNotFoundException {
 
+        int numAttachmentsInInstanceFolder = 0;
+        int numAttachmentsSuccessfullyAdded = 0;
+
         for (File f : files) {
             if (f.getName().endsWith(".xml")) {
                 if (key != null) {
@@ -283,23 +287,38 @@ public class FormUploadUtil {
                 } else {
                     parts.add(createFilePart("xml_submission_file", f, "text/xml"));
                 }
-            } else if (f.length() > MAX_BYTES) {
-                Log.i(TAG, "file " + f.getName() + " is too big");
             } else {
                 String contentType = getFileContentType(f);
                 if (contentType != null) {
-                    parts.add(createFilePart(f.getName(), f, contentType));
-                    Log.i(TAG, "file " + f.getName() + " of type " + contentType.substring(0, contentType.indexOf("/")) + " added");
+                    numAttachmentsInInstanceFolder++;
+                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, contentType);
                 } else if (isSupportedMultimediaFile(f.getName())) {
-                    parts.add(createFilePart(f.getName(), f, "application/octet-stream"));
-                    Log.i(TAG, "added unknown file " + f.getName());
+                    numAttachmentsInInstanceFolder++;
+                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, "application/octet-stream");
                 } else {
-                    Log.w(TAG, "unsupported file type, not adding file: " + f.getName());
+                    Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
+                            "Could not add unsupported file type to submission entity: " + f.getName());
                 }
             }
         }
+        Logger.log(LogTypes.TYPE_FORM_SUBMISSION, "Attempted to add "
+                + numAttachmentsInInstanceFolder + " attachments to submission entity");
+        Logger.log(LogTypes.TYPE_FORM_SUBMISSION, "Successfully added "
+                + numAttachmentsSuccessfullyAdded + " attachments to submission entity");
         return true;
     }
+
+    private static int addPartToEntity(List<MultipartBody.Part> parts, File f, String contentType) {
+        if (f.length() <= MAX_BYTES) {
+            parts.add(createFilePart(f.getName(), f, contentType));
+            return 1;
+        } else {
+            Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
+                    "Failed to add attachment to submission entity (too large): " + f.getName());
+            return 0;
+        }
+    }
+
 
     private static String getFileContentType(File f) {
         if (f.getName().endsWith(".xml")) {

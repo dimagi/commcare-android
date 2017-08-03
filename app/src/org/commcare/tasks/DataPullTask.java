@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.data.xml.DataModelPullParser;
@@ -16,6 +17,7 @@ import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
@@ -496,7 +498,7 @@ public abstract class DataPullTask<R>
 
         //Wipe storage
         //TODO: move table instead. Should be straightforward with sandboxed db's
-        CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
+        wipeStorageForFourTwelveSync();
 
         String failureReason = "";
         try {
@@ -523,6 +525,12 @@ public abstract class DataPullTask<R>
         //TODO: Roll back changes
         Logger.log(LogTypes.TYPE_USER, "Sync recovery failed|" + failureReason);
         return new Pair<>(PROGRESS_RECOVERY_FAIL_BAD, failureReason);
+    }
+
+    private void wipeStorageForFourTwelveSync() {
+        CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
+        new AndroidCaseIndexTable().wipeTable();
+        CommCareApplication.instance().getUserStorage(Ledger.STORAGE_KEY, Ledger.class).removeAll();
     }
 
     private void updateCurrentUser(String password) {
@@ -555,8 +563,8 @@ public abstract class DataPullTask<R>
 
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
         SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
+        db.beginTransaction();
         try {
-            db.beginTransaction();
             parser = new DataModelPullParser(stream, factory, true, false, this);
             parser.parse();
             db.setTransactionSuccessful();

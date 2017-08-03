@@ -132,7 +132,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
     private HashMap getHeaders(String lastToken) {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("X-OpenRosa-Version", "2.0");
+        headers.put("X-OpenRosa-Version", "2.1");
         if (lastToken != null) {
             headers.put("X-CommCareHQ-LastSyncToken", lastToken);
         }

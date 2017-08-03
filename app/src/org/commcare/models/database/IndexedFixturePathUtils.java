@@ -67,9 +67,8 @@ public class IndexedFixturePathUtils {
         contentValues.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_CHILD, childName);
         contentValues.put(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME, fixtureName);
 
+        db.beginTransaction();
         try {
-            db.beginTransaction();
-
             long ret = db.insertOrThrow(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
                     IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE,
                     contentValues);
@@ -92,8 +91,8 @@ public class IndexedFixturePathUtils {
     public static void buildFixtureIndices(SQLiteDatabase database,
                                            String tableName,
                                            Set<String> indices) {
+        database.beginTransaction();
         try {
-            database.beginTransaction();
             for (String indexStmt : DatabaseIndexingUtils.getIndexStatements(tableName, indices)) {
                 database.execSQL(indexStmt);
             }
