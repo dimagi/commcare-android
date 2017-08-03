@@ -226,6 +226,11 @@ public abstract class DataPullTask<R>
 
     private ResultAndError<PullTaskResult> getRequestResultOrRetry(AndroidTransactionParserFactory factory) {
         while (asyncRestoreHelper.retryWaitPeriodInProgress()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+            }
+            
             if (isCancelled()) {
                 return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE);
             }
@@ -470,6 +475,11 @@ public abstract class DataPullTask<R>
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
     private Pair<Integer, String> recover(HttpRequestEndpoints requestor, AndroidTransactionParserFactory factory) {
         while (asyncRestoreHelper.retryWaitPeriodInProgress()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+            }
+
             if (isCancelled()) {
                 return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE,
                         "Task was cancelled during recovery sync");
