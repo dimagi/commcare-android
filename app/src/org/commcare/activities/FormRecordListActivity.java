@@ -455,17 +455,25 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
                 result.second, resId, null);
 
-        if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
-            dialog.setNegativeButton(Localization.get("app.workflow.forms.delete"), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    FormRecordListActivity.this.formRecordProcessor.updateRecordStatus(
-                            record, FormRecord.STATUS_QUARANTINED);
-                }
-            });
-        }
+        dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                quarantineRecord(record);
+                dismissAlertDialog();
+            }
+        });
 
         showAlertDialog(dialog);
+    }
+
+    private void quarantineRecord(FormRecord record) {
+        this.formRecordProcessor.updateRecordStatus(record, FormRecord.STATUS_QUARANTINED);
+        listView.post(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyDataSetInvalidated();
+            }
+        });
     }
 
     /**
