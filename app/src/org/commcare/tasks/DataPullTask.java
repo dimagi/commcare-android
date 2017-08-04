@@ -226,6 +226,11 @@ public abstract class DataPullTask<R>
 
     private ResultAndError<PullTaskResult> getRequestResultOrRetry(AndroidTransactionParserFactory factory) {
         while (asyncRestoreHelper.retryWaitPeriodInProgress()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+            }
+            
             if (isCancelled()) {
                 return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE);
             }
@@ -403,6 +408,8 @@ public abstract class DataPullTask<R>
      */
     private ResultAndError<PullTaskResult> handleBadLocalState(AndroidTransactionParserFactory factory)
             throws UnknownSyncError {
+        this.publishProgress(PROGRESS_RECOVERY_NEEDED);
+        Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");
         Pair<Integer, String> returnCodeAndMessageFromRecovery = recover(requestor, factory);
         int returnCode = returnCodeAndMessageFromRecovery.first;
         String failureReason = returnCodeAndMessageFromRecovery.second;
@@ -467,26 +474,44 @@ public abstract class DataPullTask<R>
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
     private Pair<Integer, String> recover(HttpRequestEndpoints requestor, AndroidTransactionParserFactory factory) {
-        this.publishProgress(PROGRESS_RECOVERY_NEEDED);
-
-        Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");
-
-        BitCache cache;
-
-        //This chunk is the safe field of operations which can all fail in IO in such a way that we can
-        //just report back that things didn't work and don't need to attempt any recovery or additional
-        //work
-        try {
-            // Make a new request without all of the flags
-            RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, false);
-
-            //We basically only care about a positive response, here. Anything else would have been caught by the other request.
-            if (!(pullResponse.responseCode >= 200 && pullResponse.responseCode < 300)) {
-                return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE, "");
+        while (asyncRestoreHelper.retryWaitPeriodInProgress()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
             }
 
-            //Grab a cache. The plan is to download the incoming data, wipe (move) the existing db, and then
-            //restore fresh from the downloaded file
+            if (isCancelled()) {
+                return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE,
+                        "Task was cancelled during recovery sync");
+            }
+        }
+
+        // This chunk is the safe field of operations which can all fail in IO in such a way that
+        // we can just report back that things didn't work and don't need to attempt any recovery
+        // or additional work
+        BitCache cache;
+        try {
+            // Make a new request without all of the flags
+            RemoteDataPullResponse pullResponse =
+                    dataPullRequester.makeDataPullRequest(this, requestor, server, false);
+
+            if (!(pullResponse.responseCode >= 200 && pullResponse.responseCode < 300)) {
+                return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE,
+                        "Received a non-success response during recovery sync");
+            } else if (pullResponse.responseCode == 202) {
+                ResultAndError<PullTaskResult> result =
+                        asyncRestoreHelper.handleRetryResponseCode(pullResponse);
+                if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
+                    asyncRestoreHelper.startReportingServerProgress();
+                    return recover(requestor, factory);
+                } else {
+                    return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE,
+                            "Retry response during recovery sync was improperly formed");
+                }
+            }
+
+            // Grab a cache. The plan is to download the incoming data, wipe (move) the existing
+            // db, and then restore fresh from the downloaded file
             cache = pullResponse.writeResponseToCache(context);
         } catch (IOException e) {
             e.printStackTrace();
@@ -513,7 +538,7 @@ public abstract class DataPullTask<R>
             //Get new data
             String syncToken = readInput(cache.retrieveCache(), factory);
             updateUserSyncToken(syncToken);
-            Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Succesful");
+            Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Successful");
             return new Pair<>(PROGRESS_DONE, "");
         } catch (ActionableInvalidStructureException e) {
             e.printStackTrace();
