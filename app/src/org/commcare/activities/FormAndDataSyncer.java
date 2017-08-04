@@ -229,7 +229,8 @@ public class FormAndDataSyncer {
             @Override
             protected void deliverResult(PullTaskResultReceiver receiver,
                                          ResultAndError<PullTaskResult> resultAndErrorMessage) {
-                receiver.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend);
+                receiver.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend,
+                        !blockRemoteKeyManagement);
             }
 
             @Override
