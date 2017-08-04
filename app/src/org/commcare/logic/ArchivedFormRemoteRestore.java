@@ -42,7 +42,7 @@ public class ArchivedFormRemoteRestore {
             LocalFilePullResponseFactory.setRequestPayloads(new File[]{file});
             requestForms(activity, platform, "fake-server-that-is-never-used", LocalFilePullResponseFactory.INSTANCE, true);
         } else {
-            Toast.makeText(activity, "Restore file doesn't exist", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, "Payload file doesn't exist", Toast.LENGTH_LONG).show();
         }
     }
 

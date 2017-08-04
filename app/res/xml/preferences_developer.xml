@@ -88,8 +88,8 @@
     <EditTextPreference
         android:defaultValue=""
         android:enabled="true"
-        android:key="cc-form-record-file-path"
-        android:title="Form Record File"/>
+        android:key="cc-local-form-payload-file-path"
+        android:title="Local Form Payload File"/>
     <ListPreference
         android:defaultValue="saved"
         android:enabled="true"

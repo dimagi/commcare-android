@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -55,7 +54,6 @@ import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.IncompleteFormRecordView;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -501,7 +499,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             }
         });
         if (!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
-            String source = CommCareServerPreferences.getFormRecordKey();
+            String source = CommCareServerPreferences.getRemoteFormPayloadUrl();
 
             //If there's nowhere to fetch forms from, we can't really go fetch them
             if (!source.equals("")) {
@@ -509,7 +507,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             }
             menu.add(0, MENU_SUBMIT_QUARANTINE_REPORT, MENU_SUBMIT_QUARANTINE_REPORT, Localization.get("app.workflow.forms.quarantine.report"));
 
-            String fileSource = DeveloperPreferences.getFormRecordFilePath();
+            String fileSource = DeveloperPreferences.getLocalFormPayloadFilePath();
             if(!fileSource.isEmpty()){
                 menu.add(0, DOWNLOAD_FORMS_FROM_FILE, 0, Localization.get("app.workflow.forms.fetch.file"));
             }
@@ -536,11 +534,11 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS_FROM_SERVER:
-                String source = CommCareServerPreferences.getFormRecordKey();
+                String source = CommCareServerPreferences.getRemoteFormPayloadUrl();
                 ArchivedFormRemoteRestore.pullArchivedFormsFromServer(source, this, platform);
                 return true;
             case DOWNLOAD_FORMS_FROM_FILE:
-                String sourceFile = DeveloperPreferences.getFormRecordFilePath();
+                String sourceFile = DeveloperPreferences.getLocalFormPayloadFilePath();
                 ArchivedFormRemoteRestore.pullArchivedFormsFromFile(sourceFile, this, platform);
             case MENU_SUBMIT_QUARANTINE_REPORT:
                 generateQuarantineReport();
