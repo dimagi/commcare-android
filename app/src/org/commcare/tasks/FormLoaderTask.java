@@ -202,7 +202,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         }
 
         try {
-            formDef.initialize(isNewFormInstance, iif, getSystemLocale());
+            formDef.initialize(isNewFormInstance, iif, getSystemLocale(), mReadOnly);
         } catch (XPathException e) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
             throw new UserCausedRuntimeException(e.getMessage(), e);
