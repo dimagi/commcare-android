@@ -499,7 +499,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             }
         });
         if (!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
-            String source = CommCareServerPreferences.getRemoteFormPayloadUrl();
+            String source = DeveloperPreferences.getRemoteFormPayloadUrl();
 
             //If there's nowhere to fetch forms from, we can't really go fetch them
             if (!source.equals("")) {
@@ -534,7 +534,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS_FROM_SERVER:
-                String source = CommCareServerPreferences.getRemoteFormPayloadUrl();
+                String source = DeveloperPreferences.getRemoteFormPayloadUrl();
                 ArchivedFormRemoteRestore.pullArchivedFormsFromServer(source, this, platform);
                 return true;
             case DOWNLOAD_FORMS_FROM_FILE:

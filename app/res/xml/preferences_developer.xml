@@ -90,6 +90,11 @@
         android:enabled="true"
         android:key="cc-local-form-payload-file-path"
         android:title="Local Form Payload File"/>
+    <EditTextPreference
+        android:defaultValue="@string/remote_form_payload_url"
+        android:enabled="true"
+        android:key="remote-form-payload-url"
+        android:title="Form Payload Server"/>
     <ListPreference
         android:defaultValue="saved"
         android:enabled="true"

@@ -60,6 +60,8 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
     public static final String SHOW_UPDATE_OPTIONS_SETTING = "cc-show-update-target-options";
     public static final String LOCAL_FORM_PAYLOAD_FILE_PATH = "cc-local-form-payload-file-path";
+    public final static String REMOTE_FORM_PAYLOAD_URL = "remote-form-payload-url";
+
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -99,7 +101,8 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
         prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
         prefKeyToAnalyticsEvent.put(PREFS_CUSTOM_RESTORE_DOC_LOCATION, GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
-        prefKeyToAnalyticsEvent.put(LOCAL_FORM_PAYLOAD_FILE_PATH, GoogleAnalyticsFields.LABEL_FORM_RECORD_FILE_PATH);
+        prefKeyToAnalyticsEvent.put(LOCAL_FORM_PAYLOAD_FILE_PATH, GoogleAnalyticsFields.LABEL_LOCAL_FORM_PAYLOAD_FILE_PATH);
+        prefKeyToAnalyticsEvent.put(REMOTE_FORM_PAYLOAD_URL, GoogleAnalyticsFields.LABEL_REMOTE_FORM_PAYLOAD_URL);
     }
 
     /**
@@ -405,6 +408,11 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public static String getLocalFormPayloadFilePath() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(LOCAL_FORM_PAYLOAD_FILE_PATH, "");
+    }
+
+    public static String getRemoteFormPayloadUrl() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(REMOTE_FORM_PAYLOAD_URL, CommCareApplication.instance().getString(R.string.remote_form_payload_url));
     }
 
     private void hideOrShowDangerousSettings() {

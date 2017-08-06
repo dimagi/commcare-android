@@ -26,17 +26,10 @@
         android:title="Data Server"/>
 
     <EditTextPreference
-        android:defaultValue="@string/remote_form_payload_url"
-        android:enabled="true"
-        android:key="remote-form-payload-url"
-        android:title="Form Payload Server"/>
-
-    <EditTextPreference
         android:defaultValue="@string/key_server"
         android:enabled="true"
         android:key="default_key_server"
         android:title="Key Server"/>
-
 
     <EditTextPreference
         android:defaultValue="@string/support_email_address_default"

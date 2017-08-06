@@ -128,7 +128,6 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_DATA_SERVER = "Data Server";
     public static final String LABEL_SUBMISSION_SERVER = "Submission Server";
     public static final String LABEL_KEY_SERVER = "Key Server";
-    public static final String LABEL_REMOTE_FORM_PAYLOAD_SERVER = "Form Record Server";
     public static final String LABEL_SUPPORT_EMAIL = "Support Email Address";
     public static final String LABEL_AUTO_UPDATE = "Auto Update Frequency";
     public static final String LABEL_FUZZY_SEARCH = "Fuzzy Search Matches";
@@ -159,7 +158,8 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_DETAIL_TAB_SWIPE_ACTION = "Detail tab final swipe action enabled";
     public static final String LABEL_OFFLINE_UPDATE = "Offline Updates enabled";
     public static final String LABEL_CUSTOM_RESTORE = "Custom Restore Requested";
-    public static final String LABEL_FORM_RECORD_FILE_PATH = "Form Record File";
+    public static final String LABEL_LOCAL_FORM_PAYLOAD_FILE_PATH = "Form Payload File";
+    public static final String LABEL_REMOTE_FORM_PAYLOAD_URL = "Form Payload Server";
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
     public static final String LABEL_SETTINGS = "Settings";

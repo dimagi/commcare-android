@@ -27,7 +27,6 @@ public class CommCareServerPreferences
     public final static String PREFS_SUBMISSION_URL_KEY = "PostURL";
     public final static String PREFS_LOG_POST_URL_KEY = "log_receiver_url";
     private final static String PREFS_KEY_SERVER_KEY = "default_key_server";
-    public final static String PREFS_REMOTE_FORM_PAYLOAD_KEY = "remote-form-payload-url";
     public final static String PREFS_HEARTBEAT_URL_KEY = "heartbeat-url";
     public final static String PREFS_SUPPORT_ADDRESS_KEY = "support-email-address";
 
@@ -38,7 +37,6 @@ public class CommCareServerPreferences
         prefKeyToAnalyticsEvent.put(PREFS_DATA_SERVER_KEY, GoogleAnalyticsFields.LABEL_DATA_SERVER);
         prefKeyToAnalyticsEvent.put(PREFS_SUBMISSION_URL_KEY, GoogleAnalyticsFields.LABEL_SUBMISSION_SERVER);
         prefKeyToAnalyticsEvent.put(PREFS_KEY_SERVER_KEY, GoogleAnalyticsFields.LABEL_KEY_SERVER);
-        prefKeyToAnalyticsEvent.put(PREFS_REMOTE_FORM_PAYLOAD_KEY, GoogleAnalyticsFields.LABEL_REMOTE_FORM_PAYLOAD_SERVER);
         prefKeyToAnalyticsEvent.put(PREFS_SUPPORT_ADDRESS_KEY, GoogleAnalyticsFields.LABEL_SUPPORT_EMAIL);
     }
 
@@ -88,10 +86,6 @@ public class CommCareServerPreferences
 
     public static String getSupportEmailAddress() {
         return getServerProperty(PREFS_SUPPORT_ADDRESS_KEY, CommCareApplication.instance().getString(R.string.support_email_address_default)) ;
-    }
-
-    public static String getRemoteFormPayloadUrl() {
-        return getServerProperty(PREFS_REMOTE_FORM_PAYLOAD_KEY, CommCareApplication.instance().getString(R.string.remote_form_payload_url)) ;
     }
 
     private static String getServerProperty(String key, String defaultValue) {
