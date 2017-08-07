@@ -80,6 +80,13 @@ public class DataPullTaskTest {
     }
 
     @Test
+    public void dataPullRecoverWithRetryTest() {
+        installLoginAndUseLocalKeys();
+        runDataPull(new Integer[]{412, 202, 200}, new String[]{GOOD_RESTORE, RETRY_RESPONSE, GOOD_RESTORE});
+        Assert.assertEquals(DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS, dataPullResult.data);
+    }
+
+    @Test
     public void dataPullFailWithMessage() {
         installLoginAndUseLocalKeys();
         HttpRequestEndpointsMock.setErrorResponseBody("{\"error\": \"some.fake.locale.key\", \"default_response\": \"hello world\"}");

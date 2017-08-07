@@ -6,6 +6,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.logging.AndroidLogger;
@@ -38,6 +39,8 @@ public class HeartbeatRequester {
     private static final String TAG = HeartbeatRequester.class.getSimpleName();
 
     private static final String APP_ID = "app_id";
+    private static final String APP_VERSION = "app_version";
+    private static final String CC_VERSION = "cc_version";
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
     private static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
     private static final String LAST_SYNC_TIME_PARAM = "last_sync_time";
@@ -114,6 +117,8 @@ public class HeartbeatRequester {
     private static HashMap<String, String> getParamsForHeartbeatRequest() {
         HashMap<String, String> params = new HashMap<>();
         params.put(APP_ID, CommCareApplication.instance().getCurrentApp().getUniqueId());
+        params.put(APP_VERSION, "" + ReportingUtils.getAppBuildNumber());
+        params.put(CC_VERSION, ReportingUtils.getCommCareVersionString());
         params.put(QUARANTINED_FORMS_PARAM, "" + StorageUtils.getNumQuarantinedForms());
         params.put(UNSENT_FORMS_PARAM, "" + StorageUtils.getNumUnsentForms());
         params.put(LAST_SYNC_TIME_PARAM, new Date(SyncDetailCalculations.getLastSyncTime()).toString());
