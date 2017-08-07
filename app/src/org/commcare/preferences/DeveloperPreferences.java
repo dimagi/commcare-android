@@ -172,24 +172,10 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
                 GoogleAnalyticsUtils.reportPrefItemClick(
                         GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
                         GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
-                startFileBrowser();
+                startFileBrowser(DeveloperPreferences.this, REQUEST_SYNC_FILE, "cannot.restore.xml");
                 return true;
             }
         });
-    }
-
-    private void startFileBrowser() {
-        Intent chooseTemplateIntent = new Intent()
-                .setAction(Intent.ACTION_GET_CONTENT)
-                .setType("file/*")
-                .addCategory(Intent.CATEGORY_OPENABLE);
-        try {
-            startActivityForResult(chooseTemplateIntent, REQUEST_SYNC_FILE);
-        } catch (ActivityNotFoundException e) {
-            // Means that there is no file browser installed on the device
-            TemplatePrinterUtils.showAlertDialog(getActivity(), "Can't restore custom XML File",
-                    Localization.get("no.file.browser"), false);
-        }
     }
 
     @Override
