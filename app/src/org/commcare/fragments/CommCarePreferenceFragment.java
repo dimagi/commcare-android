@@ -125,8 +125,9 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
                 .unregisterOnSharedPreferenceChangeListener(this);
     }
 
-    /***
+    /**
      * Utility function to request a file using a file browser
+     * @param fragment
      * @param requestCode
      * @param errorTitle
      */
