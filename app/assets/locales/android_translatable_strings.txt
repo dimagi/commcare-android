@@ -79,8 +79,8 @@ home.menu.pin.change=Change My PIN
 menu.update.from.ccz=Offline Update
 menu.update.from.hub=Update from Local Hub
 menu.update.options=Update Options
-update.option.starred=Latest starred build
-update.option.build=Latest build
+update.option.starred=Latest starred version
+update.option.build=Latest version
 update.option.saved=Latest saved state
 
 home.developer.options.enabled=Developer Mode Enabled
