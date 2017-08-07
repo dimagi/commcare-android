@@ -118,6 +118,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static final String KEY_FORM_LOAD_FAILED = "form-failed";
     private static final String KEY_LOC_ERROR = "location-not-enabled";
     private static final String KEY_LOC_ERROR_PATH = "location-based-xpath-error";
+    private static final String KEY_IS_READ_ONLY = "instance-is-read-only";
 
     private FormEntryInstanceState instanceState;
     private FormEntrySessionWrapper formEntryRestoreSession = new FormEntrySessionWrapper();
@@ -258,6 +259,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
+        outState.putBoolean(KEY_IS_READ_ONLY, instanceIsReadOnly);
         formEntryRestoreSession.saveFormEntrySession(outState);
 
         if (indexOfWidgetWithVideoPlaying != -1) {
@@ -1316,6 +1318,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 indexOfWidgetWithVideoPlaying = savedInstanceState.getInt(KEY_WIDGET_WITH_VIDEO_PLAYING);
                 positionOfVideoProgress = savedInstanceState.getInt(KEY_POSITION_OF_VIDEO_PLAYING);
             }
+
+            if (savedInstanceState.containsKey(KEY_IS_READ_ONLY)) {
+                this.instanceIsReadOnly = savedInstanceState.getBoolean(KEY_IS_READ_ONLY);
+            }
+
             uiController.restoreSavedState(savedInstanceState);
         }
     }
