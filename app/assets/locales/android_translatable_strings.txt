@@ -384,6 +384,15 @@ cannot.set.payload=Could not set payload file
 no.file.browser=Your device does not have a file browser installed. Please download one from the playstore and then try again.
 template.error=Your template is not correctly formatted
 
+file.not.exist=File does not exist
+file.not.selected=No file selected
+file.wrong.type=Wrong file type. Please select file of type ${0}
+payload.file.not.exist=Payload file does not exist
+payload.file.not.set=Payload file path is not set in preferences
+custom.restore.file.not.exist=Custom restore file does not exist
+custom.restore.file.not.set=Custom restore file path is not set in preferences
+custom.restore.error=Error loading custom sync
+
 start.recording=Start Recording
 stop.recording=Stop Recording
 recording.header=Record a sound
@@ -760,7 +769,3 @@ calendar.low.year=Year value below min value of
 calendar.high.year=Year value above max value of ${0}
 calendar.low.day=Day value below min value of 1
 calendar.high.day=Day value above max value of ${0}
-
-file.not.exist=File does not exist
-file.not.selected=No file selected
-file.wrong.type=Wrong file type. Please select file of type ${0}

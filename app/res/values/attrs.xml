@@ -51,6 +51,7 @@
 
     <declare-styleable name="FilePreference">
         <attr name="file_type" format="string"/>
+        <attr name="error_dialog_title" format="string"/>
     </declare-styleable>
 
 </resources>

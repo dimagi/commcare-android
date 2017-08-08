@@ -306,8 +306,8 @@ public class CommCarePreferences
             }
         }
         if (requestCode == REQUEST_DEVELOPER_PREFERENCES) {
-            if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM && data != null) {
-                getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM, data);
+            if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
+                getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM);
                 getActivity().finish();
             }
         }

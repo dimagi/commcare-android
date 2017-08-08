@@ -1,7 +1,6 @@
 package org.commcare.preferences;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GlobalPrivilegeClaimingActivity;
@@ -24,15 +24,12 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
-import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static android.app.Activity.RESULT_OK;
 
 public class DeveloperPreferences extends CommCarePreferenceFragment {
 
@@ -132,7 +129,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     @Override
     protected void setupPrefClickListeners() {
-        createOnCustomRestoreOption();
+        // No listeners
     }
 
     @Nullable
@@ -163,34 +160,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         hideOrShowDangerousSettings();
         setSessionEditText();
     }
-
-    private void createOnCustomRestoreOption() {
-        Preference pref = findPreference(PREFS_CUSTOM_RESTORE_DOC_LOCATION);
-        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportPrefItemClick(
-                        GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
-                        GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
-                startFileBrowser(DeveloperPreferences.this, REQUEST_SYNC_FILE, "cannot.restore.xml");
-                return true;
-            }
-        });
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_SYNC_FILE) {
-            if (resultCode == RESULT_OK && data != null) {
-                getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM, data);
-                getActivity().finish();
-            } else {
-                //No file selected
-                Toast.makeText(getActivity(), "No file requested...", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
 
     private void setSessionEditText() {
         if (isSessionSavingEnabled()) {
@@ -227,6 +196,17 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
                     DevSessionRestorer.clearSession();
                 }
                 setSessionEditText();
+                break;
+            case PREFS_CUSTOM_RESTORE_DOC_LOCATION:
+                String filePath = getCustomRestoreDocLocation();
+                if (!filePath.isEmpty()) {
+                    if (FilenameUtils.getExtension(filePath).contentEquals("xml")) {
+                        getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM);
+                        getActivity().finish();
+                    } else {
+                        Toast.makeText(getActivity(), Localization.get("file.wrong.type", "xml"), Toast.LENGTH_LONG).show();
+                    }
+                }
                 break;
         }
     }
@@ -399,6 +379,11 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public static String getRemoteFormPayloadUrl() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(REMOTE_FORM_PAYLOAD_URL, CommCareApplication.instance().getString(R.string.remote_form_payload_url));
+    }
+
+    public static String getCustomRestoreDocLocation() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(PREFS_CUSTOM_RESTORE_DOC_LOCATION, "");
     }
 
     private void hideOrShowDangerousSettings() {

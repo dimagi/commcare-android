@@ -3,6 +3,7 @@ package org.commcare.preferences;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.EditTextPreferenceDialogFragmentCompat;
 import android.view.View;
 import android.widget.EditText;
@@ -36,7 +37,9 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
         super.onBindDialogView(view);
         mEditText = (EditText)view.findViewById(android.R.id.edit);
         view.findViewById(R.id.filefetch).setOnClickListener(v -> {
-            CommCarePreferences.startFileBrowser(FilePreferenceDialogFragmentCompat.this, REQUEST_FILE, "cannot.set.payload");
+            CommCarePreferences.startFileBrowser(FilePreferenceDialogFragmentCompat.this,
+                    REQUEST_FILE,
+                    ((FilePreference)getPreference()).getErrorDialogTitle());
         });
     }
 

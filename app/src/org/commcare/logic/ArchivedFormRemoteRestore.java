@@ -2,6 +2,7 @@ package org.commcare.logic;
 
 import android.widget.Toast;
 
+import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormRecordListActivity;
 import org.commcare.network.DataPullRequester;
@@ -18,7 +19,7 @@ import java.io.File;
 
 /**
  * Only used for developer debugging.
- *
+ * <p>
  * Load saved form instances manually from a xml payload.
  *
  * @author Phillip Mates (pmates@dimagi.com).
@@ -36,13 +37,20 @@ public class ArchivedFormRemoteRestore {
     public static void pullArchivedFormsFromFile(String filePath,
                                                  final FormRecordListActivity activity,
                                                  final CommCarePlatform platform) {
-
-        File file = new File(filePath);
-        if (file != null && file.exists()) {
-            LocalFilePullResponseFactory.setRequestPayloads(new File[]{file});
-            requestForms(activity, platform, "fake-server-that-is-never-used", LocalFilePullResponseFactory.INSTANCE, true);
+        if (filePath != null && !filePath.isEmpty()) {
+            if(FilenameUtils.getExtension(filePath).contentEquals("xml")) {
+                File file = new File(filePath);
+                if (file.exists()) {
+                    LocalFilePullResponseFactory.setRequestPayloads(new File[]{file});
+                    requestForms(activity, platform, "fake-server-that-is-never-used", LocalFilePullResponseFactory.INSTANCE, true);
+                } else {
+                    Toast.makeText(activity, Localization.get("payload.file.not.exist"), Toast.LENGTH_LONG).show();
+                }
+            }else {
+                Toast.makeText(activity, Localization.get("file.wrong.type", "xml"), Toast.LENGTH_LONG).show();
+            }
         } else {
-            Toast.makeText(activity, "Payload file doesn't exist", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, Localization.get("payload.file.not.set"), Toast.LENGTH_LONG).show();
         }
     }
 
