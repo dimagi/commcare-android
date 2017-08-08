@@ -24,19 +24,19 @@ public class UpdatePromptHelper {
     /**
      * @return - If the user was prompted to update
      */
-    public static boolean promptForUpdateIfNeeded(Activity context, int requestCode) {
+    public static boolean promptForUpdateIfNeeded(Activity context) {
         try {
             CommCareSessionService currentSession = CommCareApplication.instance().getSession();
             if (!currentSession.apkUpdatePromptWasShown() &&
                     getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE) != null) {
                 // If there are updates to prompt for both, we'll show the apk one first
                 Intent i = new Intent(context, PromptApkUpdateActivity.class);
-                context.startActivityForResult(i, requestCode);
+                context.startActivity(i);
                 return true;
             } else if (!currentSession.cczUpdatePromptWasShown() &&
                     getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE) != null) {
                 Intent i = new Intent(context, PromptCczUpdateActivity.class);
-                context.startActivityForResult(i, requestCode);
+                context.startActivity(i);
                 return true;
             }
         } catch (SessionUnavailableException e) {
