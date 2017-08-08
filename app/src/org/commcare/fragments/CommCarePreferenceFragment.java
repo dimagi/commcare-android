@@ -1,8 +1,6 @@
 package org.commcare.fragments;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -127,9 +125,9 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
 
     /**
      * Utility function to request a file using a file browser
-     * @param fragment
-     * @param requestCode
-     * @param errorTitle
+     * @param fragment Fragment implementing onActivityResult for this file request
+     * @param requestCode Request code to fire the file fetch intent with
+     * @param errorTitle Title of the error dialogue that appears if no file browser is installed
      */
     public static void startFileBrowser(Fragment fragment, int requestCode, String errorTitle) {
         Intent chooseTemplateIntent = new Intent()

@@ -760,3 +760,7 @@ calendar.low.year=Year value below min value of
 calendar.high.year=Year value above max value of ${0}
 calendar.low.day=Day value below min value of 1
 calendar.high.day=Day value above max value of ${0}
+
+file.not.exist=File does not exist
+file.not.selected=No file selected
+file.wrong.type=Wrong file type. Please select file of type ${0}

@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:app="http://schemas.android.com/apk/res-auto">
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
@@ -96,7 +97,8 @@
         android:defaultValue=""
         android:enabled="true"
         android:key="cc-local-form-payload-file-path"
-        android:title="Local Form Payload File"/>
+        android:title="Local Form Payload File"
+        app:file_type="xml"/>
     <EditTextPreference
         android:defaultValue="@string/remote_form_payload_url"
         android:enabled="true"

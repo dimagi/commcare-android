@@ -2,22 +2,22 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="48dp"
-            android:layout_marginTop="48dp"
+            android:layout_marginBottom="@dimen/pref_dialog_margin_bottom"
+            android:layout_marginTop="@dimen/pref_dialog_margin_top"
             android:overScrollMode="ifContentScrolls">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="5dip">
+        android:padding="@dimen/pref_dialog_content_padding">
 
         <TextView
             android:id="@android:id/message"
             style="?android:attr/textAppearanceSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="48dp"
+            android:layout_marginBottom="@dimen/pref_dialog_message_margin_bottom"
             android:textColor="?android:attr/textColorSecondary"/>
 
         <LinearLayout

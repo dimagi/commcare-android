@@ -8,9 +8,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.utils.UriToFilePath;
+import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
 
@@ -44,17 +46,22 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
             if (resultCode == RESULT_OK && intent != null) {
                 Uri uri = intent.getData();
                 String filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uri);
+                String fileType = ((FilePreference)getPreference()).getFileType();
                 if (filePath != null) {
-                    File f = new File(filePath);
-                    if (f != null && f.exists()) {
-                        mEditText.setText(filePath);
+                    if (fileType == null || FilenameUtils.getExtension(filePath).contentEquals(fileType)) {
+                        File f = new File(filePath);
+                        if (f.exists()) {
+                            mEditText.setText(filePath);
+                        } else {
+                            Toast.makeText(getActivity(), Localization.get("file.not.exist"), Toast.LENGTH_LONG).show();
+                        }
                     } else {
-                        Toast.makeText(getActivity(), "File does not exit", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), Localization.get("file.wrong.type", fileType), Toast.LENGTH_LONG).show();
                     }
                 }
             } else {
                 //No file selected
-                Toast.makeText(getActivity(), "No file selected...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), Localization.get("file.not.selected"), Toast.LENGTH_LONG).show();
             }
         }
     }
