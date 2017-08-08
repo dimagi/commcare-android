@@ -116,6 +116,20 @@ public class SigningUtil {
      */
     public static String verifyMessageAndBytes(String message, byte[] signature) throws Exception {
         String keyString = GlobalConstants.TRUSTED_SOURCE_PUBLIC_KEY;
+        return verifyMessageAndBytes(keyString, message, signature);
+    }
+
+
+    /**
+     * Given the link and signature, verify the link using the public key
+     *
+     * @param message   the download link
+     * @param signature the signature bytes
+     * @return valid download link if verified, null if not verified
+     * @throws SignatureException if we have an internal error during verification
+     */
+    public static String verifyMessageAndBytes(String keyString, String message, byte[] signature)
+            throws Exception {
         boolean success = verifyMessageSignatureHelper(keyString, message, signature);
 
         if (success) {
