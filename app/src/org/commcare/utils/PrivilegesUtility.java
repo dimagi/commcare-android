@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 /**
  * Helper methods for privilege data
- *
+ * <p>
  * Created by ctsims on 8/7/2017.
  */
 
@@ -20,22 +20,21 @@ public class PrivilegesUtility {
         this.authorityPublicKeyString = authorityPublicKeyString;
     }
 
+    /**
+     * Process an incoming payload JSON string and returns any privileges that were activated.
+     * <p>
+     * If processing is not possible, a typed exception will be thrown.
+     *
+     * @return Pair<Username, PrivilegeList> containing a list of privileges and the user tag
+     * that they  should be activated for.
+     */
     public Pair<String, String[]> processPrivilegePayloadForActivatedPrivileges
-            (String privilegePayloadJson) throws PrivilagePayloadException{
+    (String privilegePayloadJson) throws PrivilagePayloadException {
         try {
             JSONObject obj = new JSONObject(privilegePayloadJson);
-            int version;
-            if(obj.has("version")) {
-                version = obj.getInt("version");
-            } else {
-                if(obj.has("flag")) {
-                    version = 1;
-                } else {
-                    throw new UnrecognizedPayloadVersionException();
-                }
-            }
+            int version = getPayloadVersion(obj);
 
-            switch(version) {
+            switch (version) {
                 case 1:
                     return processAndValidateV1Payload(obj);
                 case 2:
@@ -49,31 +48,51 @@ public class PrivilegesUtility {
         }
     }
 
+    private int getPayloadVersion(JSONObject obj) throws UnrecognizedPayloadVersionException,
+            JSONException {
+        if (obj.has("version")) {
+            return obj.getInt("version");
+        } else {
+            if (obj.has("flag")) {
+                return 1;
+            } else {
+                throw new UnrecognizedPayloadVersionException();
+            }
+        }
+    }
+
+    /**
+     * @return Pair<Username, PrivilegeList> containing a list of privileges and the user tag
+     * that they  should be activated for.
+     */
     private Pair<String, String[]> processAndValidateV2Payload(JSONObject obj) throws JSONException, PrivilagePayloadException {
         Pair<String[], String[]> payload = processV2Payload(obj);
-        if(validateV2PayloadSignature(payload.first[0], payload.first[1], payload.second)) {
-            return new Pair(payload.first[0], payload.second);
+        String username = payload.first[0];
+        String signature = payload.first[1];
+        String[] privileges = payload.second;
+        if (validatePayloadSignature(getInputForSignatureValidationV2(privileges, username), signature)) {
+            return new Pair(username, privileges);
         } else {
             throw new InvalidPrivilegeSignatureException("Signatures don't match");
         }
     }
 
-    private boolean validateV2PayloadSignature(String username, String signature, String[] flags) throws JSONException, PrivilagePayloadException {
+    private boolean validatePayloadSignature(String inputString, String signature) throws InvalidPrivilegeSignatureException {
         try {
             byte[] signatureBytes = SigningUtil.getBytesFromString(signature);
-            String expectedUnsignedValue = getV2SignatureInput(flags, username);
-            return SigningUtil.verifyMessageAndBytes(authorityPublicKeyString, expectedUnsignedValue, signatureBytes) != null;
+            return SigningUtil.verifyMessageAndBytes(authorityPublicKeyString, inputString, signatureBytes) != null;
         } catch (Exception e) {
             throw new InvalidPrivilegeSignatureException(e);
         }
+
     }
 
-    private String getV2SignatureInput(String[] flags, String username) {
+    private String getInputForSignatureValidationV2(String[] flags, String username) {
         try {
             JSONObject usernameObject = new JSONObject();
             usernameObject.put("username", username);
             JSONArray flagsArray = new JSONArray();
-            for(int i = 0 ; i < flags.length ; ++i) {
+            for (int i = 0; i < flags.length; ++i) {
                 flagsArray.put(i, flags[i]);
             }
 
@@ -89,44 +108,46 @@ public class PrivilegesUtility {
         }
     }
 
+    /**
+     * @return Pair<[username, signature], PrivilegeList> containing a list of privileges and the user tag
+     * that they  should be activated for.
+     */
     private Pair<String[], String[]> processV2Payload(JSONObject obj) throws JSONException, PrivilagePayloadException {
         String username = obj.getString("username");
         JSONArray array = obj.getJSONArray("flags");
         String[] permissions = new String[array.length()];
-        for(int i = 0 ; i < array.length(); ++i) {
+        for (int i = 0; i < array.length(); ++i) {
             permissions[i] = array.getString(i);
         }
 
         String signature = obj.getString("multiple_flags_signature");
-        return new Pair<>(new String[] {username, signature}, permissions);
+        return new Pair<>(new String[]{username, signature}, permissions);
 
     }
 
+    /**
+     * @return Pair<Username, PrivilegeList> containing a list of privileges and the user tag
+     * that they  should be activated for.
+     */
     private Pair<String, String[]> processAndValidateV1Payload(JSONObject obj) throws JSONException, PrivilagePayloadException {
         String[] payload = processV1Payload(obj);
-        if(validateV1PayloadSignature(payload[0], payload[1], payload[2])) {
-            return new Pair(payload[1], new String[] {payload[0]});
+        String username = payload[1];
+        String signature = payload[2];
+        String privilege = payload[0];
+
+        if (validatePayloadSignature(getInputForSignatureValidationV1(privilege, username), signature)) {
+            return new Pair(username, new String[]{privilege});
         } else {
             throw new InvalidPrivilegeSignatureException("Signatures don't match");
         }
     }
 
-    private boolean validateV1PayloadSignature(String flag, String username, String signature) throws JSONException, PrivilagePayloadException {
-        try {
-            byte[] signatureBytes = SigningUtil.getBytesFromString(signature);
-            String expectedUnsignedValue = getV1SignatureInput(flag, username);
-            return SigningUtil.verifyMessageAndBytes(authorityPublicKeyString, expectedUnsignedValue, signatureBytes) != null;
-        } catch (Exception e) {
-            throw new InvalidPrivilegeSignatureException(e);
-        }
-    }
-
-    private String getV1SignatureInput(String flag, String username) {
+    private String getInputForSignatureValidationV1(String privilege, String username) {
         try {
             JSONObject usernameObject = new JSONObject();
             usernameObject.put("username", username);
             JSONObject flagObject = new JSONObject();
-            flagObject.put("flag", flag);
+            flagObject.put("flag", privilege);
 
             JSONArray array = new JSONArray();
             array.put(usernameObject);
@@ -137,20 +158,22 @@ public class PrivilegesUtility {
         }
     }
 
+    /**
+     * @return [permission, username, signature]
+     */
 
-
-
-    protected String[] processV1Payload(JSONObject obj) throws JSONException{
+    protected String[] processV1Payload(JSONObject obj) throws JSONException {
         String username = obj.getString("username");
         String flag = obj.getString("flag");
         String signature = obj.getString("signature");
-        return new String[] {flag, username, signature};
+        return new String[]{flag, username, signature};
     }
 
     public static class PrivilagePayloadException extends Exception {
         public PrivilagePayloadException() {
 
         }
+
         public PrivilagePayloadException(String msg) {
             super(msg);
         }
@@ -160,14 +183,14 @@ public class PrivilegesUtility {
         }
     }
 
-    public static class MalformedPayloadException extends PrivilagePayloadException{
+    public static class MalformedPayloadException extends PrivilagePayloadException {
         public MalformedPayloadException(Exception e) {
             super(e);
         }
 
     }
 
-    public static class InvalidPrivilegeSignatureException extends PrivilagePayloadException{
+    public static class InvalidPrivilegeSignatureException extends PrivilagePayloadException {
         public InvalidPrivilegeSignatureException(String msg) {
             super(msg);
         }
@@ -178,7 +201,7 @@ public class PrivilegesUtility {
 
     }
 
-    public static class UnrecognizedPayloadVersionException extends PrivilagePayloadException{
+    public static class UnrecognizedPayloadVersionException extends PrivilagePayloadException {
 
     }
 

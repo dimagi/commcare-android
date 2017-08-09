@@ -68,10 +68,10 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     }
 
     private void refreshUI() {
-        TextView enabledTextView = (TextView)findViewById(R.id.enabled_textview);
-        TextView notEnabledTextView = (TextView)findViewById(R.id.not_enabled_textview);
-        Button claimButton = (Button)findViewById(R.id.claim_button);
-        TextView instructions = (TextView)findViewById(R.id.instructions);
+        TextView enabledTextView = (TextView) findViewById(R.id.enabled_textview);
+        TextView notEnabledTextView = (TextView) findViewById(R.id.not_enabled_textview);
+        Button claimButton = (Button) findViewById(R.id.claim_button);
+        TextView instructions = (TextView) findViewById(R.id.instructions);
 
         if (GlobalPrivilegesManager.getEnabledPrivileges().size() > 0) {
             notEnabledTextView.setVisibility(View.GONE);
@@ -102,7 +102,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
+        switch (requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     String scanResult = data.getStringExtra("SCAN_RESULT");
@@ -111,7 +111,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
                                 new PrivilegesUtility(GlobalConstants.TRUSTED_SOURCE_PUBLIC_KEY).
                                         processPrivilegePayloadForActivatedPrivileges(scanResult);
 
-                        for(String p : activatedPrivileges.second) {
+                        for (String p : activatedPrivileges.second) {
                             if (!GlobalPrivilegesManager.allGlobalPrivilegesList.contains(p)) {
                                 Log.d(TAG, "Request to activate unknown privilege: " + p);
                             } else {
@@ -122,7 +122,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
 
                     } catch (PrivilegesUtility.UnrecognizedPayloadVersionException e) {
                         e.printStackTrace();
-                        privilegeClaimTooNew();
+                        privilegePayloadVersionTooNew();
                     } catch (PrivilegesUtility.PrivilagePayloadException e) {
                         e.printStackTrace();
                         privilegeClaimFailed();
@@ -131,7 +131,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
         }
     }
 
-    private void privilegeClaimTooNew() {
+    private void privilegePayloadVersionTooNew() {
         Toast.makeText(this,
                 StringUtils.getStringRobust(this, R.string.privilege_claim_bad_version),
                 Toast.LENGTH_LONG)
