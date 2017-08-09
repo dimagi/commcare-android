@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Menu;
@@ -13,8 +14,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
+import org.commcare.modern.util.Pair;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.GlobalPrivilegesManager;
+import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.PrivilegesUtility;
 import org.commcare.utils.SigningUtil;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localization;
@@ -64,10 +68,10 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     }
 
     private void refreshUI() {
-        TextView enabledTextView = (TextView)findViewById(R.id.enabled_textview);
-        TextView notEnabledTextView = (TextView)findViewById(R.id.not_enabled_textview);
-        Button claimButton = (Button)findViewById(R.id.claim_button);
-        TextView instructions = (TextView)findViewById(R.id.instructions);
+        TextView enabledTextView = (TextView) findViewById(R.id.enabled_textview);
+        TextView notEnabledTextView = (TextView) findViewById(R.id.not_enabled_textview);
+        Button claimButton = (Button) findViewById(R.id.claim_button);
+        TextView instructions = (TextView) findViewById(R.id.instructions);
 
         if (GlobalPrivilegesManager.getEnabledPrivileges().size() > 0) {
             notEnabledTextView.setVisibility(View.GONE);
@@ -98,75 +102,48 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
+        switch (requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == RESULT_OK) {
-                    String[] fields = processScanResult(data.getStringExtra("SCAN_RESULT"));
-                    if (fields == null) {
-                        privilegeClaimFailed();
-                    } else {
-                        String flag = fields[0];
-                        String username = fields[1];
-                        String signature = fields[2];
-                        if (checkProperFormAndAuthenticity(flag, username, signature)) {
-                            GlobalPrivilegesManager.enablePrivilege(flag, username);
-                            refreshUI();
-                        } else {
-                            privilegeClaimFailed();
+                    String scanResult = data.getStringExtra("SCAN_RESULT");
+                    try {
+                        Pair<String, String[]> activatedPrivileges =
+                                new PrivilegesUtility(GlobalConstants.TRUSTED_SOURCE_PUBLIC_KEY).
+                                        processPrivilegePayloadForActivatedPrivileges(scanResult);
+
+                        for (String p : activatedPrivileges.second) {
+                            if (!GlobalPrivilegesManager.allGlobalPrivilegesList.contains(p)) {
+                                Log.d(TAG, "Request to activate unknown privilege: " + p);
+                            } else {
+                                GlobalPrivilegesManager.enablePrivilege(p, activatedPrivileges.first);
+                            }
                         }
+                        refreshUI();
+
+                    } catch (PrivilegesUtility.UnrecognizedPayloadVersionException e) {
+                        e.printStackTrace();
+                        privilegePayloadVersionTooNew();
+                    } catch (PrivilegesUtility.PrivilagePayloadException e) {
+                        e.printStackTrace();
+                        privilegeClaimFailed();
                     }
                 }
         }
     }
+
+    private void privilegePayloadVersionTooNew() {
+        Toast.makeText(this,
+                StringUtils.getStringRobust(this, R.string.privilege_claim_bad_version),
+                Toast.LENGTH_LONG)
+                .show();
+    }
+
 
     private void privilegeClaimFailed() {
         Toast.makeText(this,
                 StringUtils.getStringRobust(this, R.string.privilege_claim_failed),
                 Toast.LENGTH_LONG)
                 .show();
-    }
-
-    private String[] processScanResult(String scanResult) {
-        try {
-            JSONObject obj = new JSONObject(scanResult);
-            String username = obj.getString("username");
-            String flag = obj.getString("flag");
-            String signature = obj.getString("signature");
-            return new String[] {flag, username, signature};
-        } catch (JSONException e) {
-            return null;
-        }
-    }
-
-    private boolean checkProperFormAndAuthenticity(String flag, String username, String signature) {
-        if (!GlobalPrivilegesManager.allGlobalPrivilegesList.contains(flag)) {
-            Log.d(TAG, "Privilege claim failed because the user scanned a barcode for an unknown privilege");
-            return false;
-        }
-        try {
-            byte[] signatureBytes = SigningUtil.getBytesFromString(signature);
-            String expectedUnsignedValue = getExpectedUnsignedValue(flag, username);
-            return SigningUtil.verifyMessageAndBytes(expectedUnsignedValue, signatureBytes) != null;
-        } catch (Exception e) {
-            Log.d(TAG, "Privilege claim failed because signature verification failed");
-            return false;
-        }
-    }
-
-    private static String getExpectedUnsignedValue(String flag, String username) {
-        try {
-            JSONObject usernameObject = new JSONObject();
-            usernameObject.put("username", username);
-            JSONObject flagObject = new JSONObject();
-            flagObject.put("flag", flag);
-
-            JSONArray array = new JSONArray();
-            array.put(usernameObject);
-            array.put(flagObject);
-            return array.toString();
-        } catch (JSONException e) {
-            return "";
-        }
     }
 
     @Override

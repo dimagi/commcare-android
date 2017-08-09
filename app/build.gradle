@@ -33,6 +33,7 @@ dependencies {
     testCompile 'org.robolectric:robolectric:3.2.2'
     testCompile 'org.robolectric:shadows-multidex:3.2.2'
     testCompile 'org.robolectric:shadows-core:3.2.2'
+    testCompile 'org.json:json:20140107'
 
     testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
