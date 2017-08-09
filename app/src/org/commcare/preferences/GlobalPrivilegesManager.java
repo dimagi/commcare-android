@@ -24,6 +24,7 @@ public class GlobalPrivilegesManager {
     public static final ArrayList<String> allGlobalPrivilegesList = new ArrayList<>();
     static {
         allGlobalPrivilegesList.add(PRIVILEGE_MULTIPLE_APPS);
+        allGlobalPrivilegesList.add(PRIVILEGE_ADVANCED_SETTINGS);
     }
 
     public static SharedPreferences getGlobalPrefsRecord() {
