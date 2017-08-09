@@ -39,7 +39,7 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
         view.findViewById(R.id.filefetch).setOnClickListener(v -> {
             CommCarePreferences.startFileBrowser(FilePreferenceDialogFragmentCompat.this,
                     REQUEST_FILE,
-                    ((FilePreference)getPreference()).getErrorDialogTitle());
+                    Localization.get("no.file.browser.title"));
         });
     }
 
@@ -49,23 +49,48 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
             if (resultCode == RESULT_OK && intent != null) {
                 Uri uri = intent.getData();
                 String filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uri);
-                String fileType = ((FilePreference)getPreference()).getFileType();
-                if (filePath != null) {
-                    if (fileType == null || FilenameUtils.getExtension(filePath).contentEquals(fileType)) {
-                        File f = new File(filePath);
-                        if (f.exists()) {
-                            mEditText.setText(filePath);
-                        } else {
-                            Toast.makeText(getActivity(), Localization.get("file.not.exist"), Toast.LENGTH_LONG).show();
-                        }
-                    } else {
-                        Toast.makeText(getActivity(), Localization.get("file.wrong.type", fileType), Toast.LENGTH_LONG).show();
-                    }
-                }
+                validateFile(filePath);
             } else {
                 //No file selected
                 Toast.makeText(getActivity(), Localization.get("file.not.selected"), Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    @Override
+    public void onDialogClosed(boolean positiveResult) {
+        if (positiveResult && validateFile(mEditText.getText().toString())) {
+            super.onDialogClosed(positiveResult);
+        }
+    }
+
+    /**
+     * Checks whether a file with given filepath is a valid file
+     *
+     * @param filePath filepath of file that needs to be validated
+     * @return true if filepath represents a valid file or if filepath is empty, false otherwise.
+     */
+    private boolean validateFile(String filePath) {
+        String fileType = ((FilePreference)getPreference()).getFileType();
+        if (filePath != null && !filePath.isEmpty()) {
+            if (fileType == null || FilenameUtils.getExtension(filePath).contentEquals(fileType)) {
+                File f = new File(filePath);
+                if (f.exists()) {
+                    if (!mEditText.getText().toString().contentEquals(filePath)) {
+                        mEditText.setText(filePath);
+                    }
+                    return true;
+                } else {
+                    Toast.makeText(getActivity(), Localization.get("file.not.exist"), Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(getActivity(), Localization.get("file.wrong.type", fileType), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(getActivity(), Localization.get("file.not.selected"), Toast.LENGTH_LONG).show();
+            // We still want to reset the preference to empty file path
+            return true;
+        }
+        return false;
     }
 }

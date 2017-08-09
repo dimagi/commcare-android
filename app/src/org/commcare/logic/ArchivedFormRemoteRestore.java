@@ -38,16 +38,12 @@ public class ArchivedFormRemoteRestore {
                                                  final FormRecordListActivity activity,
                                                  final CommCarePlatform platform) {
         if (filePath != null && !filePath.isEmpty()) {
-            if(FilenameUtils.getExtension(filePath).contentEquals("xml")) {
-                File file = new File(filePath);
-                if (file.exists()) {
-                    LocalFilePullResponseFactory.setRequestPayloads(new File[]{file});
-                    requestForms(activity, platform, "fake-server-that-is-never-used", LocalFilePullResponseFactory.INSTANCE, true);
-                } else {
-                    Toast.makeText(activity, Localization.get("payload.file.not.exist"), Toast.LENGTH_LONG).show();
-                }
-            }else {
-                Toast.makeText(activity, Localization.get("file.wrong.type", "xml"), Toast.LENGTH_LONG).show();
+            File file = new File(filePath);
+            if (file.exists()) {
+                LocalFilePullResponseFactory.setRequestPayloads(new File[]{file});
+                requestForms(activity, platform, "fake-server-that-is-never-used", LocalFilePullResponseFactory.INSTANCE, true);
+            } else {
+                Toast.makeText(activity, Localization.get("payload.file.not.exist"), Toast.LENGTH_LONG).show();
             }
         } else {
             Toast.makeText(activity, Localization.get("payload.file.not.set"), Toast.LENGTH_LONG).show();

@@ -200,12 +200,8 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
             case PREFS_CUSTOM_RESTORE_DOC_LOCATION:
                 String filePath = getCustomRestoreDocLocation();
                 if (!filePath.isEmpty()) {
-                    if (FilenameUtils.getExtension(filePath).contentEquals("xml")) {
-                        getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM);
-                        getActivity().finish();
-                    } else {
-                        Toast.makeText(getActivity(), Localization.get("file.wrong.type", "xml"), Toast.LENGTH_LONG).show();
-                    }
+                    getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM);
+                    getActivity().finish();
                 }
                 break;
         }

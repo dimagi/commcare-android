@@ -373,26 +373,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     if (resultCode == AdvancedActionsPreferences.RESULT_DATA_RESET) {
                         finish();
                     } else if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
-                        try {
-                            String filePath = DeveloperPreferences.getCustomRestoreDocLocation();
-                            if (filePath != null && !filePath.isEmpty()) {
-                                if(FilenameUtils.getExtension(filePath).contentEquals("xml")) {
-                                    File f = new File(filePath);
-                                    if (f.exists()) {
-                                        formAndDataSyncer.performCustomRestoreFromFile(this, f);
-                                    } else {
-                                        Toast.makeText(this, Localization.get("custom.restore.file.not.exist"), Toast.LENGTH_LONG).show();
-                                    }
-                                }else {
-                                    Toast.makeText(this, Localization.get("file.wrong.type", "xml"), Toast.LENGTH_LONG).show();
-                                }
-                            } else {
-                                Toast.makeText(this, Localization.get("custom.restore.file.not.set"), Toast.LENGTH_LONG).show();
-                            }
-                        } catch (Exception e) {
-                            Toast.makeText(this, Localization.get("custom.restore.error"),
-                                    Toast.LENGTH_LONG).show();
-                        }
+                        performCustomRestore();
                     }
                     return;
                 case ADVANCED_ACTIONS_ACTIVITY:
@@ -478,6 +459,25 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             startNextSessionStepSafe();
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    private void performCustomRestore() {
+        try {
+            String filePath = DeveloperPreferences.getCustomRestoreDocLocation();
+            if (filePath != null && !filePath.isEmpty()) {
+                File f = new File(filePath);
+                if (f.exists()) {
+                    formAndDataSyncer.performCustomRestoreFromFile(this, f);
+                } else {
+                    Toast.makeText(this, Localization.get("custom.restore.file.not.exist"), Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(this, Localization.get("custom.restore.file.not.set"), Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, Localization.get("custom.restore.error"),
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     private boolean processReturnFromGetCase(int resultCode, Intent intent) {
