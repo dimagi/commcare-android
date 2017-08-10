@@ -1,10 +1,15 @@
 package org.commcare.fragments;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.preference.PreferenceScreen;
@@ -13,6 +18,9 @@ import android.util.Log;
 import org.commcare.CommCareApplication;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.preferences.FilePreference;
+import org.commcare.preferences.FilePreferenceDialogFragmentCompat;
+import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -25,6 +33,9 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = CommCarePreferenceFragment.class.getSimpleName();
+
+    private static final String DIALOG_FRAGMENT_TAG =
+            "android.support.v7.preference.PreferenceFragment.DIALOG";
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -79,7 +90,6 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
     }
 
 
-
     @Override
     public void onResume() {
         super.onResume();
@@ -89,11 +99,47 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
     }
 
     @Override
+    public void onDisplayPreferenceDialog(Preference preference) {
+        // check if dialog is already showing
+        if (getFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_TAG) != null) {
+            return;
+        }
+
+        if (preference instanceof FilePreference) {
+            DialogFragment f = FilePreferenceDialogFragmentCompat.newInstance(preference.getKey());
+            f.setTargetFragment(this, 0);
+            f.show(getFragmentManager(), DIALOG_FRAGMENT_TAG);
+        } else {
+            super.onDisplayPreferenceDialog(preference);
+        }
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         // unregister the preference change listener
         getPreferenceScreen().getSharedPreferences()
                 .unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    /**
+     * Utility function to request a file using a file browser
+     * @param fragment Fragment implementing onActivityResult for this file request
+     * @param requestCode Request code to fire the file fetch intent with
+     * @param errorTitle Title of the error dialogue that appears if no file browser is installed
+     */
+    public static void startFileBrowser(Fragment fragment, int requestCode, String errorTitle) {
+        Intent chooseTemplateIntent = new Intent()
+                .setAction(Intent.ACTION_GET_CONTENT)
+                .setType("file/*")
+                .addCategory(Intent.CATEGORY_OPENABLE);
+        try {
+            fragment.startActivityForResult(chooseTemplateIntent, requestCode);
+        } catch (ActivityNotFoundException e) {
+            // Means that there is no file browser installed on the device
+            TemplatePrinterUtils.showAlertDialog(fragment.getActivity(), Localization.get(errorTitle),
+                    Localization.get("no.file.browser"), false);
+        }
     }
 
     /**

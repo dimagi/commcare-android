@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -42,6 +41,7 @@ import org.commcare.models.FormRecordProcessor;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.FormRecordLoadListener;
@@ -63,15 +63,14 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         implements TextWatcher, FormRecordLoadListener, OnItemClickListener, TaskListener<Void, Void> {
     private static final String TAG = FormRecordListActivity.class.getSimpleName();
 
-    private static final String FORM_RECORD_URL = CommCareServerPreferences.PREFS_FORM_RECORD_KEY;
-
     private static final int OPEN_RECORD = Menu.FIRST;
     private static final int DELETE_RECORD = Menu.FIRST + 1;
     private static final int RESTORE_RECORD = Menu.FIRST + 2;
     private static final int SCAN_RECORD = Menu.FIRST + 3;
 
-    private static final int DOWNLOAD_FORMS = Menu.FIRST;
+    private static final int DOWNLOAD_FORMS_FROM_SERVER = Menu.FIRST;
     private static final int MENU_SUBMIT_QUARANTINE_REPORT = Menu.FIRST + 1;
+    private static final int DOWNLOAD_FORMS_FROM_FILE = Menu.FIRST + 2;
 
     private static final int BARCODE_FETCH = 1;
 
@@ -529,14 +528,18 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             }
         });
         if (!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
-            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            String source = prefs.getString(FORM_RECORD_URL, this.getString(R.string.form_record_url));
+            String source = DeveloperPreferences.getRemoteFormPayloadUrl();
 
             //If there's nowhere to fetch forms from, we can't really go fetch them
             if (!source.equals("")) {
-                menu.add(0, DOWNLOAD_FORMS, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
+                menu.add(0, DOWNLOAD_FORMS_FROM_SERVER, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
             }
             menu.add(0, MENU_SUBMIT_QUARANTINE_REPORT, MENU_SUBMIT_QUARANTINE_REPORT, Localization.get("app.workflow.forms.quarantine.report"));
+
+            String fileSource = DeveloperPreferences.getLocalFormPayloadFilePath();
+            if(!fileSource.isEmpty()){
+                menu.add(0, DOWNLOAD_FORMS_FROM_FILE, 0, Localization.get("app.workflow.forms.fetch.file"));
+            }
             return true;
         }
         return parent;
@@ -559,11 +562,13 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case DOWNLOAD_FORMS:
-                SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-                String source = prefs.getString(FORM_RECORD_URL, this.getString(R.string.form_record_url));
+            case DOWNLOAD_FORMS_FROM_SERVER:
+                String source = DeveloperPreferences.getRemoteFormPayloadUrl();
                 ArchivedFormRemoteRestore.pullArchivedFormsFromServer(source, this, platform);
                 return true;
+            case DOWNLOAD_FORMS_FROM_FILE:
+                String sourceFile = DeveloperPreferences.getLocalFormPayloadFilePath();
+                ArchivedFormRemoteRestore.pullArchivedFormsFromFile(sourceFile, this, platform);
             case MENU_SUBMIT_QUARANTINE_REPORT:
                 generateQuarantineReport();
                 return true;
