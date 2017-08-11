@@ -320,6 +320,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      *
      * @param includeData True to return an iterator with all records. False to return only the index.
      */
+    @Override
     public SqlStorageIterator<T> iterate(boolean includeData) {
         SQLiteDatabase db = helper.getHandle();
 

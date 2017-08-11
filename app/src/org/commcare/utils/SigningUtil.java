@@ -26,15 +26,15 @@ import java.util.regex.Pattern;
  * A set of helper methods for verifying whether a message was genuinely sent from HQ. Currently we
  * expcect the SMS in the format [commcare app - do not delete] link where the link resolves to
  * some string such as
- *
+ * <p>
  * Y2NhcHA6IGh0dHA6Ly9iaXQubHkvMU5JMUl6MyBzaWduYXR1cmU6IEvECygFUhiUH
  * 3TRjC0lClQrpLR7lG//IpDYpRH7ComtZRjTirteXmPyM9fRgbPZ9K6jG9zEms9WQj55Uo7jTujKNYThjU8rJJmWLouJBr/Yn
  * WobEupwzn6DP2FavPF1YLPbp0ZctOfymW3m4j3VZ0lR2dMOjmInMSBiInqICKid
- *
+ * <p>
  * Which is base 64 decoded decoded into:
- *
+ * <p>
  * ccapp: <profile link> signature: <binary signature>
- *
+ * <p>
  * And we can then verify that the profile link was in fact signed (using SHA256withRSA) by
  * the CommCareHQ private key
  *
@@ -109,15 +109,31 @@ public class SigningUtil {
     }
 
     /**
-     * Given the link and signature, verify the link using the public key
+     * Verify a string input against a provided signature using the default public key
      *
-     * @param message   the download link
+     * @param message   the string to validate
      * @param signature the signature bytes
-     * @return valid download link if verified, null if not verified
+     * @return The input string if the signature is valid, null if not verified
      * @throws SignatureException if we have an internal error during verification
      */
     public static String verifyMessageAndBytes(String message, byte[] signature) throws Exception {
         String keyString = GlobalConstants.TRUSTED_SOURCE_PUBLIC_KEY;
+        return verifyMessageAndBytes(keyString, message, signature);
+    }
+
+
+    /**
+     * Verify a string input against a provided signature using a specific public key
+     *
+     * @param keyString the RSA Public Key which the signature should be checked against.
+     *                  base64 encoded raw DER file
+     * @param message   the string to validate
+     * @param signature the signature bytes
+     * @return The input string if the signature is valid, null if not verified
+     * @throws SignatureException if we have an internal error during verification
+     */
+    public static String verifyMessageAndBytes(String keyString, String message, byte[] signature)
+            throws Exception {
         boolean success = verifyMessageSignatureHelper(keyString, message, signature);
 
         if (success) {
