@@ -6,8 +6,10 @@ import android.text.method.DigitsKeyListener;
 import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 
 import org.commcare.utils.IntegerSizeFilter;
 import org.javarosa.core.model.condition.pivot.IntegerRangeHint;
@@ -27,8 +29,8 @@ public class IntegerWidget extends StringWidget {
     //1 for int. 0 for long?
     private final int number_type;
 
-    public IntegerWidget(Context context, FormEntryPrompt prompt, boolean secret, int num_type) {
-        super(context, prompt, secret);
+    public IntegerWidget(Context context, FormEntryPrompt prompt, boolean secret, int num_type, boolean compact) {
+        super(context, prompt, secret,compact);
 
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);
@@ -37,9 +39,6 @@ public class IntegerWidget extends StringWidget {
 
         // needed to make long readonly text scroll
         mAnswer.setHorizontallyScrolling(false);
-        if (!secret) {
-            mAnswer.setSingleLine(false);
-        }
 
         // only allows numbers and no periods
         mAnswer.setKeyListener(new DigitsKeyListener(true, false));

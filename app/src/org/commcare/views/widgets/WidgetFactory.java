@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.adapters.ComboboxAdapter;
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
@@ -18,6 +19,8 @@ import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.StandardFilterRule;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.form.api.FormEntryAction;
+import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.util.CalendarUtils;
 
@@ -94,6 +97,7 @@ public class WidgetFactory {
 
     private QuestionWidget buildBasicWidget(String appearance, FormEntryPrompt fep,
                                             Context context) {
+        boolean compact = FormEntryActivity.mFormController.indexIsInCompact();
         switch (fep.getDataType()) {
             case Constants.DATATYPE_DATE_TIME:
                 return new DateTimeWidget(context, fep);
@@ -112,11 +116,11 @@ public class WidgetFactory {
             case Constants.DATATYPE_TIME:
                 return new TimeWidget(context, fep);
             case Constants.DATATYPE_LONG:
-                return new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 2);
+                return new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 2, compact);
             case Constants.DATATYPE_DECIMAL:
                 return new DecimalWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
             case Constants.DATATYPE_INTEGER:
-                return new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 1);
+                return new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 1, compact);
             case Constants.DATATYPE_GEOPOINT:
                 return new GeoPointWidget(context, fep, pendingCalloutInterface);
             case Constants.DATATYPE_BARCODE:

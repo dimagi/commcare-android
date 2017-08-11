@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+          android:layout_width="80dp"
+          android:layout_height="match_parent"
+          android:background="@drawable/edit_text_modern"
+          android:layout_gravity="end|right"
+          android:imeOptions="flagNoExtractUi"
+          android:paddingLeft="8dp"
+          android:paddingRight="8dp"
+          android:scrollHorizontally="false"
+          android:textCursorDrawable="@drawable/color_cursor"/>

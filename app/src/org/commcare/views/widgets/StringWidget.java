@@ -37,8 +37,12 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     protected boolean secret = false;
 
     public StringWidget(Context context, FormEntryPrompt prompt, boolean secret) {
-        super(context, prompt);
-        mAnswer = (EditText)LayoutInflater.from(getContext()).inflate(R.layout.edit_text_question_widget, this, false);
+        this(context, prompt, secret, false);
+    }
+
+    public StringWidget(Context context, FormEntryPrompt prompt, boolean secret, boolean compact) {
+        super(context, prompt, compact);
+        mAnswer = (EditText)LayoutInflater.from(getContext()).inflate(getAnswerLayout(), this, false);
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswer.setOnClickListener(this);
 
@@ -59,7 +63,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         }
         setTextInputType(mAnswer);
 
-        if (!secret) {
+        if (!secret && !isInCompactMode()) {
             mAnswer.setSingleLine(false);
         }
 
@@ -81,6 +85,13 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         }
 
         addView(mAnswer);
+    }
+
+    private int getAnswerLayout() {
+        if (isInCompactMode()) {
+            return R.layout.edit_text_question_widget_compact;
+        }
+        return R.layout.edit_text_question_widget;
     }
 
     /**
