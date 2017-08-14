@@ -10,7 +10,7 @@ import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.util.Pair;
-import org.commcare.utils.Base64;
+import org.commcare.util.Base64;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;

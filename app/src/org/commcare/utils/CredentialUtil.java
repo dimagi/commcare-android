@@ -1,5 +1,8 @@
 package org.commcare.utils;
 
+import org.commcare.util.Base64;
+import org.commcare.util.Base64DecoderException;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.regex.Matcher;
