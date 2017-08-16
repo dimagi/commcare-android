@@ -6,10 +6,8 @@ import android.text.method.DigitsKeyListener;
 import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 
 import org.commcare.utils.IntegerSizeFilter;
 import org.javarosa.core.model.condition.pivot.IntegerRangeHint;
@@ -30,7 +28,7 @@ public class IntegerWidget extends StringWidget {
     private final int number_type;
 
     public IntegerWidget(Context context, FormEntryPrompt prompt, boolean secret, int num_type, boolean compact) {
-        super(context, prompt, secret,compact);
+        super(context, prompt, secret, compact);
 
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);

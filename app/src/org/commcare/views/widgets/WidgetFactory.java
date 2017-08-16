@@ -97,7 +97,7 @@ public class WidgetFactory {
 
     private QuestionWidget buildBasicWidget(String appearance, FormEntryPrompt fep,
                                             Context context) {
-        boolean compact = FormEntryActivity.mFormController.indexIsInCompact();
+        boolean compact = FormEntryActivity.mFormController.indexIsInCompact(fep.getIndex());
         switch (fep.getDataType()) {
             case Constants.DATATYPE_DATE_TIME:
                 return new DateTimeWidget(context, fep);
@@ -118,7 +118,7 @@ public class WidgetFactory {
             case Constants.DATATYPE_LONG:
                 return new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 2, compact);
             case Constants.DATATYPE_DECIMAL:
-                return new DecimalWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
+                return new DecimalWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, compact);
             case Constants.DATATYPE_INTEGER:
                 return new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 1, compact);
             case Constants.DATATYPE_GEOPOINT:
