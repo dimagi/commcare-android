@@ -237,7 +237,7 @@ public class CommCarePreferences
                 GoogleAnalyticsUtils.reportPrefItemClick(
                         GoogleAnalyticsFields.CATEGORY_CC_PREFS,
                         GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
-                startFileBrowser();
+                startFileBrowser(CommCarePreferences.this, REQUEST_TEMPLATE, "cannot.set.template");
                 return true;
             }
         });
@@ -306,8 +306,8 @@ public class CommCarePreferences
             }
         }
         if (requestCode == REQUEST_DEVELOPER_PREFERENCES) {
-            if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM && data != null) {
-                getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM, data);
+            if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
+                getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM);
                 getActivity().finish();
             }
         }
@@ -524,20 +524,6 @@ public class CommCarePreferences
             return;
         }
         app.getAppPreferences().edit().putBoolean(ANALYTICS_ENABLED, false).commit();
-    }
-
-    private void startFileBrowser() {
-        Intent chooseTemplateIntent = new Intent()
-                .setAction(Intent.ACTION_GET_CONTENT)
-                .setType("file/*")
-                .addCategory(Intent.CATEGORY_OPENABLE);
-        try {
-            startActivityForResult(chooseTemplateIntent, REQUEST_TEMPLATE);
-        } catch (ActivityNotFoundException e) {
-            // Means that there is no file browser installed on the device
-            TemplatePrinterUtils.showAlertDialog(getActivity(), Localization.get("cannot.set.template"),
-                    Localization.get("no.file.browser"), false);
-        }
     }
 
     private void startServerSettings() {

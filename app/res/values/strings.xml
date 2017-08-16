@@ -49,6 +49,7 @@
     <string name="privilege_enabled_text">The following privileges are enabled on your device:\n\n %s</string>
     <string name="privilege_not_enabled_text">Special privileges are not enabled on your device.</string>
     <string name="privilege_claim_failed">Could not claim privileges</string>
+    <string name="privilege_claim_bad_version">Didn\'t recognize the privilege activation code. Please update CommCare</string>
     <string name="privilege_instructions">If you have a superuser account on HQ, you can enable certain privileges on your device by going to the \'Enable Privileges on Mobile\' tab of your \'My Account Settings\' page, and then scanning the barcode that appears there.</string>
     <string name="see_available_apps">See Available Apps</string>
     <string name="install_from_list_prompt">Log in as a mobile or web user to see a list of apps you can install</string>
@@ -57,7 +58,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>38</item>
+        <item>39</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -65,7 +66,7 @@
     <string name="expirenotification">CommCare Login Expired</string>
     <string name="submission_notification_title">Submitting Data</string>
     <string name="submission_logs_title">Submitting CommCare Logs</string>
-    <string name="form_record_url"/>
+    <string name="remote_form_payload_url"/>
 
     <item name="login_screen_hide_all_cuttoff" type="integer">200</item>
     <item name="login_screen_hide_banner_cuttoff" type="integer">250</item>
@@ -145,8 +146,8 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
         <item>480</item>
     </string-array>
     <string-array name="update_target_labels">
-        <item>Latest starred build</item>
-        <item>Latest build</item>
+        <item>Latest starred version</item>
+        <item>Latest version</item>
         <item>Latest saved state</item>
     </string-array>
     <string-array name="update_target_vals">

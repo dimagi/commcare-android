@@ -61,7 +61,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * This form was complete, but something blocked it from processing and it's in a damaged
      * state (a.k.a. "quarantined")
      */
-    public static final String STATUS_LIMBO = "limbo";
+    public static final String STATUS_QUARANTINED = "limbo";
 
     /**
      * This form has been downloaded, but not processed for metadata
@@ -225,6 +225,14 @@ public class FormRecord extends Persisted implements EncryptedModel {
                 getInstanceID(),
                 getSubmissionOrderingNumber(),
                 classTag, reason);
+        Logger.log(AndroidLogger.TYPE_FORM_DELETION, logMessage);
+    }
+
+    public void logManualQuarantine() {
+        String logMessage = String.format(
+                "User manually quarantined form record with id %s and submission ordering number %s ",
+                getInstanceID(),
+                getSubmissionOrderingNumber());
         Logger.log(AndroidLogger.TYPE_FORM_DELETION, logMessage);
     }
 

@@ -1,0 +1,5 @@
+keys generated with:
+openssl genrsa -out key_for_tests.pem 512
+openssl req -new -x509 -key key_for_tests.pem -out cert_for_tests.cer -days 10000 -subj "/C=US/ST=Cambridge/O=CommCare Test Key"
+
+Changing them makes it much harder to run tests, so don't do it unless you're changing all of the old signatures!
