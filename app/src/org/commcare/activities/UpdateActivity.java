@@ -437,8 +437,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private void logoutOnSuccessfulUpdate() {
         final String upgradeFinishedText =
                 Localization.get("updates.install.finished");
-        CommCareApplication.instance().expireUserSession();
         CommCarePreferences.setPostUpdateSyncNeeded(true);
+        CommCareApplication.instance().expireUserSession();
         if (proceedAutomatically) {
             finishWithResult(RefreshToLatestBuildActivity.UPDATE_SUCCESS);
         } else {
