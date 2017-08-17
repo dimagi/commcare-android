@@ -944,7 +944,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             RestrictionsManager restrictionsManager =
                     (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
-            if (appRestrictions.containsKey("profileUrl")) {
+            if (appRestrictions != null && appRestrictions.containsKey("profileUrl")) {
                 Log.d(TAG, "Found managed configuration install URL "
                         + appRestrictions.getString("profileUrl"));
                 incomingRef = appRestrictions.getString("profileUrl");
