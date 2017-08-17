@@ -11,6 +11,7 @@ import org.commcare.activities.PromptCczUpdateActivity;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SerializationUtil;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -22,19 +23,23 @@ public class UpdatePromptHelper {
     /**
      * @return - If the user was prompted to update
      */
-    public static boolean promptForUpdateIfNeeded(Activity context, int requestCode) {
-        CommCareSessionService currentSession = CommCareApplication.instance().getSession();
-        if (!currentSession.apkUpdatePromptWasShown() &&
-                getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE) != null) {
-            // If there are updates to prompt for both, we'll show the apk one first
-            Intent i = new Intent(context, PromptApkUpdateActivity.class);
-            context.startActivityForResult(i, requestCode);
-            return true;
-        } else if (!currentSession.cczUpdatePromptWasShown() &&
-                getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE) != null) {
-            Intent i = new Intent(context, PromptCczUpdateActivity.class);
-            context.startActivityForResult(i, requestCode);
-            return true;
+    public static boolean promptForUpdateIfNeeded(Activity context) {
+        try {
+            CommCareSessionService currentSession = CommCareApplication.instance().getSession();
+            if (!currentSession.apkUpdatePromptWasShown() &&
+                    getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE) != null) {
+                // If there are updates to prompt for both, we'll show the apk one first
+                Intent i = new Intent(context, PromptApkUpdateActivity.class);
+                context.startActivity(i);
+                return true;
+            } else if (!currentSession.cczUpdatePromptWasShown() &&
+                    getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE) != null) {
+                Intent i = new Intent(context, PromptCczUpdateActivity.class);
+                context.startActivity(i);
+                return true;
+            }
+        } catch (SessionUnavailableException e) {
+            // Means we just performed an update and have therefore expired the session
         }
         return false;
     }

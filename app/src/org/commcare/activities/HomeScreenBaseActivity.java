@@ -15,8 +15,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
+import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
@@ -60,7 +60,6 @@ import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
-import org.commcare.utils.UriToFilePath;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
@@ -107,7 +106,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected static final int ADVANCED_ACTIONS_ACTIVITY = 8;
     protected static final int CREATE_PIN = 9;
     protected static final int AUTHENTICATION_FOR_PIN = 10;
-    protected static final int PROMPT_FOR_UPDATE = 11;
 
     private static final String KEY_PENDING_SESSION_DATA = "pending-session-data-id";
     private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
@@ -193,9 +191,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
             if (isDemoUser()) {
                 showDemoModeWarning();
-                return;
-            }
-            if (UpdatePromptHelper.promptForUpdateIfNeeded(this, PROMPT_FOR_UPDATE)) {
                 return;
             }
             if (checkForPinLaunchConditions()) {
@@ -374,19 +369,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     if (resultCode == AdvancedActionsPreferences.RESULT_DATA_RESET) {
                         finish();
                     } else if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
-                        try {
-                            Uri uri = intent.getData();
-                            String filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uri);
-                            if (filePath != null) {
-                                File f = new File(filePath);
-                                if (f != null && f.exists()) {
-                                    formAndDataSyncer.performCustomRestoreFromFile(this, f);
-                                }
-                            }
-                        } catch (Exception e) {
-                            Toast.makeText(this, "Error loading custom sync...",
-                                    Toast.LENGTH_LONG).show();
-                        }
+                        performCustomRestore();
                     }
                     return;
                 case ADVANCED_ACTIONS_ACTIVITY:
@@ -463,15 +446,30 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case GET_REMOTE_DATA:
                     stepBackIfCancelled(resultCode);
                     break;
-                case PROMPT_FOR_UPDATE:
-                    // in order to make sure that we've shown both types
-                    UpdatePromptHelper.promptForUpdateIfNeeded(this, PROMPT_FOR_UPDATE);
-                    return;
             }
             sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    private void performCustomRestore() {
+        try {
+            String filePath = DeveloperPreferences.getCustomRestoreDocLocation();
+            if (filePath != null && !filePath.isEmpty()) {
+                File f = new File(filePath);
+                if (f.exists()) {
+                    formAndDataSyncer.performCustomRestoreFromFile(this, f);
+                } else {
+                    Toast.makeText(this, Localization.get("custom.restore.file.not.exist"), Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(this, Localization.get("custom.restore.file.not.set"), Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, Localization.get("custom.restore.error"),
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     private boolean processReturnFromGetCase(int resultCode, Intent intent) {
@@ -1053,6 +1051,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (CommCareApplication.instance().isSyncPending(false)) {
             // There is a sync pending
             handlePendingSync();
+        } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
+            return;
         } else {
             // Display the home screen!
             refreshUI();

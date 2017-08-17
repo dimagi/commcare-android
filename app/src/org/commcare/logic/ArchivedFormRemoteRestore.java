@@ -2,8 +2,11 @@ package org.commcare.logic;
 
 import android.widget.Toast;
 
+import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormRecordListActivity;
+import org.commcare.network.DataPullRequester;
+import org.commcare.network.mocks.LocalFilePullResponseFactory;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
@@ -11,6 +14,8 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
+
+import java.io.File;
 
 /**
  * Only used for developer debugging.
@@ -25,11 +30,33 @@ public class ArchivedFormRemoteRestore {
     public static void pullArchivedFormsFromServer(String remoteUrl,
                                                    final FormRecordListActivity activity,
                                                    final CommCarePlatform platform) {
+
+        requestForms(activity, platform, remoteUrl, CommCareApplication.instance().getDataPullRequester(), false);
+    }
+
+    public static void pullArchivedFormsFromFile(String filePath,
+                                                 final FormRecordListActivity activity,
+                                                 final CommCarePlatform platform) {
+        if (filePath != null && !filePath.isEmpty()) {
+            File file = new File(filePath);
+            if (file.exists()) {
+                LocalFilePullResponseFactory.setRequestPayloads(new File[]{file});
+                requestForms(activity, platform, "fake-server-that-is-never-used", LocalFilePullResponseFactory.INSTANCE, true);
+            } else {
+                Toast.makeText(activity, Localization.get("payload.file.not.exist"), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(activity, Localization.get("payload.file.not.set"), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private static void requestForms(FormRecordListActivity activity, CommCarePlatform platform,
+                                     String remoteUrl, DataPullRequester dataPullRequester, boolean blockRemoteKeyManagement) {
         User u = CommCareApplication.instance().getSession().getLoggedInUser();
 
         // We should go digest auth this user on the server and see whether to pull them down.
         DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(),
-                u.getCachedPwd(), u.getUniqueId(), remoteUrl, activity) {
+                u.getCachedPwd(), u.getUniqueId(), remoteUrl, activity, dataPullRequester, blockRemoteKeyManagement) {
             @Override
             protected void deliverResult(FormRecordListActivity receiver, ResultAndError<PullTaskResult> statusAndErrorMessage) {
                 PullTaskResult status = statusAndErrorMessage.data;

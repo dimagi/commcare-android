@@ -59,7 +59,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.20 - Migrate index names on indexed fixtures so that multiple fixtures are able to have an index on the same column name
      */
 
-    private static final int USER_DB_VERSION = 19;
+    private static final int USER_DB_VERSION = 20;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 

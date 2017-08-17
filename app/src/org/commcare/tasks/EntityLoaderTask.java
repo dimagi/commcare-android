@@ -40,7 +40,7 @@ public class EntityLoaderTask
             this.factory = new AsyncNodeEntityFactory(detail, evalCtx);
         } else {
             this.factory = new NodeEntityFactory(detail, evalCtx);
-            if(DeveloperPreferences.collectAndDisplayEntityTrances()) {
+            if (DeveloperPreferences.collectAndDisplayEntityTraces()) {
                 this.factory.activateDebugTraceOutput();
             }
         }

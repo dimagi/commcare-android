@@ -82,7 +82,8 @@ public class MenuAdapter extends BaseAdapter {
     public MenuAdapter(CommCareActivity context, CommCarePlatform platform, String menuID) {
         this.context = context;
         asw = CommCareApplication.instance().getCurrentSessionWrapper();
-        MenuLoader menuLoader = new MenuLoader(platform, asw, menuID, new MenuLogger());
+        MenuLoader menuLoader = new MenuLoader(platform, asw, menuID, new MenuLogger(),
+                DeveloperPreferences.collectAndDisplayEntityTraces());
         this.displayableData = menuLoader.getMenus();
         this.errorMessage = menuLoader.getErrorMessage();
         this.loadError = menuLoader.getLoadException();

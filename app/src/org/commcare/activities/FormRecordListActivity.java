@@ -3,8 +3,8 @@ package org.commcare.activities;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -39,7 +39,7 @@ import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.ArchivedFormRemoteRestore;
 import org.commcare.models.FormRecordProcessor;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.FormRecordLoadListener;
@@ -62,15 +62,14 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         implements TextWatcher, FormRecordLoadListener, OnItemClickListener, TaskListener<Void, Void> {
     private static final String TAG = FormRecordListActivity.class.getSimpleName();
 
-    private static final String FORM_RECORD_URL = CommCareServerPreferences.PREFS_FORM_RECORD_KEY;
-
     private static final int OPEN_RECORD = Menu.FIRST;
     private static final int DELETE_RECORD = Menu.FIRST + 1;
     private static final int RESTORE_RECORD = Menu.FIRST + 2;
     private static final int SCAN_RECORD = Menu.FIRST + 3;
 
-    private static final int DOWNLOAD_FORMS = Menu.FIRST;
+    private static final int DOWNLOAD_FORMS_FROM_SERVER = Menu.FIRST;
     private static final int MENU_SUBMIT_QUARANTINE_REPORT = Menu.FIRST + 1;
+    private static final int DOWNLOAD_FORMS_FROM_FILE = Menu.FIRST + 2;
 
     private static final int BARCODE_FETCH = 1;
 
@@ -90,6 +89,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private View.OnClickListener barcodeScanOnClickListener;
 
     private boolean incompleteMode;
+
+    private FormRecordProcessor formRecordProcessor;
 
     public enum FormRecordFilter {
 
@@ -116,7 +117,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         /**
          * Limbo forms
          **/
-        Limbo("form.record.filter.limbo", new String[]{FormRecord.STATUS_LIMBO});
+        Limbo("form.record.filter.limbo", new String[]{FormRecord.STATUS_QUARANTINED });
 
         FormRecordFilter(String message, String[] statuses) {
             this.message = message;
@@ -223,6 +224,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         if (!isUsingActionBar()) {
             setSearchText(lastQueryString);
         }
+        this.formRecordProcessor = new FormRecordProcessor(this);
     }
 
     private static void callBarcodeScanIntent(Activity act) {
@@ -389,9 +391,12 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         FormRecord value = (FormRecord)adapter.getItem(info.position);
 
         menu.add(Menu.NONE, OPEN_RECORD, OPEN_RECORD, Localization.get("app.workflow.forms.open"));
-        menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, Localization.get("app.workflow.forms.delete"));
 
-        if (FormRecord.STATUS_LIMBO.equals(value.getStatus())) {
+        if (!FormRecord.STATUS_UNSENT.equals(value.getStatus())) {
+            menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, Localization.get("app.workflow.forms.delete"));
+        }
+
+        if (FormRecord.STATUS_QUARANTINED.equals(value.getStatus())) {
             menu.add(Menu.NONE, RESTORE_RECORD, RESTORE_RECORD, Localization.get("app.workflow.forms.restore"));
         }
 
@@ -427,7 +432,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 case SCAN_RECORD:
                     FormRecord theRecord = (FormRecord)adapter.getItem(info.position);
                     Pair<Boolean, String> result = new FormRecordProcessor(this).verifyFormRecordIntegrity(theRecord);
-                    createFormRecordScanResultDialog(result);
+                    createFormRecordScanResultDialog(result, theRecord);
             }
             return true;
         } catch (SessionUnavailableException e) {
@@ -436,7 +441,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
     }
 
-    private void createFormRecordScanResultDialog(Pair<Boolean, String> result) {
+    private void createFormRecordScanResultDialog(Pair<Boolean, String> result, FormRecord record) {
         String title;
         if (result.first) {
             title = Localization.get("app.workflow.forms.scan.title.valid");
@@ -444,8 +449,30 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             title = Localization.get("app.workflow.forms.scan.title.invalid");
         }
         int resId = result.first ? R.drawable.checkmark : R.drawable.redx;
-        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
-                result.second, resId, null));
+
+        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
+                result.second, resId, null);
+
+        dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                quarantineRecord(record);
+                dismissAlertDialog();
+            }
+        });
+
+        showAlertDialog(dialog);
+    }
+
+    private void quarantineRecord(FormRecord record) {
+        this.formRecordProcessor.updateRecordStatus(record, FormRecord.STATUS_QUARANTINED);
+        listView.post(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyDataSetInvalidated();
+            }
+        });
+        record.logManualQuarantine();
     }
 
     /**
@@ -500,14 +527,18 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             }
         });
         if (!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
-            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            String source = prefs.getString(FORM_RECORD_URL, this.getString(R.string.form_record_url));
+            String source = DeveloperPreferences.getRemoteFormPayloadUrl();
 
             //If there's nowhere to fetch forms from, we can't really go fetch them
             if (!source.equals("")) {
-                menu.add(0, DOWNLOAD_FORMS, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
+                menu.add(0, DOWNLOAD_FORMS_FROM_SERVER, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
             }
             menu.add(0, MENU_SUBMIT_QUARANTINE_REPORT, MENU_SUBMIT_QUARANTINE_REPORT, Localization.get("app.workflow.forms.quarantine.report"));
+
+            String fileSource = DeveloperPreferences.getLocalFormPayloadFilePath();
+            if(!fileSource.isEmpty()){
+                menu.add(0, DOWNLOAD_FORMS_FROM_FILE, 0, Localization.get("app.workflow.forms.fetch.file"));
+            }
             return true;
         }
         return parent;
@@ -530,11 +561,13 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case DOWNLOAD_FORMS:
-                SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-                String source = prefs.getString(FORM_RECORD_URL, this.getString(R.string.form_record_url));
+            case DOWNLOAD_FORMS_FROM_SERVER:
+                String source = DeveloperPreferences.getRemoteFormPayloadUrl();
                 ArchivedFormRemoteRestore.pullArchivedFormsFromServer(source, this, platform);
                 return true;
+            case DOWNLOAD_FORMS_FROM_FILE:
+                String sourceFile = DeveloperPreferences.getLocalFormPayloadFilePath();
+                ArchivedFormRemoteRestore.pullArchivedFormsFromFile(sourceFile, this, platform);
             case MENU_SUBMIT_QUARANTINE_REPORT:
                 generateQuarantineReport();
                 return true;
@@ -550,11 +583,10 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
 
     private void generateQuarantineReport() {
-        FormRecordProcessor processor = new FormRecordProcessor(this);
         Logger.log(LogTypes.TYPE_ERROR_STORAGE, "Beginning form Quarantine report");
         for (int i = 0; i < adapter.getCount(); ++i) {
             FormRecord r = (FormRecord)adapter.getItem(i);
-            Pair<Boolean, String> integrity = processor.verifyFormRecordIntegrity(r);
+            Pair<Boolean, String> integrity = this.formRecordProcessor.verifyFormRecordIntegrity(r);
             String passfail = integrity.first ? "PASS:" : "FAIL:";
             Logger.log(LogTypes.TYPE_ERROR_STORAGE, passfail + integrity.second);
         }

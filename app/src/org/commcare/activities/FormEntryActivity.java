@@ -53,7 +53,6 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
-import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
@@ -119,6 +118,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static final String KEY_FORM_LOAD_FAILED = "form-failed";
     private static final String KEY_LOC_ERROR = "location-not-enabled";
     private static final String KEY_LOC_ERROR_PATH = "location-based-xpath-error";
+    private static final String KEY_IS_READ_ONLY = "instance-is-read-only";
 
     private FormEntryInstanceState instanceState;
     private FormEntrySessionWrapper formEntryRestoreSession = new FormEntrySessionWrapper();
@@ -128,6 +128,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static AndroidFormController mFormController;
 
     private boolean mIncompleteEnabled = true;
+    private boolean instanceIsReadOnly = false;
     private boolean hasFormLoadBeenTriggered = false;
     private boolean hasFormLoadFailed = false;
     private String locationRecieverErrorAction = null;
@@ -258,6 +259,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
+        outState.putBoolean(KEY_IS_READ_ONLY, instanceIsReadOnly);
         formEntryRestoreSession.saveFormEntrySession(outState);
 
         if (indexOfWidgetWithVideoPlaying != -1) {
@@ -450,7 +452,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         menu.removeItem(FormEntryConstants.MENU_SAVE);
         menu.removeItem(FormEntryConstants.MENU_PREFERENCES);
 
-        if (mIncompleteEnabled) {
+        if (mIncompleteEnabled && !instanceIsReadOnly) {
             menu.add(0, FormEntryConstants.MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers)).setIcon(
                     android.R.drawable.ic_menu_save);
         }
@@ -885,13 +887,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return;
             }
 
-            boolean isInstanceReadOnly = false;
             try {
                 switch (contentType) {
                     case InstanceColumns.CONTENT_ITEM_TYPE:
                         Pair<Uri, Boolean> instanceAndStatus = FormEntryInstanceState.getInstanceUri(this, uri, formProviderContentURI, instanceState);
                         formUri = instanceAndStatus.first;
-                        isInstanceReadOnly = instanceAndStatus.second;
+                        this.instanceIsReadOnly = instanceAndStatus.second;
                         break;
                     case FormsColumns.CONTENT_ITEM_TYPE:
                         formUri = uri;
@@ -913,7 +914,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return;
             }
 
-            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, formEntryRestoreSession.isRecording(), this) {
+            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, this.instanceIsReadOnly, formEntryRestoreSession.isRecording(), this) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
@@ -1317,6 +1318,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 indexOfWidgetWithVideoPlaying = savedInstanceState.getInt(KEY_WIDGET_WITH_VIDEO_PLAYING);
                 positionOfVideoProgress = savedInstanceState.getInt(KEY_POSITION_OF_VIDEO_PLAYING);
             }
+
+            if (savedInstanceState.containsKey(KEY_IS_READ_ONLY)) {
+                this.instanceIsReadOnly = savedInstanceState.getBoolean(KEY_IS_READ_ONLY);
+            }
+
             uiController.restoreSavedState(savedInstanceState);
         }
     }

@@ -1,20 +1,14 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.MenuItem;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.SessionAwarePreferenceActivity;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
@@ -33,7 +27,6 @@ public class CommCareServerPreferences
     public final static String PREFS_SUBMISSION_URL_KEY = "PostURL";
     public final static String PREFS_LOG_POST_URL_KEY = "log_receiver_url";
     private final static String PREFS_KEY_SERVER_KEY = "default_key_server";
-    public final static String PREFS_FORM_RECORD_KEY = "form-record-url";
     public final static String PREFS_HEARTBEAT_URL_KEY = "heartbeat-url";
     public final static String PREFS_SUPPORT_ADDRESS_KEY = "support-email-address";
 
@@ -44,7 +37,6 @@ public class CommCareServerPreferences
         prefKeyToAnalyticsEvent.put(PREFS_DATA_SERVER_KEY, GoogleAnalyticsFields.LABEL_DATA_SERVER);
         prefKeyToAnalyticsEvent.put(PREFS_SUBMISSION_URL_KEY, GoogleAnalyticsFields.LABEL_SUBMISSION_SERVER);
         prefKeyToAnalyticsEvent.put(PREFS_KEY_SERVER_KEY, GoogleAnalyticsFields.LABEL_KEY_SERVER);
-        prefKeyToAnalyticsEvent.put(PREFS_FORM_RECORD_KEY, GoogleAnalyticsFields.LABEL_FORM_RECORD_SERVER);
         prefKeyToAnalyticsEvent.put(PREFS_SUPPORT_ADDRESS_KEY, GoogleAnalyticsFields.LABEL_SUPPORT_EMAIL);
     }
 
