@@ -233,7 +233,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
                 "User manually quarantined form record with id %s and submission ordering number %s ",
                 getInstanceID(),
                 getSubmissionOrderingNumber());
-        Logger.log(AndroidLogger.TYPE_FORM_DELETION, logMessage);
+        Logger.log(LogTypes.TYPE_FORM_DELETION, logMessage);
     }
 
 }
