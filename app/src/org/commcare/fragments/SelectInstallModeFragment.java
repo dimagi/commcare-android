@@ -93,6 +93,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 if (currentActivity instanceof CommCareSetupActivity) {
                     ((CommCareSetupActivity)currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
                     ((CommCareSetupActivity)currentActivity).clearErrorMessage();
+                    ((CommCareSetupActivity)currentActivity).checkManagedConfiguration();
                 }
                 // if we use getChildFragmentManager, we're going to have a crash
                 FragmentManager fm = getActivity().getSupportFragmentManager();

@@ -108,7 +108,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final int MENU_ARCHIVE = Menu.FIRST;
     private static final int MENU_SMS = Menu.FIRST + 2;
     private static final int MENU_FROM_LIST = Menu.FIRST + 3;
-    private static final int MENU_FROM_CONFIGURATION = Menu.FIRST + 4;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
@@ -535,7 +534,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         menu.add(0, MENU_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
         menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.app.list.install"));
-        menu.add(0, MENU_FROM_CONFIGURATION, 2, Localization.get("menu.app.list.configuration"));
         return true;
     }
 
@@ -651,10 +649,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 clearErrorMessage();
                 i = new Intent(getApplicationContext(), InstallFromListActivity.class);
                 startActivityForResult(i, GET_APPS_FROM_HQ);
-                break;
-            case MENU_FROM_CONFIGURATION:
-                clearErrorMessage();
-                checkManagedConfiguration();
                 break;
         }
         return true;
@@ -943,7 +937,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
-    private void checkManagedConfiguration() {
+    public void checkManagedConfiguration() {
         Log.d(TAG, "Checking managed configuration");
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             // Check for managed configuration
