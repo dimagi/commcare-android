@@ -15,6 +15,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.AndroidShortcuts;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.LifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
@@ -63,7 +64,7 @@ public class DispatchActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        CrashUtil.init(this);
         if (finishIfNotRoot()) {
             return;
         }

@@ -29,7 +29,6 @@ import com.google.android.gms.analytics.Tracker;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
-import org.acra.annotation.ReportsCrashes;
 import org.commcare.activities.LoginActivity;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
@@ -79,7 +78,7 @@ import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
-import org.commcare.utils.ACRAUtil;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareExceptionHandler;
@@ -107,12 +106,6 @@ import java.util.HashMap;
 
 import javax.crypto.SecretKey;
 
-@ReportsCrashes(
-        formUri = "https://your/cloudant/report",
-        formUriBasicAuthLogin = "your_username",
-        formUriBasicAuthPassword = "your_password",
-        reportType = org.acra.sender.HttpSender.Type.JSON,
-        httpMethod = org.acra.sender.HttpSender.Method.PUT)
 public class CommCareApplication extends Application {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
@@ -216,8 +209,6 @@ public class CommCareApplication extends Application {
             AppUtils.checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
         }
-
-        ACRAUtil.initACRA(this);
 
         if (!GoogleAnalyticsUtils.versionIncompatible()) {
             analyticsInstance = GoogleAnalytics.getInstance(this);

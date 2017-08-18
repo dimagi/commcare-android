@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
-import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
@@ -52,7 +51,7 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
-import org.commcare.utils.ACRAUtil;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.ChangeLocaleUtil;
@@ -134,7 +133,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         loadInstanceState(savedInstanceState);
-        ACRAUtil.registerAppData();
+        CrashUtil.registerAppData();
         AdMobManager.initAdsForCurrentConsumerApp(getApplicationContext());
         sessionNavigator = new SessionNavigator(this);
 
