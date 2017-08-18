@@ -28,7 +28,6 @@ import org.commcare.activities.FormRecordListActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
@@ -36,6 +35,7 @@ import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.EntityViewTile;
@@ -83,7 +83,7 @@ public class BreadcrumbBarFragment extends Fragment {
         if (context instanceof Activity) {
             refresh((Activity)context);
         } else {
-            Logger.log(AndroidLogger.SOFT_ASSERT, "Unable to attach breadcrumb bar fragment");
+            Logger.log(LogTypes.SOFT_ASSERT, "Unable to attach breadcrumb bar fragment");
         }
     }
 

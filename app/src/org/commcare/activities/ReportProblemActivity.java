@@ -13,8 +13,8 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportProblemActivity> implements OnClickListener {
@@ -33,7 +33,7 @@ public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportPr
     public void onClick(View v) {
         EditText mEdit = (EditText)findViewById(R.id.ReportText01);
         String reportEntry = mEdit.getText().toString();
-        Logger.log(AndroidLogger.USER_REPORTED_PROBLEM, reportEntry);
+        Logger.log(LogTypes.USER_REPORTED_PROBLEM, reportEntry);
         setResult(RESULT_OK);
         sendReportEmail(reportEntry);
         CommCareApplication.instance().notifyLogsPending();

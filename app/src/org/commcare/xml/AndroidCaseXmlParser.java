@@ -7,13 +7,13 @@ import android.util.Pair;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.engine.references.JavaHttpReference;
 import org.commcare.interfaces.HttpRequestEndpoints;
-import org.commcare.logging.AndroidLogger;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.io.StreamsUtil;
@@ -154,19 +154,19 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
                     try {
                         dest.first.createNewFile();
                     } catch (IOException fe) {
-                        Logger.log(AndroidLogger.TYPE_RESOURCES, "Couldn't create placeholder for new file at " + dest.first.getAbsolutePath());
+                        Logger.log(LogTypes.TYPE_RESOURCES, "Couldn't create placeholder for new file at " + dest.first.getAbsolutePath());
                     }
                     try {
                         StreamsUtil.writeFromInputToOutputNew(remote.getStream(), new FileOutputStream(dest.first));
                         readAttachment = true;
                         break;
                     } catch (IOException e) {
-                        Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Failed reading (attempt #" + tries + ") attachment from " + src);
+                        Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Failed reading (attempt #" + tries + ") attachment from " + src);
                     }
                 }
 
                 if (!readAttachment) {
-                    Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Failed to read attachment from " + src);
+                    Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Failed to read attachment from " + src);
                     return null;
                 }
 
@@ -176,7 +176,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
 
             } catch (InvalidReferenceException e) {
                 //We can't go fetch this resource because we don't have access to the reference type
-                Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Couldn't find attachment at reference " + e.getReferenceString());
+                Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Couldn't find attachment at reference " + e.getReferenceString());
                 return null;
             }
             return null;

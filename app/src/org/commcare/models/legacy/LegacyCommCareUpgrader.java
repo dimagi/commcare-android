@@ -6,13 +6,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 
-import org.commcare.android.javarosa.AndroidLogEntry;
-import org.commcare.logging.AndroidLogger;
-import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.resources.model.Resource;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -30,7 +30,7 @@ public class LegacyCommCareUpgrader {
     }
 
     public boolean doUpgrade(SQLiteDatabase database, int from, int to) {
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("App DB Upgrade needed! Starting upgrade from %d to %d", from, to));
+        Logger.log(LogTypes.TYPE_MAINTENANCE, String.format("App DB Upgrade needed! Starting upgrade from %d to %d", from, to));
         if (from == 1) {
             if (upgradeOneTwo(database)) {
                 from = 2;
@@ -71,7 +71,7 @@ public class LegacyCommCareUpgrader {
             }
         }
 
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Upgrade %s", from == to ? "succesful" : "unsuccesful"));
+        Logger.log(LogTypes.TYPE_MAINTENANCE, String.format("Upgrade %s", from == to ? "succesful" : "unsuccesful"));
 
         return from == to;
     }
@@ -167,7 +167,7 @@ public class LegacyCommCareUpgrader {
 
             int newRows = countRows(database, ssdTable);
             if (oldRows != newRows) {
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Removed %s duplicate SessionStateDescriptor rows during DB Upgrade", String.valueOf(oldRows - newRows)));
+                Logger.log(LogTypes.TYPE_MAINTENANCE, String.format("Removed %s duplicate SessionStateDescriptor rows during DB Upgrade", String.valueOf(oldRows - newRows)));
             }
 
             return true;

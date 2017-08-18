@@ -28,9 +28,9 @@ import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.DelayedBlockingAction;
 import org.commcare.utils.FileUtil;
@@ -698,7 +698,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      */
     public void setBinaryData(Object answer) {
         String instanceClass = this.getClass().getSimpleName();
-        Logger.log(AndroidLogger.SOFT_ASSERT,
+        Logger.log(LogTypes.SOFT_ASSERT,
                 "Calling empty implementation of " + instanceClass + ".setBinaryData");
     }
 

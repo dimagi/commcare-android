@@ -2,9 +2,9 @@ package org.commcare.tasks;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.logging.AndroidLogger;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
 
@@ -105,7 +105,7 @@ public class PurgeStaleArchivedFormsTask
         try {
             daysForReview = Integer.parseInt(daysToPurge);
         } catch (NumberFormatException nfe) {
-            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE,
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
                     "Invalid days to purge: " + daysToPurge);
         }
         return daysForReview;
@@ -137,7 +137,7 @@ public class PurgeStaleArchivedFormsTask
             try {
                 timeSinceEpoch = Long.valueOf(dateAsString);
             } catch (NumberFormatException e) {
-                Logger.log(AndroidLogger.SOFT_ASSERT,
+                Logger.log(LogTypes.SOFT_ASSERT,
                         "Unable to parse modified date of form record: " + dateAsString);
                 toPurge.add(id);
                 continue;
