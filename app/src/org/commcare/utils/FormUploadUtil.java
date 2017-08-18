@@ -5,7 +5,6 @@ import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import org.commcare.logging.AndroidLogger;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.DataSubmissionListener;

@@ -36,7 +36,6 @@ public class AsyncRestoreHelper {
             return new ResultAndError<>(DataPullTask.PullTaskResult.BAD_DATA);
         }
         try {
-
             long waitTimeInMilliseconds = Integer.parseInt(retryHeader) * 1000;
             Logger.log(LogTypes.TYPE_USER, "Retry-After header value was " + waitTimeInMilliseconds);
             if (waitTimeInMilliseconds <= 0) {
@@ -50,8 +49,7 @@ public class AsyncRestoreHelper {
             }
             return new ResultAndError<>(DataPullTask.PullTaskResult.RETRY_NEEDED);
         } catch (NumberFormatException e) {
-            Logger.log(LogTypes.TYPE_USER, "Invalid Retry-After header value: "
-                    + retryHeader);
+            Logger.log(LogTypes.TYPE_USER, "Invalid Retry-After header value: " + retryHeader);
             return new ResultAndError<>(DataPullTask.PullTaskResult.BAD_DATA);
         }
     }
