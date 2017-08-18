@@ -122,7 +122,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         mLayout = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 
         addQuestionText();
-        if (isInCompactMode()) {
+        if (!isInCompactMode()) {
             addHelpPlaceholder();
             addHintText();
         }
@@ -414,7 +414,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             mQuestionText.setVisibility(GONE);
         }
 
-        if (!isInCompactMode()) {
+        if (isInCompactMode()) {
+            addView(mQuestionText);
+        } else {
             // Create the layout for audio, image, text
             String imageURI = mPrompt.getImageText();
             String audioURI = mPrompt.getAudioText();
@@ -427,8 +429,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
             MediaLayout mediaLayout = MediaLayout.buildComprehensiveLayout(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri, expandedAudioURI, mPrompt.getIndex().hashCode());
             addView(mediaLayout, mLayout);
-        } else {
-            addView(mQuestionText);
         }
     }
 
@@ -728,7 +728,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     /**
      * @return Whether this widget is to be shown in compact mode
      */
-    public boolean isInCompactMode() {
+    protected boolean isInCompactMode() {
         return mCompact;
     }
 }
