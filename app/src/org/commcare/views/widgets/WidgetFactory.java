@@ -44,7 +44,7 @@ public class WidgetFactory {
      *  @param fep     prompt element to be rendered
      * @param context Android context
      */
-    public QuestionWidget createWidgetFromPrompt(FormEntryPrompt fep, Context context) {
+    public QuestionWidget createWidgetFromPrompt(FormEntryPrompt fep, Context context, boolean inCompactGroup) {
         QuestionWidget questionWidget;
         String appearance = fep.getAppearanceHint();
         switch (fep.getControlType()) {
@@ -54,7 +54,7 @@ public class WidgetFactory {
                     break;
                 }
             case Constants.CONTROL_SECRET:
-                questionWidget = buildBasicWidget(appearance, fep, context);
+                questionWidget = buildBasicWidget(appearance, fep, context, inCompactGroup);
                 break;
             case Constants.CONTROL_IMAGE_CHOOSE:
                 if (appearance != null && appearance.equals("signature")) {
@@ -96,8 +96,7 @@ public class WidgetFactory {
     }
 
     private QuestionWidget buildBasicWidget(String appearance, FormEntryPrompt fep,
-                                            Context context) {
-        boolean compact = FormEntryActivity.mFormController.indexIsInCompact(fep.getIndex());
+                                            Context context, boolean inCompactGroup) {
         switch (fep.getDataType()) {
             case Constants.DATATYPE_DATE_TIME:
                 return new DateTimeWidget(context, fep);
@@ -116,11 +115,11 @@ public class WidgetFactory {
             case Constants.DATATYPE_TIME:
                 return new TimeWidget(context, fep);
             case Constants.DATATYPE_LONG:
-                return new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 2, compact);
+                return new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 2, inCompactGroup);
             case Constants.DATATYPE_DECIMAL:
-                return new DecimalWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, compact);
+                return new DecimalWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, inCompactGroup);
             case Constants.DATATYPE_INTEGER:
-                return new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 1, compact);
+                return new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 1, inCompactGroup);
             case Constants.DATATYPE_GEOPOINT:
                 return new GeoPointWidget(context, fep, pendingCalloutInterface);
             case Constants.DATATYPE_BARCODE:

@@ -27,8 +27,8 @@ public class IntegerWidget extends StringWidget {
     //1 for int. 0 for long?
     private final int number_type;
 
-    public IntegerWidget(Context context, FormEntryPrompt prompt, boolean secret, int num_type, boolean compact) {
-        super(context, prompt, secret, compact);
+    public IntegerWidget(Context context, FormEntryPrompt prompt, boolean secret, int num_type, boolean inCompactGroup) {
+        super(context, prompt, secret, inCompactGroup);
 
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);

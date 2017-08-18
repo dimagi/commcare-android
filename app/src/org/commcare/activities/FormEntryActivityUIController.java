@@ -773,7 +773,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             FormEntryPrompt prompt = newValidPrompts[i];
             if (!promptsLeftInView.contains(prompt)) {
                 // If the old version of this prompt was NOT left in the view, then add it
-                questionsView.addQuestionToIndex(prompt, FormEntryActivity.mFormController.getWidgetFactory(), i);
+                questionsView.addQuestionToIndex(prompt,
+                        FormEntryActivity.mFormController.getWidgetFactory(),
+                        i,
+                        FormEntryActivity.mFormController.indexIsInCompact(prompt.getIndex()));
             }
         }
         updateCompoundIntentButtonVisibility();

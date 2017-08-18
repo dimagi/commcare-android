@@ -9,6 +9,7 @@ import android.text.method.PasswordTransformationMethod;
 import android.text.method.TextKeyListener;
 import android.text.method.TextKeyListener.Capitalize;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,8 +41,8 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         this(context, prompt, secret, false);
     }
 
-    public StringWidget(Context context, FormEntryPrompt prompt, boolean secret, boolean compact) {
-        super(context, prompt, compact);
+    public StringWidget(Context context, FormEntryPrompt prompt, boolean secret, boolean inCompactGroup) {
+        super(context, prompt, inCompactGroup);
         mAnswer = (EditText)LayoutInflater.from(getContext()).inflate(getAnswerLayout(), this, false);
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswer.setOnClickListener(this);
@@ -63,7 +64,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         }
         setTextInputType(mAnswer);
 
-        if (!secret && !isInCompactMode()) {
+        if (!secret) {
             mAnswer.setSingleLine(false);
         }
 
@@ -82,6 +83,10 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
                 mAnswer.setFocusable(false);
                 mAnswer.setClickable(false);
             }
+        }
+
+        if(isInCompactMode()){
+            mAnswer.setGravity(Gravity.RIGHT);
         }
 
         addView(mAnswer);
@@ -221,13 +226,11 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     public void beforeTextChanged(CharSequence s, int start, int count,
                                   int after) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         // TODO Auto-generated method stub
-
     }
 
     public void setLastQuestion(boolean isLast) {

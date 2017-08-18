@@ -90,10 +90,10 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         this(context, p, false);
     }
 
-    public QuestionWidget(Context context, FormEntryPrompt p, boolean compact) {
+    public QuestionWidget(Context context, FormEntryPrompt p, boolean inCompactGroup) {
         super(context);
         mPrompt = p;
-        mCompact = compact;
+        mCompact = inCompactGroup;
 
         //this is pretty sketch but is the only way to make the required background to work trivially for now
         this.setClipToPadding(false);
