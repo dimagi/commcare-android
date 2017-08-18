@@ -78,6 +78,9 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         if (elements != null) {
             return;
         }
+        //Note: This behavior is now replicated in the core storage instance tree element.
+        //We still need all of our private accessors to bootstrap optimizations, though,
+        //so "internalizing" this is a piece of technical debt that'll take a bit of caution/care
         elements = new Vector<>();
         Log.d(TAG, "Getting Cases!");
         long timeInMillis = System.currentTimeMillis();
