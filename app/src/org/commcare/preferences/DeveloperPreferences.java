@@ -56,6 +56,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static final String USE_OBFUSCATED_PW = "cc-use-pw-obfuscation";
     public static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
     public static final String SHOW_UPDATE_OPTIONS_SETTING = "cc-show-update-target-options";
+    public final static String HIDE_ISSUE_REPORT = "cc-hide-issue-report";
+
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -391,6 +393,10 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static boolean shouldShowUpdateOptionsSetting() {
         return doesPropertyMatch(SHOW_UPDATE_OPTIONS_SETTING, CommCarePreferences.NO,
                 CommCarePreferences.YES) || BuildConfig.DEBUG;
+    }
+
+    public static boolean shouldHideReportIssue() {
+        return doesPropertyMatch(HIDE_ISSUE_REPORT, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
     private void hideOrShowDangerousSettings() {

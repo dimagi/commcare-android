@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.PreferenceScreen;
 import android.view.MenuItem;
 
 import org.commcare.AppUtils;
@@ -17,6 +18,7 @@ import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
@@ -88,6 +90,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
 
         CommCarePreferences.setupLocalizedText(this, keyToTitleMap);
         setupButtons();
+        hideReportIssueIfNeeded();
     }
 
     private void setupButtons() {
@@ -189,6 +192,13 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
                 return true;
             }
         });
+    }
+
+    private void hideReportIssueIfNeeded() {
+        Preference reportProblemPref = getPreferenceManager().findPreference(REPORT_PROBLEM);
+        if (reportProblemPref != null && DeveloperPreferences.shouldHideReportIssue()) {
+            getPreferenceScreen().removePreference(reportProblemPref);
+        }
     }
 
     private void startReportActivity() {
