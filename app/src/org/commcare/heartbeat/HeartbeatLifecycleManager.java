@@ -2,9 +2,9 @@ package org.commcare.heartbeat;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 import java.util.Date;
@@ -45,7 +45,7 @@ public class HeartbeatLifecycleManager {
                         } catch (Exception e) {
                             // Encountered an unexpected issue, should just bail on this thread
                             HeartbeatLifecycleManager.this.endCurrentHeartbeatTask();
-                            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                                     "Encountered unexpected exception during heartbeat communications: "
                                             + e.getMessage() + ". Stopping the heartbeat thread.");
                         }
