@@ -4,12 +4,12 @@ import android.content.Context;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.logging.AndroidLogger;
-import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
+import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -135,15 +135,15 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
             //TODO: These are not great, long term
         } catch (InvalidStructureException ise) {
             ise.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_USER, "Invalid response for auth keys: " + ise.getMessage());
+            Logger.log(LogTypes.TYPE_USER, "Invalid response for auth keys: " + ise.getMessage());
             return HttpCalloutOutcomes.BadResponse;
         } catch (XmlPullParserException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_USER, "Invalid xml response for auth keys: " + e.getMessage());
+            Logger.log(LogTypes.TYPE_USER, "Invalid xml response for auth keys: " + e.getMessage());
             return HttpCalloutOutcomes.BadResponse;
         } catch (UnfullfilledRequirementsException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_USER, "Missing requirements when fetching auth keys: " + e.getMessage());
+            Logger.log(LogTypes.TYPE_USER, "Missing requirements when fetching auth keys: " + e.getMessage());
             return HttpCalloutOutcomes.BadResponse;
         }
     }

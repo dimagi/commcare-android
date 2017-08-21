@@ -8,9 +8,8 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.PromptCczUpdateActivity;
-import org.commcare.activities.PromptUpdateActivity;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
@@ -60,7 +59,7 @@ public class UpdatePromptHelper {
                      update = SerializationUtil.deserialize(updateBytes, UpdateToPrompt.class);
                 } catch (Exception e) {
                     // Something went wrong, so clear out whatever is there
-                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                    Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                             "Error encountered while de-serializing saved UpdateToPrompt: "
                                     + e.getMessage());
                     wipeStoredUpdate(type);

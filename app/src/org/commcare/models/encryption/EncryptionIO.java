@@ -1,6 +1,6 @@
 package org.commcare.models.encryption;
 
-import org.commcare.logging.AndroidLogger;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 import java.io.BufferedInputStream;
@@ -43,15 +43,15 @@ public class EncryptionIO {
                 //write out data if the key isn't good, or the crypto isn't available)
             } catch (InvalidKeyException e) {
                 e.printStackTrace();
-                Logger.log(AndroidLogger.TYPE_ERROR_CRYPTO, "Invalid key: " + e.getMessage());
+                Logger.log(LogTypes.TYPE_ERROR_CRYPTO, "Invalid key: " + e.getMessage());
                 throw new RuntimeException(e.getMessage());
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
-                Logger.log(AndroidLogger.TYPE_ERROR_CRYPTO, "Unavailable Crypto algorithm: " + e.getMessage());
+                Logger.log(LogTypes.TYPE_ERROR_CRYPTO, "Unavailable Crypto algorithm: " + e.getMessage());
                 throw new RuntimeException(e.getMessage());
             } catch (NoSuchPaddingException e) {
                 e.printStackTrace();
-                Logger.log(AndroidLogger.TYPE_ERROR_CRYPTO, "Bad Padding: " + e.getMessage());
+                Logger.log(LogTypes.TYPE_ERROR_CRYPTO, "Bad Padding: " + e.getMessage());
                 throw new RuntimeException(e.getMessage());
             }
         }
