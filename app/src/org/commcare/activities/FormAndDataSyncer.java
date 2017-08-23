@@ -98,6 +98,9 @@ public class FormAndDataSyncer {
                             case FAILURE:
                                 receiver.handleFormSendResult(Localization.get("sync.fail.server.error"), false);
                                 break;
+                            case RECORD_FAILURE:
+                                receiver.handleFormSendResult(Localization.get("sync.fail.individual"), false);
+                                break;
                             default:
                                 receiver.handleFormSendResult(Localization.get("sync.fail.unsent"), false);
                         }

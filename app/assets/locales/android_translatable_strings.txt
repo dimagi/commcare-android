@@ -95,17 +95,17 @@ menu.privilege.claim.disable=Disable Privileges
 sync.success.sent.none=No forms sent to server!
 sync.success.sent.singular=1 form sent to server!
 sync.success.sent=${0} forms sent to server!
-sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
-sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
-
 sync.success.synced=Sync Successful! Your information is up to date.
 
+sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
 sync.fail.auth.loggedin=Password has changed. Please log in with updated credentials
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occurred with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
 sync.fail.server.error=The server had an error processing your data. Please try again later. If the problem persists, contact technical support.
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
+sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
+sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
 
 sync.communicating.title=Communicating with Server
 sync.waiting.title=Waiting for Server Progress
