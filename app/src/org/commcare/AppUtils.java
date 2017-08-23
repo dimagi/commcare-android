@@ -7,11 +7,11 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.suite.model.Profile;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.javarosa.core.services.Logger;
@@ -83,7 +83,7 @@ public class AppUtils {
                 try {
                     CommCareApplication.instance().uninstall(record);
                 } catch (RuntimeException e) {
-                    Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Unable to uninstall an app " +
+                    Logger.log(LogTypes.TYPE_ERROR_STORAGE, "Unable to uninstall an app " +
                             "during startup that was previously left partially-deleted");
                 }
             }

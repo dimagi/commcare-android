@@ -4,7 +4,6 @@ import android.support.v4.util.Pair;
 
 import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInstaller;
@@ -12,6 +11,7 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.io.StreamsUtil;
@@ -211,11 +211,11 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                 localLocation = finalLocation;
                 return true;
             } else {
-                Logger.log(AndroidLogger.TYPE_RESOURCES, "Couldn't figure out how to unstage to status " + newStatus);
+                Logger.log(LogTypes.TYPE_RESOURCES, "Couldn't figure out how to unstage to status " + newStatus);
                 return false;
             }
         } catch (InvalidReferenceException e) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "Very Bad! Couldn't derive a reference to " + e.getReferenceString());
+            Logger.log(LogTypes.TYPE_RESOURCES, "Very Bad! Couldn't derive a reference to " + e.getReferenceString());
             return false;
         }
     }
@@ -243,7 +243,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             localLocation = finalLocation;
             return true;
         } catch (InvalidReferenceException e) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "Very Bad! Couldn't restore a resource to destination" + finalLocation + " somehow");
+            Logger.log(LogTypes.TYPE_RESOURCES, "Very Bad! Couldn't restore a resource to destination" + finalLocation + " somehow");
             return false;
         }
     }

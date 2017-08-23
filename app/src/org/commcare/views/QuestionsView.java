@@ -15,13 +15,13 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import org.commcare.utils.BlockingActionsManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.util.LogTypes;
+import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.views.widgets.DateTimeWidget;
@@ -378,7 +378,7 @@ public class QuestionsView extends ScrollView
     public void setBinaryData(Object answer, PendingCalloutInterface pendingCalloutInterface) {
         FormIndex questionFormIndex = pendingCalloutInterface.getPendingCalloutFormIndex();
         if (questionFormIndex == null) {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
+            Logger.log(LogTypes.SOFT_ASSERT,
                     "Unable to find question widget to attach pending data to.");
             return;
         }
@@ -389,7 +389,7 @@ public class QuestionsView extends ScrollView
                 return;
             }
         }
-        Logger.log(AndroidLogger.SOFT_ASSERT,
+        Logger.log(LogTypes.SOFT_ASSERT,
                 "Unable to find question widget to attach pending data to.");
     }
 

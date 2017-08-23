@@ -9,8 +9,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
@@ -56,11 +56,11 @@ public class HeartbeatRequester {
                 passResponseToUiThread(jsonResponse);
             }
             catch (JSONException e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "Heartbeat response was not properly-formed JSON: " + e.getMessage());
             }
             catch (IOException e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "IO error while processing heartbeat response: " + e.getMessage());
             }
         }
@@ -87,13 +87,13 @@ public class HeartbeatRequester {
 
         @Override
         public void handleIOException(IOException exception) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "Encountered IOException while getting response stream for heartbeat response: "
                             + exception.getMessage());
         }
 
         private void processErrorResponse(int responseCode) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "Received error response from heartbeat request: " + responseCode);
         }
     };
@@ -110,7 +110,7 @@ public class HeartbeatRequester {
             requester.setResponseProcessor(responseProcessor);
             requester.request();
         } catch (MalformedURLException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE,
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
                     "Heartbeat URL was malformed: " + e.getMessage());
         }
     }
@@ -163,10 +163,10 @@ public class HeartbeatRequester {
                     return appIdOfResponse.equals(currentAppId);
                 }
             }
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "Heartbeat response did not have required app_id param");
         } catch (JSONException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "App id in heartbeat response was not formatted properly: " + e.getMessage());
         }
         return false;
@@ -180,7 +180,7 @@ public class HeartbeatRequester {
                 parseUpdateToPrompt(latestApkVersionInfo, UpdateToPrompt.Type.APK_UPDATE);
             }
         } catch (JSONException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "Latest apk version object in heartbeat response was not " +
                             "formatted properly: " + e.getMessage());
         }
@@ -193,7 +193,7 @@ public class HeartbeatRequester {
                 parseUpdateToPrompt(latestCczVersionInfo, UpdateToPrompt.Type.CCZ_UPDATE);
             }
         } catch (JSONException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "Latest ccz version object in heartbeat response was not " +
                             "formatted properly: " + e.getMessage());
         }
@@ -213,7 +213,7 @@ public class HeartbeatRequester {
                 }
             }
         } catch (JSONException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_SERVER_COMMS,
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "Encountered malformed json while trying to parse server response into an " +
                             "UpdateToPrompt object : " + e.getMessage());
         }

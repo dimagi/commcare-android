@@ -4,8 +4,8 @@ import android.os.Build;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.AndroidLogEntry;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -41,7 +41,7 @@ public class ForceCloseLogEntry extends AndroidLogEntry {
     }
 
     public ForceCloseLogEntry(String stackTrace) {
-        super(AndroidLogger.TYPE_FORCECLOSE, stackTrace, new Date());
+        super(LogTypes.TYPE_FORCECLOSE, stackTrace, new Date());
         appBuildNumber = ReportingUtils.getAppBuildNumber();
         androidVersion = Build.VERSION.RELEASE;
         deviceModel = Build.MODEL;

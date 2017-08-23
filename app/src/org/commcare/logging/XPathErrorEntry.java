@@ -3,6 +3,7 @@ package org.commcare.logging;
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -30,7 +31,7 @@ public class XPathErrorEntry extends AndroidLogEntry {
     }
 
     protected XPathErrorEntry(String expression, String errorMessage) {
-        super(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, errorMessage, new Date());
+        super(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, errorMessage, new Date());
 
         if (expression == null) {
             this.expression = "";
