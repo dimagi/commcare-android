@@ -188,6 +188,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         record.logPendingDeletion(TAG,
                                 "the xml submission file associated with the record could not be found");
                         FormRecordCleanupTask.wipeRecord(c, record);
+                        records[i] = FormRecord.StandInForDeletedRecord();
                     } else {
                         CommCareApplication.notificationManager().reportNotificationMessage(
                                 NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
@@ -349,8 +350,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             processor.updateRecordStatus(record, FormRecord.STATUS_SAVED);
                         }
                     }
-                } else if (FormRecord.STATUS_QUARANTINED.equals(record.getStatus())) {
-                    // This record was quarantined due to an error during the pre-processing phase
+                } else if (FormRecord.STATUS_QUARANTINED.equals(record.getStatus()) ||
+                        FormRecord.STATUS_JUST_DELETED.equals(record.getStatus())) {
+                    // This record was either quarantined or deleted due to an error during the
+                    // pre-processing phase
                     results[i] = FormUploadResult.RECORD_FAILURE;
                 }
                 else {
