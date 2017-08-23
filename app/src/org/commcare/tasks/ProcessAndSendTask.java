@@ -178,7 +178,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     records[i] = processor.process(record);
                 } catch (InvalidStructureException | XmlPullParserException |
                         UnfullfilledRequirementsException e) {
-                    handleExceptionFromFormProcessing(record, e);
+                    records[i] = handleExceptionFromFormProcessing(record, e);
                     needToSendLogs = true;
                 } catch (FileNotFoundException e) {
                     if (CommCareApplication.instance().isStorageAvailable()) {
@@ -204,30 +204,25 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         return needToSendLogs;
     }
 
-    private void handleExceptionFromFormProcessing(FormRecord record, Exception e) {
-        String generalLogMessage = "";
-        String formDeletionLogMessage = "";
+    private FormRecord handleExceptionFromFormProcessing(FormRecord record, Exception e) {
+        String logMessage = "";
         if (e instanceof InvalidStructureException) {
-            generalLogMessage =
-                    "Removing form record due to transaction data|" + getExceptionText(e);
-            formDeletionLogMessage =
-                    "we encountered an InvalidStructureException while processing the record";
+            logMessage =
+                    "Quarantining form record due to transaction data|";
         } else if (e instanceof XmlPullParserException) {
-            generalLogMessage =
-                    "Removing form record due to bad xml|" + getExceptionText(e);
-            formDeletionLogMessage =
-                    "we encountered an XmlPullParserException while processing the record";
+            logMessage =
+                    "Quarantining form record due to bad xml|";
         } else if (e instanceof UnfullfilledRequirementsException) {
-            generalLogMessage =
-                    "Removing form record due to bad requirements|" + getExceptionText(e);
-            formDeletionLogMessage =
-                    "we encountered an UnfullfilledRequirementsException while processing the record";
+            logMessage =
+                    "Quarantining form record due to bad requirements|";
         }
+        logMessage = logMessage + getExceptionText(e);
+
         CommCareApplication.notificationManager().reportNotificationMessage(
                 NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-        Logger.log(LogTypes.TYPE_ERROR_DESIGN, generalLogMessage);
-        record.logPendingDeletion(TAG, formDeletionLogMessage);
-        FormRecordCleanupTask.wipeRecord(c, record);
+        Logger.log(LogTypes.TYPE_ERROR_DESIGN, logMessage);
+
+        return processor.updateRecordStatus(record, FormRecord.STATUS_QUARANTINED);
     }
 
     private boolean blockUntilTopOfQueue() throws TaskCancelledException {
@@ -282,7 +277,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
             FormRecord record = records[i];
             try {
-                //If it's unsent, go ahead and send it
                 if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
                     File folder;
                     try {
@@ -354,7 +348,11 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             processor.updateRecordStatus(record, FormRecord.STATUS_SAVED);
                         }
                     }
-                } else {
+                } else if (FormRecord.STATUS_QUARANTINED.equals(record.getStatus())) {
+                    // This record was quarantined due to an error during the pre-processing phase
+                    results[i] = FormUploadResult.RECORD_FAILURE;
+                }
+                else {
                     results[i] = FormUploadResult.FULL_SUCCESS;
                 }
             } catch (SessionUnavailableException sue) {
