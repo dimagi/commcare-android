@@ -328,6 +328,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             CommCareApplication.notificationManager().reportNotificationMessage(
                                     NotificationMessageFactory.message(ProcessIssues.RecordFilesMissing), true);
                             FormRecordCleanupTask.wipeRecord(c, record);
+                            results[i] = FormUploadResult.RECORD_FAILURE;
                         } else {
                             // Otherwise, the SD card just got removed, and we need to bail anyway.
                             CommCareApplication.notificationManager().reportNotificationMessage(
