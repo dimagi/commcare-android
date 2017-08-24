@@ -28,12 +28,13 @@ import java.util.Vector;
  * @author ctsims
  */
 public class AndroidCaseIndexTable implements CaseIndexTable {
-    private static final String TABLE_NAME = "case_index_storage";
+    public static final String TABLE_NAME = "case_index_storage";
 
     private static final String COL_CASE_RECORD_ID = "case_rec_id";
     private static final String COL_INDEX_NAME = "name";
     private static final String COL_INDEX_TYPE = "type";
     private static final String COL_INDEX_TARGET = "target";
+    private static final String COL_INDEX_RELATIONSHIP = "relationship";
 
     private final SQLiteDatabase db;
 
@@ -54,6 +55,7 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
                 COL_CASE_RECORD_ID + ", " +
                 COL_INDEX_NAME + ", " +
                 COL_INDEX_TYPE + ", " +
+                COL_INDEX_RELATIONSHIP + ", " +
                 COL_INDEX_TARGET +
                 ")";
     }
@@ -81,6 +83,7 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
                 cv.put(COL_INDEX_NAME, ci.getName());
                 cv.put(COL_INDEX_TYPE, ci.getTargetType());
                 cv.put(COL_INDEX_TARGET, ci.getTarget());
+                cv.put(COL_INDEX_RELATIONSHIP, ci.getRelationship());
                 db.insert(TABLE_NAME, null, cv);
             }
             db.setTransactionSuccessful();
@@ -88,6 +91,69 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
             db.endTransaction();
         }
     }
+
+    public Vector<CaseIndex> getIndicesForCase(int recordId) {
+        Vector<CaseIndex> indices = new Vector<>();
+
+        String[] projection = new String[] {COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TYPE, COL_INDEX_TARGET, COL_INDEX_RELATIONSHIP};
+
+        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
+            String sqlStatement = String.format("SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = %d",
+                    COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TYPE, COL_INDEX_TARGET, COL_INDEX_RELATIONSHIP, TABLE_NAME, COL_CASE_RECORD_ID, recordId);
+            DbUtil.explainSql(db, sqlStatement, null);
+        }
+
+        //NOTE: This does terrible things to SQL's cache (not using parameters), but it's the only
+        //way to actually make the indexes seek properly
+        Cursor c = db.query(TABLE_NAME, projection, String.format("%s = %d", COL_CASE_RECORD_ID, recordId) ,null, null, null, null);
+        try {
+            c.moveToFirst();
+            while (!c.isAfterLast()) {
+                indices.add(new CaseIndex(c.getString(c.getColumnIndexOrThrow(COL_INDEX_NAME)),
+                        c.getString(c.getColumnIndexOrThrow(COL_INDEX_TYPE)),
+                        c.getString(c.getColumnIndexOrThrow(COL_INDEX_TARGET)),
+                        c.getString(c.getColumnIndexOrThrow(COL_INDEX_RELATIONSHIP))));
+                c.moveToNext();
+            }
+            return indices;
+        } finally {
+            c.close();
+        }
+
+    }
+
+    public HashMap<Integer,Vector<CaseIndex>> getCaseIndexMap() {
+        String[] projection = new String[] {COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TYPE, COL_INDEX_TARGET, COL_INDEX_RELATIONSHIP};
+        HashMap<Integer,Vector<CaseIndex>> caseIndexMap = new HashMap<>();
+        Cursor c = db.query(TABLE_NAME, projection, null ,null, null, null, null);
+
+        try {
+            c.moveToFirst();
+            while (!c.isAfterLast()) {
+                int caseRecordId = c.getInt(c.getColumnIndexOrThrow(COL_CASE_RECORD_ID));
+
+                CaseIndex index  = new CaseIndex(c.getString(c.getColumnIndexOrThrow(COL_INDEX_NAME)),
+                        c.getString(c.getColumnIndexOrThrow(COL_INDEX_TYPE)),
+                        c.getString(c.getColumnIndexOrThrow(COL_INDEX_TARGET)),
+                        c.getString(c.getColumnIndexOrThrow(COL_INDEX_RELATIONSHIP)));
+                c.moveToNext();
+
+                Vector<CaseIndex> indexList;
+                if(!caseIndexMap.containsKey(caseRecordId)) {
+                    indexList = new Vector<>();
+                } else {
+                    indexList = caseIndexMap.get(caseRecordId);
+                }
+                indexList.add(index);
+                caseIndexMap.put(caseRecordId, indexList);
+            }
+
+            return caseIndexMap;
+        } finally {
+            c.close();
+        }
+    }
+
 
     public void clearCaseIndices(Case c) {
         clearCaseIndices(c.getID());
@@ -236,6 +302,8 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
         DualTableSingleMatchModelQuerySet set = new DualTableSingleMatchModelQuerySet();
         String caseIdIndex = TableBuilder.scrubName(Case.INDEX_CASE_ID);
 
+        //NOTE: This is possibly slower than it appears. I think the cast screws up sqlites's
+        //ability to do an indexed match
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(cuedCases, "CAST(? as INT)");
         for(Pair<String, String[]> querySet : whereParamList) {
 
@@ -303,5 +371,4 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
             db.endTransaction();
         }
     }
-
 }

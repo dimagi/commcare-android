@@ -160,6 +160,11 @@ class UserDatabaseUpgrader {
                 oldVersion = 20;
             }
         }
+        if (oldVersion == 20) {
+            if (upgradeTwentyTwentyOne(db)) {
+                oldVersion = 21;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -557,6 +562,30 @@ class UserDatabaseUpgrader {
             db.endTransaction();
         }
     }
+
+
+    private boolean upgradeTwentyTwentyOne(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    AndroidCaseIndexTable.TABLE_NAME,
+                    "relationship",
+                    "TEXT"));
+
+
+            AndroidCaseIndexTable indexTable = new AndroidCaseIndexTable(db);
+            indexTable.reIndexAllCases(caseStorage);
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+
+    }
+
 
     private void migrateV2FormRecordsForSingleApp(String appId,
                                                   SqlStorage<FormRecordV2> oldStorage,

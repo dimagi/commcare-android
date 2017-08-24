@@ -571,7 +571,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     }
 
     @Override
-    public SqlStorageIterator<T> iterate(boolean includeData, String primaryId) {
+    public SqlStorageIterator<T> iterate(boolean includeData, String[] metadataKeys) {
         throw new UnsupportedOperationException("iterate method unsupported");
     }
 
