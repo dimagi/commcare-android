@@ -85,6 +85,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     protected BlockingActionsManager blockingActionsManager;
 
     public boolean hintTextNeedsHeightSpec = false;
+    private LinearLayout compactLayout;
 
     public QuestionWidget(Context context, FormEntryPrompt p) {
         this(context, p, false);
@@ -112,7 +113,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         mQuestionFontSize = Integer.valueOf(question_font);
         mAnswerFontSize = mQuestionFontSize + 2;
 
-        setOrientation(isInCompactMode() ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
+        setOrientation(LinearLayout.VERTICAL);
         setGravity(Gravity.TOP);
 
         //TODO: This whole view should probably be inflated somehow 
@@ -415,7 +416,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
 
         if (isInCompactMode()) {
-            addView(mQuestionText);
+            addToCompactLayout(mQuestionText);
         } else {
             // Create the layout for audio, image, text
             String imageURI = mPrompt.getImageText();
@@ -430,6 +431,16 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             MediaLayout mediaLayout = MediaLayout.buildComprehensiveLayout(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri, expandedAudioURI, mPrompt.getIndex().hashCode());
             addView(mediaLayout, mLayout);
         }
+    }
+
+    protected void addToCompactLayout(View view) {
+        if (compactLayout == null) {
+            compactLayout = new LinearLayout(getContext());
+            compactLayout.setOrientation(HORIZONTAL);
+            compactLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            addView(compactLayout);
+        }
+        compactLayout.addView(view);
     }
 
     private int getQuestionTextLayout() {

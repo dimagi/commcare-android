@@ -86,10 +86,10 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         }
 
         if(isInCompactMode()){
-            mAnswer.setGravity(Gravity.RIGHT);
+            addToCompactLayout(mAnswer);
+        }else {
+            addView(mAnswer);
         }
-
-        addView(mAnswer);
     }
 
     private int getAnswerLayout() {
