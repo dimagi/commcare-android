@@ -63,7 +63,7 @@ public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement 
             int id = i.peekID();
             elements.addElement(buildElement(this, id, null, mult));
             objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
-            primaryIdMapping.put(((SqlStorageIterator)i).getIncludedMetadata(Ledger.INDEX_ENTITY_ID), DataUtil.integer(id));
+            primaryIdMapping.put(((SqlStorageIterator)i).peekIncludedMetadata(Ledger.INDEX_ENTITY_ID), DataUtil.integer(id));
             mult++;
             i.nextID();
         }

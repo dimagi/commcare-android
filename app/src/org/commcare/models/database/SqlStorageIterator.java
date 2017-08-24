@@ -10,6 +10,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageModifiedException;
 import org.javarosa.core.util.ArrayUtilities;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -121,11 +122,20 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
         return c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
     }
 
-    public String getIncludedMetadata(String metadataKey) {
+    private HashMap<String, Integer> metaDataColumnMap = new HashMap<>();
+
+    public String peekIncludedMetadata(String metadataKey) {
         if(!metaDataIndexSet.contains(metadataKey)) {
             throw new RuntimeException("Invalid iterator metadata request for key: " + metadataKey);
         }
-        String columnName = TableBuilder.scrubName(metadataKey);
-        return c.getString(c.getColumnIndexOrThrow(columnName));
+        int columnIndex;
+        if(metaDataColumnMap.containsKey(metadataKey)) {
+            columnIndex = metaDataColumnMap.get(metadataKey);
+        } else {
+            String columnName = TableBuilder.scrubName(metadataKey);
+            columnIndex = c.getColumnIndexOrThrow(columnName);
+            metaDataColumnMap.put(metadataKey, columnIndex);
+        }
+        return c.getString(columnIndex);
     }
 }

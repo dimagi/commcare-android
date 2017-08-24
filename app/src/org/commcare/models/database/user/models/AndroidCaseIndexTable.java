@@ -122,23 +122,27 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
 
     }
 
-    public HashMap<Integer,Vector<CaseIndex>> getCaseIndexMap() {
-        String[] projection = new String[] {COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TYPE, COL_INDEX_TARGET, COL_INDEX_RELATIONSHIP};
-        HashMap<Integer,Vector<CaseIndex>> caseIndexMap = new HashMap<>();
+    public HashMap<Integer,Vector<Pair<String, String>>> getCaseIndexMap() {
+        String[] projection = new String[] {COL_CASE_RECORD_ID, COL_INDEX_TARGET, COL_INDEX_RELATIONSHIP};
+        HashMap<Integer,Vector<Pair<String, String>>> caseIndexMap = new HashMap<>();
         Cursor c = db.query(TABLE_NAME, projection, null ,null, null, null, null);
+
+        int recordColumn = c.getColumnIndexOrThrow(COL_CASE_RECORD_ID);
+        int targetColumn = c.getColumnIndexOrThrow(COL_INDEX_TARGET);
+        int relationshipColumn = c.getColumnIndexOrThrow(COL_INDEX_RELATIONSHIP);
 
         try {
             c.moveToFirst();
             while (!c.isAfterLast()) {
-                int caseRecordId = c.getInt(c.getColumnIndexOrThrow(COL_CASE_RECORD_ID));
+                int caseRecordId = c.getInt(recordColumn);
+                String targetCase = c.getString(targetColumn);
+                String relationship = c.getString(relationshipColumn);
 
-                CaseIndex index  = new CaseIndex(c.getString(c.getColumnIndexOrThrow(COL_INDEX_NAME)),
-                        c.getString(c.getColumnIndexOrThrow(COL_INDEX_TYPE)),
-                        c.getString(c.getColumnIndexOrThrow(COL_INDEX_TARGET)),
-                        c.getString(c.getColumnIndexOrThrow(COL_INDEX_RELATIONSHIP)));
                 c.moveToNext();
 
-                Vector<CaseIndex> indexList;
+                Pair<String, String> index  = new Pair<> (targetCase, relationship);
+
+                Vector<Pair<String, String>> indexList;
                 if(!caseIndexMap.containsKey(caseRecordId)) {
                     indexList = new Vector<>();
                 } else {

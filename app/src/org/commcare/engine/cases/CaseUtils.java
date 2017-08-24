@@ -13,6 +13,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.modern.engine.cases.CaseIndexTable;
+import org.commcare.modern.util.Pair;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.CommCareUtil;
 import org.javarosa.core.model.User;
@@ -119,9 +120,9 @@ public class CaseUtils {
                                                               AndroidCaseIndexTable indexTable,
                                                               Vector<String> owners) {
         DAG<String, int[], String> caseGraph = new DAG<>();
-        Vector<CaseIndex> indexHolder = new Vector<>();
+        Vector<Pair<String, String>> indexHolder = new Vector<>();
 
-        HashMap<Integer, Vector<CaseIndex>> caseIndexMap = indexTable.getCaseIndexMap();
+        HashMap<Integer, Vector<Pair<String, String>>> caseIndexMap = indexTable.getCaseIndexMap();
 
         // Pass 1: Create a DAG which contains all of the cases on the phone as nodes, and has a
         // directed edge for each index (from the 'child' case pointing to the 'parent' case) with
@@ -129,10 +130,10 @@ public class CaseUtils {
         for (SqlStorageIterator<ACase> i = caseStorage.iterate(false, new String[]{
                 Case.INDEX_OWNER_ID, Case.INDEX_CASE_STATUS, Case.INDEX_CASE_ID}); i.hasMore(); ) {
 
-            String ownerId = i.getIncludedMetadata(Case.INDEX_OWNER_ID);
-            boolean closed = i.getIncludedMetadata(Case.INDEX_CASE_STATUS).equals("closed");
-            String caseID = i.getIncludedMetadata(Case.INDEX_CASE_ID);
-            int caseRecordId = i.peekID();
+            String ownerId = i.peekIncludedMetadata(Case.INDEX_OWNER_ID);
+            boolean closed = i.peekIncludedMetadata(Case.INDEX_CASE_STATUS).equals("closed");
+            String caseID = i.peekIncludedMetadata(Case.INDEX_CASE_ID);
+            int caseRecordId = i.nextID();
 
 
             boolean owned = true;
@@ -140,17 +141,17 @@ public class CaseUtils {
                 owned = owners.contains(ownerId);
             }
 
-            Vector<CaseIndex> indices = caseIndexMap.get(caseRecordId);
+            Vector<Pair<String, String>> indices = caseIndexMap.get(caseRecordId);
 
             if(indices != null) {
                 // In order to deal with multiple indices pointing to the same case with different
                 // relationships, we'll need to traverse once to eliminate any ambiguity
-                for (CaseIndex index : indices) {
-                    CaseIndex toReplace = null;
+                for (Pair<String, String> index : indices) {
+                    Pair<String, String> toReplace = null;
                     boolean skip = false;
-                    for (CaseIndex existing : indexHolder) {
-                        if (existing.getTarget().equals(index.getTarget())) {
-                            if (existing.getRelationship().equals(CaseIndex.RELATIONSHIP_EXTENSION) && !index.getRelationship().equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
+                    for (Pair<String, String> existing : indexHolder) {
+                        if (existing.first.equals(index.first)) {
+                            if (existing.second.equals(CaseIndex.RELATIONSHIP_EXTENSION) && !index.second.equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
                                 toReplace = existing;
                             } else {
                                 skip = true;
@@ -181,11 +182,10 @@ public class CaseUtils {
 
             caseGraph.addNode(caseID, new int[]{nodeStatus, caseRecordId});
 
-            for (CaseIndex index : indexHolder) {
-                caseGraph.setEdge(caseID, index.getTarget(), index.getRelationship());
+            for (Pair<String, String> index : indexHolder) {
+                caseGraph.setEdge(caseID, index.first, index.second);
             }
             indexHolder.removeAllElements();
-            i.nextID();
         }
 
         return caseGraph;
