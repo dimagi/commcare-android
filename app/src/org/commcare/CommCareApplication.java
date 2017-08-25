@@ -364,9 +364,8 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public
     @NonNull
-    String getPhoneId() {
+    public String getPhoneId() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
             return "000000000000000";
         }
@@ -1066,9 +1065,9 @@ public class CommCareApplication extends Application {
                 responseProcessor);
     }
 
-    public ModernHttpRequester createGetRequestor(Context context, String url, HashMap<String, String> params,
-                                                         HashMap headers, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
-                                                         @Nullable HttpResponseProcessor responseProcessor) {
+    public ModernHttpRequester createGetRequester(Context context, String url, HashMap<String, String> params,
+                                                  HashMap headers, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
+                                                  @Nullable HttpResponseProcessor responseProcessor) {
         return buildHttpRequester(context, url, params, headers, null, null, HTTPMethod.GET, usernameAndPasswordToAuthWith, responseProcessor);
     }
 }

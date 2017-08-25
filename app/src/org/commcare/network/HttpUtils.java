@@ -1,11 +1,6 @@
 package org.commcare.network;
 
-import android.content.SharedPreferences;
-
 import org.commcare.CommCareApplication;
-import org.commcare.core.network.CommCareNetworkService;
-import org.commcare.core.network.CommCareNetworkServiceGenerator;
-import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.modern.util.Pair;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
@@ -13,11 +8,7 @@ import org.commcare.utils.CredentialUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
-
-import retrofit2.Response;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -29,9 +20,9 @@ public class HttpUtils {
         if (usernameAndPasswordToAuthWith == null) {
             // User already logged in
             Pair<User, String> userAndDomain = getUserAndDomain(true);
-            credential = ModernHttpRequester.getCredential(userAndDomain.first, userAndDomain.second);
+            credential = getCredential(userAndDomain.first, userAndDomain.second);
         } else {
-            credential = ModernHttpRequester.getCredential(
+            credential = getCredential(
                     buildDomainUser(usernameAndPasswordToAuthWith.first),
                     buildAppPassword(usernameAndPasswordToAuthWith.second));
         }
@@ -52,14 +43,14 @@ public class HttpUtils {
         return new Pair<>(user, domain);
     }
 
-    public static String buildAppPassword(String password) {
+    private static String buildAppPassword(String password) {
         if (DeveloperPreferences.useObfuscatedPassword()) {
             return CredentialUtil.wrap(password);
         }
         return password;
     }
 
-    public static String buildDomainUser(String username) {
+    private static String buildDomainUser(String username) {
         if (username != null && !username.contains("@")) {
             String domain = CommCarePreferences.getUserDomain();
             if (domain != null) {
@@ -67,5 +58,24 @@ public class HttpUtils {
             }
         }
         return username;
+    }
+
+    private static String getCredential(User user, String domain) {
+        final String username;
+        if (domain != null) {
+            username = user.getUsername() + "@" + domain;
+        } else {
+            username = user.getUsername();
+        }
+        final String password = user.getCachedPwd();
+        return getCredential(username, password);
+    }
+
+    private static String getCredential(String username, String password) {
+        if (username == null || password == null) {
+            return null;
+        } else {
+            return okhttp3.Credentials.basic(username, password);
+        }
     }
 }

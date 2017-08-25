@@ -46,6 +46,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     public static final String AUTH_REQUEST_TYPE_NO_AUTH = "noauth";
 
     private static final String SUBMIT_MODE = "submit_mode";
+    private static final String SUBMIT_MODE_DEMO = "demo";
 
     private final String username;
     private final String password;
@@ -119,9 +120,9 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
             CommCareApplication.instance().setInvalidateCacheFlag(false);
         }
 
-        requester = CommCareApplication.instance().createGetRequestor(
+        requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
-                CommCareServerPreferences.getDataServerKey(),
+                baseUri,
                 params,
                 getHeaders(syncToken),
                 new Pair(username, password),
@@ -151,7 +152,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         // include IMEI in key fetch request for auditing large deployments
         params.put("device_id", CommCareApplication.instance().getPhoneId());
 
-        requester = CommCareApplication.instance().createGetRequestor(
+        requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 baseUri,
                 params,
@@ -197,7 +198,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         }
 
         if (User.TYPE_DEMO.equals(userType)) {
-            params.put(SUBMIT_MODE, SUBMIT_MODE);
+            params.put(SUBMIT_MODE, SUBMIT_MODE_DEMO);
         }
 
        requester = CommCareApplication.instance().buildHttpRequester(
@@ -217,7 +218,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     @Override
     public Response<ResponseBody> simpleGet(String uri) throws IOException {
 
-        ModernHttpRequester requester = CommCareApplication.instance().createGetRequestor(
+        ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 uri,
                 new HashMap(),

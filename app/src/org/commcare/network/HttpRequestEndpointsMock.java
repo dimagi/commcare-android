@@ -1,6 +1,6 @@
 package org.commcare.network;
 
-import org.commcare.core.network.OkHTTPResponseMock;
+import org.commcare.core.network.OkHTTPResponseMockFactory;
 import org.commcare.interfaces.HttpRequestEndpoints;
 
 import java.io.IOException;
@@ -54,12 +54,12 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
             Headers headers = new Headers.Builder()
                     .add("Retry-After", "2")
                     .build();
-            return OkHTTPResponseMock.createResponse(202, headers);
+            return OkHTTPResponseMockFactory.createResponse(202, headers);
         } else if (responseCode == 406) {
             ResponseBody responseBody = ResponseBody.create(MediaType.parse("application/json"), errorMessagePayload);
             return Response.error(responseCode, responseBody);
         } else {
-            return OkHTTPResponseMock.createResponse(responseCode);
+            return OkHTTPResponseMockFactory.createResponse(responseCode);
         }
     }
 

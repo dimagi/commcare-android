@@ -97,14 +97,14 @@ public class HeartbeatRequester {
         String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getString(CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
         Log.i(TAG, "Requesting heartbeat from " + urlString);
-        ModernHttpRequester requester = CommCareApplication.instance().createGetRequestor(
+        ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 urlString,
                 getParamsForHeartbeatRequest(),
                 new HashMap(),
                 null,
                 responseProcessor);
-        requester.processRequest();
+        requester.makeRequestAndProcess();
     }
 
     private static HashMap<String, String> getParamsForHeartbeatRequest() {

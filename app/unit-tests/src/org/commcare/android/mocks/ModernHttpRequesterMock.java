@@ -9,7 +9,7 @@ import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CommCareNetworkService;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.core.network.OkHTTPResponseMock;
+import org.commcare.core.network.OkHTTPResponseMockFactory;
 import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -60,10 +60,6 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
         Collections.addAll(responseCodeStack, responseCodes);
     }
 
-    public static void setAuthenticated(boolean authenticated) {
-        isAuthenticated = authenticated;
-    }
-
     /**
      * Set expected url for the next N requests
      */
@@ -79,16 +75,16 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
 
     @Override
     public Response<ResponseBody> makeRequest() throws IOException {
-        if(isAuthenticated && !new URL(url).getProtocol().contentEquals("https")){
+        if (isAuthenticated && !new URL(url).getProtocol().contentEquals("https")) {
             throw new AuthenticationInterceptor.PlainTextPasswordException();
         }
 
         if (!expectedUrlStack.isEmpty()) {
-            assertUrlsEqual(expectedUrlStack.remove(0), buildUrlWithParams().toString());
+            assertUrlsEqual(expectedUrlStack.remove(0), buildUrlWithParams());
         }
 
         if (requestPayloadStack.isEmpty()) {
-            return OkHTTPResponseMock.createResponse(responseCodeStack.remove(0));
+            return OkHTTPResponseMockFactory.createResponse(responseCodeStack.remove(0));
         } else {
             String payloadReference = requestPayloadStack.remove(0);
             if (payloadReference == null) {
@@ -101,17 +97,17 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
                 } catch (InvalidReferenceException ire) {
                     throw new IOException("No payload available at " + payloadReference);
                 }
-                return OkHTTPResponseMock.createResponse(responseCodeStack.remove(0),payloadStream);
+                return OkHTTPResponseMockFactory.createResponse(responseCodeStack.remove(0), payloadStream);
             }
         }
     }
 
-    private URL buildUrlWithParams() throws MalformedURLException {
+    private String buildUrlWithParams() throws MalformedURLException {
         Uri.Builder b = Uri.parse(url).buildUpon();
         for (Map.Entry<String, String> param : params.entrySet()) {
             b.appendQueryParameter(param.getKey(), param.getValue());
         }
-        return new URL(b.build().toString());
+        return b.build().toString();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)

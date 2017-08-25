@@ -12,7 +12,6 @@ import org.commcare.tasks.templates.CommCareTask;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.HashMap;
 
 import javax.annotation.Nullable;
@@ -54,7 +53,7 @@ public class ModernHttpTask
 
     @Override
     protected Void doTaskBackground(Void... params) {
-        requestor.processRequest();
+        requestor.makeRequestAndProcess();
         return null;
     }
 

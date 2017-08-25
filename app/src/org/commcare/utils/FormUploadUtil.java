@@ -176,7 +176,9 @@ public class FormUploadUtil {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            StreamsUtil.writeFromInputToOutputNew(response.body().byteStream(), bos);
+            if (response.body() != null) {
+                StreamsUtil.writeFromInputToOutputNew(response.body().byteStream(), bos);
+            }
         } catch (IllegalStateException | IOException e) {
             e.printStackTrace();
         }
@@ -208,10 +210,10 @@ public class FormUploadUtil {
 
     /**
      * Validate the content body of the XML submission file.
-     * <p>
+     *
      * TODO: this should really be the responsibility of the form record, not
      * of the submission process, persay.
-     * <p>
+     *
      * NOTE: this is a shallow validation (everything should be more or else
      * constant time).  Throws an exception if the file is gone because that's
      * a common issue that gets caught to check if storage got removed
