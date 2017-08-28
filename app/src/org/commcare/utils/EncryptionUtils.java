@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import org.commcare.util.Base64;
 import org.javarosa.form.api.FormController.InstanceMetadata;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI;

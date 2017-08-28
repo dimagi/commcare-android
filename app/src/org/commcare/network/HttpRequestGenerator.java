@@ -30,11 +30,10 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.interfaces.HttpRequestEndpoints;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.DebugControlsReceiver;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.CredentialUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
@@ -318,7 +317,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         URL originalRequest = request.getURI().toURL();
         URL finalRedirect = new URL(currentUrl);
         if (!isValidRedirect(originalRequest, finalRedirect)) {
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Invalid redirect from " + originalRequest.toString() + " to " + finalRedirect.toString());
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Invalid redirect from " + originalRequest.toString() + " to " + finalRedirect.toString());
             throw new IOException("Invalid redirect from secure server to insecure server");
         }
 

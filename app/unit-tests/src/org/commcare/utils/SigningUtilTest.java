@@ -1,5 +1,8 @@
 package org.commcare.utils;
 
+import org.junit.Assert;
+import org.commcare.util.Base64;
+import org.commcare.util.Base64DecoderException;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
@@ -13,6 +16,8 @@ import static org.junit.Assert.assertEquals;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class SigningUtilTest {
+
+    public static final String TEST_PUBLIC_KEY_STRING = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCfn1CCWi3U8Im3cFs0Q8Uw8+fR4fAAEuytzABgLrRQAZLMLrpxHkpJQ80L4KV9upSnAw69IKYXdGKtrn5ne40XIPYWIHAsUnZTqQn9talWAolSHVYMpMWxi+6o1eJr2YbPLJ3yOYmb1lhU0o6FnmBfANsQk/RWV+QtRlO86ARq3wIDAQAB";
 
     @Test
     public void parseSMSInstallMessage() throws UnsupportedEncodingException, Base64DecoderException {
@@ -50,4 +55,16 @@ public class SigningUtilTest {
         }
         assertTrue(didFail);
     }
+
+
+    @Test
+    public void parseBasicSignature() throws Exception {
+        //NOTE: The Test certificate and tool to generate signatures is in the "test_assets" directory
+
+        byte[] signatureBytes = SigningUtil.getBytesFromString("byegtc7fDpGkp3Y7MgyQtcPI6qTfzz/zORYkWjAS/H77V7E4J/F4ElUIPuM9YUnir8krQvTd8/yzopZLcfTap/p5+3cJXVGo59RoZJpdnrXoD1KKZUn9FNpifejP08lq3pdBf2kjuSCupZ+u3BZLSc1gcZZQGI9IPZMY/O7qnFs=");
+        Assert.assertEquals("TEST",
+                SigningUtil.verifyMessageAndBytes(TEST_PUBLIC_KEY_STRING, "TEST", signatureBytes));
+
+    }
+
 }

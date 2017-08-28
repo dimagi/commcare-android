@@ -7,12 +7,12 @@ import net.sqlcipher.database.SQLiteQueryBuilder;
 import net.sqlcipher.database.SQLiteStatement;
 
 import org.commcare.android.logging.ForceCloseLogger;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.util.Pair;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
@@ -233,7 +233,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     private RuntimeException logAndWrap(Exception e, String message) {
         RuntimeException re = new RuntimeException(message + " while inflating type " + ctype.getName());
         re.initCause(e);
-        Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ForceCloseLogger.getStackTraceWithContext(re));
+        Logger.log(LogTypes.TYPE_ERROR_STORAGE, ForceCloseLogger.getStackTraceWithContext(re));
         return re;
     }
 
@@ -320,6 +320,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      *
      * @param includeData True to return an iterator with all records. False to return only the index.
      */
+    @Override
     public SqlStorageIterator<T> iterate(boolean includeData) {
         SQLiteDatabase db = helper.getHandle();
 

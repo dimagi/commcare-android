@@ -9,13 +9,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.R;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
@@ -101,7 +101,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                             @Override
                             protected void deliverError(RecoveryActivity receiver, Exception e) {
-                                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error in recovery form send: " + ForceCloseLogger.getStackTrace(e));
+                                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Error in recovery form send: " + ForceCloseLogger.getStackTrace(e));
                                 receiver.displayMessage("Error while sending : " + e.getMessage());
                             }
 
@@ -182,7 +182,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                 sendForms.setEnabled(true);
             }
         } catch (Exception e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, e.getMessage());
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, e.getMessage());
             txtUnsentForms.setText("Couldn't read unsent forms. Error : " + e.getMessage());
         }
     }

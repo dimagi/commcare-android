@@ -1,8 +1,8 @@
 package org.commcare.tasks;
 
 import org.apache.http.Header;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.network.RemoteDataPullResponse;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.ElementParser;
 import org.kxml2.io.KXmlParser;
@@ -38,14 +38,19 @@ public class AsyncRestoreHelper {
         }
         try {
             long waitTimeInMilliseconds = Integer.parseInt(retryHeader.getValue()) * 1000;
+            Logger.log(LogTypes.TYPE_USER, "Retry-After header value was " + waitTimeInMilliseconds);
+            if (waitTimeInMilliseconds <= 0) {
+                throw new InvalidWaitTimeException(
+                        "Server response included a Retry-After header value of " + waitTimeInMilliseconds);
+            }
             retryAtTime = System.currentTimeMillis() + waitTimeInMilliseconds;
             if (!parseProgressFromRetryResult(response)) {
                 return new ResultAndError<>(DataPullTask.PullTaskResult.BAD_DATA);
             }
             return new ResultAndError<>(DataPullTask.PullTaskResult.RETRY_NEEDED);
         } catch (NumberFormatException e) {
-            Logger.log(AndroidLogger.TYPE_USER, "Invalid Retry-After header value: "
-                    + retryHeader.getValue());
+             Logger.log(LogTypes.TYPE_USER, "Invalid Retry-After header value: "
+                    + retryHeader);
             return new ResultAndError<>(DataPullTask.PullTaskResult.BAD_DATA);
         }
     }
@@ -69,7 +74,7 @@ public class AsyncRestoreHelper {
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
         } catch (IOException | XmlPullParserException e) {
-            Logger.log(AndroidLogger.TYPE_USER,
+            Logger.log(LogTypes.TYPE_USER,
                     "Error while parsing progress values of retry result");
         }
         return false;
@@ -83,9 +88,19 @@ public class AsyncRestoreHelper {
      */
     protected void startReportingServerProgress() {
         long millisUntilNextAttempt = retryAtTime - System.currentTimeMillis();
+        if (millisUntilNextAttempt <= 0) {
+            Logger.log(LogTypes.TYPE_USER, "startReportingServerProgress() was called after " +
+                    "retryAtTime was already reached. retryAtTime is set to: " + retryAtTime);
+            // Since we're already at the retry time, just report the current progress once instead
+            // of starting a timer
+            syncTask.reportServerProgress(serverProgressCompletedSoFar, serverProgressTotal);
+            return;
+        }
         int amountOfProgressToCoverThisCycle =
                 serverProgressCompletedSoFar - lastReportedServerProgressValue;
         if (amountOfProgressToCoverThisCycle <= 0) {
+            // HQ occasionally sends back a progress value that is less than what was sent on the
+            // last response; when this happens, just report the last value
             syncTask.reportServerProgress(lastReportedServerProgressValue, serverProgressTotal);
             return;
         }
@@ -117,6 +132,13 @@ public class AsyncRestoreHelper {
 
     protected boolean retryWaitPeriodInProgress() {
         return retryAtTime != -1 && retryAtTime > System.currentTimeMillis();
+    }
+
+    private class InvalidWaitTimeException extends RuntimeException {
+
+        public InvalidWaitTimeException(String messsage) {
+            super(messsage);
+        }
     }
 
 }

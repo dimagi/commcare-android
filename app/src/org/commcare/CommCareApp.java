@@ -6,22 +6,22 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.references.JavaFileRoot;
 import org.commcare.interfaces.AppFilePathBuilder;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.modern.database.Table;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MultipleAppsUtil;
@@ -112,7 +112,7 @@ public class CommCareApp implements AppFilePathBuilder {
             try {
                 String testFilePath = ReferenceManager.instance().DeriveReference(testFileRoot).getLocalURI();
                 String message = "Cannot setup sandbox. An Existing file root is set up, which directs to: " + testFilePath;
-                Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, message);
+                Logger.log(LogTypes.TYPE_ERROR_DESIGN, message);
                 throw new IllegalStateException(message);
             } catch (InvalidReferenceException ire) {
                 // Expected.
@@ -138,7 +138,7 @@ public class CommCareApp implements AppFilePathBuilder {
      */
     public void setupSandbox(boolean createFilePaths) {
         synchronized (lock) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "Staging Sandbox: " + record.getApplicationId());
+            Logger.log(LogTypes.TYPE_RESOURCES, "Staging Sandbox: " + record.getApplicationId());
             if (currentSandbox != null) {
                 currentSandbox.teardownSandbox();
             }
@@ -226,7 +226,7 @@ public class CommCareApp implements AppFilePathBuilder {
             try {
                 HybridFileBackedSqlHelpers.removeOrphanedFiles(buildAndroidDbHelper().getHandle());
             } catch (SessionUnavailableException e) {
-                Logger.log(AndroidLogger.SOFT_ASSERT,
+                Logger.log(LogTypes.SOFT_ASSERT,
                         "Unable to get app db handle to clear orphaned files");
             }
             return true;
@@ -270,7 +270,7 @@ public class CommCareApp implements AppFilePathBuilder {
 
     public void teardownSandbox() {
         synchronized (lock) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "Tearing down sandbox: " + record.getApplicationId());
+            Logger.log(LogTypes.TYPE_RESOURCES, "Tearing down sandbox: " + record.getApplicationId());
             ReferenceManager.instance().removeReferenceFactory(fileRoot);
 
             synchronized (appDbHandleLock) {

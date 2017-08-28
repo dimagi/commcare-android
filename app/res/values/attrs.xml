@@ -49,4 +49,8 @@
         <attr name="clip_height" format="reference|float"/>
     </declare-styleable>
 
+    <declare-styleable name="FilePreference">
+        <attr name="file_type" format="string"/>
+    </declare-styleable>
+
 </resources>

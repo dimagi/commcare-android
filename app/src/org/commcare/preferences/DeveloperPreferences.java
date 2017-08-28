@@ -1,7 +1,6 @@
 package org.commcare.preferences;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GlobalPrivilegeClaimingActivity;
@@ -24,7 +24,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
-import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
@@ -32,12 +31,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static android.app.Activity.RESULT_OK;
-
 public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     public static final int RESULT_SYNC_CUSTOM = Activity.RESULT_FIRST_USER + 1;
-    public static final int REQUEST_SYNC_FILE = 1;
 
     private static final int MENU_ENABLE_PRIVILEGES = 0;
 
@@ -59,6 +55,9 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public static final String USE_OBFUSCATED_PW = "cc-use-pw-obfuscation";
     public static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
     public static final String SHOW_UPDATE_OPTIONS_SETTING = "cc-show-update-target-options";
+    public static final String LOCAL_FORM_PAYLOAD_FILE_PATH = "cc-local-form-payload-file-path";
+    public final static String REMOTE_FORM_PAYLOAD_URL = "remote-form-payload-url";
+
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -98,6 +97,8 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
         prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
         prefKeyToAnalyticsEvent.put(PREFS_CUSTOM_RESTORE_DOC_LOCATION, GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
+        prefKeyToAnalyticsEvent.put(LOCAL_FORM_PAYLOAD_FILE_PATH, GoogleAnalyticsFields.LABEL_LOCAL_FORM_PAYLOAD_FILE_PATH);
+        prefKeyToAnalyticsEvent.put(REMOTE_FORM_PAYLOAD_URL, GoogleAnalyticsFields.LABEL_REMOTE_FORM_PAYLOAD_URL);
     }
 
     /**
@@ -127,7 +128,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     @Override
     protected void setupPrefClickListeners() {
-        createOnCustomRestoreOption();
+        // No listeners
     }
 
     @Nullable
@@ -144,6 +145,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         super.onCreatePreferences(savedInstanceState, rootKey);
+        setHasOptionsMenu(true);
         savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
     }
 
@@ -158,48 +160,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         hideOrShowDangerousSettings();
         setSessionEditText();
     }
-
-    private void createOnCustomRestoreOption() {
-        Preference pref = findPreference(PREFS_CUSTOM_RESTORE_DOC_LOCATION);
-        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportPrefItemClick(
-                        GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
-                        GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
-                startFileBrowser();
-                return true;
-            }
-        });
-    }
-
-    private void startFileBrowser() {
-        Intent chooseTemplateIntent = new Intent()
-                .setAction(Intent.ACTION_GET_CONTENT)
-                .setType("file/*")
-                .addCategory(Intent.CATEGORY_OPENABLE);
-        try {
-            startActivityForResult(chooseTemplateIntent, REQUEST_SYNC_FILE);
-        } catch (ActivityNotFoundException e) {
-            // Means that there is no file browser installed on the device
-            TemplatePrinterUtils.showAlertDialog(getActivity(), "Can't restore custom XML File",
-                    Localization.get("no.file.browser"), false);
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_SYNC_FILE) {
-            if (resultCode == RESULT_OK && data != null) {
-                getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM, data);
-                getActivity().finish();
-            } else {
-                //No file selected
-                Toast.makeText(getActivity(), "No file requested...", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
 
     private void setSessionEditText() {
         if (isSessionSavingEnabled()) {
@@ -236,14 +196,12 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
                     DevSessionRestorer.clearSession();
                 }
                 setSessionEditText();
-
                 break;
-            case LOAD_FORM_PAYLOAD_AS:
-                if (!formLoadPayloadStatus().equals(FormRecord.STATUS_SAVED)) {
-                    // clear submission server so that 'unsent' forms that are loaded don't get sent to HQ
-                    CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                            .putString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, "")
-                            .apply();
+            case PREFS_CUSTOM_RESTORE_DOC_LOCATION:
+                String filePath = getCustomRestoreDocLocation();
+                if (!filePath.isEmpty()) {
+                    getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM);
+                    getActivity().finish();
                 }
                 break;
         }
@@ -392,7 +350,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     }
 
 
-    public static boolean collectAndDisplayEntityTrances() {
+    public static boolean collectAndDisplayEntityTraces() {
         return doesPropertyMatch(SHOW_ADB_ENTITY_LIST_TRACES, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
@@ -407,6 +365,21 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public static boolean shouldShowUpdateOptionsSetting() {
         return doesPropertyMatch(SHOW_UPDATE_OPTIONS_SETTING, CommCarePreferences.NO,
                 CommCarePreferences.YES) || BuildConfig.DEBUG;
+    }
+
+    public static String getLocalFormPayloadFilePath() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(LOCAL_FORM_PAYLOAD_FILE_PATH, "");
+    }
+
+    public static String getRemoteFormPayloadUrl() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(REMOTE_FORM_PAYLOAD_URL, CommCareApplication.instance().getString(R.string.remote_form_payload_url));
+    }
+
+    public static String getCustomRestoreDocLocation() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(PREFS_CUSTOM_RESTORE_DOC_LOCATION, "");
     }
 
     private void hideOrShowDangerousSettings() {

@@ -36,32 +36,30 @@ import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.activities.components.FormFileSystemHelpers;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.ImageCaptureProcessing;
+import org.commcare.android.javarosa.IntentCallout;
+import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.interfaces.WithUIController;
-import org.commcare.logic.AndroidFormController;
-import org.commcare.utils.CompoundIntentList;
-import org.commcare.views.media.MediaLayout;
-import org.commcare.android.javarosa.IntentCallout;
-import org.commcare.android.javarosa.PollSensorAction;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.interfaces.AdvanceToNextListener;
+import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.interfaces.WidgetChangedListener;
-import org.commcare.logging.AndroidLogger;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
+import org.commcare.logic.AndroidFormController;
 import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
-import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.Base64Wrapper;
+import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.SessionUnavailableException;
@@ -71,6 +69,7 @@ import org.commcare.views.QuestionsView;
 import org.commcare.views.ResizingImageView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.media.MediaLayout;
 import org.commcare.views.widgets.BarcodeWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
@@ -119,6 +118,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static final String KEY_FORM_LOAD_FAILED = "form-failed";
     private static final String KEY_LOC_ERROR = "location-not-enabled";
     private static final String KEY_LOC_ERROR_PATH = "location-based-xpath-error";
+    private static final String KEY_IS_READ_ONLY = "instance-is-read-only";
 
     private FormEntryInstanceState instanceState;
     private FormEntrySessionWrapper formEntryRestoreSession = new FormEntrySessionWrapper();
@@ -128,6 +128,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static AndroidFormController mFormController;
 
     private boolean mIncompleteEnabled = true;
+    private boolean instanceIsReadOnly = false;
     private boolean hasFormLoadBeenTriggered = false;
     private boolean hasFormLoadFailed = false;
     private String locationRecieverErrorAction = null;
@@ -258,6 +259,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
+        outState.putBoolean(KEY_IS_READ_ONLY, instanceIsReadOnly);
         formEntryRestoreSession.saveFormEntrySession(outState);
 
         if (indexOfWidgetWithVideoPlaying != -1) {
@@ -381,7 +383,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     return q;
                 }
             }
-            Logger.log(AndroidLogger.SOFT_ASSERT,
+            Logger.log(LogTypes.SOFT_ASSERT,
                     "getPendingWidget couldn't find question widget with a form index that " +
                             "matches the pending callout.");
         }
@@ -450,7 +452,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         menu.removeItem(FormEntryConstants.MENU_SAVE);
         menu.removeItem(FormEntryConstants.MENU_PREFERENCES);
 
-        if (mIncompleteEnabled) {
+        if (mIncompleteEnabled && !instanceIsReadOnly) {
             menu.add(0, FormEntryConstants.MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers)).setIcon(
                     android.R.drawable.ic_menu_save);
         }
@@ -799,7 +801,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             } catch (IllegalArgumentException e) {
                 // Thrown when given receiver isn't registered.
                 // This shouldn't ever happen, but seems to come up in production
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, e.getMessage());
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, e.getMessage());
             }
         }
 
@@ -834,7 +836,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 inlineVideo.seekTo(positionOfVideoProgress);
                 inlineVideo.start();
             } else {
-                Logger.log(AndroidLogger.SOFT_ASSERT,
+                Logger.log(LogTypes.SOFT_ASSERT,
                         "No inline video was found at the question widget index for which a " +
                                 "video had been playing before the activity was paused");
             }
@@ -885,13 +887,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return;
             }
 
-            boolean isInstanceReadOnly = false;
             try {
                 switch (contentType) {
                     case InstanceColumns.CONTENT_ITEM_TYPE:
                         Pair<Uri, Boolean> instanceAndStatus = FormEntryInstanceState.getInstanceUri(this, uri, formProviderContentURI, instanceState);
                         formUri = instanceAndStatus.first;
-                        isInstanceReadOnly = instanceAndStatus.second;
+                        this.instanceIsReadOnly = instanceAndStatus.second;
                         break;
                     case FormsColumns.CONTENT_ITEM_TYPE:
                         formUri = uri;
@@ -913,7 +914,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return;
             }
 
-            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, formEntryRestoreSession.isRecording(), this) {
+            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, this.instanceIsReadOnly, formEntryRestoreSession.isRecording(), this) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
@@ -1317,6 +1318,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 indexOfWidgetWithVideoPlaying = savedInstanceState.getInt(KEY_WIDGET_WITH_VIDEO_PLAYING);
                 positionOfVideoProgress = savedInstanceState.getInt(KEY_POSITION_OF_VIDEO_PLAYING);
             }
+
+            if (savedInstanceState.containsKey(KEY_IS_READ_ONLY)) {
+                this.instanceIsReadOnly = savedInstanceState.getBoolean(KEY_IS_READ_ONLY);
+            }
+
             uiController.restoreSavedState(savedInstanceState);
         }
     }

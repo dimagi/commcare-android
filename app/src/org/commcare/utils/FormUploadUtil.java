@@ -11,11 +11,11 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.network.DataSubmissionEntity;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.DataSubmissionListener;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
@@ -169,18 +169,18 @@ public class FormUploadUtil {
         } catch (InputIOException ioe) {
             // This implies that there was a problem with the _source_ of the
             // transmission, not the processing or receiving end.
-            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
+            Logger.log(LogTypes.TYPE_ERROR_STORAGE,
                     "Internal error reading form record during submission: " +
                             ioe.getWrapped().getMessage());
             return FormUploadResult.RECORD_FAILURE;
         } catch (ClientProtocolException | UnknownHostException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK,
                     "Client network issues during submission: " + e.getMessage());
             return FormUploadResult.TRANSPORT_FAILURE;
         } catch (IOException | IllegalStateException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
+            Logger.log(LogTypes.TYPE_ERROR_STORAGE,
                     "Error reading form during submission: " + e.getMessage());
             return FormUploadResult.TRANSPORT_FAILURE;
         }
@@ -220,9 +220,9 @@ public class FormUploadUtil {
         Log.e(TAG, responseCodeMessage);
         Log.d(TAG, responseString);
         if (!(responseCode >= 200 && responseCode < 300)) {
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, responseCodeMessage);
-            Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION, responseCodeMessage);
-            Logger.log(AndroidLogger.TYPE_FORM_SUBMISSION,
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, responseCodeMessage);
+            Logger.log(LogTypes.TYPE_FORM_SUBMISSION, responseCodeMessage);
+            Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
                     "Response string to failed form submission attempt: " + responseString);
         }
     }
@@ -251,7 +251,7 @@ public class FormUploadUtil {
         // Gotta check f exists here since f.length returns 0 if the file isn't
         // there for some reason.
         if (f.length() == 0 && f.exists()) {
-            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE,
+            Logger.log(LogTypes.TYPE_ERROR_STORAGE,
                     "Submission body has no content at: " + f.getAbsolutePath());
             return false;
         }
@@ -293,6 +293,8 @@ public class FormUploadUtil {
                                                 SecretKeySpec key,
                                                 File[] files)
             throws FileNotFoundException {
+        int numAttachmentsInInstanceFolder = 0;
+        int numAttachmentsSuccessfullyAdded = 0;
         for (File f : files) {
             ContentBody fb;
 
@@ -308,43 +310,42 @@ public class FormUploadUtil {
                 }
                 entity.addPart("xml_submission_file", fb);
             } else if (f.getName().endsWith(".jpg")) {
+                numAttachmentsInInstanceFolder++;
                 fb = new FileBody(f, ContentType.create("image/jpeg"), f.getName());
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart(f.getName(), fb);
-                    Log.i(TAG, "added image file " + f.getName());
-                } else {
-                    Log.i(TAG, "file " + f.getName() + " is too big");
-                }
+                numAttachmentsSuccessfullyAdded += addPartToEntity(entity, f, fb);
             } else if (f.getName().endsWith(".3gpp")) {
+                numAttachmentsInInstanceFolder++;
                 fb = new FileBody(f, ContentType.create("audio/3gpp"), f.getName());
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart(f.getName(), fb);
-                    Log.i(TAG, "added audio file " + f.getName());
-                } else {
-                    Log.i(TAG, "file " + f.getName() + " is too big");
-                }
+                numAttachmentsSuccessfullyAdded += addPartToEntity(entity, f, fb);
             } else if (f.getName().endsWith(".3gp")) {
+                numAttachmentsInInstanceFolder++;
                 fb = new FileBody(f, ContentType.create("video/3gpp"), f.getName());
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart(f.getName(), fb);
-                    Log.i(TAG, "added video file " + f.getName());
-                } else {
-                    Log.i(TAG, "file " + f.getName() + " is too big");
-                }
+                numAttachmentsSuccessfullyAdded += addPartToEntity(entity, f, fb);
             } else if (isSupportedMultimediaFile(f.getName())) {
+                numAttachmentsInInstanceFolder++;
                 fb = new FileBody(f, ContentType.APPLICATION_OCTET_STREAM, f.getName());
-                if (fb.getContentLength() <= MAX_BYTES) {
-                    entity.addPart(f.getName(), fb);
-                    Log.i(TAG, "added unknown file " + f.getName());
-                } else {
-                    Log.i(TAG, "file " + f.getName() + " is too big");
-                }
+                numAttachmentsSuccessfullyAdded += addPartToEntity(entity, f, fb);
             } else {
-                Log.w(TAG, "unsupported file type, not adding file: " +
-                        f.getName());
+                Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
+                        "Could not add unsupported file type to submission entity: " + f.getName());
             }
         }
+        Logger.log(LogTypes.TYPE_FORM_SUBMISSION, "Attempted to add "
+                + numAttachmentsInInstanceFolder + " attachments to submission entity");
+        Logger.log(LogTypes.TYPE_FORM_SUBMISSION, "Successfully added "
+                + numAttachmentsSuccessfullyAdded + " attachments to submission entity");
         return true;
+    }
+
+    private static int addPartToEntity(MultipartEntity entity, File f, ContentBody fb) {
+        if (fb.getContentLength() <= MAX_BYTES) {
+            entity.addPart(f.getName(), fb);
+            return 1;
+        } else {
+            Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
+                    "Failed to add attachment to submission entity (too large): " + f.getName());
+            return 0;
+        }
     }
 
     /**

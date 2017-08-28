@@ -85,7 +85,7 @@ public class IncompleteFormRecordView extends LinearLayout {
             syncIcon.setVisibility(View.GONE);
         }
 
-        if (FormRecord.STATUS_LIMBO.equals(record.getStatus()) && record.getReasonForQuarantine() != null) {
+        if (FormRecord.STATUS_QUARANTINED.equals(record.getStatus()) && record.getReasonForQuarantine() != null) {
             reasonForQuarantineView.setVisibility(View.VISIBLE);
             String reasonForQuarantine = record.getReasonForQuarantine();
             if (reasonForQuarantine.equals(FormRecord.QUARANTINED_FOR_LOCAL_REASON)) {
