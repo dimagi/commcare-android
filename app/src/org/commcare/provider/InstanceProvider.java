@@ -7,13 +7,13 @@ import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
+
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
@@ -69,7 +69,7 @@ public class InstanceProvider extends ContentProvider {
         }
 
         @Override
-        public void onCreate(SQLiteDatabase db) {
+        public void onCreate(android.database.sqlite.SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + INSTANCES_TABLE_NAME + " ("
                     + InstanceProviderAPI.InstanceColumns._ID + " integer primary key, "
                     + InstanceProviderAPI.InstanceColumns.DISPLAY_NAME + " text not null, "
@@ -84,7 +84,7 @@ public class InstanceProvider extends ContentProvider {
 
 
         @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        public void onUpgrade(android.database.sqlite.SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(t, "Upgrading database from version " + oldVersion + " to " + newVersion
                     + ", which will destroy all old data");
             db.execSQL("DROP TABLE IF EXISTS instances");
@@ -130,7 +130,7 @@ public class InstanceProvider extends ContentProvider {
         }
 
         // Get the database and run the query
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        android.database.sqlite.SQLiteDatabase db = mDbHelper.getReadableDatabase();
         Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
 
         // Tell the cursor what uri to watch, so it knows when its source data changes
@@ -196,7 +196,7 @@ public class InstanceProvider extends ContentProvider {
 
         InstanceProviderInsertType insertType = InstanceProviderInsertType.getInsertionType(values);
 
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        android.database.sqlite.SQLiteDatabase db = mDbHelper.getWritableDatabase();
         long rowId = db.insert(INSTANCES_TABLE_NAME, null, values);
         db.close();
 
@@ -292,7 +292,7 @@ public class InstanceProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
         init();
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        android.database.sqlite.SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
 
         switch (sUriMatcher.match(uri)) {
@@ -364,7 +364,7 @@ public class InstanceProvider extends ContentProvider {
         int count;
 
         init();
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        android.database.sqlite.SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         // Given a value in the status column and none in the display subtext
         // column, set the display subtext column from the status value.
@@ -542,10 +542,14 @@ public class InstanceProvider extends ContentProvider {
             // before moving on. We'll catch any errors here and just eat them
             // (since the task will also try the process and fail if it does.
             if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
+                net.sqlcipher.database.SQLiteDatabase db =
+                        CommCareApplication.instance().getUserDbHandle();
+                db.beginTransaction();
                 try {
                     new FormRecordProcessor(getContext()).process(current);
+                    db.setTransactionSuccessful();
                 } catch (InvalidStructureException e) {
-                    // record should be wiped when form entry is exited
+                    // Record will be wiped when form entry is exited
                     Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, e.getMessage());
                     throw new IllegalStateException(e.getMessage());
                 } catch (Exception e) {
@@ -556,6 +560,8 @@ public class InstanceProvider extends ContentProvider {
                     Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                             "Error processing form. Should be recaptured during async processing: " + e.getMessage());
                     throw new RuntimeException(e);
+                } finally {
+                    db.endTransaction();
                 }
             }
         }
