@@ -74,6 +74,13 @@ public class FormRecord extends Persisted implements EncryptedModel {
      */
     public static final String STATUS_JUST_DELETED = "just-deleted";
 
+    public static final String QuarantineReason_LOCAL_PROCESSING_ERROR =
+            "Local processing of the form failed";
+    public static final String QuarantineReason_RECORD_ERROR =
+            "There was an issue with the record that prevented submission";
+    public static final String QuarantineReason_MANUAL =
+            "The form was manually quarantined by a user";
+
     @Persisting(1)
     @MetaField(META_XMLNS)
     private String xmlns;
@@ -106,7 +113,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     private String submissionOrderingNumber;
 
     @Persisting(value = 9, nullable = true)
-    private QuarantineReason reasonForQuarantine;
+    private String reasonForQuarantine;
 
     public FormRecord() {
     }
@@ -196,11 +203,11 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return Integer.parseInt(submissionOrderingNumber);
     }
 
-    public void setReasonForQuarantine(QuarantineReason reason) {
+    public void setReasonForQuarantine(String reason) {
         this.reasonForQuarantine = reason;
     }
 
-    public QuarantineReason getReasonForQuarantine() {
+    public String getReasonForQuarantine() {
         return this.reasonForQuarantine;
     }
 
@@ -257,17 +264,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
                 getInstanceID(),
                 getSubmissionOrderingNumber());
         Logger.log(LogTypes.TYPE_FORM_DELETION, logMessage);
-    }
-
-    public enum QuarantineReason {
-        LOCAL_PROCESSING_ERROR("quarantine.reason.local.processing"),
-        RECORD_ERROR("quarantine.reason.record.error");
-
-        public String reasonStringKey;
-
-        QuarantineReason(String s) {
-            this.reasonStringKey = s;
-        }
     }
 
 }

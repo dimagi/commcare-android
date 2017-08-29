@@ -398,7 +398,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
 
         if (FormRecord.STATUS_QUARANTINED.equals(value.getStatus()) &&
-                !FormRecord.QuarantineReason.LOCAL_PROCESSING_ERROR.equals(value.getReasonForQuarantine())) {
+                !FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR.equals(value.getReasonForQuarantine())) {
             // Records that were quarantined due to a local processing error can't attempt re-submission,
             // since doing so would send them straight to "Unsent" when they haven't even been processed
             menu.add(Menu.NONE, RESTORE_RECORD, RESTORE_RECORD,
@@ -470,7 +470,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     private void quarantineRecord(FormRecord record) {
-        this.formRecordProcessor.updateRecordStatus(record, FormRecord.STATUS_QUARANTINED);
+        this.formRecordProcessor.quarantineRecord(record, FormRecord.QuarantineReason_MANUAL);
         listView.post(new Runnable() {
             @Override
             public void run() {

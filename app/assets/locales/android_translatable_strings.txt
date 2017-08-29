@@ -184,9 +184,6 @@ app.workflow.forms.scan.title.valid=Integrity Scan: PASS
 app.workflow.forms.scan.title.invalid=Integrity Scan: FAIL
 app.workflow.forms.quarantine.report=Submit Quarantine Report
 
-quarantine.reason.local.processing=Local processing of the form failed
-quarantine.reason.record.error=There was an issue with the record that prevented submission
-
 notifications.prompt.details=Select for details. ${0}
 notifications.prompt.more=(${0} More...)
 

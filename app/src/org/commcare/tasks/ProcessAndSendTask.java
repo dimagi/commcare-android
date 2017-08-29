@@ -235,7 +235,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
         Logger.log(LogTypes.TYPE_ERROR_DESIGN, logMessage);
 
-        return quarantineRecordAndReport(record, FormRecord.QuarantineReason.LOCAL_PROCESSING_ERROR);
+        return quarantineRecordAndReport(record, FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR);
     }
 
     private boolean blockUntilTopOfQueue() throws TaskCancelledException {
@@ -321,7 +321,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         if (results[i] == FormUploadResult.RECORD_FAILURE) {
                             // We tried to submit multiple times and there was a local problem (not a remote problem).
                             // This implies that something is wrong with the current record, and we need to quarantine it.
-                            quarantineRecordAndReport(record, FormRecord.QuarantineReason.RECORD_ERROR);
+                            quarantineRecordAndReport(record,
+                                    FormRecord.QuarantineReason_RECORD_ERROR);
                         }
                     } catch (FileNotFoundException e) {
                         if (CommCareApplication.instance().isStorageAvailable()) {
@@ -377,14 +378,14 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
     }
 
-    private FormRecord quarantineRecordAndReport(FormRecord record, FormRecord.QuarantineReason reason) {
+    private FormRecord quarantineRecordAndReport(FormRecord record, String reason) {
         NotificationMessage messageForNotification;
         switch (reason) {
-            case LOCAL_PROCESSING_ERROR:
+            case FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR:
                 messageForNotification =
                         NotificationMessageFactory.message(ProcessIssues.RecordQuarantinedLocalProcessingIssue);
                 break;
-            case RECORD_ERROR:
+            case FormRecord.QuarantineReason_RECORD_ERROR:
             default:
                 messageForNotification =
                         NotificationMessageFactory.message(ProcessIssues.RecordQuarantinedRecordIssue);
@@ -393,7 +394,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
         Logger.log(LogTypes.TYPE_ERROR_STORAGE,
                 String.format("Quarantining Form Record with id %s because %s",
-                        record.getInstanceID(), Localization.get(reason.reasonStringKey)));
+                        record.getInstanceID(), reason));
         CommCareApplication.notificationManager().reportNotificationMessage(messageForNotification, true);
 
         return processor.quarantineRecord(record, reason);
