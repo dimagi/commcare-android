@@ -15,7 +15,7 @@ import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.interfaces.HttpRequestEndpoints;
+import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.encryption.ByteEncrypter;
@@ -120,7 +120,7 @@ public abstract class DataPullTask<R>
         super.onCancelled();
         wipeLoginIfItOccurred();
     }
-    private final HttpRequestEndpoints requestor;
+    private final CommcareRequestEndpoints requestor;
 
     @Override
     protected ResultAndError<PullTaskResult> doTaskBackground(Void... params) {
@@ -465,7 +465,7 @@ public abstract class DataPullTask<R>
     }
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
-    private Pair<Integer, String> recover(HttpRequestEndpoints requestor, AndroidTransactionParserFactory factory) {
+    private Pair<Integer, String> recover(CommcareRequestEndpoints requestor, AndroidTransactionParserFactory factory) {
         while (asyncRestoreHelper.retryWaitPeriodInProgress()) {
             try {
                 Thread.sleep(500);

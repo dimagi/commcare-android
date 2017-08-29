@@ -29,21 +29,29 @@ public class ModernHttpTask
 
     public static final int SIMPLE_HTTP_TASK_ID = 11;
 
-    private final ModernHttpRequester requestor;
+    private final ModernHttpRequester requester;
     private int responseCode;
     private InputStream responseDataStream;
     private Exception exception;
 
+    // Use for GET request
     public ModernHttpTask(Context context, String url, HashMap<String, String> params,
+                          HashMap<String, String> headers,
+                          @Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
+        this(context, url, params, headers, null, HTTPMethod.GET, usernameAndPasswordToAuthWith);
+    }
+
+    public ModernHttpTask(Context context, String url, HashMap<String, String> params,
+                          HashMap<String, String> headers,
                           @Nullable RequestBody requestBody,
                           HTTPMethod method,
                           @Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
         taskId = SIMPLE_HTTP_TASK_ID;
-        requestor = CommCareApplication.instance().buildHttpRequester(
+        requester = CommCareApplication.instance().buildHttpRequester(
                 context,
                 url,
                 params,
-                new HashMap(),
+                headers,
                 requestBody,
                 null,
                 method,
@@ -53,7 +61,7 @@ public class ModernHttpTask
 
     @Override
     protected Void doTaskBackground(Void... params) {
-        requestor.makeRequestAndProcess();
+        requester.makeRequestAndProcess();
         return null;
     }
 

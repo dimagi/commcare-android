@@ -1,14 +1,12 @@
 package org.commcare.android.logging;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;

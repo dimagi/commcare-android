@@ -1,7 +1,7 @@
 package org.commcare.network;
 
 import org.commcare.core.network.OkHTTPResponseMockFactory;
-import org.commcare.interfaces.HttpRequestEndpoints;
+import org.commcare.interfaces.CommcareRequestEndpoints;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import retrofit2.Response;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
+public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
     private final static List<Integer> caseFetchResponseCodeStack = new ArrayList<>();
     private static String errorMessagePayload;
 

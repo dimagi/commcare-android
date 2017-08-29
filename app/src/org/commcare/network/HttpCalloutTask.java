@@ -81,7 +81,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
                 } else {
                     outcome = doResponseOther(response);
                 }
-            } catch (ClientProtocolException | UnknownHostException e) {
+            } catch (UnknownHostException e) {
                 outcome = HttpCalloutOutcomes.NetworkFailure;
             } catch (SSLPeerUnverifiedException e) {
                 // Couldn't get a valid SSL certificate

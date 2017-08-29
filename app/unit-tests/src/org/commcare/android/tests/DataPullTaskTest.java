@@ -4,7 +4,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.network.HttpRequestEndpointsMock;
+import org.commcare.network.CommcareRequestEndpointsMock;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.tasks.DataPullTask;
@@ -89,7 +89,7 @@ public class DataPullTaskTest {
     @Test
     public void dataPullFailWithMessage() {
         installLoginAndUseLocalKeys();
-        HttpRequestEndpointsMock.setErrorResponseBody("{\"error\": \"some.fake.locale.key\", \"default_response\": \"hello world\"}");
+        CommcareRequestEndpointsMock.setErrorResponseBody("{\"error\": \"some.fake.locale.key\", \"default_response\": \"hello world\"}");
         runDataPull(406, GOOD_RESTORE);
         Assert.assertEquals(DataPullTask.PullTaskResult.ACTIONABLE_FAILURE, dataPullResult.data);
         Assert.assertEquals("hello world", dataPullResult.errorMessage);
@@ -149,7 +149,7 @@ public class DataPullTaskTest {
     }
 
     private static void runDataPull(Integer[] resultCodes, String[] payloadResources) {
-        HttpRequestEndpointsMock.setCaseFetchResponseCodes(resultCodes);
+        CommcareRequestEndpointsMock.setCaseFetchResponseCodes(resultCodes);
         LocalReferencePullResponseFactory.setRequestPayloads(payloadResources);
 
         DataPullTask<Object> task =

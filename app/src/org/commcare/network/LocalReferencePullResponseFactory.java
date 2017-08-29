@@ -1,6 +1,6 @@
 package org.commcare.network;
 
-import org.commcare.interfaces.HttpRequestEndpoints;
+import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.tasks.DataPullTask;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ public enum LocalReferencePullResponseFactory implements DataPullRequester {
     // this is what DataPullTask will call when it's being run in a test
     @Override
     public RemoteDataPullResponse makeDataPullRequest(DataPullTask task,
-                                                      HttpRequestEndpoints requestor,
+                                                      CommcareRequestEndpoints requestor,
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
         numTries++;
@@ -44,7 +44,7 @@ public enum LocalReferencePullResponseFactory implements DataPullRequester {
     }
 
     @Override
-    public HttpRequestEndpoints getHttpGenerator(String username, String password, String userId) {
-        return new HttpRequestEndpointsMock();
+    public CommcareRequestEndpoints getHttpGenerator(String username, String password, String userId) {
+        return new CommcareRequestEndpointsMock();
     }
 }

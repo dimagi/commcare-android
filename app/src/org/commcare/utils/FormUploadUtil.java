@@ -5,8 +5,8 @@ import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.EncryptedFileBody;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
@@ -140,7 +140,7 @@ public class FormUploadUtil {
             return FormUploadResult.RECORD_FAILURE;
         }
 
-        HttpRequestGenerator generator = new HttpRequestGenerator(user);
+        CommcareRequestGenerator generator = new CommcareRequestGenerator(user);
         return submitEntity(parts, url, generator);
     }
 
@@ -150,7 +150,7 @@ public class FormUploadUtil {
      * @return submission status of multipart entity post
      */
     private static FormUploadResult submitEntity(List<MultipartBody.Part> parts, String url,
-                                                 HttpRequestGenerator generator) {
+                                                 CommcareRequestGenerator generator) {
         Response<ResponseBody> response;
 
         try {

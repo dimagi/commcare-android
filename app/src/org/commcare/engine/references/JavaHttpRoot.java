@@ -1,6 +1,6 @@
 package org.commcare.engine.references;
 
-import org.commcare.network.HttpRequestGenerator;
+import org.commcare.network.CommcareRequestGenerator;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceFactory;
@@ -10,7 +10,7 @@ import org.javarosa.core.reference.ReferenceFactory;
  */
 public class JavaHttpRoot implements ReferenceFactory {
 
-    private final HttpRequestGenerator generator = HttpRequestGenerator.buildNoAuthGenerator();
+    private final CommcareRequestGenerator generator = CommcareRequestGenerator.buildNoAuthGenerator();
 
     @Override
     public Reference derive(String URI) throws InvalidReferenceException {

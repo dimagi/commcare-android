@@ -7,10 +7,9 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.interfaces.HttpRequestEndpoints;
+import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.util.Pair;
-import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.provider.DebugControlsReceiver;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
@@ -32,8 +31,7 @@ import retrofit2.Response;
 /**
  * @author ctsims
  */
-public class HttpRequestGenerator implements HttpRequestEndpoints {
-    private static final String TAG = HttpRequestGenerator.class.getSimpleName();
+public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     /**
      * The type of authentication that we're capable of providing to the server (digest if this isn't present)
@@ -56,27 +54,27 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     @Nullable
     private ModernHttpRequester requester;
 
-    public HttpRequestGenerator(User user) {
+    public CommcareRequestGenerator(User user) {
         this(user.getUsername(), user.getCachedPwd(), user.getUserType(), user.getUniqueId());
     }
 
-    public HttpRequestGenerator(String username, String password) {
+    public CommcareRequestGenerator(String username, String password) {
         this(username, password, null);
     }
 
-    public HttpRequestGenerator(String username, String password, String userId) {
+    public CommcareRequestGenerator(String username, String password, String userId) {
         this(username, password, null, userId);
     }
 
-    private HttpRequestGenerator(String username, String password, String userType, String userId) {
+    private CommcareRequestGenerator(String username, String password, String userType, String userId) {
         this.password = password;
         this.userType = userType;
         this.username = username;
         this.userId = userId;
     }
 
-    public static HttpRequestGenerator buildNoAuthGenerator() {
-        return new HttpRequestGenerator(null, null, null, null);
+    public static CommcareRequestGenerator buildNoAuthGenerator() {
+        return new CommcareRequestGenerator(null, null, null, null);
     }
 
     @Override
@@ -131,7 +129,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         return requester.makeRequest();
     }
 
-    private HashMap getHeaders(String lastToken) {
+    public static HashMap getHeaders(String lastToken) {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("X-OpenRosa-Version", "2.1");
         if (lastToken != null) {

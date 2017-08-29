@@ -113,7 +113,7 @@ public class PostRequestActivity
     private void makePostRequest() {
         if (!hasTaskLaunched && !inErrorState) {
             RequestBody requestBody = ModernHttpRequester.getPostBody(params);
-            ModernHttpTask postTask = new ModernHttpTask(this, url.toString(), new HashMap(), requestBody, HTTPMethod.POST, null);
+            ModernHttpTask postTask = new ModernHttpTask(this, url.toString(), new HashMap(), new HashMap(), requestBody, HTTPMethod.POST, null);
             postTask.connect((CommCareTaskConnector)this);
             postTask.executeParallel();
             hasTaskLaunched = true;

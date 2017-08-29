@@ -1,6 +1,6 @@
 package org.commcare.android.nsd;
 
-import org.commcare.network.HttpRequestGenerator;
+import org.commcare.network.CommcareRequestGenerator;
 import org.javarosa.core.io.StreamsUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -35,7 +34,7 @@ public class MicroNode {
 
             try {
                 InputStream is = new BufferedInputStream(
-                        HttpRequestGenerator.buildNoAuthGenerator()
+                        CommcareRequestGenerator.buildNoAuthGenerator()
                                 .simpleGet(serviceUrlRoot + "/apps/manifest")
                                 .body().byteStream());
                 byte[] manifest = StreamsUtil.inputStreamToByteArray(is);

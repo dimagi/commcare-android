@@ -14,8 +14,8 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.models.legacy.LegacyInstallUtils;
+import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.HttpCalloutTask;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
@@ -326,7 +326,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     @Override
     protected Response<ResponseBody> doHttpRequest() throws IOException {
-        HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
+        CommcareRequestGenerator requestor = new CommcareRequestGenerator(username, password);
         return requestor.makeKeyFetchRequest(keyServerUrl, null);
     }
 

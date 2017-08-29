@@ -3,7 +3,6 @@ package org.commcare.tasks;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import org.apache.http.client.ClientProtocolException;
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
@@ -14,7 +13,7 @@ import org.commcare.logging.DeviceReportWriter;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorSerializer;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.network.HttpRequestGenerator;
+import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.LogSubmissionTask.LogSubmitOutcomes;
@@ -242,7 +241,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
         listener.startSubmission(index, f.length());
 
-        HttpRequestGenerator generator;
+        CommcareRequestGenerator generator;
         User user;
         try {
             user = CommCareApplication.instance().getSession().getLoggedInUser();
@@ -251,7 +250,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return false;
         }
 
-        generator = new HttpRequestGenerator(user);
+        generator = new CommcareRequestGenerator(user);
 
         List<MultipartBody.Part> parts = new ArrayList<>();
 
@@ -264,9 +263,6 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         Response<ResponseBody> response;
         try {
             response = generator.postMultipart(submissionUrl, parts);
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-            return false;
         } catch (IOException e) {
             e.printStackTrace();
             return false;

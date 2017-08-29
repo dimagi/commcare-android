@@ -8,7 +8,7 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogSerializer;
 import org.commcare.logging.DeviceReportWriter;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.network.HttpRequestGenerator;
+import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
@@ -105,12 +105,12 @@ public class ForceCloseLogger {
             return false;
         }
 
-        HttpRequestGenerator generator;
+        CommcareRequestGenerator generator;
         try {
             User user = CommCareApplication.instance().getSession().getLoggedInUser();
-            generator = new HttpRequestGenerator(user);
+            generator = new CommcareRequestGenerator(user);
         } catch (Exception e) {
-            generator = HttpRequestGenerator.buildNoAuthGenerator();
+            generator = CommcareRequestGenerator.buildNoAuthGenerator();
         }
 
         try {

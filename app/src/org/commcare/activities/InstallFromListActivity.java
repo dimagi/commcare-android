@@ -27,8 +27,10 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.modern.util.Pair;
+import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.preferences.GlobalPrivilegesManager;
-import org.commcare.tasks.SimpleGetTask;
+import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.ConnectivityStatus;
@@ -46,6 +48,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -251,7 +254,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             this.lastUsernameUsed = username;
             this.lastPasswordUsed = password;
             final View processingRequestView = findViewById(R.id.processing_request_view);
-            SimpleGetTask task = new SimpleGetTask(username, password, this) {
+            ModernHttpTask task =  new ModernHttpTask(this, urlToTry, new HashMap(),
+                    CommcareRequestGenerator.getHeaders(""), new Pair(username, password)){
 
                 @Override
                 protected void onPreExecute() {
@@ -267,12 +271,11 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                         processingRequestView.setVisibility(View.GONE);
                     }
                 }
-
             };
 
             task.connect((CommCareTaskConnector)this);
             setAttemptedRequestFlag();
-            task.executeParallel(urlToTry);
+            task.executeParallel();
             return true;
         }
         return false;

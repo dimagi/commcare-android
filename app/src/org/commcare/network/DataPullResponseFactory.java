@@ -1,6 +1,6 @@
 package org.commcare.network;
 
-import org.commcare.interfaces.HttpRequestEndpoints;
+import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.tasks.DataPullTask;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ public enum DataPullResponseFactory implements DataPullRequester {
 
     @Override
     public RemoteDataPullResponse makeDataPullRequest(DataPullTask task,
-                                                      HttpRequestEndpoints requestor,
+                                                      CommcareRequestEndpoints requestor,
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
         Response response = requestor.makeCaseFetchRequest(server, includeSyncToken);
@@ -26,7 +26,7 @@ public enum DataPullResponseFactory implements DataPullRequester {
     }
 
     @Override
-    public HttpRequestGenerator getHttpGenerator(String username, String password, String userId) {
-        return new HttpRequestGenerator(username, password, userId);
+    public CommcareRequestGenerator getHttpGenerator(String username, String password, String userId) {
+        return new CommcareRequestGenerator(username, password, userId);
     }
 }
