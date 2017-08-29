@@ -184,6 +184,9 @@ app.workflow.forms.scan.title.valid=Integrity Scan: PASS
 app.workflow.forms.scan.title.invalid=Integrity Scan: FAIL
 app.workflow.forms.quarantine.report=Submit Quarantine Report
 
+quarantine.reason.local.processing=Local processing of the form failed
+quarantine.reason.record.error=There was an issue with the record that prevented submission
+
 notifications.prompt.details=Select for details. ${0}
 notifications.prompt.more=(${0} More...)
 
@@ -588,9 +591,13 @@ notification.case.filter.action=Sorting failed because CommCare expected a numbe
 notification.send.malformed.title=Bad Form on SD Card
 notification.send.malformed.detail=The file ${0} on your SD card was malformed and couldn't be read. It has been removed as a precaution.
 
-notification.sending.quarantine.title=Form Record Quarantined
-notification.sending.quarantine.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
-notification.sending.quarantine.action=You can view the record in the saved records screen by checking the quarantine filter. From there you can restore quarantined records back onto the unsent queue to try to submit them again. Restarting the device and/or ejecting and re-inserting your external storage first may correct the issue. 
+notification.quarantine.record.issue.title=Form Record Quarantined
+notification.quarantine.record.issue.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
+notification.quarantine.record.issue.action=You can view this record by visiting the Saved screen and checking the Quarantined Forms filter. From there, you can place this record back onto the unsent queue to try to submit it again. Restarting the device and/or ejecting and re-inserting your external storage first may correct this issue.
+
+notification.quarantine.local.processing.title=Form Record Quarantined
+notification.quarantine.local.processing.detail=CommCare could not process one of your forms. This can happen when the form's submission xml has an invalid structure.
+notification.quarantine.local.processing.action=You can view this record by visiting the Saved screen and checking the quarantine filter. However, it is not possible to try to submit this form again by placing it back onto the unsent queue.
 
 notification.formrecord.files.missing.title=Form Record Missing
 notification.formrecord.files.missing.detail=The files for one of your forms are missing. This can happen due to corruption of the storage layer or deletion of the files by other programs.

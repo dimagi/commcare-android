@@ -105,6 +105,9 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @MetaField(META_SUBMISSION_ORDERING_NUMBER)
     private String submissionOrderingNumber;
 
+    @Persisting(value = 9, nullable = true)
+    private QuarantineReason reasonForQuarantine;
+
     public FormRecord() {
     }
 
@@ -193,6 +196,14 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return Integer.parseInt(submissionOrderingNumber);
     }
 
+    public void setReasonForQuarantine(QuarantineReason reason) {
+        this.reasonForQuarantine = reason;
+    }
+
+    public QuarantineReason getReasonForQuarantine() {
+        return this.reasonForQuarantine;
+    }
+
     /**
      * Get the file system path to the encrypted XML submission file.
      *
@@ -246,6 +257,17 @@ public class FormRecord extends Persisted implements EncryptedModel {
                 getInstanceID(),
                 getSubmissionOrderingNumber());
         Logger.log(LogTypes.TYPE_FORM_DELETION, logMessage);
+    }
+
+    public enum QuarantineReason {
+        LOCAL_PROCESSING_ERROR("quarantine.reason.local.processing"),
+        RECORD_ERROR("quarantine.reason.record.error");
+
+        public String reasonStringKey;
+
+        QuarantineReason(String s) {
+            this.reasonStringKey = s;
+        }
     }
 
 }

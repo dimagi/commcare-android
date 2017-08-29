@@ -17,6 +17,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
 import org.javarosa.core.model.User;
@@ -234,7 +235,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
         Logger.log(LogTypes.TYPE_ERROR_DESIGN, logMessage);
 
-        return processor.updateRecordStatus(record, FormRecord.STATUS_QUARANTINED);
+        return quarantineRecordAndReport(record, FormRecord.QuarantineReason.LOCAL_PROCESSING_ERROR);
     }
 
     private boolean blockUntilTopOfQueue() throws TaskCancelledException {
@@ -318,12 +319,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         }
 
                         if (results[i] == FormUploadResult.RECORD_FAILURE) {
-                            //We tried to submit multiple times and there was a local problem (not a remote problem).
-                            //This implies that something is wrong with the current record, and we need to quarantine it.
-                            processor.updateRecordStatus(record, FormRecord.STATUS_QUARANTINED);
-                            Logger.log(LogTypes.TYPE_ERROR_STORAGE,
-                                    "Quarantined Form Record due to local problem with record");
-                            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
+                            // We tried to submit multiple times and there was a local problem (not a remote problem).
+                            // This implies that something is wrong with the current record, and we need to quarantine it.
+                            quarantineRecordAndReport(record, FormRecord.QuarantineReason.RECORD_ERROR);
                         }
                     } catch (FileNotFoundException e) {
                         if (CommCareApplication.instance().isStorageAvailable()) {
@@ -377,6 +375,28 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
             }
         }
+    }
+
+    private FormRecord quarantineRecordAndReport(FormRecord record, FormRecord.QuarantineReason reason) {
+        NotificationMessage messageForNotification;
+        switch (reason) {
+            case LOCAL_PROCESSING_ERROR:
+                messageForNotification =
+                        NotificationMessageFactory.message(ProcessIssues.RecordQuarantinedLocalProcessingIssue);
+                break;
+            case RECORD_ERROR:
+            default:
+                messageForNotification =
+                        NotificationMessageFactory.message(ProcessIssues.RecordQuarantinedRecordIssue);
+                break;
+        }
+
+        Logger.log(LogTypes.TYPE_ERROR_STORAGE,
+                String.format("Quarantining Form Record with id %s because %s",
+                        record.getInstanceID(), Localization.get(reason.reasonStringKey)));
+        CommCareApplication.notificationManager().reportNotificationMessage(messageForNotification, true);
+
+        return processor.quarantineRecord(record, reason);
     }
 
     private static void logSubmissionAttempt(FormRecord record) {
