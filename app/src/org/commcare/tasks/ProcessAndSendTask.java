@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.commcare.CommCareApplication;
 import org.commcare.activities.SyncCapableCommCareActivity;
 import org.commcare.android.database.user.models.FormRecord;
@@ -174,13 +176,19 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
             //If the form is complete, but unprocessed, process it.
             if (FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
+                SQLiteDatabase db =
+                        CommCareApplication.instance().getUserDbHandle();
+                db.beginTransaction();
                 try {
                     records[i] = processor.process(record);
+                    db.setTransactionSuccessful();
                 } catch (InvalidStructureException | XmlPullParserException |
                         UnfullfilledRequirementsException e) {
+                    db.endTransaction();
                     records[i] = handleExceptionFromFormProcessing(record, e);
                     needToSendLogs = true;
                 } catch (FileNotFoundException e) {
+                    db.endTransaction();
                     if (CommCareApplication.instance().isStorageAvailable()) {
                         //If storage is available generally, this is a bug in the app design
                         Logger.log(LogTypes.TYPE_ERROR_DESIGN,
@@ -196,8 +204,11 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         throw e;
                     }
                 } catch (IOException e) {
+                    db.endTransaction();
                     Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. " +
                             "Tentatively not removing in case they are resolvable|" + getExceptionText(e));
+                } catch (Exception e) {
+                    db.endTransaction();
                 }
             }
         }
