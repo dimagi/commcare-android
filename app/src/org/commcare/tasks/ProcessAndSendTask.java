@@ -266,13 +266,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
     private void sendForms(FormRecord[] records) throws TaskCancelledException {
         for (int i = 0; i < records.length; ++i) {
-            //See whether we are OK to proceed based on the last form. We're now guaranteeing
-            //that forms are sent in order, so we won't proceed unless we succeed. We'll also permit
-            //proceeding if there was a local problem with a record, since we'll just move on from that
-            //processing.
-            if (i > 0 && !(results[i - 1] == FormUploadResult.FULL_SUCCESS || results[i - 1] == FormUploadResult.RECORD_FAILURE)) {
-                //Something went wrong with the last form, so we need to cancel this whole shebang
-                Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Cancelling submission due to network errors. " + (i - 1) + " forms succesfully sent.");
+
+            if (previousFailurePredictsFutureFailures(results, i)) {
+                Logger.log(LogTypes.TYPE_WARNING_NETWORK,
+                        "Cancelling submission due to network errors. " + (i - 1) + " forms successfully sent.");
                 break;
             }
 
@@ -362,6 +359,25 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
             }
         }
+    }
+
+    /**
+     *
+     * @param results the array of submission results
+     * @param currentIndex - the index of the submission we are about to attempt
+     * @return true if there was a failure in submitting the previous form that indicates future
+     * submission attempts will also fail. (We permit proceeding if there was a local problem with
+     * a specific record, or a processing error with a specific record, since that is unrelated to
+     * how future submissions will fair).
+     */
+    private boolean previousFailurePredictsFutureFailures(FormUploadResult[] results, int currentIndex) {
+        if (currentIndex > 0) {
+            FormUploadResult lastResult = results[currentIndex - 1];
+            return !(lastResult == FormUploadResult.FULL_SUCCESS ||
+                    lastResult == FormUploadResult.RECORD_FAILURE ||
+                    lastResult == FormUploadResult.PROCESSING_FAILURE);
+        }
+        return false;
     }
 
     /**
