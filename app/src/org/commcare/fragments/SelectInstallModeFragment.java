@@ -28,6 +28,9 @@ import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.javarosa.core.services.locale.Localization;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+
 import java.util.ArrayList;
 
 /**
@@ -74,9 +77,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                     if (currentActivity instanceof CommCareSetupActivity) {
                         ((CommCareSetupActivity)currentActivity).clearErrorMessage();
                     }
-                    Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                    i.putExtra("SCAN_FORMATS", "QR_CODE");
-                    getActivity().startActivityForResult(i, CommCareSetupActivity.BARCODE_CAPTURE);
+                    new IntentIntegrator(getActivity()).initiateScan();
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getActivity(), "No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
                     barcodeButtonContainer.setVisibility(View.GONE);
