@@ -454,10 +454,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
                 result.second, resId, null);
 
-        if (!record.getStatus().equals(FormRecord.STATUS_SAVED) &&
-                !record.getStatus().equals(FormRecord.STATUS_QUARANTINED)) {
-            // Only show the manual quarantine option if it's not already quarantined and it
-            // hasn't already been sent
+        if (record.getStatus().equals(FormRecord.STATUS_UNSENT)) {
             dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
