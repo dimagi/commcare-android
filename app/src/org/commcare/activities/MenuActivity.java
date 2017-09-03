@@ -5,15 +5,12 @@ import android.support.annotation.Nullable;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.MenuList;
-import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.session.SessionFrame;
-import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Menu;
 import org.commcare.utils.AndroidCommCarePlatform;
-import org.commcare.utils.DetailCalloutListener;
 
-public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> implements DetailCalloutListener {
+public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
 
     private static final String MENU_STYLE_GRID = "grid";
     @Nullable
@@ -68,25 +65,5 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> imp
         if (menuView != null) {
             menuView.onDestroy();
         }
-    }
-
-    @Override
-    public void callRequested(String phoneNumber) {
-        DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
-    }
-
-    @Override
-    public void addressRequested(String address) {
-        DetailCalloutListenerDefaultImpl.addressRequested(this, address);
-    }
-
-    @Override
-    public void playVideo(String videoRef) {
-        DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
-    }
-
-    @Override
-    public void performCallout(CalloutData callout, int id) {
-        DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
 }

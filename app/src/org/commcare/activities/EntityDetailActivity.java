@@ -25,10 +25,8 @@ import org.commcare.print.PrintableDetailField;
 import org.commcare.print.TemplatePrinterActivity;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
-import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.DetailFieldPrintInfo;
-import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUi;
@@ -44,8 +42,7 @@ import java.util.HashMap;
  */
 @ManagedUi(R.layout.entity_detail)
 public class EntityDetailActivity
-        extends SessionAwareCommCareActivity
-        implements DetailCalloutListener {
+        extends SessionAwareCommCareActivity {
 
     // reference id of selected element being detailed
     public static final String CONTEXT_REFERENCE = "eda_crid";
@@ -194,26 +191,6 @@ public class EntityDetailActivity
             default:
                 super.onActivityResult(requestCode, resultCode, intent);
         }
-    }
-
-    @Override
-    public void callRequested(String phoneNumber) {
-        DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
-    }
-
-    @Override
-    public void addressRequested(String address) {
-        DetailCalloutListenerDefaultImpl.addressRequested(this, address);
-    }
-
-    @Override
-    public void playVideo(String videoRef) {
-        DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
-    }
-
-    @Override
-    public void performCallout(CalloutData callout, int id) {
-        DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
 
     @Override
