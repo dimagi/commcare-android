@@ -14,8 +14,10 @@ import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.Build;
 import android.os.Bundle;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
@@ -41,7 +43,8 @@ public class NfcWriteExternalActivity extends Activity {
         this.payloadToWrite = getIntent().getStringExtra(NFC_PAYLOAD_TO_WRITE);
         this.customPayloadType = getIntent().getStringExtra(NFC_PAYLOAD_TYPE);
         createPendingRestartIntent();
-        //TODO: set a simple layout that instructs the user to hold the NFC-enabled hardware up to the phone/tablet
+        setContentView(R.layout.nfc_write_view);
+        ((TextView)findViewById(R.id.nfc_write_text_view)).setText(Localization.get("nfc.instructions"));
     }
 
     /**

@@ -777,3 +777,4 @@ nfc.write.no.payload=NFC write action requires specifying a payload
 nfc.write.no.type=NFC write action requires specifying a payload type
 nfc.write.io.error=An IO error occurred while attempting to write the Ndef message to your NFC tag
 nfc.write.msg.malformed=The Ndef message that you attempted to write was malformed
+nfc.instructions=Hold your NFC-enabled device up to the back of this phone or tablet
