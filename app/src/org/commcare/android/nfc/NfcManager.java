@@ -37,10 +37,6 @@ public class NfcManager {
         nfcAdapter.disableForegroundDispatch(activity);
     }
 
-    public NdefRecord createNdefRecord(Context context, String type, String payloadToWrite) {
-        return NdefRecord.createExternal(context.getPackageName(), type, payloadToWrite.getBytes());
-    }
-
     public class NfcNotSupportedException extends Exception {
 
     }

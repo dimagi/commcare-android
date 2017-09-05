@@ -19,7 +19,7 @@ public class NfcTriggerReceiver extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             String action = intent.getAction();
             if (action.endsWith("WRITE")) {
-                startWriteActivity(context);
+                startWriteActivity(context, intent.getStringExtra("payload"), intent.getStringExtra("type"));
             } else if (action.endsWith("READ")) {
                 startReadActivity(context);
             }
@@ -28,8 +28,11 @@ public class NfcTriggerReceiver extends BroadcastReceiver {
         }
     }
 
-    private void startWriteActivity(Context context) {
-        context.startActivity(new Intent(context, NfcWriteExternalActivity.class));
+    private void startWriteActivity(Context context, String payload, String type) {
+        Intent i = new Intent(context, NfcWriteExternalActivity.class);
+        i.putExtra(NfcWriteExternalActivity.NFC_PAYLOAD_TO_WRITE, payload);
+        i.putExtra(NfcWriteExternalActivity.NFC_PAYLOAD_TYPE, type);
+        context.startActivity(i);
     }
 
     private void startReadActivity(Context context) {
