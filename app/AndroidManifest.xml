@@ -314,6 +314,18 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+        <activity android:name="org.commcare.android.nfc.NfcWriteExternalActivity">
+            <intent-filter>
+                <action android:name="org.commcare.nfc.WRITE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="org.commcare.android.nfc.NfcReadActivity">
+            <intent-filter>
+                <action android:name="org.commcare.nfc.READ"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
         <receiver android:name="org.commcare.provider.ExternalApiReceiver">
             <intent-filter>
@@ -354,19 +366,6 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="${applicationId}.api.action.ExpireUserKeyRecord"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name="org.commcare.android.nfc.NfcTriggerReceiver"
-                  android:enabled="true"
-                  android:exported="false" >
-            <intent-filter>
-                <action android:name="org.commcare.nfc.WRITE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="org.commcare.nfc.READ"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>

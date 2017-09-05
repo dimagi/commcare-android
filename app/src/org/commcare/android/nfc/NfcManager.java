@@ -19,7 +19,7 @@ public class NfcManager {
         this.context = c;
     }
 
-    public void verifyNFC() throws NfcNotSupportedException, NfcNotEnabledException {
+    public void checkForNFCSupport() throws NfcNotSupportedException, NfcNotEnabledException {
         this.nfcAdapter = NfcAdapter.getDefaultAdapter(this.context);
         if (nfcAdapter == null)
             throw new NfcNotSupportedException();

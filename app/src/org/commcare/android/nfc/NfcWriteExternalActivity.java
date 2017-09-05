@@ -28,8 +28,8 @@ import java.io.IOException;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class NfcWriteExternalActivity extends Activity {
 
-    public static final String NFC_PAYLOAD_TO_WRITE = "nfc-payload-to-write";
-    public static final String NFC_PAYLOAD_TYPE = "nfc-payload-type";
+    public static final String NFC_PAYLOAD_TO_WRITE = "payload";
+    public static final String NFC_PAYLOAD_TYPE = "type";
 
     private NfcManager nfcManager;
     private PendingIntent pendingNfcIntent;
@@ -39,12 +39,14 @@ public class NfcWriteExternalActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.nfcManager = new NfcManager(this);
-        this.payloadToWrite = getIntent().getStringExtra(NFC_PAYLOAD_TO_WRITE);
-        this.customPayloadType = getIntent().getStringExtra(NFC_PAYLOAD_TYPE);
-        createPendingRestartIntent();
-        setContentView(R.layout.nfc_write_view);
-        ((TextView)findViewById(R.id.nfc_write_text_view)).setText(Localization.get("nfc.instructions"));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            this.nfcManager = new NfcManager(this);
+            this.payloadToWrite = getIntent().getStringExtra(NFC_PAYLOAD_TO_WRITE);
+            this.customPayloadType = getIntent().getStringExtra(NFC_PAYLOAD_TYPE);
+            createPendingRestartIntent();
+            setContentView(R.layout.nfc_write_view);
+            ((TextView)findViewById(R.id.nfc_write_text_view)).setText(Localization.get("nfc.instructions"));
+        }
     }
 
     /**
@@ -62,8 +64,14 @@ public class NfcWriteExternalActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            finishWithErrorToast("nfc.min.version.message");
+            return;
+        }
+
         try {
-            nfcManager.verifyNFC();
+            nfcManager.checkForNFCSupport();
             if (requiredFieldsMissing()) {
                 return;
             }
