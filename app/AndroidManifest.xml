@@ -358,6 +358,19 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="org.commcare.android.nfc.NfcTriggerReceiver"
+                  android:enabled="true"
+                  android:exported="false" >
+            <intent-filter>
+                <action android:name="org.commcare.nfc.WRITE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="org.commcare.nfc.READ"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
+
         <activity android:name="org.commcare.activities.MultimediaInflaterActivity">
         </activity>
         <activity

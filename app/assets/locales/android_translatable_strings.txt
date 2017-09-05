@@ -769,3 +769,7 @@ calendar.low.year=Year value below min value of
 calendar.high.year=Year value above max value of ${0}
 calendar.low.day=Day value below min value of 1
 calendar.high.day=Day value above max value of ${0}
+
+nfc.min.version=NFC support in CommCare is only available for Android versions 4.1 and above
+nfc.not.supported=This Android device does not have NFC capabilities
+nfc.not.enabled=NFC capabilities are not currently enabled on this device
