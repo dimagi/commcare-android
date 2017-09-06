@@ -396,7 +396,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 message, android.R.drawable.ic_dialog_info, listener));
     }
 
-    public void displayCaseListFilterException(Exception e) {
+    public void displayCaseListLoadException(Exception e) {
         displayException(
                 Localization.get("notification.case.predicate.title"),
                 Localization.get("notification.case.predicate.action", new String[]{e.getMessage()}));

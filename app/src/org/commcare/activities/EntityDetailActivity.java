@@ -34,8 +34,10 @@ import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UiElement;
+import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xpath.XPathException;
 
 import java.util.HashMap;
 
@@ -280,7 +282,7 @@ public class EntityDetailActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case MENU_PRINT_DETAIL:
                 printDetail();
                 return true;
@@ -289,16 +291,19 @@ public class EntityDetailActivity
     }
 
     private void printDetail() {
-        Intent i = new Intent(this, TemplatePrinterActivity.class);
-        i.putExtra(TemplatePrinterActivity.PRINT_TEMPLATE_REF_STRING,
-                detail.getPrintTemplatePath());
+        try {
+            Intent i = new Intent(this, TemplatePrinterActivity.class);
+            i.putExtra(TemplatePrinterActivity.PRINT_TEMPLATE_REF_STRING,
+                    detail.getPrintTemplatePath());
 
-        HashMap<String, DetailFieldPrintInfo> keyValueMap =
-                detail.getKeyValueMapForPrint(mTreeReference, asw.getEvaluationContext());
-        for (String key : keyValueMap.keySet()) {
-            i.putExtra(key, new PrintableDetailField(keyValueMap.get(key)));
+            HashMap<String, DetailFieldPrintInfo> keyValueMap =
+                    detail.getKeyValueMapForPrint(mTreeReference, asw.getEvaluationContext());
+            for (String key : keyValueMap.keySet()) {
+                i.putExtra(key, new PrintableDetailField(keyValueMap.get(key)));
+            }
+            startActivityForResult(i, PRINT_DETAIL);
+        } catch (XPathException xe) {
+            UserfacingErrorHandling.logErrorAndShowDialog(this, xe, true);
         }
-        startActivityForResult(i, PRINT_DETAIL);
     }
-
 }
