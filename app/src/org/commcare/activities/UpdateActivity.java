@@ -21,7 +21,6 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.InstallStagedUpdateTask;
@@ -29,6 +28,7 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
@@ -430,7 +430,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } catch (SessionUnavailableException e) {
             // Must be updating from the app manager, in which case we don't have a current user
         }
-        Logger.log(AndroidLogger.TYPE_RESOURCES, updateLogMessage);
+        Logger.log(LogTypes.TYPE_RESOURCES, updateLogMessage);
 
     }
 

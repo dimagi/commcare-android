@@ -10,10 +10,10 @@ import android.view.WindowManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.engine.references.JavaFileReference;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -63,7 +63,7 @@ public class MediaUtil {
                     return BitmapFactory.decodeStream(ref.getStream());
                 }
             } catch (IOException e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "IO Exception loading reference: " + jrUri);
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "IO Exception loading reference: " + jrUri);
                 return null;
             }
 

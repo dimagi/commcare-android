@@ -7,7 +7,7 @@ import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
 import android.util.Log;
 
-import org.commcare.logging.AndroidLogger;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.TimeBoundOperation;
 import org.javarosa.core.services.Logger;
 
@@ -138,7 +138,7 @@ public class NSDDiscoveryTools {
             }.execute();
 
             if(!connected) {
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "NSD Service Failed to connect");
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "NSD Service Failed to connect");
             }
             if(mNsdManager == null) {
                 Log.d(TAG, "NSD Service Unavailable on device");

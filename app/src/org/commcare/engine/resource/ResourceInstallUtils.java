@@ -5,16 +5,15 @@ import android.content.SharedPreferences;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
@@ -127,7 +126,7 @@ public class ResourceInstallUtils {
             return AppInstallStatus.BadCertificate;
         }
 
-        Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
+        Logger.log(LogTypes.TYPE_WARNING_NETWORK,
                 "A resource couldn't be found, almost certainly due to the network|" +
                         exception.getMessage());
         if (exception.isMessageUseful()) {
@@ -193,7 +192,7 @@ public class ResourceInstallUtils {
     public static void logInstallError(Exception e, String logMessage) {
         e.printStackTrace();
 
-        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                 logMessage + e.getMessage());
     }
 

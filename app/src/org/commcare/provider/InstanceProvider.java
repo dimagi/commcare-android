@@ -16,12 +16,12 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.tasks.FormRecordCleanupTask;
+import org.commcare.util.LogTypes;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
@@ -515,7 +515,7 @@ public class InstanceProvider extends ContentProvider {
                         "something went wrong trying to sync the record for the current session " +
                                 "with the form instance");
             } else {
-                Logger.log(AndroidLogger.TYPE_FORM_DELETION, "The current session was missing " +
+                Logger.log(LogTypes.TYPE_FORM_DELETION, "The current session was missing " +
                         "its form record when trying to sync with the form instance; " +
                         "attempting to delete it if it still exists in the db");
             }
@@ -529,7 +529,7 @@ public class InstanceProvider extends ContentProvider {
             return;
         }
 
-        Logger.log(AndroidLogger.TYPE_FORM_ENTRY,
+        Logger.log(LogTypes.TYPE_FORM_ENTRY,
                 String.format("Form Entry Completed for record with id %s", current.getInstanceID()));
 
         // The form is either ready for processing, or not, depending on how it was saved
@@ -546,14 +546,14 @@ public class InstanceProvider extends ContentProvider {
                     new FormRecordProcessor(getContext()).process(current);
                 } catch (InvalidStructureException e) {
                     // record should be wiped when form entry is exited
-                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
+                    Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, e.getMessage());
                     throw new IllegalStateException(e.getMessage());
                 } catch (Exception e) {
                     NotificationMessage message =
                             NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Save_Error,
                                     new String[]{null, null, e.getMessage()});
                     CommCareApplication.notificationManager().reportNotificationMessage(message);
-                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                    Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                             "Error processing form. Should be recaptured during async processing: " + e.getMessage());
                     throw new RuntimeException(e);
                 }
@@ -628,7 +628,7 @@ public class InstanceProvider extends ContentProvider {
      * @param currentState session to be cleared
      */
     private void raiseFormEntryError(String loggerText, AndroidSessionWrapper currentState) {
-        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, loggerText);
+        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, loggerText);
 
         currentState.reset();
         throw new RuntimeException(loggerText);

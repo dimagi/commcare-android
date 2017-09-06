@@ -8,18 +8,18 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DataPullController;
 import org.commcare.activities.LoginMode;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.network.HttpCalloutTask;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
@@ -144,7 +144,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     @Override
     protected void deliverError(R receiver, Exception e) {
-        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error executing task in background: " + e.getMessage());
+        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Error executing task in background: " + e.getMessage());
         keysDoneOther(receiver, HttpCalloutOutcomes.UnknownError);
     }
 
@@ -155,13 +155,13 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     protected void keysLoginComplete(R receiver) {
         if (triggerMultipleUserWarning) {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
+            Logger.log(LogTypes.SOFT_ASSERT,
                     "Warning a user upon login that they already have another " +
                             "sandbox whose data will not transition over");
             // We've successfully pulled down new user data. Should see if the user
             // already has a sandbox and let them know that their old data doesn't transition
             receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged), true);
-            Logger.log(AndroidLogger.TYPE_USER,
+            Logger.log(LogTypes.TYPE_USER,
                     "User " + username + " has logged in for the first time with a new " +
                             "password. They may have unsent data in their other sandbox");
         }
@@ -171,31 +171,31 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     protected void keysDoneOther(R receiver, HttpCalloutOutcomes outcome) {
         switch (outcome) {
             case AuthFailed:
-                Logger.log(AndroidLogger.TYPE_USER, "auth failed");
+                Logger.log(LogTypes.TYPE_USER, "auth failed");
                 receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                 break;
             case BadResponse:
-                Logger.log(AndroidLogger.TYPE_USER, "bad response");
+                Logger.log(LogTypes.TYPE_USER, "bad response");
                 receiver.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
                 break;
             case NetworkFailure:
-                Logger.log(AndroidLogger.TYPE_USER, "bad network");
+                Logger.log(LogTypes.TYPE_USER, "bad network");
                 receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, false);
                 break;
             case NetworkFailureBadPassword:
-                Logger.log(AndroidLogger.TYPE_USER, "bad network");
+                Logger.log(LogTypes.TYPE_USER, "bad network");
                 receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork_BadPass, true);
                 break;
             case BadCertificate:
-                Logger.log(AndroidLogger.TYPE_USER, "bad certificate");
+                Logger.log(LogTypes.TYPE_USER, "bad certificate");
                 receiver.raiseLoginMessage(StockMessages.BadSSLCertificate, false);
                 break;
             case UnknownError:
-                Logger.log(AndroidLogger.TYPE_USER, "unknown");
+                Logger.log(LogTypes.TYPE_USER, "unknown");
                 receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                 break;
             case IncorrectPin:
-                Logger.log(AndroidLogger.TYPE_USER, "incorrect pin");
+                Logger.log(LogTypes.TYPE_USER, "incorrect pin");
                 receiver.raiseLoginMessage(StockMessages.Auth_InvalidPin, true);
                 break;
             default:
@@ -254,7 +254,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
         if (calloutNeeded) {
             calloutSuccessRequired = !hasRecord;
-            Logger.log(AndroidLogger.TYPE_USER, "Performing key record callout." + (calloutSuccessRequired ? " Success is required for login" : ""));
+            Logger.log(LogTypes.TYPE_USER, "Performing key record callout." + (calloutSuccessRequired ? " Success is required for login" : ""));
             this.publishProgress(Localization.get("key.manage.callout"));
         }
 
@@ -277,7 +277,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 if (currentlyValid == null) {
                     currentlyValid = normalRecord;
                 } else {
-                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User " + username + " has more than one currently valid key record!!");
+                    Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "User " + username + " has more than one currently valid key record!!");
                 }
             }
         }
@@ -290,7 +290,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                     new String[]{UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_KEY_STATUS},
                     new Object[]{newRecord.getUuid(), UserKeyRecord.TYPE_NORMAL}
             ).size() > 0) {
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Marking new sandbox " + newRecord.getUuid() + " as initialized, since it's already in use on this device");
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Marking new sandbox " + newRecord.getUuid() + " as initialized, since it's already in use on this device");
                 // If so, this sandbox _has_ to have already been initialized, and we should treat it as such.
                 newRecord.setType(UserKeyRecord.TYPE_NORMAL);
                 storage.write(newRecord);
@@ -299,11 +299,11 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
         for (UserKeyRecord recordPendingDelete :
                 storage.getRecordsForValue(UserKeyRecord.META_KEY_STATUS, UserKeyRecord.TYPE_PENDING_DELETE)) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Cleaning up sandbox which is pending removal");
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Cleaning up sandbox which is pending removal");
 
             // See if there are more records in this sandbox. (If so, we can just wipe this record and move on)
             if (storage.getIDsForValue(UserKeyRecord.META_SANDBOX_ID, recordPendingDelete.getUuid()).size() > 2) {
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Record for sandbox " + recordPendingDelete.getUuid() + " has siblings. Removing record");
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Record for sandbox " + recordPendingDelete.getUuid() + " has siblings. Removing record");
 
                 //TODO: Will this invalidate our iterator?
                 storage.remove(recordPendingDelete);
@@ -311,7 +311,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 // Otherwise, we should see if we can read the data, and if so, wipe it as well as the record.
                 if (recordPendingDelete.isPasswordValid(password)) {
                     //TODO AMS: Changed this such that you can only wipe the record if it was a password login -- is that OK?
-                    Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Current user has access to purgable sandbox " + recordPendingDelete.getUuid() + ". Wiping that sandbox");
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Current user has access to purgable sandbox " + recordPendingDelete.getUuid() + ". Wiping that sandbox");
                     UserSandboxUtils.purgeSandbox(this.getContext(), app, recordPendingDelete, recordPendingDelete.unWrapKey(password));
                 }
                 //Do we do anything here if we couldn't open the sandbox?
@@ -365,11 +365,11 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     @Override
     protected boolean processSuccessfulRequest() {
         if (keyRecords == null || keyRecords.size() == 0) {
-            Logger.log(AndroidLogger.TYPE_USER, "No key records received on server request!");
+            Logger.log(LogTypes.TYPE_USER, "No key records received on server request!");
             return false;
         }
 
-        Logger.log(AndroidLogger.TYPE_USER, "Key record request complete. Received: " + keyRecords.size() + " key records from server");
+        Logger.log(LogTypes.TYPE_USER, "Key record request complete. Received: " + keyRecords.size() + " key records from server");
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
         //We successfully received and parsed out some key records! Let's update the db
         for (UserKeyRecord record : keyRecords) {
@@ -383,7 +383,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                         new String[]{UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_USERNAME},
                         new Object[]{record.getUuid(), record.getUsername()});
 
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Got new record for existing sandbox " + existing.getUuid() + " . Merging");
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Got new record for existing sandbox " + existing.getUuid() + " . Merging");
                 //So we have an existing record. Either we're updating our current record and we're updating the key details
                 //or our password has changed and we need to overwrite the existing key record. Either way, all
                 //we should need to do is merge the records.
@@ -485,7 +485,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
             // Make sure we didn't somehow not get a new sandbox
             if (current == null) {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                         "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
                 return false;
             }
@@ -507,7 +507,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             // Ugh, high level trap catch
             // Problem during migration! We should try again? Maybe?
             // Or just leave the old one?
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
             // For now, fail.
             return false;
         }
@@ -549,7 +549,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             if (oldSandboxToMigrate == null || ukr.getValidFrom().after(oldSandboxToMigrate.getValidFrom())) {
                 oldSandboxToMigrate = ukr;
             } else {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Two old sandboxes exist with the same username");
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Two old sandboxes exist with the same username");
             }
         }
 
@@ -589,11 +589,11 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             publishProgress(Localization.get("key.manage.migrate"));
         } catch (IOException ioe) {
             Logger.exception(ioe);
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
             return false;
         } catch (Exception e) {
             Logger.exception(e);
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
             return false;
         }
         return true;

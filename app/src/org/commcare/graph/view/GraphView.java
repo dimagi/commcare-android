@@ -14,6 +14,7 @@ import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.core.graph.model.GraphData;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -85,14 +86,14 @@ public class GraphView {
         protected void onAttachedToWindow() {
             super.onAttachedToWindow();
             GoogleAnalyticsUtils.reportGraphViewAttached();
-            Logger.log(AndroidLogger.TYPE_GRAPHING, "Start viewing graph in list");
+            Logger.log(LogTypes.TYPE_GRAPHING, "Start viewing graph in list");
         }
 
         @Override
         protected void onDetachedFromWindow() {
             super.onDetachedFromWindow();
             GoogleAnalyticsUtils.reportGraphViewDetached();
-            Logger.log(AndroidLogger.TYPE_GRAPHING, "End viewing graph in list");
+            Logger.log(LogTypes.TYPE_GRAPHING, "End viewing graph in list");
         }
     }
 
