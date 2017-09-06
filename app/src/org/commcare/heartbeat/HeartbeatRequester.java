@@ -39,6 +39,7 @@ public class HeartbeatRequester {
     private static final String TAG = HeartbeatRequester.class.getSimpleName();
 
     private static final String APP_ID = "app_id";
+    private static final String DEVICE_ID = "device_id";
     private static final String APP_VERSION = "app_version";
     private static final String CC_VERSION = "cc_version";
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
@@ -117,6 +118,7 @@ public class HeartbeatRequester {
     private static HashMap<String, String> getParamsForHeartbeatRequest() {
         HashMap<String, String> params = new HashMap<>();
         params.put(APP_ID, CommCareApplication.instance().getCurrentApp().getUniqueId());
+        params.put(DEVICE_ID, CommCareApplication.instance().getPhoneId());
         params.put(APP_VERSION, "" + ReportingUtils.getAppBuildNumber());
         params.put(CC_VERSION, ReportingUtils.getCommCareVersionString());
         params.put(QUARANTINED_FORMS_PARAM, "" + StorageUtils.getNumQuarantinedForms());

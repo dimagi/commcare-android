@@ -416,7 +416,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         // shown when image is clicked
         String bigImageURI = mPrompt.getSpecialFormQuestionText("big-image");
 
-        MediaLayout mediaLayout = MediaLayout.buildComprehensiveLayout(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri, expandedAudioURI, mPrompt.getIndex().hashCode());
+        MediaLayout mediaLayout = MediaLayout.buildComprehensiveLayout(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri, mPrompt.getIndex().hashCode());
         addView(mediaLayout, mLayout);
     }
 

@@ -34,7 +34,6 @@ import java.util.Set;
 public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     public static final int RESULT_SYNC_CUSTOM = Activity.RESULT_FIRST_USER + 1;
-    public static final int REQUEST_SYNC_FILE = 1;
 
     private static final int MENU_ENABLE_PRIVILEGES = 0;
 
@@ -147,6 +146,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         super.onCreatePreferences(savedInstanceState, rootKey);
+        setHasOptionsMenu(true);
         savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
     }
 
