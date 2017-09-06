@@ -14,9 +14,9 @@ import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.util.Pair;
 
-import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -471,7 +471,7 @@ public class FileUtil {
 
         Pair<Bitmap, Boolean> bitmapAndScaledBool = MediaUtil.inflateImageSafe(originalImage.getAbsolutePath());
         if (bitmapAndScaledBool.second) {
-            Logger.log(AndroidLogger.TYPE_FORM_ENTRY,
+            Logger.log(LogTypes.TYPE_FORM_ENTRY,
                     "An image captured during form entry was too large to be processed at its original size, and had to be downsized");
         }
         Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmapAndScaledBool.first, maxDimen);

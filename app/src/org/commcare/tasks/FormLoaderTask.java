@@ -12,16 +12,15 @@ import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.core.process.CommCareInstanceInitializer;
+import org.commcare.engine.extensions.XFormExtensionUtils;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.logic.AndroidFormController;
-import org.javarosa.xpath.XPathException;
-import org.commcare.engine.extensions.XFormExtensionUtils;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.logic.FileReferenceFactory;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.FormDef;
@@ -37,6 +36,7 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
+import org.javarosa.xpath.XPathException;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -101,7 +101,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
                     " from cached file: " + formBin.getAbsolutePath());
             fd = deserializeFormDef((Context)activity, formBin);
             if (fd == null) {
-                Logger.log(AndroidLogger.SOFT_ASSERT,
+                Logger.log(LogTypes.SOFT_ASSERT,
                         "Deserialization of " + formXml.getName() + " form failed.");
                 // Remove the file, and make a new .formdef from xml
                 formBin.delete();
@@ -120,7 +120,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             // The cache is a bonus, so if we can't write it, don't crash, but log 
             // it so we can clean up whatever is preventing the cached version from
             // working
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ForceCloseLogger.getStackTrace(e));
+            Logger.log(LogTypes.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ForceCloseLogger.getStackTrace(e));
         }
 
         FormEntryController fec = initFormDef(fd);

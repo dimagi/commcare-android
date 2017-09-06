@@ -4,9 +4,9 @@ import android.content.Context;
 import android.util.Log;
 
 import org.commcare.activities.CommCareWiFiDirectActivity;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.LogTypes;
 
 /**
  * Removes all of the form records from storage after they've been transferred.
@@ -25,7 +25,7 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
         this.c = c;
         this.taskId = WIPE_TASK_ID;
         this.records = records;
-        TAG = AndroidLogger.TYPE_FORM_DUMP;
+        TAG = LogTypes.TYPE_FORM_DUMP;
     }
 
     @Override

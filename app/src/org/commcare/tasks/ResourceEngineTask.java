@@ -6,7 +6,6 @@ import org.commcare.CommCareApp;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
@@ -14,6 +13,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.services.Logger;
@@ -71,7 +71,7 @@ public abstract class ResourceEngineTask<R>
 
         app.setupSandbox();
 
-        Logger.log(AndroidLogger.TYPE_RESOURCES,
+        Logger.log(LogTypes.TYPE_RESOURCES,
                 "Beginning install attempt for profile " + profileRefs[0]);
 
         if (shouldSleep) {
