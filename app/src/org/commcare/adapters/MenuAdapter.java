@@ -227,9 +227,9 @@ public class MenuAdapter extends BaseAdapter {
 
     private void updateBadgeView(View badgeView, String badgeText) {
         if (badgeText != null && !"".equals(badgeText) && !"0".equals(badgeText)) {
-            if (badgeText.length() > 2) {
-                // A badge can only fit up to 2 characters
-                badgeText = badgeText.substring(0, 2);
+            if (badgeText.length() > 3) {
+                // A badge can only fit up to 3 characters
+                badgeText = badgeText.substring(0, 3);
             }
             TextView badgeTextView = (TextView)badgeView.findViewById(R.id.badge_text);
             badgeTextView.setText(badgeText);
