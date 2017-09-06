@@ -10,16 +10,16 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.engine.extensions.IntentExtensionParser;
 import org.commcare.android.javarosa.PollSensorAction;
+import org.commcare.engine.extensions.IntentExtensionParser;
 import org.commcare.engine.extensions.PollSensorExtensionParser;
 import org.commcare.engine.extensions.XFormExtensionUtils;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.FormDef;
@@ -164,7 +164,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         try {
             localRawUri = ReferenceManager.instance().DeriveReference(this.localLocation).getLocalURI();
         } catch (InvalidReferenceException e) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "Installed resource wasn't able to be derived from " + localLocation);
+            Logger.log(LogTypes.TYPE_RESOURCES, "Installed resource wasn't able to be derived from " + localLocation);
             return false;
         }
 

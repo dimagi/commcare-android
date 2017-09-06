@@ -12,21 +12,21 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
-import org.commcare.logging.AndroidLogger;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.dalvik.R;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
 import org.javarosa.core.services.Logger;
@@ -79,7 +79,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
             public void onClick(View v) {
 
                 formsOnSD = getDumpFiles().length;
-                Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Send task found " + formsOnSD + " forms on the phone.");
+                Logger.log(LogTypes.TYPE_FORM_DUMP, "Send task found " + formsOnSD + " forms on the phone.");
 
                 //if there're no forms to dump, just return
                 if (formsOnSD == 0) {
@@ -99,7 +99,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                             Intent i = new Intent(getIntent());
                             i.putExtra(AdvancedActionsPreferences.KEY_NUMBER_DUMPED, formsOnSD);
                             receiver.setResult(BULK_SEND_ID, i);
-                            Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully submitted " + formsOnSD + " forms.");
+                            Logger.log(LogTypes.TYPE_FORM_DUMP, "Successfully submitted " + formsOnSD + " forms.");
                             receiver.finish();
                         } else {
                             //assume that we've already set the error message, but make it look scary
@@ -117,7 +117,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
                     @Override
                     protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
-                        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Send failed with exception: " + e.getMessage());
+                        Logger.log(LogTypes.TYPE_FORM_DUMP, "Send failed with exception: " + e.getMessage());
                         receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[]{e.getMessage()}));
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
@@ -131,7 +131,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
             @Override
             public void onClick(View v) {
 
-                Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Dump task found " + formsOnSD + " forms on the SD card.");
+                Logger.log(LogTypes.TYPE_FORM_DUMP, "Dump task found " + formsOnSD + " forms on the SD card.");
 
                 if (formsOnPhone == 0) {
                     txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.dump"));
@@ -145,7 +145,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                             Intent i = new Intent(getIntent());
                             i.putExtra(AdvancedActionsPreferences.KEY_NUMBER_DUMPED, formsOnPhone);
                             receiver.setResult(BULK_DUMP_ID, i);
-                            Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully dumped " + formsOnPhone + " forms.");
+                            Logger.log(LogTypes.TYPE_FORM_DUMP, "Successfully dumped " + formsOnPhone + " forms.");
                             receiver.finish();
                         } else {
                             //assume that we've already set the error message, but make it look scary
@@ -161,7 +161,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
                     @Override
                     protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
-                        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Dump failed with exception: " + e.getMessage());
+                        Logger.log(LogTypes.TYPE_FORM_DUMP, "Dump failed with exception: " + e.getMessage());
                         receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[]{e.getMessage()}));
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
@@ -235,7 +235,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
         }
         String folderName = getFolderName();
         File dumpDirectory = new File(fileRoot + "/" + folderName);
-        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Got folder path " + dumpDirectory);
+        Logger.log(LogTypes.TYPE_FORM_DUMP, "Got folder path " + dumpDirectory);
         return dumpDirectory;
     }
 
@@ -245,14 +245,14 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
             return new File[]{};
         }
         File[] files = dumpDirectory.listFiles();
-        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Found " + files.length + " dump files.");
+        Logger.log(LogTypes.TYPE_FORM_DUMP, "Found " + files.length + " dump files.");
         return files;
     }
 
     private Vector<Integer> getUnsyncedForms() {
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormIdsForCurrentApp(storage);
-        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Found " + ids.size() + " unsynced forms.");
+        Logger.log(LogTypes.TYPE_FORM_DUMP, "Found " + ids.size() + " unsynced forms.");
         return ids;
     }
 

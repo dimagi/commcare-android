@@ -6,8 +6,6 @@ import android.util.Log;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.UpdateStats;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelled;
@@ -18,6 +16,7 @@ import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidResourceInstallerFactory;
 import org.commcare.utils.SessionUnavailableException;
@@ -79,7 +78,7 @@ public class AndroidResourceManager extends ResourceManager {
                 }
 
                 if (updateNotNewer(getMasterProfile())) {
-                    Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
+                    Logger.log(LogTypes.TYPE_RESOURCES, "App Resources up to Date");
                     upgradeTable.clear();
                     return AppInstallStatus.UpToDate;
                 }

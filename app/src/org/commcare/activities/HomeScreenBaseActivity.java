@@ -31,7 +31,6 @@ import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
@@ -52,6 +51,7 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -609,7 +609,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             Toast.makeText(this,
                     "Error while trying to save the form!",
                     Toast.LENGTH_LONG).show();
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+            Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                     "Form Entry couldn't save because of corrupt state.");
             clearSessionAndExit(currentState, true);
             return false;
@@ -645,7 +645,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 Toast.makeText(this,
                         "Error while trying to read the form! See the notification",
                         Toast.LENGTH_LONG).show();
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                         "Form Entry did not return a form");
                 clearSessionAndExit(currentState, true);
                 return false;
@@ -706,7 +706,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         } else if (resultCode == RESULT_CANCELED) {
             // Nothing was saved during the form entry activity
 
-            Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Cancelled");
 
             // If the form was unstarted, we want to wipe the record.
             if (current.getStatus().equals(FormRecord.STATUS_UNSTARTED)) {
@@ -956,7 +956,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // Generate a stub form record and commit it
             state.commitStub();
         } else {
-            Logger.log("form-entry", "Somehow ended up starting form entry with old state?");
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Somehow ended up starting form entry with old state?");
         }
 
         FormRecord record = state.getFormRecord();
@@ -970,7 +970,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void formEntry(Uri formUri, FormRecord r, String headerTitle) {
-        Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
+        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
 
         //TODO: This is... just terrible. Specify where external instance data should come from
         FormLoaderTask.iif = new AndroidInstanceInitializer(CommCareApplication.instance().getCurrentSession());
@@ -1017,7 +1017,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void handlePendingSync() {
         long lastSync = CommCareApplication.instance().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
         String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
-        Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
+        Logger.log(LogTypes.TYPE_USER, "autosync triggered. Last Sync|" + footer);
 
         refreshUI();
         sendFormsOrSync(false);

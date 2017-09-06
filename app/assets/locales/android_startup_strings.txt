@@ -41,7 +41,6 @@ app.manager.advanced.settings.option=Advanced
 # strings for Install from list
 menu.app.list.install=See Apps for My User (NEW!)
 menu.app.list.install.other.user=See Apps for Another User
-menu.app.list.configuration=Check managed configuration
 toggle.web.user.mode=Web User
 toggle.mobile.user.mode=Mobile User
 missing.fields=Please enter all required fields.

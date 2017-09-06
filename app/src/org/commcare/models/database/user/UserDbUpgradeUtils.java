@@ -11,12 +11,12 @@ import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.cases.ledger.Ledger;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.modern.database.TableBuilder;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -149,7 +149,7 @@ public class UserDbUpgradeUtils {
                 dateAsSeconds = Long.valueOf(dateAsString);
             } catch (NumberFormatException e) {
                 // Go with the next best ordering for now
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                         "Invalid date in last modified value: " + dateAsString);
                 idToDateIndex.put(id, (long)id);
                 continue;

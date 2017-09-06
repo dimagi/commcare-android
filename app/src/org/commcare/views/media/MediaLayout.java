@@ -77,7 +77,7 @@ public class MediaLayout extends RelativeLayout {
 
     public static MediaLayout buildAudioImageLayout(Context context, TextView text, String audioURI, String imageURI) {
         MediaLayout mediaLayout = new MediaLayout(context);
-        mediaLayout.setAVT(text, audioURI, imageURI, null, null, null, null, null, true, 0);
+        mediaLayout.setAVT(text, audioURI, imageURI, null, null, null, null, true, 0);
         return mediaLayout;
     }
 
@@ -85,7 +85,7 @@ public class MediaLayout extends RelativeLayout {
                                                           TextView text, String audioURI, String imageURI,
                                                           final String videoURI, final String bigImageURI) {
         MediaLayout mediaLayout = new MediaLayout(context);
-        mediaLayout.setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null, null, null, false, 0);
+        mediaLayout.setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null, null, false, 0);
         return mediaLayout;
     }
 
@@ -93,16 +93,16 @@ public class MediaLayout extends RelativeLayout {
                                                        TextView text, String audioURI, String imageURI,
                                                        final String videoURI, final String bigImageURI,
                                                        final String qrCodeContent, String inlineVideoURI,
-                                                       String expandedAudioUri, int questionIndex) {
+                                                       int questionIndex) {
         MediaLayout mediaLayout = new MediaLayout(context);
-        mediaLayout.setAVT(text, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoURI, expandedAudioUri, false, questionIndex);
+        mediaLayout.setAVT(text, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoURI, false, questionIndex);
         return mediaLayout;
     }
 
     private void setAVT(TextView text, String audioURI, String imageURI,
                         final String videoURI, final String bigImageURI,
                         final String qrCodeContent, String inlineVideoURI,
-                        String expandedAudioURI, boolean showImageAboveText,
+                        boolean showImageAboveText,
                         int questionIndex) {
         viewText = text;
 
@@ -124,12 +124,6 @@ public class MediaLayout extends RelativeLayout {
             mediaPane = setupQRView(qrCodeContent);
         } else if (imageURI != null) {
             mediaPane = setupImage(imageURI, bigImageURI);
-        } else if (expandedAudioURI != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                mediaPane = setupExpandedAudio(expandedAudioURI, questionIndex);
-            } else {
-                setupStandardAudio(expandedAudioURI, questionIndex);
-            }
         }
 
         addAudioVideoButtonsToView(questionTextPane);
@@ -228,10 +222,6 @@ public class MediaLayout extends RelativeLayout {
             // random ID to be used by the relative layout.
             audioButton.setId(AUDIO_BUTTON_ID);
         }
-    }
-
-    private View setupExpandedAudio(String expandedAudioURI, int questionIndex) {
-        return new ExpandedAudioPlaybackView(getContext(), expandedAudioURI, questionIndex);
     }
 
     private View setupQRView(String qrCodeContent) {

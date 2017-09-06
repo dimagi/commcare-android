@@ -7,9 +7,9 @@ import android.os.Environment;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareFormDumpActivity;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
@@ -225,7 +225,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                         try {
                             folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
                         } catch (IOException e) {
-                            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                            Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                                     "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
                             continue;
                         }
@@ -238,7 +238,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                         } catch (FileNotFoundException e) {
                             if (CommCareApplication.instance().isStorageAvailable()) {
                                 //If storage is available generally, this is a bug in the app design
-                                Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
+                                Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
                             } else {
                                 //Otherwise, the SD card just got removed, and we need to bail anyway.
                                 CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
@@ -259,7 +259,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                     return false;
                 } catch (Exception e) {
                     //Just try to skip for now. Hopefully this doesn't wreck the model :/
-                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form dump task" + getExceptionText(e));
+                    Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form dump task" + getExceptionText(e));
                 }
             }
 
