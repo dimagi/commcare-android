@@ -394,6 +394,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * @return Was answer set from intent?
      */
     private boolean processIntentResponse(Intent response, boolean wasIntentCancelled) {
+        if (response.getExtras().containsKey(IntentCallout.INTENT_RESULT_TOAST_KEY)) {
+            String toastKey = response.getStringExtra(IntentCallout.INTENT_RESULT_TOAST_KEY);
+            Toast.makeText(this, Localization.get(toastKey), Toast.LENGTH_LONG);
+        }
+
         // keep track of whether we should auto advance
         boolean wasAnswerSet = false;
         boolean isQuick = false;

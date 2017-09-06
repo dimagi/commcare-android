@@ -9,6 +9,8 @@
         android:id="@+id/nfc_write_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/font_size_xlarger"/>
+        android:textSize="@dimen/font_size_xlarger"
+        android:gravity="center"
+        android:layout_margin="@dimen/standard_spacer"/>
 
 </LinearLayout>

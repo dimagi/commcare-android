@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
@@ -124,6 +125,7 @@ public class NfcWriteExternalActivity extends Activity {
     }
 
     private void writeMessageToNfcTag(Tag tag) {
+        System.out.println("Attempting to write nfc message " + payloadToWrite + " with type " + customPayloadType);
         NdefRecord record = createNdefRecord(this, this.customPayloadType, this.payloadToWrite);
         NdefMessage msg = new NdefMessage(new NdefRecord[]{record});
 
@@ -132,6 +134,7 @@ public class NfcWriteExternalActivity extends Activity {
             ndefObject.connect();
             ndefObject.writeNdefMessage(msg);
             ndefObject.close();
+            finishWithToast("nfc.write.success", true);
         } catch (IOException e) {
             finishWithErrorToast("nfc.write.io.error");
         } catch (FormatException e) {
@@ -144,7 +147,20 @@ public class NfcWriteExternalActivity extends Activity {
     }
 
     private void finishWithErrorToast(String errorMessageKey) {
-        Toast.makeText(this, Localization.get(errorMessageKey), Toast.LENGTH_SHORT);
+        finishWithToast(errorMessageKey, false);
+    }
+
+    private void finishWithToast(String errorMessageKey, boolean success) {
+        //Toast.makeText(this, Localization.get(errorMessageKey), Toast.LENGTH_SHORT);
+
+        Intent i = new Intent(getIntent());
+        i.putExtra(IntentCallout.INTENT_RESULT_TOAST_KEY, errorMessageKey);
+
+        Bundle responses = new Bundle();
+        responses.putString("nfc_write_result", success ? "success" : "failure");
+        i.putExtra(IntentCallout.INTENT_RESULT_BUNDLE, responses);
+
+        setResult(RESULT_OK, i);
         finish();
     }
 

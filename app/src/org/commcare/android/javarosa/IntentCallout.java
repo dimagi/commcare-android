@@ -64,6 +64,8 @@ public class IntentCallout implements Externalizable {
     // Bundle of extra values
     public static final String INTENT_RESULT_BUNDLE = "odk_intent_bundle";
 
+    public static final String INTENT_RESULT_TOAST_KEY = "odk_intent_toast_key";
+
     /**
      * Intent flag to identify whether this callout should be included in attempts to compound
      * similar intents
@@ -149,15 +151,21 @@ public class IntentCallout implements Externalizable {
         } else if (SimprintsCalloutProcessing.isRegistrationResponse(intent)) {
             return SimprintsCalloutProcessing.processRegistrationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else {
-            return processOdkResponse(intent, intentQuestionRef, destination)
-                    // If this is a print callout, then we shouldn't be setting any answer from
-                    // the result anyway, so always return true
-                    ||  isPrintIntentCallout();
+            return calloutDoesNotSetAResult() ||
+                    processOdkResponse(intent, intentQuestionRef, destination);
         }
+    }
+
+    private boolean calloutDoesNotSetAResult() {
+        return isPrintIntentCallout() || isNfcWriteCallout();
     }
 
     private boolean isPrintIntentCallout() {
         return "org.commcare.dalvik.action.PRINT".equals(this.className);
+    }
+
+    private boolean isNfcWriteCallout() {
+        return "org.commcare.nfc.WRITE".equals(this.className);
     }
 
     public void processBarcodeResponse(TreeReference intentQuestionRef, String scanResult) {
