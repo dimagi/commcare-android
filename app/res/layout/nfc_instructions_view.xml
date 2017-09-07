@@ -6,7 +6,7 @@
               android:gravity="center">
 
     <TextView
-        android:id="@+id/nfc_write_text_view"
+        android:id="@+id/nfc_instructions_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/font_size_xlarger"

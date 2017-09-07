@@ -168,7 +168,7 @@ public abstract class TemplatePrinterUtils {
                         Intent intent = new Intent();
                         Bundle responses = new Bundle();
                         responses.putString("print_initiated", "" + printInitiated);
-                        intent.putExtra(IntentCallout.INTENT_RESULT_BUNDLE, responses);
+                        intent.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, responses);
                         activity.setResult(Activity.RESULT_OK, intent);
                         activity.finish();
                     }

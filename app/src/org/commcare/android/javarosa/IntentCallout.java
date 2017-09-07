@@ -62,7 +62,7 @@ public class IntentCallout implements Externalizable {
     public static final String INTENT_RESULT_VALUE = "odk_intent_data";
 
     // Bundle of extra values
-    public static final String INTENT_RESULT_BUNDLE = "odk_intent_bundle";
+    public static final String INTENT_RESULT_EXTRAS_BUNDLE = "odk_intent_bundle";
 
     /**
      * Intent flag to identify whether this callout should be included in attempts to compound
@@ -190,7 +190,7 @@ public class IntentCallout implements Externalizable {
         setNodeValue(formDef, intentQuestionRef, result);
 
         // see if we have a return bundle
-        Bundle response = intent.getBundleExtra(INTENT_RESULT_BUNDLE);
+        Bundle response = intent.getBundleExtra(INTENT_RESULT_EXTRAS_BUNDLE);
 
         // Load all of the data from the incoming bundle
         if (responseToRefMap != null && response != null) {
