@@ -31,8 +31,10 @@ import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
+import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.tasks.templates.CommCareTask;
@@ -40,6 +42,7 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.ConnectivityStatus;
+import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUiFramework;
@@ -61,7 +64,7 @@ import org.javarosa.core.util.NoLocalizedTextException;
  * @author ctsims
  */
 public abstract class CommCareActivity<R> extends FragmentActivity
-        implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
+        implements CommCareTaskConnector<R>, DialogController, OnGestureListener, DetailCalloutListener{
 
     private static final String TAG = CommCareActivity.class.getSimpleName();
 
@@ -872,5 +875,25 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     protected boolean shouldShowBreadcrumbBar() {
         return true;
+    }
+
+    @Override
+    public void callRequested(String phoneNumber) {
+        DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
+    }
+
+    @Override
+    public void addressRequested(String address) {
+        DetailCalloutListenerDefaultImpl.addressRequested(this, address);
+    }
+
+    @Override
+    public void playVideo(String videoRef) {
+        DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
+    }
+
+    @Override
+    public void performCallout(CalloutData callout, int id) {
+        DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
 }
