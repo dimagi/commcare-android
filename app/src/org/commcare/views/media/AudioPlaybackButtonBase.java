@@ -175,6 +175,7 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
             this.currentState = AudioController.INSTANCE.getMediaState();
             AudioController.INSTANCE.registerPlaybackButton(this);
             refreshAppearance();
+            toggleVisibility(visible);
         } else {
             // the containing view's id of the button doesn't match the audio
             // controller, so just setup the button normally using the provided
@@ -198,11 +199,14 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
         // Set not focusable so that list onclick will work
         playButton.setFocusable(false);
         playButton.setFocusableInTouchMode(false);
+        toggleVisibility(visible);
+    }
 
+    private void toggleVisibility(boolean visible) {
         if (visible) {
-            this.setVisibility(View.VISIBLE);
+            setVisibility(View.VISIBLE);
         } else {
-            this.setVisibility(View.INVISIBLE);
+            setVisibility(View.GONE);
         }
     }
 

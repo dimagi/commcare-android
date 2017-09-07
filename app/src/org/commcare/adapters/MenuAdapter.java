@@ -180,7 +180,6 @@ public class MenuAdapter extends BaseAdapter {
         } else {
             if (audioPlaybackButton != null) {
                 audioPlaybackButton.modifyButtonForNewView(viewId, audioURI, false);
-                audioPlaybackButton.setVisibility(View.GONE);
             }
         }
     }
