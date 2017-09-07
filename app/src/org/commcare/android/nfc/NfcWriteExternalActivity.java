@@ -150,12 +150,10 @@ public class NfcWriteExternalActivity extends Activity {
         finishWithToast(errorMessageKey, false);
     }
 
-    private void finishWithToast(String errorMessageKey, boolean success) {
-        //Toast.makeText(this, Localization.get(errorMessageKey), Toast.LENGTH_SHORT);
+    private void finishWithToast(String messageKey, boolean success) {
+        Toast.makeText(this, Localization.get(messageKey), Toast.LENGTH_SHORT).show();
 
         Intent i = new Intent(getIntent());
-        i.putExtra(IntentCallout.INTENT_RESULT_TOAST_KEY, errorMessageKey);
-
         Bundle responses = new Bundle();
         responses.putString("nfc_write_result", success ? "success" : "failure");
         i.putExtra(IntentCallout.INTENT_RESULT_BUNDLE, responses);

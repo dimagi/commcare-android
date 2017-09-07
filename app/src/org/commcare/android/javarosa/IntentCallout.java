@@ -64,8 +64,6 @@ public class IntentCallout implements Externalizable {
     // Bundle of extra values
     public static final String INTENT_RESULT_BUNDLE = "odk_intent_bundle";
 
-    public static final String INTENT_RESULT_TOAST_KEY = "odk_intent_toast_key";
-
     /**
      * Intent flag to identify whether this callout should be included in attempts to compound
      * similar intents
@@ -151,8 +149,7 @@ public class IntentCallout implements Externalizable {
         } else if (SimprintsCalloutProcessing.isRegistrationResponse(intent)) {
             return SimprintsCalloutProcessing.processRegistrationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else {
-            return calloutDoesNotSetAResult() ||
-                    processOdkResponse(intent, intentQuestionRef, destination);
+            return processOdkResponse(intent, intentQuestionRef, destination) || calloutDoesNotSetAResult();
         }
     }
 
