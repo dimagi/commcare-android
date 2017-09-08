@@ -20,15 +20,22 @@ import org.javarosa.core.services.locale.Localization;
 
 public abstract class NfcActivity extends Activity {
 
+    protected static final String NFC_PAYLOAD_TYPE_ARG = "type";
+    protected static final String NFC_DOMAIN_ARG = "domain";
+
+    protected static final String CHARSET_ENCODING = "UTF-8";
+
     protected NfcManager nfcManager;
     protected PendingIntent pendingNfcIntent;
+    protected String userSpecifiedType;
+    protected String userSpecifiedDomain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            this.nfcManager = new NfcManager(this);
             initFields();
+
             createPendingRestartIntent();
             setContentView(R.layout.nfc_instructions_view);
             ((TextView)findViewById(R.id.nfc_instructions_text_view)).
@@ -36,7 +43,13 @@ public abstract class NfcActivity extends Activity {
         }
     }
 
-    protected abstract void initFields();
+    protected void initFields() {
+        this.nfcManager = new NfcManager(this);
+
+        // These will have been supplied by the user via the intent callout extras
+        this.userSpecifiedType = getIntent().getStringExtra(NFC_PAYLOAD_TYPE_ARG);
+        this.userSpecifiedDomain = getIntent().getStringExtra(NFC_DOMAIN_ARG);
+    }
 
     /**
      * Create an intent for restarting this activity, which will be passed to enableForegroundDispatch(),
@@ -78,7 +91,18 @@ public abstract class NfcActivity extends Activity {
         this.nfcManager.disableForegroundDispatch(this);
     }
 
-    protected abstract boolean requiredFieldsMissing();
+    protected boolean requiredFieldsMissing() {
+        if (this.userSpecifiedType == null || this.userSpecifiedType.equals("")) {
+            finishWithErrorToast("nfc.no.type");
+            return true;
+        }
+        if (!isWellKnownType(this.userSpecifiedType) &&
+                (this.userSpecifiedDomain == null || this.userSpecifiedDomain.equals(""))) {
+            finishWithErrorToast("nfc.missing.domain");
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Make it so that this activity will be the default to handle a new tag when it is discovered
@@ -125,7 +149,10 @@ public abstract class NfcActivity extends Activity {
 
     protected abstract void setResultValue(Intent i);
 
-
     protected abstract String getInstructionsTextKey();
+
+    protected static boolean isWellKnownType(String type) {
+        return "text".equals(type) || "uri".equals(type);
+    }
 
 }

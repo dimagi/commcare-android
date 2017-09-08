@@ -12,8 +12,6 @@ import android.os.Build;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class NfcManager {
 
-    public static final String NFC_PAYLOAD_TYPE = "type";
-
     private Context context;
     private NfcAdapter nfcAdapter;
 
