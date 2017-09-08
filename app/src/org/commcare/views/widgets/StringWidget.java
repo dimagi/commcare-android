@@ -85,9 +85,9 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
             }
         }
 
-        if(isInCompactMode()){
+        if (isInCompactMode()) {
             addToCompactLayout(mAnswer);
-        }else {
+        } else {
             addView(mAnswer);
         }
     }
