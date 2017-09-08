@@ -82,6 +82,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareExceptionHandler;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DummyPropertyManager;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
@@ -163,6 +164,7 @@ public class CommCareApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        CrashUtil.init(this);
         configureCommCareEngineConstantsAndStaticRegistrations();
 
         CommCareApplication.app = this;

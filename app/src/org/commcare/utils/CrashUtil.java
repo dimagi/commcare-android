@@ -15,7 +15,7 @@ import io.fabric.sdk.android.Fabric;
 /**
  * Contains constants and methods used in Crashlytics reporting.
  *
- * Created by wpride1 on 3/3/15.
+ * Created by shubham on 8/09/17.
  */
 public class CrashUtil {
 
@@ -26,16 +26,16 @@ public class CrashUtil {
 
     private static boolean crashlyticsEnabled = BuildConfig.USE_CRASHLYTICS;
 
-    public static void reportException(Exception e) {
+    public static void reportException(Throwable e) {
         if (crashlyticsEnabled) {
             Crashlytics.logException(e);
         }
     }
 
     public static void init(Context context) {
-        if(crashlyticsEnabled) {
+        if (crashlyticsEnabled) {
             Fabric.with(context, new Crashlytics());
-            Crashlytics.setString(DEVICE_ID,ReportingUtils.getDeviceId());
+            Crashlytics.setString(DEVICE_ID, ReportingUtils.getDeviceId());
         }
     }
 

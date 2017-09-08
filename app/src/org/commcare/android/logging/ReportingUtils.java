@@ -105,11 +105,19 @@ public class ReportingUtils {
     }
 
     public static int getAppVersion() {
-        return CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber();
+        try {
+            return CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber();
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     public static String getAppName() {
-        return CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName();
+        try {
+            return CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName();
+        } catch (Exception e) {
+            return "NA";
+        }
     }
 
     public static String getDeviceId() {
