@@ -12,4 +12,5 @@
 
     <dimen name="widget_button_padding">25dp</dimen>
 
+    <dimen name="edit_text_question_widget_compact_width">96dp</dimen>
 </resources>
