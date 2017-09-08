@@ -23,8 +23,6 @@ public abstract class NfcActivity extends Activity {
     protected static final String NFC_PAYLOAD_TYPE_ARG = "type";
     protected static final String NFC_DOMAIN_ARG = "domain";
 
-    protected static final String CHARSET_ENCODING = "UTF-8";
-
     protected NfcManager nfcManager;
     protected PendingIntent pendingNfcIntent;
     protected String userSpecifiedType;

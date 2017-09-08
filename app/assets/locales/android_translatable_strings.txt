@@ -781,3 +781,6 @@ nfc.write.msg.malformed=The Ndef message that you attempted to write was malform
 nfc.write.success=NFC write was successful!
 nfc.no.type=You must specify a payload type for your NFC action
 nfc.missing.domain=A domain must be provided when specifying a custom type for your NFC action
+nfc.read.success=NFC read was successful!
+nfc.read.io.error=An IO error occurred while attempting to read the Ndef message
+nfc.read.msg.malformed=The Ndef message read from the NFC tag was malformed

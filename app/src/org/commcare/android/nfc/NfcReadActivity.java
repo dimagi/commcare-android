@@ -32,13 +32,13 @@ public class NfcReadActivity extends NfcActivity {
             ndefObject.connect();
             NdefMessage msg = ndefObject.getNdefMessage();
             NdefRecord firstRecord = msg.getRecords()[0];
-            this.valueRead = new String(firstRecord.getPayload(), CHARSET_ENCODING);
+            this.valueRead = NdefRecordUtil.readValueFromRecord(firstRecord);
             ndefObject.close();
-            finishWithToast("nfc.write.success", true);
+            finishWithToast("nfc.read.success", true);
         } catch (IOException e) {
-            finishWithErrorToast("nfc.write.io.error");
+            finishWithErrorToast("nfc.read.io.error");
         } catch (FormatException e) {
-            finishWithErrorToast("nfc.write.msg.malformed");
+            finishWithErrorToast("nfc.read.msg.malformed");
         }
     }
 

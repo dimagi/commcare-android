@@ -1,7 +1,6 @@
 package org.commcare.android.nfc;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
@@ -14,7 +13,6 @@ import android.os.Bundle;
 import org.commcare.android.javarosa.IntentCallout;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /**
  * Created by amstone326 on 9/5/17.
@@ -50,9 +48,8 @@ public class NfcWriteActivity extends NfcActivity {
     private void writeMessageToNfcTag(Tag tag) {
         Ndef ndefObject = Ndef.get(tag);
         try {
-            NdefRecord record =
-                    createNdefRecord(this.userSpecifiedType, this.userSpecifiedDomain,
-                            this.payloadToWrite);
+            NdefRecord record = NdefRecordUtil.createNdefRecord(this.userSpecifiedType,
+                    this.userSpecifiedDomain, this.payloadToWrite);
             NdefMessage msg = new NdefMessage(new NdefRecord[]{record});
             ndefObject.connect();
             ndefObject.writeNdefMessage(msg);
@@ -63,25 +60,6 @@ public class NfcWriteActivity extends NfcActivity {
         } catch (FormatException e) {
             finishWithErrorToast("nfc.write.msg.malformed");
         }
-    }
-
-    private static NdefRecord createNdefRecord(String userSpecifiedType,
-                                               String userSpecifiedDomain, String payloadToWrite)
-            throws UnsupportedEncodingException {
-        if (isWellKnownType(userSpecifiedType)) {
-            return createWellKnownTypeRecord(userSpecifiedType, payloadToWrite);
-        } else {
-            return createExternalRecord(userSpecifiedType, userSpecifiedDomain, payloadToWrite);
-        }
-    }
-
-    private static NdefRecord createWellKnownTypeRecord(String type, String payload) {
-        return null;
-    }
-
-    private static NdefRecord createExternalRecord(String type, String domain, String payload)
-            throws UnsupportedEncodingException {
-        return NdefRecord.createExternal(domain, type, payload.getBytes(CHARSET_ENCODING));
     }
 
     @Override
