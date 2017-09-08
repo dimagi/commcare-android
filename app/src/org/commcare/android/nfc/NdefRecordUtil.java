@@ -18,13 +18,13 @@ public class NdefRecordUtil {
     private static final String CHARSET_ENCODING = "UTF-8";
 
     protected static String readValueFromRecord(NdefRecord record) {
-        return null;
+        return new String(record.getPayload(), Charset.forName(CHARSET_ENCODING));
     }
 
     protected static NdefRecord createNdefRecord(String userSpecifiedType,
                                                  String userSpecifiedDomain,
                                                  String payloadToWrite) {
-        if (NfcActivity.isWellKnownType(userSpecifiedType)) {
+        if (NfcActivity.isCommCareSupportedWellKnownType(userSpecifiedType)) {
             return createWellKnownTypeRecord(userSpecifiedType, payloadToWrite);
         } else {
             return createExternalRecord(userSpecifiedType, userSpecifiedDomain, payloadToWrite);
@@ -32,12 +32,10 @@ public class NdefRecordUtil {
     }
 
     private static NdefRecord createWellKnownTypeRecord(String type, String payload) {
-        if (type.equals("uri")) {
-            return NdefRecord.createUri(payload);
-        } else if (type.equals("text")) {
+        if (type.equals("text")) {
             return createTextRecord(payload);
         } else {
-            throw new IllegalArgumentException(Localization.get(""));
+            throw new IllegalArgumentException(Localization.get("nfc.well.known.type.not.supported"));
         }
     }
 

@@ -27,6 +27,7 @@ public abstract class NfcActivity extends Activity {
     protected PendingIntent pendingNfcIntent;
     protected String userSpecifiedType;
     protected String userSpecifiedDomain;
+    protected String dataTypeForFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +95,7 @@ public abstract class NfcActivity extends Activity {
             finishWithErrorToast("nfc.no.type");
             return true;
         }
-        if (!isWellKnownType(this.userSpecifiedType) &&
+        if (!isCommCareSupportedWellKnownType(this.userSpecifiedType) &&
                 (this.userSpecifiedDomain == null || this.userSpecifiedDomain.equals(""))) {
             finishWithErrorToast("nfc.missing.domain");
             return true;
@@ -103,13 +104,23 @@ public abstract class NfcActivity extends Activity {
     }
 
     /**
-     * Make it so that this activity will be the default to handle a new tag when it is discovered
+     * Make it so that this activity will be the default to handle a new tag when it is discovered,
+     * and add any necessary filters based on the expectations provided by the user
      */
     private void setReadyToHandleTag() {
         // TODO: For read activity, specify how to only accept tags whose Ndef message has a specific tag
 
         IntentFilter ndefDiscoveredFilter = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
         IntentFilter tagDiscoveredFilter = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+
+        if (this.dataTypeForFilter != null) {
+            try {
+                ndefDiscoveredFilter.addDataType(this.dataTypeForFilter);
+                tagDiscoveredFilter.addDataType(this.dataTypeForFilter);
+            } catch (IntentFilter.MalformedMimeTypeException e) {
+
+            }
+        }
 
         IntentFilter[] intentFilters = new IntentFilter[]{ ndefDiscoveredFilter, tagDiscoveredFilter };
         this.nfcManager.enableForegroundDispatch(this, this.pendingNfcIntent, intentFilters, null);
@@ -149,8 +160,9 @@ public abstract class NfcActivity extends Activity {
 
     protected abstract String getInstructionsTextKey();
 
-    protected static boolean isWellKnownType(String type) {
-        return "text".equals(type) || "uri".equals(type);
+    protected static boolean isCommCareSupportedWellKnownType(String type) {
+        // For now, the only "well known type" we're supporting is NdefRecord.RTD_TEXT
+        return "text".equals(type);
     }
 
 }

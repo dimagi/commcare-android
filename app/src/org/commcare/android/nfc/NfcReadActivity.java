@@ -8,6 +8,9 @@ import android.nfc.NdefRecord;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.Build;
+import android.os.Bundle;
+
+import org.commcare.android.javarosa.IntentCallout;
 
 import java.io.IOException;
 
@@ -22,6 +25,20 @@ public class NfcReadActivity extends NfcActivity {
     private String valueRead;
 
     @Override
+    protected void initFields() {
+        super.initFields();
+        this.dataTypeForFilter = getDataTypeForFilter();
+    }
+
+    private String getDataTypeForFilter() {
+        if (userSpecifiedType.equals("text")) {
+            return "text/plain";
+        } else {
+            return userSpecifiedDomain + ":" + userSpecifiedType;
+        }
+    }
+
+    @Override
     protected void dispatchActionOnTag(Tag tag) {
         readFromNfcTag(tag);
     }
@@ -34,7 +51,11 @@ public class NfcReadActivity extends NfcActivity {
             NdefRecord firstRecord = msg.getRecords()[0];
             this.valueRead = NdefRecordUtil.readValueFromRecord(firstRecord);
             ndefObject.close();
-            finishWithToast("nfc.read.success", true);
+            if (valueRead == null) {
+                finishWithErrorToast("nfc.read.unexpected.format");
+            } else {
+                finishWithToast("nfc.read.success", true);
+            }
         } catch (IOException e) {
             finishWithErrorToast("nfc.read.io.error");
         } catch (FormatException e) {
@@ -44,12 +65,14 @@ public class NfcReadActivity extends NfcActivity {
 
     @Override
     protected void setResultExtrasBundle(Intent i, boolean success) {
-
+        Bundle responses = new Bundle();
+        responses.putString("nfc_read_result", success ? "success" : "failure");
+        i.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, responses);
     }
 
     @Override
     protected void setResultValue(Intent i) {
-
+        i.putExtra(IntentCallout.INTENT_RESULT_VALUE, this.valueRead);
     }
 
     @Override
