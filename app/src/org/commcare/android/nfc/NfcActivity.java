@@ -94,7 +94,7 @@ public abstract class NfcActivity extends Activity {
             finishWithErrorToast("nfc.no.type");
             return true;
         }
-        if (!isCommCareSupportedWellKnownType(this.userSpecifiedType) &&
+        if (!NfcManager.isCommCareSupportedWellKnownType(this.userSpecifiedType) &&
                 (this.userSpecifiedDomain == null || this.userSpecifiedDomain.equals(""))) {
             finishWithErrorToast("nfc.missing.domain");
             return true;
@@ -151,11 +151,5 @@ public abstract class NfcActivity extends Activity {
     protected abstract void setResultValue(Intent i);
 
     protected abstract String getInstructionsTextKey();
-
-    protected static boolean isCommCareSupportedWellKnownType(String type) {
-        // For now, the only "well known type" we're supporting is NdefRecord.RTD_TEXT, which
-        // users should encode in their configuration by specifying type "text"
-        return "text".equals(type);
-    }
 
 }

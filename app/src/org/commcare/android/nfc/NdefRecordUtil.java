@@ -70,7 +70,7 @@ public class NdefRecordUtil {
     protected static NdefRecord createNdefRecord(String userSpecifiedType,
                                                  String userSpecifiedDomain,
                                                  String payloadToWrite) {
-        if (NfcActivity.isCommCareSupportedWellKnownType(userSpecifiedType)) {
+        if (NfcManager.isCommCareSupportedWellKnownType(userSpecifiedType)) {
             return createWellKnownTypeRecord(userSpecifiedType, payloadToWrite);
         } else {
             return createExternalRecord(userSpecifiedType, userSpecifiedDomain, payloadToWrite);
