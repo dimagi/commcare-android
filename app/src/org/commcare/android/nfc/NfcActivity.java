@@ -103,13 +103,18 @@ public abstract class NfcActivity extends Activity {
     }
 
     /**
-     * Make it so that this activity will be the default to handle a new tag when it is discovered
+     * Makes it so that this activity will be the default to handle a new tag when it is discovered.
+     *
+     * The intent filters being passed to enableForegroundDispatch() here are intentionally very
+     * broad, on the assumption that if CommCare's NfcActivity is in the foreground while a user
+     * tries to scan an NFC tag, they were intending to scan something that CommCare would
+     * recognize. So instead of filtering out tags of a type that we aren't expecting, we'll still
+     * process the tag, but then show a useful error message.
      */
     private void setReadyToHandleTag() {
         IntentFilter ndefDiscoveredFilter = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
         IntentFilter tagDiscoveredFilter = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
-
-        IntentFilter[] intentFilters = new IntentFilter[]{ ndefDiscoveredFilter, tagDiscoveredFilter };
+        IntentFilter[] intentFilters = new IntentFilter[]{ndefDiscoveredFilter, tagDiscoveredFilter};
         this.nfcManager.enableForegroundDispatch(this, this.pendingNfcIntent, intentFilters, null);
     }
 
