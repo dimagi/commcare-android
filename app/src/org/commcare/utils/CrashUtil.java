@@ -35,6 +35,11 @@ public class CrashUtil {
     public static void init(Context context) {
         if (crashlyticsEnabled) {
             Fabric.with(context, new Crashlytics());
+        }
+    }
+
+    public static void registerDeviceData() {
+        if (crashlyticsEnabled) {
             Crashlytics.setString(DEVICE_ID, ReportingUtils.getDeviceId());
         }
     }

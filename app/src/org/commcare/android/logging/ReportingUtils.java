@@ -121,6 +121,10 @@ public class ReportingUtils {
     }
 
     public static String getDeviceId() {
-        return CommCareApplication.instance().getPhoneId();
+        try {
+            return CommCareApplication.instance().getPhoneId();
+        } catch (Exception e) {
+            return "NA";
+        }
     }
 }
