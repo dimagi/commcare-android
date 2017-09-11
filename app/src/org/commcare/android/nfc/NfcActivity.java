@@ -27,7 +27,6 @@ public abstract class NfcActivity extends Activity {
     protected PendingIntent pendingNfcIntent;
     protected String userSpecifiedType;
     protected String userSpecifiedDomain;
-    protected String dataTypeForFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +80,6 @@ public abstract class NfcActivity extends Activity {
             finishWithErrorToast("nfc.not.enabled");
         } catch (NfcManager.NfcNotSupportedException e) {
             finishWithErrorToast("nfc.not.supported");
-        } catch (IntentFilter.MalformedMimeTypeException e) {
-            finishWithErrorToast("nfc.malformed.type.specified");
         }
     }
 
@@ -106,16 +103,10 @@ public abstract class NfcActivity extends Activity {
     }
 
     /**
-     * Make it so that this activity will be the default to handle a new tag when it is discovered,
-     * and add any necessary filters based on the expectations provided by the user
+     * Make it so that this activity will be the default to handle a new tag when it is discovered
      */
-    private void setReadyToHandleTag() throws IntentFilter.MalformedMimeTypeException {
-        // TODO: For read activity, specify how to only accept tags whose Ndef message has a specific tag
-
+    private void setReadyToHandleTag() {
         IntentFilter ndefDiscoveredFilter = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
-        if (this.dataTypeForFilter != null) {
-            ndefDiscoveredFilter.addDataType(this.dataTypeForFilter);
-        }
         IntentFilter tagDiscoveredFilter = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
 
         IntentFilter[] intentFilters = new IntentFilter[]{ ndefDiscoveredFilter, tagDiscoveredFilter };

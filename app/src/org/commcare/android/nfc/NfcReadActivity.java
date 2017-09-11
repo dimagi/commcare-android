@@ -9,6 +9,7 @@ import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Pair;
 
 import org.commcare.android.javarosa.IntentCallout;
 
@@ -25,15 +26,6 @@ public class NfcReadActivity extends NfcActivity {
     @Override
     protected void initFields() {
         super.initFields();
-        this.dataTypeForFilter = getDataTypeForFilter();
-    }
-
-    private String getDataTypeForFilter() {
-        if (userSpecifiedType.equals("text")) {
-            return "text/plain";
-        } else {
-            return "vnd.android.nfc://ext/" + userSpecifiedDomain + ":" + userSpecifiedType;
-        }
     }
 
     @Override
@@ -51,11 +43,14 @@ public class NfcReadActivity extends NfcActivity {
                 return;
             }
             NdefRecord firstRecord = msg.getRecords()[0];
-            this.valueRead = NdefRecordUtil.readValueFromRecord(firstRecord);
-            if (valueRead == null) {
-                finishWithErrorToast("nfc.read.language.mismatch");
-            } else {
+            Pair<String, Boolean> resultAndSuccess =
+                    NdefRecordUtil.readValueFromRecord(firstRecord, this.userSpecifiedType,
+                            this.userSpecifiedDomain);
+            if (resultAndSuccess.second) {
+                this.valueRead = resultAndSuccess.first;
                 finishWithToast("nfc.read.success", true);
+            } else {
+                finishWithErrorToast(resultAndSuccess.first);
             }
         } catch (IOException e) {
             finishWithErrorToast("nfc.read.io.error");

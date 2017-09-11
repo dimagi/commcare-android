@@ -3,6 +3,7 @@ package org.commcare.android.nfc;
 import android.annotation.TargetApi;
 import android.nfc.NdefRecord;
 import android.os.Build;
+import android.util.Pair;
 
 import org.javarosa.core.services.locale.Localization;
 
@@ -16,13 +17,44 @@ import java.util.Locale;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class NdefRecordUtil {
 
-    private static final String CHARSET_ENCODING = "UTF-8";
+    private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
+    protected static final String READ_ERROR_UNSUPPORTED_KEY = "nfc.read.error.unsupported";
+    protected static final String READ_ERROR_MISMATCH_KEY = "nfc.read.error.mismatch";
 
-    protected static String readValueFromRecord(NdefRecord record) {
-        if (Arrays.equals(record.getType(),NdefRecord.RTD_TEXT)) {
-            return readValueFromTextRecord(record);
+    protected static Pair<String,Boolean> readValueFromRecord(NdefRecord record,
+                                                              String userSpecifiedType,
+                                                              String userSpecifiedDomain) {
+        switch (record.getTnf()) {
+            case NdefRecord.TNF_WELL_KNOWN:
+                return handleWellKnownTypeRecord(record, userSpecifiedType);
+            case NdefRecord.TNF_EXTERNAL_TYPE:
+                return handleExternalTypeRecord(record, userSpecifiedType, userSpecifiedDomain);
+            default:
+                return new Pair<>(READ_ERROR_UNSUPPORTED_KEY, false);
+        }
+    }
+
+    private static Pair<String,Boolean> handleWellKnownTypeRecord(NdefRecord record,
+                                                                  String userSpecifiedType) {
+        if (Arrays.equals(record.getType(), NdefRecord.RTD_TEXT)) {
+            if (userSpecifiedType.equals("text")) {
+                return new Pair<>(readValueFromTextRecord(record), true);
+            } else {
+                return new Pair<>(READ_ERROR_MISMATCH_KEY, false);
+            }
         } else {
-            return new String(record.getPayload(), Charset.forName(CHARSET_ENCODING));
+            return new Pair<>(READ_ERROR_UNSUPPORTED_KEY, false);
+        }
+    }
+
+    private static Pair<String,Boolean> handleExternalTypeRecord(NdefRecord record,
+                                                                 String userSpecifiedType,
+                                                                 String userSpecifiedDomain) {
+        String typeAsString = new String(record.getType(), UTF8_CHARSET);
+        if (typeAsString.equals(userSpecifiedDomain + ":" + userSpecifiedType)) {
+            return new Pair<>(new String(record.getPayload(), UTF8_CHARSET), true);
+        } else {
+            return new Pair<>(READ_ERROR_MISMATCH_KEY, false);
         }
     }
 
@@ -32,7 +64,7 @@ public class NdefRecordUtil {
         int langBytesLength = fullPayload[0]; // status byte
         int lengthOfPrefix = langBytesLength + 1; // add 1 for the status byte itself
         byte[] payloadWithoutLang = Arrays.copyOfRange(fullPayload, lengthOfPrefix, fullPayload.length);
-        return new String(payloadWithoutLang, Charset.forName(CHARSET_ENCODING));
+        return new String(payloadWithoutLang, UTF8_CHARSET);
     }
 
     protected static NdefRecord createNdefRecord(String userSpecifiedType,
@@ -64,7 +96,7 @@ public class NdefRecordUtil {
     // Copied from https://developer.android.com/guide/topics/connectivity/nfc/nfc.html#well-known-text
     public static NdefRecord createTextRecord(String payload, Locale locale) {
         byte[] langBytes = locale.getLanguage().getBytes(Charset.forName("US-ASCII"));
-        byte[] textBytes = payload.getBytes(Charset.forName(CHARSET_ENCODING));
+        byte[] textBytes = payload.getBytes(UTF8_CHARSET);
 
         int utfBit = 0;
         char status = (char)(utfBit + langBytes.length);
@@ -78,6 +110,6 @@ public class NdefRecordUtil {
     }
 
     private static NdefRecord createExternalRecord(String type, String domain, String payload) {
-        return NdefRecord.createExternal(domain, type, payload.getBytes(Charset.forName(CHARSET_ENCODING)));
+        return NdefRecord.createExternal(domain, type, payload.getBytes(UTF8_CHARSET));
     }
 }
