@@ -164,10 +164,11 @@ public class CommCareApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        CrashUtil.init(this);
-        configureCommCareEngineConstantsAndStaticRegistrations();
-
         CommCareApplication.app = this;
+
+        CrashUtil.init(this);
+
+        configureCommCareEngineConstantsAndStaticRegistrations();
         noficationManager = new CommCareNoficationManager(this);
 
         //TODO: Make this robust
