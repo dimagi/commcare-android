@@ -81,6 +81,8 @@ public abstract class NfcActivity extends Activity {
             finishWithErrorToast("nfc.not.enabled");
         } catch (NfcManager.NfcNotSupportedException e) {
             finishWithErrorToast("nfc.not.supported");
+        } catch (IntentFilter.MalformedMimeTypeException e) {
+            finishWithErrorToast("nfc.malformed.type.specified");
         }
     }
 
@@ -107,20 +109,14 @@ public abstract class NfcActivity extends Activity {
      * Make it so that this activity will be the default to handle a new tag when it is discovered,
      * and add any necessary filters based on the expectations provided by the user
      */
-    private void setReadyToHandleTag() {
+    private void setReadyToHandleTag() throws IntentFilter.MalformedMimeTypeException {
         // TODO: For read activity, specify how to only accept tags whose Ndef message has a specific tag
 
         IntentFilter ndefDiscoveredFilter = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
-        IntentFilter tagDiscoveredFilter = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
-
         if (this.dataTypeForFilter != null) {
-            try {
-                ndefDiscoveredFilter.addDataType(this.dataTypeForFilter);
-                tagDiscoveredFilter.addDataType(this.dataTypeForFilter);
-            } catch (IntentFilter.MalformedMimeTypeException e) {
-
-            }
+            ndefDiscoveredFilter.addDataType(this.dataTypeForFilter);
         }
+        IntentFilter tagDiscoveredFilter = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
 
         IntentFilter[] intentFilters = new IntentFilter[]{ ndefDiscoveredFilter, tagDiscoveredFilter };
         this.nfcManager.enableForegroundDispatch(this, this.pendingNfcIntent, intentFilters, null);
@@ -161,7 +157,8 @@ public abstract class NfcActivity extends Activity {
     protected abstract String getInstructionsTextKey();
 
     protected static boolean isCommCareSupportedWellKnownType(String type) {
-        // For now, the only "well known type" we're supporting is NdefRecord.RTD_TEXT
+        // For now, the only "well known type" we're supporting is NdefRecord.RTD_TEXT, which
+        // users should encode in their configuration by specifying type "text"
         return "text".equals(type);
     }
 

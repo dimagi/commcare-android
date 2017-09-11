@@ -20,8 +20,6 @@ import java.io.IOException;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class NfcReadActivity extends NfcActivity {
 
-    public static final String READ_RESULT_VALUE = "nfc_read_result_value";
-
     private String valueRead;
 
     @Override
@@ -34,7 +32,7 @@ public class NfcReadActivity extends NfcActivity {
         if (userSpecifiedType.equals("text")) {
             return "text/plain";
         } else {
-            return userSpecifiedDomain + ":" + userSpecifiedType;
+            return "vnd.android.nfc://ext/" + userSpecifiedDomain + ":" + userSpecifiedType;
         }
     }
 
@@ -48,11 +46,14 @@ public class NfcReadActivity extends NfcActivity {
         try {
             ndefObject.connect();
             NdefMessage msg = ndefObject.getNdefMessage();
+            if (msg == null) {
+                finishWithErrorToast("nfc.read.no.data");
+                return;
+            }
             NdefRecord firstRecord = msg.getRecords()[0];
             this.valueRead = NdefRecordUtil.readValueFromRecord(firstRecord);
-            ndefObject.close();
             if (valueRead == null) {
-                finishWithErrorToast("nfc.read.unexpected.format");
+                finishWithErrorToast("nfc.read.language.mismatch");
             } else {
                 finishWithToast("nfc.read.success", true);
             }
@@ -60,6 +61,12 @@ public class NfcReadActivity extends NfcActivity {
             finishWithErrorToast("nfc.read.io.error");
         } catch (FormatException e) {
             finishWithErrorToast("nfc.read.msg.malformed");
+        } finally {
+            try {
+                ndefObject.close();
+            } catch (IOException e) {
+                // nothing we can do
+            }
         }
     }
 
@@ -79,4 +86,5 @@ public class NfcReadActivity extends NfcActivity {
     protected String getInstructionsTextKey() {
         return "nfc.instructions.read";
     }
+
 }

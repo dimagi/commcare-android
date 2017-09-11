@@ -784,5 +784,6 @@ nfc.missing.domain=A domain must be provided when specifying a custom type for y
 nfc.read.success=NFC read was successful!
 nfc.read.io.error=An IO error occurred while attempting to read the Ndef message
 nfc.read.msg.malformed=The Ndef message read from the NFC tag was malformed
-nfc.read.unexpected.format=The Ndef message read from the NFC tag was not of the expected type/format
+nfc.read.no.data=The provided NFC tag had no data on it to read
 nfc.well.known.type.not.supported=The only well-known type that CommCare currently supports is 'text'
+nfc.malformed.type.specified=The intent filter type specfied for your nfc action was malformed

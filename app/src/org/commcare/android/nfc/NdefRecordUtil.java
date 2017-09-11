@@ -7,6 +7,7 @@ import android.os.Build;
 import org.javarosa.core.services.locale.Localization;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -18,7 +19,20 @@ public class NdefRecordUtil {
     private static final String CHARSET_ENCODING = "UTF-8";
 
     protected static String readValueFromRecord(NdefRecord record) {
-        return new String(record.getPayload(), Charset.forName(CHARSET_ENCODING));
+        if (Arrays.equals(record.getType(),NdefRecord.RTD_TEXT)) {
+            return readValueFromTextRecord(record);
+        } else {
+            return new String(record.getPayload(), Charset.forName(CHARSET_ENCODING));
+        }
+    }
+
+    private static String readValueFromTextRecord(NdefRecord textTypeRecord) {
+        byte[] fullPayload = textTypeRecord.getPayload();
+        // The payload includes a prefix denoting the language, so we need to parse that off
+        int langBytesLength = fullPayload[0]; // status byte
+        int lengthOfPrefix = langBytesLength + 1; // add 1 for the status byte itself
+        byte[] payloadWithoutLang = Arrays.copyOfRange(fullPayload, lengthOfPrefix, fullPayload.length);
+        return new String(payloadWithoutLang, Charset.forName(CHARSET_ENCODING));
     }
 
     protected static NdefRecord createNdefRecord(String userSpecifiedType,
