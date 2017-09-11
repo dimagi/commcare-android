@@ -2,6 +2,7 @@ package org.commcare.tasks;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -140,7 +141,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
      * logs, and write that to a DeviceReportRecord, which then gets added to the internal storage
      * object of all DeviceReportRecords that have yet to be submitted
      */
-    public static boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
+    private static boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
         //update the last recorded record

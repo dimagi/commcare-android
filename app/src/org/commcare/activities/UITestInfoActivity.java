@@ -1,6 +1,8 @@
 package org.commcare.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.widget.TextView;
 
@@ -8,11 +10,11 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.tasks.LogSubmissionTask;
 
 // Used for ui testing components which don't have UI components
 public class UITestInfoActivity extends FragmentActivity {
 
+    public static final String LOG_SUBMISSION_RESULT_PREF = "log_submission_result";
     private static final String EXTRA_INFO_TYPE = "info_type";
     private TextView infoTv;
 
@@ -29,7 +31,7 @@ public class UITestInfoActivity extends FragmentActivity {
 
     private void loadInfo() {
         int infoType = getIntent().getIntExtra(EXTRA_INFO_TYPE, 0);
-        switch (infoType){
+        switch (infoType) {
             case INFO_TYPE_LOG_SUBMISSION:
                 loadLogSubmissionInfo();
                 break;
@@ -39,9 +41,8 @@ public class UITestInfoActivity extends FragmentActivity {
     }
 
     private void loadLogSubmissionInfo() {
-        SqlStorage<DeviceReportRecord> storage =
-                CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
-        LogSubmissionTask.serializeLogs(storage);
-        infoTv.setText(storage.getNumRecords() + " logs to submit");
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean result = sharedPreferences.getBoolean(LOG_SUBMISSION_RESULT_PREF, false);
+        infoTv.setText(result ? "Logs successfully submitted" : "Error submitting logs");
     }
 }
