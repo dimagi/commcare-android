@@ -34,10 +34,12 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
         ForceCloseLogger.reportExceptionInBg(ex);
 
         if (warnUserAndExit(ex)) {
+            CrashUtil.reportException(ex);
+
             // You must close the crashed thread in order to start a new activity.
             System.exit(0);
         } else {
-            // Default error handling, which includes reporting to ACRA
+            // Default error handling, which includes reporting to Crashlytics
             parent.uncaughtException(thread, ex);
         }
     }
