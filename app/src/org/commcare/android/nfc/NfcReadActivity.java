@@ -22,10 +22,35 @@ import java.io.IOException;
 public class NfcReadActivity extends NfcActivity {
 
     private String valueRead;
+    private String[] acceptableTypes;
 
     @Override
     protected void initFields() {
         super.initFields();
+        this.acceptableTypes = parseTypes(getIntent());
+    }
+
+    protected static String[] parseTypes(Intent i) {
+        String typesString = i.getStringExtra(NFC_PAYLOAD_MULT_TYPES_ARG);
+        if (typesString == null || typesString.equals("")) {
+            String singleType = i.getStringExtra(NFC_PAYLOAD_SINGLE_TYPE_ARG);
+            if (singleType == null || singleType.equals("")) {
+                return null;
+            } else {
+                return new String[]{ singleType };
+            }
+        } else {
+            return typesString.split(" ");
+        }
+    }
+
+    @Override
+    protected boolean requiredFieldsMissing() {
+        if (this.acceptableTypes == null || this.acceptableTypes.length == 0) {
+            finishWithErrorToast("nfc.read.no.type");
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -44,8 +69,8 @@ public class NfcReadActivity extends NfcActivity {
             }
             NdefRecord firstRecord = msg.getRecords()[0];
             Pair<String, Boolean> resultAndSuccess =
-                    NdefRecordUtil.readValueFromRecord(firstRecord, this.userSpecifiedType,
-                            this.userSpecifiedDomain);
+                    NdefRecordUtil.readValueFromRecord(firstRecord, this.acceptableTypes,
+                            this.domainForType);
             if (resultAndSuccess.second) {
                 this.valueRead = resultAndSuccess.first;
                 finishWithToast("nfc.read.success", true);

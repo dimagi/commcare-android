@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
@@ -20,13 +21,13 @@ import org.javarosa.core.services.locale.Localization;
 
 public abstract class NfcActivity extends Activity {
 
-    protected static final String NFC_PAYLOAD_TYPE_ARG = "type";
+    protected static final String NFC_PAYLOAD_MULT_TYPES_ARG = "types";
+    protected static final String NFC_PAYLOAD_SINGLE_TYPE_ARG = "type";
     protected static final String NFC_DOMAIN_ARG = "domain";
 
     protected NfcManager nfcManager;
     protected PendingIntent pendingNfcIntent;
-    protected String userSpecifiedType;
-    protected String userSpecifiedDomain;
+    protected String domainForType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +45,13 @@ public abstract class NfcActivity extends Activity {
     protected void initFields() {
         this.nfcManager = new NfcManager(this);
 
-        // These will have been supplied by the user via the intent callout extras
-        this.userSpecifiedType = getIntent().getStringExtra(NFC_PAYLOAD_TYPE_ARG);
-        this.userSpecifiedDomain = getIntent().getStringExtra(NFC_DOMAIN_ARG);
+        this.domainForType = getIntent().getStringExtra(NFC_DOMAIN_ARG);
+        if (this.domainForType == null) {
+            // Usually there is no reason for the user to provide this themselves, and we will just
+            // set it to be the project's domain name
+            this.domainForType = ReportingUtils.getDomain();
+        }
     }
-
     /**
      * Create an intent for restarting this activity, which will be passed to enableForegroundDispatch(),
      * thus instructing Android to start the intent when the device detects a new NFC tag. Adding
@@ -89,18 +92,7 @@ public abstract class NfcActivity extends Activity {
         this.nfcManager.disableForegroundDispatch(this);
     }
 
-    protected boolean requiredFieldsMissing() {
-        if (this.userSpecifiedType == null || this.userSpecifiedType.equals("")) {
-            finishWithErrorToast("nfc.no.type");
-            return true;
-        }
-        if (!NfcManager.isCommCareSupportedWellKnownType(this.userSpecifiedType) &&
-                (this.userSpecifiedDomain == null || this.userSpecifiedDomain.equals(""))) {
-            finishWithErrorToast("nfc.missing.domain");
-            return true;
-        }
-        return false;
-    }
+    protected abstract boolean requiredFieldsMissing();
 
     /**
      * Makes it so that this activity will be the default to handle a new tag when it is discovered.

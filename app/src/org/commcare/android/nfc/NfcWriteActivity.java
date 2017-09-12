@@ -23,11 +23,13 @@ public class NfcWriteActivity extends NfcActivity {
     public static final String NFC_PAYLOAD_TO_WRITE = "payload";
 
     private String payloadToWrite;
+    private String typeForPayload;
 
     @Override
     protected void initFields() {
         super.initFields();
         this.payloadToWrite = getIntent().getStringExtra(NFC_PAYLOAD_TO_WRITE);
+        this.typeForPayload = getIntent().getStringExtra(NFC_PAYLOAD_SINGLE_TYPE_ARG);
     }
 
     @Override
@@ -35,8 +37,11 @@ public class NfcWriteActivity extends NfcActivity {
         if (this.payloadToWrite == null || this.payloadToWrite.equals("")) {
             finishWithErrorToast("nfc.write.no.payload");
             return true;
+        } else if (this.typeForPayload == null || this.typeForPayload.equals("")) {
+            finishWithErrorToast("nfc.write.no.type");
+            return true;
         } else {
-            return super.requiredFieldsMissing();
+            return false;
         }
     }
 
@@ -48,8 +53,8 @@ public class NfcWriteActivity extends NfcActivity {
     private void writeMessageToNfcTag(Tag tag) {
         Ndef ndefObject = Ndef.get(tag);
         try {
-            NdefRecord record = NdefRecordUtil.createNdefRecord(this.userSpecifiedType,
-                    this.userSpecifiedDomain, this.payloadToWrite);
+            NdefRecord record = NdefRecordUtil.createNdefRecord(this.typeForPayload,
+                    this.domainForType, this.payloadToWrite);
             NdefMessage msg = new NdefMessage(new NdefRecord[]{record});
             ndefObject.connect();
             ndefObject.writeNdefMessage(msg);

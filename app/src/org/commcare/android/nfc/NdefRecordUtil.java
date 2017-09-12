@@ -22,22 +22,22 @@ public class NdefRecordUtil {
     protected static final String READ_ERROR_MISMATCH_KEY = "nfc.read.error.mismatch";
 
     protected static Pair<String,Boolean> readValueFromRecord(NdefRecord record,
-                                                              String userSpecifiedType,
-                                                              String userSpecifiedDomain) {
+                                                              String[] userSpecifiedTypes,
+                                                              String domainForExternalTypes) {
         switch (record.getTnf()) {
             case NdefRecord.TNF_WELL_KNOWN:
-                return handleWellKnownTypeRecord(record, userSpecifiedType);
+                return handleWellKnownTypeRecord(record, userSpecifiedTypes);
             case NdefRecord.TNF_EXTERNAL_TYPE:
-                return handleExternalTypeRecord(record, userSpecifiedType, userSpecifiedDomain);
+                return handleExternalTypeRecord(record, userSpecifiedTypes, domainForExternalTypes);
             default:
                 return new Pair<>(READ_ERROR_UNSUPPORTED_KEY, false);
         }
     }
 
     private static Pair<String,Boolean> handleWellKnownTypeRecord(NdefRecord record,
-                                                                  String userSpecifiedType) {
+                                                                  String[] userSpecifiedTypes) {
         if (Arrays.equals(record.getType(), NdefRecord.RTD_TEXT)) {
-            if (userSpecifiedType.equals("text")) {
+            if (Arrays.asList(userSpecifiedTypes).contains(("text"))) {
                 return new Pair<>(readValueFromTextRecord(record), true);
             } else {
                 return new Pair<>(READ_ERROR_MISMATCH_KEY, false);
@@ -48,14 +48,26 @@ public class NdefRecordUtil {
     }
 
     private static Pair<String,Boolean> handleExternalTypeRecord(NdefRecord record,
-                                                                 String userSpecifiedType,
-                                                                 String userSpecifiedDomain) {
+                                                                 String[] userSpecifiedTypes,
+                                                                 String domainForExternalTypes) {
         String typeAsString = new String(record.getType(), UTF8_CHARSET);
-        if (typeAsString.equals(userSpecifiedDomain + ":" + userSpecifiedType)) {
+        if (recordTypeIsExpected(typeAsString, userSpecifiedTypes, domainForExternalTypes)) {
             return new Pair<>(new String(record.getPayload(), UTF8_CHARSET), true);
         } else {
             return new Pair<>(READ_ERROR_MISMATCH_KEY, false);
         }
+    }
+
+    private static boolean recordTypeIsExpected(String recordTypeAsString,
+                                                String[] userSpecifiedTypes,
+                                                String domainForExternalTypes) {
+        for (String type : userSpecifiedTypes) {
+            type = domainForExternalTypes + ":" + type;
+            if (type.equals(recordTypeAsString)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String readValueFromTextRecord(NdefRecord textTypeRecord) {
