@@ -255,7 +255,6 @@ public class CommCareApplication extends Application {
             }
             bindUserSessionService(symmetricKey, record, restoreSession);
         }
-        applyMissedMigration(getUserDbHandle(), this);
     }
 
     /**
@@ -710,6 +709,7 @@ public class CommCareApplication extends Application {
 
                     if (user != null) {
                         mBoundService.startSession(user, record);
+                        applyMissedMigration(mBoundService.getUserDbHandle(), getApplicationContext());
                         if (restoreSession) {
                             CommCareApplication.this.sessionWrapper = DevSessionRestorer.restoreSessionFromPrefs(getCommCarePlatform());
                         } else {
