@@ -34,3 +34,4 @@ app/libs/javarosa-libraries.jar
 build/
 **/*~
 app/google-services.json
+app/fabric.properties

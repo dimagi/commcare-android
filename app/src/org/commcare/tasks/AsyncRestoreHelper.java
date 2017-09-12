@@ -106,6 +106,9 @@ public class AsyncRestoreHelper {
         }
         long intervalAllottedPerProgressUnit =
                 millisUntilNextAttempt / amountOfProgressToCoverThisCycle;
+        if (intervalAllottedPerProgressUnit < 1) {
+            intervalAllottedPerProgressUnit = 1;
+        }
 
         final Timer reportServerProgressTimer = new Timer();
         reportServerProgressTimer.schedule(new TimerTask() {
