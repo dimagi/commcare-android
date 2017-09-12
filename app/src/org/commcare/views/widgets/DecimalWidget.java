@@ -37,8 +37,8 @@ import java.text.NumberFormat;
  */
 public class DecimalWidget extends StringWidget {
 
-    public DecimalWidget(Context context, FormEntryPrompt prompt, boolean secret) {
-        super(context, prompt, secret);
+    public DecimalWidget(Context context, FormEntryPrompt prompt, boolean secret, boolean compact) {
+        super(context, prompt, secret, compact);
 
         // formatting
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
@@ -46,9 +46,6 @@ public class DecimalWidget extends StringWidget {
 
         // needed to make long readonly text scroll
         mAnswer.setHorizontallyScrolling(false);
-        if (!secret) {
-            mAnswer.setSingleLine(false);
-        }
 
         // only numbers are allowed
         mAnswer.setKeyListener(new DigitsKeyListener(true, true));
