@@ -28,6 +28,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.activities.components.EntitySelectViewSetup;
 import org.commcare.adapters.EntityListAdapter;
+import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
@@ -35,7 +36,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
-import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.provider.SimprintsCalloutProcessing;
@@ -43,14 +43,12 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Callout;
-import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.tasks.EntityLoaderListener;
 import org.commcare.tasks.EntityLoaderTask;
 import org.commcare.utils.AndroidInstanceInitializer;
-import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.EntitySelectRefreshTimer;
 import org.commcare.utils.HereFunctionHandler;
@@ -69,7 +67,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.commcare.android.javarosa.IntentCallout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +75,7 @@ import java.util.List;
  * @author ctsims
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
-        implements EntityLoaderListener, OnItemClickListener, DetailCalloutListener {
+        implements EntityLoaderListener, OnItemClickListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
 
@@ -874,26 +871,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void attachLoader(EntityLoaderTask task) {
         findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
         this.loader = task;
-    }
-
-    @Override
-    public void callRequested(String phoneNumber) {
-        DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
-    }
-
-    @Override
-    public void addressRequested(String address) {
-        DetailCalloutListenerDefaultImpl.addressRequested(this, address);
-    }
-
-    @Override
-    public void playVideo(String videoRef) {
-        DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
-    }
-
-    @Override
-    public void performCallout(CalloutData callout, int id) {
-        DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
 
     private void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
