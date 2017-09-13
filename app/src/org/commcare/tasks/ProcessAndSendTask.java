@@ -209,7 +209,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. " +
                             "Tentatively not removing in case they are resolvable|" + getExceptionText(e));
                 } catch (Exception e) {
+                    // This catch block is here just to makes sure we end the transaction no matter
+                    // what, but we still want to re-throw the exception
                     db.endTransaction();
+                    throw e;
                 }
             }
         }
