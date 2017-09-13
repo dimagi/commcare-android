@@ -1,8 +1,8 @@
 package org.commcare.tasks;
 
 import org.apache.http.Header;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.network.RemoteDataPullResponse;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.ElementParser;
 import org.kxml2.io.KXmlParser;
@@ -38,7 +38,7 @@ public class AsyncRestoreHelper {
         }
         try {
             long waitTimeInMilliseconds = Integer.parseInt(retryHeader.getValue()) * 1000;
-            Logger.log(AndroidLogger.TYPE_USER, "Retry-After header value was " + waitTimeInMilliseconds);
+            Logger.log(LogTypes.TYPE_USER, "Retry-After header value was " + waitTimeInMilliseconds);
             if (waitTimeInMilliseconds <= 0) {
                 throw new InvalidWaitTimeException(
                         "Server response included a Retry-After header value of " + waitTimeInMilliseconds);
@@ -49,8 +49,8 @@ public class AsyncRestoreHelper {
             }
             return new ResultAndError<>(DataPullTask.PullTaskResult.RETRY_NEEDED);
         } catch (NumberFormatException e) {
-            Logger.log(AndroidLogger.TYPE_USER, "Invalid Retry-After header value: "
-                    + retryHeader.getValue());
+             Logger.log(LogTypes.TYPE_USER, "Invalid Retry-After header value: "
+                    + retryHeader);
             return new ResultAndError<>(DataPullTask.PullTaskResult.BAD_DATA);
         }
     }
@@ -74,7 +74,7 @@ public class AsyncRestoreHelper {
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
         } catch (IOException | XmlPullParserException e) {
-            Logger.log(AndroidLogger.TYPE_USER,
+            Logger.log(LogTypes.TYPE_USER,
                     "Error while parsing progress values of retry result");
         }
         return false;
@@ -89,7 +89,7 @@ public class AsyncRestoreHelper {
     protected void startReportingServerProgress() {
         long millisUntilNextAttempt = retryAtTime - System.currentTimeMillis();
         if (millisUntilNextAttempt <= 0) {
-            Logger.log(AndroidLogger.TYPE_USER, "startReportingServerProgress() was called after " +
+            Logger.log(LogTypes.TYPE_USER, "startReportingServerProgress() was called after " +
                     "retryAtTime was already reached. retryAtTime is set to: " + retryAtTime);
             // Since we're already at the retry time, just report the current progress once instead
             // of starting a timer
@@ -106,6 +106,9 @@ public class AsyncRestoreHelper {
         }
         long intervalAllottedPerProgressUnit =
                 millisUntilNextAttempt / amountOfProgressToCoverThisCycle;
+        if (intervalAllottedPerProgressUnit < 1) {
+            intervalAllottedPerProgressUnit = 1;
+        }
 
         final Timer reportServerProgressTimer = new Timer();
         reportServerProgressTimer.schedule(new TimerTask() {

@@ -8,19 +8,19 @@ import android.util.Log;
 import android.util.Pair;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.BestEffortBlockParser;
@@ -341,12 +341,12 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                     formRecordId = ssdFrid;
                 } else if (formRecordId != ssdFrid) {
                     //Not good.
-                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                    Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                             "Inconsistent formRecordId's in session storage");
                 }
             } catch (Exception e) {
                 Logger.exception(e);
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                         "Session ID exists, but with no record (or broken record)");
             }
         }
@@ -362,7 +362,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                 }
             } catch (Exception e) {
                 Logger.exception(e);
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                         "Session ID exists, but with no record (or broken record)");
             }
         }
@@ -416,7 +416,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         if (sessionIds.isEmpty()) {
             return -1;
         } else if (sessionIds.size() > 1) {
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                     "Multiple session ID's pointing to the same form record");
 
         }

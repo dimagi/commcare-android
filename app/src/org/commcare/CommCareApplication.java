@@ -29,8 +29,10 @@ import com.google.android.gms.analytics.Tracker;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
-import org.acra.annotation.ReportsCrashes;
 import org.commcare.activities.LoginActivity;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.core.network.ModernHttpRequester;
@@ -40,29 +42,26 @@ import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
-import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorLogger;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidDbHelper;
+import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.MigrationException;
-import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
-import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
-import org.commcare.modern.database.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
+import org.commcare.modern.database.Table;
 import org.commcare.modern.util.Pair;
 import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.AndroidModernHttpRequester;
@@ -79,18 +78,19 @@ import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
-import org.commcare.utils.ACRAUtil;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareExceptionHandler;
+import org.commcare.utils.CrashUtil;
+import org.commcare.utils.DummyPropertyManager;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MultipleAppsUtil;
-import org.commcare.utils.DummyPropertyManager;
+import org.commcare.utils.PendingCalcs;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.utils.PendingCalcs;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
@@ -107,12 +107,6 @@ import java.util.HashMap;
 
 import javax.crypto.SecretKey;
 
-@ReportsCrashes(
-        formUri = "https://your/cloudant/report",
-        formUriBasicAuthLogin = "your_username",
-        formUriBasicAuthPassword = "your_password",
-        reportType = org.acra.sender.HttpSender.Type.JSON,
-        httpMethod = org.acra.sender.HttpSender.Method.PUT)
 public class CommCareApplication extends Application {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
@@ -170,9 +164,9 @@ public class CommCareApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        configureCommCareEngineConstantsAndStaticRegistrations();
-
         CommCareApplication.app = this;
+        CrashUtil.init(this);
+        configureCommCareEngineConstantsAndStaticRegistrations();
         noficationManager = new CommCareNoficationManager(this);
 
         //TODO: Make this robust
@@ -216,8 +210,6 @@ public class CommCareApplication extends Application {
             AppUtils.checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
         }
-
-        ACRAUtil.initACRA(this);
 
         if (!GoogleAnalyticsUtils.versionIncompatible()) {
             analyticsInstance = GoogleAnalytics.getInstance(this);
@@ -484,7 +476,7 @@ public class CommCareApplication extends Application {
 
         // 3) Delete the directory containing all of this app's resources
         if (!FileUtil.deleteFileOrDir(app.storageRoot())) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "App storage root was unable to be " +
+            Logger.log(LogTypes.TYPE_RESOURCES, "App storage root was unable to be " +
                     "deleted during app uninstall. Aborting uninstall process for now.");
             return;
         }
@@ -494,7 +486,7 @@ public class CommCareApplication extends Application {
         for (UserKeyRecord user : userDatabase) {
             File f = getDatabasePath(DatabaseUserOpenHelper.getDbName(user.getUuid()));
             if (!FileUtil.deleteFileOrDir(f)) {
-                Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was unable to be " +
+                Logger.log(LogTypes.TYPE_RESOURCES, "A user database was unable to be " +
                         "deleted during app uninstall. Aborting uninstall process for now.");
                 // If we failed to delete a file, it is likely because there is an open pointer
                 // to that db still in use, so stop the uninstall for now, and rely on it to
@@ -508,7 +500,7 @@ public class CommCareApplication extends Application {
                 ProviderUtils.ProviderType.FORMS,
                 app.getAppRecord().getApplicationId()));
         if (!FileUtil.deleteFileOrDir(formsDb)) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app's forms database was unable to be " +
+            Logger.log(LogTypes.TYPE_RESOURCES, "The app's forms database was unable to be " +
                     "deleted during app uninstall. Aborting uninstall process for now.");
             return;
         }
@@ -518,7 +510,7 @@ public class CommCareApplication extends Application {
                 ProviderUtils.ProviderType.INSTANCES,
                 app.getAppRecord().getApplicationId()));
         if (!FileUtil.deleteFileOrDir(instancesDb)) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app's instances database was unable to" +
+            Logger.log(LogTypes.TYPE_RESOURCES, "The app's instances database was unable to" +
                     " be deleted during app uninstall. Aborting uninstall process for now.");
             return;
         }
@@ -526,7 +518,7 @@ public class CommCareApplication extends Application {
         // 7) Delete the app database
         File f = getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId()));
         if (!FileUtil.deleteFileOrDir(f)) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was unable to be deleted" +
+            Logger.log(LogTypes.TYPE_RESOURCES, "The app database was unable to be deleted" +
                     "during app uninstall. Aborting uninstall process for now.");
             return;
         }
@@ -643,14 +635,14 @@ public class CommCareApplication extends Application {
         FileUtil.deleteFileOrDir(tempRoot);
         boolean success = FileUtil.createFolder(tempRoot);
         if (!success) {
-            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Couldn't create temp folder");
+            Logger.log(LogTypes.TYPE_ERROR_STORAGE, "Couldn't create temp folder");
         }
 
         String externalRoot = this.getAndroidFsExternalTemp();
         FileUtil.deleteFileOrDir(externalRoot);
         success = FileUtil.createFolder(externalRoot);
         if (!success) {
-            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Couldn't create external file folder");
+            Logger.log(LogTypes.TYPE_ERROR_STORAGE, "Couldn't create external file folder");
         }
 
     }
@@ -761,7 +753,7 @@ public class CommCareApplication extends Application {
         String url = LogSubmissionTask.getSubmissionUrl(settings);
 
         if (url == null) {
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "PostURL isn't set. This should never happen");
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "PostURL isn't set. This should never happen");
             return;
         }
 
@@ -794,7 +786,7 @@ public class CommCareApplication extends Application {
     }
 
     private static void startAutoUpdate() {
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Auto-Update Triggered");
 
         String ref = ResourceInstallUtils.getDefaultProfileRef();
 

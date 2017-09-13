@@ -11,14 +11,14 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.logging.AndroidLogger;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.Logger;
 
@@ -34,10 +34,10 @@ public class UserSandboxUtils {
                                    UserKeyRecord incomingSandbox, byte[] unwrappedOldKey,
                                    UserKeyRecord newSandbox, byte[] unwrappedNewKey)
             throws IOException {
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Migrating an existing user sandbox for " + newSandbox.getUsername());
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Migrating an existing user sandbox for " + newSandbox.getUsername());
         String newKeyEncoded = rekeyDB(c, incomingSandbox, newSandbox, unwrappedOldKey, unwrappedNewKey);
 
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Database is re-keyed and ready for use. Copying over files now");
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Database is re-keyed and ready for use. Copying over files now");
         //OK, so now we have the Db transitioned. What we need to do now is go through and rekey all of our file references.
         final SQLiteDatabase db = new DatabaseUserOpenHelper(CommCareApplication.instance(), newSandbox.getUuid()).getWritableDatabase(newKeyEncoded);
 
@@ -55,7 +55,7 @@ public class UserSandboxUtils {
             SqlStorage<DeviceReportRecord> reports = new SqlStorage<>(DeviceReportRecord.STORAGE_KEY, DeviceReportRecord.class, dbh);
             migrateDeviceReports(reports, newSandbox);
 
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Copied over all of the device reports. Moving on to the form records");
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Copied over all of the device reports. Moving on to the form records");
 
             SqlStorage<FormRecord> formRecords = new SqlStorage<>(FormRecord.STORAGE_KEY, FormRecord.class, dbh);
             migrateFormRecords(c, formRecords, newSandbox);
@@ -63,7 +63,7 @@ public class UserSandboxUtils {
             db.close();
         }
 
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "All form records copied over");
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "All form records copied over");
 
         //OK! So we should be all set, here. Mark the new sandbox as ready and the old sandbox as ready for cleanup.
         finalizeMigration(app, incomingSandbox, newSandbox);
@@ -87,7 +87,7 @@ public class UserSandboxUtils {
 
         FileUtil.copyFile(oldDb, newDb);
 
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Created a copy of the DB for the new sandbox. Re-keying it...");
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Created a copy of the DB for the new sandbox. Re-keying it...");
 
         String oldKeyEncoded = getSqlCipherEncodedKey(unwrappedOldKey);
         String newKeyEncoded = getSqlCipherEncodedKey(unwrappedNewKey);
@@ -198,13 +198,13 @@ public class UserSandboxUtils {
 
     public static void purgeSandbox(Context context, CommCareApp app, UserKeyRecord sandbox, byte[] key) {
 
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Wiping sandbox " + sandbox.getUuid());
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Wiping sandbox " + sandbox.getUuid());
 
         //Ok, three steps here. Wipe files out, wipe database, remove key record
 
         //If the db is gone already, just remove the record and move on (something odd has happened)
         if (!context.getDatabasePath(DatabaseUserOpenHelper.getDbName(sandbox.getUuid())).exists()) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Sandbox " + sandbox.getUuid() + " has already been purged. removing the record");
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Sandbox " + sandbox.getUuid() + " has already been purged. removing the record");
 
             SqlStorage<UserKeyRecord> ukr = app.getStorage(UserKeyRecord.class);
             ukr.remove(sandbox);
@@ -230,7 +230,7 @@ public class UserSandboxUtils {
                 }
             }
 
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Device Report files removed");
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Device Report files removed");
 
             //Form records are sadly a bit more complex. We need to both move all of the files, 
             //insert a new record in the content provider, and then update the form record.
@@ -257,17 +257,17 @@ public class UserSandboxUtils {
             db.close();
         }
 
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "All files removed for sandbox. Deleting DB");
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "All files removed for sandbox. Deleting DB");
 
         context.getDatabasePath(DatabaseUserOpenHelper.getDbName(sandbox.getUuid())).delete();
 
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Database is gone. Get rid of this record");
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Database is gone. Get rid of this record");
 
         //OK! So we should be all set, here. Mark the new sandbox as ready and the old sandbox as ready for cleanup.
         SqlStorage<UserKeyRecord> ukr = app.getStorage(UserKeyRecord.class);
         ukr.remove(sandbox);
 
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Purge complete");
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Purge complete");
     }
 
 }

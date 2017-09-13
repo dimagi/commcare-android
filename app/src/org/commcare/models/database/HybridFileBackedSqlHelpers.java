@@ -5,9 +5,9 @@ import android.content.ContentValues;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.logging.AndroidLogger;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.util.Pair;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -98,7 +98,7 @@ public class HybridFileBackedSqlHelpers {
     protected static void unsetFileAsOrphan(SQLiteDatabase db, String filename) {
         int deleteCount = db.delete(DbUtil.orphanFileTableName, DatabaseHelper.FILE_COL + "=?", new String[]{filename});
         if (deleteCount != 1) {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
+            Logger.log(LogTypes.SOFT_ASSERT,
                     "Unable to unset orphaned file: " + deleteCount + " entries effected.b");
         }
     }

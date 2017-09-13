@@ -4,10 +4,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import org.commcare.logging.UserCausedRuntimeException;
-import org.commcare.utils.ACRAUtil;
-import org.commcare.utils.FormUploadResult;
+import org.commcare.utils.CrashUtil;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author ctsims
@@ -44,7 +42,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
             if (!(e instanceof UserCausedRuntimeException)) {
                 // Report crashes we know weren't caused by user misconfiguration
-                ACRAUtil.reportException(e);
+                CrashUtil.reportException(e);
             }
 
             // Save error for reporting during post-execute

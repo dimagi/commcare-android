@@ -5,7 +5,6 @@ import android.content.SharedPreferences.Editor;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -13,6 +12,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
 import org.commcare.xml.CommCareElementParser;
@@ -138,19 +138,19 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             initProperties(p);
         } catch (InvalidReferenceException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
+            Logger.log(LogTypes.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
             return false;
         } catch (IOException e) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
+            Logger.log(LogTypes.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
             return false;
         } catch (InvalidStructureException e) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
+            Logger.log(LogTypes.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
             return false;
         } catch (UnfullfilledRequirementsException e) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
+            Logger.log(LogTypes.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
             return false;
         } catch (XmlPullParserException e) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
+            Logger.log(LogTypes.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
             return false;
         }
 

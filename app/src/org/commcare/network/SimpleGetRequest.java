@@ -1,7 +1,7 @@
 package org.commcare.network;
 
 import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.logging.AndroidLogger;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
@@ -65,7 +65,7 @@ class SimpleGetRequest {
         if (httpConnection.getResponseCode() == 301) {
             String redirectString =
                     url.toString() + " to " + httpConnection.getURL().toString();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK,
                     "Attempting 1 stage redirect from " + redirectString);
             //only allow one level of redirection here for now.
             URL newUrl = new URL(httpConnection.getHeaderField("Location"));
@@ -77,7 +77,7 @@ class SimpleGetRequest {
             // Don't allow redirects _from_ https _to_ https unless they are
             // redirecting to the same server.
             if (!HttpRequestGenerator.isValidRedirect(url, httpConnection.getURL())) {
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
+                Logger.log(LogTypes.TYPE_WARNING_NETWORK,
                         "Invalid redirect from " + redirectString);
                 String errorMessage =
                         "Invalid redirect from secure server to insecure server";

@@ -1,6 +1,8 @@
 package org.commcare.utils;
 
 import org.junit.Assert;
+import org.commcare.util.Base64;
+import org.commcare.util.Base64DecoderException;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;

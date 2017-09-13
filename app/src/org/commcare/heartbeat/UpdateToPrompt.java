@@ -7,7 +7,7 @@ import android.content.pm.PackageManager;
 import android.util.Base64;
 
 import org.commcare.CommCareApplication;
-import org.commcare.logging.AndroidLogger;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -105,7 +105,7 @@ public class UpdateToPrompt implements Externalizable {
             } catch (PackageManager.NameNotFoundException e) {
                 // This shouldn't happen, but it if it does, there's no way for us to know if the
                 // update version is newer, so don't prompt
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                         "Couldn't get current .apk version to compare with in UpdateToPrompt: "
                                 + e.getMessage());
                 return false;
@@ -122,7 +122,7 @@ public class UpdateToPrompt implements Externalizable {
             String serializedString = Base64.encodeToString(serializedBytes, Base64.DEFAULT);
             prefs.edit().putString(this.updateType.getPrefsKey(), serializedString).commit();
         } catch (Exception e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+            Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                     "Error encountered while serializing UpdateToPrompt: " + e.getMessage());
         }
     }

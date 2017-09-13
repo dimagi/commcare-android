@@ -3,13 +3,13 @@ package org.commcare.engine.cases;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.LedgerPurgeFilter;
 import org.commcare.cases.util.CasePurgeFilter;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.CommCareUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -72,10 +72,10 @@ public class CaseUtils {
 
             CasePurgeFilter filter = new CasePurgeFilter(storage, owners);
             if (filter.invalidEdgesWereRemoved()) {
-                Logger.log(AndroidLogger.SOFT_ASSERT, "An invalid edge was created in the internal " +
+                Logger.log(LogTypes.SOFT_ASSERT, "An invalid edge was created in the internal " +
                         "case DAG of a case purge filter, meaning that at least 1 case on the " +
                         "device had an index into another case that no longer exists on the device");
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Case lists on the server and device" +
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Case lists on the server and device" +
                         " were out of sync. The following cases were expected to be on the device, " +
                         "but were missing: " + filter.getMissingCasesString() + ". As a result, the " +
                         "following cases were also removed from the device: " + filter.getRemovedCasesString());
@@ -100,7 +100,7 @@ public class CaseUtils {
 
         long taken = System.currentTimeMillis() - start;
 
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format(
+        Logger.log(LogTypes.TYPE_MAINTENANCE, String.format(
                 "Purged [%d Case, %d Ledger] records in %dms",
                 removedCaseCount, removedLedgers, taken));
 

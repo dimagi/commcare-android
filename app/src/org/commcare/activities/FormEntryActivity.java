@@ -36,31 +36,30 @@ import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.activities.components.FormFileSystemHelpers;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.ImageCaptureProcessing;
+import org.commcare.android.javarosa.IntentCallout;
+import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.interfaces.WithUIController;
-import org.commcare.logic.AndroidFormController;
-import org.commcare.utils.CompoundIntentList;
-import org.commcare.views.media.MediaLayout;
-import org.commcare.android.javarosa.IntentCallout;
-import org.commcare.android.javarosa.PollSensorAction;
+import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.interfaces.AdvanceToNextListener;
+import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.interfaces.WidgetChangedListener;
-import org.commcare.logging.AndroidLogger;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
+import org.commcare.logic.AndroidFormController;
 import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.Base64Wrapper;
+import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.SessionUnavailableException;
@@ -70,6 +69,7 @@ import org.commcare.views.QuestionsView;
 import org.commcare.views.ResizingImageView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.media.MediaLayout;
 import org.commcare.views.widgets.BarcodeWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
@@ -162,7 +162,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @SuppressLint("NewApi")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         instanceState = new FormEntryInstanceState();
 
         // must be at the beginning of any activity that can be called from an external intent
@@ -383,7 +382,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     return q;
                 }
             }
-            Logger.log(AndroidLogger.SOFT_ASSERT,
+            Logger.log(LogTypes.SOFT_ASSERT,
                     "getPendingWidget couldn't find question widget with a form index that " +
                             "matches the pending callout.");
         }
@@ -801,7 +800,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             } catch (IllegalArgumentException e) {
                 // Thrown when given receiver isn't registered.
                 // This shouldn't ever happen, but seems to come up in production
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, e.getMessage());
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, e.getMessage());
             }
         }
 
@@ -836,7 +835,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 inlineVideo.seekTo(positionOfVideoProgress);
                 inlineVideo.start();
             } else {
-                Logger.log(AndroidLogger.SOFT_ASSERT,
+                Logger.log(LogTypes.SOFT_ASSERT,
                         "No inline video was found at the question widget index for which a " +
                                 "video had been playing before the activity was paused");
             }
