@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.util.Pair;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
@@ -27,9 +28,6 @@ import org.commcare.views.SquareButtonWithText;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.javarosa.core.services.locale.Localization;
-
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 
