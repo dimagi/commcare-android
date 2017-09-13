@@ -887,6 +887,11 @@ public class CommCareApplication extends Application {
         return true;
     }
 
+    public boolean isPostUpdateSyncNeeded() {
+        return getCurrentApp().getAppPreferences()
+                .getBoolean(CommCarePreferences.POST_UPDATE_SYNC_NEEDED, false);
+    }
+
     public boolean isStorageAvailable() {
         try {
             File storageRoot = new File(getAndroidFsRoot());

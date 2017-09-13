@@ -1010,13 +1010,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         startActivityForResult(i, MODEL_RESULT);
     }
 
-    /**
-     * Triggered when an automatic sync is pending
-     */
-    private void handlePendingSync() {
-        long lastSync = CommCareApplication.instance().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
-        String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
-        Logger.log(LogTypes.TYPE_USER, "autosync triggered. Last Sync|" + footer);
+    private void triggerSync(boolean triggeredByAutoSyncPending) {
+        if (triggeredByAutoSyncPending) {
+            long lastSync = CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                    .getLong(CommCarePreferences.LAST_SYNC_ATTEMPT, 0);
+            String footer = lastSync == 0 ? "never" :
+                    SimpleDateFormat.getDateTimeInstance().format(lastSync);
+            Logger.log(LogTypes.TYPE_USER, "autosync triggered. Last Sync|" + footer);
+        }
 
         refreshUI();
         sendFormsOrSync(false);
@@ -1048,8 +1049,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
 
         if (CommCareApplication.instance().isSyncPending(false)) {
-            // There is a sync pending
-            handlePendingSync();
+            triggerSync(true);
+        } else if (CommCareApplication.instance().isPostUpdateSyncNeeded()) {
+            triggerSync(false);
         } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
             return;
         } else {
