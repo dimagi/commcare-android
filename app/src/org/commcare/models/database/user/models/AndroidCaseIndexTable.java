@@ -143,7 +143,7 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
                 Pair<String, String> index  = new Pair<> (targetCase, relationship);
 
                 Vector<Pair<String, String>> indexList;
-                if(!caseIndexMap.containsKey(caseRecordId)) {
+                if (!caseIndexMap.containsKey(caseRecordId)) {
                     indexList = new Vector<>();
                 } else {
                     indexList = caseIndexMap.get(caseRecordId);
@@ -276,7 +276,7 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
 
                     String cacheID = indexName + "|" + target;
                     Vector<Integer> cache;
-                    if(indexCache.containsKey(cacheID)){
+                    if (indexCache.containsKey(cacheID)){
                         cache = indexCache.get(cacheID);
                     } else {
                         cache = new Vector<>();
@@ -309,7 +309,7 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
         //NOTE: This is possibly slower than it appears. I think the cast screws up sqlites's
         //ability to do an indexed match
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(cuedCases, "CAST(? as INT)");
-        for(Pair<String, String[]> querySet : whereParamList) {
+        for (Pair<String, String[]> querySet : whereParamList) {
 
             String query =String.format(
                     "SELECT %s,%s " +
@@ -367,7 +367,7 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
         db.beginTransaction();
         try {
             wipeTable();
-            for(ACase c : caseStorage) {
+            for (ACase c : caseStorage) {
                 indexCase(c);
             }
             db.setTransactionSuccessful();

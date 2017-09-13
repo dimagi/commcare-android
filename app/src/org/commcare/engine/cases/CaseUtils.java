@@ -143,7 +143,7 @@ public class CaseUtils {
 
             Vector<Pair<String, String>> indices = caseIndexMap.get(caseRecordId);
 
-            if(indices != null) {
+            if (indices != null) {
                 // In order to deal with multiple indices pointing to the same case with different
                 // relationships, we'll need to traverse once to eliminate any ambiguity
                 for (Pair<String, String> index : indices) {

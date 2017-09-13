@@ -394,11 +394,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         int firstIndex = 0;
         projection[firstIndex] = DatabaseHelper.ID_COL;
         firstIndex++;
-        if(includeData) {
+        if (includeData) {
             projection[firstIndex] = DatabaseHelper.DATA_COL;
             firstIndex++;
         }
-        for(int i = 0; i < metaDataToInclude.length ; ++i) {
+        for (int i = 0; i < metaDataToInclude.length ; ++i) {
             projection[i + firstIndex] = TableBuilder.scrubName(metaDataToInclude[i]);
         }
 

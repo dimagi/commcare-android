@@ -125,11 +125,11 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
     private HashMap<String, Integer> metaDataColumnMap = new HashMap<>();
 
     public String peekIncludedMetadata(String metadataKey) {
-        if(!metaDataIndexSet.contains(metadataKey)) {
+        if (!metaDataIndexSet.contains(metadataKey)) {
             throw new RuntimeException("Invalid iterator metadata request for key: " + metadataKey);
         }
         int columnIndex;
-        if(metaDataColumnMap.containsKey(metadataKey)) {
+        if (metaDataColumnMap.containsKey(metadataKey)) {
             columnIndex = metaDataColumnMap.get(metadataKey);
         } else {
             String columnName = TableBuilder.scrubName(metadataKey);
