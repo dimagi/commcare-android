@@ -3,12 +3,12 @@ package org.commcare.adapters;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
@@ -55,10 +55,11 @@ public class MenuAdapter extends BaseAdapter {
     private Exception loadError;
     private String errorMessage = "";
     final CommCareActivity context;
-    final MenuDisplayable[] displayableData;
+    private final MenuDisplayable[] displayableData;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private SparseArray<String> badgeCache = new SparseArray<>();
 
-    class MenuLogger implements LoggerInterface {
+    private class MenuLogger implements LoggerInterface {
 
         @Override
         public void logError(String message, Exception cause) {
@@ -137,24 +138,25 @@ public class MenuAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View menuListItem, ViewGroup vg) {
-        MenuDisplayable menuDisplayable = displayableData[i];
+        MenuViewHolder menuViewHolder;
 
         if (menuListItem == null) {
             // inflate it and do not attach to parent, or we will get the 'addView not supported' exception
-            menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_list_item_modern, vg, false);
+            menuListItem = LayoutInflater.from(context).inflate(getListItemLayoutResource(), vg, false);
+            menuViewHolder = new MenuViewHolder(menuListItem);
+        } else {
+            menuViewHolder = (MenuViewHolder)menuListItem.getTag();
         }
 
-        TextView rowText = (TextView)menuListItem.findViewById(R.id.row_txt);
-        setupTextView(rowText, menuDisplayable);
+        MenuDisplayable menuDisplayable = displayableData[i];
 
-        AudioPlaybackButton audioPlaybackButton = (AudioPlaybackButton)menuListItem.findViewById(R.id.row_soundicon);
-        setupAudioButton(i, audioPlaybackButton, menuDisplayable);
-
+        setupTextView(menuViewHolder.rowText, menuDisplayable);
+        setupAudioButton(i, menuViewHolder.audioPlaybackButton, menuDisplayable);
         // set up the image, if available
-        ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
-        setupImageView(mIconView, menuDisplayable);
+        setupImageView(menuViewHolder.iconView, menuDisplayable, getImageViewDimenResource());
+        setupBadgeView(menuViewHolder.badgeView, menuDisplayable, i);
 
-        setupBadgeView(menuListItem, menuDisplayable);
+        menuListItem.setTag(menuViewHolder);
         return menuListItem;
     }
 
@@ -178,12 +180,11 @@ public class MenuAdapter extends BaseAdapter {
         } else {
             if (audioPlaybackButton != null) {
                 audioPlaybackButton.modifyButtonForNewView(viewId, audioURI, false);
-                ((LinearLayout)audioPlaybackButton.getParent()).removeView(audioPlaybackButton);
             }
         }
     }
 
-    public void setupTextView(TextView textView, MenuDisplayable menuDisplayable) {
+    private void setupTextView(TextView textView, MenuDisplayable menuDisplayable) {
         String mQuestionText = menuDisplayable.getDisplayText();
 
         //Final change, remove any numeric context requests. J2ME uses these to
@@ -194,14 +195,9 @@ public class MenuAdapter extends BaseAdapter {
         textView.setText(mQuestionText);
     }
 
-    public void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable) {
-        setupImageView(mIconView, menuDisplayable, (int)context.getResources().getDimension(R.dimen.list_icon_bounding_dimen));
-    }
-
-
-    public void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable, int defaultBoundingBox) {
+    private void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable, int boundingDimensionResource) {
         if (mIconView != null) {
-            int iconDimension = defaultBoundingBox;
+            int iconDimension = (int)context.getResources().getDimension(boundingDimensionResource);
             Bitmap image = MediaUtil.inflateDisplayImage(context, menuDisplayable.getImageURI(),
                     iconDimension, iconDimension);
             if (image != null) {
@@ -213,25 +209,37 @@ public class MenuAdapter extends BaseAdapter {
         }
     }
 
-    protected void setupBadgeView(View menuListItem, MenuDisplayable menuDisplayable) {
-        View badgeView = menuListItem.findViewById(R.id.badge_view);
-        compositeDisposable.add(
-                menuDisplayable.getTextForBadge(asw.getEvaluationContext(menuDisplayable.getCommandID()))
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(badgeText -> updateBadgeView(badgeView, badgeText),
-                                throwable -> UserfacingErrorHandling.createErrorDialog(context, throwable.getLocalizedMessage(), true)
-                        )
-        );
+    private void setupBadgeView(View badgeView, MenuDisplayable menuDisplayable, int position) {
+        badgeView.setVisibility(View.GONE);
+        badgeView.setTag(position);
+
+        if (badgeCache.get(position) != null) {
+            updateBadgeView(badgeView, badgeCache.get(position));
+        } else {
+            compositeDisposable.add(
+                    menuDisplayable.getTextForBadge(asw.getEvaluationContext(menuDisplayable.getCommandID()))
+                            .subscribeOn(Schedulers.computation())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(badgeText -> {
+                                        // Make sure that badgeView corresponds to the right position and update it
+                                        if (((int)badgeView.getTag()) == position) {
+                                            updateBadgeView(badgeView, badgeText);
+                                        }
+                                    },
+                                    throwable -> UserfacingErrorHandling.createErrorDialog(context, throwable.getLocalizedMessage(), true)
+                            )
+            );
+        }
     }
 
     private void updateBadgeView(View badgeView, String badgeText) {
+        badgeCache.put((Integer)badgeView.getTag(), badgeText);
         if (badgeText != null && !"".equals(badgeText) && !"0".equals(badgeText)) {
-            if (badgeText.length() > 2) {
-                // A badge can only fit up to 2 characters
-                badgeText = badgeText.substring(0, 2);
+            if (badgeText.length() > 3) {
+                // A badge can only fit up to 3 characters
+                badgeText = badgeText.substring(0, 3);
             }
-            TextView badgeTextView = (TextView)badgeView.findViewById(R.id.badge_text);
+            TextView badgeTextView = badgeView.findViewById(R.id.badge_text);
             badgeTextView.setText(badgeText);
             badgeView.setVisibility(View.VISIBLE);
         } else {
@@ -253,6 +261,14 @@ public class MenuAdapter extends BaseAdapter {
             iconChoice = NavIconState.NONE;
         }
         return iconChoice;
+    }
+
+    protected int getImageViewDimenResource() {
+        return R.dimen.list_icon_bounding_dimen;
+    }
+
+    protected int getListItemLayoutResource() {
+        return R.layout.menu_list_item_modern;
     }
 
     protected void setupDefaultIcon(ImageView mIconView, NavIconState iconChoice) {
@@ -277,6 +293,7 @@ public class MenuAdapter extends BaseAdapter {
      */
     public void onDestory() {
         compositeDisposable.clear();
+        badgeCache.clear();
     }
 
     @Override
@@ -302,5 +319,19 @@ public class MenuAdapter extends BaseAdapter {
     @Override
     public void unregisterDataSetObserver(DataSetObserver arg0) {
 
+    }
+
+    private static class MenuViewHolder {
+        private TextView rowText;
+        private AudioPlaybackButton audioPlaybackButton;
+        private ImageView iconView;
+        private View badgeView;
+
+        private MenuViewHolder(View menuListItem) {
+            rowText = menuListItem.findViewById(R.id.row_txt);
+            audioPlaybackButton = menuListItem.findViewById(R.id.row_soundicon);
+            iconView = menuListItem.findViewById(R.id.row_img);
+            badgeView = menuListItem.findViewById(R.id.badge_view);
+        }
     }
 }

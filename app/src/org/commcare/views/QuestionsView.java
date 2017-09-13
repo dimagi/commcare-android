@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logic.PendingCalloutInterface;
@@ -47,7 +48,7 @@ public class QuestionsView extends ScrollView
         implements OnLongClickListener, WidgetChangedListener {
 
     // starter random number for view IDs
-    private final static int VIEW_ID = 12345;  
+    private final static int VIEW_ID = 12345;
 
     private final LinearLayout mView;
     private final LinearLayout.LayoutParams mLayout;
@@ -55,10 +56,10 @@ public class QuestionsView extends ScrollView
     private final ArrayList<View> dividers;
 
     private final int mQuestionFontsize;
-    
+
     private WidgetChangedListener wcListener;
     private boolean hasListener = false;
-    
+
     private int widgetIdCount = 0;
     private int mViewBannerCount = 0;
 
@@ -84,7 +85,7 @@ public class QuestionsView extends ScrollView
         widgets = new ArrayList<>();
         dividers = new ArrayList<>();
 
-        mView = (LinearLayout) inflate(getContext(), R.layout.odkview_layout, null);
+        mView = (LinearLayout)inflate(getContext(), R.layout.odkview_layout, null);
 
         mLayout =
                 new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
@@ -99,7 +100,7 @@ public class QuestionsView extends ScrollView
                          WidgetChangedListener wcl, BlockingActionsManager blockingActionsManager) {
         this(context, blockingActionsManager);
 
-        if(wcl !=null){
+        if (wcl != null) {
             hasListener = true;
             wcListener = wcl;
         }
@@ -109,13 +110,13 @@ public class QuestionsView extends ScrollView
 
         String hintText = getHintText(questionPrompts);
         addHintText(hintText);
-        
+
         boolean first = true;
-        
-        for (FormEntryPrompt p: questionPrompts) {
+
+        for (FormEntryPrompt p : questionPrompts) {
             if (!first) {
                 View divider = new View(getContext());
-                if(SEPERATORS_ENABLED) {
+                if (SEPERATORS_ENABLED) {
                     divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
                     divider.setMinimumHeight(3);
                 } else {
@@ -128,22 +129,24 @@ public class QuestionsView extends ScrollView
             }
             QuestionWidget qw;
             // if question or answer type is not supported, use text widget
-            qw = factory.createWidgetFromPrompt(p, getContext());
+            qw = factory.createWidgetFromPrompt(p,
+                    getContext(),
+                    FormEntryActivity.mFormController.indexIsInCompact(p.getIndex()));
             qw.setLongClickable(true);
             qw.setOnLongClickListener(this);
             qw.setId(VIEW_ID + widgetIdCount++);
-            
+
             //Suppress the hint text if we bubbled it
-            if(hintText != null) {
+            if (hintText != null) {
                 qw.hideHintText();
             }
 
             widgets.add(qw);
             mView.addView(qw, mLayout);
-            
+
             qw.setChangedListeners(this, blockingActionsManager);
         }
-        
+
         markLastStringWidget();
 
         addView(mView);
@@ -163,38 +166,38 @@ public class QuestionsView extends ScrollView
             widgets.remove(i);
         }
     }
-    
-    public void removeQuestionsFromIndex(ArrayList<Integer> indexes){
+
+    public void removeQuestionsFromIndex(ArrayList<Integer> indexes) {
         //Always gotta move backwards when removing, ensure that this list
         //goes backwards
         Collections.sort(indexes);
         Collections.reverse(indexes);
-        
-        for(int i=0; i< indexes.size(); i++){
+
+        for (int i = 0; i < indexes.size(); i++) {
             removeQuestionFromIndex(indexes.get(i));
         }
     }
-    
-    public void addQuestionToIndex(FormEntryPrompt fep, WidgetFactory factory, int i){
+
+    public void addQuestionToIndex(FormEntryPrompt fep, WidgetFactory factory, int i, boolean inCompactGroup) {
         View divider = new View(getContext());
-        if(SEPERATORS_ENABLED) {
+        if (SEPERATORS_ENABLED) {
             divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
             divider.setMinimumHeight(3);
         } else {
             divider.setMinimumHeight(0);
         }
         int dividerIndex = mViewBannerCount;
-        if(i > 0) {
+        if (i > 0) {
             dividerIndex += 2 * i - 1;
         }
         mView.addView(divider, getViewIndex(dividerIndex));
         dividers.add(Math.max(0, i - 1), divider);
-        
-        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());
+
+        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext(), inCompactGroup);
         qw.setLongClickable(true);
         qw.setOnLongClickListener(this);
         qw.setId(VIEW_ID + widgetIdCount++);
-        
+
         //Suppress the hint text if we bubbled it
 //        if(hintText != null) { //TODO figure this out
 //            qw.hideHintText();
@@ -202,7 +205,7 @@ public class QuestionsView extends ScrollView
 
         widgets.add(i, qw);
         mView.addView(qw, getViewIndex(2 * i + mViewBannerCount), mLayout);
-        
+
         qw.setChangedListeners(this, blockingActionsManager);
     }
 
@@ -226,26 +229,26 @@ public class QuestionsView extends ScrollView
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int newHeight = MeasureSpec.getSize(heightMeasureSpec);
         int oldHeight = this.getMeasuredHeight();
-        
+
         if (oldHeight == 0 || Math.abs(((newHeight * 1.0 - oldHeight) / oldHeight)) > .2) {
             // Update the frame size and hint height based on the new height
             for (QuestionWidget qw : this.widgets) {
                 qw.updateFrameSize(newHeight);
-                qw.updateHintHeight(newHeight/4);
+                qw.updateHintHeight(newHeight / 4);
             }
         } else {
             // Check to see if any of our QuestionWidgets have a hint text that was initially
             // displayed without proper height spec information
             for (QuestionWidget qw : this.widgets) {
                 if (qw.hintTextNeedsHeightSpec) {
-                    qw.updateHintHeight(newHeight/4);
+                    qw.updateHintHeight(newHeight / 4);
                 }
             }
         }
-        
+
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
-    
+
     private void updateConstraintRelevancies(QuestionWidget changedWidget) {
         if (hasListener) {
             wcListener.widgetEntryChanged(changedWidget);
@@ -266,11 +269,10 @@ public class QuestionsView extends ScrollView
             t = g.getLongText();
             m = g.getMarkdownText();
 
-            if(m != null){
+            if (m != null) {
                 Spannable markdownSpannable = MarkupUtil.returnMarkdown(getContext(), m);
                 s.append(markdownSpannable);
-            }
-            else if (t != null && !t.trim().equals("")) {
+            } else if (t != null && !t.trim().equals("")) {
                 s.append(t);
             } else {
                 continue;
@@ -281,19 +283,19 @@ public class QuestionsView extends ScrollView
             }
             s.append(" > ");
         }
-        
+
         //remove the trailing " > "
-        if(s.length() > 0) {
+        if (s.length() > 0) {
             s.delete(s.length() - 2, s.length());
         }
-        
+
         return s;
     }
-    
-    
+
+
     /**
      * Ugh, the coupling here sucks, but this returns the group label
-     * to be used for this odk view. 
+     * to be used for this odk view.
      */
     public SpannableStringBuilder getGroupLabel() {
         return mGroupLabel;
@@ -434,7 +436,7 @@ public class QuestionsView extends ScrollView
     public boolean onLongClick(View v) {
         return false;
     }
-    
+
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
@@ -451,7 +453,7 @@ public class QuestionsView extends ScrollView
 
     private void markLastStringWidget() {
         StringWidget last = null;
-        for (QuestionWidget q: widgets) {
+        for (QuestionWidget q : widgets) {
             if (q instanceof StringWidget) {
                 if (last != null) {
                     last.setLastQuestion(false);
@@ -461,9 +463,10 @@ public class QuestionsView extends ScrollView
             }
         }
     }
-    
+
     /**
      * Translate question index to view index.
+     *
      * @param questionIndex Index in the list of questions.
      * @return Index of question's view in mView.
      */
@@ -516,15 +519,15 @@ public class QuestionsView extends ScrollView
     public CompoundIntentList getAggregateIntentCallout() {
         CompoundIntentList compoundedCallout = null;
         for (QuestionWidget widget : this.getWidgets()) {
-            if(widget instanceof IntentWidget) {
+            if (widget instanceof IntentWidget) {
                 boolean expectResult = compoundedCallout != null;
                 compoundedCallout = ((IntentWidget)widget).addToCompoundIntent(compoundedCallout);
-                if(compoundedCallout == null && expectResult) {
+                if (compoundedCallout == null && expectResult) {
                     return null;
                 }
             }
         }
-        if(compoundedCallout == null || compoundedCallout.getNumberOfCallouts() <= 1) {
+        if (compoundedCallout == null || compoundedCallout.getNumberOfCallouts() <= 1) {
             return null;
         }
         return compoundedCallout;

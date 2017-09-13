@@ -39,7 +39,7 @@ import org.commcare.tasks.ManageKeyRecordTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 
-import org.commcare.utils.ACRAUtil;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ViewUtil;
@@ -351,7 +351,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void dataPullCompleted() {
-        ACRAUtil.registerUserData();
+        CrashUtil.registerUserData();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
