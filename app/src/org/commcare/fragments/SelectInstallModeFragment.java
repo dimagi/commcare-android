@@ -77,7 +77,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                     if (currentActivity instanceof CommCareSetupActivity) {
                         ((CommCareSetupActivity)currentActivity).clearErrorMessage();
                     }
-                    new IntentIntegrator(getActivity()).initiateScan();
+                    Intent intent = new IntentIntegrator(getActivity()).createScanIntent();
+                    currentActivity.startActivityForResult(intent, CommCareSetupActivity.BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getActivity(), "No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
                     barcodeButtonContainer.setVisibility(View.GONE);

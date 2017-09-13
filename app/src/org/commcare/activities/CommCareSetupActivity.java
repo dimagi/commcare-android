@@ -379,6 +379,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onActivityResult(requestCode, resultCode, data);
         String result = null;
         switch (requestCode) {
+            case BARCODE_CAPTURE:
+                if (resultCode == Activity.RESULT_OK) {
+                    lastInstallMode = INSTALL_MODE_BARCODE;
+                    result = data.getStringExtra("SCAN_RESULT");
+                }
+                break;
             case OFFLINE_INSTALL:
                 if (resultCode == Activity.RESULT_OK) {
                     lastInstallMode = INSTALL_MODE_OFFLINE;
@@ -395,17 +401,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
-        }
-        IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if(intentResult != null) {
-            if(intentResult.getContents() == null) {
-                return;
-            } else {
-                result = intentResult.getContents();
-                String dbg = "Got url from barcode scanner: " + result;
-                Log.i(TAG, dbg);
-                lastInstallMode = INSTALL_MODE_BARCODE;
-            }
+
         }
         if (result == null) {
             return;
