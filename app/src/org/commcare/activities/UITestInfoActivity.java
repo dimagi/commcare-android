@@ -18,7 +18,7 @@ public class UITestInfoActivity extends FragmentActivity {
     private static final String EXTRA_INFO_TYPE = "info_type";
     private TextView infoTv;
 
-    private final int INFO_TYPE_LOG_SUBMISSION = 1;
+    private final String INFO_TYPE_LOG_SUBMISSION = "log_submission";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +30,7 @@ public class UITestInfoActivity extends FragmentActivity {
     }
 
     private void loadInfo() {
-        int infoType = getIntent().getIntExtra(EXTRA_INFO_TYPE, 0);
+        String infoType = getIntent().getStringExtra(EXTRA_INFO_TYPE);
         switch (infoType) {
             case INFO_TYPE_LOG_SUBMISSION:
                 loadLogSubmissionInfo();
