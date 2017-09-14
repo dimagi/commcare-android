@@ -19,6 +19,7 @@ import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -385,12 +386,24 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * have a method to query for all metadata?
      *
      * @param includeData True to return an iterator with all records. False to return only the index.
-     * @param primaryId   a metadata index that
+     * @param metaDataToInclude A set of metadata keys that should be included in the request,
+     *                          independently of any other data.
      */
-    public SqlStorageIterator<T> iterate(boolean includeData, String primaryId) {
-        String[] projection = includeData ? new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, TableBuilder.scrubName(primaryId)} : new String[]{DatabaseHelper.ID_COL, TableBuilder.scrubName(primaryId)};
+    public SqlStorageIterator<T> iterate(boolean includeData, String[] metaDataToInclude) {
+        String[] projection = new String[metaDataToInclude.length + (includeData ? 2 : 1)];
+        int firstIndex = 0;
+        projection[firstIndex] = DatabaseHelper.ID_COL;
+        firstIndex++;
+        if (includeData) {
+            projection[firstIndex] = DatabaseHelper.DATA_COL;
+            firstIndex++;
+        }
+        for (int i = 0; i < metaDataToInclude.length ; ++i) {
+            projection[i + firstIndex] = TableBuilder.scrubName(metaDataToInclude[i]);
+        }
+
         Cursor c = helper.getHandle().query(table, projection, null, null, null, null, DatabaseHelper.ID_COL);
-        return new SqlStorageIterator<>(c, this, TableBuilder.scrubName(primaryId));
+        return new SqlStorageIterator<>(c, this, metaDataToInclude);
     }
 
     @Override
@@ -463,6 +476,27 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
+    public Vector<Integer> removeAll(Vector<Integer> toRemove) {
+        if (toRemove.size() == 0) {
+            return toRemove;
+        }
+
+        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(toRemove);
+
+        SQLiteDatabase db = helper.getHandle();
+        db.beginTransaction();
+        try {
+            for (Pair<String, String[]> whereParams : whereParamList) {
+                db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
+        return toRemove;
+    }
+
     @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
         Vector<Integer> removed = new Vector<>();
@@ -480,25 +514,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                     }
             }
         }
-
-        if (removed.size() == 0) {
-            return removed;
-        }
-
-        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(removed);
-
-        SQLiteDatabase db = helper.getHandle();
-        db.beginTransaction();
-        try {
-            for (Pair<String, String[]> whereParams : whereParamList) {
-                db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
-            }
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
-
-        return removed;
+        return removeAll(removed);
     }
 
     @Override

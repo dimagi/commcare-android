@@ -5,8 +5,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -16,6 +18,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
+import org.commcare.activities.UITestInfoActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.dalvik.R;
@@ -492,6 +495,7 @@ public class CommCareSessionService extends Service {
             public void beginSubmissionProcess(int totalItems) {
                 this.totalItems = totalItems;
 
+                setLogSubmissionResultPref(false);
                 //We always want this click to simply bring the live stack back to the top
                 Intent callable = new Intent(CommCareSessionService.this, DispatchActivity.class);
                 callable.setAction("android.intent.action.MAIN");
@@ -559,6 +563,12 @@ public class CommCareSessionService extends Service {
                 totalItems = -1;
                 currentSize = -1;
                 lastUpdate = 0;
+                setLogSubmissionResultPref(success);
+            }
+
+            private void setLogSubmissionResultPref(boolean success) {
+                SharedPreferences globalPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                globalPreferences.edit().putBoolean(UITestInfoActivity.LOG_SUBMISSION_RESULT_PREF, success).commit();
             }
 
             private String getSubmittedFormCount(int current, int total) {

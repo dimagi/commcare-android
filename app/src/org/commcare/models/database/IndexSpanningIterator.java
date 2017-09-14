@@ -192,9 +192,4 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
     public int peekID() {
         return current;
     }
-
-    @Override
-    public String getPrimaryId() {
-        throw new RuntimeException("Primary ID Not requested by this iterator");
-    }
 }

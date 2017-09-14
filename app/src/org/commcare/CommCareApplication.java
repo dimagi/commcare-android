@@ -164,10 +164,9 @@ public class CommCareApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        CommCareApplication.app = this;
         CrashUtil.init(this);
         configureCommCareEngineConstantsAndStaticRegistrations();
-
-        CommCareApplication.app = this;
         noficationManager = new CommCareNoficationManager(this);
 
         //TODO: Make this robust
@@ -886,6 +885,11 @@ public class CommCareApplication extends Application {
             syncPending = false;
         }
         return true;
+    }
+
+    public boolean isPostUpdateSyncNeeded() {
+        return getCurrentApp().getAppPreferences()
+                .getBoolean(CommCarePreferences.POST_UPDATE_SYNC_NEEDED, false);
     }
 
     public boolean isStorageAvailable() {
