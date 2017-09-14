@@ -380,6 +380,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 if (resultCode == Activity.RESULT_OK) {
                     lastInstallMode = INSTALL_MODE_BARCODE;
                     result = data.getStringExtra("SCAN_RESULT");
+                    Log.i(TAG, "Got url from barcode scanner: " + result);
                 }
                 break;
             case OFFLINE_INSTALL:
