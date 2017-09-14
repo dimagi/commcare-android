@@ -177,19 +177,22 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
             //If the form is complete, but unprocessed, process it.
             if (FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
-                SQLiteDatabase db =
+                SQLiteDatabase userDb =
                         CommCareApplication.instance().getUserDbHandle();
-                db.beginTransaction();
                 try {
-                    records[i] = processor.process(record);
-                    db.setTransactionSuccessful();
+                    userDb.beginTransaction();
+                    try {
+                        records[i] = processor.process(record);
+                        userDb.setTransactionSuccessful();
+                    }
+                    finally {
+                        userDb.endTransaction();
+                    }
                 } catch (InvalidStructureException | XmlPullParserException |
                         UnfullfilledRequirementsException e) {
-                    db.endTransaction();
                     records[i] = handleExceptionFromFormProcessing(record, e);
                     needToSendLogs = true;
                 } catch (FileNotFoundException e) {
-                    db.endTransaction();
                     if (CommCareApplication.instance().isStorageAvailable()) {
                         //If storage is available generally, this is a bug in the app design
                         Logger.log(LogTypes.TYPE_ERROR_DESIGN,
@@ -205,14 +208,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         throw e;
                     }
                 } catch (IOException e) {
-                    db.endTransaction();
                     Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. " +
                             "Tentatively not removing in case they are resolvable|" + getExceptionText(e));
-                } catch (Throwable e) {
-                    // This catch block is here just to makes sure we end the transaction no matter
-                    // what, but we still want to re-throw the exception
-                    db.endTransaction();
-                    throw e;
                 }
             }
         }
