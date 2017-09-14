@@ -400,6 +400,11 @@
         </activity>
         <activity android:name="org.commcare.activities.PromptApkUpdateActivity"/>
         <activity android:name="org.commcare.activities.PromptCczUpdateActivity"/>
+        <activity android:name="org.commcare.activities.UITestInfoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+            </intent-filter>
+        </activity>
 
         <!-- Start Collect Manifest -->
 
