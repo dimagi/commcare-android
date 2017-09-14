@@ -773,3 +773,7 @@ calendar.low.year=Year value below min value of
 calendar.high.year=Year value above max value of ${0}
 calendar.low.day=Day value below min value of 1
 calendar.high.day=Day value above max value of ${0}
+
+quarantine.reason.local.processing=Local processing of the form failed
+quarantine.reason.record.error=There was an issue with the record that prevented submission
+quarantine.reason.manual=The form was manually quarantined by a user

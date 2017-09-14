@@ -74,12 +74,9 @@ public class FormRecord extends Persisted implements EncryptedModel {
      */
     public static final String STATUS_JUST_DELETED = "just-deleted";
 
-    public static final String QuarantineReason_LOCAL_PROCESSING_ERROR =
-            "Local processing of the form failed";
-    public static final String QuarantineReason_RECORD_ERROR =
-            "There was an issue with the record that prevented submission";
-    public static final String QuarantineReason_MANUAL =
-            "The form was manually quarantined by a user";
+    public static final String QuarantineReason_LOCAL_PROCESSING_ERROR = "local-processing-error";
+    public static final String QuarantineReason_RECORD_ERROR = "record-error";
+    public static final String QuarantineReason_MANUAL = "manual-quarantine";
 
     @Persisting(1)
     @MetaField(META_XMLNS)
