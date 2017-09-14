@@ -2,7 +2,6 @@ package org.commcare.tasks;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
