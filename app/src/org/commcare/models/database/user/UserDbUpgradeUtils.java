@@ -194,7 +194,6 @@ public class UserDbUpgradeUtils {
                     oldRecord.getInstanceID(),
                     oldRecord.lastModified(),
                     oldRecord.getAppId());
-            newRecord.setReasonForQuarantine(null);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
