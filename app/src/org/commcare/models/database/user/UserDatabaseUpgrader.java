@@ -568,7 +568,7 @@ class UserDatabaseUpgrader {
         db.beginTransaction();
         try {
             UserDbUpgradeUtils.addRelationshipToAllCases(c, db);
-            UserDbUpgradeUtils.migrateFormRecords(c, db);
+            UserDbUpgradeUtils.migrateFormRecordsToV3(c, db);
             db.setTransactionSuccessful();
             return true;
         } finally {

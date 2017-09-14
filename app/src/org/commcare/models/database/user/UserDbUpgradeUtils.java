@@ -175,7 +175,7 @@ public class UserDbUpgradeUtils {
         indexTable.reIndexAllCases(caseStorage);
     }
 
-    protected static void migrateFormRecords(Context c, SQLiteDatabase db) {
+    protected static void migrateFormRecordsToV3(Context c, SQLiteDatabase db) {
         SqlStorage<FormRecordV3> oldStorage = new SqlStorage<>(
                 FormRecord.STORAGE_KEY,
                 FormRecordV3.class,
