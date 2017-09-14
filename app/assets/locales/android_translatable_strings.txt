@@ -95,17 +95,17 @@ menu.privilege.claim.disable=Disable Privileges
 sync.success.sent.none=No forms sent to server!
 sync.success.sent.singular=1 form sent to server!
 sync.success.sent=${0} forms sent to server!
-sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
-sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
-
 sync.success.synced=Sync Successful! Your information is up to date.
 
+sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
 sync.fail.auth.loggedin=Password has changed. Please log in with updated credentials
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occurred with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
 sync.fail.server.error=The server had an error processing your data. Please try again later. If the problem persists, contact technical support.
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
+sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
+sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
 
 sync.communicating.title=Communicating with Server
 sync.waiting.title=Waiting for Server Progress
@@ -588,9 +588,13 @@ notification.case.filter.action=Sorting failed because CommCare expected a numbe
 notification.send.malformed.title=Bad Form on SD Card
 notification.send.malformed.detail=The file ${0} on your SD card was malformed and couldn't be read. It has been removed as a precaution.
 
-notification.sending.quarantine.title=Form Record Quarantined
-notification.sending.quarantine.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
-notification.sending.quarantine.action=You can view the record in the saved records screen by checking the quarantine filter. From there you can restore quarantined records back onto the unsent queue to try to submit them again. Restarting the device and/or ejecting and re-inserting your external storage first may correct the issue. 
+notification.quarantine.record.issue.title=Form Record Quarantined
+notification.quarantine.record.issue.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
+notification.quarantine.record.issue.action=You can view this record by visiting the Saved screen and checking the Quarantined Forms filter. From there, you can place this record back onto the unsent queue to try to submit it again. Restarting the device and/or ejecting and re-inserting your external storage first may correct this issue.
+
+notification.quarantine.local.processing.title=Form Record Quarantined
+notification.quarantine.local.processing.detail=CommCare could not process one of your forms. This can happen when the form's submission xml has an invalid structure.
+notification.quarantine.local.processing.action=You can view this record by visiting the Saved screen and checking the quarantine filter. However, it is not possible to try to submit this form again by placing it back onto the unsent queue.
 
 notification.formrecord.files.missing.title=Form Record Missing
 notification.formrecord.files.missing.detail=The files for one of your forms are missing. This can happen due to corruption of the storage layer or deletion of the files by other programs.
@@ -769,3 +773,7 @@ calendar.low.year=Year value below min value of
 calendar.high.year=Year value above max value of ${0}
 calendar.low.day=Day value below min value of 1
 calendar.high.day=Day value above max value of ${0}
+
+quarantine.reason.local.processing=Local processing of the form failed
+quarantine.reason.record.error=There was an issue with the record that prevented submission
+quarantine.reason.manual=The form was manually quarantined by a user
