@@ -34,7 +34,8 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
         this.c = cursor;
         storage = null;
 
-        //This will result in the right exception being thrown if metadata is missing
+        //Since metadata requests fail if the key is missing, a blank set should be sufficient
+        //and not require subclasses to re-implement the peek method as not-implemented
         metaDataIndexSet = new HashSet<>();
         count = -1;
     }
@@ -124,6 +125,14 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 
     private HashMap<String, Integer> metaDataColumnMap = new HashMap<>();
 
+    /**
+     * Retrieves the indexed metadata for the current record _without_ advancing 
+     * the iterator, so this needs to be called _before_ next() or nextId()
+     *
+     * @param metadataKey The metadata key for this Serializable record. Would be
+     *                    the same key used with T.getMetaData()
+     * @throws RuntimeException If this iterator was not intialized with metadata
+     */
     public String peekIncludedMetadata(String metadataKey) {
         if (!metaDataIndexSet.contains(metadataKey)) {
             throw new RuntimeException("Invalid iterator metadata request for key: " + metadataKey);
