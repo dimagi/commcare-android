@@ -7,6 +7,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecordV2;
+import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
@@ -479,7 +480,7 @@ class UserDatabaseUpgrader {
 
             Set<String> idsOfAppsWithOldFormRecords =
                     UserDbUpgradeUtils.getAppIdsForRecords(oldStorage);
-            Vector<FormRecord> upgradedRecords = new Vector<>();
+            Vector<FormRecordV3> upgradedRecords = new Vector<>();
 
             for (String appId : idsOfAppsWithOldFormRecords) {
                 migrateV2FormRecordsForSingleApp(appId, oldStorage, upgradedRecords);
@@ -487,11 +488,11 @@ class UserDatabaseUpgrader {
 
             // Add new column to db and then write all of the new records
             UserDbUpgradeUtils.addFormNumberColumnToTable(db);
-            SqlStorage<FormRecord> newStorage = new SqlStorage<>(
+            SqlStorage<FormRecordV3> newStorage = new SqlStorage<>(
                     FormRecord.STORAGE_KEY,
-                    FormRecord.class,
+                    FormRecordV3.class,
                     new ConcreteAndroidDbHelper(c, db));
-            for (FormRecord r : upgradedRecords) {
+            for (FormRecordV3 r : upgradedRecords) {
                 newStorage.write(r);
             }
 
@@ -576,10 +577,9 @@ class UserDatabaseUpgrader {
 
     }
 
-
     private void migrateV2FormRecordsForSingleApp(String appId,
                                                   SqlStorage<FormRecordV2> oldStorage,
-                                                  Vector<FormRecord> upgradedRecords) {
+                                                  Vector<FormRecordV3> upgradedRecords) {
         Vector<Integer> recordIds = oldStorage.getIDsForValue(FormRecord.META_APP_ID, appId);
 
         // Sort the old record ids by their last modified date, which is how form submission
@@ -589,7 +589,7 @@ class UserDatabaseUpgrader {
         int submissionNumber = 0;
         for (int i = 0; i < recordIds.size(); i++) {
             FormRecordV2 oldRecord = oldStorage.read(recordIds.elementAt(i));
-            FormRecord newRecord = new FormRecord(
+            FormRecordV3 newRecord = new FormRecordV3(
                     oldRecord.getInstanceURIString(),
                     oldRecord.getStatus(),
                     oldRecord.getFormNamespace(),

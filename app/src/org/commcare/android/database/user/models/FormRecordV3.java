@@ -90,4 +90,8 @@ public class FormRecordV3 extends Persisted {
         return this.appId;
     }
 
+    public void setFormNumberForSubmissionOrdering(int num) {
+        this.submissionOrderingNumber = ""+num;
+    }
+
 }
