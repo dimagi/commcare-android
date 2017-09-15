@@ -254,8 +254,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             this.lastUsernameUsed = username;
             this.lastPasswordUsed = password;
             final View processingRequestView = findViewById(R.id.processing_request_view);
-            ModernHttpTask task =  new ModernHttpTask(this, urlToTry, new HashMap(),
-                    CommcareRequestGenerator.getHeaders(""), new Pair(username, password)){
+            ModernHttpTask task = new ModernHttpTask(this, urlToTry, new HashMap(),
+                    CommcareRequestGenerator.getHeaders(""), new Pair(username, password)) {
 
                 @Override
                 protected void onPreExecute() {
@@ -361,12 +361,12 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     @Override
-    public void handleException(Exception exception) {
-        if (exception instanceof IOException) {
+    public void handleIOException(IOException exception) {
+        if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException while sending get available apps request: Sending password over HTTP");
+        } else if (exception instanceof IOException) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "An IOException was encountered during get available apps request: " + exception.getMessage());
-        } else if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
-            Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Encountered PlainTextPasswordException while sending get available apps request: Sending password over HTTP");
         }
         repeatRequestOrShowResults(true, false);
     }

@@ -78,13 +78,13 @@ public class HeartbeatRequester {
         }
 
         @Override
-        public void handleException(Exception exception) {
-            if (exception instanceof IOException) {
+        public void handleIOException(IOException exception) {
+            if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
+                Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException while sending heartbeat request: Sending password over HTTP");
+            } else if (exception instanceof IOException) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "Encountered IOException while getting response stream for heartbeat response: "
                                 + exception.getMessage());
-            } else if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
-                Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Encountered PlainTextPasswordException while sending heartbeat request: Sending password over HTTP");
             }
         }
 

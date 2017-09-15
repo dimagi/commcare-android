@@ -263,11 +263,11 @@ public class QueryRequestActivity
     }
 
     @Override
-    public void handleException(Exception exception) {
-        if (exception instanceof IOException) {
+    public void handleIOException(IOException exception) {
+        if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
+            enterErrorState(Localization.get("auth.request.not.using.https", remoteQuerySessionManager.getBaseUrl().toString()));
+        } else if (exception instanceof IOException) {
             enterErrorState(Localization.get("post.io.error", exception.getMessage()));
-        } else if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
-            enterErrorState(Localization.get("post.not.using.https", remoteQuerySessionManager.getBaseUrl().toString()));
         }
     }
 

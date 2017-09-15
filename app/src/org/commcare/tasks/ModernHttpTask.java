@@ -32,7 +32,7 @@ public class ModernHttpTask
     private final ModernHttpRequester requester;
     private int responseCode;
     private InputStream responseDataStream;
-    private Exception exception;
+    private IOException exception;
 
     // Use for GET request
     public ModernHttpTask(Context context, String url, HashMap<String, String> params,
@@ -69,7 +69,7 @@ public class ModernHttpTask
     protected void deliverResult(HttpResponseProcessor httpResponseProcessor,
                                  Void result) {
         if (exception != null) {
-            httpResponseProcessor.handleException(exception);
+            httpResponseProcessor.handleIOException(exception);
         } else {
             // route to appropriate callback based on http response code
             ModernHttpRequester.processResponse(
@@ -113,7 +113,7 @@ public class ModernHttpTask
     }
 
     @Override
-    public void handleException(Exception exception) {
+    public void handleIOException(IOException exception) {
         this.exception = exception;
     }
 

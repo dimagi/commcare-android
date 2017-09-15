@@ -111,12 +111,16 @@ public class PostRequestActivity
     }
 
     private void makePostRequest() {
-        if (!hasTaskLaunched && !inErrorState) {
-            RequestBody requestBody = ModernHttpRequester.getPostBody(params);
-            ModernHttpTask postTask = new ModernHttpTask(this, url.toString(), new HashMap(), new HashMap(), requestBody, HTTPMethod.POST, null);
-            postTask.connect((CommCareTaskConnector)this);
-            postTask.executeParallel();
-            hasTaskLaunched = true;
+        try {
+            if (!hasTaskLaunched && !inErrorState) {
+                RequestBody requestBody = ModernHttpRequester.getPostBody(params);
+                ModernHttpTask postTask = new ModernHttpTask(this, url.toString(), new HashMap(), getContentHeadersForXFormPost(requestBody), requestBody, HTTPMethod.POST, null);
+                postTask.connect((CommCareTaskConnector)this);
+                postTask.executeParallel();
+                hasTaskLaunched = true;
+            }
+        } catch (IOException e) {
+            handleIOException(e);
         }
     }
 
@@ -139,6 +143,14 @@ public class PostRequestActivity
         hasTaskLaunched = false;
         makePostRequest();
     }
+
+    private HashMap<String, String> getContentHeadersForXFormPost(RequestBody postBody) throws IOException {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/x-www-form-urlencoded");
+        headers.put("Content-Length", String.valueOf(postBody.contentLength()));
+        return headers;
+    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
@@ -192,11 +204,11 @@ public class PostRequestActivity
     }
 
     @Override
-    public void handleException(Exception exception) {
-        if (exception instanceof IOException) {
+    public void handleIOException(IOException exception) {
+        if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
+            enterErrorState(Localization.get("auth.request.not.using.https", url.toString()));
+        } else if (exception instanceof IOException) {
             enterErrorState(Localization.get("post.io.error", exception.getMessage()));
-        } else if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
-            enterErrorState(Localization.get("post.not.using.https", url.toString()));
         }
     }
 

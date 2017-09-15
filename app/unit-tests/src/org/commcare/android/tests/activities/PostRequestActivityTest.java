@@ -56,7 +56,7 @@ public class PostRequestActivityTest {
     public void postingToNonHttpsURLTest() {
         String urlString = "http://bad.url.com";
         PostRequestActivity postRequestActivity = buildPostActivity(urlString);
-        assertErrorMessage(postRequestActivity, true, Localization.get("post.not.using.https", urlString));
+        assertErrorMessage(postRequestActivity, true, Localization.get("auth.request.not.using.https", urlString));
     }
 
     private static void assertErrorMessage(PostRequestActivity postRequestActivity,
