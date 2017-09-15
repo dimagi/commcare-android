@@ -933,7 +933,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void deliverLoadError(Exception e) {
-        displayCaseListFilterException(e);
+        displayCaseListLoadException(e);
     }
 
     @Override

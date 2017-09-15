@@ -28,10 +28,12 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.SerializationUtil;
+import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.xpath.XPathException;
 
 import java.util.HashMap;
 import java.util.Vector;
@@ -100,8 +102,12 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 selectDatum.getNodeset());
 
         Vector<Entity<TreeReference>> entities = new Vector<>();
-        for (TreeReference ref : references) {
-            entities.add(factory.getEntity(ref));
+        try {
+            for (TreeReference ref : references) {
+                entities.add(factory.getEntity(ref));
+            }
+        } catch (XPathException xe) {
+            UserfacingErrorHandling.logErrorAndShowDialog(this, xe, true);
         }
         return entities;
     }

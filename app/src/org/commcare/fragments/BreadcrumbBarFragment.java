@@ -40,10 +40,12 @@ import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.EntityViewTile;
 import org.commcare.views.TabbedDetailView;
+import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.NoLocalizedTextException;
+import org.javarosa.xpath.XPathException;
 
 import java.util.Vector;
 
@@ -98,7 +100,11 @@ public class BreadcrumbBarFragment extends Fragment {
             attachBreadcrumbBar(activity, actionBar);
         }
 
-        this.tile = findAndLoadCaseTile(activity);
+        try {
+            this.tile = findAndLoadCaseTile(activity);
+        } catch (XPathException xe) {
+            UserfacingErrorHandling.logErrorAndShowDialog((CommCareActivity)getActivity(), xe, true);
+        }
     }
 
     private void configureSimpleNav(Activity activity, ActionBar actionBar) {
@@ -271,12 +277,12 @@ public class BreadcrumbBarFragment extends Fragment {
      */
     public boolean collapseTileIfExpanded(Activity activity) {
         View holder = tile;
-        if(holder == null) {
+        if (holder == null) {
             return false;
         }
 
         boolean isExpanded = INLINE_TILE_EXPANDED.equals(holder.getTag());
-        if(!isExpanded) {
+        if (!isExpanded) {
             return false;
         }
 

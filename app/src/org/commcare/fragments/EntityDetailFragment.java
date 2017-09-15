@@ -11,9 +11,11 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.adapters.EntityDetailAdapter;
 import org.commcare.adapters.ListItemViewModifier;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
@@ -21,10 +23,14 @@ import org.commcare.interfaces.ModifiableEntityDetailAdapter;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.suite.model.Detail;
 import org.commcare.cases.entity.EntityUtil;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.SerializationUtil;
+import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
+import org.javarosa.xpath.XPathException;
 
 /**
  * Fragment to display Detail content. Not meant for handling nested Detail objects.
@@ -78,16 +84,20 @@ public class EntityDetailFragment extends Fragment {
         NodeEntityFactory factory = new NodeEntityFactory(detailForDisplay, contextForFactory);
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
-        final Activity thisActivity = getActivity();
-        final Entity entity = factory.getEntity(referenceToDisplay);
-        final DetailCalloutListener detailCalloutListener =
-                thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener)thisActivity) : null;
-        adapter = new EntityDetailAdapter(
-                thisActivity, detailForDisplay, entity,
-                detailCalloutListener, getArguments().getInt(DETAIL_INDEX),
-                modifier
-        );
-        ((ListView)rootView.findViewById(R.id.screen_entity_detail_list)).setAdapter((ListAdapter)adapter);
+        try {
+            final Activity thisActivity = getActivity();
+            final Entity entity = factory.getEntity(referenceToDisplay);
+            final DetailCalloutListener detailCalloutListener =
+                    thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener)thisActivity) : null;
+            adapter = new EntityDetailAdapter(
+                    thisActivity, detailForDisplay, entity,
+                    detailCalloutListener, getArguments().getInt(DETAIL_INDEX),
+                    modifier
+            );
+            ((ListView)rootView.findViewById(R.id.screen_entity_detail_list)).setAdapter((ListAdapter)adapter);
+        } catch (XPathException xe) {
+            UserfacingErrorHandling.logErrorAndShowDialog((CommCareActivity)getActivity(), xe, true);
+        }
 
         return rootView;
     }
