@@ -112,11 +112,18 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         // No listeners
     }
 
+    @Override
+    protected void conditionallyHideSpecificPrefs() {
+        Preference reportProblemButton = findPreference(REPORT_PROBLEM);
+        if (reportProblemButton != null && DeveloperPreferences.shouldHideReportIssue()) {
+            getPreferenceScreen().removePreference(reportProblemButton);
+        }
+    }
 
     @Override
     protected void setupPrefClickListeners() {
-        Preference serverSettingsButton = findPreference(REPORT_PROBLEM);
-        serverSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        Preference reportProblemButton = findPreference(REPORT_PROBLEM);
+        reportProblemButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_REPORT_PROBLEM);

@@ -22,6 +22,7 @@ import org.commcare.utils.StorageUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author ctsims
@@ -91,6 +92,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                                     receiver.displayMessage("There were errors submitting the forms." + remainder);
                                 } else if (result == FormUploadResult.TRANSPORT_FAILURE) {
                                     receiver.displayMessage("Unable to contact the remote server.");
+                                } else if (result == FormUploadResult.RECORD_FAILURE) {
+                                    receiver.displayMessage(Localization.get("sync.fail.individual"));
                                 }
                             }
 

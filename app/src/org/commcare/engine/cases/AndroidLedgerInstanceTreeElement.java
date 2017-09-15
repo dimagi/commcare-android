@@ -59,11 +59,11 @@ public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement 
         elements = new Vector<>();
         primaryIdMapping = new Hashtable<>();
         int mult = 0;
-        for (IStorageIterator i = ((SqlStorage<ACase>)getStorage()).iterate(false, Ledger.INDEX_ENTITY_ID); i.hasMore(); ) {
+        for (IStorageIterator i = ((SqlStorage<ACase>)getStorage()).iterate(false, new String[]{Ledger.INDEX_ENTITY_ID}); i.hasMore(); ) {
             int id = i.peekID();
             elements.addElement(buildElement(this, id, null, mult));
             objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
-            primaryIdMapping.put(((SqlStorageIterator)i).getPrimaryId(), DataUtil.integer(id));
+            primaryIdMapping.put(((SqlStorageIterator)i).peekIncludedMetadata(Ledger.INDEX_ENTITY_ID), DataUtil.integer(id));
             mult++;
             i.nextID();
         }
