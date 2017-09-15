@@ -136,8 +136,6 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                         //OK, all forms sent, sync time 
                         syncData(context);
 
-                    } else if (result == FormUploadResult.FAILURE) {
-                        Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
                     }

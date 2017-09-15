@@ -29,7 +29,6 @@ import com.google.android.gms.analytics.Tracker;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
-import org.acra.annotation.ReportsCrashes;
 import org.commcare.activities.LoginActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -82,10 +81,10 @@ import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareExceptionHandler;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DummyPropertyManager;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
@@ -114,12 +113,6 @@ import javax.crypto.SecretKey;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-@ReportsCrashes(
-        formUri = "https://your/cloudant/report",
-        formUriBasicAuthLogin = "your_username",
-        formUriBasicAuthPassword = "your_password",
-        reportType = org.acra.sender.HttpSender.Type.JSON,
-        httpMethod = org.acra.sender.HttpSender.Method.PUT)
 public class CommCareApplication extends Application {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
@@ -177,9 +170,9 @@ public class CommCareApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        configureCommCareEngineConstantsAndStaticRegistrations();
-
         CommCareApplication.app = this;
+        CrashUtil.init(this);
+        configureCommCareEngineConstantsAndStaticRegistrations();
         noficationManager = new CommCareNoficationManager(this);
 
         //TODO: Make this robust
@@ -223,8 +216,6 @@ public class CommCareApplication extends Application {
             AppUtils.checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
         }
-
-        ACRAUtil.initACRA(this);
 
         if (!GoogleAnalyticsUtils.versionIncompatible()) {
             analyticsInstance = GoogleAnalytics.getInstance(this);
@@ -901,6 +892,11 @@ public class CommCareApplication extends Application {
             syncPending = false;
         }
         return true;
+    }
+
+    public boolean isPostUpdateSyncNeeded() {
+        return getCurrentApp().getAppPreferences()
+                .getBoolean(CommCarePreferences.POST_UPDATE_SYNC_NEEDED, false);
     }
 
     public boolean isStorageAvailable() {

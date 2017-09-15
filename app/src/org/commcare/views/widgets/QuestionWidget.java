@@ -58,6 +58,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     private final LinearLayout.LayoutParams mLayout;
     protected final FormEntryPrompt mPrompt;
+    private final boolean mCompact;
 
     protected final int mQuestionFontSize;
     protected final int mAnswerFontSize;
@@ -84,10 +85,16 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     protected BlockingActionsManager blockingActionsManager;
 
     public boolean hintTextNeedsHeightSpec = false;
+    private LinearLayout compactLayout;
 
     public QuestionWidget(Context context, FormEntryPrompt p) {
+        this(context, p, false);
+    }
+
+    public QuestionWidget(Context context, FormEntryPrompt p, boolean inCompactGroup) {
         super(context);
         mPrompt = p;
+        mCompact = inCompactGroup;
 
         //this is pretty sketch but is the only way to make the required background to work trivially for now
         this.setClipToPadding(false);
@@ -108,18 +115,18 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
         setOrientation(LinearLayout.VERTICAL);
         setGravity(Gravity.TOP);
-        
+
         //TODO: This whole view should probably be inflated somehow 
         int padding = this.getResources().getDimensionPixelSize(R.dimen.question_widget_side_padding);
         setPadding(padding, 8, padding, 8);
 
-        mLayout =
-                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
+        mLayout = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 
         addQuestionText();
-        addHelpPlaceholder();
-        addHintText();
+        if (!isInCompactMode()) {
+            addHelpPlaceholder();
+            addHintText();
+        }
     }
 
     protected void acceptFocus() {
@@ -129,7 +136,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         if (!mPrompt.hasHelp()) {
             return;
         }
-        
+
         helpPlaceholder = new FrameLayout(this.getContext());
         helpPlaceholder.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT));
@@ -191,7 +198,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         public URLSpanNoUnderline(String url) {
             super(url);
         }
-        @Override public void updateDrawState(TextPaint ds) {
+
+        @Override
+        public void updateDrawState(TextPaint ds) {
             super.updateDrawState(ds);
             ds.setUnderlineText(false);
         }
@@ -204,7 +213,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * @param strong       If true, display a visually stronger, negative background.
      * @param requestFocus If true, bring focus to this question.
      */
-    private void notifyOnScreen(String text, boolean strong, boolean requestFocus){
+    private void notifyOnScreen(String text, boolean strong, boolean requestFocus) {
         int warningBackdropId;
         if (strong) {
             warningBackdropId = R.drawable.strong_warning_backdrop;
@@ -259,8 +268,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     /**
-     * Use to signal that there's a portion of this view that wants to be 
-     * visible to the user on the screen. This method will place the sub 
+     * Use to signal that there's a portion of this view that wants to be
+     * visible to the user on the screen. This method will place the sub
      * view on the screen, and will also place as much of this view as possible
      * on the screen. If this view is smaller than the viewable area available, it
      * will be fully visible in addition to the subview.
@@ -284,13 +293,13 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
         //If we don't know enough about the screen, just default to asking to see the
         //subview that was requested.
-        if(mFrameHeight == -1){
+        if (mFrameHeight == -1) {
             child.requestRectangleOnScreen(vitalPortion);
             return;
-        }        
+        }
 
         //If the whole view fits, just request that we display the whole thing.
-        if(wholeView.height() < mFrameHeight) {
+        if (wholeView.height() < mFrameHeight) {
             this.requestRectangleOnScreen(wholeView);
             return;
         }
@@ -313,7 +322,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         this.offsetDescendantRectToMyCoords(child, vitalPortion);
 
         //If the newly transformed view now contains the child portion, we're good
-        if(wholeView.contains(vitalPortion)) {
+        if (wholeView.contains(vitalPortion)) {
             this.requestRectangleOnScreen(wholeView);
             return;
         }
@@ -322,7 +331,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         wholeView.offsetTo(wholeView.left, bottomY - wholeView.height());
 
         //now see if the transformed view contains the vital portion
-        if(wholeView.contains(vitalPortion)) {
+        if (wholeView.contains(vitalPortion)) {
             this.requestRectangleOnScreen(wholeView);
             return;
         }
@@ -350,7 +359,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     private void stripUnderlines(TextView textView) {
         Spannable s = (Spannable)textView.getText();
         URLSpan[] spans = s.getSpans(0, s.length(), URLSpan.class);
-        for (URLSpan span: spans) {
+        for (URLSpan span : spans) {
             int start = s.getSpanStart(span);
             int end = s.getSpanEnd(span);
             s.removeSpan(span);
@@ -360,8 +369,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         textView.setText(s);
     }
 
-    public void setQuestionText(TextView textView, FormEntryPrompt prompt){
-        if(prompt.getMarkdownText() != null){
+    public void setQuestionText(TextView textView, FormEntryPrompt prompt) {
+        if (prompt.getMarkdownText() != null) {
             textView.setText(forceMarkdown(prompt.getMarkdownText()));
             textView.setMovementMethod(LinkMovementMethod.getInstance());
             // Wrap to the size of the parent view
@@ -371,11 +380,11 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
     }
 
-    public void setChoiceText(TextView choiceText, SelectChoice choice){
+    public void setChoiceText(TextView choiceText, SelectChoice choice) {
         String markdownText = mPrompt.getSelectItemMarkdownText(choice);
-        if(markdownText != null){
+        if (markdownText != null) {
             choiceText.setText(forceMarkdown(markdownText));
-        } else{
+        } else {
             choiceText.setText(mPrompt.getSelectChoiceText(choice));
         }
     }
@@ -386,7 +395,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * TextView to fit the rest of the space, then the image if applicable.
      */
     protected void addQuestionText() {
-        mQuestionText = (TextView)LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, this, false);
+        mQuestionText = (TextView)LayoutInflater.from(getContext()).inflate(getQuestionTextLayout(), this, false);
         mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         mQuestionText.setId(38475483); // assign random id
 
@@ -406,27 +415,48 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             mQuestionText.setVisibility(GONE);
         }
 
-        // Create the layout for audio, image, text
-        String imageURI = mPrompt.getImageText();
-        String audioURI = mPrompt.getAudioText();
-        String expandedAudioURI = mPrompt.getSpecialFormQuestionText("expanded-audio");
-        String videoURI = mPrompt.getSpecialFormQuestionText("video");
-        String inlineVideoUri = mPrompt.getSpecialFormQuestionText("video-inline");
-        String qrCodeContent = mPrompt.getSpecialFormQuestionText("qrcode");
-        // shown when image is clicked
-        String bigImageURI = mPrompt.getSpecialFormQuestionText("big-image");
+        if (isInCompactMode()) {
+            addToCompactLayout(mQuestionText);
+        } else {
+            // Create the layout for audio, image, text
+            String imageURI = mPrompt.getImageText();
+            String audioURI = mPrompt.getAudioText();
+            String expandedAudioURI = mPrompt.getSpecialFormQuestionText("expanded-audio");
+            String videoURI = mPrompt.getSpecialFormQuestionText("video");
+            String inlineVideoUri = mPrompt.getSpecialFormQuestionText("video-inline");
+            String qrCodeContent = mPrompt.getSpecialFormQuestionText("qrcode");
+            // shown when image is clicked
+            String bigImageURI = mPrompt.getSpecialFormQuestionText("big-image");
 
-        MediaLayout mediaLayout = MediaLayout.buildComprehensiveLayout(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri, expandedAudioURI, mPrompt.getIndex().hashCode());
-        addView(mediaLayout, mLayout);
+            MediaLayout mediaLayout = MediaLayout.buildComprehensiveLayout(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri, mPrompt.getIndex().hashCode());
+            addView(mediaLayout, mLayout);
+        }
+    }
+
+    protected void addToCompactLayout(View view) {
+        if (compactLayout == null) {
+            compactLayout = new LinearLayout(getContext());
+            compactLayout.setOrientation(HORIZONTAL);
+            compactLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            addView(compactLayout);
+        }
+        compactLayout.addView(view);
+    }
+
+    private int getQuestionTextLayout() {
+        if (isInCompactMode()) {
+            return R.layout.question_widget_text_compact;
+        }
+        return R.layout.question_widget_text;
     }
 
     /**
-    * Display extra help, triggered by user request.
-    */
+     * Display extra help, triggered by user request.
+     */
     private void fireHelpText(final Runnable r) {
         if (!mPrompt.hasHelp()) {
             return;
-        }                               
+        }
 
         // Depending on ODK setting, help may be displayed either as
         // a dialog or inline, underneath the question text
@@ -436,15 +466,15 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             ScrollView scrollView = new ScrollView(this.getContext());
             scrollView.addView(createHelpLayout());
             mAlertDialog.setView(scrollView);
-            
+
             DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int i) {
                     switch (i) {
-                    case DialogInterface.BUTTON1:
-                        dialog.cancel();
-                        if(r != null) r.run();
-                        break;
+                        case DialogInterface.BUTTON1:
+                            dialog.cancel();
+                            if (r != null) r.run();
+                            break;
                     }
                 }
             };
@@ -453,7 +483,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             mAlertDialog.show();
         } else {
 
-            if(helpPlaceholder.getVisibility() == View.GONE) {
+            if (helpPlaceholder.getVisibility() == View.GONE) {
                 expand(helpPlaceholder);
             } else {
                 collapse(helpPlaceholder);
@@ -465,14 +495,14 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         return !PreferenceManager.getDefaultSharedPreferences(this.getContext().getApplicationContext()).
                 getBoolean(FormEntryPreferences.KEY_HELP_MODE_TRAY, false);
     }
-    
+
     /**
      * Build MediaLayout for displaying any help associated with given FormEntryPrompt.
      */
     private MediaLayout createHelpLayout() {
         TextView text = new TextView(getContext());
 
-        String markdownText =  mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_MARKDOWN);
+        String markdownText = mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_MARKDOWN);
 
         if (markdownText != null) {
             text.setText(forceMarkdown(markdownText));
@@ -501,13 +531,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
         v.getLayoutParams().height = 0;
         v.setVisibility(View.VISIBLE);
-        Animation a = new Animation()
-        {
+        Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 v.getLayoutParams().height = interpolatedTime == 1
                         ? LayoutParams.WRAP_CONTENT
-                                : (int)(targetHeight * interpolatedTime);
+                        : (int)(targetHeight * interpolatedTime);
                 v.requestLayout();
             }
 
@@ -525,13 +554,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     private static void collapse(final View v) {
         final int initialHeight = v.getMeasuredHeight();
 
-        Animation a = new Animation()
-        {
+        Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
-                if(interpolatedTime == 1){
+                if (interpolatedTime == 1) {
                     v.setVisibility(View.GONE);
-                }else{
+                } else {
                     v.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
                     v.requestLayout();
                 }
@@ -566,7 +594,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         String s = mPrompt.getHintText();
 
         if (s != null && !s.equals("")) {
-            mHintText = new ShrinkingTextView(getContext(),this.getMaxHintHeight());
+            mHintText = new ShrinkingTextView(getContext(), this.getMaxHintHeight());
             mHintText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize - 3);
             mHintText.setPadding(0, -5, 0, 7);
             // wrap to the widget of view
@@ -604,7 +632,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     protected IAnswerData getCurrentAnswer() {
         IAnswerData current = mPrompt.getAnswerValue();
-        if(current == null) { return null; }
+        if (current == null) {
+            return null;
+        }
         return getTemplate().cast(current.uncast());
     }
 
@@ -616,12 +646,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         mHintText.setVisibility(View.GONE);
     }
 
-    public FormIndex getFormId(){
+    public FormIndex getFormId() {
         return mPrompt.getIndex();
     }
 
     public void setChangedListeners(WidgetChangedListener wcl,
-                                    BlockingActionsManager blockingActionsManager){
+                                    BlockingActionsManager blockingActionsManager) {
         widgetChangedListener = wcl;
         this.blockingActionsManager = blockingActionsManager;
     }
@@ -668,7 +698,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     /**
      * @return True if file is too big to upload.
      */
-    protected boolean checkFileSize(File file){
+    protected boolean checkFileSize(File file) {
         if (FileUtil.isFileTooLargeToUpload(file)) {
             String fileSize = FileUtil.getFileSizeInMegs(file) + "";
             showOversizedMediaWarning(fileSize);
@@ -685,7 +715,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * copied from CommCareActivity
      */
 
-    protected Spannable forceMarkdown(String text){
+    protected Spannable forceMarkdown(String text) {
         return MarkupUtil.returnMarkdown(getContext(), text);
     }
 
@@ -704,5 +734,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     public boolean forcesPortrait() {
         return false;
+    }
+
+    /**
+     * @return Whether this widget is to be shown in compact mode
+     */
+    protected boolean isInCompactMode() {
+        return mCompact;
     }
 }

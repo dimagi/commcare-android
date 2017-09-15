@@ -56,7 +56,7 @@ import javax.crypto.SecretKey;
 /**
  * @author ctsims
  */
-public abstract class DataPullTask<R> 
+public abstract class DataPullTask<R>
     extends CommCareTask<Void, Integer, ResultAndError<DataPullTask.PullTaskResult>, R>
         implements CommCareOTARestoreListener {
     private final String server;
@@ -138,7 +138,7 @@ public abstract class DataPullTask<R>
 
     private ResultAndError<PullTaskResult> doTaskBackgroundHelper() {
         publishProgress(PROGRESS_STARTED);
-        recordSyncAttemptTime();
+        recordSyncAttempt();
         Logger.log(LogTypes.TYPE_USER, "Starting Sync");
         determineIfLoginNeeded();
 
@@ -453,15 +453,16 @@ public abstract class DataPullTask<R>
         }
     }
 
-    private static void recordSyncAttemptTime() {
+    private static void recordSyncAttempt() {
         //TODO: This should be per _user_, not per app
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putLong("last-ota-restore", new Date().getTime()).commit();
+                .putLong(CommCarePreferences.LAST_SYNC_ATTEMPT, new Date().getTime()).apply();
+        CommCarePreferences.setPostUpdateSyncNeeded(false);
     }
 
     private static void recordSuccessfulSyncTime(String username) {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putLong(SyncDetailCalculations.getLastSyncKey(username), new Date().getTime()).commit();
+                .putLong(SyncDetailCalculations.getLastSyncKey(username), new Date().getTime()).apply();
     }
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 

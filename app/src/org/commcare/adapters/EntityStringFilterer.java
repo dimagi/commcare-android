@@ -121,7 +121,8 @@ public class EntityStringFilterer extends EntityFiltererBase {
                     matchScores.add(Pair.create(index, score));
                 }
             }
-            if (isAsyncMode) {
+            // If fuzzy search is enabled need to re-sort based on edit distance
+            if (isFuzzySearchEnabled) {
                 Collections.sort(matchScores, new Comparator<Pair<Integer, Integer>>() {
                     @Override
                     public int compare(Pair<Integer, Integer> lhs, Pair<Integer, Integer> rhs) {

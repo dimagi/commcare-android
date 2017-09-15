@@ -1,18 +1,12 @@
 package org.commcare.adapters;
 
 
-import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
-import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.views.UserfacingErrorHandling;
 
 /**
  * Overrides MenuAdapter to provide a different tile (MenuGridEntryView)
@@ -29,32 +23,13 @@ public class GridMenuAdapter extends MenuAdapter {
     }
 
     @Override
-    public View getView(int i, View v, ViewGroup vg) {
+    protected int getImageViewDimenResource() {
+        return R.dimen.list_grid_bounding_dimension;
+    }
 
-        // inflate view
-        View menuListItem = v;
-
-        if (menuListItem == null) {
-            // inflate it and do not attach to parent, or we will get the 'addView not supported' exception
-            menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_grid_item, vg, false);
-        }
-
-        MenuDisplayable menuDisplayable = displayableData[i];
-
-        TextView rowText = (TextView)menuListItem.findViewById(R.id.row_txt);
-        setupTextView(rowText, menuDisplayable);
-
-        // set up the image, if available
-        ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
-        setupImageView(mIconView, menuDisplayable, (int)context.getResources().getDimension(R.dimen.list_grid_bounding_dimension));
-
-        try {
-            setupBadgeView(menuListItem, menuDisplayable);
-        } catch (Exception e) {
-            UserfacingErrorHandling.createErrorDialog(context, e.getLocalizedMessage(), true);
-        }
-
-        return menuListItem;
+    @Override
+    protected int getListItemLayoutResource() {
+        return R.layout.menu_grid_item;
     }
 
     @Override

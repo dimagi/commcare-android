@@ -162,7 +162,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @SuppressLint("NewApi")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         instanceState = new FormEntryInstanceState();
 
         // must be at the beginning of any activity that can be called from an external intent

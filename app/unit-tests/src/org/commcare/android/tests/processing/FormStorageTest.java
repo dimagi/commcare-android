@@ -291,7 +291,10 @@ public class FormStorageTest {
 
             // Added in 2.38
             , "org.javarosa.xpath.expr.XPathSortFunc"
-            , "org.javarosa.xpath.expr.XPathSortByFunc");
+            , "org.javarosa.xpath.expr.XPathSortByFunc"
+
+            // Added in 2.39
+            , "org.commcare.android.database.user.models.FormRecordV3");
 
             // Removed in 2.37
             //, "org.commcare.xml.DummyGraphParser$DummyGraphDetailTemplate";

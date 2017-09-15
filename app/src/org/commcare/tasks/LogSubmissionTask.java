@@ -140,7 +140,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
      * logs, and write that to a DeviceReportRecord, which then gets added to the internal storage
      * object of all DeviceReportRecords that have yet to be submitted
      */
-    private boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
+    private static boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
         //update the last recorded record

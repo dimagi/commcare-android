@@ -55,7 +55,7 @@ public class ReportingUtils {
     }
 
     /*
-     * Helper methods for ACRA and user reporting. Catch broad exception so we never crash
+     * Helper methods for crash and user reporting. Catch broad exception so we never crash
      * when trying to file a bug.
      */
 
@@ -109,4 +109,23 @@ public class ReportingUtils {
         }
     }
 
+    public static int getAppVersion() {
+        try {
+            return CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber();
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    public static String getAppName() {
+        try {
+            return CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName();
+        } catch (Exception e) {
+            return "NA";
+        }
+    }
+
+    public static String getDeviceId() {
+        return CommCareApplication.instance().getPhoneId();
+    }
 }

@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
+
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
@@ -542,10 +543,14 @@ public class InstanceProvider extends ContentProvider {
             // before moving on. We'll catch any errors here and just eat them
             // (since the task will also try the process and fail if it does.
             if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
+                net.sqlcipher.database.SQLiteDatabase userDb =
+                        CommCareApplication.instance().getUserDbHandle();
+                userDb.beginTransaction();
                 try {
                     new FormRecordProcessor(getContext()).process(current);
+                    userDb.setTransactionSuccessful();
                 } catch (InvalidStructureException e) {
-                    // record should be wiped when form entry is exited
+                    // Record will be wiped when form entry is exited
                     Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, e.getMessage());
                     throw new IllegalStateException(e.getMessage());
                 } catch (Exception e) {
@@ -556,6 +561,8 @@ public class InstanceProvider extends ContentProvider {
                     Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                             "Error processing form. Should be recaptured during async processing: " + e.getMessage());
                     throw new RuntimeException(e);
+                } finally {
+                    userDb.endTransaction();
                 }
             }
         }
