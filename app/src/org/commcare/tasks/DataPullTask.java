@@ -58,7 +58,7 @@ import javax.crypto.SecretKey;
  * @author ctsims
  */
 public abstract class DataPullTask<R>
-    extends CommCareTask<Void, Integer, ResultAndError<DataPullTask.PullTaskResult>, R>
+        extends CommCareTask<Void, Integer, ResultAndError<DataPullTask.PullTaskResult>, R>
         implements CommCareOTARestoreListener {
     private final String server;
     private final String username;
@@ -121,6 +121,7 @@ public abstract class DataPullTask<R>
         super.onCancelled();
         wipeLoginIfItOccurred();
     }
+
     private final CommcareRequestEndpoints requestor;
 
     @Override
@@ -229,7 +230,7 @@ public abstract class DataPullTask<R>
                 Thread.sleep(500);
             } catch (InterruptedException e) {
             }
-            
+
             if (isCancelled()) {
                 return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE);
             }
@@ -253,7 +254,7 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
             responseError = PullTaskResult.UNREACHABLE_HOST;
-        }catch (AuthenticationInterceptor.PlainTextPasswordException e) {
+        } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException during sync: Sending password over HTTP");
             responseError = PullTaskResult.AUTH_OVER_HTTP;
