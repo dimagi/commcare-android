@@ -199,6 +199,10 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 Logger.log(LogTypes.TYPE_USER, "incorrect pin");
                 receiver.raiseLoginMessage(StockMessages.Auth_InvalidPin, true);
                 break;
+            case AuthOverHttp:
+                Logger.log(LogTypes.TYPE_USER, "auth over http");
+                receiver.raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
+                break;
             default:
                 break;
         }

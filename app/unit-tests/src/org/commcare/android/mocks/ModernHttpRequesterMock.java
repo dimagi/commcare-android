@@ -45,6 +45,7 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
     private static final List<String> requestPayloadStack = new ArrayList<>();
 
     private static boolean isAuthenticated = true;
+    private static boolean enforceSecureEndpointValidation;
 
     public ModernHttpRequesterMock(BitCacheFactory.CacheDirSetup cacheDirSetup, String url, HashMap<String, String> params,
                                    HashMap<String, String> headers, @Nullable RequestBody requestBody, @Nullable List<MultipartBody.Part> parts,
@@ -75,7 +76,7 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
 
     @Override
     public Response<ResponseBody> makeRequest() throws IOException {
-        if (isAuthenticated && !new URL(url).getProtocol().contentEquals("https")) {
+        if (isAuthenticated && !new URL(url).getProtocol().contentEquals("https") && enforceSecureEndpointValidation) {
             throw new AuthenticationInterceptor.PlainTextPasswordException();
         }
 
@@ -118,5 +119,9 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
         for (String queryParam : expectedUrl.getQueryParameterNames()) {
             assertEquals(requestUrl.getQueryParameter(queryParam), expectedUrl.getQueryParameter(queryParam));
         }
+    }
+
+    public static void setEnforceSecureEndpointValidation(boolean enforceSecureEndpointValidation) {
+        ModernHttpRequesterMock.enforceSecureEndpointValidation = enforceSecureEndpointValidation;
     }
 }

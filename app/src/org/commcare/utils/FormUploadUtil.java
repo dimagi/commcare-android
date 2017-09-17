@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.tasks.DataSubmissionListener;
@@ -167,6 +168,11 @@ public class FormUploadUtil {
             Logger.log(LogTypes.TYPE_WARNING_NETWORK,
                     "Client network issues during submission: " + e.getMessage());
             return FormUploadResult.TRANSPORT_FAILURE;
+        } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
+                    "Encountered PlainTextPasswordException while submission: Sending password over HTTP");
+            return FormUploadResult.AUTH_OVER_HTTP;
         } catch (IOException | IllegalStateException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_ERROR_STORAGE,

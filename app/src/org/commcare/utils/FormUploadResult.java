@@ -34,7 +34,9 @@ public enum FormUploadResult {
      */
     PROGRESS_LOGGED_OUT(5),
 
-    PROGRESS_SDCARD_REMOVED(6);
+    PROGRESS_SDCARD_REMOVED(6),
+
+    AUTH_OVER_HTTP(7);
 
     private final int orderVal;
 

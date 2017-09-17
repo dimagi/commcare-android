@@ -72,6 +72,7 @@ import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpUtils;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
@@ -1047,16 +1048,18 @@ public class CommCareApplication extends Application {
     }
 
     public ModernHttpRequester buildHttpRequester(Context context, String url, HashMap<String, String> params,
-                                                         HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
-                                                         HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
-                                                         @Nullable HttpResponseProcessor responseProcessor) {
+                                                  HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
+                                                  HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
+                                                  @Nullable HttpResponseProcessor responseProcessor) {
         return new ModernHttpRequester(new AndroidCacheDirSetup(context),
                 url,
                 params,
                 headers,
                 requestBody,
                 parts,
-                CommCareNetworkServiceGenerator.createCommCareNetworkService(HttpUtils.getCredential(usernameAndPasswordToAuthWith)),
+                CommCareNetworkServiceGenerator.createCommCareNetworkService(
+                        HttpUtils.getCredential(usernameAndPasswordToAuthWith),
+                        DeveloperPreferences.isEnforceSecureEndpointEnabled()),
                 method,
                 responseProcessor);
     }

@@ -34,6 +34,7 @@ import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.ConnectivityStatus;
+import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.xml.AvailableAppsParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -364,6 +365,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     public void handleIOException(IOException exception) {
         if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
             Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException while sending get available apps request: Sending password over HTTP");
+            UserfacingErrorHandling.createErrorDialog(this, Localization.get("auth.over.http"), true);
         } else if (exception instanceof IOException) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "An IOException was encountered during get available apps request: " + exception.getMessage());

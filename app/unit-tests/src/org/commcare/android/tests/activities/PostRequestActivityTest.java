@@ -55,8 +55,17 @@ public class PostRequestActivityTest {
     @Test
     public void postingToNonHttpsURLTest() {
         String urlString = "http://bad.url.com";
+        ModernHttpRequesterMock.setEnforceSecureEndpointValidation(true);
         PostRequestActivity postRequestActivity = buildPostActivity(urlString);
         assertErrorMessage(postRequestActivity, true, Localization.get("auth.request.not.using.https", urlString));
+    }
+
+    @Test
+    public void postingToNonHttpsURLTest_WithDisabledSecureEndpointValidation() {
+        String urlString = "http://bad.url.com";
+        ModernHttpRequesterMock.setEnforceSecureEndpointValidation(false);
+        PostRequestActivity postRequestActivity = buildPostActivity(urlString);
+        assertErrorMessage(postRequestActivity, false, null);
     }
 
     private static void assertErrorMessage(PostRequestActivity postRequestActivity,

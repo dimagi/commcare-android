@@ -3,6 +3,7 @@ package org.commcare.network;
 import android.content.Context;
 
 import org.apache.http.client.ClientProtocolException;
+import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
@@ -40,7 +41,8 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         BadCertificate,
         Success,
         NetworkFailureBadPassword,
-        IncorrectPin
+        IncorrectPin,
+        AuthOverHttp
     }
 
     private final Context c;
@@ -86,6 +88,9 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
             } catch (SSLPeerUnverifiedException e) {
                 // Couldn't get a valid SSL certificate
                 outcome = HttpCalloutOutcomes.BadCertificate;
+            } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
+                e.printStackTrace();
+                outcome = HttpCalloutOutcomes.AuthOverHttp;
             } catch (IOException e) {
                 //This is probably related to local files, actually
                 e.printStackTrace();

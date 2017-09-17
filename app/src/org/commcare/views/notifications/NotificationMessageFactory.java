@@ -93,6 +93,8 @@ public class NotificationMessageFactory {
          */
         Restore_Unknown("notification.restore.unknown"),
 
+        Auth_Over_HTTP("auth.over.http"),
+
         /**
          * Could not retrieve Form Result *
          */

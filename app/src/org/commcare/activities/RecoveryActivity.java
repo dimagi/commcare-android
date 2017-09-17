@@ -94,6 +94,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                                     receiver.displayMessage("Unable to contact the remote server.");
                                 } else if (result == FormUploadResult.RECORD_FAILURE) {
                                     receiver.displayMessage(Localization.get("sync.fail.individual"));
+                                } else if (result == FormUploadResult.AUTH_OVER_HTTP) {
+                                    receiver.displayMessage(Localization.get("auth.over.http"));
                                 }
                             }
 

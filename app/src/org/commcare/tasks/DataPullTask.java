@@ -11,6 +11,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.encryption.CryptUtil;
+import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
@@ -252,6 +253,10 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
             responseError = PullTaskResult.UNREACHABLE_HOST;
+        }catch (AuthenticationInterceptor.PlainTextPasswordException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException during sync: Sending password over HTTP");
+            responseError = PullTaskResult.AUTH_OVER_HTTP;
         } catch (IOException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
@@ -644,7 +649,8 @@ public abstract class DataPullTask<R>
         UNREACHABLE_HOST(GoogleAnalyticsFields.VALUE_UNREACHABLE_HOST),
         CONNECTION_TIMEOUT(GoogleAnalyticsFields.VALUE_CONNECTION_TIMEOUT),
         SERVER_ERROR(GoogleAnalyticsFields.VALUE_SERVER_ERROR),
-        STORAGE_FULL(GoogleAnalyticsFields.VALUE_STORAGE_FULL);
+        STORAGE_FULL(GoogleAnalyticsFields.VALUE_STORAGE_FULL),
+        AUTH_OVER_HTTP(GoogleAnalyticsFields.AUTH_OVER_HTTP);
 
         private final int googleAnalyticsValue;
 

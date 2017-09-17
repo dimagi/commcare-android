@@ -107,6 +107,8 @@ sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync a
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
 
+auth.over.http=CommCare can't connect with authentication to an insecure (HTTP) server.
+
 sync.communicating.title=Communicating with Server
 sync.waiting.title=Waiting for Server Progress
 sync.downloading.title=Downloading Data from Server

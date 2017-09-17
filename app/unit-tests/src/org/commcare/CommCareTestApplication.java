@@ -24,6 +24,7 @@ import org.commcare.modern.util.Pair;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.HttpUtils;
 import org.commcare.network.LocalReferencePullResponseFactory;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.model.User;
@@ -258,7 +259,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
                 headers,
                 requestBody,
                 parts,
-                CommCareNetworkServiceGenerator.createCommCareNetworkService(HttpUtils.getCredential(usernameAndPasswordToAuthWith)),
+                CommCareNetworkServiceGenerator.createCommCareNetworkService(
+                        HttpUtils.getCredential(usernameAndPasswordToAuthWith),
+                        DeveloperPreferences.isEnforceSecureEndpointEnabled()),
                 method,
                 responseProcessor);
     }
