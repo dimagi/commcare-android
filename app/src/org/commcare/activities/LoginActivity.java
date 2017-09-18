@@ -635,6 +635,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case ACTIONABLE_FAILURE:
                 raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
                 break;
+            case AUTH_OVER_HTTP:
+                raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
+                break;
         }
     }
 

@@ -10,6 +10,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import retrofit2.Response;
+
 /**
  * Data pulling requester that gets data from a local file on the android filesystem.
  *
@@ -19,7 +21,7 @@ public class LocalFilePullResponse extends RemoteDataPullResponse {
     private InputStream debugStream = null;
 
     public LocalFilePullResponse(File xmlPayload,
-                                 HttpResponse response) throws IOException {
+                                 Response response) throws IOException {
         super(null, response);
 
         try {
@@ -33,17 +35,5 @@ public class LocalFilePullResponse extends RemoteDataPullResponse {
     @Override
     protected InputStream getInputStream() throws IOException {
         return debugStream;
-    }
-
-    @Override
-    protected long guessDataSize() {
-        try {
-            //Note: this is really stupid, but apparently you can't 
-            //retrieve the size of Assets due to some bullshit, so
-            //this is the closest you get.
-            return debugStream.available();
-        } catch (IOException e) {
-            return -1;
-        }
     }
 }

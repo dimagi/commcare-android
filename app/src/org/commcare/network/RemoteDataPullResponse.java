@@ -1,11 +1,9 @@
 package org.commcare.network;
 
 import android.content.Context;
-import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
@@ -17,6 +15,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import okhttp3.ResponseBody;
+import retrofit2.Response;
+
 /**
  * Performs data pulling http request and provides logic to retrieve the
  * response into a local cache.
@@ -26,7 +27,7 @@ import java.io.OutputStream;
 public class RemoteDataPullResponse {
     private final DataPullTask task;
     public final int responseCode;
-    private final HttpResponse response;
+    private final Response<ResponseBody> response;
 
     /**
      * Makes data pulling request and keeps response for local caching
@@ -35,9 +36,9 @@ public class RemoteDataPullResponse {
      * @param response Contains data pull response stream and status code
      */
     protected RemoteDataPullResponse(DataPullTask task,
-                                     HttpResponse response) throws IOException {
+                                     Response response) throws IOException {
         this.response = response;
-        this.responseCode = response.getStatusLine().getStatusCode();
+        this.responseCode = response.code();
         this.task = task;
     }
 
@@ -51,7 +52,7 @@ public class RemoteDataPullResponse {
     public BitCache writeResponseToCache(Context c) throws IOException {
         BitCache cache = null;
         try {
-            final long dataSizeGuess = guessDataSize();
+            final long dataSizeGuess = ModernHttpRequester.getContentLength(response);
 
             cache = BitCacheFactory.getCache(new AndroidCacheDirSetup(c), dataSizeGuess);
 
@@ -111,31 +112,14 @@ public class RemoteDataPullResponse {
     }
 
     protected InputStream getInputStream() throws IOException {
-        return AndroidHttpClient.getUngzippedContent(response.getEntity());
+        return response.body().byteStream();
     }
 
-    public String getShortBody() throws IOException {
-        return new String(StreamsUtil.inputStreamToByteArray(AndroidHttpClient.getUngzippedContent(response.getEntity())));
+    public String getErrorBody() throws IOException {
+        return response.errorBody().string();
     }
 
-    /**
-     * Get an estimation of how large the provided response is.
-     *
-     * @return -1 for unknown.
-     */
-    protected long guessDataSize() {
-        if (response.containsHeader("Content-Length")) {
-            String length = response.getFirstHeader("Content-Length").getValue();
-            try {
-                return Long.parseLong(length);
-            } catch (Exception e) {
-                //Whatever.
-            }
-        }
-        return -1;
-    }
-
-    public Header getRetryHeader() {
-        return response.getFirstHeader("Retry-After");
+    public String getRetryHeader() {
+        return ModernHttpRequester.getFirstHeader(response, "Retry-After");
     }
 }

@@ -160,6 +160,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_CUSTOM_RESTORE = "Custom Restore Requested";
     public static final String LABEL_LOCAL_FORM_PAYLOAD_FILE_PATH = "Form Payload File";
     public static final String LABEL_REMOTE_FORM_PAYLOAD_URL = "Form Payload Server";
+    public static final String LABEL_ENFORCE_SECURE_ENDPOINT = "Enforce Secure Endpoint";
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
     public static final String LABEL_SETTINGS = "Settings";
@@ -214,6 +215,8 @@ public final class GoogleAnalyticsFields {
     public static final int VALUE_STORAGE_FULL = 7;
     public static final int VALUE_BAD_DATA_REQUIRES_INTERVENTION = 8;
     public static final int VALUE_ACTIONABLE_FAILURE = 9;
+    public static final int AUTH_OVER_HTTP = 10;
+
 
     // Values for LABEL_AUTO_UPDATE
     public static final int VALUE_NEVER = 0;

@@ -6,21 +6,20 @@ import android.support.v4.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
+import org.commcare.core.encryption.CryptUtil;
+import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
-import org.commcare.interfaces.HttpRequestEndpoints;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.core.encryption.CryptUtil;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.RemoteDataPullResponse;
@@ -33,7 +32,6 @@ import org.commcare.utils.FormSaveUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.utils.UnknownSyncError;
-import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
@@ -60,7 +58,7 @@ import javax.crypto.SecretKey;
  * @author ctsims
  */
 public abstract class DataPullTask<R>
-    extends CommCareTask<Void, Integer, ResultAndError<DataPullTask.PullTaskResult>, R>
+        extends CommCareTask<Void, Integer, ResultAndError<DataPullTask.PullTaskResult>, R>
         implements CommCareOTARestoreListener {
     private final String server;
     private final String username;
@@ -123,7 +121,8 @@ public abstract class DataPullTask<R>
         super.onCancelled();
         wipeLoginIfItOccurred();
     }
-    private final HttpRequestEndpoints requestor;
+
+    private final CommcareRequestEndpoints requestor;
 
     @Override
     protected ResultAndError<PullTaskResult> doTaskBackground(Void... params) {
@@ -231,7 +230,7 @@ public abstract class DataPullTask<R>
                 Thread.sleep(500);
             } catch (InterruptedException e) {
             }
-            
+
             if (isCancelled()) {
                 return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE);
             }
@@ -251,17 +250,14 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
             responseError = PullTaskResult.CONNECTION_TIMEOUT;
-        } catch (ConnectTimeoutException e) {
-            e.printStackTrace();
-            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-            responseError = PullTaskResult.CONNECTION_TIMEOUT;
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
         } catch (UnknownHostException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
             responseError = PullTaskResult.UNREACHABLE_HOST;
+        } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException during sync: Sending password over HTTP");
+            responseError = PullTaskResult.AUTH_OVER_HTTP;
         } catch (IOException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
@@ -284,6 +280,7 @@ public abstract class DataPullTask<R>
 
         RemoteDataPullResponse pullResponse =
                 dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded);
+
         int responseCode = pullResponse.responseCode;
         Logger.log(LogTypes.TYPE_USER,
                 "Request opened. Response code: " + responseCode);
@@ -310,7 +307,7 @@ public abstract class DataPullTask<R>
     private ResultAndError<PullTaskResult> processErrorResponseWithMessage(RemoteDataPullResponse pullResponse) throws IOException {
         String message;
         try {
-            JSONObject errorKeyAndDefault = new JSONObject(pullResponse.getShortBody());
+            JSONObject errorKeyAndDefault = new JSONObject(pullResponse.getErrorBody());
             message = Localization.getWithDefault(
                     errorKeyAndDefault.getString("error"),
                     errorKeyAndDefault.getString("default_response"));
@@ -475,7 +472,7 @@ public abstract class DataPullTask<R>
     }
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
-    private Pair<Integer, String> recover(HttpRequestEndpoints requestor, AndroidTransactionParserFactory factory) {
+    private Pair<Integer, String> recover(CommcareRequestEndpoints requestor, AndroidTransactionParserFactory factory) {
         while (asyncRestoreHelper.retryWaitPeriodInProgress()) {
             try {
                 Thread.sleep(500);
@@ -653,7 +650,8 @@ public abstract class DataPullTask<R>
         UNREACHABLE_HOST(GoogleAnalyticsFields.VALUE_UNREACHABLE_HOST),
         CONNECTION_TIMEOUT(GoogleAnalyticsFields.VALUE_CONNECTION_TIMEOUT),
         SERVER_ERROR(GoogleAnalyticsFields.VALUE_SERVER_ERROR),
-        STORAGE_FULL(GoogleAnalyticsFields.VALUE_STORAGE_FULL);
+        STORAGE_FULL(GoogleAnalyticsFields.VALUE_STORAGE_FULL),
+        AUTH_OVER_HTTP(GoogleAnalyticsFields.AUTH_OVER_HTTP);
 
         private final int googleAnalyticsValue;
 

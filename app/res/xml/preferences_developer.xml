@@ -152,4 +152,11 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-hide-issue-report"
         android:title="Hide the 'Report an Issue' Menu Option"/>
+    <ListPreference
+        android:defaultValue="no"
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-enforce-secure-endpoint"
+        android:title="Enforce Secure Endpoint"/>
 </PreferenceScreen>

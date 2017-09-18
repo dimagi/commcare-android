@@ -7,6 +7,8 @@ import org.javarosa.core.reference.ReferenceManager;
 import java.io.IOException;
 import java.io.InputStream;
 
+import retrofit2.Response;
+
 /**
  * Data pulling requester that gets data from a local CommCare reference.
  *
@@ -16,7 +18,7 @@ public class LocalReferencePullResponse extends RemoteDataPullResponse {
     private InputStream debugStream = null;
 
     public LocalReferencePullResponse(String xmlPayloadReference,
-                                      HttpResponse response) throws IOException {
+                                      Response response) throws IOException {
         super(null, response);
 
         try {
@@ -30,17 +32,5 @@ public class LocalReferencePullResponse extends RemoteDataPullResponse {
     @Override
     protected InputStream getInputStream() throws IOException {
         return debugStream;
-    }
-
-    @Override
-    protected long guessDataSize() {
-        try {
-            //Note: this is really stupid, but apparently you can't 
-            //retrieve the size of Assets due to some bullshit, so
-            //this is the closest you get.
-            return debugStream.available();
-        } catch (IOException e) {
-            return -1;
-        }
     }
 }

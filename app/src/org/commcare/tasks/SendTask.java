@@ -26,10 +26,9 @@ import java.util.Properties;
 /**
  * @author wspride
  *
- * This task iterates through all the form instances in dumpDirectory and attempts to
- * submit them to the receiver at postUrl. The results array are status codes
- * as defined in FormUploadUtil.
- *
+ *         This task iterates through all the form instances in dumpDirectory and attempts to
+ *         submit them to the receiver at postUrl. The results array are status codes
+ *         as defined in FormUploadUtil.
  */
 public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R> {
     private String postUrl;
@@ -106,7 +105,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
             }
             try {
                 tryLoadPropertiesFile(formFolder);
-            } catch(IOException e){
+            } catch (IOException e) {
                 Log.e(TAG, "Could not load properties file in folder: " + formFolder +
                         " with error: " + e.getMessage());
                 CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[]{null, formFolder.getName()}, MALFORMED_FILE_CATEGORY));
@@ -122,6 +121,10 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
                 } else if (results[i] == FormUploadResult.TRANSPORT_FAILURE) {
                     allSuccessful = false;
                     publishProgress(Localization.get("bulk.send.transport.error"));
+                    return false;
+                } else if (results[i] == FormUploadResult.AUTH_OVER_HTTP) {
+                    allSuccessful = false;
+                    publishProgress(Localization.get("auth.over.http"));
                     return false;
                 } else {
                     allSuccessful = false;
@@ -145,7 +148,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
      *
      * @param formFolder the form instance folder currently being submitted
      */
-    protected void tryLoadPropertiesFile(File formFolder) throws IOException{
+    protected void tryLoadPropertiesFile(File formFolder) throws IOException {
 
         // see if we have a form.properties file to load the PostURL from
         FilenameFilter filter = new FilenameFilter() {
@@ -156,9 +159,9 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         };
         // there should only be one of these
         File[] formPropertiesFile = formFolder.listFiles(filter);
-        if(formPropertiesFile != null && formPropertiesFile.length > 0){
+        if (formPropertiesFile != null && formPropertiesFile.length > 0) {
             Properties properties = FileUtil.loadProperties(formPropertiesFile[0]);
-            if(properties != null && properties.getProperty(ZipTask.FORM_PROPERTY_POST_URL) != null){
+            if (properties != null && properties.getProperty(ZipTask.FORM_PROPERTY_POST_URL) != null) {
                 postUrl = properties.getProperty(ZipTask.FORM_PROPERTY_POST_URL);
                 Logger.log(LogTypes.TYPE_FORM_DUMP, "Successfully got form.property PostURL: " + postUrl);
             }

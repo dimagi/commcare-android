@@ -40,8 +40,6 @@ public class CommCarePreferences
         extends CommCarePreferenceFragment
         implements OnSharedPreferenceChangeListener {
 
-    private final static String TAG = CommCarePreferences.class.getSimpleName();
-
     /**
      * Entries used as buttons; aren't actually stored preferences
      */
@@ -88,6 +86,11 @@ public class CommCarePreferences
     public final static String UPDATE_TARGET_STARRED = "release";
     public final static String UPDATE_TARGET_BUILD = "build";
     public final static String UPDATE_TARGET_SAVED = "save";
+
+    /**
+     * A possible domain that further qualifies the username of any account in use
+     */
+    private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
 
     // Preferences that are set incidentally/automatically by CommCare, based upon a user's workflow
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
@@ -585,6 +588,11 @@ public class CommCarePreferences
         } else {
             return path;
         }
+    }
+
+    public static String getUserDomain() {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return prefs.getString(USER_DOMAIN_SUFFIX, null);
     }
 
     public static void setCurrentLocale(String locale) {

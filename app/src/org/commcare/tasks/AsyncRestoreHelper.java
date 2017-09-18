@@ -1,6 +1,5 @@
 package org.commcare.tasks;
 
-import org.apache.http.Header;
 import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
@@ -32,25 +31,25 @@ public class AsyncRestoreHelper {
     }
 
     protected ResultAndError<DataPullTask.PullTaskResult> handleRetryResponseCode(RemoteDataPullResponse response) {
-        Header retryHeader = response.getRetryHeader();
+        String retryHeader = response.getRetryHeader();
         if (retryHeader == null) {
             return new ResultAndError<>(DataPullTask.PullTaskResult.BAD_DATA);
         }
         try {
-            long waitTimeInMilliseconds = Integer.parseInt(retryHeader.getValue()) * 1000;
+            long waitTimeInMilliseconds = Integer.parseInt(retryHeader) * 1000;
             Logger.log(LogTypes.TYPE_USER, "Retry-After header value was " + waitTimeInMilliseconds);
             if (waitTimeInMilliseconds <= 0) {
                 throw new InvalidWaitTimeException(
                         "Server response included a Retry-After header value of " + waitTimeInMilliseconds);
             }
+
             retryAtTime = System.currentTimeMillis() + waitTimeInMilliseconds;
             if (!parseProgressFromRetryResult(response)) {
                 return new ResultAndError<>(DataPullTask.PullTaskResult.BAD_DATA);
             }
             return new ResultAndError<>(DataPullTask.PullTaskResult.RETRY_NEEDED);
         } catch (NumberFormatException e) {
-             Logger.log(LogTypes.TYPE_USER, "Invalid Retry-After header value: "
-                    + retryHeader);
+            Logger.log(LogTypes.TYPE_USER, "Invalid Retry-After header value: " + retryHeader);
             return new ResultAndError<>(DataPullTask.PullTaskResult.BAD_DATA);
         }
     }

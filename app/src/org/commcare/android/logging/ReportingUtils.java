@@ -1,14 +1,13 @@
 package org.commcare.android.logging;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.network.HttpRequestGenerator;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
 import org.commcare.utils.SessionStateUninitException;
@@ -62,8 +61,11 @@ public class ReportingUtils {
 
     public static String getDomain() {
         try {
-            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
+            String domain = CommCarePreferences.getUserDomain();
+            if (domain == null) {
+                domain = "not found";
+            }
+            return domain;
         } catch (Exception e) {
             return "Domain not set.";
         }
@@ -71,8 +73,11 @@ public class ReportingUtils {
 
     public static String getPostURL() {
         try {
-            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
+            String domain = CommCarePreferences.getUserDomain();
+            if (domain == null) {
+                domain = "not found";
+            }
+            return domain;
         } catch (Exception e) {
             return "PostURL not set.";
         }
