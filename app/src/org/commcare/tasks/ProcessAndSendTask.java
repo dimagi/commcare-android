@@ -292,16 +292,11 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             try {
                 if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
                     File folder;
-                    try {
-                        folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
-                    } catch (IOException e) {
-                        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
-                        continue;
-                    }
 
                     //Good!
                     //Time to Send!
                     try {
+                        folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
                         User mUser = CommCareApplication.instance().getSession().getLoggedInUser();
                         int attemptsMade = 0;
                         logSubmissionAttempt(record);
@@ -338,7 +333,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                     "the xml submission file associated with the record was missing");
                             CommCareApplication.notificationManager().reportNotificationMessage(
                                     NotificationMessageFactory.message(ProcessIssues.RecordFilesMissing), true);
-                            FormRecordCleanupTask.wipeRecord(c, record);
+                            quarantineRecordAndReport(record,
+                                    FormRecord.QuarantineReason_FILE_NOT_FOUND);
                             results[i] = FormUploadResult.RECORD_FAILURE;
                         } else {
                             // Otherwise, the SD card just got removed, and we need to bail anyway.
@@ -346,6 +342,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                     NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
                             break;
                         }
+                        continue;
+                    } catch (IOException e) {
+                        // thrown from File.getCanonicalFile().getParentFile()
+                        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
                         continue;
                     }
 
