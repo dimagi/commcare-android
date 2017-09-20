@@ -419,7 +419,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         String[] scrubbedNames = new String[metaDataNames.length];
 
         for(int i = 0 ; i < metaDataNames.length; ++i ){
-            scrubbedNames[i] = metaDataNames[i];
+            scrubbedNames[i] = TableBuilder.scrubName(metaDataNames[i]);
         }
         return scrubbedNames;
     }
