@@ -23,6 +23,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.MenuLoader;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.util.LoggerInterface;
@@ -36,9 +37,11 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.File;
+import java.util.Set;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -216,19 +219,26 @@ public class MenuAdapter extends BaseAdapter {
         if (badgeCache.get(position) != null) {
             updateBadgeView(badgeView, badgeCache.get(position));
         } else {
-            compositeDisposable.add(
-                    menuDisplayable.getTextForBadge(asw.getEvaluationContext(menuDisplayable.getCommandID()))
-                            .subscribeOn(Schedulers.computation())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(badgeText -> {
-                                        // Make sure that badgeView corresponds to the right position and update it
-                                        if (((int)badgeView.getTag()) == position) {
-                                            updateBadgeView(badgeView, badgeText);
-                                        }
-                                    },
-                                    throwable -> UserfacingErrorHandling.createErrorDialog(context, throwable.getLocalizedMessage(), true)
-                            )
-            );
+            Text badgeTextObject = menuDisplayable.getRawBadgeTextObject();
+            if(badgeTextObject != null) {
+                Set<String> instancesNeededByBadgeCalculation =
+                        (new InstanceNameAccumulatingAnalyzer()).accumulate(badgeTextObject);
+                compositeDisposable.add(
+                        menuDisplayable.getTextForBadge(asw.getRestrictedEvaluationContext(menuDisplayable.getCommandID(), instancesNeededByBadgeCalculation))
+                                .subscribeOn(Schedulers.computation())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(badgeText -> {
+                                            // Make sure that badgeView corresponds to the right position and update it
+                                            if (((int)badgeView.getTag()) == position) {
+                                                updateBadgeView(badgeView, badgeText);
+                                            }
+                                        },
+                                        throwable -> UserfacingErrorHandling.createErrorDialog(context, throwable.getLocalizedMessage(), true)
+                                )
+                );
+            } else {
+                updateBadgeView(badgeView, "");
+            }
         }
     }
 
