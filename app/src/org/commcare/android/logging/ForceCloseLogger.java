@@ -115,9 +115,11 @@ public class ForceCloseLogger {
 
         try {
             Response<ResponseBody> response = generator.postMultipart(submissionUri, parts);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            StreamsUtil.writeFromInputToOutput(response.body().byteStream(), bos);
-            Log.d(TAG, "Response: " + new String(bos.toByteArray()));
+            if (response.body() != null) {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                StreamsUtil.writeFromInputToOutput(response.body().byteStream(), bos);
+                Log.d(TAG, "Response: " + new String(bos.toByteArray()));
+            }
         } catch (IOException e) {
             e.printStackTrace();
             return false;
