@@ -296,7 +296,17 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     //Good!
                     //Time to Send!
                     try {
-                        folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
+                        try {
+                            folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
+                        } catch (FileNotFoundException e) {
+                            //This will put us in the same "Missing Form" handling path as below
+                            throw e;
+                        } catch (IOException e) {
+                            // Unexpected/Unknown IO Error path from cannonical file
+                            Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
+                            continue;
+                        }
+
                         User mUser = CommCareApplication.instance().getSession().getLoggedInUser();
                         int attemptsMade = 0;
                         logSubmissionAttempt(record);
@@ -342,10 +352,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                     NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
                             break;
                         }
-                        continue;
-                    } catch (IOException e) {
-                        // thrown from File.getCanonicalFile().getParentFile()
-                        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
                         continue;
                     }
 
