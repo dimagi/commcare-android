@@ -59,7 +59,6 @@ public class MenuAdapter extends BaseAdapter {
     private String errorMessage = "";
     final CommCareActivity context;
     private final MenuDisplayable[] displayableData;
-    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     private SparseArray<String> badgeCache = new SparseArray<>();
 
     private class MenuLogger implements LoggerInterface {
@@ -223,9 +222,9 @@ public class MenuAdapter extends BaseAdapter {
             if(badgeTextObject != null) {
                 Set<String> instancesNeededByBadgeCalculation =
                         (new InstanceNameAccumulatingAnalyzer()).accumulate(badgeTextObject);
-                compositeDisposable.add(
+                context.attachDisposableToLifeCycle(
                         menuDisplayable.getTextForBadge(asw.getRestrictedEvaluationContext(menuDisplayable.getCommandID(), instancesNeededByBadgeCalculation))
-                                .subscribeOn(Schedulers.computation())
+                                .subscribeOn(Schedulers.single())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(badgeText -> {
                                             // Make sure that badgeView corresponds to the right position and update it
@@ -295,15 +294,6 @@ public class MenuAdapter extends BaseAdapter {
                     break;
             }
         }
-    }
-
-    /**
-     * Must be called in the activity/fragment containing the adapter onDestroy
-     * to clear Rx subscriptions
-     */
-    public void onDestory() {
-        compositeDisposable.clear();
-        badgeCache.clear();
     }
 
     @Override
