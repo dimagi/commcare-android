@@ -79,6 +79,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String QuarantineReason_SERVER_PROCESSING_ERROR = "server-processing-error";
     public static final String QuarantineReason_RECORD_ERROR = "record-error";
     public static final String QuarantineReason_MANUAL = "manual-quarantine";
+    public static final String QuarantineReason_FILE_NOT_FOUND = "file-not-found";
 
     @Persisting(1)
     @MetaField(META_XMLNS)
