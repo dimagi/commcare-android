@@ -292,16 +292,21 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             try {
                 if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
                     File folder;
-                    try {
-                        folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
-                    } catch (IOException e) {
-                        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
-                        continue;
-                    }
 
                     //Good!
                     //Time to Send!
                     try {
+                        try {
+                            folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
+                        } catch (FileNotFoundException e) {
+                            //This will put us in the same "Missing Form" handling path as below
+                            throw e;
+                        } catch (IOException e) {
+                            // Unexpected/Unknown IO Error path from cannonical file
+                            Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
+                            continue;
+                        }
+
                         User mUser = CommCareApplication.instance().getSession().getLoggedInUser();
                         int attemptsMade = 0;
                         logSubmissionAttempt(record);
@@ -338,7 +343,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                     "the xml submission file associated with the record was missing");
                             CommCareApplication.notificationManager().reportNotificationMessage(
                                     NotificationMessageFactory.message(ProcessIssues.RecordFilesMissing), true);
-                            FormRecordCleanupTask.wipeRecord(c, record);
+                            quarantineRecordAndReport(record,
+                                    FormRecord.QuarantineReason_FILE_NOT_FOUND);
                             results[i] = FormUploadResult.RECORD_FAILURE;
                         } else {
                             // Otherwise, the SD card just got removed, and we need to bail anyway.
