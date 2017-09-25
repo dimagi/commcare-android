@@ -54,11 +54,6 @@ public class FormUploadUtil {
                     ".wav", ".amr", ".mp4", ".3gp2", ".mpg4", ".mpeg4",
                     ".m4v", ".mpg", ".mpeg", ".qcp", ".ogg"};
 
-    private static final String mockRestoreResponseWithProcessingFailure =
-            "<OpenRosaResponse xmlns=\"http://openrosa.org/http/response\"><message nature=" +
-                    "\"processing_failure\">The submission's case ID was unknown</message>" +
-                    "</OpenRosaResponse>";
-
     public static Cipher getDecryptCipher(SecretKeySpec key) {
         Cipher cipher;
         try {

@@ -95,15 +95,10 @@ menu.privilege.claim.disable=Disable Privileges
 sync.success.sent.none=No forms sent to server!
 sync.success.sent.singular=1 form sent to server!
 sync.success.sent=${0} forms sent to server!
-<<<<<<< HEAD
-sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
-sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
-sync.success.synced=Sync Successful! Your information is up to date.
-=======
 sync.success.synced=Sync Successful! Your information is up to date.
 
+sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
->>>>>>> master
 sync.fail.auth.loggedin=Password has changed. Please log in with updated credentials
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occurred with the log in. Please try again.
