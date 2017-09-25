@@ -89,11 +89,13 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return getIDsForValues(new String[]{fieldName}, new Object[]{value});
     }
 
+    @Override
     public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
         return getIDsForValues(fieldNames, values, null);
     }
 
-    public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet<Integer> returnSet) {
+    @Override
+    public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet returnSet) {
         SQLiteDatabase db = helper.getHandle();
 
         Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);

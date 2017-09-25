@@ -18,6 +18,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
+import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
@@ -114,7 +115,7 @@ import javax.crypto.SecretKey;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-public class CommCareApplication extends Application {
+public class CommCareApplication extends MultiDexApplication {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
