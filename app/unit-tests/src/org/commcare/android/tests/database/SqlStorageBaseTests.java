@@ -1,6 +1,7 @@
 package org.commcare.android.tests.database;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestUtils;
 import org.commcare.models.database.SqlStorage;
@@ -19,10 +20,11 @@ import org.robolectric.annotation.Config;
  * Created by ctsims on 9/22/2017.
  */
 
-@Config(application = CommCareApplication.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class SqlStorageBaseTests extends IndexedStorageUtilityTests {
 
+    @Override
     protected IStorageUtilityIndexed<Shoe> createStorageUtility() {
         TestUtils.initializeStaticTestStorage();
         return TestUtils.getStorage("ShoeStorage", Shoe.class);
