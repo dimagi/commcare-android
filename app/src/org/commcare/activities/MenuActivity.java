@@ -58,12 +58,4 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
         onBackPressed();
         return true;
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (menuView != null) {
-            menuView.onDestroy();
-        }
-    }
 }

@@ -43,14 +43,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     private final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<>();
 
-    //We're storing this here for now because this is a safe lifecycle object that must represent
-    //a single snapshot of the case database, but it could be generalized later.
     private Hashtable<String, LinkedHashSet<Integer>> mIndexCache = new Hashtable<>();
 
-    //TODO: Document
-    private Hashtable<String, LinkedHashSet<Integer>> mPairedIndexCache = new Hashtable<>();
-
-    private String[][] mMostRecentBatchFetch = null;
 
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage) {
         this(instanceRoot, storage, new AndroidCaseIndexTable());
@@ -108,63 +102,25 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         if (firstKey.startsWith(Case.INDEX_CASE_INDEX_PRE)) {
             return performCaseIndexQuery(firstKey, profiles);
         }
+        return super.getNextIndexMatch(profiles, storage, currentQueryContext);
+    }
 
+    @Override
+    protected int getNumberOfBatchableKeysInProfileSet(Vector<PredicateProfile> profiles) {
+        int keysToBatch = 0;
         //Otherwise see how many of these we can bulk process
-        int numKeys;
-        for (numKeys = 0; numKeys < profiles.size(); ++numKeys) {
+        for (int i = 0; i < profiles.size(); ++i) {
             //If the current key is an index fetch, we actually can't do it in bulk,
             //so we need to stop
-            if (profiles.elementAt(numKeys).getKey().startsWith(Case.INDEX_CASE_INDEX_PRE) ||
-                    !(profiles.elementAt(numKeys) instanceof IndexedValueLookup)) {
+            if (profiles.elementAt(i).getKey().startsWith(Case.INDEX_CASE_INDEX_PRE) ||
+                    !(profiles.elementAt(i) instanceof IndexedValueLookup)) {
                 break;
             }
-            //otherwise, it's now in our queue
+            keysToBatch++;
         }
-
-        SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
-
-        String[] namesToMatch = new String[numKeys];
-        String[] valuesToMatch = new String[numKeys];
-
-        String cacheKey = "";
-        String keyDescription ="";
-
-        for (int i = numKeys - 1; i >= 0; i--) {
-            namesToMatch[i] = profiles.elementAt(i).getKey();
-            valuesToMatch[i] = (String)
-                    (((IndexedValueLookup)profiles.elementAt(i)).value);
-
-            cacheKey += "|" + namesToMatch[i] + "=" + valuesToMatch[i];
-            keyDescription += namesToMatch[i] + "|";
-        }
-        mMostRecentBatchFetch = new String[2][];
-        mMostRecentBatchFetch[0] = namesToMatch;
-        mMostRecentBatchFetch[1] = valuesToMatch;
-
-        LinkedHashSet<Integer> ids;
-        if(mPairedIndexCache.containsKey(cacheKey)) {
-            ids = mPairedIndexCache.get(cacheKey);
-        } else {
-            EvaluationTrace trace = new EvaluationTrace("Case Storage Lookup" + "["+keyDescription + "]");
-            ids = new LinkedHashSet<>();
-            sqlStorage.getIDsForValues(namesToMatch, valuesToMatch, ids);
-            trace.setOutcome("Results: " + ids.size());
-            currentQueryContext.reportTrace(trace);
-
-            mPairedIndexCache.put(cacheKey, ids);
-        }
-
-        if(ids.size() > 50 && ids.size() < PerformanceTuningUtil.getMaxPrefetchCaseBlock()) {
-            RecordSetResultCache cue = currentQueryContext.getQueryCache(RecordSetResultCache.class);
-            cue.reportBulkRecordSet(cacheKey, getStorageCacheName(), ids);
-        }
-
-        //Ok, we matched! Remove all of the keys that we matched
-        for (int i = 0; i < numKeys; ++i) {
-            profiles.removeElementAt(0);
-        }
-        return ids;
+        return keysToBatch;
     }
+
 
     private LinkedHashSet<Integer> performCaseIndexQuery(String firstKey, Vector<PredicateProfile> optimizations) {
         //CTS - March 9, 2015 - Introduced a small cache for child index queries here because they
