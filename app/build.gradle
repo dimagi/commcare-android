@@ -200,6 +200,7 @@ android {
     lintOptions {
         abortOnError false
         disable 'MissingTranslation'
+        disable "ResourceType"
     }
 
     packagingOptions {
