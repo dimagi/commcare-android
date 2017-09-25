@@ -1,25 +1,28 @@
 package org.commcare.network;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.commcare.interfaces.HttpRequestEndpoints;
+import org.commcare.core.network.OkHTTPResponseMockFactory;
+import org.commcare.interfaces.CommcareRequestEndpoints;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import javax.annotation.Nullable;
+
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * Mocks for different types of http requests commcare mobile makes to the server
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
+public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
     private final static List<Integer> caseFetchResponseCodeStack = new ArrayList<>();
     private static String errorMessagePayload;
 
@@ -39,8 +42,8 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
     }
 
     @Override
-    public HttpResponse makeCaseFetchRequest(String baseUri, boolean includeStateFlags)
-            throws ClientProtocolException, IOException {
+    public Response<ResponseBody> makeCaseFetchRequest(String baseUri, boolean includeStateFlags)
+            throws IOException {
         int responseCode;
         if (caseFetchResponseCodeStack.size() > 0) {
             responseCode = caseFetchResponseCodeStack.remove(0);
@@ -48,26 +51,30 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
             responseCode = 200;
         }
         if (responseCode == 202) {
-            return HttpResponseMock.buildHttpResponseMockForAsyncRestore();
+            Headers headers = new Headers.Builder()
+                    .add("Retry-After", "2")
+                    .build();
+            return OkHTTPResponseMockFactory.createResponse(202, headers);
         } else if (responseCode == 406) {
-            return HttpResponseMock.buildHttpResponseMock(responseCode, new ByteArrayInputStream(errorMessagePayload.getBytes("UTF-8")));
+            ResponseBody responseBody = ResponseBody.create(MediaType.parse("application/json"), errorMessagePayload);
+            return Response.error(responseCode, responseBody);
         } else {
-            return HttpResponseMock.buildHttpResponseMock(responseCode, null);
+            return OkHTTPResponseMockFactory.createResponse(responseCode);
         }
     }
 
     @Override
-    public HttpResponse makeKeyFetchRequest(String baseUri, Date lastRequest) throws ClientProtocolException, IOException {
+    public Response<ResponseBody> makeKeyFetchRequest(String baseUri, @Nullable Date lastRequest) throws IOException {
         throw new RuntimeException("Not yet mocked");
     }
 
     @Override
-    public HttpResponse postData(String url, MultipartEntity entity) throws ClientProtocolException, IOException {
+    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts) throws IOException {
         throw new RuntimeException("Not yet mocked");
     }
 
     @Override
-    public InputStream simpleGet(URL url) throws IOException {
+    public Response<ResponseBody> simpleGet(String uri) throws IOException {
         throw new RuntimeException("Not yet mocked");
     }
 

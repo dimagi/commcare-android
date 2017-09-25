@@ -1,6 +1,6 @@
 package org.commcare.network;
 
-import org.commcare.interfaces.HttpRequestEndpoints;
+import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.tasks.DataPullTask;
 
 import java.io.IOException;
@@ -22,9 +22,9 @@ public interface DataPullRequester {
      * @return Instance to handle the response data
      */
     RemoteDataPullResponse makeDataPullRequest(DataPullTask task,
-                                               HttpRequestEndpoints requestor,
+                                               CommcareRequestEndpoints requestor,
                                                String server,
                                                boolean includeSyncToken) throws IOException;
 
-    HttpRequestEndpoints getHttpGenerator(String username, String password, String userId);
+    CommcareRequestEndpoints getHttpGenerator(String username, String password, String userId);
 }

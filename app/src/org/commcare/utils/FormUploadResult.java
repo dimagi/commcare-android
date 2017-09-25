@@ -33,19 +33,24 @@ public enum FormUploadResult {
     AUTH_FAILURE(4),
 
     /**
+     * We attempted an authenticated request over http
+     */
+    AUTH_OVER_HTTP(5),
+
+    /**
      * There was a problem with the transport layer during transit
      */
-    TRANSPORT_FAILURE(5),
+    TRANSPORT_FAILURE(6),
 
     /**
      * The user session ended while trying to upload a form
      */
-    PROGRESS_LOGGED_OUT(6),
+    PROGRESS_LOGGED_OUT(7),
 
-    PROGRESS_SDCARD_REMOVED(7);
+    PROGRESS_SDCARD_REMOVED(8);
 
     private final int orderVal;
-    public String processingFailureReason;
+    private String processingFailureReason;
 
     FormUploadResult(int orderVal) {
         this.orderVal = orderVal;
@@ -53,6 +58,10 @@ public enum FormUploadResult {
 
     public void setProcessingFailureReason(String s) {
         this.processingFailureReason = s;
+    }
+
+    public String getProcessingFailureReason() {
+        return this.processingFailureReason;
     }
 
     public static FormUploadResult getWorstResult(FormUploadResult[] results) {

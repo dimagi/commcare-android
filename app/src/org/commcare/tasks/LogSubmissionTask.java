@@ -3,10 +3,6 @@ package org.commcare.tasks;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntity;
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
@@ -17,13 +13,12 @@ import org.commcare.logging.DeviceReportWriter;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorSerializer;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.network.DataSubmissionEntity;
-import org.commcare.network.EncryptedFileBody;
-import org.commcare.network.HttpRequestGenerator;
+import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.LogSubmissionTask.LogSubmitOutcomes;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -36,10 +31,15 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+
+import okhttp3.MultipartBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 /**
  * @author ctsims
  */
@@ -140,7 +140,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
      * logs, and write that to a DeviceReportRecord, which then gets added to the internal storage
      * object of all DeviceReportRecords that have yet to be submitted
      */
-    private boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
+    private static boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
         //update the last recorded record
@@ -241,7 +241,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
         listener.startSubmission(index, f.length());
 
-        HttpRequestGenerator generator;
+        CommcareRequestGenerator generator;
         User user;
         try {
             user = CommCareApplication.instance().getSession().getLoggedInUser();
@@ -250,19 +250,19 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return false;
         }
 
-        generator = new HttpRequestGenerator(user);
+        generator = new CommcareRequestGenerator(user);
 
-        MultipartEntity entity = new DataSubmissionEntity(listener, index);
+        List<MultipartBody.Part> parts = new ArrayList<>();
 
-        EncryptedFileBody fb = new EncryptedFileBody(f, getDecryptCipher(new SecretKeySpec(slr.getKey(), "AES")), ContentType.TEXT_XML);
-        entity.addPart("xml_submission_file", fb);
+        parts.add(FormUploadUtil.createEncryptedFilePart(
+                "xml_submission_file",
+                f,
+                "text/xml",
+                new SecretKeySpec(slr.getKey(), "AES")));
 
-        HttpResponse response;
+        Response<ResponseBody> response;
         try {
-            response = generator.postData(submissionUrl, entity);
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-            return false;
+            response = generator.postMultipart(submissionUrl, parts);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -271,14 +271,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return false;
         }
 
-        int responseCode = response.getStatusLine().getStatusCode();
-
+        int responseCode = response.code();
         return (responseCode >= 200 && responseCode < 300);
     }
 
     private static boolean removeLocalReports(SqlStorage<DeviceReportRecord> storage,
-                                       ArrayList<Integer> submittedSuccesfullyIds,
-                                       ArrayList<DeviceReportRecord> submittedSuccesfully) {
+                                              ArrayList<Integer> submittedSuccesfullyIds,
+                                              ArrayList<DeviceReportRecord> submittedSuccesfully) {
         try {
             //Wipe the DB entries
             storage.remove(submittedSuccesfullyIds);

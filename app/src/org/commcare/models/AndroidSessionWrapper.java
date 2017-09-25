@@ -23,6 +23,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.crypto.SecretKey;
@@ -182,18 +183,24 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         return session.getEvaluationContext(getIIF());
     }
 
+    @Override
+    public EvaluationContext getRestrictedEvaluationContext(String commandId,
+                                                            Set<String> instancesToInclude) {
+        return session.getEvaluationContext(getIIF(), commandId, instancesToInclude);
+    }
+
     /**
      * @param commandId The id of the command to evaluate against
      * @return The evaluation context relevant for the provided command id
      */
     public EvaluationContext getEvaluationContext(String commandId) {
-        return session.getEvaluationContext(getIIF(), commandId);
+        return session.getEvaluationContext(getIIF(), commandId, null);
     }
     
     private AndroidInstanceInitializer initializer;
 
     public AndroidInstanceInitializer getIIF() {
-        if(initializer == null) {
+        if (initializer == null) {
             initializer = new AndroidInstanceInitializer(session);
         } 
 

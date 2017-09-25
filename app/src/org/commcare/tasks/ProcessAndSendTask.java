@@ -2,7 +2,8 @@ package org.commcare.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
+
+import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.SyncCapableCommCareActivity;
@@ -14,6 +15,7 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
+import org.commcare.utils.QuarantineUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -175,11 +177,20 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
             //If the form is complete, but unprocessed, process it.
             if (FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
+                SQLiteDatabase userDb =
+                        CommCareApplication.instance().getUserDbHandle();
                 try {
-                    records[i] = processor.process(record);
+                    userDb.beginTransaction();
+                    try {
+                        records[i] = processor.process(record);
+                        userDb.setTransactionSuccessful();
+                    }
+                    finally {
+                        userDb.endTransaction();
+                    }
                 } catch (InvalidStructureException | XmlPullParserException |
                         UnfullfilledRequirementsException e) {
-                    handleExceptionFromFormProcessing(record, e);
+                    records[i] = handleExceptionFromFormProcessing(record, e);
                     needToSendLogs = true;
                 } catch (FileNotFoundException e) {
                     if (CommCareApplication.instance().isStorageAvailable()) {
@@ -189,6 +200,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         record.logPendingDeletion(TAG,
                                 "the xml submission file associated with the record could not be found");
                         FormRecordCleanupTask.wipeRecord(c, record);
+                        records[i] = FormRecord.StandInForDeletedRecord();
                     } else {
                         CommCareApplication.notificationManager().reportNotificationMessage(
                                 NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
@@ -205,30 +217,25 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         return needToSendLogs;
     }
 
-    private void handleExceptionFromFormProcessing(FormRecord record, Exception e) {
-        String generalLogMessage = "";
-        String formDeletionLogMessage = "";
+    private FormRecord handleExceptionFromFormProcessing(FormRecord record, Exception e) {
+        String logMessage = "";
         if (e instanceof InvalidStructureException) {
-            generalLogMessage =
-                    "Removing form record due to transaction data|" + getExceptionText(e);
-            formDeletionLogMessage =
-                    "we encountered an InvalidStructureException while processing the record";
+            logMessage =
+                    "Quarantining form record due to transaction data|";
         } else if (e instanceof XmlPullParserException) {
-            generalLogMessage =
-                    "Removing form record due to bad xml|" + getExceptionText(e);
-            formDeletionLogMessage =
-                    "we encountered an XmlPullParserException while processing the record";
+            logMessage =
+                    "Quarantining form record due to bad xml|";
         } else if (e instanceof UnfullfilledRequirementsException) {
-            generalLogMessage =
-                    "Removing form record due to bad requirements|" + getExceptionText(e);
-            formDeletionLogMessage =
-                    "we encountered an UnfullfilledRequirementsException while processing the record";
+            logMessage =
+                    "Quarantining form record due to bad requirements|";
         }
+        logMessage = logMessage + getExceptionText(e);
+
         CommCareApplication.notificationManager().reportNotificationMessage(
                 NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-        Logger.log(LogTypes.TYPE_ERROR_DESIGN, generalLogMessage);
-        record.logPendingDeletion(TAG, formDeletionLogMessage);
-        FormRecordCleanupTask.wipeRecord(c, record);
+        Logger.log(LogTypes.TYPE_ERROR_DESIGN, logMessage);
+
+        return quarantineRecordAndReport(record, FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR);
     }
 
     private boolean blockUntilTopOfQueue() throws TaskCancelledException {
@@ -280,7 +287,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
             FormRecord record = records[i];
             try {
-                //If it's unsent, go ahead and send it
                 if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
                     File folder;
                     try {
@@ -329,6 +335,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             CommCareApplication.notificationManager().reportNotificationMessage(
                                     NotificationMessageFactory.message(ProcessIssues.RecordFilesMissing), true);
                             FormRecordCleanupTask.wipeRecord(c, record);
+                            results[i] = FormUploadResult.RECORD_FAILURE;
                         } else {
                             // Otherwise, the SD card just got removed, and we need to bail anyway.
                             CommCareApplication.notificationManager().reportNotificationMessage(
@@ -349,7 +356,13 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             processor.updateRecordStatus(record, FormRecord.STATUS_SAVED);
                         }
                     }
-                } else {
+                } else if (FormRecord.STATUS_QUARANTINED.equals(record.getStatus()) ||
+                        FormRecord.STATUS_JUST_DELETED.equals(record.getStatus())) {
+                    // This record was either quarantined or deleted due to an error during the
+                    // pre-processing phase
+                    results[i] = FormUploadResult.RECORD_FAILURE;
+                }
+                else {
                     results[i] = FormUploadResult.FULL_SUCCESS;
                 }
             } catch (SessionUnavailableException sue) {
@@ -380,30 +393,25 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         return false;
     }
 
-    /**
-     * We tried to submit multiple times and there was either a problem with the record that we
-     * found locally, or HQ could not process it
-     */
-    private void quarantineRecordAndReport(FormRecord record, FormUploadResult result) {
-        String reasonForQuarantine;
-        NotificationMessage messageForNotification;
-        if (result == FormUploadResult.PROCESSING_FAILURE) {
-            reasonForQuarantine = result.processingFailureReason;
-            messageForNotification = NotificationMessageFactory.message(
-                    ProcessIssues.RecordQuarantinedServerIssue,
-                    new String[] {null, reasonForQuarantine, null});
-        } else {
-            reasonForQuarantine = FormRecord.QUARANTINED_FOR_LOCAL_REASON;
-            messageForNotification = NotificationMessageFactory.message(
-                    ProcessIssues.RecordQuarantinedLocalIssue);
-        }
-        processor.quarantineRecord(record, reasonForQuarantine);
+    private FormRecord quarantineRecordAndReport(FormRecord record, FormUploadResult uploadResult) {
+        String reasonForQuarantine =
+                (uploadResult == FormUploadResult.RECORD_FAILURE) ?
+                        FormRecord.QuarantineReason_RECORD_ERROR :
+                        FormRecord.QuarantineReason_SERVER_PROCESSING_ERROR;
+        return quarantineRecordAndReport(record, reasonForQuarantine);
+    }
 
+    private FormRecord quarantineRecordAndReport(FormRecord record, String quarantineReason) {
         Logger.log(LogTypes.TYPE_ERROR_STORAGE,
-                String.format("Quarantining Form Record with id %s because %s",
-                        record.getInstanceID(), reasonForQuarantine));
+                String.format("Quarantining Form Record with id %s because of the following issue type: %s",
+                        record.getInstanceID(), QuarantineUtil.getQuarantineReasonDisplayString(record)));
 
-        CommCareApplication.notificationManager().reportNotificationMessage(messageForNotification, true);
+        NotificationMessage m = QuarantineUtil.getQuarantineNotificationMessage(record);
+        if (m != null) {
+            CommCareApplication.notificationManager().reportNotificationMessage(m, true);
+        }
+
+        return processor.quarantineRecord(record, quarantineReason);
     }
 
     private static void logSubmissionAttempt(FormRecord record) {

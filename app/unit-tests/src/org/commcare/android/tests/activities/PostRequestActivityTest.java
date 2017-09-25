@@ -16,7 +16,7 @@ import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.util.Pair;
-import org.commcare.network.HttpRequestEndpointsMock;
+import org.commcare.network.CommcareRequestEndpointsMock;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
@@ -54,11 +54,18 @@ public class PostRequestActivityTest {
 
     @Test
     public void postingToNonHttpsURLTest() {
-        // NOTE PLM: we will eventually support 'http' urls, but won't include authentication credentials in them
         String urlString = "http://bad.url.com";
+        ModernHttpRequesterMock.setEnforceSecureEndpointValidation(true);
         PostRequestActivity postRequestActivity = buildPostActivity(urlString);
+        assertErrorMessage(postRequestActivity, true, Localization.get("auth.request.not.using.https", urlString));
+    }
 
-        assertErrorMessage(postRequestActivity, true, Localization.get("post.not.using.https", urlString));
+    @Test
+    public void postingToNonHttpsURLTest_WithDisabledSecureEndpointValidation() {
+        String urlString = "http://bad.url.com";
+        ModernHttpRequesterMock.setEnforceSecureEndpointValidation(false);
+        PostRequestActivity postRequestActivity = buildPostActivity(urlString);
+        assertErrorMessage(postRequestActivity, false, null);
     }
 
     private static void assertErrorMessage(PostRequestActivity postRequestActivity,
@@ -106,15 +113,8 @@ public class PostRequestActivityTest {
     private static void assertPostFailureMessage(String expectedErrorMessage,
                                                  int responseCode) {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{responseCode});
-
         PostRequestActivity postRequestActivity = buildPostActivity("https://www.fake.com");
         assertErrorMessage(postRequestActivity, true, expectedErrorMessage);
-    }
-
-    @Test
-    public void redirectErrorResponseFromServerTest() {
-        int responseCode = 320;
-        assertPostFailureMessage(Localization.get("post.redirection.error", responseCode + ""), responseCode);
     }
 
     @Test
@@ -151,7 +151,7 @@ public class PostRequestActivityTest {
     @Test
     public void retryClaimTest() {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{500, 200});
-        HttpRequestEndpointsMock.setCaseFetchResponseCodes(new Integer[]{200});
+        CommcareRequestEndpointsMock.setCaseFetchResponseCodes(new Integer[]{200});
         LocalReferencePullResponseFactory.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/empty_restore.xml"});
 
         PostRequestActivity postRequestActivity = buildPostActivity("https://www.fake.com");
@@ -171,7 +171,7 @@ public class PostRequestActivityTest {
     @Test
     public void makeSuccessfulPostRequestTest() {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
-        HttpRequestEndpointsMock.setCaseFetchResponseCodes(new Integer[]{200});
+        CommcareRequestEndpointsMock.setCaseFetchResponseCodes(new Integer[]{200});
         LocalReferencePullResponseFactory.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/empty_restore.xml"});
 
         AndroidSessionWrapper sessionWrapper =

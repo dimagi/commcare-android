@@ -7,7 +7,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.interfaces.HttpRequestEndpoints;
+import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DeveloperPreferences;
@@ -37,7 +37,7 @@ import java.util.Hashtable;
 public class AndroidTransactionParserFactory extends CommCareTransactionParserFactory {
 
     final private Context context;
-    final private HttpRequestEndpoints generator;
+    final private CommcareRequestEndpoints generator;
     final private ArrayList<String> createdAndUpdatedCases = new ArrayList<>();
 
     private TransactionParserFactory formInstanceParser;
@@ -48,7 +48,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
      */
     private Hashtable<String, String> formInstanceNamespaces;
 
-    public AndroidTransactionParserFactory(Context context, HttpRequestEndpoints generator) {
+    public AndroidTransactionParserFactory(Context context, CommcareRequestEndpoints generator) {
         super(new AndroidSandbox(CommCareApplication.instance()), DeveloperPreferences.isBulkPerformanceEnabled());
         this.context = context;
         this.generator = generator;

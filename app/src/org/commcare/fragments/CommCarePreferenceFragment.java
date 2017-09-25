@@ -43,6 +43,7 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
         setTitle();
         initPrefsFile();
         loadPrefs();
+        conditionallyHideSpecificPrefs();
     }
 
     @CallSuper
@@ -62,6 +63,10 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
                 GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         setupPrefClickListeners();
         setupLocalizedText();
+    }
+
+    protected void conditionallyHideSpecificPrefs() {
+        // default implementation does nothing
     }
 
     @CallSuper

@@ -39,7 +39,6 @@ import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.ArchivedFormRemoteRestore;
 import org.commcare.models.FormRecordProcessor;
-import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
@@ -51,6 +50,7 @@ import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
+import org.commcare.utils.QuarantineUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.IncompleteFormRecordView;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -399,8 +399,16 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
 
         if (FormRecord.STATUS_QUARANTINED.equals(value.getStatus())) {
-            menu.add(Menu.NONE, RESTORE_RECORD, RESTORE_RECORD, Localization.get("app.workflow.forms.restore"));
-            menu.add(Menu.NONE, VIEW_QUARANTINE_REASON, VIEW_QUARANTINE_REASON, Localization.get("app.workflow.forms.view.quarantine.reason"));
+            menu.add(Menu.NONE, VIEW_QUARANTINE_REASON, VIEW_QUARANTINE_REASON,
+                    Localization.get("app.workflow.forms.view.quarantine.reason"));
+
+            if (!FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR.equals(value.getReasonForQuarantine())) {
+                // Records that were quarantined due to a local processing error can't attempt
+                // re-submission, since doing so would send them straight to "Unsent" when they
+                // haven't even been processed
+                menu.add(Menu.NONE, RESTORE_RECORD, RESTORE_RECORD,
+                        Localization.get("app.workflow.forms.restore"));
+            }
         }
 
         menu.add(Menu.NONE, SCAN_RECORD, SCAN_RECORD, Localization.get("app.workflow.forms.scan"));
@@ -464,7 +472,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    quarantineRecord(record);
+                    manuallyQuarantineRecord(record);
                     dismissAlertDialog();
                 }
             });
@@ -473,8 +481,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         showAlertDialog(dialog);
     }
 
-    private void quarantineRecord(FormRecord record) {
-        this.formRecordProcessor.updateRecordStatus(record, FormRecord.STATUS_QUARANTINED);
+    private void manuallyQuarantineRecord(FormRecord record) {
+        this.formRecordProcessor.quarantineRecord(record, FormRecord.QuarantineReason_MANUAL);
         listView.post(new Runnable() {
             @Override
             public void run() {
@@ -486,12 +494,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     private void createQuarantineReasonDialog(FormRecord record) {
         String title = Localization.get("reason.for.quarantine.title");
-        String message = "";
-        String reasonForQuarantineBase = record.getReasonForQuarantine();
-        if (!FormRecord.QUARANTINED_FOR_LOCAL_REASON.equals(reasonForQuarantineBase)) {
-            message += (Localization.get("processing.error.reason.prefix") + " ");
-        }
-        message += reasonForQuarantineBase;
+        String message = Localization.get("quarantine.reason.prefix") +
+                QuarantineUtil.getQuarantineReasonDisplayString(record);
         showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, message, null));
     }
 

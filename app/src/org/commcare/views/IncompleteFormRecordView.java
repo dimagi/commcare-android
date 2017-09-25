@@ -12,6 +12,7 @@ import org.commcare.dalvik.R;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.suite.model.Text;
 import org.commcare.utils.MarkupUtil;
+import org.commcare.utils.QuarantineUtil;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -23,9 +24,6 @@ import java.util.Hashtable;
  * @author ctsims
  */
 public class IncompleteFormRecordView extends LinearLayout {
-
-    private static final String QUARANTINED_MSG_SERVER = "Quarantined due to: Server Processing Error";
-    private static final String QUARANTINED_MSG_LOCAL = "Quarantined due to: Local Record Issue";
 
     public final TextView mPrimaryTextView;
     private final TextView mLowerTextView;
@@ -85,14 +83,11 @@ public class IncompleteFormRecordView extends LinearLayout {
             syncIcon.setVisibility(View.GONE);
         }
 
-        if (FormRecord.STATUS_QUARANTINED.equals(record.getStatus()) && record.getReasonForQuarantine() != null) {
+        if (FormRecord.STATUS_QUARANTINED.equals(record.getStatus()) &&
+                record.getReasonForQuarantine() != null) {
             reasonForQuarantineView.setVisibility(View.VISIBLE);
-            String reasonForQuarantine = record.getReasonForQuarantine();
-            if (reasonForQuarantine.equals(FormRecord.QUARANTINED_FOR_LOCAL_REASON)) {
-                reasonForQuarantineView.setText(QUARANTINED_MSG_LOCAL);
-            } else {
-                reasonForQuarantineView.setText(QUARANTINED_MSG_SERVER);
-            }
+            reasonForQuarantineView.setText("Quarantined due to : " +
+                    QuarantineUtil.getQuarantineReasonDisplayString(record));
         } else {
             reasonForQuarantineView.setVisibility(View.GONE);
         }

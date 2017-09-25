@@ -88,6 +88,10 @@ public class CommCareServerPreferences
         return getServerProperty(PREFS_SUPPORT_ADDRESS_KEY, CommCareApplication.instance().getString(R.string.support_email_address_default)) ;
     }
 
+    public static String getDataServerKey() {
+        return getServerProperty(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, CommCareApplication.instance().getString(R.string.ota_restore_url)) ;
+    }
+
     private static String getServerProperty(String key, String defaultValue) {
         CommCareApp app = CommCareApplication.instance().getCurrentApp();
         if (app == null) {
@@ -96,5 +100,4 @@ public class CommCareServerPreferences
         SharedPreferences properties = app.getAppPreferences();
         return properties.getString(key, defaultValue);
     }
-
 }

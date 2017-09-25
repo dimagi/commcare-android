@@ -136,8 +136,6 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                         //OK, all forms sent, sync time 
                         syncData(context);
 
-                    } else if (result == FormUploadResult.FAILURE) {
-                        Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
                     }
@@ -171,8 +169,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 u.getUsername(),
                 u.getCachedPwd(),
                 u.getUniqueId(),
-                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY,
-                        context.getString(R.string.ota_restore_url)),
+                CommCareServerPreferences.getDataServerKey(),
                 context) {
 
             @Override

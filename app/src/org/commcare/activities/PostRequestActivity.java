@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
@@ -22,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+
+import okhttp3.RequestBody;
 
 /**
  * Perform post request to external server and trigger a sync upon success.
@@ -107,17 +111,16 @@ public class PostRequestActivity
     }
 
     private void makePostRequest() {
-        if (!hasTaskLaunched && !inErrorState) {
-            ModernHttpTask postTask;
-            try {
-                postTask = new ModernHttpTask(this, url, params, true, null);
-            } catch (ModernHttpRequester.PlainTextPasswordException e) {
-                enterErrorState(Localization.get("post.not.using.https", url.toString()));
-                return;
+        try {
+            if (!hasTaskLaunched && !inErrorState) {
+                RequestBody requestBody = ModernHttpRequester.getPostBody(params);
+                ModernHttpTask postTask = new ModernHttpTask(this, url.toString(), new HashMap(), getContentHeadersForXFormPost(requestBody), requestBody, HTTPMethod.POST, null);
+                postTask.connect((CommCareTaskConnector)this);
+                postTask.executeParallel();
+                hasTaskLaunched = true;
             }
-            postTask.connect((CommCareTaskConnector)this);
-            postTask.executeParallel();
-            hasTaskLaunched = true;
+        } catch (IOException e) {
+            handleIOException(e);
         }
     }
 
@@ -140,6 +143,14 @@ public class PostRequestActivity
         hasTaskLaunched = false;
         makePostRequest();
     }
+
+    private HashMap<String, String> getContentHeadersForXFormPost(RequestBody postBody) throws IOException {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/x-www-form-urlencoded");
+        headers.put("Content-Length", String.valueOf(postBody.contentLength()));
+        return headers;
+    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
@@ -166,22 +177,17 @@ public class PostRequestActivity
     }
 
     @Override
-    public void processRedirection(int responseCode) {
-        enterErrorState(Localization.get("post.redirection.error", responseCode + ""));
-    }
-
-    @Override
     public void processClientError(int responseCode) {
         String clientErrorMessage;
         switch (responseCode) {
             case 409:
-                clientErrorMessage =Localization.get("post.conflict.error");
+                clientErrorMessage = Localization.get("post.conflict.error");
                 break;
             case 410:
-                clientErrorMessage =Localization.get("post.gone.error");
+                clientErrorMessage = Localization.get("post.gone.error");
                 break;
             default:
-                clientErrorMessage =Localization.get("post.client.error", responseCode + "");
+                clientErrorMessage = Localization.get("post.client.error", responseCode + "");
                 break;
         }
         enterErrorState(clientErrorMessage);
@@ -199,7 +205,11 @@ public class PostRequestActivity
 
     @Override
     public void handleIOException(IOException exception) {
-        enterErrorState(Localization.get("post.io.error", exception.getMessage()));
+        if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
+            enterErrorState(Localization.get("auth.request.not.using.https", url.toString()));
+        } else if (exception instanceof IOException) {
+            enterErrorState(Localization.get("post.io.error", exception.getMessage()));
+        }
     }
 
     @Override

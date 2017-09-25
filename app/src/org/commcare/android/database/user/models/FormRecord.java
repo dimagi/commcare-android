@@ -11,6 +11,7 @@ import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.util.LogTypes;
+import org.commcare.views.notifications.NotificationMessage;
 import org.javarosa.core.services.Logger;
 
 import java.io.FileNotFoundException;
@@ -31,9 +32,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String META_LAST_MODIFIED = "DATE_MODIFIED";
     public static final String META_APP_ID = "APP_ID";
     public static final String META_SUBMISSION_ORDERING_NUMBER = "SUBMISSION_ORDERING_NUMBER";
-
-    public static final String QUARANTINED_FOR_LOCAL_REASON = "This form was quarantined because " +
-            "there was a local issue with the record that prevented submission";
 
     /**
      * This form record is a stub that hasn't actually had data saved for it yet
@@ -71,6 +69,17 @@ public class FormRecord extends Persisted implements EncryptedModel {
      */
     public static final String STATUS_UNINDEXED = "unindexed";
 
+    /**
+     * Represents a form record that was just deleted from the db, but which we still need an
+     * object representation of to reference in the short-term
+     */
+    public static final String STATUS_JUST_DELETED = "just-deleted";
+
+    public static final String QuarantineReason_LOCAL_PROCESSING_ERROR = "local-processing-error";
+    public static final String QuarantineReason_SERVER_PROCESSING_ERROR = "server-processing-error";
+    public static final String QuarantineReason_RECORD_ERROR = "record-error";
+    public static final String QuarantineReason_MANUAL = "manual-quarantine";
+
     @Persisting(1)
     @MetaField(META_XMLNS)
     private String xmlns;
@@ -102,7 +111,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @MetaField(META_SUBMISSION_ORDERING_NUMBER)
     private String submissionOrderingNumber;
 
-    @Persisting(value = 8, nullable = true)
+    @Persisting(value = 9, nullable = true)
     private String reasonForQuarantine;
 
     public FormRecord() {
@@ -137,6 +146,12 @@ public class FormRecord extends Persisted implements EncryptedModel {
         fr.recordId = this.recordId;
         fr.submissionOrderingNumber = this.submissionOrderingNumber;
         return fr;
+    }
+
+    public static FormRecord StandInForDeletedRecord() {
+        FormRecord r = new FormRecord();
+        r.status = STATUS_JUST_DELETED;
+        return r;
     }
 
     public Uri getInstanceURI() {
@@ -187,13 +202,12 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return Integer.parseInt(submissionOrderingNumber);
     }
 
-    public void setReasonForQuarantine(String s) {
-        System.out.println("Setting reason for quarantine to: " + s);
-        this.reasonForQuarantine = s;
+    public void setReasonForQuarantine(String reason) {
+        this.reasonForQuarantine = reason;
     }
 
     public String getReasonForQuarantine() {
-        return reasonForQuarantine;
+        return this.reasonForQuarantine;
     }
 
     /**
