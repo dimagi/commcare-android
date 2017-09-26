@@ -36,7 +36,7 @@ public class IntegerWidget extends StringWidget {
         this.number_type = num_type;
 
         // needed to make long readonly text scroll
-        mAnswer.setHorizontallyScrolling(false);
+        mAnswer.setHorizontallyScrolling(isInCompactMode() ? true : false);
 
         // only allows numbers and no periods
         mAnswer.setKeyListener(new DigitsKeyListener(true, false));
