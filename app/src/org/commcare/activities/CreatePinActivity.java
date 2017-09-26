@@ -103,7 +103,12 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 // processes the done/next keyboard action
                 if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
-                    continueButton.performClick();
+                    if (enterPinBox.getText().toString().length() != 4) {
+                        Toast.makeText(CreatePinActivity.this, Localization.get("pin.length.error"),
+                                Toast.LENGTH_LONG).show();
+                    } else {
+                        continueButton.performClick();
+                    }
                     return true;
                 }
                 return false;
