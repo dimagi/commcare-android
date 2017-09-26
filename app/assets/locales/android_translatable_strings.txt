@@ -189,7 +189,6 @@ app.workflow.forms.quarantine.report=Submit Quarantine Report
 app.workflow.forms.view.quarantine.reason=View Full Reason for Quarantine
 
 reason.for.quarantine.title=Reason for Quarantine
-quarantine.reason.prefix=This form was quarantined due to the following reason:
 
 notifications.prompt.details=Select for details. ${0}
 notifications.prompt.more=(${0} More...)
@@ -787,5 +786,8 @@ calendar.low.day=Day value below min value of 1
 calendar.high.day=Day value above max value of ${0}
 
 quarantine.reason.local.processing=Local processing of the form failed
-quarantine.reason.record.error=There was an issue with the record that prevented submission
+quarantine.reason.server.processing=The server failed to process the form
+quarantine.reason.record.error=There was an issue with the form record that prevented submission
 quarantine.reason.manual=The form was manually quarantined by a user
+quarantine.reason.fnf=The file backing the form submission could not be found
+quarantine.reason.unknown=Reason for quarantine unknown

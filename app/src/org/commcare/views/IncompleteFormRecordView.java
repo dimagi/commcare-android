@@ -38,12 +38,12 @@ public class IncompleteFormRecordView extends LinearLayout {
         super(context);
 
         ViewGroup vg = (ViewGroup)View.inflate(context, R.layout.formrecordview, null);
-        mPrimaryTextView = (TextView)vg.findViewById(R.id.formrecord_txt_main);
-        mLowerTextView = (TextView)vg.findViewById(R.id.formrecord_txt_btm);
-        mRightTextView = (TextView)vg.findViewById(R.id.formrecord_txt_right);
-        mUpperRight = (TextView)vg.findViewById(R.id.formrecord_txt_upp_right);
-        syncIcon = (ImageView)vg.findViewById(R.id.formrecord_sync_icon);
-        reasonForQuarantineView = (TextView)vg.findViewById(R.id.reason_for_quarantine_display);
+        mPrimaryTextView = vg.findViewById(R.id.formrecord_txt_main);
+        mLowerTextView = vg.findViewById(R.id.formrecord_txt_btm);
+        mRightTextView = vg.findViewById(R.id.formrecord_txt_right);
+        mUpperRight = vg.findViewById(R.id.formrecord_txt_upp_right);
+        syncIcon = vg.findViewById(R.id.formrecord_sync_icon);
+        reasonForQuarantineView = vg.findViewById(R.id.reason_for_quarantine_display);
 
         mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
         mUpperRight.setTextAppearance(context, android.R.style.TextAppearance_Large);
@@ -84,10 +84,10 @@ public class IncompleteFormRecordView extends LinearLayout {
         }
 
         if (FormRecord.STATUS_QUARANTINED.equals(record.getStatus()) &&
-                record.getReasonForQuarantine() != null) {
+                record.getQuarantineReasonType() != null) {
             reasonForQuarantineView.setVisibility(View.VISIBLE);
-            reasonForQuarantineView.setText("Quarantined due to : " +
-                    QuarantineUtil.getQuarantineReasonDisplayString(record));
+            reasonForQuarantineView.setText("Quarantine Reason: " +
+                    QuarantineUtil.getQuarantineReasonDisplayString(record, false));
         } else {
             reasonForQuarantineView.setVisibility(View.GONE);
         }

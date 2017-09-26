@@ -11,7 +11,6 @@ import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.util.LogTypes;
-import org.commcare.views.notifications.NotificationMessage;
 import org.javarosa.core.services.Logger;
 
 import java.io.FileNotFoundException;
@@ -81,6 +80,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String QuarantineReason_MANUAL = "manual-quarantine";
     public static final String QuarantineReason_FILE_NOT_FOUND = "file-not-found";
 
+    private static final String QUARANTINE_REASON_AND_DETAIL_SEPARATOR = "@@SEP@@";
+
     @Persisting(1)
     @MetaField(META_XMLNS)
     private String xmlns;
@@ -113,7 +114,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     private String submissionOrderingNumber;
 
     @Persisting(value = 9, nullable = true)
-    private String reasonForQuarantine;
+    private String quarantineReason;
 
     public FormRecord() {
     }
@@ -203,12 +204,24 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return Integer.parseInt(submissionOrderingNumber);
     }
 
-    public void setReasonForQuarantine(String reason) {
-        this.reasonForQuarantine = reason;
+    public void setQuarantineReason(String reasonType, String reasonDetail) {
+        this.quarantineReason = reasonType;
+        if (reasonDetail != null) {
+            this.quarantineReason += (QUARANTINE_REASON_AND_DETAIL_SEPARATOR + reasonDetail);
+        }
     }
 
-    public String getReasonForQuarantine() {
-        return this.reasonForQuarantine;
+    public String getQuarantineReasonType() {
+        return this.quarantineReason.split(QUARANTINE_REASON_AND_DETAIL_SEPARATOR)[0];
+    }
+
+    public String getQuarantineReasonDetail() {
+        String[] typeAndDetail = this.quarantineReason.split(QUARANTINE_REASON_AND_DETAIL_SEPARATOR);
+        if (typeAndDetail.length == 2) {
+            return typeAndDetail[1];
+        } else {
+            return null;
+        }
     }
 
     /**

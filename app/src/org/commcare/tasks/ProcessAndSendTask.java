@@ -235,7 +235,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
         Logger.log(LogTypes.TYPE_ERROR_DESIGN, logMessage);
 
-        return quarantineRecordAndReport(record, FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR);
+        return quarantineRecord(record, FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR);
     }
 
     private boolean blockUntilTopOfQueue() throws TaskCancelledException {
@@ -323,7 +323,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         }
                         if (results[i] == FormUploadResult.RECORD_FAILURE ||
                                 results[i] == FormUploadResult.PROCESSING_FAILURE) {
-                            quarantineRecordAndReport(record, results[i]);
+                            quarantineRecord(record, results[i]);
                         }
                     } catch (FileNotFoundException e) {
                         if (CommCareApplication.instance().isStorageAvailable()) {
@@ -337,9 +337,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                     record.getInstanceID(), getExceptionText(e)));
                             record.logPendingDeletion(TAG,
                                     "the xml submission file associated with the record was missing");
-                            CommCareApplication.notificationManager().reportNotificationMessage(
-                                    NotificationMessageFactory.message(ProcessIssues.RecordFilesMissing), true);
-                            quarantineRecordAndReport(record,
+                            quarantineRecord(record,
                                     FormRecord.QuarantineReason_FILE_NOT_FOUND);
                             results[i] = FormUploadResult.RECORD_FAILURE;
                         } else {
@@ -399,25 +397,30 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         return false;
     }
 
-    private FormRecord quarantineRecordAndReport(FormRecord record, FormUploadResult uploadResult) {
-        String reasonForQuarantine =
+    private FormRecord quarantineRecord(FormRecord record, FormUploadResult uploadResult) {
+        logAndNotifyQuarantine(record);
+        String reasonType =
                 (uploadResult == FormUploadResult.RECORD_FAILURE) ?
                         FormRecord.QuarantineReason_RECORD_ERROR :
                         FormRecord.QuarantineReason_SERVER_PROCESSING_ERROR;
-        return quarantineRecordAndReport(record, reasonForQuarantine);
+        return processor.quarantineRecord(record, reasonType, uploadResult.getProcessingFailureReason());
     }
 
-    private FormRecord quarantineRecordAndReport(FormRecord record, String quarantineReason) {
+    private FormRecord quarantineRecord(FormRecord record, String quarantineReason) {
+        logAndNotifyQuarantine(record);
+        return processor.quarantineRecord(record, quarantineReason);
+    }
+
+    private static void logAndNotifyQuarantine(FormRecord record) {
         Logger.log(LogTypes.TYPE_ERROR_STORAGE,
-                String.format("Quarantining Form Record with id %s because of the following issue type: %s",
-                        record.getInstanceID(), QuarantineUtil.getQuarantineReasonDisplayString(record)));
+                String.format("Quarantining Form Record with id %s for the following reason: %s",
+                        record.getInstanceID(),
+                        QuarantineUtil.getQuarantineReasonDisplayString(record, true)));
 
         NotificationMessage m = QuarantineUtil.getQuarantineNotificationMessage(record);
         if (m != null) {
             CommCareApplication.notificationManager().reportNotificationMessage(m, true);
         }
-
-        return processor.quarantineRecord(record, quarantineReason);
     }
 
     private static void logSubmissionAttempt(FormRecord record) {

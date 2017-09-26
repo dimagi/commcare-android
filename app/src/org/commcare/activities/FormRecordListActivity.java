@@ -402,7 +402,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             menu.add(Menu.NONE, VIEW_QUARANTINE_REASON, VIEW_QUARANTINE_REASON,
                     Localization.get("app.workflow.forms.view.quarantine.reason"));
 
-            if (!FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR.equals(value.getReasonForQuarantine())) {
+            if (!FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR.equals(value.getQuarantineReasonType())) {
                 // Records that were quarantined due to a local processing error can't attempt
                 // re-submission, since doing so would send them straight to "Unsent" when they
                 // haven't even been processed
@@ -494,8 +494,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     private void createQuarantineReasonDialog(FormRecord record) {
         String title = Localization.get("reason.for.quarantine.title");
-        String message = Localization.get("quarantine.reason.prefix") +
-                QuarantineUtil.getQuarantineReasonDisplayString(record);
+        String message = QuarantineUtil.getQuarantineReasonDisplayString(record, true);
         showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, message, null));
     }
 

@@ -1,5 +1,7 @@
 package org.commcare.utils;
 
+import android.support.annotation.Nullable;
+
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
@@ -60,6 +62,7 @@ public enum FormUploadResult {
         this.processingFailureReason = s;
     }
 
+    @Nullable
     public String getProcessingFailureReason() {
         return this.processingFailureReason;
     }
