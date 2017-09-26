@@ -30,14 +30,14 @@ public enum FormUploadResult {
     PROCESSING_FAILURE(3),
 
     /**
-     * The server returned an authentication error
-     */
-    AUTH_FAILURE(4),
-
-    /**
      * We attempted an authenticated request over http
      */
-    AUTH_OVER_HTTP(5),
+    AUTH_OVER_HTTP(4),
+
+    /**
+     * The server returned an authentication error
+     */
+    AUTH_FAILURE(5),
 
     /**
      * There was a problem with the transport layer during transit

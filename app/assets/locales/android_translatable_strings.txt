@@ -188,8 +188,6 @@ app.workflow.forms.scan.title.invalid=Integrity Scan: FAIL
 app.workflow.forms.quarantine.report=Submit Quarantine Report
 app.workflow.forms.view.quarantine.reason=View Full Reason for Quarantine
 
-reason.for.quarantine.title=Reason for Quarantine
-
 notifications.prompt.details=Select for details. ${0}
 notifications.prompt.more=(${0} More...)
 
@@ -785,6 +783,8 @@ calendar.high.year=Year value above max value of ${0}
 calendar.low.day=Day value below min value of 1
 calendar.high.day=Day value above max value of ${0}
 
+reason.for.quarantine.title=Reason for Quarantine
+reason.for.quarantine.prefix=Quarantine Reason:
 quarantine.reason.local.processing=Local processing of the form failed
 quarantine.reason.server.processing=The server failed to process the form
 quarantine.reason.record.error=There was an issue with the form record that prevented submission

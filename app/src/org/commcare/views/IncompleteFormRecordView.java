@@ -13,6 +13,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.suite.model.Text;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.QuarantineUtil;
+import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -83,10 +84,10 @@ public class IncompleteFormRecordView extends LinearLayout {
             syncIcon.setVisibility(View.GONE);
         }
 
-        if (FormRecord.STATUS_QUARANTINED.equals(record.getStatus()) &&
-                record.getQuarantineReasonType() != null) {
+        if (FormRecord.STATUS_QUARANTINED.equals(record.getStatus())) {
             reasonForQuarantineView.setVisibility(View.VISIBLE);
-            reasonForQuarantineView.setText("Quarantine Reason: " +
+            reasonForQuarantineView.setText(
+                    Localization.get("reason.for.quarantine.prefix") +
                     QuarantineUtil.getQuarantineReasonDisplayString(record, false));
         } else {
             reasonForQuarantineView.setVisibility(View.GONE);
