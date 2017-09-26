@@ -86,7 +86,7 @@ public class PinAuthenticationActivity extends
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_NEXT) {
-                    if (pinEntry.getText().toString().length() != 4) {
+                    if (!CreatePinActivity.pinLengthIsValid(pinEntry.getText())) {
                         Toast.makeText(PinAuthenticationActivity.this,
                                 Localization.get("pin.length.error"), Toast.LENGTH_LONG).show();
                     } else {
