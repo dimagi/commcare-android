@@ -433,6 +433,7 @@ pin.directive.confirm=Re-Enter the PIN you chose
 pins.dont.match=Entered PINs don't match. Please try again.
 pin.set.success=PIN set successfully
 pin.not.set=No PIN was set
+pin.length.error=Your pin must be 4 digits
 pin.auth.failed.pin=Entered PIN was incorrect. Please try again.
 pin.auth.failed.password=Entered password was incorrect. Please try again.
 pin.auth.prompt.pin=Enter your current PIN
