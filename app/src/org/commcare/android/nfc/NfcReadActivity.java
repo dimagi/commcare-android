@@ -16,7 +16,14 @@ import org.commcare.android.javarosa.IntentCallout;
 import java.io.IOException;
 
 /**
- * Created by amstone326 on 9/5/17.
+ * When this activity is in the foreground, any NFC tag scanned by the device that is of a format
+ * CommCare recognizes (as determined by the filters in NfcActivity::setReadyToHandleTag) will be
+ * consumed by this activity. If the tag is of the specified/expected type(s), then this activity
+ * will attempt to read the tag. If the read is successful, the value read will be stored as an
+ * extra in the activity's result intent under the key "odk_intent_data", where it can be accessed
+ * by other activities. Otherwise, an appropriate error toast will be shown.
+ *
+ * @author Aliza Stone
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class NfcReadActivity extends NfcActivity {
@@ -98,8 +105,10 @@ public class NfcReadActivity extends NfcActivity {
     }
 
     @Override
-    protected void setResultValue(Intent i) {
-        i.putExtra(IntentCallout.INTENT_RESULT_VALUE, this.valueRead);
+    protected void setResultValue(Intent i, boolean success) {
+        if (success) {
+            i.putExtra(IntentCallout.INTENT_RESULT_VALUE, this.valueRead);
+        }
     }
 
     @Override

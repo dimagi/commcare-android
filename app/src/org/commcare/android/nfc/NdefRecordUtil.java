@@ -82,18 +82,24 @@ public class NdefRecordUtil {
     protected static NdefRecord createNdefRecord(String userSpecifiedType,
                                                  String userSpecifiedDomain,
                                                  String payloadToWrite) {
-        if (NfcManager.isCommCareSupportedWellKnownType(userSpecifiedType)) {
+        if (isCommCareSupportedWellKnownType(userSpecifiedType)) {
             return createWellKnownTypeRecord(userSpecifiedType, payloadToWrite);
         } else {
             return createExternalRecord(userSpecifiedType, userSpecifiedDomain, payloadToWrite);
         }
     }
 
+    protected static boolean isCommCareSupportedWellKnownType(String type) {
+        // For now, the only "well known type" we're supporting is NdefRecord.RTD_TEXT, which
+        // users should encode in their configuration by specifying type "text"
+        return "text".equals(type);
+    }
+
     private static NdefRecord createWellKnownTypeRecord(String type, String payload) {
         if (type.equals("text")) {
             return createTextRecord(payload);
         } else {
-            throw new IllegalArgumentException(Localization.get("nfc.well.known.type.not.supported"));
+            throw new IllegalArgumentException();
         }
     }
 
@@ -101,12 +107,12 @@ public class NdefRecordUtil {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             return NdefRecord.createTextRecord(null, payload);
         } else {
-            return createTextRecord(payload, Locale.getDefault());
+            return createTextRecordManually(payload, Locale.getDefault());
         }
     }
 
     // Copied from https://developer.android.com/guide/topics/connectivity/nfc/nfc.html#well-known-text
-    public static NdefRecord createTextRecord(String payload, Locale locale) {
+    public static NdefRecord createTextRecordManually(String payload, Locale locale) {
         byte[] langBytes = locale.getLanguage().getBytes(Charset.forName("US-ASCII"));
         byte[] textBytes = payload.getBytes(UTF8_CHARSET);
 

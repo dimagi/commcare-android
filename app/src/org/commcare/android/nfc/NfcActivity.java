@@ -16,9 +16,11 @@ import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
 /**
- * Created by amstone326 on 9/7/17.
+ * Parent activity that provides all of the functionality common to any NFC action that CommCare
+ * supports
+ *
+ * @author Aliza Stone
  */
-
 public abstract class NfcActivity extends Activity {
 
     protected static final String NFC_PAYLOAD_MULT_TYPES_ARG = "types";
@@ -34,7 +36,6 @@ public abstract class NfcActivity extends Activity {
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             initFields();
-
             createPendingRestartIntent();
             setContentView(R.layout.nfc_instructions_view);
             ((TextView)findViewById(R.id.nfc_instructions_text_view)).
@@ -100,8 +101,10 @@ public abstract class NfcActivity extends Activity {
      * The intent filters being passed to enableForegroundDispatch() here are intentionally very
      * broad, on the assumption that if CommCare's NfcActivity is in the foreground while a user
      * tries to scan an NFC tag, they were intending to scan something that CommCare would
-     * recognize. So instead of filtering out tags of a type that we aren't expecting, we'll still
-     * process the tag, but then show a useful error message.
+     * recognize. So if the user scans a tag of a type that we aren't expecting, instead of
+     * filtering it out (which would result in the device's default NFC handler consuming the tag,
+     * resulting in confusing on-screen behavior for the user), we'll consume it ourselves and
+     * then show a useful error message.
      */
     private void setReadyToHandleTag() {
         IntentFilter ndefDiscoveredFilter = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
@@ -132,7 +135,7 @@ public abstract class NfcActivity extends Activity {
 
         Intent i = new Intent(getIntent());
         setResultExtrasBundle(i, success);
-        setResultValue(i);
+        setResultValue(i, success);
 
         setResult(RESULT_OK, i);
         finish();
@@ -140,7 +143,7 @@ public abstract class NfcActivity extends Activity {
 
     protected abstract void setResultExtrasBundle(Intent i, boolean success);
 
-    protected abstract void setResultValue(Intent i);
+    protected abstract void setResultValue(Intent i, boolean success);
 
     protected abstract String getInstructionsTextKey();
 
