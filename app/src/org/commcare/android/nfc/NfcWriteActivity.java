@@ -76,7 +76,7 @@ public class NfcWriteActivity extends NfcActivity {
 
     @Override
     protected void setResultValue(Intent i) {
-        // nothing for write action
+        i.putExtra(IntentCallout.INTENT_RESULT_VALUE, "Wrote value: " + payloadToWrite);
     }
 
     @Override

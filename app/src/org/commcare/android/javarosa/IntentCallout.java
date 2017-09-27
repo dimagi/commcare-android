@@ -154,17 +154,13 @@ public class IntentCallout implements Externalizable {
     }
 
     private boolean calloutDoesNotSetAResult() {
-        return isPrintIntentCallout() || isNfcWriteCallout();
+        return isPrintIntentCallout();
     }
 
     private boolean isPrintIntentCallout() {
         return "org.commcare.dalvik.action.PRINT".equals(this.className);
     }
-
-    private boolean isNfcWriteCallout() {
-        return "org.commcare.nfc.WRITE".equals(this.className);
-    }
-
+    
     public void processBarcodeResponse(TreeReference intentQuestionRef, String scanResult) {
         setNodeValue(formDef, intentQuestionRef, scanResult);
     }
