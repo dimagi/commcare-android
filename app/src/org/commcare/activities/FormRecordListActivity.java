@@ -39,7 +39,6 @@ import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.ArchivedFormRemoteRestore;
 import org.commcare.models.FormRecordProcessor;
-import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
@@ -397,8 +396,12 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, Localization.get("app.workflow.forms.delete"));
         }
 
-        if (FormRecord.STATUS_QUARANTINED.equals(value.getStatus())) {
-            menu.add(Menu.NONE, RESTORE_RECORD, RESTORE_RECORD, Localization.get("app.workflow.forms.restore"));
+        if (FormRecord.STATUS_QUARANTINED.equals(value.getStatus()) &&
+                !FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR.equals(value.getReasonForQuarantine())) {
+            // Records that were quarantined due to a local processing error can't attempt re-submission,
+            // since doing so would send them straight to "Unsent" when they haven't even been processed
+            menu.add(Menu.NONE, RESTORE_RECORD, RESTORE_RECORD,
+                    Localization.get("app.workflow.forms.restore"));
         }
 
         menu.add(Menu.NONE, SCAN_RECORD, SCAN_RECORD, Localization.get("app.workflow.forms.scan"));
@@ -468,7 +471,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     private void quarantineRecord(FormRecord record) {
-        this.formRecordProcessor.updateRecordStatus(record, FormRecord.STATUS_QUARANTINED);
+        this.formRecordProcessor.quarantineRecord(record, FormRecord.QuarantineReason_MANUAL);
         listView.post(new Runnable() {
             @Override
             public void run() {

@@ -57,6 +57,8 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public static final String SHOW_UPDATE_OPTIONS_SETTING = "cc-show-update-target-options";
     public static final String LOCAL_FORM_PAYLOAD_FILE_PATH = "cc-local-form-payload-file-path";
     public final static String REMOTE_FORM_PAYLOAD_URL = "remote-form-payload-url";
+    public final static String HIDE_ISSUE_REPORT = "cc-hide-issue-report";
+    public final static String ENFORCE_SECURE_ENDPOINT = "cc-enforce-secure-endpoint";
 
     /**
      * Stores last used password and performs auto-login when that password is
@@ -99,6 +101,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         prefKeyToAnalyticsEvent.put(PREFS_CUSTOM_RESTORE_DOC_LOCATION, GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
         prefKeyToAnalyticsEvent.put(LOCAL_FORM_PAYLOAD_FILE_PATH, GoogleAnalyticsFields.LABEL_LOCAL_FORM_PAYLOAD_FILE_PATH);
         prefKeyToAnalyticsEvent.put(REMOTE_FORM_PAYLOAD_URL, GoogleAnalyticsFields.LABEL_REMOTE_FORM_PAYLOAD_URL);
+        prefKeyToAnalyticsEvent.put(ENFORCE_SECURE_ENDPOINT, GoogleAnalyticsFields.LABEL_ENFORCE_SECURE_ENDPOINT);
     }
 
     /**
@@ -380,6 +383,14 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public static String getCustomRestoreDocLocation() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(PREFS_CUSTOM_RESTORE_DOC_LOCATION, "");
+    }
+
+    public static boolean shouldHideReportIssue() {
+        return doesPropertyMatch(HIDE_ISSUE_REPORT, CommCarePreferences.NO, CommCarePreferences.YES);
+    }
+
+    public static boolean isEnforceSecureEndpointEnabled() {
+        return doesPropertyMatch(ENFORCE_SECURE_ENDPOINT, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
     private void hideOrShowDangerousSettings() {

@@ -12,6 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
 import org.commcare.core.interfaces.HttpResponseProcessor;
@@ -173,17 +175,11 @@ public class QueryRequestActivity
 
     private void makeQueryRequest() {
         clearErrorState();
-        URL url = remoteQuerySessionManager.getBaseUrl();
-
-        ModernHttpTask httpTask;
-        try {
-            httpTask = new ModernHttpTask(this, url,
-                    new HashMap<>(remoteQuerySessionManager.getRawQueryParams()),
-                    false, null);
-        } catch (ModernHttpRequester.PlainTextPasswordException e) {
-            enterErrorState(Localization.get("post.not.using.https", url.toString()));
-            return;
-        }
+        ModernHttpTask httpTask = new ModernHttpTask(this,
+                remoteQuerySessionManager.getBaseUrl().toString(),
+                new HashMap(remoteQuerySessionManager.getRawQueryParams()),
+                new HashMap(),
+                null);
         httpTask.connect((CommCareTaskConnector)this);
         httpTask.executeParallel();
     }
@@ -252,11 +248,6 @@ public class QueryRequestActivity
     }
 
     @Override
-    public void processRedirection(int responseCode) {
-        enterErrorState(Localization.get("post.redirection.error", responseCode + ""));
-    }
-
-    @Override
     public void processClientError(int responseCode) {
         enterErrorState(Localization.get("post.client.error", responseCode + ""));
     }
@@ -273,7 +264,11 @@ public class QueryRequestActivity
 
     @Override
     public void handleIOException(IOException exception) {
-        enterErrorState(Localization.get("post.io.error", exception.getMessage()));
+        if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
+            enterErrorState(Localization.get("auth.request.not.using.https", remoteQuerySessionManager.getBaseUrl().toString()));
+        } else if (exception instanceof IOException) {
+            enterErrorState(Localization.get("post.io.error", exception.getMessage()));
+        }
     }
 
     @Override

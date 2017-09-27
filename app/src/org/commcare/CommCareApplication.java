@@ -18,6 +18,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
+import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
@@ -35,6 +36,9 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.CommCareNetworkServiceGenerator;
+import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -64,12 +68,12 @@ import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.util.Pair;
 import org.commcare.modern.util.PerformanceTuningUtil;
-import org.commcare.network.AndroidModernHttpRequester;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpUtils;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
@@ -102,12 +106,16 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
-import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
-public class CommCareApplication extends Application {
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+
+public class CommCareApplication extends MultiDexApplication {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
@@ -164,10 +172,9 @@ public class CommCareApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        CommCareApplication.app = this;
         CrashUtil.init(this);
         configureCommCareEngineConstantsAndStaticRegistrations();
-
-        CommCareApplication.app = this;
         noficationManager = new CommCareNoficationManager(this);
 
         //TODO: Make this robust
@@ -350,7 +357,8 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public @NonNull String getPhoneId() {
+    @NonNull
+    public String getPhoneId() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
             return "000000000000000";
         }
@@ -888,6 +896,11 @@ public class CommCareApplication extends Application {
         return true;
     }
 
+    public boolean isPostUpdateSyncNeeded() {
+        return getCurrentApp().getAppPreferences()
+                .getBoolean(CommCarePreferences.POST_UPDATE_SYNC_NEEDED, false);
+    }
+
     public boolean isStorageAvailable() {
         try {
             File storageRoot = new File(getAndroidFsRoot());
@@ -913,6 +926,7 @@ public class CommCareApplication extends Application {
     public String getAndroidFsTemp() {
         return Environment.getExternalStorageDirectory().toString() + "/Android/data/" + getPackageName() + "/temp/";
     }
+
     public String getAndroidFsExternalTemp() {
         return getAndroidFsRoot() + "/temp/external/";
     }
@@ -1001,16 +1015,6 @@ public class CommCareApplication extends Application {
         return false;
     }
 
-    public ModernHttpRequester buildHttpRequesterForLoggedInUser(Context context, URL url,
-                                                                 HashMap<String, String> params,
-                                                                 boolean isAuthenticatedRequest,
-                                                                 boolean isPostRequest) {
-        Pair<User, String> userAndDomain =
-                HttpUtils.getUserAndDomain(isAuthenticatedRequest);
-        return new AndroidModernHttpRequester(new AndroidCacheDirSetup(context), url, params,
-                userAndDomain.first, userAndDomain.second, isAuthenticatedRequest, isPostRequest);
-    }
-
     public DataPullRequester getDataPullRequester() {
         return DataPullResponseFactory.INSTANCE;
     }
@@ -1044,4 +1048,26 @@ public class CommCareApplication extends Application {
         return app.noficationManager;
     }
 
+    public ModernHttpRequester buildHttpRequester(Context context, String url, HashMap<String, String> params,
+                                                  HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
+                                                  HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
+                                                  @Nullable HttpResponseProcessor responseProcessor) {
+        return new ModernHttpRequester(new AndroidCacheDirSetup(context),
+                url,
+                params,
+                headers,
+                requestBody,
+                parts,
+                CommCareNetworkServiceGenerator.createCommCareNetworkService(
+                        HttpUtils.getCredential(usernameAndPasswordToAuthWith),
+                        DeveloperPreferences.isEnforceSecureEndpointEnabled()),
+                method,
+                responseProcessor);
+    }
+
+    public ModernHttpRequester createGetRequester(Context context, String url, HashMap<String, String> params,
+                                                  HashMap headers, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
+                                                  @Nullable HttpResponseProcessor responseProcessor) {
+        return buildHttpRequester(context, url, params, headers, null, null, HTTPMethod.GET, usernameAndPasswordToAuthWith, responseProcessor);
+    }
 }

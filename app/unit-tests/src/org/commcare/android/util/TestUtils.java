@@ -18,7 +18,8 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
-import org.commcare.network.HttpRequestEndpointsMock;
+import org.commcare.modern.database.TableBuilder;
+import org.commcare.network.CommcareRequestEndpointsMock;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.FormSaveUtil;
@@ -34,6 +35,7 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -102,7 +104,7 @@ public class TestUtils {
                     //there's no good lifecycle to manage the bulk processor in, but at least
                     //this will validate that the bulk processor works.
                     if(bulkProcessingEnabled)  {
-                        return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new AndroidCaseIndexTable(db), new HttpRequestEndpointsMock()) {
+                        return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new AndroidCaseIndexTable(db), new CommcareRequestEndpointsMock()) {
                             @Override
                             protected SQLiteDatabase getDbHandle() {
                                 return db;
@@ -209,6 +211,30 @@ public class TestUtils {
      */
     public static SqlStorage<ACase> getCaseStorage() {
         return getCaseStorage(getTestDb());
+    }
+
+    public static <T extends Persistable> SqlStorage<T> getStorage(String storageKey, Class<T> prototypeModel) {
+        SQLiteDatabase db = getTestDb();
+        TableBuilder builder = new TableBuilder(storageKey);
+
+        try {
+            builder.addData(prototypeModel.newInstance());
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        String tableCreate = builder.getTableCreateString();
+        db.execSQL(tableCreate);
+
+        return new SqlStorage<T>(storageKey, prototypeModel, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
+            @Override
+            public PrototypeFactory getPrototypeFactory() {
+                return getStaticPrototypeFactory();
+            }
+        });
+
     }
 
     /**

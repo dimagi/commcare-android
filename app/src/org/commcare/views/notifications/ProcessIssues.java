@@ -22,10 +22,9 @@ public enum ProcessIssues implements MessageTag {
      **/
     LoggedOut("notification.sending.loggedout", LoginActivity.NOTIFICATION_MESSAGE_LOGIN),
 
-    /**
-     * Logs saved, but not actually submitted
-     **/
-    RecordQuarantined("notification.sending.quarantine"),
+    RecordQuarantinedRecordIssue("notification.quarantine.record.issue", "form_processing"),
+
+    RecordQuarantinedLocalProcessingIssue("notification.quarantine.local.processing", "form_processing"),
 
     /**
      * FormRecord files cannot be found

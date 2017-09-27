@@ -24,7 +24,7 @@ public class HybridFileBackedStorageIterator<T extends Persistable>
      */
     public HybridFileBackedStorageIterator(Cursor c,
                                            HybridFileBackedSqlStorage<T> storage) {
-        super(c, storage, null);
+        super(c, storage);
     }
 
     @Override

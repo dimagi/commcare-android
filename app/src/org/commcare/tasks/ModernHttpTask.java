@@ -5,16 +5,18 @@ import android.content.Context;
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
+import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.modern.util.Pair;
-import org.commcare.network.AndroidModernHttpRequester;
 import org.commcare.tasks.templates.CommCareTask;
-import org.commcare.utils.AndroidCacheDirSetup;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.HashMap;
+
+import javax.annotation.Nullable;
+
+import okhttp3.RequestBody;
 
 /**
  * Makes get/post request and delegates http response to receiver on completion
@@ -27,44 +29,47 @@ public class ModernHttpTask
 
     public static final int SIMPLE_HTTP_TASK_ID = 11;
 
-    private final ModernHttpRequester requestor;
+    private final ModernHttpRequester requester;
     private int responseCode;
     private InputStream responseDataStream;
-    private IOException ioException;
+    private IOException exception;
 
-    public ModernHttpTask(Context context, URL url, HashMap<String, String> params,
-                          boolean isPostRequest,
-                          Pair<String, String> usernameAndPasswordToAuthWith) {
-        taskId = SIMPLE_HTTP_TASK_ID;
-        if (usernameAndPasswordToAuthWith != null) {
-            // Means the the user for which we are submitting this request is not yet logged in
-            requestor =
-                    new AndroidModernHttpRequester(new AndroidCacheDirSetup(context), url, params,
-                            usernameAndPasswordToAuthWith, isPostRequest);
-        } else {
-            // Means the the user for which we are submitting this request is already logged in
-            requestor =
-                    CommCareApplication.instance().buildHttpRequesterForLoggedInUser(context, url,
-                            params, true, isPostRequest);
-        }
-        requestor.setResponseProcessor(this);
+    // Use for GET request
+    public ModernHttpTask(Context context, String url, HashMap<String, String> params,
+                          HashMap<String, String> headers,
+                          @Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
+        this(context, url, params, headers, null, HTTPMethod.GET, usernameAndPasswordToAuthWith);
     }
 
-    public void setResponseProcessor(HttpResponseProcessor responseProcessor) {
-        requestor.setResponseProcessor(responseProcessor);
+    public ModernHttpTask(Context context, String url, HashMap<String, String> params,
+                          HashMap<String, String> headers,
+                          @Nullable RequestBody requestBody,
+                          HTTPMethod method,
+                          @Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
+        taskId = SIMPLE_HTTP_TASK_ID;
+        requester = CommCareApplication.instance().buildHttpRequester(
+                context,
+                url,
+                params,
+                headers,
+                requestBody,
+                null,
+                method,
+                usernameAndPasswordToAuthWith,
+                this);
     }
 
     @Override
     protected Void doTaskBackground(Void... params) {
-        requestor.request();
+        requester.makeRequestAndProcess();
         return null;
     }
 
     @Override
     protected void deliverResult(HttpResponseProcessor httpResponseProcessor,
                                  Void result) {
-        if (ioException != null) {
-            httpResponseProcessor.handleIOException(ioException);
+        if (exception != null) {
+            httpResponseProcessor.handleIOException(exception);
         } else {
             // route to appropriate callback based on http response code
             ModernHttpRequester.processResponse(
@@ -93,11 +98,6 @@ public class ModernHttpTask
     }
 
     @Override
-    public void processRedirection(int responseCode) {
-        this.responseCode = responseCode;
-    }
-
-    @Override
     public void processClientError(int responseCode) {
         this.responseCode = responseCode;
     }
@@ -114,7 +114,7 @@ public class ModernHttpTask
 
     @Override
     public void handleIOException(IOException exception) {
-        this.ioException = exception;
+        this.exception = exception;
     }
 
     @Override

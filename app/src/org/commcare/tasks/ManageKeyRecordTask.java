@@ -2,8 +2,6 @@ package org.commcare.tasks;
 
 import android.content.Context;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DataPullController;
@@ -16,8 +14,8 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.models.legacy.LegacyInstallUtils;
+import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.HttpCalloutTask;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
@@ -33,6 +31,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * This task is responsible for taking user credentials and attempting to
@@ -198,6 +199,10 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 Logger.log(LogTypes.TYPE_USER, "incorrect pin");
                 receiver.raiseLoginMessage(StockMessages.Auth_InvalidPin, true);
                 break;
+            case AuthOverHttp:
+                Logger.log(LogTypes.TYPE_USER, "auth over http");
+                receiver.raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
+                break;
             default:
                 break;
         }
@@ -324,8 +329,8 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     //CTS: These will be fleshed out to comply with the server's Key Request/response protocol
 
     @Override
-    protected HttpResponse doHttpRequest() throws ClientProtocolException, IOException {
-        HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
+    protected Response<ResponseBody> doHttpRequest() throws IOException {
+        CommcareRequestGenerator requestor = new CommcareRequestGenerator(username, password);
         return requestor.makeKeyFetchRequest(keyServerUrl, null);
     }
 
@@ -608,7 +613,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     }
 
     @Override
-    protected HttpCalloutOutcomes doResponseOther(HttpResponse response) {
+    protected HttpCalloutOutcomes doResponseOther(Response response) {
         return HttpCalloutOutcomes.BadResponse;
     }
 

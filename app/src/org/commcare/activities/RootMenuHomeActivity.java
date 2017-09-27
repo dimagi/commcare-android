@@ -90,10 +90,4 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     public boolean usesSubmissionProgressBar() {
         return true;
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        menuView.onDestroy();
-    }
 }

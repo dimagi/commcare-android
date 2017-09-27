@@ -68,6 +68,17 @@ public class FormRecord extends Persisted implements EncryptedModel {
      */
     public static final String STATUS_UNINDEXED = "unindexed";
 
+    /**
+     * Represents a form record that was just deleted from the db, but which we still need an
+     * object representation of to reference in the short-term
+     */
+    public static final String STATUS_JUST_DELETED = "just-deleted";
+
+    public static final String QuarantineReason_LOCAL_PROCESSING_ERROR = "local-processing-error";
+    public static final String QuarantineReason_RECORD_ERROR = "record-error";
+    public static final String QuarantineReason_MANUAL = "manual-quarantine";
+    public static final String QuarantineReason_FILE_NOT_FOUND = "file-not-found";
+
     @Persisting(1)
     @MetaField(META_XMLNS)
     private String xmlns;
@@ -98,6 +109,9 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @Persisting(value = 8, nullable = true)
     @MetaField(META_SUBMISSION_ORDERING_NUMBER)
     private String submissionOrderingNumber;
+
+    @Persisting(value = 9, nullable = true)
+    private String reasonForQuarantine;
 
     public FormRecord() {
     }
@@ -131,6 +145,12 @@ public class FormRecord extends Persisted implements EncryptedModel {
         fr.recordId = this.recordId;
         fr.submissionOrderingNumber = this.submissionOrderingNumber;
         return fr;
+    }
+
+    public static FormRecord StandInForDeletedRecord() {
+        FormRecord r = new FormRecord();
+        r.status = STATUS_JUST_DELETED;
+        return r;
     }
 
     public Uri getInstanceURI() {
@@ -179,6 +199,14 @@ public class FormRecord extends Persisted implements EncryptedModel {
             return -1;
         }
         return Integer.parseInt(submissionOrderingNumber);
+    }
+
+    public void setReasonForQuarantine(String reason) {
+        this.reasonForQuarantine = reason;
+    }
+
+    public String getReasonForQuarantine() {
+        return this.reasonForQuarantine;
     }
 
     /**

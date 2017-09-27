@@ -98,6 +98,9 @@ public class FormAndDataSyncer {
                             case FAILURE:
                                 receiver.handleFormSendResult(Localization.get("sync.fail.server.error"), false);
                                 break;
+                            case RECORD_FAILURE:
+                                receiver.handleFormSendResult(Localization.get("sync.fail.individual"), false);
+                                break;
                             default:
                                 receiver.handleFormSendResult(Localization.get("sync.fail.unsent"), false);
                         }
@@ -155,14 +158,14 @@ public class FormAndDataSyncer {
 
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         syncData(activity, formsToSend, userTriggeredSync,
-                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
+                CommCareServerPreferences.getDataServerKey(),
                 u.getUsername(), u.getCachedPwd(), u.getUniqueId());
     }
 
     public void performOtaRestore(LoginActivity context, String username, String password) {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         syncData(context, false, false,
-                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, context.getString(R.string.ota_restore_url)),
+                CommCareServerPreferences.getDataServerKey(),
                 username,
                 password,
                 null);

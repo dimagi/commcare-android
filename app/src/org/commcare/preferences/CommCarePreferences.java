@@ -40,8 +40,6 @@ public class CommCarePreferences
         extends CommCarePreferenceFragment
         implements OnSharedPreferenceChangeListener {
 
-    private final static String TAG = CommCarePreferences.class.getSimpleName();
-
     /**
      * Entries used as buttons; aren't actually stored preferences
      */
@@ -89,12 +87,18 @@ public class CommCarePreferences
     public final static String UPDATE_TARGET_BUILD = "build";
     public final static String UPDATE_TARGET_SAVED = "save";
 
+    /**
+     * A possible domain that further qualifies the username of any account in use
+     */
+    private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
+
     // Preferences that are set incidentally/automatically by CommCare, based upon a user's workflow
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
     public final static String LAST_PASSWORD = "last_password";
     public final static String CURRENT_SESSION = "current_user_session";
     public final static String CURRENT_FORM_ENTRY_SESSION = "current_form_entry_session";
+    public final static String POST_UPDATE_SYNC_NEEDED = "post-update-sync-needed";
 
     // Preferences that are sent down by HQ
     public final static String PREFS_LOCALE_KEY = "cur_locale";
@@ -586,8 +590,18 @@ public class CommCarePreferences
         }
     }
 
+    public static String getUserDomain() {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return prefs.getString(USER_DOMAIN_SUFFIX, null);
+    }
+
     public static void setCurrentLocale(String locale) {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         prefs.edit().putString(PREFS_LOCALE_KEY, locale).commit();
+    }
+
+    public static void setPostUpdateSyncNeeded(boolean b) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putBoolean(CommCarePreferences.POST_UPDATE_SYNC_NEEDED, b).apply();
     }
 }

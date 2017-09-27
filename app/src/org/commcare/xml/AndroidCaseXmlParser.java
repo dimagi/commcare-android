@@ -10,7 +10,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.engine.references.JavaHttpReference;
-import org.commcare.interfaces.HttpRequestEndpoints;
+import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.util.LogTypes;
@@ -35,7 +35,7 @@ import java.io.IOException;
 public class AndroidCaseXmlParser extends CaseXmlParser {
     private File folder;
     private final boolean processAttachments = true;
-    private HttpRequestEndpoints generator;
+    private CommcareRequestEndpoints generator;
     private final EntityStorageCache mEntityCache;
     private final AndroidCaseIndexTable mCaseIndexTable;
 
@@ -52,7 +52,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
 
     public AndroidCaseXmlParser(KXmlParser parser, boolean acceptCreateOverwrites,
                                 IStorageUtilityIndexed<Case> storage,
-                                HttpRequestEndpoints generator) {
+                                CommcareRequestEndpoints generator) {
         super(parser, acceptCreateOverwrites, storage);
         this.generator = generator;
         mEntityCache = new EntityStorageCache("case");

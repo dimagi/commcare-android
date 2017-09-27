@@ -127,6 +127,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             case ACTIONABLE_FAILURE:
                 updateUiAfterDataPullOrSend(resultAndError.errorMessage, FAIL);
                 break;
+            case AUTH_OVER_HTTP:
+                updateUiAfterDataPullOrSend(Localization.get("auth.over.http"), FAIL);
+                break;
         }
 
         if (userTriggeredSync) {

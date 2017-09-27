@@ -22,6 +22,7 @@ import org.commcare.utils.StorageUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author ctsims
@@ -30,7 +31,7 @@ import org.javarosa.core.services.Logger;
 public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActivity> {
 
     @UiElement(R.id.screen_recovery_unsent_message)
-    TextView txtUnsentForms;
+    TextView txtUnsentAndQuarantineForms;
 
     @UiElement(R.id.screen_recovery_unsent_button)
     Button sendForms;
@@ -91,6 +92,10 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                                     receiver.displayMessage("There were errors submitting the forms." + remainder);
                                 } else if (result == FormUploadResult.TRANSPORT_FAILURE) {
                                     receiver.displayMessage("Unable to contact the remote server.");
+                                } else if (result == FormUploadResult.RECORD_FAILURE) {
+                                    receiver.displayMessage(Localization.get("sync.fail.individual"));
+                                } else if (result == FormUploadResult.AUTH_OVER_HTTP) {
+                                    receiver.displayMessage(Localization.get("auth.over.http"));
                                 }
                             }
 
@@ -161,29 +166,35 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     private void updateSendFormsState() {
         sendForms.setEnabled(false);
         if (!CommCareApplication.instance().isStorageAvailable()) {
-            txtUnsentForms.setText("unsent forms unavailable.");
+            txtUnsentAndQuarantineForms.setText("Forms are not available.");
             return;
         }
 
         try {
             CommCareApplication.instance().getSession();
         } catch (SessionUnavailableException sue) {
-            txtUnsentForms.setText("Couldn't read unsent forms. Not Logged in");
+            txtUnsentAndQuarantineForms.setText("Couldn't read forms. Not Logged in");
             return;
         }
 
         SqlStorage<FormRecord> recordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         try {
+            StringBuilder sb = new StringBuilder();
             FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(recordStorage);
             if (records.length == 0) {
-                txtUnsentForms.setText("This device has no unsent forms");
+                sb.append("This device has no unsent forms");
             } else {
-                txtUnsentForms.setText("There are " + records.length + " unsent form(s) on this device");
+                sb.append("There are " + records.length + " unsent form(s)");
                 sendForms.setEnabled(true);
             }
+            int quarantineForms = StorageUtils.getNumQuarantinedForms();
+            if (quarantineForms != 0) {
+                sb.append(" and " + quarantineForms + " quarantine form(s)");
+            }
+            txtUnsentAndQuarantineForms.setText(sb.toString());
         } catch (Exception e) {
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION, e.getMessage());
-            txtUnsentForms.setText("Couldn't read unsent forms. Error : " + e.getMessage());
+            txtUnsentAndQuarantineForms.setText("Couldn't read forms. Error : " + e.getMessage());
         }
     }
 }
