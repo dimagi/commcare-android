@@ -1,8 +1,11 @@
 package org.commcare.android.tests.processing;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.models.database.AndroidSandbox;
+import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.models.database.StoreFixturesOnFilesystemTests;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.util.mocks.MockDataUtils;
@@ -12,6 +15,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -95,5 +103,37 @@ public class IndexedFixtureLoadingTest {
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
                 "instance('commtrack:products')/products/product[@id = '']/name",
                 "Empty ID"));
+    }
+
+    @Test
+    public void testIndexedFixturePathsTableSoundness() {
+        AndroidSandbox sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(
+                this.getClass(),
+                "indexed_fixture_restore.xml");
+
+        try {
+            // parse the same fixture a 2nd time
+            StoreFixturesOnFilesystemTests.parseIntoSandbox(
+                    this.getClass().getClassLoader().getResourceAsStream("indexed_fixture_restore.xml"), false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        SQLiteDatabase db = sandbox.getUserDb();
+        List<String> allIndexedFixtures =
+                IndexedFixturePathUtils.getAllIndexedFixtureNamesAsList(db);
+
+        List<String> comparisonList = new ArrayList<>();
+        for (String fixtureName : allIndexedFixtures) {
+            if (comparisonList.contains(fixtureName)) {
+                fail("INDEXED_FIXTURE_PATHS_TABLE contains duplicate entries");
+            }
+            comparisonList.add(fixtureName);
+        }
+
+        assertEquals(
+                "An incorrect number of entries was parsed into the INDEXED_FIXTURE_PATHS_TABLE",
+                1,
+                allIndexedFixtures.size());
     }
 }
