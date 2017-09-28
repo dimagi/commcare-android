@@ -45,7 +45,7 @@ public class DecimalWidget extends StringWidget {
         mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);
 
         // needed to make long readonly text scroll
-        mAnswer.setHorizontallyScrolling(false);
+        mAnswer.setHorizontallyScrolling(isInCompactMode());
 
         // only numbers are allowed
         mAnswer.setKeyListener(new DigitsKeyListener(true, true));
