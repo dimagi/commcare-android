@@ -93,9 +93,11 @@ public class IndexedFixturePathUtils {
 
         db.beginTransaction();
         try {
-            long ret = db.insertOrThrow(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
+            long ret = db.insertWithOnConflict(
+                    IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
                     IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE,
-                    contentValues);
+                    contentValues,
+                    SQLiteDatabase.CONFLICT_REPLACE);
 
             if (ret > Integer.MAX_VALUE) {
                 throw new RuntimeException("Waaaaaaaaaay too many values");

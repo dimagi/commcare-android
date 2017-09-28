@@ -111,10 +111,12 @@ public class IndexedFixtureLoadingTest {
                 this.getClass(),
                 "indexed_fixture_restore.xml");
 
+        // Parse the same fixture a 2nd time so that IndexedFixturePathUtils.insertIndexedFixturePathBases()
+        // has to handle receiving a row with a duplicate name
         try {
-            // parse the same fixture a 2nd time
             StoreFixturesOnFilesystemTests.parseIntoSandbox(
-                    this.getClass().getClassLoader().getResourceAsStream("indexed_fixture_restore.xml"), false);
+                    this.getClass().getClassLoader().getResourceAsStream("indexed_fixture_restore.xml"),
+                    false);
         } catch (Exception e) {
             e.printStackTrace();
         }
