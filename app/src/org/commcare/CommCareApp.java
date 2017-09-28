@@ -233,7 +233,7 @@ public class CommCareApp implements AppFilePathBuilder {
         }
 
         String failureReason = profile == null ? "profle being null" : "profile status value " + String.valueOf(profile.getStatus());
-        Logger.log(LogTypes.TYPE_ERROR_STORAGE, "Initializing application failed because of " + failureReason);
+        Logger.log(LogTypes.TYPE_RESOURCES, "Initializing application failed because of " + failureReason);
         return false;
     }
 

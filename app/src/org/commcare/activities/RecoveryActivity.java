@@ -49,9 +49,10 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CommCareUtil.triggerLogSubmission(this);
+
         if (savedInstanceState == null) {
             // launching activity, not just changing orientation
+            CommCareUtil.triggerLogSubmission(this);
             updateSendFormsState();
             updateRecoverAppState();
         }
