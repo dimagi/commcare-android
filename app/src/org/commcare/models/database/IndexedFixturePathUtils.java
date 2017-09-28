@@ -38,30 +38,7 @@ public class IndexedFixturePathUtils {
         }
     }
 
-    public static Set<String> getAllIndexedFixtureNames(SQLiteDatabase db) {
-        Cursor c = db.query(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
-                new String[]{IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME},
-                null, null, null, null, null);
-        Set<String> fixtureNames = new HashSet<>();
-        try {
-            if (c.moveToFirst()) {
-                int desiredColumnIndex = c.getColumnIndexOrThrow(
-                        IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME);
-                while (!c.isAfterLast()) {
-                    String name = c.getString(desiredColumnIndex);
-                    fixtureNames.add(name);
-                    c.moveToNext();
-                }
-            }
-            return fixtureNames;
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-    }
-
-    public static List<String> getAllIndexedFixtureNamesAsList(SQLiteDatabase db) {
+    public static List<String> getAllIndexedFixtureNames(SQLiteDatabase db) {
         Cursor c = db.query(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
                 new String[]{IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME},
                 null, null, null, null, null);

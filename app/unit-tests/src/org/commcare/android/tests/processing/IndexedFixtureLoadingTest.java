@@ -123,7 +123,7 @@ public class IndexedFixtureLoadingTest {
 
         SQLiteDatabase db = sandbox.getUserDb();
         List<String> allIndexedFixtures =
-                IndexedFixturePathUtils.getAllIndexedFixtureNamesAsList(db);
+                IndexedFixturePathUtils.getAllIndexedFixtureNames(db);
 
         List<String> comparisonList = new ArrayList<>();
         for (String fixtureName : allIndexedFixtures) {
