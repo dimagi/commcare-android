@@ -1048,10 +1048,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return;
         }
 
-        if (CommCareApplication.instance().isSyncPending(false)) {
-            triggerSync(true);
-        } else if (CommCareApplication.instance().isPostUpdateSyncNeeded() && !isDemoUser()) {
+        if (CommCareApplication.instance().isPostUpdateSyncNeeded() && !isDemoUser()) {
+            CommCarePreferences.setPostUpdateSyncNeeded(false);
             triggerSync(false);
+        } else if (CommCareApplication.instance().isSyncPending(false)) {
+            triggerSync(true);
         } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
             return;
         } else {
