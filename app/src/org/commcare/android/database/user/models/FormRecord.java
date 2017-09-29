@@ -212,10 +212,15 @@ public class FormRecord extends Persisted implements EncryptedModel {
     }
 
     public String getQuarantineReasonType() {
-        return this.quarantineReason.split(QUARANTINE_REASON_AND_DETAIL_SEPARATOR)[0];
+        return (quarantineReason == null) ?
+                null :
+                quarantineReason.split(QUARANTINE_REASON_AND_DETAIL_SEPARATOR)[0];
     }
 
     public String getQuarantineReasonDetail() {
+        if (quarantineReason == null) {
+            return null;
+        }
         String[] typeAndDetail = this.quarantineReason.split(QUARANTINE_REASON_AND_DETAIL_SEPARATOR);
         if (typeAndDetail.length == 2) {
             return typeAndDetail[1];
