@@ -187,11 +187,10 @@ public class FormUploadUtil {
             return FormUploadResult.TRANSPORT_FAILURE;
         }
 
-        InputStream responseStream = null;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             if (response.body() != null) {
-                responseStream = response.body().byteStream();
+                InputStream responseStream = response.body().byteStream();
                 StreamsUtil.writeFromInputToOutputNew(responseStream, bos);
             }
         } catch (IllegalStateException | IOException e) {
@@ -207,7 +206,7 @@ public class FormUploadUtil {
         } else if (responseCode == 401) {
             return FormUploadResult.AUTH_FAILURE;
         } else if (responseCode == 422) {
-            return handleProcessingFailure(responseStream);
+            return handleProcessingFailure(response.errorBody().byteStream());
         } else {
             return FormUploadResult.FAILURE;
         }

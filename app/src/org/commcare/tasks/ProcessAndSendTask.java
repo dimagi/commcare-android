@@ -398,17 +398,19 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     }
 
     private FormRecord quarantineRecord(FormRecord record, FormUploadResult uploadResult) {
-        logAndNotifyQuarantine(record);
         String reasonType =
                 (uploadResult == FormUploadResult.RECORD_FAILURE) ?
                         FormRecord.QuarantineReason_RECORD_ERROR :
                         FormRecord.QuarantineReason_SERVER_PROCESSING_ERROR;
-        return processor.quarantineRecord(record, reasonType, uploadResult.getProcessingFailureReason());
+        record = processor.quarantineRecord(record, reasonType, uploadResult.getProcessingFailureReason());
+        logAndNotifyQuarantine(record);
+        return record;
     }
 
     private FormRecord quarantineRecord(FormRecord record, String quarantineReasonType) {
+        record = processor.quarantineRecord(record, quarantineReasonType);
         logAndNotifyQuarantine(record);
-        return processor.quarantineRecord(record, quarantineReasonType);
+        return record;
     }
 
     private static void logAndNotifyQuarantine(FormRecord record) {

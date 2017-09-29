@@ -594,11 +594,11 @@ notification.send.malformed.detail=The file ${0} on your SD card was malformed a
 
 notification.quarantine.local.title=Form Record Quarantined
 notification.quarantine.local.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
-notification.quarantine.local.action=You can view the record in the saved records screen by checking the quarantine filter. From there you can restore quarantined records back onto the unsent queue to try to submit them again. Restarting the device and/or ejecting and re-inserting your external storage first may correct the issue.
+notification.quarantine.local.action=You can view the record in the saved records screen by selecting the quarantine filter. From there you can restore quarantined records back onto the unsent queue to try to submit them again. Restarting the device and/or ejecting and re-inserting your external storage first may correct the issue.
 
 notification.quarantine.server.title=Form Record Quarantined
-notification.quarantine.server.detail=The server had a problem processing 1 of your forms during submission for the following reason: ${0}
-notification.quarantine.server.action=You can view the record in the saved records screen by checking the quarantine filter. From there you can restore quarantined records back onto the unsent queue to try to submit them again.
+notification.quarantine.server.detail=The server had a problem processing 1 of your forms during submission
+notification.quarantine.server.action=You can view the record in the saved records screen by selecting the quarantine filter. From there, you can place this record back onto the unsent queue to try to submit it again, if you wish.
 
 notification.quarantine.record.issue.title=Form Record Quarantined
 notification.quarantine.record.issue.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
