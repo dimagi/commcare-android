@@ -16,6 +16,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
@@ -51,6 +52,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
         if (savedInstanceState == null) {
             // launching activity, not just changing orientation
+            CommCareUtil.triggerLogSubmission(this);
             updateSendFormsState();
             updateRecoverAppState();
         }

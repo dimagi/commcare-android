@@ -24,14 +24,14 @@ import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.print.TemplatePrinterTask.PopulateListener;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -179,6 +179,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     }
 
     private void preparePrintDoc(String inputPath) {
+        Logger.log(LogTypes.TYPE_PRINTING, "Attempting to prepare print doc for print template path " + inputPath);
         generateJobName(inputPath);
         String extension = FileUtil.getExtension(inputPath);
         File templateFile = new File(inputPath);
