@@ -27,6 +27,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.DetailFieldPrintInfo;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUi;
@@ -34,6 +35,7 @@ import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UiElement;
 import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathException;
 
@@ -268,6 +270,7 @@ public class EntityDetailActivity
     }
 
     private void printDetail() {
+        Logger.log(LogTypes.TYPE_PRINTING, "User initiated printing of case detail");
         try {
             Intent i = new Intent(this, TemplatePrinterActivity.class);
             i.putExtra(TemplatePrinterActivity.PRINT_TEMPLATE_REF_STRING,

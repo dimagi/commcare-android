@@ -8,5 +8,4 @@
           android:imeOptions="flagNoExtractUi"
           android:paddingLeft="@dimen/edit_text_question_widget_padding_horizontal"
           android:paddingRight="@dimen/edit_text_question_widget_padding_horizontal"
-          android:scrollHorizontally="false"
           android:textCursorDrawable="@drawable/color_cursor"/>
