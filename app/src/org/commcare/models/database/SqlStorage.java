@@ -16,6 +16,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.condition.Abandonable;
 import org.javarosa.core.model.condition.LifecycleSignaler;
+import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -622,7 +623,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     @Override
-    public void bulkRead(LinkedHashSet cuedCases, HashMap recordMap, Abandonable abandonable) {
+    public void bulkRead(LinkedHashSet cuedCases, HashMap recordMap, Abandonable abandonable) throws RequestAbandonedException {
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(cuedCases);
         for (Pair<String, String[]> querySet : whereParamList) {
             Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + " IN " + querySet.first, querySet.second, null, null, null);
