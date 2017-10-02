@@ -163,24 +163,24 @@ public class MenuAdapter extends BaseAdapter {
     }
 
     private void setupAudioButton(int rowId, AudioPlaybackButton audioPlaybackButton, MenuDisplayable menuDisplayable) {
-        final String audioURI = menuDisplayable.getAudioURI();
-        String audioFilename = "";
-        if (audioURI != null && !audioURI.equals("")) {
-            try {
-                audioFilename = ReferenceManager.instance().DeriveReference(audioURI).getLocalURI();
-            } catch (InvalidReferenceException e) {
-                Log.e("AVTLayout", "Invalid reference exception");
-                e.printStackTrace();
+        if (audioPlaybackButton != null) {
+            final String audioURI = menuDisplayable.getAudioURI();
+            String audioFilename = "";
+            if (audioURI != null && !audioURI.equals("")) {
+                try {
+                    audioFilename = ReferenceManager.instance().DeriveReference(audioURI).getLocalURI();
+                } catch (InvalidReferenceException e) {
+                    Log.e("AVTLayout", "Invalid reference exception");
+                    e.printStackTrace();
+                }
             }
-        }
 
-        File audioFile = new File(audioFilename);
-        // First set up the audio button
-        ViewId viewId = ViewId.buildListViewId(rowId);
-        if (!"".equals(audioFilename) && audioFile.exists()) {
-            audioPlaybackButton.modifyButtonForNewView(viewId, audioURI, true);
-        } else {
-            if (audioPlaybackButton != null) {
+            File audioFile = new File(audioFilename);
+            // First set up the audio button
+            ViewId viewId = ViewId.buildListViewId(rowId);
+            if (!"".equals(audioFilename) && audioFile.exists()) {
+                audioPlaybackButton.modifyButtonForNewView(viewId, audioURI, true);
+            } else {
                 audioPlaybackButton.modifyButtonForNewView(viewId, audioURI, false);
             }
         }
