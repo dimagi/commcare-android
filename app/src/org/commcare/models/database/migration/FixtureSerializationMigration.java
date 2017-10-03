@@ -48,9 +48,6 @@ public class FixtureSerializationMigration {
     public static boolean migrateFixtureDbBytes(SQLiteDatabase db, Context c,
                                                 String directoryName,
                                                 byte[] fileMigrationKeySeed) {
-        // Not sure how long this process should take, so tell the service to
-        // wait longer to make sure this can finish.
-        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
         long start = System.currentTimeMillis();
 
         ConcreteAndroidDbHelper helper = new ConcreteAndroidDbHelper(c, db);
