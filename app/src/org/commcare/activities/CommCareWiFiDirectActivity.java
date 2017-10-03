@@ -822,22 +822,20 @@ public class CommCareWiFiDirectActivity
 
     public static boolean copyFile(InputStream inputStream, OutputStream out) {
         Logger.log(TAG, "File server copying file");
-        Log.d(CommCareWiFiDirectActivity.TAG, "Copying file");
         if (inputStream == null) {
-            Log.d(CommCareWiFiDirectActivity.TAG, "Input Null");
+            Logger.log(TAG, "Input stream null");
+            return false;
         }
         byte buf[] = new byte[1024];
         int len;
         try {
             while ((len = inputStream.read(buf)) != -1) {
-                Log.d(CommCareWiFiDirectActivity.TAG, "Copying file : " + new String(buf));
                 out.write(buf, 0, len);
             }
             out.close();
             inputStream.close();
         } catch (IOException e) {
-            Log.d(CommCareWiFiDirectActivity.TAG, e.toString());
-            Logger.log(TAG, "Copy in File Server failed");
+            Logger.log(TAG, "Copy in File Server failed with exception " + e);
             return false;
         }
         Logger.log(TAG, "Copy in File Server successful");
@@ -846,8 +844,7 @@ public class CommCareWiFiDirectActivity
 
     @Override
     public void onFormsCopied(String result) {
-        Logger.log(TAG, "Copied files successfully");
-        Log.d(CommCareWiFiDirectActivity.TAG, "onCopySuccess");
+        Logger.log(TAG, "Copied files successfully to path " + result);
         this.unzipFiles(result);
     }
 

@@ -10,6 +10,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
+import org.javarosa.core.services.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -30,22 +31,22 @@ import java.util.zip.ZipOutputStream;
 public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTaskResult, CommCareWiFiDirectActivity> {
     private static final String TAG = LogTypes.TYPE_FORM_DUMP;
 
-    public enum ZipTaskResult {
+    protected enum ZipTaskResult {
         Success,
         Failure
     }
 
     // this is where the forms that have been pulled from FormRecord storage to the file system live
 
-    public final static String FORM_PROPERTIES_FILE = "form.properties";
-    public final static String FORM_PROPERTY_POST_URL = "PostURL";
+    final static String FORM_PROPERTIES_FILE = "form.properties";
+    final static String FORM_PROPERTY_POST_URL = "PostURL";
 
     public static final int ZIP_TASK_ID = 72135;
 
     private final File toBeZippedFile;
     private final String zipFilePath;
 
-    public ZipTask(String toBeZippedPath, String zipFilePath) {
+    protected ZipTask(String toBeZippedPath, String zipFilePath) {
         taskId = ZIP_TASK_ID;
         this.zipFilePath = zipFilePath;
         this.toBeZippedFile = new File(toBeZippedPath);
@@ -53,7 +54,7 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
 
     private static boolean zipParentFolder(File toBeZippedDirectory, String zipFilePath) throws IOException {
 
-        Log.d(TAG, "Zipping directory" + toBeZippedDirectory.toString() + " to path " + zipFilePath);
+        Logger.log(TAG, "Zipping directory" + toBeZippedDirectory.toString() + " to path " + zipFilePath);
 
         ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFilePath)));
 
@@ -66,7 +67,7 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
 
             for (File formInstanceFolder : formInstanceFolders) {
                 File[] subFileArray = formInstanceFolder.listFiles();
-                Log.d(TAG, "Zipping instance folder with files: " + Arrays.toString(subFileArray)
+                Logger.log(TAG, "Zipping instance folder with files: " + Arrays.toString(subFileArray)
                     + ", zipFilePath: " + zipFilePath);
                 zipInstanceFolder(subFileArray, out);
             }
