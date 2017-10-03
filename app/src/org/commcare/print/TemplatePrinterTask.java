@@ -5,8 +5,10 @@ import android.os.Bundle;
 
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.PrintValidationException;
 import org.commcare.utils.TemplatePrinterUtils;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +56,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
     @Override
     protected PrintTaskResult doInBackground(Void... params) {
         GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_PRINT);
+        Logger.log(LogTypes.TYPE_PRINTING, "Successfully prepared document for printing");
         try {
             populateAndSaveHtml(templateFile, templatePopulationMapping, populatedFilepath);
             return PrintTaskResult.SUCCESS;
