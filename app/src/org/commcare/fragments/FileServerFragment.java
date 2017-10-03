@@ -131,7 +131,6 @@ public class FileServerFragment extends Fragment {
                     Log.d(TAG, "server: copying files " + f.toString());
                     InputStream inputstream = client.getInputStream();
                     CommCareWiFiDirectActivity.copyFile(inputstream, new FileOutputStream(f));
-                    serverSocket.close();
                     publishProgress("copied files: " + f.getAbsolutePath(), f.getAbsolutePath());
                     publishProgress("File Server Resetting", null);
                     return f.getAbsolutePath();
@@ -141,7 +140,12 @@ public class FileServerFragment extends Fragment {
                     publishProgress("File Server crashed after transfer with IO Exception: " + e.getMessage());
                     return null;
                 } finally {
-                    serverSocket.close();
+                    try {
+                        serverSocket.close();
+                    } catch(IOException e) {
+                        // Can ignore
+                        e.printStackTrace();
+                    }
                 }
             } catch (IOException ioe) {
                 publishProgress("Ready to accept new file transfer.", null);
