@@ -31,6 +31,7 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
 import org.commcare.activities.LoginActivity;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.core.network.ModernHttpRequester;
@@ -51,6 +52,8 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidDbHelper;
+import org.commcare.models.database.ConcreteAndroidDbHelper;
+import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.MigrationException;
@@ -61,6 +64,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
+import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.util.Pair;
@@ -705,6 +709,7 @@ public class CommCareApplication extends Application {
 
                     if (user != null) {
                         mBoundService.startSession(user, record);
+                        applyMissedMigration(mBoundService.getUserDbHandle(), getApplicationContext());
                         if (restoreSession) {
                             CommCareApplication.this.sessionWrapper = DevSessionRestorer.restoreSessionFromPrefs(getCommCarePlatform());
                         } else {
@@ -1049,6 +1054,41 @@ public class CommCareApplication extends Application {
 
     public static CommCareNoficationManager notificationManager() {
         return app.noficationManager;
+    }
+
+    public static boolean applyMissedMigration(SQLiteDatabase db, Context c) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    ACase.STORAGE_KEY,
+                    "owner_id",
+                    "TEXT"));
+
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            updateModels(caseStorage);
+
+            db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_owner_id_index", "AndroidCase", "owner_id"));
+            db.setTransactionSuccessful();
+            Log.w(TAG, "Able to add missing owner_id column");
+            return true;
+        } catch(Exception e) {
+            Log.e(TAG, "Unable to add missing owner_id column with exception " + e, e);
+            return false;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    /**
+     * Reads and rewrites all of the records in a table, generally to adapt an old serialization format to a new
+     * format
+     */
+    private static <T extends Persistable> void updateModels(SqlStorage<T> storage) {
+        for (T t : storage) {
+            storage.write(t);
+        }
     }
 
 }
