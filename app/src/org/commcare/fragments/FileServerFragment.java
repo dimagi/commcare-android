@@ -72,9 +72,7 @@ public class FileServerFragment extends Fragment {
         Logger.log(TAG, "File Server starting...");
 
         mStatusText.setText("Starting server");
-
         mView.setVisibility(View.VISIBLE);
-
         if (mFileServer != null) {
             mFileServer.cancel(true);
         }
@@ -101,8 +99,7 @@ public class FileServerFragment extends Fragment {
         private final FileServerFragment mListener;
         private boolean socketOccupied;
 
-        public FileServerAsyncTask(FileServerFragment mListener) {
-            Log.d(TAG, "new fileasync task");
+        FileServerAsyncTask(FileServerFragment mListener) {
             this.mListener = mListener;
 
         }
@@ -120,12 +117,8 @@ public class FileServerFragment extends Fragment {
 
                 try {
                     publishProgress("Ready to accept new file transfer.", null);
-
                     Socket client = serverSocket.accept();
-
                     Logger.log(TAG, "Ready in wi-fi direct file server receive loop");
-
-                    Log.d(TAG, "server: copying files " + finalFileName);
 
                     final File f = new File(finalFileName);
 
@@ -144,12 +137,8 @@ public class FileServerFragment extends Fragment {
                     return f.getAbsolutePath();
 
                 } catch (IOException e) {
-                    Log.e(TAG, e.getMessage());
-                    final File f = new File(finalFileName);
-                    if (f.exists()) {
-                        FileUtil.deleteFileOrDir(f);
-                    }
-                    publishProgress("File Server crashed with an IO Exception: " + e.getMessage());
+                    Logger.log(TAG, e.getMessage());
+                    publishProgress("File Server crashed after transfer with IO Exception: " + e.getMessage());
                     return null;
                 } finally {
                     serverSocket.close();
@@ -181,7 +170,6 @@ public class FileServerFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             Logger.log(TAG, "pre-execute of file server launch");
-            // statusText.setText("Opening a server socket");
         }
 
         @Override
