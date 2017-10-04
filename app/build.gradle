@@ -286,6 +286,10 @@ android {
             manifest.srcFile 'CommcareAndroidManifest.xml'
         }
 
+        lts {
+            manifest.srcFile 'CommcareAndroidManifest.xml'
+        }
+
         qabeta {
             manifest.srcFile 'CommcareAndroidManifest.xml'
         }
