@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditTextPreference
-        android:dialogTitle="Enter Access Pin"
-        android:key="cc-dev-prefs-user-entered-pin"
-        android:title="Developer Options Access Pin"/>
-</PreferenceScreen>

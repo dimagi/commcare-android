@@ -58,8 +58,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static final String SHOW_UPDATE_OPTIONS_SETTING = "cc-show-update-target-options";
     public final static String HIDE_ISSUE_REPORT = "cc-hide-issue-report";
 
-    public final static String PROJECT_SET_ACCESS_PIN = "cc-dev-prefs-access-pin";
-    public final static String USER_ENTERED_ACCESS_PIN = "cc-dev-prefs-user-entered-pin";
+    public final static String PROJECT_SET_ACCESS_CODE = "cc-dev-prefs-access-code";
+    public final static String USER_ENTERED_ACCESS_CODE = "cc-dev-prefs-user-entered-code";
 
     /**
      * Stores last used password and performs auto-login when that password is
@@ -102,21 +102,24 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         getPreferenceManager().setSharedPreferencesName(
                 CommCareApplication.instance().getCurrentApp().getPreferencesFilename());
 
-        if (userAccessPinNeeded()) {
-            addPreferencesFromResource(R.xml.preferences_developer_pin);
+        if (userAccessCodeNeeded()) {
+            addPreferencesFromResource(R.xml.preferences_developer_access_code);
         } else {
             initAllPrefs();
         }
     }
 
-    private static boolean userAccessPinNeeded() {
-        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        String projectAccessPin = prefs.getString(PROJECT_SET_ACCESS_PIN, null);
-        if (projectAccessPin == null || "".equals(projectAccessPin)) {
+    private static boolean userAccessCodeNeeded() {
+        if (GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled()) {
             return false;
         }
-        String userAccessPin = prefs.getString(USER_ENTERED_ACCESS_PIN, null);
-        return !projectAccessPin.equals(userAccessPin);
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        String projectAccessCode = prefs.getString(PROJECT_SET_ACCESS_CODE, null);
+        if (projectAccessCode == null || "".equals(projectAccessCode)) {
+            return false;
+        }
+        String userAccessCode = prefs.getString(USER_ENTERED_ACCESS_CODE, null);
+        return !projectAccessCode.equals(userAccessCode);
     }
 
     private void initAllPrefs() {
@@ -235,31 +238,31 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                             .apply();
                 }
                 break;
-            case USER_ENTERED_ACCESS_PIN:
-                if (userEnteredAccessPinMatches()) {
+            case USER_ENTERED_ACCESS_CODE:
+                if (userEnteredAccessCodeMatches()) {
                     getPreferenceScreen().removeAll();
                     initAllPrefs();
                     Toast.makeText(this, Localization.get("dev.options.access.granted"),
                             Toast.LENGTH_SHORT).show();
                 } else {
-                    clearUserEnteredAccessPin();
-                    Toast.makeText(this, Localization.get("dev.options.pin.incorrect"),
+                    clearUserEnteredAccessCode();
+                    Toast.makeText(this, Localization.get("dev.options.code.incorrect"),
                             Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
     }
 
-    private static boolean userEnteredAccessPinMatches() {
+    private static boolean userEnteredAccessCodeMatches() {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        String projectAccessPin = prefs.getString(PROJECT_SET_ACCESS_PIN, null);
-        String userAccessPin = prefs.getString(USER_ENTERED_ACCESS_PIN, null);
-        return userAccessPin == null ? false : userAccessPin.equals(projectAccessPin);
+        String projectAccessCode = prefs.getString(PROJECT_SET_ACCESS_CODE, null);
+        String userAccessCode = prefs.getString(USER_ENTERED_ACCESS_CODE, null);
+        return userAccessCode == null ? false : userAccessCode.equals(projectAccessCode);
     }
 
-    private static void clearUserEnteredAccessPin() {
+    private static void clearUserEnteredAccessCode() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(USER_ENTERED_ACCESS_PIN, null).apply();
+                .putString(USER_ENTERED_ACCESS_CODE, null).apply();
     }
 
     private static String getSavedSessionStateAsString() {

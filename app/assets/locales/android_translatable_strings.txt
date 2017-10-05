@@ -730,7 +730,7 @@ clear.user.data.warning.title=Clear User Data
 clear.user.data.warning.message=Are you sure you want to clear all mobile user data? All unsynced data will be lost!
 force.log.submit=Force Log Submission
 recovery.mode=Recovery Mode
-dev.options.pin.incorrect=The Developer Options access PIN that you entered was incorrect
+dev.options.code.incorrect=The Developer Options access code that you entered was incorrect
 dev.options.access.granted=Access to Developer Options granted!
 
 repeat.dialog.go.back=Go Back
