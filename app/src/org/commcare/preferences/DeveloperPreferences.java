@@ -58,6 +58,9 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static final String SHOW_UPDATE_OPTIONS_SETTING = "cc-show-update-target-options";
     public final static String HIDE_ISSUE_REPORT = "cc-hide-issue-report";
 
+    public final static String PROJECT_SET_ACCESS_PIN = "cc-dev-prefs-access-pin";
+    public final static String USER_ENTERED_ACCESS_PIN = "cc-dev-prefs-user-entered-pin";
+
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -94,14 +97,31 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         super.onCreate(savedInstanceState);
         GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
         populatePrefKeyToEventLabelMapping();
-        initAllPrefs();
+
+        setTitle("Developer Options");
+        getPreferenceManager().setSharedPreferencesName(
+                CommCareApplication.instance().getCurrentApp().getPreferencesFilename());
+
+        if (userAccessPinNeeded()) {
+            addPreferencesFromResource(R.xml.preferences_developer_pin);
+        } else {
+            initAllPrefs();
+        }
+    }
+
+    private static boolean userAccessPinNeeded() {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        String projectAccessPin = prefs.getString(PROJECT_SET_ACCESS_PIN, null);
+        if (projectAccessPin == null || "".equals(projectAccessPin)) {
+            return false;
+        }
+        String userAccessPin = prefs.getString(USER_ENTERED_ACCESS_PIN, null);
+        return !projectAccessPin.equals(userAccessPin);
     }
 
     private void initAllPrefs() {
         PreferenceManager prefMgr = getPreferenceManager();
-        prefMgr.setSharedPreferencesName((CommCareApplication.instance().getCurrentApp().getPreferencesFilename()));
         addPreferencesFromResource(R.xml.preferences_developer);
-        setTitle("Developer Options");
 
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(
                 prefMgr, prefKeyToAnalyticsEvent, GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
@@ -215,7 +235,31 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                             .apply();
                 }
                 break;
+            case USER_ENTERED_ACCESS_PIN:
+                if (userEnteredAccessPinMatches()) {
+                    getPreferenceScreen().removeAll();
+                    initAllPrefs();
+                    Toast.makeText(this, Localization.get("dev.options.access.granted"),
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    clearUserEnteredAccessPin();
+                    Toast.makeText(this, Localization.get("dev.options.pin.incorrect"),
+                            Toast.LENGTH_SHORT).show();
+                }
+                break;
         }
+    }
+
+    private static boolean userEnteredAccessPinMatches() {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        String projectAccessPin = prefs.getString(PROJECT_SET_ACCESS_PIN, null);
+        String userAccessPin = prefs.getString(USER_ENTERED_ACCESS_PIN, null);
+        return userAccessPin == null ? false : userAccessPin.equals(projectAccessPin);
+    }
+
+    private static void clearUserEnteredAccessPin() {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putString(USER_ENTERED_ACCESS_PIN, null).apply();
     }
 
     private static String getSavedSessionStateAsString() {
