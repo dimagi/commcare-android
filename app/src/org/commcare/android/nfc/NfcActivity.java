@@ -90,7 +90,9 @@ public abstract class NfcActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        this.nfcManager.disableForegroundDispatch(this);
+        if (nfcManager != null) {
+            this.nfcManager.disableForegroundDispatch(this);
+        }
     }
 
     protected abstract boolean requiredFieldsMissing();
