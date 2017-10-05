@@ -753,6 +753,9 @@ clear.user.data.warning.message=Are you sure you want to clear all mobile user d
 force.log.submit=Force Log Submission
 recovery.mode=Recovery Mode
 
+dev.options.code.incorrect=The Developer Options access code that you entered was incorrect
+dev.options.access.granted=Access to Developer Options granted!
+
 repeat.dialog.go.back=Go Back
 repeat.dialog.leave=Do Not Add
 repeat.dialog.exit=Do Not Add. I'm Finished.
