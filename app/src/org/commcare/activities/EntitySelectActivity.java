@@ -349,6 +349,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     protected void onResumeSessionSafe() {
+        if (session.getCommand() == null) {
+            setResult(RESULT_CANCELED);
+            this.finish();
+        }
         if (!isFinishing() && !isStartingDetailActivity) {
             if (adapter != null) {
                 adapter.registerDataSetObserver(mListStateObserver);
@@ -653,6 +657,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        if (session.getCommand() == null) {
+            // we're going to finish in onResume anyway
+            return false;
+        }
+
         super.onCreateOptionsMenu(menu);
         //use the old method here because some Android versions don't like Spannables for titles
         menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
