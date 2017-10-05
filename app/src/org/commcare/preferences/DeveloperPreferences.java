@@ -34,6 +34,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final int RESULT_SYNC_CUSTOM = Activity.RESULT_FIRST_USER + 1;
+    public static final int RESULT_DEV_OPTIONS_DISABLED = Activity.RESULT_FIRST_USER + 2;
+
     public static final int REQUEST_SYNC_FILE = 1;
 
     private static final int MENU_ENABLE_PRIVILEGES = 0;
@@ -211,6 +213,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         }
 
         switch (key) {
+            case SUPERUSER_ENABLED:
+                clearUserEnteredAccessCode();
+                this.setResult(DeveloperPreferences.RESULT_DEV_OPTIONS_DISABLED);
+                this.finish();
+                break;
             case ENABLE_AUTO_LOGIN:
                 if (!isAutoLoginEnabled()) {
                     DevSessionRestorer.clearPassword(sharedPreferences);
@@ -239,7 +246,10 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 }
                 break;
             case USER_ENTERED_ACCESS_CODE:
-                if (userEnteredAccessCodeMatches()) {
+                if (CommCareApplication.instance().getCurrentApp().getAppPreferences().getString(USER_ENTERED_ACCESS_CODE, null) == null) {
+                    // if this is being triggered by us clearing it out, don't do anything
+                    return;
+                } else if (userEnteredAccessCodeMatches()) {
                     getPreferenceScreen().removeAll();
                     initAllPrefs();
                     Toast.makeText(this, Localization.get("dev.options.access.granted"),
