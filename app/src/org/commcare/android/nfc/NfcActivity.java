@@ -1,6 +1,5 @@
 package org.commcare.android.nfc;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
