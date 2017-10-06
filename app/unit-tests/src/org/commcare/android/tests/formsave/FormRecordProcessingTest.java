@@ -20,6 +20,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionNavigator;
+import org.commcare.utils.FormUploadUtil;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.widgets.IntegerWidget;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -33,6 +34,8 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowEnvironment;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
@@ -162,5 +165,18 @@ public class FormRecordProcessingTest {
                 FormRecord.STATUS_INCOMPLETE).size();
         assertEquals("There should be a single form waiting to be sent", 1, unsentForms);
         assertEquals("There shouldn't be any forms saved as incomplete", 0, incompleteForms);
+    }
+
+    private static final String reasonForFailure = "SOME REASON FOR FAILURE";
+    private static final String mockRestoreResponseWithProcessingFailure =
+            "<OpenRosaResponse xmlns=\"http://openrosa.org/http/response\"><message nature=" +
+                    "\"processing_failure\">" + reasonForFailure + "</message></OpenRosaResponse>";
+
+    @Test
+    public void testParsingProcessingFailure() {
+        InputStream mockResponseStream =
+                new ByteArrayInputStream(mockRestoreResponseWithProcessingFailure.getBytes());
+        String parsedReasonForFailure = FormUploadUtil.parseProcessingFailureResponse(mockResponseStream);
+        Assert.assertEquals(reasonForFailure, parsedReasonForFailure);
     }
 }
