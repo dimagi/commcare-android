@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
 
@@ -167,7 +168,7 @@ public abstract class TemplatePrinterUtils {
                         Intent intent = new Intent();
                         Bundle responses = new Bundle();
                         responses.putString("print_initiated", "" + printInitiated);
-                        intent.putExtra("odk_intent_bundle", responses);
+                        intent.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, responses);
                         activity.setResult(Activity.RESULT_OK, intent);
                         activity.finish();
                     }

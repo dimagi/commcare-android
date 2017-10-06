@@ -314,6 +314,18 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+        <activity android:name="org.commcare.android.nfc.NfcWriteActivity">
+            <intent-filter>
+                <action android:name="org.commcare.nfc.WRITE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="org.commcare.android.nfc.NfcReadActivity">
+            <intent-filter>
+                <action android:name="org.commcare.nfc.READ"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
         <receiver android:name="org.commcare.provider.ExternalApiReceiver">
             <intent-filter>
