@@ -149,12 +149,10 @@ public class IntentCallout implements Externalizable {
         } else if (SimprintsCalloutProcessing.isRegistrationResponse(intent)) {
             return SimprintsCalloutProcessing.processRegistrationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else {
-            return processOdkResponse(intent, intentQuestionRef, destination) || calloutDoesNotSetAResult();
+            return processOdkResponse(intent, intentQuestionRef, destination) ||
+                    // because print callouts don't set a result
+                    isPrintIntentCallout();
         }
-    }
-
-    private boolean calloutDoesNotSetAResult() {
-        return isPrintIntentCallout();
     }
 
     private boolean isPrintIntentCallout() {

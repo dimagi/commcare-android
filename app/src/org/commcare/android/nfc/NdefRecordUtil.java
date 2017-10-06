@@ -21,6 +21,15 @@ public class NdefRecordUtil {
     protected static final String READ_ERROR_UNSUPPORTED_KEY = "nfc.read.error.unsupported";
     protected static final String READ_ERROR_MISMATCH_KEY = "nfc.read.error.mismatch";
 
+    /**
+     *
+     * @param record - the Ndef record to read from
+     * @param userSpecifiedTypes - the list of types that the user specified as expected
+     * @param domainForExternalTypes - the domain to qualify external types with
+     * @return A Pair in which the 2nd value represents whether the read operation was successful.
+     * So if the 2nd value is true, the 1st value is the successfully read string value; if the 2nd
+     * value is false, the 1st value is the locale key for the error message that should be shown.
+     */
     protected static Pair<String,Boolean> readValueFromRecord(NdefRecord record,
                                                               String[] userSpecifiedTypes,
                                                               String domainForExternalTypes) {
@@ -58,6 +67,14 @@ public class NdefRecordUtil {
         }
     }
 
+    /**
+     *
+     * @param recordTypeAsString - the type of the Ndef record that is being read
+     * @param userSpecifiedTypes - the list of types that the user specified as expected
+     * @param domainForExternalTypes - the domain to qualify external types with
+     * @return true if @recordTypeAsString represents 1 of the types that the user specified as
+     * expected for this NFC configuration
+     */
     private static boolean recordTypeIsExpected(String recordTypeAsString,
                                                 String[] userSpecifiedTypes,
                                                 String domainForExternalTypes) {

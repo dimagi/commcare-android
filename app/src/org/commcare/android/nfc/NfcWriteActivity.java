@@ -28,7 +28,6 @@ import java.io.IOException;
  *
  * @author Aliza Stone
  */
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class NfcWriteActivity extends NfcActivity {
 
     public static final String NFC_PAYLOAD_TO_WRITE = "payload";
@@ -61,6 +60,7 @@ public class NfcWriteActivity extends NfcActivity {
         writeMessageToNfcTag(tag);
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void writeMessageToNfcTag(Tag tag) {
         Ndef ndefObject = Ndef.get(tag);
         try {
@@ -90,7 +90,7 @@ public class NfcWriteActivity extends NfcActivity {
     @Override
     protected void setResultValue(Intent i, boolean success) {
         if (success) {
-            i.putExtra(IntentCallout.INTENT_RESULT_VALUE, "Wrote value: " + payloadToWrite);
+            i.putExtra(IntentCallout.INTENT_RESULT_VALUE, payloadToWrite);
         }
     }
 

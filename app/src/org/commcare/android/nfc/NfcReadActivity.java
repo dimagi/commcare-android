@@ -25,7 +25,6 @@ import java.io.IOException;
  *
  * @author Aliza Stone
  */
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class NfcReadActivity extends NfcActivity {
 
     private String valueRead;
@@ -65,6 +64,7 @@ public class NfcReadActivity extends NfcActivity {
         readFromNfcTag(tag);
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void readFromNfcTag(Tag tag) {
         Ndef ndefObject = Ndef.get(tag);
         try {
