@@ -253,6 +253,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 } else if (userEnteredAccessCodeMatches()) {
                     getPreferenceScreen().removeAll();
                     initAllPrefs();
+                    hideOrShowDangerousSettings();
                     Toast.makeText(this, Localization.get("dev.options.access.granted"),
                             Toast.LENGTH_SHORT).show();
                 } else {
@@ -468,13 +469,17 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 }
             }
         } else {
-            // Dangerous privileges should be be showing
-            if (onScreenPrefs.length == WHITELISTED_DEVELOPER_PREF_KEYS.size()) {
-                // If we're currently showing only white-listed prefs, reset
+            // Dangerous privileges should be showing
+            if (allPrefsNotCurrentlyShowing()) {
                 getPreferenceScreen().removeAll();
                 initAllPrefs();
             }
         }
+    }
+
+    private boolean allPrefsNotCurrentlyShowing() {
+        // Check for 1 of the prefs that isn't white-listed
+        return getPreferenceScreen().findPreference(SHOW_ADB_ENTITY_LIST_TRACES) == null;
     }
 
     private Preference[] getOnScreenPrefs() {
