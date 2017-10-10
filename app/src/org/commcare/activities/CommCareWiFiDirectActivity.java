@@ -820,11 +820,11 @@ public class CommCareWiFiDirectActivity
         }
     }
 
-    public static boolean copyFile(InputStream inputStream, OutputStream out) {
+    public static void copyFile(InputStream inputStream, OutputStream out) throws IOException {
         Logger.log(TAG, "File server copying file");
         if (inputStream == null) {
             Logger.log(TAG, "Input stream null");
-            return false;
+            throw new IOException("Got null input stream");
         }
         byte buf[] = new byte[1024];
         int len;
@@ -836,10 +836,9 @@ public class CommCareWiFiDirectActivity
             inputStream.close();
         } catch (IOException e) {
             Logger.log(TAG, "Copy in File Server failed with exception " + e);
-            return false;
+            throw e;
         }
         Logger.log(TAG, "Copy in File Server successful");
-        return true;
     }
 
     @Override
