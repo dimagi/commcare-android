@@ -31,6 +31,7 @@ import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
@@ -531,7 +532,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeNineteenTwenty(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            Set<String> allIndexedFixtures = IndexedFixturePathUtils.getAllIndexedFixtureNames(db);
+            List<String> allIndexedFixtures = IndexedFixturePathUtils.getAllIndexedFixtureNames(db);
             for (String fixtureName : allIndexedFixtures) {
                 String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
                 SqlStorage<StorageIndexedTreeElementModel> storageForThisFixture =

@@ -62,7 +62,7 @@ public class IntentCallout implements Externalizable {
     public static final String INTENT_RESULT_VALUE = "odk_intent_data";
 
     // Bundle of extra values
-    public static final String INTENT_RESULT_BUNDLE = "odk_intent_bundle";
+    public static final String INTENT_RESULT_EXTRAS_BUNDLE = "odk_intent_bundle";
 
     /**
      * Intent flag to identify whether this callout should be included in attempts to compound
@@ -149,17 +149,16 @@ public class IntentCallout implements Externalizable {
         } else if (SimprintsCalloutProcessing.isRegistrationResponse(intent)) {
             return SimprintsCalloutProcessing.processRegistrationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else {
-            return processOdkResponse(intent, intentQuestionRef, destination)
-                    // If this is a print callout, then we shouldn't be setting any answer from
-                    // the result anyway, so always return true
-                    ||  isPrintIntentCallout();
+            return processOdkResponse(intent, intentQuestionRef, destination) ||
+                    // because print callouts don't set a result
+                    isPrintIntentCallout();
         }
     }
 
     private boolean isPrintIntentCallout() {
         return "org.commcare.dalvik.action.PRINT".equals(this.className);
     }
-
+    
     public void processBarcodeResponse(TreeReference intentQuestionRef, String scanResult) {
         setNodeValue(formDef, intentQuestionRef, scanResult);
     }
@@ -185,7 +184,7 @@ public class IntentCallout implements Externalizable {
         setNodeValue(formDef, intentQuestionRef, result);
 
         // see if we have a return bundle
-        Bundle response = intent.getBundleExtra(INTENT_RESULT_BUNDLE);
+        Bundle response = intent.getBundleExtra(INTENT_RESULT_EXTRAS_BUNDLE);
 
         // Load all of the data from the incoming bundle
         if (responseToRefMap != null && response != null) {

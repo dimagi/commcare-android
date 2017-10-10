@@ -760,6 +760,9 @@ clear.user.data.warning.message=Are you sure you want to clear all mobile user d
 force.log.submit=Force Log Submission
 recovery.mode=Recovery Mode
 
+dev.options.code.incorrect=The Developer Options access code that you entered was incorrect
+dev.options.access.granted=Access to Developer Options granted!
+
 repeat.dialog.go.back=Go Back
 repeat.dialog.leave=Do Not Add
 repeat.dialog.exit=Do Not Add. I'm Finished.
@@ -783,6 +786,26 @@ calendar.low.year=Year value below min value of
 calendar.high.year=Year value above max value of ${0}
 calendar.low.day=Day value below min value of 1
 calendar.high.day=Day value above max value of ${0}
+
+nfc.instructions.write=Hold your NFC tag up to the back of this phone or tablet
+nfc.instructions.read=Hold your NFC tag up to the back of this phone or tablet
+nfc.min.version=NFC support in CommCare is only available for Android versions 4.1 and above
+nfc.not.supported=This Android device does not have NFC capabilities
+nfc.not.enabled=NFC capabilities are not currently enabled on this device. You can enable them in Settings and then try again.
+nfc.write.no.payload=NFC write action requires specifying a payload
+nfc.write.no.type=NFC write action requires specifying a type for the payload
+nfc.read.no.type=NFC read action requires specifying at least 1 acceptable type
+nfc.write.type.not.supported=The well-known type you tried to write is not supported by CommCare. The only well-known type that CommCare supports is 'text'
+nfc.write.io.error=An IO error occurred while attempting to write the Ndef message to your NFC tag
+nfc.write.msg.malformed=The Ndef message that you attempted to write was malformed
+nfc.write.success=NFC write was successful!
+nfc.missing.domain=A domain must be provided when specifying a custom type for your NFC action
+nfc.read.success=NFC read was successful!
+nfc.read.io.error=An IO error occurred while attempting to read the Ndef message
+nfc.read.msg.malformed=The Ndef message read from the NFC tag was malformed
+nfc.read.no.data=The provided NFC tag had no data on it to read
+nfc.read.error.unsupported=The message read from the NFC tag is of a type not supported by CommCare
+nfc.read.error.mismatch=The message read from the NFC tag does not match the type specified by this app's configuration
 
 reason.for.quarantine.title=Reason for Quarantine
 reason.for.quarantine.prefix=Quarantine Reason:

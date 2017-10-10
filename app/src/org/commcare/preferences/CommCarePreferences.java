@@ -205,21 +205,7 @@ public class CommCarePreferences
             }
         });
 
-        Preference developerSettingsButton = findPreference(DEVELOPER_SETTINGS);
-        if (DeveloperPreferences.isSuperuserEnabled()) {
-            developerSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    GoogleAnalyticsUtils.reportPrefItemClick(
-                            GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                            GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
-                    startDeveloperOptions();
-                    return true;
-                }
-            });
-        } else {
-            getPreferenceScreen().removePreference(developerSettingsButton);
-        }
+        configureDevPreferencesButton();
 
         Preference analyticsButton = findPreference(DISABLE_ANALYTICS);
         if (CommCarePreferences.isAnalyticsEnabled()) {
@@ -245,6 +231,24 @@ public class CommCarePreferences
                 return true;
             }
         });
+    }
+
+    private void configureDevPreferencesButton() {
+        Preference developerSettingsButton = findPreference(DEVELOPER_SETTINGS);
+        if (DeveloperPreferences.isSuperuserEnabled()) {
+            developerSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    GoogleAnalyticsUtils.reportPrefItemClick(
+                            GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                            GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
+                    startDeveloperOptions();
+                    return true;
+                }
+            });
+        } else {
+            getPreferenceScreen().removePreference(developerSettingsButton);
+        }
     }
 
     private void setVisibilityOfUpdateOptionsPref() {
@@ -314,8 +318,10 @@ public class CommCarePreferences
                 getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM);
                 getActivity().finish();
             }
+            else if (resultCode == DeveloperPreferences.RESULT_DEV_OPTIONS_DISABLED) {
+                configureDevPreferencesButton();
+            }
         }
-
     }
 
     @Override
