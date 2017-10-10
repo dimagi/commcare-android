@@ -14,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GlobalPrivilegeClaimingActivity;
@@ -34,6 +33,7 @@ import java.util.Set;
 public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     public static final int RESULT_SYNC_CUSTOM = Activity.RESULT_FIRST_USER + 1;
+    public static final int RESULT_DEV_OPTIONS_DISABLED = Activity.RESULT_FIRST_USER + 2;
 
     private static final int MENU_ENABLE_PRIVILEGES = 0;
 
@@ -59,6 +59,9 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public final static String REMOTE_FORM_PAYLOAD_URL = "remote-form-payload-url";
     public final static String HIDE_ISSUE_REPORT = "cc-hide-issue-report";
     public final static String ENFORCE_SECURE_ENDPOINT = "cc-enforce-secure-endpoint";
+
+    public final static String PROJECT_SET_ACCESS_CODE = "cc-dev-prefs-access-code";
+    public final static String USER_ENTERED_ACCESS_CODE = "cc-dev-prefs-user-entered-code";
 
     /**
      * Stores last used password and performs auto-login when that password is
@@ -149,7 +152,28 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         super.onCreatePreferences(savedInstanceState, rootKey);
         setHasOptionsMenu(true);
-        savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
+    }
+
+    @Override
+    protected void loadPrefs() {
+        if (userAccessCodeNeeded()) {
+            addPreferencesFromResource(R.xml.preferences_developer_access_code);
+        } else {
+            super.loadPrefs();
+        }
+    }
+
+    private static boolean userAccessCodeNeeded() {
+        if (GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled()) {
+            return false;
+        }
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        String projectAccessCode = prefs.getString(PROJECT_SET_ACCESS_CODE, null);
+        if (projectAccessCode == null || "".equals(projectAccessCode)) {
+            return false;
+        }
+        String userAccessCode = prefs.getString(USER_ENTERED_ACCESS_CODE, null);
+        return !projectAccessCode.equals(userAccessCode);
     }
 
     @Override
@@ -160,6 +184,13 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     @Override
     public void onStart() {
         super.onStart();
+        if (!userAccessCodeNeeded()) {
+            configureSettingsAfterLoad();
+        }
+    }
+
+    private void configureSettingsAfterLoad() {
+        savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
         hideOrShowDangerousSettings();
         setSessionEditText();
     }
@@ -182,6 +213,11 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         }
 
         switch (key) {
+            case SUPERUSER_ENABLED:
+                clearUserEnteredAccessCode();
+                this.getActivity().setResult(RESULT_DEV_OPTIONS_DISABLED);
+                this.getActivity().finish();
+                break;
             case ENABLE_AUTO_LOGIN:
                 if (!isAutoLoginEnabled()) {
                     DevSessionRestorer.clearPassword(sharedPreferences);
@@ -207,7 +243,35 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
                     getActivity().finish();
                 }
                 break;
+            case USER_ENTERED_ACCESS_CODE:
+                if (CommCareApplication.instance().getCurrentApp().getAppPreferences().getString(USER_ENTERED_ACCESS_CODE, null) == null) {
+                    // if this is being triggered by us clearing it out, don't do anything
+                    return;
+                } else if (userEnteredAccessCodeMatches()) {
+                    getPreferenceScreen().removeAll();
+                    loadPrefs();
+                    configureSettingsAfterLoad();
+                    Toast.makeText(this.getContext(), Localization.get("dev.options.access.granted"),
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    clearUserEnteredAccessCode();
+                    Toast.makeText(this.getContext(), Localization.get("dev.options.code.incorrect"),
+                            Toast.LENGTH_SHORT).show();
+                }
+                break;
         }
+    }
+
+    private static boolean userEnteredAccessCodeMatches() {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        String projectAccessCode = prefs.getString(PROJECT_SET_ACCESS_CODE, null);
+        String userAccessCode = prefs.getString(USER_ENTERED_ACCESS_CODE, null);
+        return userAccessCode == null ? false : userAccessCode.equals(projectAccessCode);
+    }
+
+    private static void clearUserEnteredAccessCode() {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putString(USER_ENTERED_ACCESS_CODE, null).apply();
     }
 
     private static String getSavedSessionStateAsString() {

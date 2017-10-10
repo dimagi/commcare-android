@@ -98,4 +98,8 @@ public class AndroidSandbox extends UserSandbox {
     public void setLoggedInUser(User user) {
 
     }
+
+    public SQLiteDatabase getUserDb() {
+        return app.getUserDbHandle();
+    }
 }

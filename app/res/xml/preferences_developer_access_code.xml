@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:dialogTitle="Enter Access Code"
+        android:key="cc-dev-prefs-user-entered-code"
+        android:title="Developer Options Access Code"
+        android:inputType="textPassword"/>
+</PreferenceScreen>

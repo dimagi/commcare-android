@@ -31,6 +31,7 @@ import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
@@ -53,6 +54,10 @@ class UserDatabaseUpgrader {
     }
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // A lot of the upgrade processes can take a little while, so we tell the service to wait
+        // longer than usual in order to make sure the upgrade has time to finish
+        CommCareApplication.instance().setCustomServiceBindTimeout(5 * 60 * 1000);
+
         if (oldVersion == 1) {
             if (upgradeOneTwo(db)) {
                 oldVersion = 2;
@@ -213,10 +218,6 @@ class UserDatabaseUpgrader {
     }
 
     private boolean upgradeFiveSix(SQLiteDatabase db) {
-        //On some devices this process takes a significant amount of time (sorry!) we should
-        //tell the service to wait longer to make sure this can finish.
-        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
-
         db.beginTransaction();
         try {
             db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_open_index", "AndroidCase", "case_type,case_status"));
@@ -246,10 +247,6 @@ class UserDatabaseUpgrader {
     }
 
     private boolean upgradeSixSeven(SQLiteDatabase db) {
-        //On some devices this process takes a significant amount of time (sorry!) we should
-        //tell the service to wait longer to make sure this can finish.
-        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
-
         long start = System.currentTimeMillis();
         db.beginTransaction();
         try {
@@ -268,9 +265,6 @@ class UserDatabaseUpgrader {
      * to represents users
      */
     private boolean upgradeSevenEight(SQLiteDatabase db) {
-        //On some devices this process takes a significant amount of time (sorry!) we should
-        //tell the service to wait longer to make sure this can finish.
-        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
         long start = System.currentTimeMillis();
         db.beginTransaction();
         try {
@@ -310,10 +304,6 @@ class UserDatabaseUpgrader {
      * Adding an appId field to FormRecords, for compatibility with multiple apps functionality
      */
     private boolean upgradeNineTen(SQLiteDatabase db) {
-        // This process could take a while, so tell the service to wait longer to make sure
-        // it can finish
-        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
-
         db.beginTransaction();
         try {
 
@@ -415,10 +405,6 @@ class UserDatabaseUpgrader {
     }
 
     private boolean upgradeThirteenFourteen(SQLiteDatabase db) {
-        // This process could take a while, so tell the service to wait longer
-        // to make sure it can finish
-        CommCareApplication.instance().setCustomServiceBindTimeout(60 * 5 * 1000);
-
         db.beginTransaction();
         try {
             SqlStorage<FormRecordV2> formRecordSqlStorage = new SqlStorage<>(
@@ -546,7 +532,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeNineteenTwenty(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            Set<String> allIndexedFixtures = IndexedFixturePathUtils.getAllIndexedFixtureNames(db);
+            List<String> allIndexedFixtures = IndexedFixturePathUtils.getAllIndexedFixtureNames(db);
             for (String fixtureName : allIndexedFixtures) {
                 String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
                 SqlStorage<StorageIndexedTreeElementModel> storageForThisFixture =
