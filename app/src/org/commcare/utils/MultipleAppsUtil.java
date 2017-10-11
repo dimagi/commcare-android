@@ -1,6 +1,10 @@
 package org.commcare.utils;
 
+import android.app.Activity;
+import android.content.Intent;
+
 import org.commcare.AppUtils;
+import org.commcare.activities.SeatAppActivity;
 import org.commcare.android.database.global.models.ApplicationRecord;
 
 import java.util.ArrayList;
@@ -76,6 +80,12 @@ public class MultipleAppsUtil {
             }
         }
         return null;
+    }
+
+    public static void seatApp(Activity context, ApplicationRecord toSeat) {
+        Intent i = new Intent(context, SeatAppActivity.class);
+        i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, toSeat.getUniqueId());
+        context.startActivityForResult(i, SeatAppActivity.SEAT_APP_ACTIVITY);
     }
 
 }

@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -37,9 +38,8 @@ public class SingleAppManagerActivity extends CommCareActivity {
     private static final int LOGOUT_FOR_VERIFY_MM = 1;
     private static final int LOGOUT_FOR_ARCHIVE = 2;
 
-    private static final int UPGRADE_APP = 0;
     private static final int MISSING_MEDIA_ACTIVITY = 1;
-    private static final int SEAT_APP_ACTIVITY = 2;
+    private static final int UPGRADE_APP = 2;
 
     private static final String KEY_LAUNCH_UPDATE_AFTER_SEATING = "launch-update-after-seating";
     private boolean launchUpdateAfterSeating;
@@ -157,7 +157,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
                 return;
-            case SEAT_APP_ACTIVITY:
+            case SeatAppActivity.SEAT_APP_ACTIVITY:
                 if (resultCode == RESULT_OK) {
                     if (launchUpdateAfterSeating) {
                         launchUpdateActivity();
@@ -241,7 +241,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
     private void verifyResources() {
         if (!CommCareApplication.instance().isSeated(appRecord)) {
             launchUpdateAfterSeating = false;
-            seatApp();
+            MultipleAppsUtil.seatApp(this, appRecord);
         } else {
             launchVerificationActivity();
         }
@@ -277,16 +277,10 @@ public class SingleAppManagerActivity extends CommCareActivity {
     private void update() {
         if (!CommCareApplication.instance().isSeated(appRecord)) {
             launchUpdateAfterSeating = true;
-            seatApp();
+            MultipleAppsUtil.seatApp(this, appRecord);
         } else {
             launchUpdateActivity();
         }
-    }
-
-    private void seatApp() {
-        Intent i = new Intent(this, SeatAppActivity.class);
-        i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appRecord.getUniqueId());
-        this.startActivityForResult(i, SEAT_APP_ACTIVITY);
     }
 
     private void launchUpdateActivity() {

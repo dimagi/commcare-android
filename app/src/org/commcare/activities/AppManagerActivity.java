@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
@@ -149,8 +151,15 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
                 return;
+            case SeatAppActivity.SEAT_APP_ACTIVITY:
+                goToLogin();
+                return;
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    public void goToLogin() {
+        
     }
 
     /**

@@ -21,6 +21,8 @@ import org.javarosa.core.services.locale.Localization;
  */
 public class SeatAppActivity extends Activity {
 
+    public static final int SEAT_APP_ACTIVITY = 0;
+
     private static final String KEY_IN_PROGRESS = "initialization_in_progress";
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
 
