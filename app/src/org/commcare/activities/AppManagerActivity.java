@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -36,6 +38,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     public static final String KEY_LAUNCH_FROM_MANAGER = "from_manager";
     private static final int MENU_ADVANCED_SETTINGS = 0;
     private static final int MENU_CONNECTION_DIAGNOSTIC = 1;
+    private static final int MENU_GO_TO_COMMCARE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,13 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
         setContentView(R.layout.app_manager);
         ((ListView)this.findViewById(R.id.apps_list_view)).setOnItemClickListener(this);
         GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_OPEN_APP_MANAGER);
+
+        findViewById(R.id.go_to_commcare).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToCommCare();
+            }
+        });
     }
 
     @Override
@@ -58,6 +68,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                 .setIcon(android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 1, Localization.get("home.menu.connection.diagnostic"))
                 .setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_GO_TO_COMMCARE, 2, "Go to CommCare");
         return true;
     }
 
@@ -72,6 +83,9 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                 i = new Intent(this, CommCarePreferenceActivity.class);
                 i.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_APP_MANAGER_ADVANCED);
                 startActivity(i);
+                return true;
+            case MENU_GO_TO_COMMCARE:
+                goToCommCare();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -194,5 +208,11 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     @Override
     protected boolean shouldShowBreadcrumbBar() {
         return false;
+    }
+
+    private void goToCommCare() {
+        Intent intent = new Intent(this, DispatchActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        this.startActivity(intent);
     }
 }

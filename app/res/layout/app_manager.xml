@@ -53,8 +53,20 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/install_app_button"
+        android:layout_above="@+id/go_to_commcare"
         android:listSelector="@drawable/selector">
     </ListView>
+
+    <TextView
+        android:id="@id/go_to_commcare"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="@dimen/font_size_medium"
+        android:text="@string/manager_go_to_commcare"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/standard_spacer_half"
+        android:textColor="@color/darkest_grey"/>
 
 </RelativeLayout>
 

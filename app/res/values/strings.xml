@@ -30,6 +30,7 @@
     <string name="skipped_verification_warning_2">You did not validate multimedia resources for this app! The app will 
         not be visible to users on the log-in screen until multimedia is validated.</string>
     <string name="manager_instructions">Select an app to view its management options, or install a new app.</string>
+    <string name="manager_go_to_commcare"><u>Go To CommCare</u></string>
     <string name="pre_multiple_apps_warning">Warning: The app you have installed is from an outdated build.
         For full functionality of multiple application seating, please make a new build of your app.</string>
     <string name="uninstall_reboot_warning">CommCare will uninstall your app and then reboot to save changes.</string>

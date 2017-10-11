@@ -30,7 +30,7 @@ public class AppManagerAdapter extends ArrayAdapter<ApplicationRecord> {
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = convertView;
         if (v == null) {
-            v = View.inflate(context, R.layout.app_title_view, null);
+            v = View.inflate(context, R.layout.app_in_list_view, null);
         }
         ApplicationRecord toDisplay = this.getItem(position);
         TextView appName = (TextView)v.findViewById(R.id.app_name);
