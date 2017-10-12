@@ -471,7 +471,10 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     @Override
     public void removeAll() {
-        SQLiteDatabase db = helper.getHandle();
+        wipeTable(helper.getHandle(), table);
+    }
+
+    public static void wipeTable(SQLiteDatabase db, String table) {
         db.beginTransaction();
         try {
             db.delete(table, null, null);

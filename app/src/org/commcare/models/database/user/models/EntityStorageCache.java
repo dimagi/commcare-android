@@ -130,4 +130,8 @@ public class EntityStorageCache {
             return -1;
         }
     }
+
+    public static void wipeCache(){
+        SqlStorage.wipeTable(CommCareApplication.instance().getUserDbHandle(), TABLE_NAME);
+    }
 }
