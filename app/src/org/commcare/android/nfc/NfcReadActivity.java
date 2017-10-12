@@ -67,7 +67,13 @@ public class NfcReadActivity extends NfcActivity {
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void readFromNfcTag(Tag tag) {
         Ndef ndefObject = Ndef.get(tag);
+        if(ndefObject == null) {
+            finishWithErrorToast("nfc.read.msg.malformed");
+            return;
+        }
+
         try {
+            //This is how Ndef.get reports an NFC datatype which isn't an NDEF
             ndefObject.connect();
             NdefMessage msg = ndefObject.getNdefMessage();
             if (msg == null) {
