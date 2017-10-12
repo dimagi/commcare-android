@@ -400,7 +400,7 @@ public class GoogleAnalyticsUtils {
     }
 
     private static boolean analyticsDisabled() {
-        return !CommCarePreferences.isAnalyticsEnabled();
+        return true;
     }
 
     public static boolean versionIncompatible() {
