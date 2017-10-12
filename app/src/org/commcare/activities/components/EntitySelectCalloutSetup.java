@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.MenuItem;
@@ -15,16 +14,12 @@ import android.widget.Toast;
 
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.dalvik.R;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.utils.MediaUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class EntitySelectCalloutSetup {
