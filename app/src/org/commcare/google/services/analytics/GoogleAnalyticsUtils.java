@@ -5,7 +5,7 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceManager;
 
 import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
@@ -31,7 +31,7 @@ public class GoogleAnalyticsUtils {
         if (analyticsDisabled() || versionIncompatible()) {
             return;
         }
-        getTracker().send(new HitBuilders.EventBuilder()
+        getAnalyticsInstance().send(new HitBuilders.EventBuilder()
                 .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
@@ -49,7 +49,7 @@ public class GoogleAnalyticsUtils {
         if (analyticsDisabled() || versionIncompatible()) {
             return;
         }
-        getTracker().send(new HitBuilders.EventBuilder()
+        getAnalyticsInstance().send(new HitBuilders.EventBuilder()
                 .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
@@ -68,7 +68,7 @@ public class GoogleAnalyticsUtils {
         if (analyticsDisabled() || versionIncompatible()) {
             return;
         }
-        getTracker().send(new HitBuilders.EventBuilder()
+        getAnalyticsInstance().send(new HitBuilders.EventBuilder()
                 .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
@@ -243,7 +243,7 @@ public class GoogleAnalyticsUtils {
         if (value != -1) {
             builder.setValue(value);
         }
-        getTracker().send(builder.build());
+        getAnalyticsInstance().send(builder.build());
     }
 
     public static void reportEditPref(String category, String label) {
@@ -362,7 +362,7 @@ public class GoogleAnalyticsUtils {
         if (analyticsDisabled() || versionIncompatible()) {
             return;
         }
-        getTracker().send(new HitBuilders.EventBuilder()
+        getAnalyticsInstance().send(new HitBuilders.EventBuilder()
                 .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
@@ -397,8 +397,8 @@ public class GoogleAnalyticsUtils {
         });
     }
 
-    private static Tracker getTracker() {
-        return CommCareApplication.instance().getDefaultTracker();
+    private static FirebaseAnalytics getAnalyticsInstance() {
+        return CommCareApplication.instance().getAnalyticsInstance();
     }
 
     private static boolean analyticsDisabled() {

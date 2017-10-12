@@ -24,8 +24,7 @@ import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
@@ -156,8 +155,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
-    private GoogleAnalytics analyticsInstance;
-    private Tracker analyticsTracker;
+    private FirebaseAnalytics analyticsInstance;
 
     private String messageForUserOnDispatch;
     private String titleForUserMessage;
@@ -220,7 +218,7 @@ public class CommCareApplication extends MultiDexApplication {
         }
 
         if (!GoogleAnalyticsUtils.versionIncompatible()) {
-            analyticsInstance = GoogleAnalytics.getInstance(this);
+            analyticsInstance = FirebaseAnalytics.getInstance(this);
             GoogleAnalyticsUtils.reportAndroidApiLevelAtStartup();
         }
     }
@@ -299,22 +297,8 @@ public class CommCareApplication extends MultiDexApplication {
         return getSession().createNewSymmetricKey();
     }
 
-    synchronized public Tracker getDefaultTracker() {
-        if (analyticsTracker == null) {
-            if (BuildConfig.DEBUG) {
-                analyticsTracker = analyticsInstance.newTracker(DEV_TRACKING_ID);
-            } else {
-                analyticsTracker = analyticsInstance.newTracker(LIVE_TRACKING_ID);
-            }
-            analyticsTracker.enableAutoActivityTracking(true);
-        }
-        String userId = getCurrentUserId();
-        if (!"".equals(userId)) {
-            analyticsTracker.set("&uid", userId);
-        } else {
-            analyticsTracker.set("&uid", null);
-        }
-        return analyticsTracker;
+    synchronized public FirebaseAnalytics getAnalyticsInstance() {
+        return this.analyticsInstance;
     }
 
     public int[] getCommCareVersion() {
