@@ -7,10 +7,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
+import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
@@ -93,10 +93,9 @@ public class StandardHomeActivity
                                 NotificationMessageFactory.StockMessages.Sync_NoConnections,
                                 AIRPLANE_MODE_CATEGORY));
             }
-            GoogleAnalyticsUtils.reportSyncAttempt(
-                    GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
-                    GoogleAnalyticsFields.LABEL_SYNC_FAILURE,
-                    GoogleAnalyticsFields.VALUE_NO_CONNECTION);
+            FirebaseAnalyticsUtil.reportSyncFailure(
+                    FirebaseAnalyticsParamValues.SYNC_TRIGGER_USER,
+                    FirebaseAnalyticsParamValues.SYNC_FAIL_noConnection);
             return;
         }
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
@@ -134,7 +133,7 @@ public class StandardHomeActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN);
+        FirebaseAnalyticsUtil.reportOptionsMenuEntry(this.getClass());
         //In Holo theme this gets called on startup
         boolean enableMenus = !isDemoUser();
         menu.findItem(MENU_UPDATE).setVisible(enableMenus);
@@ -167,10 +166,11 @@ public class StandardHomeActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Map<Integer, String> menuIdToAnalyticsEventLabel = createMenuItemToEventMapping();
-        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                GoogleAnalyticsFields.CATEGORY_HOME_SCREEN,
-                menuIdToAnalyticsEventLabel.get(item.getItemId()));
+        Map<Integer, String> menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
+
+        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
+                menuIdToAnalyticsParam.get(item.getItemId()));
+
         switch (item.getItemId()) {
             case MENU_UPDATE:
                 launchUpdateActivity();
@@ -197,14 +197,20 @@ public class StandardHomeActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private static Map<Integer, String> createMenuItemToEventMapping() {
+    private static Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
-        menuIdToAnalyticsEvent.put(MENU_UPDATE, GoogleAnalyticsFields.LABEL_UPDATE_CC);
-        menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS, GoogleAnalyticsFields.LABEL_SAVED_FORMS);
-        menuIdToAnalyticsEvent.put(MENU_CHANGE_LANGUAGE, GoogleAnalyticsFields.LABEL_LOCALE);
-        menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
-        menuIdToAnalyticsEvent.put(MENU_ADVANCED, GoogleAnalyticsFields.LABEL_ADVANCED_ACTIONS);
-        menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
+        menuIdToAnalyticsEvent.put(MENU_UPDATE,
+                FirebaseAnalyticsParamValues.ITEM_updateCommcare);
+        menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS,
+                FirebaseAnalyticsParamValues.ITEM_savedForms);
+        menuIdToAnalyticsEvent.put(MENU_CHANGE_LANGUAGE,
+                FirebaseAnalyticsParamValues.ITEM_changeLanguage);
+        menuIdToAnalyticsEvent.put(MENU_PREFERENCES,
+                FirebaseAnalyticsParamValues.ITEM_settings);
+        menuIdToAnalyticsEvent.put(MENU_ADVANCED,
+                FirebaseAnalyticsParamValues.ITEM_advancedActions);
+        menuIdToAnalyticsEvent.put(MENU_ABOUT,
+                FirebaseAnalyticsParamValues.ITEM_aboutCommcare);
         return menuIdToAnalyticsEvent;
     }
 

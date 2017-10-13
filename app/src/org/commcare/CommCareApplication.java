@@ -3,7 +3,6 @@ package org.commcare;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -45,7 +44,7 @@ import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.PreInitLogger;
@@ -217,9 +216,9 @@ public class CommCareApplication extends MultiDexApplication {
             initializeAnAppOnStartup();
         }
 
-        if (!GoogleAnalyticsUtils.versionIncompatible()) {
+        if (!FirebaseAnalyticsUtil.versionIncompatible()) {
             analyticsInstance = FirebaseAnalytics.getInstance(this);
-            GoogleAnalyticsUtils.reportAndroidApiLevelAtStartup();
+            FirebaseAnalyticsUtil.reportAppStartup();
         }
     }
 

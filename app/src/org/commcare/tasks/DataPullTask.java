@@ -15,7 +15,7 @@ import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
@@ -640,35 +640,23 @@ public abstract class DataPullTask<R>
     }
 
     public enum PullTaskResult {
-        DOWNLOAD_SUCCESS(-1),
-        RETRY_NEEDED(-1),
-        AUTH_FAILED(GoogleAnalyticsFields.VALUE_AUTH_FAILED),
-        BAD_DATA(GoogleAnalyticsFields.VALUE_BAD_DATA),
-        BAD_DATA_REQUIRES_INTERVENTION(GoogleAnalyticsFields.VALUE_BAD_DATA_REQUIRES_INTERVENTION),
-        UNKNOWN_FAILURE(GoogleAnalyticsFields.VALUE_UNKNOWN_FAILURE),
-        ACTIONABLE_FAILURE(GoogleAnalyticsFields.VALUE_ACTIONABLE_FAILURE),
-        UNREACHABLE_HOST(GoogleAnalyticsFields.VALUE_UNREACHABLE_HOST),
-        CONNECTION_TIMEOUT(GoogleAnalyticsFields.VALUE_CONNECTION_TIMEOUT),
-        SERVER_ERROR(GoogleAnalyticsFields.VALUE_SERVER_ERROR),
-        STORAGE_FULL(GoogleAnalyticsFields.VALUE_STORAGE_FULL),
-        AUTH_OVER_HTTP(GoogleAnalyticsFields.AUTH_OVER_HTTP);
+        DOWNLOAD_SUCCESS(null),
+        RETRY_NEEDED(null),
+        AUTH_FAILED(FirebaseAnalyticsParamValues.SYNC_FAIL_auth),
+        BAD_DATA(FirebaseAnalyticsParamValues.SYNC_FAIL_badData),
+        BAD_DATA_REQUIRES_INTERVENTION(FirebaseAnalyticsParamValues.SYNC_FAIL_badData),
+        UNKNOWN_FAILURE(FirebaseAnalyticsParamValues.SYNC_FAIL_unknown),
+        ACTIONABLE_FAILURE(FirebaseAnalyticsParamValues.SYNC_FAIL_actionable),
+        UNREACHABLE_HOST(FirebaseAnalyticsParamValues.SYNC_FAIL_unreachableHost),
+        CONNECTION_TIMEOUT(FirebaseAnalyticsParamValues.SYNC_FAIL_connectionTimeout),
+        SERVER_ERROR(FirebaseAnalyticsParamValues.SYNC_FAIL_serverError),
+        STORAGE_FULL(FirebaseAnalyticsParamValues.SYNC_FAIL_storageFull),
+        AUTH_OVER_HTTP(FirebaseAnalyticsParamValues.SYNC_FAIL_authOverHttp);
 
-        private final int googleAnalyticsValue;
+        public final String analyticsFailureReasonParam;
 
-        PullTaskResult(int googleAnalyticsValue) {
-            this.googleAnalyticsValue = googleAnalyticsValue;
-        }
-
-        public int getCorrespondingGoogleAnalyticsValue() {
-            return googleAnalyticsValue;
-        }
-
-        public String getCorrespondingGoogleAnalyticsLabel() {
-            if (this == DOWNLOAD_SUCCESS) {
-                return GoogleAnalyticsFields.LABEL_SYNC_SUCCESS;
-            } else {
-                return GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
-            }
+        PullTaskResult(String analyticsParam) {
+            this.analyticsFailureReasonParam = analyticsParam;
         }
     }
 }

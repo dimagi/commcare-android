@@ -25,9 +25,9 @@ import org.commcare.activities.components.FormNavigationController;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.FormRelevancyUpdating;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.StringUtils;
@@ -105,9 +105,9 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportFormNavForward(
-                        GoogleAnalyticsFields.LABEL_ARROW,
-                        GoogleAnalyticsFields.VALUE_FORM_NOT_DONE);
+                FirebaseAnalyticsUtil.reportFormNav(
+                        FirebaseAnalyticsParamValues.DIRECTION_FORWARD,
+                        FirebaseAnalyticsParamValues.NAV_BUTTON_PRESS);
                 showNextView();
             }
         });
@@ -116,10 +116,12 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             @Override
             public void onClick(View v) {
                 if (!FormEntryConstants.NAV_STATE_QUIT.equals(v.getTag())) {
-                    GoogleAnalyticsUtils.reportFormNavBackward(GoogleAnalyticsFields.LABEL_ARROW);
+                    FirebaseAnalyticsUtil.reportFormNav(
+                            FirebaseAnalyticsParamValues.DIRECTION_BACKWARD,
+                            FirebaseAnalyticsParamValues.NAV_BUTTON_PRESS);
                     showPreviousView(true);
                 } else {
-                    GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_PROGRESS_BAR_ARROW);
+                    FirebaseAnalyticsUtil.reportFormQuitAttempt(FirebaseAnalyticsParamValues.NAV_BUTTON_PRESS);
                     activity.triggerUserQuitInput();
                 }
             }
@@ -128,9 +130,9 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         finishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportFormNavForward(
-                        GoogleAnalyticsFields.LABEL_ARROW,
-                        GoogleAnalyticsFields.VALUE_FORM_DONE);
+                FirebaseAnalyticsUtil.reportFormNav(
+                        FirebaseAnalyticsParamValues.DIRECTION_FORWARD,
+                        FirebaseAnalyticsParamValues.NAV_BUTTON_PRESS);
                 activity.triggerUserFormComplete();
             }
         });

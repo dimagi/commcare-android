@@ -28,22 +28,11 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_HIGH_LEVEL_STATS = "High Level Statistics";
     public static final String CATEGORY_GRAPHING = "Mobile Graphing";
 
-    //Actions for CATEGORY_AUDIO_WIDGET only
-    public static final String ACTION_START_RECORDING_DIALOG = "Click the button to open recording popup";
-    public static final String ACTION_CHOOSE_FILE = "Click the button to choose an audio file";
-    public static final String ACTION_START_RECORD = "Click the button to start recording audio";
-    public static final String ACTION_STOP_RECORD = "Click the button to stop recording audio";
-    public static final String ACTION_SAVE_RECORDING = "Click the button to save an audio recording";
-    public static final String ACTION_PLAY_AUDIO = "Click the button to play audio";
-    public static final String ACTION_PAUSE_AUDIO = "Click the button to pause audio playback";
-    public static final String ACTION_RECORD_AGAIN = "Click the button to Record Again";
-
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
 
     // Actions for multiple categories
-    public static final String ACTION_OPTIONS_MENU = "Open Options Menu";
-    public static final String ACTION_OPTIONS_MENU_ITEM = "Enter an Options Menu Item";
+
     public static final String ACTION_PREF_MENU = "Open Pref Menu";
     public static final String ACTION_VIEW_PREF = "Click on a Pref Item";
     public static final String ACTION_EDIT_PREF = "Edit a Preference";
@@ -53,10 +42,6 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_BACKWARD = "Navigate Backward";
     public static final String ACTION_TRIGGER_QUIT_ATTEMPT = "Trigger Quit Attempt";
     public static final String ACTION_EXIT_FORM = "Form is Exited";
-
-    // Actions for CATEGORY_SERVER_COMMUNICATION only
-    public static final String ACTION_USER_SYNC_ATTEMPT = "User Sync Attempt";
-    public static final String ACTION_AUTO_SYNC_ATTEMPT = "Auto Sync Attempt";
 
     // Actions for CATEGORY_SAVED_FORMS only
     public static final String ACTION_VIEW_FORMS_LIST = "View Archived Forms List";
@@ -106,15 +91,6 @@ public final class GoogleAnalyticsFields {
     // Actions for CATEGORY_LANGUAGE_STATS
     public static final String ACTION_LANGUAGE_AT_FORM_ENTRY = "Language at Time of Form Entry";
 
-    // Actions for CATEGORY_HIGH_LEVEL_STATS
-    public static final String ACTION_ANDROID_API_LEVEL_AT_STARTUP = "Android API Level at Startup";
-
-    //Actions for CATEGORY_GRAPHING only
-    public static final String ACTION_GRAPH_ATTACH = "Start viewing graph in a list or detail";
-    public static final String ACTION_GRAPH_DETACH = "Stop viewing graph in a list or detail";
-    public static final String ACTION_GRAPH_FULLSCREEN_OPEN = "Start viewing graph in full screen";
-    public static final String ACTION_GRAPH_FULLSCREEN_CLOSE = "Stop viewing graph in full screen";
-
     // Labels for ACTION_BUTTON
     public static final String LABEL_START_BUTTON = "Start Button";
     public static final String LABEL_SAVED_FORMS_BUTTON = "Saved Forms Button";
@@ -162,25 +138,6 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_REMOTE_FORM_PAYLOAD_URL = "Form Payload Server";
     public static final String LABEL_ENFORCE_SECURE_ENDPOINT = "Enforce Secure Endpoint";
 
-    // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
-    public static final String LABEL_SETTINGS = "Settings";
-    public static final String LABEL_UPDATE_CC = "Update CommCare";
-    public static final String LABEL_SAVED_FORMS = "Saved Forms";
-    public static final String LABEL_ABOUT_CC = "About CommCare";
-    public static final String LABEL_ADVANCED_ACTIONS = "Advanced";
-    public static final String LABEL_LOCALE = "Change Locale";
-
-    // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_FORM_ENTRY
-    public static final String LABEL_SAVE_FORM = "Save Form";
-    public static final String LABEL_FORM_HIERARCHY = "Form Hierarchy";
-    public static final String LABEL_CHANGE_LANGUAGE = "Change Language";
-    public static final String LABEL_CHANGE_SETTINGS = "Change Settings";
-
-    // Labels for ACTION_FORWARD and ACTION_BACKWARD (in CATEGORY_FORM_ENTRY)
-    // and also ACTION_CONTINUE_FROM_DETAIL and ACTION_EXIT_FROM_DETAIL (in CATEGORY_MODULE_NAVIGATION)
-    public static final String LABEL_ARROW = "Press Arrow";
-    public static final String LABEL_SWIPE = "Swipe";
-
     // Labels for ACTION_TRIGGER_QUIT_ATTEMPT (in CATEGORY_FORM_ENTRY)
     public static final String LABEL_DEVICE_BUTTON = "Device Back Button";
     public static final String LABEL_NAV_BAR_ARROW = "Nav Bar Back Arrow";
@@ -192,31 +149,9 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_EXIT_NO_SAVE = "Exit without Saving";
     public static final String LABEL_BACK_TO_FORM = "Back to Form";
 
-    // Labels for ACTION_USER_SYNC_ATTEMPT and ACTION_AUTO_SYNC_ATTEMPT
-    public static String LABEL_SYNC_SUCCESS;
-    public static String LABEL_SYNC_FAILURE;
-
     // Labels for ACTION_VIEW_FORMS_LIST and ACTION_OPEN_ARCHIVED_FORM
     public static final String LABEL_INCOMPLETE = "Incomplete";
     public static final String LABEL_COMPLETE = "Complete (Saved)";
-
-    // Values for LABEL_SYNC_SUCCESS
-    public static final int VALUE_JUST_PULL_DATA = 0;
-    public static final int VALUE_WITH_SEND_FORMS = 1;
-
-    // Values for LABEL_SYNC_FAILURE
-    public static final int VALUE_NO_CONNECTION = 0;
-    public static final int VALUE_AUTH_FAILED = 1;
-    public static final int VALUE_BAD_DATA = 2;
-    public static final int VALUE_SERVER_ERROR = 3;
-    public static final int VALUE_UNREACHABLE_HOST = 4;
-    public static final int VALUE_CONNECTION_TIMEOUT = 5;
-    public static final int VALUE_UNKNOWN_FAILURE = 6;
-    public static final int VALUE_STORAGE_FULL = 7;
-    public static final int VALUE_BAD_DATA_REQUIRES_INTERVENTION = 8;
-    public static final int VALUE_ACTIONABLE_FAILURE = 9;
-    public static final int AUTH_OVER_HTTP = 10;
-
 
     // Values for LABEL_AUTO_UPDATE
     public static final int VALUE_NEVER = 0;

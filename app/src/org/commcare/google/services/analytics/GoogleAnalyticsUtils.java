@@ -1,18 +1,15 @@
 package org.commcare.google.services.analytics;
 
-import android.os.Build;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceManager;
 
 import com.google.android.gms.analytics.HitBuilders;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.utils.EncryptionUtils;
 
 import java.util.Map;
@@ -24,23 +21,6 @@ import java.util.Map;
  */
 public class GoogleAnalyticsUtils {
 
-    /**
-     * Report a google analytics event that has only a category and an action
-     */
-    private static void reportEvent(String category, String action) {
-        if (analyticsDisabled() || versionIncompatible()) {
-            return;
-        }
-        getAnalyticsInstance().send(new HitBuilders.EventBuilder()
-                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
-                .setCustomDimension(2, ReportingUtils.getDomain())
-                .setCustomDimension(3, BuildConfig.FLAVOR)
-                .setCustomDimension(4, "" + CommCareApplication.instance().isConsumerApp())
-                .setCustomDimension(5, ReportingUtils.getAppId())
-                .setCategory(category)
-                .setAction(action)
-                .build());
-    }
 
     /**
      * Report a google analytics event that has a category, action, and label
@@ -81,131 +61,10 @@ public class GoogleAnalyticsUtils {
                 .build());
     }
 
-    public static void reportAudioFileChosen(){
-        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
-                    GoogleAnalyticsFields.ACTION_CHOOSE_FILE);
-    }
-
-    public static void reportRecordingPopupOpened(){
-        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
-                GoogleAnalyticsFields.ACTION_START_RECORDING_DIALOG);
-    }
-
-    public static void reportAudioPlayed(){
-        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
-                GoogleAnalyticsFields.ACTION_PLAY_AUDIO);
-    }
-
-    public static void reportAudioPaused(){
-        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
-                GoogleAnalyticsFields.ACTION_PAUSE_AUDIO);
-    }
-
-    public static void reportAudioFileSaved(){
-        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
-                GoogleAnalyticsFields.ACTION_SAVE_RECORDING);
-    }
-
-    public static void reportRecordingStarted(){
-        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
-                GoogleAnalyticsFields.ACTION_START_RECORD);
-    }
-
-    public static void reportRecordingStopped(){
-        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
-                    GoogleAnalyticsFields.ACTION_STOP_RECORD);
-    }
-
-    public static void reportRecordingRecycled(){
-        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
-                GoogleAnalyticsFields.ACTION_RECORD_AGAIN);
-    }
-
-    public static void reportGraphViewAttached(){
-        reportEvent(GoogleAnalyticsFields.CATEGORY_GRAPHING,
-                GoogleAnalyticsFields.ACTION_GRAPH_ATTACH);
-    }
-
-    public static void reportGraphViewDetached(){
-        reportEvent(GoogleAnalyticsFields.CATEGORY_GRAPHING,
-                GoogleAnalyticsFields.ACTION_GRAPH_DETACH);
-    }
-
-    public static void reportGraphViewFullScreenOpened(){
-        reportEvent(GoogleAnalyticsFields.CATEGORY_GRAPHING,
-                GoogleAnalyticsFields.ACTION_GRAPH_FULLSCREEN_OPEN);
-    }
-
-    public static void reportGraphViewFullScreenClosed(){
-        reportEvent(GoogleAnalyticsFields.CATEGORY_GRAPHING,
-                GoogleAnalyticsFields.ACTION_GRAPH_FULLSCREEN_CLOSE);
-    }
-
-
-    /**
-     * Report a user event of navigating forward in form entry
-     *
-     * @param label - Communicates the user's method of navigation (swipe vs. arrow press)
-     * @param value - Communicates if form was in completed state when navigation occurred
-     */
-    public static void reportFormNavForward(String label, int value) {
-        reportEvent(
-                GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                GoogleAnalyticsFields.ACTION_FORWARD,
-                label, value);
-    }
-
-    /**
-     * Report a user event of navigating backward in form entry
-     *
-     * @param label - Communicates the user's method of navigation (swipe vs. arrow press)
-     */
-    public static void reportFormNavBackward(String label) {
-        reportEvent(
-                GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                GoogleAnalyticsFields.ACTION_BACKWARD,
-                label);
-    }
-
-    /**
-     * Report a user event of triggering a form exit attempt, and which mode they used to do so
-     *
-     * @param label - Indicates the way in which the user triggered the form exit
-     */
-    public static void reportFormQuitAttempt(String label) {
-        reportEvent(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                GoogleAnalyticsFields.ACTION_TRIGGER_QUIT_ATTEMPT, label);
-    }
-
-    /**
-     * Report an event of a form being exited
-     *
-     * @param label - Communicates which option the user selected on the exit form dialog, or none
-     *              if form exit occurred without showing the dialog at all
-     */
-    public static void reportFormExit(String label) {
-        reportEvent(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                GoogleAnalyticsFields.ACTION_EXIT_FORM, label);
-    }
-
     public static void reportHomeButtonClick(String buttonLabel) {
         reportEvent(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN,
                 GoogleAnalyticsFields.ACTION_BUTTON,
                 buttonLabel);
-    }
-
-    /**
-     * Report a user event of opening an options menu
-     */
-    public static void reportOptionsMenuEntry(String category) {
-        reportEvent(category, GoogleAnalyticsFields.ACTION_OPTIONS_MENU);
-    }
-
-    /**
-     * Report a user event of selecting an item within an options menu
-     */
-    public static void reportOptionsMenuItemEntry(String category, String label) {
-        reportEvent(category, GoogleAnalyticsFields.ACTION_OPTIONS_MENU_ITEM, label);
     }
 
     /**
@@ -248,18 +107,6 @@ public class GoogleAnalyticsUtils {
 
     public static void reportEditPref(String category, String label) {
         reportEditPref(category, label, -1);
-    }
-
-    /**
-     * Report an event of an attempted sync
-     *
-     * @param action - Communicates whether the sync was user-triggered or auto-triggered
-     * @param label  - Communicates if the sync was successful
-     * @param value  - Communicates the nature of the sync if it was successful,
-     *               OR the reason for failure if the sync was unsuccessful
-     */
-    public static void reportSyncAttempt(String action, String label, int value) {
-        reportEvent(GoogleAnalyticsFields.CATEGORY_SERVER_COMMUNICATION, action, label, value);
     }
 
     /**
@@ -341,17 +188,6 @@ public class GoogleAnalyticsUtils {
                 EncryptionUtils.getMD5HashAsString(username));
     }
 
-    public static void reportLanguageAtPointOfFormEntry(String language) {
-        reportEvent(GoogleAnalyticsFields.CATEGORY_LANGUAGE_STATS,
-                GoogleAnalyticsFields.ACTION_LANGUAGE_AT_FORM_ENTRY, language);
-    }
-
-    public static void reportAndroidApiLevelAtStartup() {
-        reportEvent(GoogleAnalyticsFields.CATEGORY_HIGH_LEVEL_STATS,
-                GoogleAnalyticsFields.ACTION_ANDROID_API_LEVEL_AT_STARTUP,
-                "" + Build.VERSION.SDK_INT);
-    }
-
     /**
      * Report the length of a certain user event/action/concept
      *
@@ -397,16 +233,5 @@ public class GoogleAnalyticsUtils {
         });
     }
 
-    private static FirebaseAnalytics getAnalyticsInstance() {
-        return CommCareApplication.instance().getAnalyticsInstance();
-    }
-
-    private static boolean analyticsDisabled() {
-        return !CommCarePreferences.isAnalyticsEnabled();
-    }
-
-    public static boolean versionIncompatible() {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD;
-    }
 
 }
