@@ -67,6 +67,13 @@ public class NfcReadActivity extends NfcActivity {
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void readFromNfcTag(Tag tag) {
         Ndef ndefObject = Ndef.get(tag);
+
+        // This is how Ndef.get() reports an NFC tag which doesn't support Ndef
+        if (ndefObject == null) {
+            finishWithErrorToast("nfc.read.error.no.ndef");
+            return;
+        }
+
         try {
             ndefObject.connect();
             NdefMessage msg = ndefObject.getNdefMessage();
