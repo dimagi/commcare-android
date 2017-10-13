@@ -214,7 +214,16 @@ public class FormUploadUtil {
 
     private static FormUploadResult handleProcessingFailure(InputStream responseStream) {
         FormUploadResult result = FormUploadResult.PROCESSING_FAILURE;
-        result.setProcessingFailureReason(parseProcessingFailureResponse(responseStream));
+        try {
+            result.setProcessingFailureReason(parseProcessingFailureResponse(responseStream));
+        } catch (IOException | InvalidStructureException | XmlPullParserException |
+                UnfullfilledRequirementsException e) {
+            // If we can't parse out the failure reason then we won't quarantine this form, because
+            // we won't have any clear info about what happened
+            result = FormUploadResult.FAILURE;
+            Logger.exception(e);
+            e.printStackTrace();
+        }
         return result;
     }
 
@@ -416,28 +425,24 @@ public class FormUploadUtil {
         return false;
     }
 
-    public static String parseProcessingFailureResponse(InputStream responseStream) {
-        try {
-            KXmlParser baseParser = ElementParser.instantiateParser(responseStream);
-            ElementParser<String> responseParser = new ElementParser<String>(baseParser) {
-                @Override
-                public String parse() throws InvalidStructureException, IOException,
-                        XmlPullParserException, UnfullfilledRequirementsException {
-                    checkNode("OpenRosaResponse");
-                    nextTag("message");
-                    String natureOfResponse = parser.getAttributeValue(null, "nature");
-                    if ("processing_failure".equals(natureOfResponse)) {
-                        return parser.nextText();
-                    }
-                    return "";
+    public static String parseProcessingFailureResponse(InputStream responseStream)
+            throws IOException, InvalidStructureException, UnfullfilledRequirementsException,
+            XmlPullParserException {
+
+        KXmlParser baseParser = ElementParser.instantiateParser(responseStream);
+        ElementParser<String> responseParser = new ElementParser<String>(baseParser) {
+            @Override
+            public String parse() throws InvalidStructureException, IOException,
+                    XmlPullParserException, UnfullfilledRequirementsException {
+                checkNode("OpenRosaResponse");
+                nextTag("message");
+                String natureOfResponse = parser.getAttributeValue(null, "nature");
+                if ("processing_failure".equals(natureOfResponse)) {
+                    return parser.nextText();
                 }
-            };
-            return responseParser.parse();
-        } catch (IOException | InvalidStructureException | XmlPullParserException |
-                UnfullfilledRequirementsException e) {
-            Log.e(TAG, "Error while parsing form upload response");
-            e.printStackTrace();
-        }
-        return "";
+                return "";
+            }
+        };
+        return responseParser.parse();
     }
 }

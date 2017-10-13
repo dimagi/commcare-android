@@ -24,6 +24,8 @@ import org.commcare.utils.FormUploadUtil;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.widgets.IntegerWidget;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,13 +35,16 @@ import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowEnvironment;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 /**
  * Form Record processing / form save related tests
@@ -176,7 +181,12 @@ public class FormRecordProcessingTest {
     public void testParsingProcessingFailure() {
         InputStream mockResponseStream =
                 new ByteArrayInputStream(mockRestoreResponseWithProcessingFailure.getBytes());
-        String parsedReasonForFailure = FormUploadUtil.parseProcessingFailureResponse(mockResponseStream);
-        Assert.assertEquals(reasonForFailure, parsedReasonForFailure);
+        try {
+            String parsedReasonForFailure = FormUploadUtil.parseProcessingFailureResponse(mockResponseStream);
+            Assert.assertEquals(reasonForFailure, parsedReasonForFailure);
+        } catch (IOException | InvalidStructureException | XmlPullParserException |
+                UnfullfilledRequirementsException e) {
+            fail("Encountered exception processing test response: " + e.getMessage());
+        }
     }
 }
