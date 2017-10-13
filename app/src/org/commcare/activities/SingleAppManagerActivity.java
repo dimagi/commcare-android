@@ -12,6 +12,8 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.services.CommCareSessionService;
@@ -174,7 +176,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * Uninstalls the selected app
      */
     private void uninstall() {
-        GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_UNINSTALL_APP);
+        FirebaseAnalyticsUtil.reportAppManagerAction(FirebaseAnalyticsParamValues.UNINSTALL_APP);
         CommCareApplication.instance().expireUserSession();
         CommCareApplication.instance().uninstall(appRecord);
         LifecycleUtils.restartCommCare(
@@ -207,7 +209,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
 
     private void toggleArchived() {
         if (!appRecord.isArchived()) {
-            GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_ARCHIVE_APP);
+            FirebaseAnalyticsUtil.reportAppManagerAction(FirebaseAnalyticsParamValues.ARCHIVE_APP);
         }
         appRecord.setArchiveStatus(!appRecord.isArchived());
         CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class).write(appRecord);

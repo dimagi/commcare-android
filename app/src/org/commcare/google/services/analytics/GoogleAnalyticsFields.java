@@ -9,9 +9,7 @@ public final class GoogleAnalyticsFields {
 
     // Categories
     public static final String CATEGORY_HOME_SCREEN = "Home Screen";
-    public static final String CATEGORY_FORM_ENTRY = "Form Entry";
     public static final String CATEGORY_CC_PREFS = "CommCare Preferences";
-    public static final String CATEGORY_SERVER_PREFS = "CommCare Server Preferences";
     public static final String CATEGORY_ADVANCED_ACTIONS = "Advanced Actions";
     public static final String CATEGORY_FORM_PREFS = "Form Entry Preferences";
     public static final String CATEGORY_DEV_PREFS = "Developer Preferences";
@@ -19,7 +17,6 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_TIMED_EVENTS = "Timed Events";
     public static final String CATEGORY_APP_INSTALL = "New App Install";
     public static final String CATEGORY_MODULE_NAVIGATION = "Module Navigation";
-    public static final String CATEGORY_APP_MANAGER = "App Manager";
     public static final String CATEGORY_LANGUAGE_STATS = "Language Statistics";
 
     // Actions for CATEGORY_HOME_SCREEN only
@@ -30,12 +27,6 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_PREF_MENU = "Open Pref Menu";
     public static final String ACTION_VIEW_PREF = "Click on a Pref Item";
     public static final String ACTION_EDIT_PREF = "Edit a Preference";
-
-    // Actions for CATEGORY_FORM_ENTRY only
-    public static final String ACTION_FORWARD = "Navigate Forward";
-    public static final String ACTION_BACKWARD = "Navigate Backward";
-    public static final String ACTION_TRIGGER_QUIT_ATTEMPT = "Trigger Quit Attempt";
-    public static final String ACTION_EXIT_FORM = "Form is Exited";
 
     // Actions for CATEGORY_SAVED_FORMS only
     public static final String ACTION_VIEW_FORMS_LIST = "View Archived Forms List";
@@ -60,12 +51,6 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_FORCE_LOG_SUBMISSION = "Force Log Submission";
     public static final String ACTION_RECOVERY_MODE = "Recovery Mode";
     public static final String ACTION_ENABLE_PRIVILEGES = "Enable Mobile Privileges";
-
-    // Actions for CATEGORY_APP_MANAGER
-    public static final String ACTION_OPEN_APP_MANAGER = "Open App Manager";
-    public static final String ACTION_ARCHIVE_APP = "Archive an App";
-    public static final String ACTION_UNINSTALL_APP = "Uninstall an App";
-    public static final String ACTION_INSTALL_FROM_MANAGER = "Install from Manager";
 
     // Actions for CATEGORY_LANGUAGE_STATS
     public static final String ACTION_LANGUAGE_AT_FORM_ENTRY = "Language at Time of Form Entry";
@@ -116,17 +101,6 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_LOCAL_FORM_PAYLOAD_FILE_PATH = "Form Payload File";
     public static final String LABEL_REMOTE_FORM_PAYLOAD_URL = "Form Payload Server";
     public static final String LABEL_ENFORCE_SECURE_ENDPOINT = "Enforce Secure Endpoint";
-
-    // Labels for ACTION_TRIGGER_QUIT_ATTEMPT (in CATEGORY_FORM_ENTRY)
-    public static final String LABEL_DEVICE_BUTTON = "Device Back Button";
-    public static final String LABEL_NAV_BAR_ARROW = "Nav Bar Back Arrow";
-    public static final String LABEL_PROGRESS_BAR_ARROW = "Progress Bar Back Arrow";
-
-    // Labels for ACTION_EXIT_FORM (in CATEGORY_FORM_ENTRY)
-    public static final String LABEL_NO_DIALOG = "No Dialog Shown";
-    public static final String LABEL_SAVE_AND_EXIT = "Save and Exit";
-    public static final String LABEL_EXIT_NO_SAVE = "Exit without Saving";
-    public static final String LABEL_BACK_TO_FORM = "Back to Form";
 
     // Labels for ACTION_VIEW_FORMS_LIST and ACTION_OPEN_ARCHIVED_FORM
     public static final String LABEL_INCOMPLETE = "Incomplete";

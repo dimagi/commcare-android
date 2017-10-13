@@ -161,12 +161,6 @@ public class CommCarePreferences
         return Localization.get("settings.main.title");
     }
 
-    @NonNull
-    @Override
-    protected String getAnalyticsCategory() {
-        return GoogleAnalyticsFields.CATEGORY_CC_PREFS;
-    }
-
     @Override
     protected Map<String, String> getPrefKeyAnalyticsEventMap() {
         return prefKeyToAnalyticsEvent;

@@ -16,6 +16,7 @@ import android.support.v7.preference.PreferenceScreen;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.FilePreference;
@@ -39,7 +40,7 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        GoogleAnalyticsUtils.reportPrefActivityEntry(getAnalyticsCategory());
+        FirebaseAnalyticsUtil.reportPrefActivityEntry(this.getClass());
         setTitle();
         initPrefsFile();
         loadPrefs();
@@ -166,9 +167,6 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
 
     @NonNull
     protected abstract String getTitle();
-
-    @NonNull
-    protected abstract String getAnalyticsCategory();
 
     @Nullable
     protected abstract Map<String, String> getPrefKeyAnalyticsEventMap();

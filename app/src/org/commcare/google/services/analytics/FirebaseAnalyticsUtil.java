@@ -5,9 +5,7 @@ import android.os.Bundle;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
@@ -49,9 +47,17 @@ public class FirebaseAnalyticsUtil {
      * Report a user event of selecting an item within an options menu
      */
     public static void reportOptionsMenuItemClick(Class location, String itemLabel) {
-        reportEvent(FirebaseAnalyticsEvent.CLICK_OPTIONS_MENU_ITEM,
+        reportEvent(FirebaseAnalyticsEvent.SELECT_OPTIONS_MENU_ITEM,
                 new String[]{FirebaseAnalytics.Param.LOCATION, FirebaseAnalyticsParam.OPTIONS_MENU_ITEM },
                 new String[]{location.getSimpleName(), itemLabel});
+    }
+
+    /**
+     * Report a user event of opening a preferences menu
+     */
+    public static void reportPrefActivityEntry(Class location) {
+        reportEvent(FirebaseAnalyticsEvent.ENTER_PREF_ACTIVITY,
+                FirebaseAnalytics.Param.LOCATION, location.getSimpleName());
     }
 
     public static void reportAppInstall(String installMethod) {
@@ -62,6 +68,11 @@ public class FirebaseAnalyticsUtil {
     public static void reportAppStartup() {
         reportEvent(FirebaseAnalyticsEvent.APP_STARTUP,
                 FirebaseAnalyticsParam.API_LEVEL, "" + Build.VERSION.SDK_INT);
+    }
+
+    public static void reportAppManagerAction(String action) {
+        reportEvent(FirebaseAnalyticsEvent.APP_MANAGER_ACTION,
+                FirebaseAnalyticsParam.ACTION_TYPE, action);
     }
 
     public static void reportAudioFileSelected() {

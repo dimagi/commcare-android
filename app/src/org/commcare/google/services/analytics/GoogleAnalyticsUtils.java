@@ -68,13 +68,6 @@ public class GoogleAnalyticsUtils {
     }
 
     /**
-     * Report a user event of opening a preferences menu
-     */
-    public static void reportPrefActivityEntry(String category) {
-        reportEvent(category, GoogleAnalyticsFields.ACTION_PREF_MENU);
-    }
-
-    /**
      * Report a user event of opening the edit dialog for an item in a preferences menu
      */
     public static void reportPrefItemClick(String category, String label) {
@@ -155,16 +148,6 @@ public class GoogleAnalyticsUtils {
                 action,
                 isSwipe ? GoogleAnalyticsFields.LABEL_SWIPE : GoogleAnalyticsFields.LABEL_ARROW,
                 isSingleTab ? GoogleAnalyticsFields.VALUE_DOESNT_HAVE_TABS : GoogleAnalyticsFields.VALUE_HAS_TABS);
-    }
-
-    /**
-     * Report an action in the app manager
-     *
-     * @param action - Should be one of the actions listed under
-     *               "Actions for CATEGORY_APP_MANAGER" in GoogleAnalyticsFields.java
-     */
-    public static void reportAppManagerAction(String action) {
-        reportEvent(GoogleAnalyticsFields.CATEGORY_APP_MANAGER, action);
     }
 
     /**

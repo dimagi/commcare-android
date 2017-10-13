@@ -46,12 +46,6 @@ public class CommCareServerPreferences
         return Localization.get("settings.server.title");
     }
 
-    @NonNull
-    @Override
-    protected String getAnalyticsCategory() {
-        return GoogleAnalyticsFields.CATEGORY_SERVER_PREFS;
-    }
-
     @Nullable
     @Override
     protected Map<String, String> getPrefKeyAnalyticsEventMap() {

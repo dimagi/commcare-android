@@ -84,12 +84,6 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         return Localization.get("settings.advanced.title");
     }
 
-    @NonNull
-    @Override
-    protected String getAnalyticsCategory() {
-        return GoogleAnalyticsFields.CATEGORY_ADVANCED_ACTIONS;
-    }
-
     @Nullable
     @Override
     protected Map<String, String> getPrefKeyAnalyticsEventMap() {

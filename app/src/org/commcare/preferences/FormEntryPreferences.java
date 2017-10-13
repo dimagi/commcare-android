@@ -36,12 +36,6 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
         return getString(R.string.application_name) + " > " + getString(R.string.form_entry_settings);
     }
 
-    @NonNull
-    @Override
-    protected String getAnalyticsCategory() {
-        return GoogleAnalyticsFields.CATEGORY_FORM_ENTRY;
-    }
-
     @Override
     protected Map<String, String> getPrefKeyAnalyticsEventMap() {
         return prefKeyToAnalyticsEvent;

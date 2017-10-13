@@ -38,12 +38,6 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
         return Localization.get("app.manager.advanced.settings.title");
     }
 
-    @NonNull
-    @Override
-    protected String getAnalyticsCategory() {
-        return GoogleAnalyticsFields.CATEGORY_APP_MANAGER;
-    }
-
     @Nullable
     @Override
     protected Map<String, String> getPrefKeyAnalyticsEventMap() {

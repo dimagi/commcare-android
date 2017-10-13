@@ -120,12 +120,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         return Localization.get("settings.developer.title");
     }
 
-    @NonNull
-    @Override
-    protected String getAnalyticsCategory() {
-        return GoogleAnalyticsFields.CATEGORY_DEV_PREFS;
-    }
-
     @Nullable
     @Override
     protected Map<String, String> getPrefKeyAnalyticsEventMap() {

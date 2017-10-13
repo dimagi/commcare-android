@@ -77,4 +77,10 @@ public class FirebaseAnalyticsParamValues {
     public static final String URL_INSTALL = "url_install";
     public static final String SMS_INSTALL = "sms_install";
 
+    // Params for app manager actions
+    public static final String OPEN_APP_MANAGER = "open_app_manager";
+    public static final String ARCHIVE_APP = "archive_app";
+    public static final String UNINSTALL_APP = "uninstall_app";
+    public static final String INSTALL_FROM_MANAGER = "install_app";
+
 }
