@@ -68,9 +68,9 @@ public class NfcReadActivity extends NfcActivity {
     private void readFromNfcTag(Tag tag) {
         Ndef ndefObject = Ndef.get(tag);
 
-        //This is how Ndef.get reports an NFC tag which doesn't support NDEF
-        if(ndefObject == null) {
-            finishWithErrorToast("nfc.read.msg.malformed");
+        // This is how Ndef.get() reports an NFC tag which doesn't support Ndef
+        if (ndefObject == null) {
+            finishWithErrorToast("nfc.read.error.no.ndef");
             return;
         }
 
