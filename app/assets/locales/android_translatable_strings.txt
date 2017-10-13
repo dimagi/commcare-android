@@ -803,6 +803,7 @@ nfc.missing.domain=A domain must be provided when specifying a custom type for y
 nfc.read.success=NFC read was successful!
 nfc.read.io.error=An IO error occurred while attempting to read the Ndef message
 nfc.read.msg.malformed=The Ndef message read from the NFC tag was malformed
+nfc.read.error.no.ndef=The message on this NFC tag is not of a format that Android devices can read
 nfc.read.no.data=The provided NFC tag had no data on it to read
 nfc.read.error.unsupported=The message read from the NFC tag is of a type not supported by CommCare
 nfc.read.error.mismatch=The message read from the NFC tag does not match the type specified by this app's configuration
