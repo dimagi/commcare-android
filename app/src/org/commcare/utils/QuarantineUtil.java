@@ -14,35 +14,35 @@ import org.javarosa.core.services.locale.Localization;
 public class QuarantineUtil {
 
     public static String getQuarantineReasonDisplayString(FormRecord r, boolean includeDetail) {
-        String displayString = "";
+        StringBuilder builder = new StringBuilder();
         switch (r.getQuarantineReasonType()) {
             case FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR:
-                displayString += Localization.get("quarantine.reason.local.processing");
+                builder.append(Localization.get("quarantine.reason.local.processing"));
                 break;
             case FormRecord.QuarantineReason_SERVER_PROCESSING_ERROR:
-                displayString += Localization.get("quarantine.reason.server.processing");
+                builder.append(Localization.get("quarantine.reason.server.processing"));
                 break;
             case FormRecord.QuarantineReason_RECORD_ERROR:
-                displayString += Localization.get("quarantine.reason.record.error");
+                builder.append(Localization.get("quarantine.reason.record.error"));
                 break;
             case FormRecord.QuarantineReason_MANUAL:
-                displayString += Localization.get("quarantine.reason.manual");
+                builder.append(Localization.get("quarantine.reason.manual"));
                 break;
             case FormRecord.QuarantineReason_FILE_NOT_FOUND:
-                displayString += Localization.get("quarantine.reason.fnf");
+                builder.append(Localization.get("quarantine.reason.fnf"));
                 break;
             default:
-                displayString += Localization.get("quarantine.reason.unknown");
+                builder.append(Localization.get("quarantine.reason.unknown"));
         }
 
         if (includeDetail) {
             String detail = r.getQuarantineReasonDetail();
             if (detail != null) {
-                displayString += (": " + detail);
+                builder.append(": " + detail);
             }
         }
 
-        return displayString;
+        return builder.toString();
     }
 
     public static NotificationMessage getQuarantineNotificationMessage(FormRecord r) {
