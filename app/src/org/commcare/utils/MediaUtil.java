@@ -1,6 +1,7 @@
 package org.commcare.utils;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
@@ -101,6 +102,15 @@ public class MediaUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static int getActionBarHeightInPixels(Context context) {
+        final TypedArray styledAttributes = context.getTheme().obtainStyledAttributes(
+                new int[] { android.R.attr.actionBarSize });
+        int actionBarSize = (int) styledAttributes.getDimension(0, 0);
+        styledAttributes.recycle();
+
+        return actionBarSize;
     }
 
     public static Bitmap inflateDisplayImage(Context context, String jrUri,

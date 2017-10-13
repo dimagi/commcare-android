@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.MenuItem;
@@ -17,12 +16,10 @@ import org.commcare.activities.EntitySelectActivity;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
+import org.commcare.utils.MediaUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class EntitySelectCalloutSetup {
@@ -49,19 +46,14 @@ public class EntitySelectCalloutSetup {
     private static Drawable getCalloutDrawable(Context context, String imagePath){
         Bitmap b;
         if (!imagePath.equals("")) {
-            try {
-                b = BitmapFactory.decodeStream(ReferenceManager.instance().DeriveReference(imagePath).getStream());
-                if (b == null) {
-                    // Input stream could not be used to derive bitmap, so
-                    // showing error-indicating image
-                    return context.getResources().getDrawable(R.drawable.ic_menu_archive);
-                } else {
-                    return new BitmapDrawable(b);
-                }
-            } catch (IOException | InvalidReferenceException ex) {
-                ex.printStackTrace();
-                // Error loading image, default to folder button
+            int actionBarHeight = MediaUtil.getActionBarHeightInPixels(context);
+            b = MediaUtil.inflateDisplayImage(context, imagePath, -1,actionBarHeight);
+            if (b == null) {
+                // Input stream could not be used to derive bitmap, so
+                // showing error-indicating image
                 return context.getResources().getDrawable(R.drawable.ic_menu_archive);
+            } else {
+                return new BitmapDrawable(b);
             }
         } else {
             // no image passed in, draw a white background
