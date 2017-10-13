@@ -33,9 +33,9 @@ import org.commcare.fragments.InstallConfirmFragment;
 import org.commcare.fragments.InstallPermissionsFragment;
 import org.commcare.fragments.SelectInstallModeFragment;
 import org.commcare.fragments.SetupEnterURLFragment;
+import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.RuntimePermissionRequester;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.model.InvalidResourceException;
@@ -407,7 +407,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
 
         if (lastInstallMode == INSTALL_MODE_FROM_LIST) {
-            GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_INSTALL_FROM_LIST);
+            FirebaseAnalyticsUtil.reportFeatureUsage(FirebaseAnalyticsParamValues.FEATURE_installFromList);
         }
         setReadyToInstall(result);
     }
@@ -696,7 +696,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         CommCareApplication.notificationManager().clearNotifications("install_update");
 
         if (newAppInstalled) {
-            GoogleAnalyticsUtils.reportAppInstall(lastInstallMode);
+            FirebaseAnalyticsUtil.reportAppInstall(getAnalyticsParamForInstallMethod(lastInstallMode));
         } else {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
@@ -922,16 +922,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
-    public static String getAnalyticsActionFromInstallMode(int installModeCode) {
+    private static String getAnalyticsParamForInstallMethod(int installModeCode) {
         switch (installModeCode) {
             case INSTALL_MODE_BARCODE:
-                return GoogleAnalyticsFields.ACTION_BARCODE_INSTALL;
+                return FirebaseAnalyticsParamValues.BARCODE_INSTALL;
             case INSTALL_MODE_OFFLINE:
-                return GoogleAnalyticsFields.ACTION_OFFLINE_INSTALL;
+                return FirebaseAnalyticsParamValues.OFFLINE_INSTALL;
             case INSTALL_MODE_SMS:
-                return GoogleAnalyticsFields.ACTION_SMS_INSTALL;
+                return FirebaseAnalyticsParamValues.SMS_INSTALL;
             case INSTALL_MODE_URL:
-                return GoogleAnalyticsFields.ACTION_URL_INSTALL;
+                return FirebaseAnalyticsParamValues.URL_INSTALL;
             default:
                 return "";
         }

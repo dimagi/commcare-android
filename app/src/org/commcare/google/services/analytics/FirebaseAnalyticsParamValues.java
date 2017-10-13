@@ -60,4 +60,21 @@ public class FirebaseAnalyticsParamValues {
     public static final String SYNC_FAIL_actionable = "actionable_failure";
     public static final String SYNC_FAIL_authOverHttp = "auth_over_http";
 
+    // Params for feature usage
+    public static final String FEATURE_setPin = "set_pin";
+    public static final String FEATURE_print = "print_from_form_or_detail";
+    public static final String FEATURE_resizeImageCapture = "resize_image_capture";
+    public static final String FEATURE_caseAutoselect = "case_autoselect";
+    public static final String FEATURE_smartImageInflation = "smart_image_inflation";
+    public static final String FEATURE_installFromList = "install_from_app_list";
+    public static final String FEATURE_practiceMode = "practice_mode";
+    public static final String PRACTICE_MODE_CUSTOM = "custom_practice_user";
+    public static final String PRACTICE_MODE_DEFAULT = "default_practice_user";
+
+    // Params for app install
+    public static final String BARCODE_INSTALL = "barcode_install";
+    public static final String OFFLINE_INSTALL = "offline_install";
+    public static final String URL_INSTALL = "url_install";
+    public static final String SMS_INSTALL = "sms_install";
+
 }

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.commcare.CommCareApplication;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
 import java.util.ArrayList;
 
@@ -37,7 +37,7 @@ public class GlobalPrivilegesManager {
      */
     public static void enablePrivilege(String privilegeName, String username) {
         getGlobalPrefsRecord().edit().putBoolean(privilegeName, true).commit();
-        GoogleAnalyticsUtils.reportPrivilegeEnabled(privilegeName, username);
+        FirebaseAnalyticsUtil.reportPrivilegeEnabled(privilegeName, username);
     }
 
     public static void disablePrivilege(String privilegeName) {

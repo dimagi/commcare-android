@@ -5,8 +5,12 @@ import android.os.Bundle;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.suite.model.OfflineUserRestore;
+import org.commcare.utils.EncryptionUtils;
 
 /**
  * Created by amstone326 on 10/13/17.
@@ -31,7 +35,9 @@ public class FirebaseAnalyticsUtil {
         for (int i = 0; i < paramKeys.length; i++) {
             b.putString(paramKeys[i], paramVals[i]);
         }
-        getAnalyticsInstance().logEvent(eventName, b);
+        FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
+        analyticsInstance.setUserId(CommCareApplication.instance().getCurrentUserId());
+        analyticsInstance.logEvent(eventName, b);
     }
 
     public static void reportOptionsMenuEntry(Class location) {
@@ -46,6 +52,11 @@ public class FirebaseAnalyticsUtil {
         reportEvent(FirebaseAnalyticsEvent.CLICK_OPTIONS_MENU_ITEM,
                 new String[]{FirebaseAnalytics.Param.LOCATION, FirebaseAnalyticsParam.OPTIONS_MENU_ITEM },
                 new String[]{location.getSimpleName(), itemLabel});
+    }
+
+    public static void reportAppInstall(String installMethod) {
+        reportEvent(FirebaseAnalyticsEvent.APP_INSTALL,
+                FirebaseAnalyticsParam.METHOD, installMethod);
     }
 
     public static void reportAppStartup() {
@@ -135,8 +146,29 @@ public class FirebaseAnalyticsUtil {
                 new String[]{trigger, FirebaseAnalyticsParamValues.SYNC_FAILURE, failureReason});
     }
 
-    private static FirebaseAnalytics getAnalyticsInstance() {
-        return CommCareApplication.instance().getAnalyticsInstance();
+    public static void reportFeatureUsage(String feature) {
+        reportEvent(FirebaseAnalyticsEvent.FEATURE_USAGE,
+                FirebaseAnalytics.Param.ITEM_CATEGORY, feature);
+    }
+
+    public static void reportFeatureUsage(String feature, String mode) {
+        reportEvent(FirebaseAnalyticsEvent.FEATURE_USAGE,
+                new String[]{FirebaseAnalytics.Param.ITEM_CATEGORY, FirebaseAnalyticsParam.MODE},
+                new String[]{feature, mode});
+    }
+
+    public static void reportPracticeModeUsage(OfflineUserRestore currentOfflineUserRestoreResource) {
+        reportFeatureUsage(
+                FirebaseAnalyticsParamValues.FEATURE_practiceMode,
+                currentOfflineUserRestoreResource == null ?
+                        FirebaseAnalyticsParamValues.PRACTICE_MODE_DEFAULT :
+                        FirebaseAnalyticsParamValues.PRACTICE_MODE_CUSTOM);
+    }
+
+    public static void reportPrivilegeEnabled(String privilegeName, String usernameUsedToActivate) {
+        reportEvent(FirebaseAnalyticsEvent.ENABLE_PRIVILEGE,
+                new String[]{FirebaseAnalytics.Param.ITEM_NAME, FirebaseAnalyticsParam.USERNAME},
+                new String[]{privilegeName, EncryptionUtils.getMD5HashAsString(usernameUsedToActivate)});
     }
 
     private static boolean analyticsDisabled() {

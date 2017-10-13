@@ -21,8 +21,8 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -191,7 +191,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private void assignPin(String pin) {
         userRecord.assignPinToRecord(pin, unhashedUserPassword);
         CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
-        GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_SET_USER_PIN);
+        FirebaseAnalyticsUtil.reportFeatureUsage(FirebaseAnalyticsParamValues.FEATURE_setPin);
     }
 
     @Override

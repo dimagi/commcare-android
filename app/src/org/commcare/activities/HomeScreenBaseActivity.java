@@ -26,6 +26,8 @@ import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.ads.AdMobManager;
+import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.heartbeat.UpdatePromptHelper;
@@ -798,7 +800,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 asw.reset();
                 break;
             case SessionNavigator.REPORT_CASE_AUTOSELECT:
-                GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_CASE_AUTOSELECT_USED);
+                FirebaseAnalyticsUtil.reportFeatureUsage(FirebaseAnalyticsParamValues.FEATURE_caseAutoselect);
                 break;
         }
     }

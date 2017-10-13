@@ -11,8 +11,8 @@ import android.view.WindowManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.engine.references.JavaFileReference;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -87,7 +87,7 @@ public class MediaUtil {
             }
 
             if (CommCarePreferences.isSmartInflationEnabled()) {
-                GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_USING_SMART_IMAGE_INFLATION);
+                FirebaseAnalyticsUtil.reportFeatureUsage(FirebaseAnalyticsParamValues.FEATURE_smartImageInflation);
                 // scale based on bounding dimens AND native density
                 return getBitmapScaledForNativeDensity(
                         context.getResources().getDisplayMetrics(), imageFile.getAbsolutePath(),

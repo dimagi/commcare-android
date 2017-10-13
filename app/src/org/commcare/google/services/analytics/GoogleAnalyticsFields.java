@@ -15,18 +15,12 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_ADVANCED_ACTIONS = "Advanced Actions";
     public static final String CATEGORY_FORM_PREFS = "Form Entry Preferences";
     public static final String CATEGORY_DEV_PREFS = "Developer Preferences";
-    public static final String CATEGORY_SERVER_COMMUNICATION = "Server Communication";
     public static final String CATEGORY_ARCHIVED_FORMS = "Archived Forms";
     public static final String CATEGORY_TIMED_EVENTS = "Timed Events";
     public static final String CATEGORY_APP_INSTALL = "New App Install";
     public static final String CATEGORY_MODULE_NAVIGATION = "Module Navigation";
-    public static final String CATEGORY_FEATURE_USAGE = "Feature Usage";
     public static final String CATEGORY_APP_MANAGER = "App Manager";
-    public static final String CATEGORY_AUDIO_WIDGET = "Audio Widget Prototype";
-    public static final String CATEGORY_PRIVILEGE_ENABLED = "Global Privilege Enabled";
     public static final String CATEGORY_LANGUAGE_STATS = "Language Statistics";
-    public static final String CATEGORY_HIGH_LEVEL_STATS = "High Level Statistics";
-    public static final String CATEGORY_GRAPHING = "Mobile Graphing";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
@@ -67,26 +61,11 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_RECOVERY_MODE = "Recovery Mode";
     public static final String ACTION_ENABLE_PRIVILEGES = "Enable Mobile Privileges";
 
-    // Actions for CATEGORY_FEATURE_USAGE
-    public static final String ACTION_LOGIN_AS_DEMO_USER = "Login as Demo User";
-    public static final String ACTION_SET_USER_PIN = "Set a User's PIN";
-    public static final String ACTION_PRINT = "Print From a Form";
-    public static final String ACTION_IMAGE_CAPTURE_RESIZED = "Image Capture Resized";
-    public static final String ACTION_CASE_AUTOSELECT_USED = "Case Autoselect Used";
-    public static final String ACTION_USING_SMART_IMAGE_INFLATION = "Using Smart Image Inflation";
-    public static final String ACTION_INSTALL_FROM_LIST = "Install from available app list";
-
     // Actions for CATEGORY_APP_MANAGER
     public static final String ACTION_OPEN_APP_MANAGER = "Open App Manager";
     public static final String ACTION_ARCHIVE_APP = "Archive an App";
     public static final String ACTION_UNINSTALL_APP = "Uninstall an App";
     public static final String ACTION_INSTALL_FROM_MANAGER = "Install from Manager";
-
-    // Actions for CATEGORY_APP_INSTALL
-    public static final String ACTION_BARCODE_INSTALL = "Barcode Install";
-    public static final String ACTION_OFFLINE_INSTALL = "Offline Install";
-    public static final String ACTION_URL_INSTALL = "URL Install";
-    public static final String ACTION_SMS_INSTALL = "SMS Install";
 
     // Actions for CATEGORY_LANGUAGE_STATS
     public static final String ACTION_LANGUAGE_AT_FORM_ENTRY = "Language at Time of Form Entry";

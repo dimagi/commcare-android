@@ -16,4 +16,5 @@ public class FirebaseAnalyticsParam {
     public static final String OUTCOME = "outcome";
     public static final String REASON = "reason";
     public static final String TRIGGER = "trigger";
+    public static final String USERNAME = "username";
 }
