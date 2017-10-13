@@ -32,7 +32,9 @@ public class NfcManager {
     }
 
     public void disableForegroundDispatch(Activity activity) {
-        nfcAdapter.disableForegroundDispatch(activity);
+        if (nfcAdapter != null) {
+            nfcAdapter.disableForegroundDispatch(activity);
+        }
     }
 
     public class NfcNotSupportedException extends Exception {
