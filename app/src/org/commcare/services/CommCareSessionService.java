@@ -438,6 +438,10 @@ public class CommCareSessionService extends Service {
         }
     }
 
+    public void invalidateUserDbHandle() {
+        this.userDatabase = null;
+    }
+
     /**
      * Is the session active? Active sessions have an open key pool and user
      * database.

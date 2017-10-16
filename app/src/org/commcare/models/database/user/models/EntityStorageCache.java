@@ -131,7 +131,13 @@ public class EntityStorageCache {
         }
     }
 
-    public static void wipeCache(){
-        SqlStorage.wipeTable(CommCareApplication.instance().getUserDbHandle(), TABLE_NAME);
+    public static void wipeCache() {
+        SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
+        // In some cases, the update process will have resulted in completely wiping the sandbox
+        // for the current user, so we need to check whether this handle is still there before doing
+        // anything with it
+        if (userDb != null) {
+            SqlStorage.wipeTable(userDb, TABLE_NAME);
+        }
     }
 }

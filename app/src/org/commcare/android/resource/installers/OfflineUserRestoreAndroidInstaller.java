@@ -6,6 +6,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -66,6 +67,11 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
                     CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
             if (currentOfflineUserRestore != null) {
                 AppUtils.wipeSandboxForUser(currentOfflineUserRestore.getUsername());
+                try {
+                    CommCareApplication.instance().getSession().invalidateUserDbHandle();
+                } catch (SessionUnavailableException e) {
+                    // If we're doing an update without an active session then there's nothing to do here
+                }
             }
             return Resource.RESOURCE_STATUS_UPGRADE;
         } else {
