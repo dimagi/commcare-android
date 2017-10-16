@@ -10,6 +10,7 @@ import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
+import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
@@ -439,8 +440,11 @@ public class FormUploadUtil {
                 String natureOfResponse = parser.getAttributeValue(null, "nature");
                 if ("processing_failure".equals(natureOfResponse)) {
                     return parser.nextText();
+                } else {
+                    throw new UnfullfilledRequirementsException(
+                            "<message> for 422 response did not contain expected content",
+                            CommCareElementParser.SEVERITY_UNKOWN);
                 }
-                return "";
             }
         };
         return responseParser.parse();
