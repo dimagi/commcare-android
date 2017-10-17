@@ -317,7 +317,12 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             if (results[i] == FormUploadResult.FULL_SUCCESS) {
                                 logSubmissionSuccess(record);
                                 break;
-                            } else {
+                            } else if (results[i] == FormUploadResult.PROCESSING_FAILURE) {
+                                // A processing failure indicates that there there is no point in
+                                // trying that submission again immediately
+                                break;
+                            }
+                            else {
                                 attemptsMade++;
                             }
                         }
