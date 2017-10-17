@@ -12,6 +12,8 @@ import org.commcare.dalvik.R;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.suite.model.Text;
 import org.commcare.utils.MarkupUtil;
+import org.commcare.utils.QuarantineUtil;
+import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -29,6 +31,7 @@ public class IncompleteFormRecordView extends LinearLayout {
     public final TextView mRightTextView;
     private final TextView mUpperRight;
     private final ImageView syncIcon;
+    private final TextView reasonForQuarantineView;
 
     private final Date start;
 
@@ -36,11 +39,12 @@ public class IncompleteFormRecordView extends LinearLayout {
         super(context);
 
         ViewGroup vg = (ViewGroup)View.inflate(context, R.layout.formrecordview, null);
-        mPrimaryTextView = (TextView)vg.findViewById(R.id.formrecord_txt_main);
-        mLowerTextView = (TextView)vg.findViewById(R.id.formrecord_txt_btm);
-        mRightTextView = (TextView)vg.findViewById(R.id.formrecord_txt_right);
-        mUpperRight = (TextView)vg.findViewById(R.id.formrecord_txt_upp_right);
-        syncIcon = (ImageView)vg.findViewById(R.id.formrecord_sync_icon);
+        mPrimaryTextView = vg.findViewById(R.id.formrecord_txt_main);
+        mLowerTextView = vg.findViewById(R.id.formrecord_txt_btm);
+        mRightTextView = vg.findViewById(R.id.formrecord_txt_right);
+        mUpperRight = vg.findViewById(R.id.formrecord_txt_upp_right);
+        syncIcon = vg.findViewById(R.id.formrecord_sync_icon);
+        reasonForQuarantineView = vg.findViewById(R.id.reason_for_quarantine_display);
 
         mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
         mUpperRight.setTextAppearance(context, android.R.style.TextAppearance_Large);
@@ -78,6 +82,15 @@ public class IncompleteFormRecordView extends LinearLayout {
         } else {
             mUpperRight.setText("");
             syncIcon.setVisibility(View.GONE);
+        }
+
+        if (FormRecord.STATUS_QUARANTINED.equals(record.getStatus())) {
+            reasonForQuarantineView.setVisibility(View.VISIBLE);
+            reasonForQuarantineView.setText(
+                    Localization.get("reason.for.quarantine.prefix") +
+                    QuarantineUtil.getQuarantineReasonDisplayString(record, false));
+        } else {
+            reasonForQuarantineView.setVisibility(View.GONE);
         }
     }
 }

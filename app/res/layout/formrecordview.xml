@@ -1,67 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="fill_parent"
-    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:paddingRight="@dimen/row_padding_vertical"
-    android:paddingLeft="@dimen/row_padding_vertical" >
+    android:paddingLeft="@dimen/row_padding_vertical"
+    android:layout_marginTop="@dimen/standard_spacer"
+    android:layout_marginBottom="@dimen/standard_spacer"
+    android:orientation="vertical" >
 
-    <ImageView
-        android:padding="@dimen/cell_padding_horizontal"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/avatar_form"/>
-
-    <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:id="@+id/formrecord_txt_right"
-            android:textColor="?attr/filter_select_text_color"
-            android:layout_alignParentBottom="true"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:id="@+id/formrecord_txt_upp_right"
-            android:layout_above="@+id/formrecord_txt_right"
-            android:textColor="@color/cc_neutral_color"
-            android:gravity="right"/>
+        android:orientation="horizontal" >
 
         <ImageView
-            android:id="@+id/formrecord_sync_icon"
-            android:visibility="gone"
+            android:padding="@dimen/cell_padding_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_toLeftOf="@id/formrecord_txt_upp_right"
-            android:layout_above="@+id/formrecord_txt_right"
-            android:tint="@color/cc_neutral_color"
-            android:tintMode="src_atop"
-            android:src="@android:drawable/stat_notify_sync_noanim"/>
+            android:src="@drawable/avatar_form"/>
 
-        <TextView
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/formrecord_txt_main"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:gravity="left"
-            android:textColor="?attr/filter_select_text_color"
-            android:layout_toLeftOf="@id/formrecord_txt_upp_right"/>
+            android:layout_height="fill_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/formrecord_txt_btm"
-            android:textColor="?attr/filter_select_text_color"
-            android:layout_below="@+id/formrecord_txt_main"/>
-    </RelativeLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:id="@+id/formrecord_txt_right"
+                android:textColor="?attr/filter_select_text_color"
+                android:layout_alignParentBottom="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:id="@+id/formrecord_txt_upp_right"
+                android:layout_above="@+id/formrecord_txt_right"
+                android:textColor="@color/cc_neutral_color"
+                android:gravity="right"/>
+
+            <ImageView
+                android:id="@+id/formrecord_sync_icon"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_toLeftOf="@id/formrecord_txt_upp_right"
+                android:layout_above="@+id/formrecord_txt_right"
+                android:tint="@color/cc_neutral_color"
+                android:tintMode="src_atop"
+                android:src="@android:drawable/stat_notify_sync_noanim"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/formrecord_txt_main"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:gravity="left"
+                android:textColor="?attr/filter_select_text_color"
+                android:layout_toLeftOf="@id/formrecord_txt_upp_right"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/formrecord_txt_btm"
+                android:textColor="?attr/filter_select_text_color"
+                android:layout_below="@+id/formrecord_txt_main"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/reason_for_quarantine_display"
+        android:gravity="left"
+        android:visibility="gone"
+        android:textColor="@color/cc_attention_negative_text"
+        android:textSize="@dimen/font_size_medium" />
+
 </LinearLayout>

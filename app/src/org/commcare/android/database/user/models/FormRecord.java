@@ -75,9 +75,12 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String STATUS_JUST_DELETED = "just-deleted";
 
     public static final String QuarantineReason_LOCAL_PROCESSING_ERROR = "local-processing-error";
+    public static final String QuarantineReason_SERVER_PROCESSING_ERROR = "server-processing-error";
     public static final String QuarantineReason_RECORD_ERROR = "record-error";
     public static final String QuarantineReason_MANUAL = "manual-quarantine";
     public static final String QuarantineReason_FILE_NOT_FOUND = "file-not-found";
+
+    private static final String QUARANTINE_REASON_AND_DETAIL_SEPARATOR = "@@SEP@@";
 
     @Persisting(1)
     @MetaField(META_XMLNS)
@@ -111,7 +114,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     private String submissionOrderingNumber;
 
     @Persisting(value = 9, nullable = true)
-    private String reasonForQuarantine;
+    private String quarantineReason;
 
     public FormRecord() {
     }
@@ -201,12 +204,29 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return Integer.parseInt(submissionOrderingNumber);
     }
 
-    public void setReasonForQuarantine(String reason) {
-        this.reasonForQuarantine = reason;
+    public void setQuarantineReason(String reasonType, String reasonDetail) {
+        this.quarantineReason = reasonType;
+        if (reasonDetail != null) {
+            this.quarantineReason += (QUARANTINE_REASON_AND_DETAIL_SEPARATOR + reasonDetail);
+        }
     }
 
-    public String getReasonForQuarantine() {
-        return this.reasonForQuarantine;
+    public String getQuarantineReasonType() {
+        return (quarantineReason == null) ?
+                null :
+                quarantineReason.split(QUARANTINE_REASON_AND_DETAIL_SEPARATOR)[0];
+    }
+
+    public String getQuarantineReasonDetail() {
+        if (quarantineReason == null) {
+            return null;
+        }
+        String[] typeAndDetail = this.quarantineReason.split(QUARANTINE_REASON_AND_DETAIL_SEPARATOR);
+        if (typeAndDetail.length == 2) {
+            return typeAndDetail[1];
+        } else {
+            return null;
+        }
     }
 
     /**
