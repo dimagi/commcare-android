@@ -12,6 +12,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.modern.util.Pair;
+import org.commcare.utils.SessionUnavailableException;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,6 +29,7 @@ public class EntityStorageCache {
     private static final String COL_CACHE_KEY = "cache_key";
     private static final String COL_VALUE = "value";
     private static final String COL_TIMESTAMP = "timestamp";
+    private static final String ENTITY_CACHE_WIPED_PREF_SUFFIX = "enity_cache_wiped";
 
     private final SQLiteDatabase db;
     private final String mCacheName;
@@ -112,7 +114,7 @@ public class EntityStorageCache {
     public void invalidateCaches(Collection<Integer> recordIds) {
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(recordIds);
         int removed = 0;
-        for(Pair<String, String[]> querySet : whereParamList) {
+        for (Pair<String, String[]> querySet : whereParamList) {
             removed += db.delete(TABLE_NAME, COL_CACHE_NAME + " = '" + this.mCacheName + "' AND " + COL_ENTITY_KEY + " IN " + querySet.first, querySet.second);
         }
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
@@ -131,13 +133,31 @@ public class EntityStorageCache {
         }
     }
 
-    public static void wipeCache() {
-        SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
-        // In some cases, the update process will have resulted in completely wiping the sandbox
-        // for the current user, so we need to check whether this handle is still there before doing
-        // anything with it
-        if (userDb != null) {
-            SqlStorage.wipeTable(userDb, TABLE_NAME);
+    public static void tryWipeCache() {
+        try {
+            SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
+            // In some cases, the update process will have resulted in completely wiping the sandbox
+            // for the current user, so we need to check whether this handle is still there before doing
+            // anything with it
+            if (userDb != null) {
+                SqlStorage.wipeTable(userDb, TABLE_NAME);
+            }
+
+            // Update the preference irrespective of whether DB is null or not
+            String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
+            setEntityCacheWipedPref(username, CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber());
+        } catch (SessionUnavailableException e) {
+            e.printStackTrace();
         }
+    }
+
+    public static void setEntityCacheWipedPref(String username, int version) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putInt(username + "_" + ENTITY_CACHE_WIPED_PREF_SUFFIX, version).apply();
+    }
+
+    public static int getEntityCacheWipedPref(String username) {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getInt(username + "_" + ENTITY_CACHE_WIPED_PREF_SUFFIX, -1);
     }
 }

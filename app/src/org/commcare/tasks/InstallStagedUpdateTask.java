@@ -49,7 +49,7 @@ public abstract class InstallStagedUpdateTask<R>
         }
 
         ResourceInstallUtils.initAndCommitApp(app);
-        EntityStorageCache.wipeCache();
+        EntityStorageCache.tryWipeCache();
         return AppInstallStatus.Installed;
     }
 }
