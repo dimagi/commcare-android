@@ -67,11 +67,6 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
                     CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
             if (currentOfflineUserRestore != null) {
                 AppUtils.wipeSandboxForUser(currentOfflineUserRestore.getUsername());
-                try {
-                    CommCareApplication.instance().getSession().invalidateUserDbHandle();
-                } catch (SessionUnavailableException e) {
-                    // If we're doing an update without an active session then there's nothing to do here
-                }
             }
             return Resource.RESOURCE_STATUS_UPGRADE;
         } else {
