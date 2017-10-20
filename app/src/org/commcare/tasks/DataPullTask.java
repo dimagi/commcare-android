@@ -19,6 +19,7 @@ import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
+import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
@@ -563,6 +564,7 @@ public abstract class DataPullTask<R>
         CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
         new AndroidCaseIndexTable().wipeTable();
         CommCareApplication.instance().getUserStorage(Ledger.STORAGE_KEY, Ledger.class).removeAll();
+        EntityStorageCache.tryWipeCache();
     }
 
     private void updateCurrentUser(String password) {

@@ -165,7 +165,6 @@ public class FormAndDataSyncer {
     }
 
     public void performOtaRestore(LoginActivity context, String username, String password) {
-        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         syncData(context, false, false,
                 CommCareServerPreferences.getDataServerKey(),
                 username,

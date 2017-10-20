@@ -695,9 +695,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         // only enable sorting once entity loading is complete
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
         // hide sorting menu when using async loading strategy
-        menu.findItem(MENU_SORT).setVisible((shortSelect == null || !shortSelect.useAsyncStrategy()));
+        menu.findItem(MENU_SORT).setVisible((shortSelect == null || shortSelect.hasSortField()));
         menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
-
         return super.onPrepareOptionsMenu(menu);
     }
 

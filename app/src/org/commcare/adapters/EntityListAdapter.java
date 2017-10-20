@@ -322,7 +322,7 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
         currentSearchTerms = searchTerms;
         searchQuery = filterRaw;
         entityFilterer =
-                new EntityStringFilterer(this, searchTerms, asyncMode,
+                new EntityStringFilterer(this, searchTerms,
                         mFuzzySearchEnabled, mNodeFactory, full, commCareActivity);
         entityFilterer.start();
     }
