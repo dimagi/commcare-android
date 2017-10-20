@@ -5,7 +5,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
-import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -49,6 +48,7 @@ public abstract class InstallStagedUpdateTask<R>
         }
 
         ResourceInstallUtils.initAndCommitApp(app);
+
         return AppInstallStatus.Installed;
     }
 }
