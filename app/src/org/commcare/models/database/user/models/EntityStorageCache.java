@@ -134,21 +134,10 @@ public class EntityStorageCache {
     }
 
     public static void tryWipeCache() {
-        try {
-            SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
-            // In some cases, the update process will have resulted in completely wiping the sandbox
-            // for the current user, so we need to check whether this handle is still there before doing
-            // anything with it
-            if (userDb != null) {
-                SqlStorage.wipeTable(userDb, TABLE_NAME);
-            }
-
-            // Update the preference irrespective of whether DB is null or not
-            String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
-            setEntityCacheWipedPref(username, CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber());
-        } catch (SessionUnavailableException e) {
-            e.printStackTrace();
-        }
+        SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
+        SqlStorage.wipeTable(userDb, TABLE_NAME);
+        String uuid = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
+        setEntityCacheWipedPref(uuid, CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber());
     }
 
     public static void setEntityCacheWipedPref(String username, int version) {

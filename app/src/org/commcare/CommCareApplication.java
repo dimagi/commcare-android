@@ -731,7 +731,7 @@ public class CommCareApplication extends MultiDexApplication {
                             PurgeStaleArchivedFormsTask.launchPurgeTask();
                         }
 
-                        if (EntityStorageCache.getEntityCacheWipedPref(user.getUsername()) < ReportingUtils.getAppVersion()) {
+                        if (EntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
                             EntityStorageCache.tryWipeCache();
                         }
                     }
