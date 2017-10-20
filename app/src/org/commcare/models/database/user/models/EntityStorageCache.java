@@ -145,8 +145,8 @@ public class EntityStorageCache {
                 .putInt(username + "_" + ENTITY_CACHE_WIPED_PREF_SUFFIX, version).apply();
     }
 
-    public static int getEntityCacheWipedPref(String username) {
+    public static int getEntityCacheWipedPref(String uuid) {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getInt(username + "_" + ENTITY_CACHE_WIPED_PREF_SUFFIX, -1);
+                .getInt(uuid + "_" + ENTITY_CACHE_WIPED_PREF_SUFFIX, -1);
     }
 }
