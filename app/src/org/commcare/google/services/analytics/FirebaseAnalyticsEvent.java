@@ -25,6 +25,7 @@ public class FirebaseAnalyticsEvent {
     static final String OPEN_OPTIONS_MENU = "open_options_menu";
     static final String SELECT_OPTIONS_MENU_ITEM = "select_options_menu_item";
     static final String SYNC_ATTEMPT = "sync_attempt";
+    static final String TIMED_SESSION = "timed_session";
     static final String VIEW_ARCHIVED_FORMS_LIST = "view_archived_forms_list";
 
 }

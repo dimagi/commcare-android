@@ -111,4 +111,8 @@ public class FirebaseAnalyticsParamValues {
     public static final String DETAIL_WITH_TABS = "detail_with_tabs";
     public static final String DETAIL_NO_TABS = "detail_no_tabs";
 
+    // Param values for timed sessions
+    public static final String USER_SESSION = "user_session";
+    public static final String FORM_ENTRY_SESSION = "form_entry_session";
+
 }

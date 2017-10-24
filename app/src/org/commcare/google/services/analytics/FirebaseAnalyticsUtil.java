@@ -10,6 +10,9 @@ import org.commcare.preferences.CommCarePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /**
  * Created by amstone326 on 10/13/17.
  */
@@ -239,6 +242,20 @@ public class FirebaseAnalyticsUtil {
         reportEvent(FirebaseAnalyticsEvent.ENABLE_PRIVILEGE,
                 new String[]{FirebaseAnalytics.Param.ITEM_NAME, FirebaseAnalyticsParam.USERNAME},
                 new String[]{privilegeName, EncryptionUtils.getMD5HashAsString(usernameUsedToActivate)});
+    }
+
+    public static void reportTimedSession(String sessionType, double timeInSeconds, double timeInMinutes) {
+        reportEvent(FirebaseAnalyticsEvent.TIMED_SESSION,
+                new String[]{FirebaseAnalyticsParam.SESSION_TYPE,
+                        FirebaseAnalyticsParam.TIME_IN_SECONDS,
+                        FirebaseAnalyticsParam.TIME_IN_MINUTES},
+                new String[]{sessionType,
+                        ""+roundToOneDecimal(timeInSeconds),
+                        ""+roundToOneDecimal(timeInMinutes)});
+    }
+
+    private static double roundToOneDecimal(double d) {
+        return new BigDecimal(d).setScale(1, RoundingMode.HALF_DOWN).doubleValue();
     }
 
     private static boolean analyticsDisabled() {

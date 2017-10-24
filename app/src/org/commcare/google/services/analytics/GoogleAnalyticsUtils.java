@@ -61,24 +61,4 @@ public class GoogleAnalyticsUtils {
                 .build());
     }
 
-    /**
-     * Report the length of a certain user event/action/concept
-     *
-     * @param action - Communicates the event/action/concept whose length is being measured
-     * @param value  - Communicates the duration, in seconds
-     */
-    public static void reportTimedEvent(String action, int value) {
-        if (analyticsDisabled() || versionIncompatible()) {
-            return;
-        }
-        getAnalyticsInstance().send(new HitBuilders.EventBuilder()
-                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
-                .setCustomDimension(2, ReportingUtils.getDomain())
-                .setCustomDimension(3, BuildConfig.FLAVOR)
-                .setCategory(GoogleAnalyticsFields.CATEGORY_TIMED_EVENTS)
-                .setAction(action)
-                .setValue(value)
-                .build());
-    }
-
 }
