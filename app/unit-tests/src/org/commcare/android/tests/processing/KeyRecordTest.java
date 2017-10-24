@@ -154,11 +154,11 @@ public class KeyRecordTest {
     }
 
     private void runKeyRecordTask(String password, String keyXmlFile, MessageTag expectedMessage) {
-        ManageKeyRecordTaskFake keyRecordTast =
+        ManageKeyRecordTaskFake keyRecordTest =
                 new ManageKeyRecordTaskFake(RuntimeEnvironment.application, 1, "test",
                         password, LoginMode.PASSWORD, app, false, false, keyXmlFile);
-        keyRecordTast.connect((CommCareTaskConnector)new DataPullControllerMock(expectedMessage));
-        keyRecordTast.execute();
+        keyRecordTest.connect((CommCareTaskConnector)new DataPullControllerMock(expectedMessage));
+        keyRecordTest.execute();
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
     }

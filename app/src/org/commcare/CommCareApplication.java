@@ -34,6 +34,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.HTTPMethod;
@@ -62,6 +63,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
+import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.util.Pair;
@@ -711,6 +713,10 @@ public class CommCareApplication extends MultiDexApplication {
                             HybridFileBackedSqlHelpers.removeOrphanedFiles(mBoundService.getUserDbHandle());
 
                             PurgeStaleArchivedFormsTask.launchPurgeTask();
+                        }
+
+                        if (EntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
+                            EntityStorageCache.tryWipeCache();
                         }
                     }
 

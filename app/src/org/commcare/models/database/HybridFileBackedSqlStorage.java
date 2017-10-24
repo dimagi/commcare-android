@@ -490,16 +490,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
     @Override
     public void removeAll() {
-        SQLiteDatabase db = getDbOrThrow();
-
-        db.beginTransaction();
-        try {
-            db.delete(table, null, null);
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
-
+        wipeTable(getDbOrThrow(), table);
         FileUtil.deleteFileOrDir(dbDir);
     }
 

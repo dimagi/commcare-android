@@ -189,6 +189,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
             boolean isOrientationChange = savedInstanceState != null;
             setupUI(isOrientationChange);
+
+            // On some devices, onCreateOptionsMenu() can get called before onCreate() has completed
+            // if the action bar is in use. Since we can't deploy all of the logic in onCreateOptionsMenu
+            // until this has happened, we should try to do it again when onCreate is complete
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                invalidateOptionsMenu();
+            }
         }
     }
 
@@ -654,7 +661,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        //use the old method here because some Android versions don't like Spannables for titles
         menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
         if (isMappingEnabled) {
@@ -662,8 +668,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     android.R.drawable.ic_menu_mapmode);
         }
 
-        tryToAddSearchActionToAppBar(this, menu, entitySelectSearchUI.getActionBarInstantiator());
-        setupActionOptionsMenu(menu);
+        if (entitySelectSearchUI != null) {
+            // Only execute this portion if setupUI() has completed; the presence of the action bar
+            // can sometimes cause this method to get called before onCreate() has completed
+            tryToAddSearchActionToAppBar(this, menu, entitySelectSearchUI.getActionBarInstantiator());
+            setupActionOptionsMenu(menu);
+        }
         return true;
     }
 
@@ -685,9 +695,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         // only enable sorting once entity loading is complete
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
         // hide sorting menu when using async loading strategy
-        menu.findItem(MENU_SORT).setVisible((shortSelect == null || !shortSelect.useAsyncStrategy()));
+        menu.findItem(MENU_SORT).setVisible((shortSelect == null || shortSelect.hasSortField()));
         menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
-
         return super.onPrepareOptionsMenu(menu);
     }
 

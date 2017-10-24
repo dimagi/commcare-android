@@ -8,8 +8,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
-import org.commcare.cases.query.QueryContext;
-import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.EntityStorageCache;
@@ -41,11 +39,15 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     private static final Object mAsyncLock = new Object();
     private Thread mAsyncPrimingThread;
 
+    // Don't show entity list until we primeCache and caches all fields
+    private final boolean isBlockingAsyncMode;
+
     public AsyncNodeEntityFactory(Detail d, EvaluationContext ec) {
         super(d, ec);
 
         mVariableDeclarations = detail.getVariableDeclarations();
         mEntityCache = new EntityStorageCache("case");
+        isBlockingAsyncMode = detail.hasSortField();
     }
 
     @Override
@@ -186,18 +188,35 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     @Override
-    protected void prepareEntitiesInternal() {
-        synchronized (mAsyncLock) {
-            if (mAsyncPrimingThread == null) {
-                mAsyncPrimingThread = new Thread(new Runnable() {
+    protected void prepareEntitiesInternal(List<Entity<TreeReference>> entities) {
+        // if blocking mode load cache on the same thread and set any data thats not cached
+        if (isBlockingAsyncMode) {
+            primeCache();
+            setUnCachedData(entities);
+        } else {
+            // otherwise we want to show the entity list asap and hence want to offload the loading cache part to a separate
+            // thread while caching any uncached data later on UI thread during Adapter's getView
+            synchronized (mAsyncLock) {
+                if (mAsyncPrimingThread == null) {
+                    mAsyncPrimingThread = new Thread(new Runnable() {
 
-                    @Override
-                    public void run() {
-                        primeCache();
-                    }
+                        @Override
+                        public void run() {
+                            primeCache();
+                        }
 
-                });
-                mAsyncPrimingThread.start();
+                    });
+                    mAsyncPrimingThread.start();
+                }
+            }
+        }
+    }
+
+    private void setUnCachedData(List<Entity<TreeReference>> entities) {
+        for (int i = 0; i < entities.size(); i++) {
+            AsyncEntity e = (AsyncEntity)entities.get(i);
+            for (int col = 0; col < e.getNumFields(); ++col) {
+                e.getSortField(col);
             }
         }
     }
@@ -207,5 +226,9 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         synchronized (mAsyncLock) {
             return mAsyncPrimingThread == null || !mAsyncPrimingThread.isAlive();
         }
+    }
+
+    public boolean isBlockingAsyncMode() {
+        return isBlockingAsyncMode;
     }
 }

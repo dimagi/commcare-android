@@ -131,7 +131,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     public static HashMap getHeaders(String lastToken) {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("X-OpenRosa-Version", "2.1");
+        headers.put("X-OpenRosa-Version", "3.0");
         if (lastToken != null) {
             headers.put("X-CommCareHQ-LastSyncToken", lastToken);
         }

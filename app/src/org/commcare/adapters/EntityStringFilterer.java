@@ -27,18 +27,16 @@ public class EntityStringFilterer extends EntityFiltererBase {
     private final boolean isFilterEmpty;
     private final String[] searchTerms;
     private final ArrayList<Pair<Integer, Integer>> matchScores = new ArrayList<>();
-    private final boolean isAsyncMode;
     private final boolean isFuzzySearchEnabled;
 
     public EntityStringFilterer(EntityListAdapter adapter,
                                 String[] searchTerms,
-                                boolean isAsyncMode, boolean isFuzzySearchEnabled,
+                                boolean isFuzzySearchEnabled,
                                 NodeEntityFactory nodeFactory,
                                 List<Entity<TreeReference>> fullEntityList,
                                 Activity context) {
         super(context, nodeFactory, adapter, fullEntityList);
 
-        this.isAsyncMode = isAsyncMode;
         this.isFuzzySearchEnabled = isFuzzySearchEnabled;
         this.isFilterEmpty = searchTerms == null || searchTerms.length == 0;
         this.searchTerms = searchTerms;
