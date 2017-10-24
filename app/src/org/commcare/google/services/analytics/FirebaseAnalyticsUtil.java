@@ -172,6 +172,36 @@ public class FirebaseAnalyticsUtil {
         reportEvent(FirebaseAnalyticsEvent.ENTER_FORM, FirebaseAnalyticsParam.LOCALE, currentLocale);
     }
 
+    /**
+     * Report a user event of navigating backward out of the entity detail screen
+     */
+    public static void reportEntityDetailExit(String navMethod, int detailTabCount) {
+        reportEntityDetailNavigation(
+                FirebaseAnalyticsParamValues.DIRECTION_BACKWARD, navMethod, detailTabCount);
+    }
+
+    /**
+     * Report a user event of continuing forward past the entity detail screen
+     */
+    public static void reportEntityDetailContinue(String navMethod, int detailTabCount) {
+        reportEntityDetailNavigation(
+                FirebaseAnalyticsParamValues.DIRECTION_FORWARD, navMethod, detailTabCount);
+    }
+
+    private static void reportEntityDetailNavigation(String direction, String navMethod,
+                                                     int detailTabCount) {
+        String detailUiState =
+                detailTabCount > 1 ? FirebaseAnalyticsParamValues.DETAIL_WITH_TABS :
+                        FirebaseAnalyticsParamValues.DETAIL_NO_TABS;
+
+        reportEvent(FirebaseAnalyticsEvent.ENTITY_DETAIL_NAVIGATION,
+                new String[]{
+                        FirebaseAnalyticsParam.DIRECTION,
+                        FirebaseAnalyticsParam.METHOD,
+                        FirebaseAnalyticsParam.UI_STATE},
+                new String[]{direction, navMethod, detailUiState});
+    }
+
     public static void reportSyncSuccess(String trigger, String syncMode) {
         reportEvent(FirebaseAnalyticsEvent.SYNC_ATTEMPT,
                 new String[]{FirebaseAnalyticsParam.TRIGGER, FirebaseAnalyticsParam.OUTCOME,

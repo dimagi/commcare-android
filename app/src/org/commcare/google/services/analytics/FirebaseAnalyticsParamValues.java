@@ -7,21 +7,21 @@ package org.commcare.google.services.analytics;
 public class FirebaseAnalyticsParamValues {
 
     // Param values for audio widget interaction
-    public static final String CHOOSE_AUDIO_FILE = "choose_audio_file";
-    public static final String START_RECORDING = "start_recording_audio";
-    public static final String STOP_RECORDING = "stop_recording";
-    public static final String SAVE_RECORDING = "save_recording";
-    public static final String PLAY_AUDIO = "play_audio";
-    public static final String PAUSE_AUDIO = "pause_audio";
-    public static final String RECORD_AGAIN = "record_again";
+    static final String CHOOSE_AUDIO_FILE = "choose_audio_file";
+    static final String START_RECORDING = "start_recording_audio";
+    static final String STOP_RECORDING = "stop_recording";
+    static final String SAVE_RECORDING = "save_recording";
+    static final String PLAY_AUDIO = "play_audio";
+    static final String PAUSE_AUDIO = "pause_audio";
+    static final String RECORD_AGAIN = "record_again";
 
     // Param values for graphing actions
-    public static final String GRAPH_ATTACH = "start_viewing_graph";
-    public static final String GRAPH_DETACH = "stop_viewing_graph";
-    public static final String GRAPH_FULLSCREEN_OPEN = "graph_fullscreen_open";
-    public static final String GRAPH_FULLSCREEN_CLOSE = "graph_fullscreen_close";
+    static final String GRAPH_ATTACH = "start_viewing_graph";
+    static final String GRAPH_DETACH = "stop_viewing_graph";
+    static final String GRAPH_FULLSCREEN_OPEN = "graph_fullscreen_open";
+    static final String GRAPH_FULLSCREEN_CLOSE = "graph_fullscreen_close";
 
-    // Param values for form entry actions
+    // Param values for form entry actions and entity detail navigation
     public static final String DIRECTION_FORWARD = "forward";
     public static final String DIRECTION_BACKWARD = "backward";
     public static final String NAV_BUTTON_PRESS = "nav_button_press";
@@ -43,8 +43,8 @@ public class FirebaseAnalyticsParamValues {
     public static final String SYNC_TRIGGER_USER = "user_triggered_sync";
     public static final String SYNC_TRIGGER_AUTO = "auto_sync";
 
-    public static final String SYNC_SUCCESS = "sync_success";
-    public static final String SYNC_FAILURE = "sync_failure";
+    static final String SYNC_SUCCESS = "sync_success";
+    static final String SYNC_FAILURE = "sync_failure";
 
     public static final String SYNC_MODE_justPullData = "sync_just_pull";
     public static final String SYNC_MODE_sendForms = "sync_pull_and_send";
@@ -67,9 +67,9 @@ public class FirebaseAnalyticsParamValues {
     public static final String FEATURE_caseAutoselect = "case_autoselect";
     public static final String FEATURE_smartImageInflation = "smart_image_inflation";
     public static final String FEATURE_installFromList = "install_from_app_list";
-    public static final String FEATURE_practiceMode = "practice_mode";
-    public static final String PRACTICE_MODE_CUSTOM = "custom_practice_user";
-    public static final String PRACTICE_MODE_DEFAULT = "default_practice_user";
+    static final String FEATURE_practiceMode = "practice_mode";
+    static final String PRACTICE_MODE_CUSTOM = "custom_practice_user";
+    static final String PRACTICE_MODE_DEFAULT = "default_practice_user";
 
     // Param values for app install
     public static final String BARCODE_INSTALL = "barcode_install";
@@ -106,5 +106,9 @@ public class FirebaseAnalyticsParamValues {
     public static final String FORCE_LOG_SUBMISSION = "force_log_submission";
     public static final String RECOVERY_MODE = "recovery_mode";
     public static final String ENABLE_PRIVILEGES = "enable_mobile_privileges";
+
+    // Param values for entity detail ui state
+    public static final String DETAIL_WITH_TABS = "detail_with_tabs";
+    public static final String DETAIL_NO_TABS = "detail_no_tabs";
 
 }

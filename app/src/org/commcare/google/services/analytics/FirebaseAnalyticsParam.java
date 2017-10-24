@@ -6,16 +6,18 @@ package org.commcare.google.services.analytics;
 
 public class FirebaseAnalyticsParam {
 
-    public static final String ACTION_TYPE = "action_type";
-    public static final String API_LEVEL = "api_level";
-    public static final String DIRECTION = "direction";
-    public static final String FORM_TYPE = "form_type";
-    public static final String LOCALE = "locale";
-    public static final String METHOD = "method";
-    public static final String MODE = "mode";
-    public static final String OPTIONS_MENU_ITEM = "options_menu_item_name";
-    public static final String OUTCOME = "outcome";
-    public static final String REASON = "reason";
-    public static final String TRIGGER = "trigger";
-    public static final String USERNAME = "username";
+    static final String ACTION_TYPE = "action_type";
+    static final String API_LEVEL = "api_level";
+    static final String DIRECTION = "direction";
+    static final String FORM_TYPE = "form_type";
+    static final String LOCALE = "locale";
+    static final String METHOD = "method";
+    static final String MODE = "mode";
+    static final String OPTIONS_MENU_ITEM = "options_menu_item_name";
+    static final String OUTCOME = "outcome";
+    static final String REASON = "reason";
+    static final String TRIGGER = "trigger";
+    static final String UI_STATE = "uite_state";
+    static final String USERNAME = "username";
+
 }

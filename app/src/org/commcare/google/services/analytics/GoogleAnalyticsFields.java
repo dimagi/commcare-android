@@ -23,11 +23,4 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_TIME_IN_A_FORM = "Time Spent in A Form";
     public static final String ACTION_SESSION_LENGTH = "Session Length";
 
-    // Actions for CATEGORY_MODULE_NAVIGATION
-    public static final String ACTION_CONTINUE_FROM_DETAIL = "Continue Forward from Detail View";
-    public static final String ACTION_EXIT_FROM_DETAIL = "Exit Detail View";
-
-    // Values for ACTION_CONTINUE_FROM_DETAIL/ACTION_EXIT_FROM_DETAIL : LABEL_ARROW/LABEL_SWIPE
-    public static final int VALUE_DOESNT_HAVE_TABS = 0;
-    public static final int VALUE_HAS_TABS = 1;
 }
