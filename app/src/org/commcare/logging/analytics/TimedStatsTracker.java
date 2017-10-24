@@ -38,7 +38,7 @@ public class TimedStatsTracker {
         if (enterTime != -1) {
             int formLastEntered = prefs.getInt(KEY_LAST_FORM_ID, -1);
             if (formLastEntered == formID) {
-                reportTimedEvent(FirebaseAnalyticsParamValues.FORM_ENTRY_SESSION, enterTime);
+                reportTimedSession(FirebaseAnalyticsParamValues.FORM_ENTRY_SESSION, enterTime);
             } else {
                 Log.i(TAG, "Attempting to report exit form time for a different form than the " +
                         "last form logged as entered");
@@ -72,7 +72,7 @@ public class TimedStatsTracker {
         if (!"".equals(lastLoggedInUser)) {
             if (lastLoggedInUser.equals(loggedOutUser)) {
                 long startTime = prefs.getLong(KEY_LAST_SESSION_START_TIME, -1);
-                reportTimedEvent(FirebaseAnalyticsParamValues.USER_SESSION, startTime);
+                reportTimedSession(FirebaseAnalyticsParamValues.USER_SESSION, startTime);
             } else {
                 Log.i(TAG, "Attempting to report ending a session for a different user than the " +
                         "last user reported as logged in");
@@ -88,9 +88,9 @@ public class TimedStatsTracker {
     }
 
     /**
-     * Report the completion of a timed event and its length
+     * Report to analytics the completion of a timed session and its length
      */
-    private static void reportTimedEvent(String timedEvent, long startTime) {
+    private static void reportTimedSession(String timedEvent, long startTime) {
         long endTime = currentTime();
         FirebaseAnalyticsUtil.reportTimedSession(timedEvent,
                 computeElapsedTimeInSeconds(startTime, endTime),

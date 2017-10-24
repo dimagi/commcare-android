@@ -246,8 +246,8 @@ public class EntityDetailActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        FirebaseAnalyticsUtil.reportEntityDetailExit(FirebaseAnalyticsParamValues.BACK_BUTTON_PRESS,
-                mDetailView.getTabCount());
+        FirebaseAnalyticsUtil.reportEntityDetailExit(
+                FirebaseAnalyticsParamValues.BACK_BUTTON_PRESS, mDetailView.getTabCount());
     }
 
     @Override

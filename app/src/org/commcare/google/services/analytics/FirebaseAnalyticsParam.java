@@ -6,6 +6,9 @@ package org.commcare.google.services.analytics;
 
 public class FirebaseAnalyticsParam {
 
+    static final String CC_APP_ID = "cc_app_id";
+    static final String CCHQ_DOMAIN = "cchq_domain";
+
     static final String ACTION_TYPE = "action_type";
     static final String API_LEVEL = "api_level";
     static final String DIRECTION = "direction";
@@ -22,8 +25,5 @@ public class FirebaseAnalyticsParam {
     static final String TRIGGER = "trigger";
     static final String UI_STATE = "uite_state";
     static final String USERNAME = "username";
-
-    static final String CCHQ_DOMAIN = "cchq_domain";
-    static final String CC_APP_ID = "cc_app_id";
 
 }
