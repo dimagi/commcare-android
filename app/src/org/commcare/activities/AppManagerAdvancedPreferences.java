@@ -8,7 +8,7 @@ import android.support.v7.preference.Preference;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
-import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.CCAnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.AdvancedActionsPreferences;
 import org.javarosa.core.services.locale.Localization;
@@ -55,7 +55,7 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        FirebaseAnalyticsParamValues.ENABLE_PRIVILEGES);
+                        CCAnalyticsParamValue.ENABLE_PRIVILEGES);
                 launchPrivilegeClaimActivity();
                 return true;
             }
@@ -67,7 +67,7 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        FirebaseAnalyticsParamValues.CLEAR_USER_DATA);
+                        CCAnalyticsParamValue.CLEAR_USER_DATA);
                 AdvancedActionsPreferences.clearUserData(getActivity());
                 return true;
             }

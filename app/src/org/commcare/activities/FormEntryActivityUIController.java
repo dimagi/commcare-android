@@ -25,7 +25,7 @@ import org.commcare.activities.components.FormNavigationController;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.FormRelevancyUpdating;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.CCAnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.utils.BlockingActionsManager;
@@ -106,8 +106,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             @Override
             public void onClick(View v) {
                 FirebaseAnalyticsUtil.reportFormNav(
-                        FirebaseAnalyticsParamValues.DIRECTION_FORWARD,
-                        FirebaseAnalyticsParamValues.NAV_BUTTON_PRESS);
+                        CCAnalyticsParamValue.DIRECTION_FORWARD,
+                        CCAnalyticsParamValue.NAV_BUTTON_PRESS);
                 showNextView();
             }
         });
@@ -117,11 +117,11 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             public void onClick(View v) {
                 if (!FormEntryConstants.NAV_STATE_QUIT.equals(v.getTag())) {
                     FirebaseAnalyticsUtil.reportFormNav(
-                            FirebaseAnalyticsParamValues.DIRECTION_BACKWARD,
-                            FirebaseAnalyticsParamValues.NAV_BUTTON_PRESS);
+                            CCAnalyticsParamValue.DIRECTION_BACKWARD,
+                            CCAnalyticsParamValue.NAV_BUTTON_PRESS);
                     showPreviousView(true);
                 } else {
-                    FirebaseAnalyticsUtil.reportFormQuitAttempt(FirebaseAnalyticsParamValues.NAV_BUTTON_PRESS);
+                    FirebaseAnalyticsUtil.reportFormQuitAttempt(CCAnalyticsParamValue.NAV_BUTTON_PRESS);
                     activity.triggerUserQuitInput();
                 }
             }
@@ -131,8 +131,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             @Override
             public void onClick(View v) {
                 FirebaseAnalyticsUtil.reportFormNav(
-                        FirebaseAnalyticsParamValues.DIRECTION_FORWARD,
-                        FirebaseAnalyticsParamValues.NAV_BUTTON_PRESS);
+                        CCAnalyticsParamValue.DIRECTION_FORWARD,
+                        CCAnalyticsParamValue.NAV_BUTTON_PRESS);
                 activity.triggerUserFormComplete();
             }
         });

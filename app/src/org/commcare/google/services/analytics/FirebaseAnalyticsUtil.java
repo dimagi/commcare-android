@@ -34,14 +34,14 @@ public class FirebaseAnalyticsUtil {
         }
 
         // All events get domain name and app id
-        b.putString(FirebaseAnalyticsParam.CCHQ_DOMAIN, ReportingUtils.getDomain());
-        b.putString(FirebaseAnalyticsParam.CC_APP_ID, ReportingUtils.getAppId());
+        b.putString(CCAnalyticsParam.CCHQ_DOMAIN, ReportingUtils.getDomain());
+        b.putString(CCAnalyticsParam.CC_APP_ID, ReportingUtils.getAppId());
 
         CommCareApplication.instance().getAnalyticsInstance().logEvent(eventName, b);
     }
 
     public static void reportOptionsMenuEntry(Class location) {
-        reportEvent(FirebaseAnalyticsEvent.OPEN_OPTIONS_MENU,
+        reportEvent(CCAnalyticsEvent.OPEN_OPTIONS_MENU,
                 FirebaseAnalytics.Param.LOCATION, location.getSimpleName());
     }
 
@@ -49,13 +49,13 @@ public class FirebaseAnalyticsUtil {
      * Report a user event of selecting an item within an options menu
      */
     public static void reportOptionsMenuItemClick(Class location, String itemLabel) {
-        reportEvent(FirebaseAnalyticsEvent.SELECT_OPTIONS_MENU_ITEM,
-                new String[]{FirebaseAnalytics.Param.LOCATION, FirebaseAnalyticsParam.OPTIONS_MENU_ITEM},
+        reportEvent(CCAnalyticsEvent.SELECT_OPTIONS_MENU_ITEM,
+                new String[]{FirebaseAnalytics.Param.LOCATION, CCAnalyticsParam.OPTIONS_MENU_ITEM},
                 new String[]{location.getSimpleName(), itemLabel});
     }
 
     public static void reportPreferenceActivityEntry(Class location) {
-        reportEvent(FirebaseAnalyticsEvent.ENTER_PREF_MENU,
+        reportEvent(CCAnalyticsEvent.ENTER_PREF_MENU,
                 FirebaseAnalytics.Param.LOCATION, location.getSimpleName());
     }
 
@@ -63,7 +63,7 @@ public class FirebaseAnalyticsUtil {
      * Report a user event of changing the value of a SharedPreference
      */
     public static void reportEditPreferenceItem(String preferenceKey, String value) {
-        reportEvent(FirebaseAnalyticsEvent.EDIT_PREFERENCE_ITEM,
+        reportEvent(CCAnalyticsEvent.EDIT_PREFERENCE_ITEM,
                 new String[]{FirebaseAnalytics.Param.ITEM_NAME, FirebaseAnalytics.Param.VALUE},
                 new String[]{scrubDashes(preferenceKey), value});
     }
@@ -73,105 +73,105 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportAdvancedActionSelected(String action) {
-        reportEvent(FirebaseAnalyticsEvent.ADVANCED_ACTION_SELECTED, FirebaseAnalyticsParam.ACTION_TYPE, action);
+        reportEvent(CCAnalyticsEvent.ADVANCED_ACTION_SELECTED, CCAnalyticsParam.ACTION_TYPE, action);
     }
 
     public static void reportHomeButtonClick(String buttonName) {
-        reportEvent(FirebaseAnalyticsEvent.HOME_BUTTON_CLICK,
+        reportEvent(CCAnalyticsEvent.HOME_BUTTON_CLICK,
                 FirebaseAnalytics.Param.ITEM_NAME, buttonName);
     }
 
     public static void reportViewArchivedFormsList(String formType) {
-        reportEvent(FirebaseAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST,
-                FirebaseAnalyticsParam.FORM_TYPE, formType);
+        reportEvent(CCAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST,
+                CCAnalyticsParam.FORM_TYPE, formType);
     }
 
     public static void reportOpenArchivedForm(String formType) {
-        reportEvent(FirebaseAnalyticsEvent.OPEN_ARCHIVED_FORM,
-                FirebaseAnalyticsParam.FORM_TYPE, formType);
+        reportEvent(CCAnalyticsEvent.OPEN_ARCHIVED_FORM,
+                CCAnalyticsParam.FORM_TYPE, formType);
     }
 
     public static void reportAppInstall(String installMethod) {
-        reportEvent(FirebaseAnalyticsEvent.APP_INSTALL,
-                FirebaseAnalyticsParam.METHOD, installMethod);
+        reportEvent(CCAnalyticsEvent.APP_INSTALL,
+                CCAnalyticsParam.METHOD, installMethod);
     }
 
     public static void reportAppStartup() {
-        reportEvent(FirebaseAnalyticsEvent.APP_STARTUP,
-                FirebaseAnalyticsParam.API_LEVEL, "" + Build.VERSION.SDK_INT);
+        reportEvent(CCAnalyticsEvent.APP_STARTUP,
+                CCAnalyticsParam.API_LEVEL, "" + Build.VERSION.SDK_INT);
     }
 
     public static void reportAppManagerAction(String action) {
-        reportEvent(FirebaseAnalyticsEvent.APP_MANAGER_ACTION,
-                FirebaseAnalyticsParam.ACTION_TYPE, action);
+        reportEvent(CCAnalyticsEvent.APP_MANAGER_ACTION,
+                CCAnalyticsParam.ACTION_TYPE, action);
     }
 
     public static void reportAudioFileSelected() {
-        reportAudioWidgetInteraction(FirebaseAnalyticsParamValues.CHOOSE_AUDIO_FILE);
+        reportAudioWidgetInteraction(CCAnalyticsParamValue.CHOOSE_AUDIO_FILE);
     }
 
     public static void reportAudioPlayed() {
-        reportAudioWidgetInteraction(FirebaseAnalyticsParamValues.PLAY_AUDIO);
+        reportAudioWidgetInteraction(CCAnalyticsParamValue.PLAY_AUDIO);
     }
 
     public static void reportAudioPaused() {
-        reportAudioWidgetInteraction(FirebaseAnalyticsParamValues.PAUSE_AUDIO);
+        reportAudioWidgetInteraction(CCAnalyticsParamValue.PAUSE_AUDIO);
     }
 
     public static void reportAudioFileSaved() {
-        reportAudioWidgetInteraction(FirebaseAnalyticsParamValues.SAVE_RECORDING);
+        reportAudioWidgetInteraction(CCAnalyticsParamValue.SAVE_RECORDING);
     }
 
     public static void reportRecordingStarted() {
-        reportAudioWidgetInteraction(FirebaseAnalyticsParamValues.START_RECORDING);
+        reportAudioWidgetInteraction(CCAnalyticsParamValue.START_RECORDING);
     }
 
     public static void reportRecordingStopped() {
-        reportAudioWidgetInteraction(FirebaseAnalyticsParamValues.STOP_RECORDING);
+        reportAudioWidgetInteraction(CCAnalyticsParamValue.STOP_RECORDING);
     }
 
     public static void reportRecordingRecycled() {
-        reportAudioWidgetInteraction(FirebaseAnalyticsParamValues.RECORD_AGAIN);
+        reportAudioWidgetInteraction(CCAnalyticsParamValue.RECORD_AGAIN);
     }
 
     private static void reportAudioWidgetInteraction(String interactionType) {
-        reportEvent(FirebaseAnalyticsEvent.AUDIO_WIDGET_INTERACTION,
-                FirebaseAnalyticsParam.ACTION_TYPE, interactionType);
+        reportEvent(CCAnalyticsEvent.AUDIO_WIDGET_INTERACTION,
+                CCAnalyticsParam.ACTION_TYPE, interactionType);
     }
 
     public static void reportGraphViewAttached() {
-        reportGraphingAction(FirebaseAnalyticsParamValues.GRAPH_ATTACH);
+        reportGraphingAction(CCAnalyticsParamValue.GRAPH_ATTACH);
     }
 
     public static void reportGraphViewDetached() {
-        reportGraphingAction(FirebaseAnalyticsParamValues.GRAPH_DETACH);
+        reportGraphingAction(CCAnalyticsParamValue.GRAPH_DETACH);
     }
 
     public static void reportGraphViewFullScreenOpened() {
-        reportGraphingAction(FirebaseAnalyticsParamValues.GRAPH_FULLSCREEN_OPEN);
+        reportGraphingAction(CCAnalyticsParamValue.GRAPH_FULLSCREEN_OPEN);
     }
 
     public static void reportGraphViewFullScreenClosed() {
-        reportGraphingAction(FirebaseAnalyticsParamValues.GRAPH_FULLSCREEN_CLOSE);
+        reportGraphingAction(CCAnalyticsParamValue.GRAPH_FULLSCREEN_CLOSE);
     }
 
     private static void reportGraphingAction(String actionType) {
-        reportEvent(FirebaseAnalyticsEvent.GRAPH_ACTION,
-                FirebaseAnalyticsParam.ACTION_TYPE, actionType);
+        reportEvent(CCAnalyticsEvent.GRAPH_ACTION,
+                CCAnalyticsParam.ACTION_TYPE, actionType);
     }
 
     public static void reportFormNav(String direction, String method) {
-        reportEvent(FirebaseAnalyticsEvent.FORM_NAVIGATION,
-                new String[]{FirebaseAnalyticsParam.DIRECTION, FirebaseAnalyticsParam.METHOD},
+        reportEvent(CCAnalyticsEvent.FORM_NAVIGATION,
+                new String[]{ CCAnalyticsParam.DIRECTION, CCAnalyticsParam.METHOD},
                 new String[]{direction, method});
     }
 
     public static void reportFormQuitAttempt(String method) {
-        reportEvent(FirebaseAnalyticsEvent.FORM_EXIT_ATTEMPT, FirebaseAnalyticsParam.METHOD, method);
+        reportEvent(CCAnalyticsEvent.FORM_EXIT_ATTEMPT, CCAnalyticsParam.METHOD, method);
     }
 
     public static void reportFormEntry(String currentLocale) {
-        reportEvent(FirebaseAnalyticsEvent.ENTER_FORM, FirebaseAnalyticsParam.LOCALE, currentLocale);
+        reportEvent(CCAnalyticsEvent.ENTER_FORM, CCAnalyticsParam.LOCALE, currentLocale);
     }
 
     /**
@@ -179,7 +179,7 @@ public class FirebaseAnalyticsUtil {
      */
     public static void reportEntityDetailExit(String navMethod, int detailTabCount) {
         reportEntityDetailNavigation(
-                FirebaseAnalyticsParamValues.DIRECTION_BACKWARD, navMethod, detailTabCount);
+                CCAnalyticsParamValue.DIRECTION_BACKWARD, navMethod, detailTabCount);
     }
 
     /**
@@ -187,67 +187,67 @@ public class FirebaseAnalyticsUtil {
      */
     public static void reportEntityDetailContinue(String navMethod, int detailTabCount) {
         reportEntityDetailNavigation(
-                FirebaseAnalyticsParamValues.DIRECTION_FORWARD, navMethod, detailTabCount);
+                CCAnalyticsParamValue.DIRECTION_FORWARD, navMethod, detailTabCount);
     }
 
     private static void reportEntityDetailNavigation(String direction, String navMethod,
                                                      int detailTabCount) {
         String detailUiState =
-                detailTabCount > 1 ? FirebaseAnalyticsParamValues.DETAIL_WITH_TABS :
-                        FirebaseAnalyticsParamValues.DETAIL_NO_TABS;
+                detailTabCount > 1 ? CCAnalyticsParamValue.DETAIL_WITH_TABS :
+                        CCAnalyticsParamValue.DETAIL_NO_TABS;
 
-        reportEvent(FirebaseAnalyticsEvent.ENTITY_DETAIL_NAVIGATION,
+        reportEvent(CCAnalyticsEvent.ENTITY_DETAIL_NAVIGATION,
                 new String[]{
-                        FirebaseAnalyticsParam.DIRECTION,
-                        FirebaseAnalyticsParam.METHOD,
-                        FirebaseAnalyticsParam.UI_STATE},
+                        CCAnalyticsParam.DIRECTION,
+                        CCAnalyticsParam.METHOD,
+                        CCAnalyticsParam.UI_STATE},
                 new String[]{direction, navMethod, detailUiState});
     }
 
     public static void reportSyncSuccess(String trigger, String syncMode) {
-        reportEvent(FirebaseAnalyticsEvent.SYNC_ATTEMPT,
-                new String[]{FirebaseAnalyticsParam.TRIGGER, FirebaseAnalyticsParam.OUTCOME,
-                        FirebaseAnalyticsParam.MODE},
-                new String[]{trigger, FirebaseAnalyticsParamValues.SYNC_SUCCESS, syncMode});
+        reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT,
+                new String[]{ CCAnalyticsParam.TRIGGER, CCAnalyticsParam.OUTCOME,
+                        CCAnalyticsParam.MODE},
+                new String[]{trigger, CCAnalyticsParamValue.SYNC_SUCCESS, syncMode});
     }
 
     public static void reportSyncFailure(String trigger, String failureReason) {
-        reportEvent(FirebaseAnalyticsEvent.SYNC_ATTEMPT,
-                new String[]{FirebaseAnalyticsParam.TRIGGER, FirebaseAnalyticsParam.OUTCOME,
-                        FirebaseAnalyticsParam.REASON},
-                new String[]{trigger, FirebaseAnalyticsParamValues.SYNC_FAILURE, failureReason});
+        reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT,
+                new String[]{ CCAnalyticsParam.TRIGGER, CCAnalyticsParam.OUTCOME,
+                        CCAnalyticsParam.REASON},
+                new String[]{trigger, CCAnalyticsParamValue.SYNC_FAILURE, failureReason});
     }
 
     public static void reportFeatureUsage(String feature) {
-        reportEvent(FirebaseAnalyticsEvent.FEATURE_USAGE,
+        reportEvent(CCAnalyticsEvent.FEATURE_USAGE,
                 FirebaseAnalytics.Param.ITEM_CATEGORY, feature);
     }
 
     public static void reportFeatureUsage(String feature, String mode) {
-        reportEvent(FirebaseAnalyticsEvent.FEATURE_USAGE,
-                new String[]{FirebaseAnalytics.Param.ITEM_CATEGORY, FirebaseAnalyticsParam.MODE},
+        reportEvent(CCAnalyticsEvent.FEATURE_USAGE,
+                new String[]{FirebaseAnalytics.Param.ITEM_CATEGORY, CCAnalyticsParam.MODE},
                 new String[]{feature, mode});
     }
 
     public static void reportPracticeModeUsage(OfflineUserRestore currentOfflineUserRestoreResource) {
         reportFeatureUsage(
-                FirebaseAnalyticsParamValues.FEATURE_practiceMode,
+                CCAnalyticsParamValue.FEATURE_practiceMode,
                 currentOfflineUserRestoreResource == null ?
-                        FirebaseAnalyticsParamValues.PRACTICE_MODE_DEFAULT :
-                        FirebaseAnalyticsParamValues.PRACTICE_MODE_CUSTOM);
+                        CCAnalyticsParamValue.PRACTICE_MODE_DEFAULT :
+                        CCAnalyticsParamValue.PRACTICE_MODE_CUSTOM);
     }
 
     public static void reportPrivilegeEnabled(String privilegeName, String usernameUsedToActivate) {
-        reportEvent(FirebaseAnalyticsEvent.ENABLE_PRIVILEGE,
-                new String[]{FirebaseAnalytics.Param.ITEM_NAME, FirebaseAnalyticsParam.USERNAME},
+        reportEvent(CCAnalyticsEvent.ENABLE_PRIVILEGE,
+                new String[]{FirebaseAnalytics.Param.ITEM_NAME, CCAnalyticsParam.USERNAME},
                 new String[]{privilegeName, EncryptionUtils.getMD5HashAsString(usernameUsedToActivate)});
     }
 
     public static void reportTimedSession(String sessionType, double timeInSeconds, double timeInMinutes) {
-        reportEvent(FirebaseAnalyticsEvent.TIMED_SESSION,
-                new String[]{FirebaseAnalyticsParam.SESSION_TYPE,
-                        FirebaseAnalyticsParam.TIME_IN_SECONDS,
-                        FirebaseAnalyticsParam.TIME_IN_MINUTES},
+        reportEvent(CCAnalyticsEvent.TIMED_SESSION,
+                new String[]{ CCAnalyticsParam.SESSION_TYPE,
+                        CCAnalyticsParam.TIME_IN_SECONDS,
+                        CCAnalyticsParam.TIME_IN_MINUTES},
                 new String[]{sessionType,
                         ""+roundToOneDecimal(timeInSeconds),
                         ""+roundToOneDecimal(timeInMinutes)});

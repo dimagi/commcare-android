@@ -3,7 +3,7 @@ package org.commcare.print;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.CCAnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.PrintValidationException;
@@ -55,7 +55,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
      */
     @Override
     protected PrintTaskResult doInBackground(Void... params) {
-        FirebaseAnalyticsUtil.reportFeatureUsage(FirebaseAnalyticsParamValues.FEATURE_print);
+        FirebaseAnalyticsUtil.reportFeatureUsage(CCAnalyticsParamValue.FEATURE_print);
         Logger.log(LogTypes.TYPE_PRINTING, "Successfully prepared document for printing");
         try {
             populateAndSaveHtml(templateFile, templatePopulationMapping, populatedFilepath);

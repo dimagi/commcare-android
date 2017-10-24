@@ -4,7 +4,7 @@ package org.commcare.google.services.analytics;
  * Created by amstone326 on 10/13/17.
  */
 
-public class FirebaseAnalyticsEvent {
+public class CCAnalyticsEvent {
 
     static final String ADVANCED_ACTION_SELECTED = "advanced_action_selected";
     static final String APP_MANAGER_ACTION = "app_manager_action";

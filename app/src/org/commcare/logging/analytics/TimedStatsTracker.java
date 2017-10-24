@@ -4,7 +4,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.CCAnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
 import java.util.Date;
@@ -38,7 +38,7 @@ public class TimedStatsTracker {
         if (enterTime != -1) {
             int formLastEntered = prefs.getInt(KEY_LAST_FORM_ID, -1);
             if (formLastEntered == formID) {
-                reportTimedSession(FirebaseAnalyticsParamValues.FORM_ENTRY_SESSION, enterTime);
+                reportTimedSession(CCAnalyticsParamValue.FORM_ENTRY_SESSION, enterTime);
             } else {
                 Log.i(TAG, "Attempting to report exit form time for a different form than the " +
                         "last form logged as entered");
@@ -72,7 +72,7 @@ public class TimedStatsTracker {
         if (!"".equals(lastLoggedInUser)) {
             if (lastLoggedInUser.equals(loggedOutUser)) {
                 long startTime = prefs.getLong(KEY_LAST_SESSION_START_TIME, -1);
-                reportTimedSession(FirebaseAnalyticsParamValues.USER_SESSION, startTime);
+                reportTimedSession(CCAnalyticsParamValue.USER_SESSION, startTime);
             } else {
                 Log.i(TAG, "Attempting to report ending a session for a different user than the " +
                         "last user reported as logged in");

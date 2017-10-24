@@ -4,7 +4,7 @@ package org.commcare.google.services.analytics;
  * Created by amstone326 on 10/13/17.
  */
 
-public class FirebaseAnalyticsParam {
+public class CCAnalyticsParam {
 
     static final String CC_APP_ID = "cc_app_id";
     static final String CCHQ_DOMAIN = "cchq_domain";

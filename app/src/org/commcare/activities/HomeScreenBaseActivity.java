@@ -26,7 +26,7 @@ import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.ads.AdMobManager;
-import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.CCAnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -330,9 +330,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     protected void goToFormArchive(boolean incomplete, FormRecord record) {
         if (incomplete) {
-            FirebaseAnalyticsUtil.reportViewArchivedFormsList(FirebaseAnalyticsParamValues.INCOMPLETE);
+            FirebaseAnalyticsUtil.reportViewArchivedFormsList(CCAnalyticsParamValue.INCOMPLETE);
         } else {
-            FirebaseAnalyticsUtil.reportViewArchivedFormsList(FirebaseAnalyticsParamValues.SAVED);
+            FirebaseAnalyticsUtil.reportViewArchivedFormsList(CCAnalyticsParamValue.SAVED);
         }
         Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
         if (incomplete) {
@@ -798,7 +798,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 asw.reset();
                 break;
             case SessionNavigator.REPORT_CASE_AUTOSELECT:
-                FirebaseAnalyticsUtil.reportFeatureUsage(FirebaseAnalyticsParamValues.FEATURE_caseAutoselect);
+                FirebaseAnalyticsUtil.reportFeatureUsage(CCAnalyticsParamValue.FEATURE_caseAutoselect);
                 break;
         }
     }

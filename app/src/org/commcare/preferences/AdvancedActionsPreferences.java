@@ -21,7 +21,7 @@ import org.commcare.activities.RecoveryActivity;
 import org.commcare.activities.ReportProblemActivity;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
-import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.CCAnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
@@ -109,7 +109,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        FirebaseAnalyticsParamValues.REPORT_PROBLEM);
+                        CCAnalyticsParamValue.REPORT_PROBLEM);
                 startReportActivity();
                 return true;
             }
@@ -120,7 +120,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        FirebaseAnalyticsParamValues.VALIDATE_MEDIA);
+                        CCAnalyticsParamValue.VALIDATE_MEDIA);
                 startValidationActivity();
                 return true;
             }
@@ -132,7 +132,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                            FirebaseAnalyticsParamValues.WIFI_DIRECT);
+                            CCAnalyticsParamValue.WIFI_DIRECT);
                     startWifiDirect();
                     return true;
                 }
@@ -146,7 +146,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        FirebaseAnalyticsParamValues.MANAGE_SD);
+                        CCAnalyticsParamValue.MANAGE_SD);
                 startFormDump();
                 return true;
             }
@@ -157,7 +157,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        FirebaseAnalyticsParamValues.CONNECTION_TEST);
+                        CCAnalyticsParamValue.CONNECTION_TEST);
                 startConnectionTest();
                 return true;
             }
@@ -168,7 +168,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        FirebaseAnalyticsParamValues.CLEAR_USER_DATA);
+                        CCAnalyticsParamValue.CLEAR_USER_DATA);
                 clearUserData(getActivity());
                 return true;
             }
@@ -180,7 +180,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                            FirebaseAnalyticsParamValues.CLEAR_SAVED_SESSION);
+                            CCAnalyticsParamValue.CLEAR_SAVED_SESSION);
                     DevSessionRestorer.clearSession();
                     return true;
                 }
@@ -195,7 +195,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        FirebaseAnalyticsParamValues.FORCE_LOG_SUBMISSION);
+                        CCAnalyticsParamValue.FORCE_LOG_SUBMISSION);
                 CommCareUtil.triggerLogSubmission(getActivity());
                 return true;
             }
@@ -206,7 +206,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        FirebaseAnalyticsParamValues.RECOVERY_MODE);
+                        CCAnalyticsParamValue.RECOVERY_MODE);
                 startRecoveryMode();
                 return true;
             }

@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.CCAnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.UiLoadedListener;
 import org.commcare.tasks.DataPullTask;
@@ -106,9 +106,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 break;
             case DOWNLOAD_SUCCESS:
                 if (formsToSend) {
-                    syncModeParam = FirebaseAnalyticsParamValues.SYNC_MODE_sendForms;
+                    syncModeParam = CCAnalyticsParamValue.SYNC_MODE_sendForms;
                 } else {
-                    syncModeParam = FirebaseAnalyticsParamValues.SYNC_MODE_justPullData;
+                    syncModeParam = CCAnalyticsParamValue.SYNC_MODE_justPullData;
                 }
                 updateUiAfterDataPullOrSend(Localization.get("sync.success.synced"), SUCCESS);
                 break;
@@ -133,7 +133,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         }
 
         String syncTriggerParam =
-                userTriggeredSync ? FirebaseAnalyticsParamValues.SYNC_TRIGGER_USER : FirebaseAnalyticsParamValues.SYNC_TRIGGER_AUTO;
+                userTriggeredSync ? CCAnalyticsParamValue.SYNC_TRIGGER_USER : CCAnalyticsParamValue.SYNC_TRIGGER_AUTO;
 
         if (result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
             FirebaseAnalyticsUtil.reportSyncSuccess(syncTriggerParam, syncModeParam);
