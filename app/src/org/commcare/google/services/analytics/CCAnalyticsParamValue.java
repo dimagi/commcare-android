@@ -108,8 +108,8 @@ public class CCAnalyticsParamValue {
     public static final String ENABLE_PRIVILEGES = "enable_mobile_privileges";
 
     // Param values for entity detail ui state
-    public static final String DETAIL_WITH_TABS = "detail_with_tabs";
-    public static final String DETAIL_NO_TABS = "detail_no_tabs";
+    static final String DETAIL_WITH_TABS = "detail_with_tabs";
+    static final String DETAIL_NO_TABS = "detail_no_tabs";
 
     // Param values for timed sessions
     public static final String USER_SESSION = "user_session";

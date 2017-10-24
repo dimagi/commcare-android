@@ -119,10 +119,6 @@ public class CommCareApplication extends MultiDexApplication {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
-    // Tracking ids for Google Analytics
-    private static final String LIVE_TRACKING_ID = BuildConfig.ANALYTICS_TRACKING_ID_LIVE;
-    private static final String DEV_TRACKING_ID = BuildConfig.ANALYTICS_TRACKING_ID_DEV;
-
     private static final int STATE_UNINSTALLED = 0;
     private static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
