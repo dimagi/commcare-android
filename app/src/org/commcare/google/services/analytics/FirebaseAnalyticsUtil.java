@@ -48,16 +48,41 @@ public class FirebaseAnalyticsUtil {
      */
     public static void reportOptionsMenuItemClick(Class location, String itemLabel) {
         reportEvent(FirebaseAnalyticsEvent.SELECT_OPTIONS_MENU_ITEM,
-                new String[]{FirebaseAnalytics.Param.LOCATION, FirebaseAnalyticsParam.OPTIONS_MENU_ITEM },
+                new String[]{FirebaseAnalytics.Param.LOCATION, FirebaseAnalyticsParam.OPTIONS_MENU_ITEM},
                 new String[]{location.getSimpleName(), itemLabel});
     }
 
-    /**
-     * Report a user event of opening a preferences menu
-     */
-    public static void reportPrefActivityEntry(Class location) {
-        reportEvent(FirebaseAnalyticsEvent.ENTER_PREF_ACTIVITY,
+    public static void reportPreferenceActivityEntry(Class location) {
+        reportEvent(FirebaseAnalyticsEvent.ENTER_PREF_MENU,
                 FirebaseAnalytics.Param.LOCATION, location.getSimpleName());
+    }
+
+    /**
+     * Report a user event of changing the value of an item in a preferences menu
+     */
+    public static void reportEditPreferenceItem(String preferenceKey, String value) {
+        reportEvent(FirebaseAnalyticsEvent.EDIT_PREFERENCE_ITEM,
+                new String[]{FirebaseAnalytics.Param.ITEM_NAME, FirebaseAnalytics.Param.VALUE},
+                new String[]{scrubDashes(preferenceKey), scrubDashes(value)});
+    }
+
+    private static String scrubDashes(String s) {
+        return s.replace("-", "_");
+    }
+
+    public static void reportHomeButtonClick(String buttonName) {
+        reportEvent(FirebaseAnalyticsEvent.HOME_BUTTON_CLICK,
+                FirebaseAnalytics.Param.ITEM_NAME, buttonName);
+    }
+
+    public static void reportViewArchivedFormsList(String formType) {
+        reportEvent(FirebaseAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST,
+                FirebaseAnalyticsParam.FORM_TYPE, formType);
+    }
+
+    public static void reportOpenArchivedForm(String formType) {
+        reportEvent(FirebaseAnalyticsEvent.OPEN_ARCHIVED_FORM,
+                FirebaseAnalyticsParam.FORM_TYPE, formType);
     }
 
     public static void reportAppInstall(String installMethod) {

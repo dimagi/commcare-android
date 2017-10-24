@@ -332,9 +332,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     protected void goToFormArchive(boolean incomplete, FormRecord record) {
         if (incomplete) {
-            GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_INCOMPLETE);
+            FirebaseAnalyticsUtil.reportViewArchivedFormsList(FirebaseAnalyticsParamValues.INCOMPLETE);
         } else {
-            GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_COMPLETE);
+            FirebaseAnalyticsUtil.reportViewArchivedFormsList(FirebaseAnalyticsParamValues.SAVED);
         }
         Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
         if (incomplete) {

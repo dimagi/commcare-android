@@ -61,65 +61,8 @@ public class GoogleAnalyticsUtils {
                 .build());
     }
 
-    public static void reportHomeButtonClick(String buttonLabel) {
-        reportEvent(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN,
-                GoogleAnalyticsFields.ACTION_BUTTON,
-                buttonLabel);
-    }
-
-    /**
-     * Report a user event of opening the edit dialog for an item in a preferences menu
-     */
-    public static void reportPrefItemClick(String category, String label) {
-        reportEvent(category, GoogleAnalyticsFields.ACTION_VIEW_PREF, label);
-    }
-
     public static void reportAdvancedActionItemClick(String action) {
         reportEvent(GoogleAnalyticsFields.CATEGORY_ADVANCED_ACTIONS, action);
-    }
-
-    /**
-     * Report a user event of changing the value of an item in a preferences menu
-     */
-    public static void reportEditPref(String category, String label, int value) {
-        if (analyticsDisabled() || versionIncompatible()) {
-            return;
-        }
-        HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
-        builder.setCategory(category)
-                .setCustomDimension(1, CommCareApplication.instance().getCurrentUserId())
-                .setCustomDimension(2, ReportingUtils.getDomain())
-                .setCustomDimension(3, BuildConfig.FLAVOR)
-                .setAction(GoogleAnalyticsFields.ACTION_EDIT_PREF)
-                .setLabel(label);
-        if (value != -1) {
-            builder.setValue(value);
-        }
-        getAnalyticsInstance().send(builder.build());
-    }
-
-    public static void reportEditPref(String category, String label) {
-        reportEditPref(category, label, -1);
-    }
-
-    /**
-     * Report a user event of viewing a list of archived forms
-     *
-     * @param label - Communicates whether the user is viewing incomplete forms or saved forms
-     */
-    public static void reportViewArchivedFormsList(String label) {
-        reportEvent(GoogleAnalyticsFields.CATEGORY_ARCHIVED_FORMS,
-                GoogleAnalyticsFields.ACTION_VIEW_FORMS_LIST, label);
-    }
-
-    /**
-     * Report a user event of opening up a form from a list of archived forms
-     *
-     * @param label - Communicates whether the form was from the list of incomplete or saved forms
-     */
-    public static void reportOpenArchivedForm(String label) {
-        reportEvent(GoogleAnalyticsFields.CATEGORY_ARCHIVED_FORMS,
-                GoogleAnalyticsFields.ACTION_OPEN_ARCHIVED_FORM, label);
     }
 
     /**
@@ -169,31 +112,5 @@ public class GoogleAnalyticsUtils {
                 .setValue(value)
                 .build());
     }
-
-    public static void createPreferenceOnClickListeners(PreferenceManager prefManager,
-                                                        Map<String, String> menuIdToAnalyticsEvent, String category) {
-
-        if (menuIdToAnalyticsEvent != null) {
-            for (String prefKey : menuIdToAnalyticsEvent.keySet()) {
-                createPreferenceOnClickListener(prefManager, prefKey, category,
-                        menuIdToAnalyticsEvent.get(prefKey));
-            }
-        }
-    }
-
-    public static void createPreferenceOnClickListener(PreferenceManager manager,
-                                                       String prefKey,
-                                                       final String category,
-                                                       final String analyticsLabel) {
-        Preference pref = manager.findPreference(prefKey);
-        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportPrefItemClick(category, analyticsLabel);
-                return true;
-            }
-        });
-    }
-
 
 }

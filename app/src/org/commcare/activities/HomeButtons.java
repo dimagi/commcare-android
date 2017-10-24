@@ -8,6 +8,8 @@ import android.view.View;
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.SessionUnavailableException;
@@ -94,7 +96,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_SAVED_FORMS_BUTTON);
+                reportButtonClick(FirebaseAnalyticsParamValues.SAVED_FORMS_BUTTON);
                 activity.goToFormArchive(false);
             }
         };
@@ -104,7 +106,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_SYNC_BUTTON);
+                reportButtonClick(FirebaseAnalyticsParamValues.SYNC_BUTTON);
                 activity.syncButtonPressed();
             }
         };
@@ -134,7 +136,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_START_BUTTON);
+                reportButtonClick(FirebaseAnalyticsParamValues.START_BUTTON);
                 activity.enterRootModule();
             }
         };
@@ -144,7 +146,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_INCOMPLETE_FORMS_BUTTON);
+                reportButtonClick(FirebaseAnalyticsParamValues.INCOMPLETE_FORMS_BUTTON);
                 activity.goToFormArchive(true);
             }
         };
@@ -185,7 +187,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_LOGOUT_BUTTON);
+                reportButtonClick(FirebaseAnalyticsParamValues.LOGOUT_BUTTON);
                 activity.userTriggeredLogout();
             }
         };
@@ -211,7 +213,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_REPORT_BUTTON);
+                reportButtonClick(FirebaseAnalyticsParamValues.REPORT_BUTTON);
                 Intent i = new Intent(activity, ReportProblemActivity.class);
                 activity.startActivity(i);
             }
@@ -219,7 +221,7 @@ public class HomeButtons {
     }
 
     private static void reportButtonClick(String buttonLabel) {
-        GoogleAnalyticsUtils.reportHomeButtonClick(buttonLabel);
+        FirebaseAnalyticsUtil.reportHomeButtonClick(buttonLabel);
     }
 
     public interface TextSetter {

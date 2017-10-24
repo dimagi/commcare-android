@@ -60,7 +60,7 @@ public class FirebaseAnalyticsParamValues {
     public static final String SYNC_FAIL_actionable = "actionable_failure";
     public static final String SYNC_FAIL_authOverHttp = "auth_over_http";
 
-    // Params for feature usage
+    // Param values for feature usage
     public static final String FEATURE_setPin = "set_pin";
     public static final String FEATURE_print = "print_from_form_or_detail";
     public static final String FEATURE_resizeImageCapture = "resize_image_capture";
@@ -71,16 +71,28 @@ public class FirebaseAnalyticsParamValues {
     public static final String PRACTICE_MODE_CUSTOM = "custom_practice_user";
     public static final String PRACTICE_MODE_DEFAULT = "default_practice_user";
 
-    // Params for app install
+    // Param values for app install
     public static final String BARCODE_INSTALL = "barcode_install";
     public static final String OFFLINE_INSTALL = "offline_install";
     public static final String URL_INSTALL = "url_install";
     public static final String SMS_INSTALL = "sms_install";
 
-    // Params for app manager actions
+    // Param values for app manager actions
     public static final String OPEN_APP_MANAGER = "open_app_manager";
     public static final String ARCHIVE_APP = "archive_app";
     public static final String UNINSTALL_APP = "uninstall_app";
     public static final String INSTALL_FROM_MANAGER = "install_app";
+
+    // Param values for home buttons
+    public static final String START_BUTTON = "start";
+    public static final String SAVED_FORMS_BUTTON = "saved_forms";
+    public static final String INCOMPLETE_FORMS_BUTTON = "incomplete_forms";
+    public static final String SYNC_BUTTON = "sync";
+    public static final String LOGOUT_BUTTON = "logout";
+    public static final String REPORT_BUTTON = "report_an_issue";
+
+    // Param values for form types
+    public static final String INCOMPLETE = "incomplete";
+    public static final String SAVED = "saved";
 
 }

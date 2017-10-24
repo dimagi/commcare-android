@@ -48,12 +48,6 @@ public class CommCareServerPreferences
 
     @Nullable
     @Override
-    protected Map<String, String> getPrefKeyAnalyticsEventMap() {
-        return prefKeyToAnalyticsEvent;
-    }
-
-    @Nullable
-    @Override
     protected Map<String, String> getPrefKeyTitleMap() {
         return null;
     }

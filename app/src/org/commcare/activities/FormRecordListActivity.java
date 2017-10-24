@@ -35,6 +35,8 @@ import org.commcare.adapters.IncompleteFormListAdapter;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.ArchivedFormRemoteRestore;
@@ -361,9 +363,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (incompleteMode) {
-            GoogleAnalyticsUtils.reportOpenArchivedForm(GoogleAnalyticsFields.LABEL_INCOMPLETE);
+            FirebaseAnalyticsUtil.reportOpenArchivedForm(FirebaseAnalyticsParamValues.INCOMPLETE);
         } else {
-            GoogleAnalyticsUtils.reportOpenArchivedForm(GoogleAnalyticsFields.LABEL_COMPLETE);
+            FirebaseAnalyticsUtil.reportOpenArchivedForm(FirebaseAnalyticsParamValues.SAVED);
         }
         returnItem(position);
     }

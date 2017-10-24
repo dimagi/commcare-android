@@ -17,8 +17,6 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.FilePreference;
 import org.commcare.preferences.FilePreferenceDialogFragmentCompat;
 import org.commcare.utils.TemplatePrinterUtils;
@@ -40,7 +38,7 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        FirebaseAnalyticsUtil.reportPrefActivityEntry(this.getClass());
+        FirebaseAnalyticsUtil.reportPreferenceActivityEntry(this.getClass());
         setTitle();
         initPrefsFile();
         loadPrefs();
@@ -59,9 +57,6 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
     protected void loadPrefs() {
         // Add 'general' preferences, defined in the XML file
         addPreferencesFromResource(getPreferencesResource());
-
-        GoogleAnalyticsUtils.createPreferenceOnClickListeners(getPreferenceManager(), getPrefKeyAnalyticsEventMap(),
-                GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         setupPrefClickListeners();
         setupLocalizedText();
     }
@@ -164,12 +159,8 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
         return false;
     }
 
-
     @NonNull
     protected abstract String getTitle();
-
-    @Nullable
-    protected abstract Map<String, String> getPrefKeyAnalyticsEventMap();
 
     protected abstract void setupPrefClickListeners();
 

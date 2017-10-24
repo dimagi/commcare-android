@@ -21,11 +21,9 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.javarosa.core.services.locale.Localization;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -79,32 +77,12 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     // ENDREGION
 
     private static final Set<String> WHITELISTED_DEVELOPER_PREF_KEYS = new HashSet<>();
-    private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
 
     static {
         WHITELISTED_DEVELOPER_PREF_KEYS.add(SUPERUSER_ENABLED);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(SHOW_UPDATE_OPTIONS_SETTING);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(AUTO_PURGE_ENABLED);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(ALTERNATE_QUESTION_LAYOUT_ENABLED);
-
-        prefKeyToAnalyticsEvent.put(SUPERUSER_ENABLED, GoogleAnalyticsFields.LABEL_DEV_MODE);
-        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);
-        prefKeyToAnalyticsEvent.put(NAV_UI_ENABLED, GoogleAnalyticsFields.LABEL_NAV_UI);
-        prefKeyToAnalyticsEvent.put(LIST_REFRESH_ENABLED, GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH);
-        prefKeyToAnalyticsEvent.put(ENABLE_AUTO_LOGIN, GoogleAnalyticsFields.LABEL_AUTO_LOGIN);
-        prefKeyToAnalyticsEvent.put(ENABLE_SAVE_SESSION, GoogleAnalyticsFields.LABEL_SESSION_SAVING);
-        prefKeyToAnalyticsEvent.put(EDIT_SAVE_SESSION, GoogleAnalyticsFields.LABEL_EDIT_SAVED_SESSION);
-        prefKeyToAnalyticsEvent.put(CSS_ENABLED, GoogleAnalyticsFields.LABEL_CSS);
-        prefKeyToAnalyticsEvent.put(MARKDOWN_ENABLED, GoogleAnalyticsFields.LABEL_MARKDOWN);
-        prefKeyToAnalyticsEvent.put(ALTERNATE_QUESTION_LAYOUT_ENABLED, GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT);
-        prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
-        prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
-        prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
-        prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
-        prefKeyToAnalyticsEvent.put(PREFS_CUSTOM_RESTORE_DOC_LOCATION, GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
-        prefKeyToAnalyticsEvent.put(LOCAL_FORM_PAYLOAD_FILE_PATH, GoogleAnalyticsFields.LABEL_LOCAL_FORM_PAYLOAD_FILE_PATH);
-        prefKeyToAnalyticsEvent.put(REMOTE_FORM_PAYLOAD_URL, GoogleAnalyticsFields.LABEL_REMOTE_FORM_PAYLOAD_URL);
-        prefKeyToAnalyticsEvent.put(ENFORCE_SECURE_ENDPOINT, GoogleAnalyticsFields.LABEL_ENFORCE_SECURE_ENDPOINT);
     }
 
     /**
@@ -118,12 +96,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     @Override
     protected String getTitle() {
         return Localization.get("settings.developer.title");
-    }
-
-    @Nullable
-    @Override
-    protected Map<String, String> getPrefKeyAnalyticsEventMap() {
-        return prefKeyToAnalyticsEvent;
     }
 
     @Override
@@ -200,11 +172,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        String analyticsLabelForPref = prefKeyToAnalyticsEvent.get(key);
-        if (analyticsLabelForPref != null) {
-            GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
-                    analyticsLabelForPref, getEditPrefValue(key));
-        }
+        FirebaseAnalyticsUtil.reportEditPreferenceItem(key, sharedPreferences.getString(key, null));
 
         switch (key) {
             case SUPERUSER_ENABLED:
@@ -288,16 +256,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         editor.putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, sessionParts[1]);
         editor.commit();
     }
-
-    private static int getEditPrefValue(String key) {
-        if (CommCareApplication.instance().getCurrentApp().getAppPreferences().
-                getString(key, CommCarePreferences.NO).equals(CommCarePreferences.YES)) {
-            return GoogleAnalyticsFields.VALUE_ENABLED;
-        } else {
-            return GoogleAnalyticsFields.VALUE_DISABLED;
-        }
-    }
-
 
     /**
      * Try to lookup key in app preferences and test equality of the result to

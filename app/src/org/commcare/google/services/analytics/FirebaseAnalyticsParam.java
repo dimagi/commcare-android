@@ -9,6 +9,7 @@ public class FirebaseAnalyticsParam {
     public static final String ACTION_TYPE = "action_type";
     public static final String API_LEVEL = "api_level";
     public static final String DIRECTION = "direction";
+    public static final String FORM_TYPE = "form_type";
     public static final String LOCALE = "locale";
     public static final String MODE = "mode";
     public static final String METHOD = "method";

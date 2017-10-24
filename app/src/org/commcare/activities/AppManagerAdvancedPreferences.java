@@ -40,12 +40,6 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
 
     @Nullable
     @Override
-    protected Map<String, String> getPrefKeyAnalyticsEventMap() {
-        return null;
-    }
-
-    @Nullable
-    @Override
     protected Map<String, String> getPrefKeyTitleMap() {
         return keyToTitleMap;
     }
