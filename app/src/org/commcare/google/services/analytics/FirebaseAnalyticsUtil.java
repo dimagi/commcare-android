@@ -6,6 +6,7 @@ import android.os.Bundle;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
@@ -16,12 +17,7 @@ import java.math.RoundingMode;
 /**
  * Created by amstone326 on 10/13/17.
  */
-
 public class FirebaseAnalyticsUtil {
-
-    public static void reportEvent(String eventName) {
-        reportEvent(eventName, new String[0], new String[0]);
-    }
 
     public static void reportEvent(String eventName, String paramKey, String paramVal) {
         reportEvent(eventName, new String[]{paramKey}, new String[]{paramVal});
@@ -36,9 +32,12 @@ public class FirebaseAnalyticsUtil {
         for (int i = 0; i < paramKeys.length; i++) {
             b.putString(paramKeys[i], paramVals[i]);
         }
-        FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
-        analyticsInstance.setUserId(CommCareApplication.instance().getCurrentUserId());
-        analyticsInstance.logEvent(eventName, b);
+
+        // All events get domain name and app id
+        b.putString(FirebaseAnalyticsParam.CCHQ_DOMAIN, ReportingUtils.getDomain());
+        b.putString(FirebaseAnalyticsParam.CC_APP_ID, ReportingUtils.getAppId());
+
+        CommCareApplication.instance().getAnalyticsInstance().logEvent(eventName, b);
     }
 
     public static void reportOptionsMenuEntry(Class location) {

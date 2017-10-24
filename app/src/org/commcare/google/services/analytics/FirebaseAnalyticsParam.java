@@ -23,4 +23,7 @@ public class FirebaseAnalyticsParam {
     static final String UI_STATE = "uite_state";
     static final String USERNAME = "username";
 
+    static final String CCHQ_DOMAIN = "cchq_domain";
+    static final String CC_APP_ID = "cc_app_id";
+
 }

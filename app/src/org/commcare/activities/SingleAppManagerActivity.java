@@ -14,8 +14,6 @@ import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.utils.LifecycleUtils;

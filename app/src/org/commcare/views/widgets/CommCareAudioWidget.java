@@ -17,11 +17,7 @@ import android.widget.Toast;
 
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.FirebaseAnalyticsParam;
-import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.IAnswerData;

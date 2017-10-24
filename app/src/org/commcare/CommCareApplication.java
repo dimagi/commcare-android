@@ -299,6 +299,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     synchronized public FirebaseAnalytics getAnalyticsInstance() {
+        analyticsInstance.setUserId(getUserIdOrNull());
         return this.analyticsInstance;
     }
 
@@ -621,6 +622,14 @@ public class CommCareApplication extends MultiDexApplication {
             return this.getSession().getLoggedInUser().getUniqueId();
         } catch (SessionUnavailableException e) {
             return "";
+        }
+    }
+
+    public String getUserIdOrNull() {
+        try {
+            return this.getSession().getLoggedInUser().getUniqueId();
+        } catch (SessionUnavailableException e) {
+            return null;
         }
     }
 
