@@ -39,21 +39,6 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_RECOVERY_MODE = "Recovery Mode";
     public static final String ACTION_ENABLE_PRIVILEGES = "Enable Mobile Privileges";
 
-    // Actions for CATEGORY_LANGUAGE_STATS
-    public static final String ACTION_LANGUAGE_AT_FORM_ENTRY = "Language at Time of Form Entry";
-
-    // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_CC_PREFS
-    public static final String LABEL_APP_SERVER = "CC Application Server";
-    public static final String LABEL_DATA_SERVER = "Data Server";
-    public static final String LABEL_SUBMISSION_SERVER = "Submission Server";
-    public static final String LABEL_KEY_SERVER = "Key Server";
-    public static final String LABEL_SUPPORT_EMAIL = "Support Email Address";
-    public static final String LABEL_AUTO_UPDATE = "Auto Update Frequency";
-    public static final String LABEL_FUZZY_SEARCH = "Fuzzy Search Matches";
-    public static final String LABEL_PRINT_TEMPLATE = "Set Print Template";
-    public static final String LABEL_DEVELOPER_OPTIONS = "Developer Options";
-    public static final String LABEL_UPDATE_TARGET = "Change Update Target";
-
     // Values for ACTION_CONTINUE_FROM_DETAIL/ACTION_EXIT_FROM_DETAIL : LABEL_ARROW/LABEL_SWIPE
     public static final int VALUE_DOESNT_HAVE_TABS = 0;
     public static final int VALUE_HAS_TABS = 1;

@@ -19,7 +19,6 @@ import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.TemplatePrinterUtils;
@@ -297,11 +296,6 @@ public class CommCarePreferences
                 configureDevPreferencesButton();
             }
         }
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        FirebaseAnalyticsUtil.reportEditPreferenceItem(key, sharedPreferences.getString(key, null));
     }
 
     public static boolean isIncompleteFormsEnabled() {

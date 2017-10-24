@@ -172,7 +172,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        FirebaseAnalyticsUtil.reportEditPreferenceItem(key, sharedPreferences.getString(key, null));
+        super.onSharedPreferenceChanged(sharedPreferences, key);
 
         switch (key) {
             case SUPERUSER_ENABLED:

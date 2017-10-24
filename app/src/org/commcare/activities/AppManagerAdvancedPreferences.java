@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.preference.Preference;
@@ -47,11 +46,6 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
     @Override
     protected int getPreferencesResource() {
         return R.xml.app_manager_preferences;
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        // No listeners
     }
 
     @Override

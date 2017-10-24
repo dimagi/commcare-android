@@ -50,10 +50,10 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
 
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
+        super.onSharedPreferenceChanged(sharedPreferences, key);
         if (KEY_FONT_SIZE.equals(key)) {
             updateFontSize();
         }
-        FirebaseAnalyticsUtil.reportEditPreferenceItem(key, sharedPreferences.getString(key, null));
     }
 
     private void updateFontSize() {

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -93,11 +92,6 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     @Override
     protected int getPreferencesResource() {
         return R.xml.advanced_actions;
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        // No listeners
     }
 
     @Override

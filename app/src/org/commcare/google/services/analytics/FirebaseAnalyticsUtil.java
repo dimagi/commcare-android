@@ -58,7 +58,7 @@ public class FirebaseAnalyticsUtil {
     }
 
     /**
-     * Report a user event of changing the value of an item in a preferences menu
+     * Report a user event of changing the value of a SharedPreference
      */
     public static void reportEditPreferenceItem(String preferenceKey, String value) {
         reportEvent(FirebaseAnalyticsEvent.EDIT_PREFERENCE_ITEM,
