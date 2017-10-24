@@ -27,18 +27,6 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_CONTINUE_FROM_DETAIL = "Continue Forward from Detail View";
     public static final String ACTION_EXIT_FROM_DETAIL = "Exit Detail View";
 
-    // Actions for CATEGORY_ADVANCED_ACTIONS
-    public static final String ACTION_REPORT_PROBLEM = "Report Problem";
-    public static final String ACTION_VALIDATE_MEDIA = "Validate Media";
-    public static final String ACTION_MANAGE_SD = "Manage SD";
-    public static final String ACTION_WIFI_DIRECT = "Wifi Direct";
-    public static final String ACTION_CONNECTION_TEST = "Connection Test";
-    public static final String ACTION_CLEAR_USER_DATA = "Clear User Data";
-    public static final String ACTION_CLEAR_SAVED_SESSION = "Clear Saved Session";
-    public static final String ACTION_FORCE_LOG_SUBMISSION = "Force Log Submission";
-    public static final String ACTION_RECOVERY_MODE = "Recovery Mode";
-    public static final String ACTION_ENABLE_PRIVILEGES = "Enable Mobile Privileges";
-
     // Values for ACTION_CONTINUE_FROM_DETAIL/ACTION_EXIT_FROM_DETAIL : LABEL_ARROW/LABEL_SWIPE
     public static final int VALUE_DOESNT_HAVE_TABS = 0;
     public static final int VALUE_HAS_TABS = 1;

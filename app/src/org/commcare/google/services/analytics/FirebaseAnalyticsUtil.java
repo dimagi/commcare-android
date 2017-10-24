@@ -63,11 +63,15 @@ public class FirebaseAnalyticsUtil {
     public static void reportEditPreferenceItem(String preferenceKey, String value) {
         reportEvent(FirebaseAnalyticsEvent.EDIT_PREFERENCE_ITEM,
                 new String[]{FirebaseAnalytics.Param.ITEM_NAME, FirebaseAnalytics.Param.VALUE},
-                new String[]{scrubDashes(preferenceKey), scrubDashes(value)});
+                new String[]{scrubDashes(preferenceKey), value});
     }
 
     private static String scrubDashes(String s) {
         return s.replace("-", "_");
+    }
+
+    public static void reportAdvancedActionSelected(String action) {
+        reportEvent(FirebaseAnalyticsEvent.ADVANCED_ACTION_SELECTED, FirebaseAnalyticsParam.ACTION_TYPE, action);
     }
 
     public static void reportHomeButtonClick(String buttonName) {

@@ -21,8 +21,8 @@ import org.commcare.activities.RecoveryActivity;
 import org.commcare.activities.ReportProblemActivity;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsParamValues;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
@@ -108,7 +108,8 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         reportProblemButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_REPORT_PROBLEM);
+                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                        FirebaseAnalyticsParamValues.REPORT_PROBLEM);
                 startReportActivity();
                 return true;
             }
@@ -118,7 +119,8 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         validateMediaButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_VALIDATE_MEDIA);
+                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                        FirebaseAnalyticsParamValues.VALIDATE_MEDIA);
                 startValidationActivity();
                 return true;
             }
@@ -129,7 +131,8 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             wifiDirectButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_WIFI_DIRECT);
+                    FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                            FirebaseAnalyticsParamValues.WIFI_DIRECT);
                     startWifiDirect();
                     return true;
                 }
@@ -142,7 +145,8 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         dumpFormsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_MANAGE_SD);
+                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                        FirebaseAnalyticsParamValues.MANAGE_SD);
                 startFormDump();
                 return true;
             }
@@ -152,7 +156,8 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         connectionTestButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_CONNECTION_TEST);
+                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                        FirebaseAnalyticsParamValues.CONNECTION_TEST);
                 startConnectionTest();
                 return true;
             }
@@ -162,7 +167,8 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         clearDataButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_CLEAR_USER_DATA);
+                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                        FirebaseAnalyticsParamValues.CLEAR_USER_DATA);
                 clearUserData(getActivity());
                 return true;
             }
@@ -173,7 +179,8 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             clearSavedSessionButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_CLEAR_SAVED_SESSION);
+                    FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                            FirebaseAnalyticsParamValues.CLEAR_SAVED_SESSION);
                     DevSessionRestorer.clearSession();
                     return true;
                 }
@@ -187,7 +194,8 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         forceSubmitButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_FORCE_LOG_SUBMISSION);
+                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                        FirebaseAnalyticsParamValues.FORCE_LOG_SUBMISSION);
                 CommCareUtil.triggerLogSubmission(getActivity());
                 return true;
             }
@@ -197,7 +205,8 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         recoveryModeButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_RECOVERY_MODE);
+                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                        FirebaseAnalyticsParamValues.RECOVERY_MODE);
                 startRecoveryMode();
                 return true;
             }

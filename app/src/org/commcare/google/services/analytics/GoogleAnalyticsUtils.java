@@ -61,10 +61,6 @@ public class GoogleAnalyticsUtils {
                 .build());
     }
 
-    public static void reportAdvancedActionItemClick(String action) {
-        reportEvent(GoogleAnalyticsFields.CATEGORY_ADVANCED_ACTIONS, action);
-    }
-
     /**
      * Report a user event of navigating backward out of the entity detail screen
      *
