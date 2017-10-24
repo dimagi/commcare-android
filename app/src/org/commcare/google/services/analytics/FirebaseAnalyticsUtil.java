@@ -262,6 +262,8 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static boolean versionIncompatible() {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD;
+        // According to https://firebase.google.com/docs/android/setup,
+        // Firebase should only be used on devices running Android 4.0 and above
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH;
     }
 }
