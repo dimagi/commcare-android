@@ -386,21 +386,26 @@ android {
 
     buildTypes {
         debug {
+            applicationIdSuffix ".debug"
+            def applicationId = "org.commcare.dalvik.debug"
+            project.ext.COMMCARE_APP_ID = applicationId
+            resValue "string", "application_name", "CommCare Debug"
+            def odkProviderStr = "org.commcare.dalvik.debug.provider.odk"
+            manifestPlaceholders = [odkProvider: odkProviderStr]
+
             minifyEnabled true
             debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+
             // used in test suite to build the prototype factory; otherwise unneeded
+            buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
+            buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
             buildConfigField "String", "BUILD_DIR", fixEscaping("\"${buildDir}\"")
             buildConfigField "String", "PROJECT_DIR", fixEscaping("\"${projectDir}\"")
 
             // disable crashlytics
             buildConfigField "boolean", "USE_CRASHLYTICS", "false"
             ext.enableCrashlytics = false
-
-            applicationIdSuffix '.debug'
-            def odkProviderStr = "org.commcare.debug.provider.odk"
-            manifestPlaceholders = [odkProvider: odkProviderStr]
-            resValue "string", "application_name", " CommCare Debug"
         }
 
         release {
