@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -250,7 +251,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
-    public ModernHttpRequester buildHttpRequester(Context context, String url, HashMap<String, String> params,
+    public ModernHttpRequester buildHttpRequester(Context context, String url, Map<String, String> params,
                                                   HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
                                                   HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith, HttpResponseProcessor responseProcessor) {
         return new ModernHttpRequesterMock(new AndroidCacheDirSetup(context),
