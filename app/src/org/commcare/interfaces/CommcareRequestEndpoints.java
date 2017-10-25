@@ -2,7 +2,9 @@ package org.commcare.interfaces;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -23,6 +25,13 @@ public interface CommcareRequestEndpoints {
     Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts) throws IOException;
 
     Response<ResponseBody> simpleGet(String uri) throws IOException;
+
+    /**
+     * Synchronous GET request
+     *
+     * @param httpParams non URL-Encoded parameters to include in the HTTP request with the URL
+     */
+    Response<ResponseBody> simpleGet(String uri, Map<String, String> httpParams) throws IOException;
 
     void abortCurrentRequest();
 }
