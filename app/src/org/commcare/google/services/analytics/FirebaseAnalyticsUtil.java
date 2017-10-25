@@ -65,11 +65,7 @@ public class FirebaseAnalyticsUtil {
     public static void reportEditPreferenceItem(String preferenceKey, String value) {
         reportEvent(CCAnalyticsEvent.EDIT_PREFERENCE_ITEM,
                 new String[]{FirebaseAnalytics.Param.ITEM_NAME, FirebaseAnalytics.Param.VALUE},
-                new String[]{scrubDashes(preferenceKey), value});
-    }
-
-    private static String scrubDashes(String s) {
-        return s.replace("-", "_");
+                new String[]{preferenceKey, value});
     }
 
     public static void reportAdvancedActionSelected(String action) {
