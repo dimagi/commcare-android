@@ -20,7 +20,7 @@ public class CCAnalyticsEvent {
     static final String FORM_EXIT_ATTEMPT = "form_exit_attempt";
     static final String FORM_NAVIGATION = "form_navigation";
     static final String GRAPH_ACTION = "graphing_action";
-    static final String HOME_BUTTON_CLICK = "home_Button_click";
+    static final String HOME_BUTTON_CLICK = "home_button_click";
     static final String OPEN_ARCHIVED_FORM = "open_archived_form";
     static final String OPEN_OPTIONS_MENU = "open_options_menu";
     static final String SELECT_OPTIONS_MENU_ITEM = "select_options_menu_item";
