@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -75,6 +76,10 @@ public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
 
     @Override
     public Response<ResponseBody> simpleGet(String uri) throws IOException {
+        throw new RuntimeException("Not yet mocked");
+    }
+    @Override
+    public Response<ResponseBody> simpleGet(String uri, Map<String, String> params) throws IOException {
         throw new RuntimeException("Not yet mocked");
     }
 
