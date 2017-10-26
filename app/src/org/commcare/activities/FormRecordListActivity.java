@@ -444,6 +444,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     FormRecord theRecord = (FormRecord)adapter.getItem(info.position);
                     Pair<Boolean, String> result = new FormRecordProcessor(this).verifyFormRecordIntegrity(theRecord);
                     createFormRecordScanResultDialog(result, theRecord);
+                    logIntegrityScanResult(theRecord, result);
                     return true;
                 case VIEW_QUARANTINE_REASON:
                     createQuarantineReasonDialog(selectedRecord);
@@ -610,10 +611,19 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         for (int i = 0; i < adapter.getCount(); ++i) {
             FormRecord r = (FormRecord)adapter.getItem(i);
             Pair<Boolean, String> integrity = this.formRecordProcessor.verifyFormRecordIntegrity(r);
-            String passfail = integrity.first ? "PASS:" : "FAIL:";
-            Logger.log(LogTypes.TYPE_ERROR_STORAGE, passfail + integrity.second);
+            logIntegrityScanResult(r, integrity);
         }
         CommCareUtil.triggerLogSubmission(this);
+    }
+
+    private static void logIntegrityScanResult(FormRecord r, Pair<Boolean, String> integrityScanResult) {
+        String passOrFail = integrityScanResult.first ? "PASSED:" : "FAILED:";
+        Logger.log(
+                LogTypes.TYPE_ERROR_STORAGE,
+                String.format("Integrity scan for form record with ID %s has %s. Report Details: %",
+                        r.getInstanceID(),
+                        passOrFail,
+                        integrityScanResult.second));
     }
 
     @Override
