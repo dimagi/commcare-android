@@ -8,7 +8,7 @@ import android.view.View;
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.CCAnalyticsParamValue;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
@@ -94,7 +94,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(CCAnalyticsParamValue.SAVED_FORMS_BUTTON);
+                reportButtonClick(AnalyticsParamValue.SAVED_FORMS_BUTTON);
                 activity.goToFormArchive(false);
             }
         };
@@ -104,7 +104,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(CCAnalyticsParamValue.SYNC_BUTTON);
+                reportButtonClick(AnalyticsParamValue.SYNC_BUTTON);
                 activity.syncButtonPressed();
             }
         };
@@ -134,7 +134,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(CCAnalyticsParamValue.START_BUTTON);
+                reportButtonClick(AnalyticsParamValue.START_BUTTON);
                 activity.enterRootModule();
             }
         };
@@ -144,7 +144,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(CCAnalyticsParamValue.INCOMPLETE_FORMS_BUTTON);
+                reportButtonClick(AnalyticsParamValue.INCOMPLETE_FORMS_BUTTON);
                 activity.goToFormArchive(true);
             }
         };
@@ -185,7 +185,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(CCAnalyticsParamValue.LOGOUT_BUTTON);
+                reportButtonClick(AnalyticsParamValue.LOGOUT_BUTTON);
                 activity.userTriggeredLogout();
             }
         };
@@ -211,7 +211,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(CCAnalyticsParamValue.REPORT_BUTTON);
+                reportButtonClick(AnalyticsParamValue.REPORT_BUTTON);
                 Intent i = new Intent(activity, ReportProblemActivity.class);
                 activity.startActivity(i);
             }

@@ -41,7 +41,7 @@ import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.CCAnalyticsParamValue;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.AdvanceToNextListener;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -497,7 +497,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 startActivityForResult(pref, FormEntryConstants.FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
-                FirebaseAnalyticsUtil.reportFormQuitAttempt(CCAnalyticsParamValue.NAV_BUTTON_PRESS);
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS);
                 triggerUserQuitInput();
                 return true;
 
@@ -508,13 +508,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
         menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_LANGUAGES,
-                CCAnalyticsParamValue.ITEM_changeLanguage);
+                AnalyticsParamValue.ITEM_changeLanguage);
         menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_SAVE,
-                CCAnalyticsParamValue.ITEM_saveForm);
+                AnalyticsParamValue.ITEM_saveForm);
         menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_HIERARCHY_VIEW,
-                CCAnalyticsParamValue.ITEM_formHierarchy);
+                AnalyticsParamValue.ITEM_formHierarchy);
         menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_PREFERENCES,
-                CCAnalyticsParamValue.ITEM_changeFormSettings);
+                AnalyticsParamValue.ITEM_changeFormSettings);
         return menuIdToAnalyticsEvent;
     }
 
@@ -1017,7 +1017,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                FirebaseAnalyticsUtil.reportFormQuitAttempt(CCAnalyticsParamValue.BACK_BUTTON_PRESS);
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.BACK_BUTTON_PRESS);
                 triggerUserQuitInput();
                 return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
@@ -1210,8 +1210,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     protected boolean onBackwardSwipe() {
         FirebaseAnalyticsUtil.reportFormNav(
-                CCAnalyticsParamValue.DIRECTION_BACKWARD,
-                CCAnalyticsParamValue.SWIPE);
+                AnalyticsParamValue.DIRECTION_BACKWARD,
+                AnalyticsParamValue.SWIPE);
 
         uiController.showPreviousView(true);
         return true;
@@ -1220,8 +1220,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     protected boolean onForwardSwipe() {
         FirebaseAnalyticsUtil.reportFormNav(
-                CCAnalyticsParamValue.DIRECTION_FORWARD,
-                CCAnalyticsParamValue.SWIPE);
+                AnalyticsParamValue.DIRECTION_FORWARD,
+                AnalyticsParamValue.SWIPE);
 
         if (canNavigateForward()) {
             uiController.next();

@@ -17,7 +17,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
-import org.commcare.google.services.analytics.CCAnalyticsParamValue;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
@@ -137,7 +137,7 @@ public class EntityDetailActivity
             @Override
             public void onClick(View v) {
                 FirebaseAnalyticsUtil.reportEntityDetailContinue(
-                        CCAnalyticsParamValue.NAV_BUTTON_PRESS, mDetailView.getTabCount());
+                        AnalyticsParamValue.NAV_BUTTON_PRESS, mDetailView.getTabCount());
                 select();
             }
         });
@@ -206,7 +206,7 @@ public class EntityDetailActivity
                 mDetailView.getCurrentTab() >= mDetailView.getTabCount() - 1) {
             select();
             FirebaseAnalyticsUtil.reportEntityDetailContinue(
-                    CCAnalyticsParamValue.SWIPE, mDetailView.getTabCount());
+                    AnalyticsParamValue.SWIPE, mDetailView.getTabCount());
             return true;
         }
         return false;
@@ -219,7 +219,7 @@ public class EntityDetailActivity
                 mDetailView.getCurrentTab() < 1) {
             finish();
             FirebaseAnalyticsUtil.reportEntityDetailExit(
-                    CCAnalyticsParamValue.SWIPE, mDetailView.getTabCount());
+                    AnalyticsParamValue.SWIPE, mDetailView.getTabCount());
             return true;
         }
         return false;
@@ -247,7 +247,7 @@ public class EntityDetailActivity
     public void onBackPressed() {
         super.onBackPressed();
         FirebaseAnalyticsUtil.reportEntityDetailExit(
-                CCAnalyticsParamValue.BACK_BUTTON_PRESS, mDetailView.getTabCount());
+                AnalyticsParamValue.BACK_BUTTON_PRESS, mDetailView.getTabCount());
     }
 
     @Override

@@ -15,7 +15,7 @@ import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
-import org.commcare.google.services.analytics.CCAnalyticsParamValue;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
@@ -644,16 +644,16 @@ public abstract class DataPullTask<R>
     public enum PullTaskResult {
         DOWNLOAD_SUCCESS(null),
         RETRY_NEEDED(null),
-        AUTH_FAILED(CCAnalyticsParamValue.SYNC_FAIL_auth),
-        BAD_DATA(CCAnalyticsParamValue.SYNC_FAIL_badData),
-        BAD_DATA_REQUIRES_INTERVENTION(CCAnalyticsParamValue.SYNC_FAIL_badData),
-        UNKNOWN_FAILURE(CCAnalyticsParamValue.SYNC_FAIL_unknown),
-        ACTIONABLE_FAILURE(CCAnalyticsParamValue.SYNC_FAIL_actionable),
-        UNREACHABLE_HOST(CCAnalyticsParamValue.SYNC_FAIL_unreachableHost),
-        CONNECTION_TIMEOUT(CCAnalyticsParamValue.SYNC_FAIL_connectionTimeout),
-        SERVER_ERROR(CCAnalyticsParamValue.SYNC_FAIL_serverError),
-        STORAGE_FULL(CCAnalyticsParamValue.SYNC_FAIL_storageFull),
-        AUTH_OVER_HTTP(CCAnalyticsParamValue.SYNC_FAIL_authOverHttp);
+        AUTH_FAILED(AnalyticsParamValue.SYNC_FAIL_auth),
+        BAD_DATA(AnalyticsParamValue.SYNC_FAIL_badData),
+        BAD_DATA_REQUIRES_INTERVENTION(AnalyticsParamValue.SYNC_FAIL_badData),
+        UNKNOWN_FAILURE(AnalyticsParamValue.SYNC_FAIL_unknown),
+        ACTIONABLE_FAILURE(AnalyticsParamValue.SYNC_FAIL_actionable),
+        UNREACHABLE_HOST(AnalyticsParamValue.SYNC_FAIL_unreachableHost),
+        CONNECTION_TIMEOUT(AnalyticsParamValue.SYNC_FAIL_connectionTimeout),
+        SERVER_ERROR(AnalyticsParamValue.SYNC_FAIL_serverError),
+        STORAGE_FULL(AnalyticsParamValue.SYNC_FAIL_storageFull),
+        AUTH_OVER_HTTP(AnalyticsParamValue.SYNC_FAIL_authOverHttp);
 
         public final String analyticsFailureReasonParam;
 

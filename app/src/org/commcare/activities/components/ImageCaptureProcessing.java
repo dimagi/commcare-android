@@ -7,7 +7,7 @@ import android.provider.MediaStore.Images.Media;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.google.services.analytics.CCAnalyticsParamValue;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.ImageWidget;
@@ -41,7 +41,7 @@ public class ImageCaptureProcessing {
             if (currentWidget != null) {
                 int maxDimen = currentWidget.getMaxDimen();
                 if (maxDimen != -1) {
-                    FirebaseAnalyticsUtil.reportFeatureUsage(CCAnalyticsParamValue.FEATURE_resizeImageCapture);
+                    FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_resizeImageCapture);
                     savedScaledImage = FileUtil.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
                 }
             }

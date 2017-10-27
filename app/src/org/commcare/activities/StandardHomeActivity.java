@@ -7,7 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
-import org.commcare.google.services.analytics.CCAnalyticsParamValue;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -94,8 +94,8 @@ public class StandardHomeActivity
                                 AIRPLANE_MODE_CATEGORY));
             }
             FirebaseAnalyticsUtil.reportSyncFailure(
-                    CCAnalyticsParamValue.SYNC_TRIGGER_USER,
-                    CCAnalyticsParamValue.SYNC_FAIL_noConnection);
+                    AnalyticsParamValue.SYNC_TRIGGER_USER,
+                    AnalyticsParamValue.SYNC_FAIL_noConnection);
             return;
         }
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
@@ -200,17 +200,17 @@ public class StandardHomeActivity
     private static Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
         menuIdToAnalyticsEvent.put(MENU_UPDATE,
-                CCAnalyticsParamValue.ITEM_updateCommcare);
+                AnalyticsParamValue.ITEM_updateCommcare);
         menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS,
-                CCAnalyticsParamValue.ITEM_savedForms);
+                AnalyticsParamValue.ITEM_savedForms);
         menuIdToAnalyticsEvent.put(MENU_CHANGE_LANGUAGE,
-                CCAnalyticsParamValue.ITEM_changeLanguage);
+                AnalyticsParamValue.ITEM_changeLanguage);
         menuIdToAnalyticsEvent.put(MENU_PREFERENCES,
-                CCAnalyticsParamValue.ITEM_settings);
+                AnalyticsParamValue.ITEM_settings);
         menuIdToAnalyticsEvent.put(MENU_ADVANCED,
-                CCAnalyticsParamValue.ITEM_advancedActions);
+                AnalyticsParamValue.ITEM_advancedActions);
         menuIdToAnalyticsEvent.put(MENU_ABOUT,
-                CCAnalyticsParamValue.ITEM_aboutCommcare);
+                AnalyticsParamValue.ITEM_aboutCommcare);
         return menuIdToAnalyticsEvent;
     }
 

@@ -4,7 +4,7 @@ package org.commcare.google.services.analytics;
  * Created by amstone326 on 10/13/17.
  */
 
-public class CCAnalyticsParamValue {
+public class AnalyticsParamValue {
 
     // Param values for audio widget interaction
     static final String CHOOSE_AUDIO_FILE = "choose_audio_file";

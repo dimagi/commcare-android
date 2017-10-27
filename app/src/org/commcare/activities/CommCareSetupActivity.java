@@ -33,7 +33,7 @@ import org.commcare.fragments.InstallConfirmFragment;
 import org.commcare.fragments.InstallPermissionsFragment;
 import org.commcare.fragments.SelectInstallModeFragment;
 import org.commcare.fragments.SetupEnterURLFragment;
-import org.commcare.google.services.analytics.CCAnalyticsParamValue;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -407,7 +407,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
 
         if (lastInstallMode == INSTALL_MODE_FROM_LIST) {
-            FirebaseAnalyticsUtil.reportFeatureUsage(CCAnalyticsParamValue.FEATURE_installFromList);
+            FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_installFromList);
         }
         setReadyToInstall(result);
     }
@@ -925,13 +925,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static String getAnalyticsParamForInstallMethod(int installModeCode) {
         switch (installModeCode) {
             case INSTALL_MODE_BARCODE:
-                return CCAnalyticsParamValue.BARCODE_INSTALL;
+                return AnalyticsParamValue.BARCODE_INSTALL;
             case INSTALL_MODE_OFFLINE:
-                return CCAnalyticsParamValue.OFFLINE_INSTALL;
+                return AnalyticsParamValue.OFFLINE_INSTALL;
             case INSTALL_MODE_SMS:
-                return CCAnalyticsParamValue.SMS_INSTALL;
+                return AnalyticsParamValue.SMS_INSTALL;
             case INSTALL_MODE_URL:
-                return CCAnalyticsParamValue.URL_INSTALL;
+                return AnalyticsParamValue.URL_INSTALL;
             default:
                 return "";
         }

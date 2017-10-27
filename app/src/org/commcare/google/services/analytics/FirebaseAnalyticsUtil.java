@@ -103,31 +103,31 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportAudioFileSelected() {
-        reportAudioWidgetInteraction(CCAnalyticsParamValue.CHOOSE_AUDIO_FILE);
+        reportAudioWidgetInteraction(AnalyticsParamValue.CHOOSE_AUDIO_FILE);
     }
 
     public static void reportAudioPlayed() {
-        reportAudioWidgetInteraction(CCAnalyticsParamValue.PLAY_AUDIO);
+        reportAudioWidgetInteraction(AnalyticsParamValue.PLAY_AUDIO);
     }
 
     public static void reportAudioPaused() {
-        reportAudioWidgetInteraction(CCAnalyticsParamValue.PAUSE_AUDIO);
+        reportAudioWidgetInteraction(AnalyticsParamValue.PAUSE_AUDIO);
     }
 
     public static void reportAudioFileSaved() {
-        reportAudioWidgetInteraction(CCAnalyticsParamValue.SAVE_RECORDING);
+        reportAudioWidgetInteraction(AnalyticsParamValue.SAVE_RECORDING);
     }
 
     public static void reportRecordingStarted() {
-        reportAudioWidgetInteraction(CCAnalyticsParamValue.START_RECORDING);
+        reportAudioWidgetInteraction(AnalyticsParamValue.START_RECORDING);
     }
 
     public static void reportRecordingStopped() {
-        reportAudioWidgetInteraction(CCAnalyticsParamValue.STOP_RECORDING);
+        reportAudioWidgetInteraction(AnalyticsParamValue.STOP_RECORDING);
     }
 
     public static void reportRecordingRecycled() {
-        reportAudioWidgetInteraction(CCAnalyticsParamValue.RECORD_AGAIN);
+        reportAudioWidgetInteraction(AnalyticsParamValue.RECORD_AGAIN);
     }
 
     private static void reportAudioWidgetInteraction(String interactionType) {
@@ -136,19 +136,19 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportGraphViewAttached() {
-        reportGraphingAction(CCAnalyticsParamValue.GRAPH_ATTACH);
+        reportGraphingAction(AnalyticsParamValue.GRAPH_ATTACH);
     }
 
     public static void reportGraphViewDetached() {
-        reportGraphingAction(CCAnalyticsParamValue.GRAPH_DETACH);
+        reportGraphingAction(AnalyticsParamValue.GRAPH_DETACH);
     }
 
     public static void reportGraphViewFullScreenOpened() {
-        reportGraphingAction(CCAnalyticsParamValue.GRAPH_FULLSCREEN_OPEN);
+        reportGraphingAction(AnalyticsParamValue.GRAPH_FULLSCREEN_OPEN);
     }
 
     public static void reportGraphViewFullScreenClosed() {
-        reportGraphingAction(CCAnalyticsParamValue.GRAPH_FULLSCREEN_CLOSE);
+        reportGraphingAction(AnalyticsParamValue.GRAPH_FULLSCREEN_CLOSE);
     }
 
     private static void reportGraphingAction(String actionType) {
@@ -175,7 +175,7 @@ public class FirebaseAnalyticsUtil {
      */
     public static void reportEntityDetailExit(String navMethod, int detailTabCount) {
         reportEntityDetailNavigation(
-                CCAnalyticsParamValue.DIRECTION_BACKWARD, navMethod, detailTabCount);
+                AnalyticsParamValue.DIRECTION_BACKWARD, navMethod, detailTabCount);
     }
 
     /**
@@ -183,14 +183,14 @@ public class FirebaseAnalyticsUtil {
      */
     public static void reportEntityDetailContinue(String navMethod, int detailTabCount) {
         reportEntityDetailNavigation(
-                CCAnalyticsParamValue.DIRECTION_FORWARD, navMethod, detailTabCount);
+                AnalyticsParamValue.DIRECTION_FORWARD, navMethod, detailTabCount);
     }
 
     private static void reportEntityDetailNavigation(String direction, String navMethod,
                                                      int detailTabCount) {
         String detailUiState =
-                detailTabCount > 1 ? CCAnalyticsParamValue.DETAIL_WITH_TABS :
-                        CCAnalyticsParamValue.DETAIL_NO_TABS;
+                detailTabCount > 1 ? AnalyticsParamValue.DETAIL_WITH_TABS :
+                        AnalyticsParamValue.DETAIL_NO_TABS;
 
         reportEvent(CCAnalyticsEvent.ENTITY_DETAIL_NAVIGATION,
                 new String[]{
@@ -204,14 +204,14 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT,
                 new String[]{ CCAnalyticsParam.TRIGGER, CCAnalyticsParam.OUTCOME,
                         CCAnalyticsParam.MODE},
-                new String[]{trigger, CCAnalyticsParamValue.SYNC_SUCCESS, syncMode});
+                new String[]{trigger, AnalyticsParamValue.SYNC_SUCCESS, syncMode});
     }
 
     public static void reportSyncFailure(String trigger, String failureReason) {
         reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT,
                 new String[]{ CCAnalyticsParam.TRIGGER, CCAnalyticsParam.OUTCOME,
                         CCAnalyticsParam.REASON},
-                new String[]{trigger, CCAnalyticsParamValue.SYNC_FAILURE, failureReason});
+                new String[]{trigger, AnalyticsParamValue.SYNC_FAILURE, failureReason});
     }
 
     public static void reportFeatureUsage(String feature) {
@@ -227,10 +227,10 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportPracticeModeUsage(OfflineUserRestore currentOfflineUserRestoreResource) {
         reportFeatureUsage(
-                CCAnalyticsParamValue.FEATURE_practiceMode,
+                AnalyticsParamValue.FEATURE_practiceMode,
                 currentOfflineUserRestoreResource == null ?
-                        CCAnalyticsParamValue.PRACTICE_MODE_DEFAULT :
-                        CCAnalyticsParamValue.PRACTICE_MODE_CUSTOM);
+                        AnalyticsParamValue.PRACTICE_MODE_DEFAULT :
+                        AnalyticsParamValue.PRACTICE_MODE_CUSTOM);
     }
 
     public static void reportPrivilegeEnabled(String privilegeName, String usernameUsedToActivate) {
