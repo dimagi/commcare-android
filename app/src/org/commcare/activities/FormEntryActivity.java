@@ -116,6 +116,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // rotation (or similar)
     private static final String KEY_FORM_LOAD_HAS_TRIGGERED = "newform";
     private static final String KEY_FORM_LOAD_FAILED = "form-failed";
+    private static final String KEY_FORM_LOAD_COMPLETED = "form-load-completed";
     private static final String KEY_LOC_ERROR = "location-not-enabled";
     private static final String KEY_LOC_ERROR_PATH = "location-based-xpath-error";
     private static final String KEY_IS_READ_ONLY = "instance-is-read-only";
@@ -130,6 +131,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean mIncompleteEnabled = true;
     private boolean instanceIsReadOnly = false;
     private boolean hasFormLoadBeenTriggered = false;
+    private boolean hasFormLoadCompleted = false;
     private boolean hasFormLoadFailed = false;
     private String locationRecieverErrorAction = null;
     private String badLocationXpath = null;
@@ -192,7 +194,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask)data;
             mSaveToDiskTask.setFormSavedListener(this);
-        } else if (hasFormLoadBeenTriggered && !hasFormLoadFailed) {
+        } else if (hasFormLoadCompleted && !hasFormLoadFailed) {
             // Screen orientation change
             uiController.refreshView();
         }
@@ -250,6 +252,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         outState.putBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, hasFormLoadBeenTriggered);
         outState.putBoolean(KEY_FORM_LOAD_FAILED, hasFormLoadFailed);
+        outState.putBoolean(KEY_FORM_LOAD_COMPLETED, hasFormLoadCompleted);
         outState.putString(KEY_LOC_ERROR, locationRecieverErrorAction);
         outState.putString(KEY_LOC_ERROR_PATH, badLocationXpath);
 
@@ -942,6 +945,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void handleFormLoadCompletion(AndroidFormController fc) {
+        hasFormLoadCompleted = true;
         if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(locationRecieverErrorAction)) {
             FormEntryDialogs.handleNoGpsBroadcast(this);
         } else if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
@@ -1277,6 +1281,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             if (savedInstanceState.containsKey(KEY_FORM_LOAD_FAILED)) {
                 hasFormLoadFailed = savedInstanceState.getBoolean(KEY_FORM_LOAD_FAILED, false);
+            }
+            if (savedInstanceState.containsKey(KEY_FORM_LOAD_COMPLETED)) {
+                hasFormLoadCompleted = savedInstanceState.getBoolean(KEY_FORM_LOAD_COMPLETED, false);
             }
 
             locationRecieverErrorAction = savedInstanceState.getString(KEY_LOC_ERROR);
