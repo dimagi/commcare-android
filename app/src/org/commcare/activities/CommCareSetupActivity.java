@@ -407,7 +407,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
 
         if (lastInstallMode == INSTALL_MODE_FROM_LIST) {
-            FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_installFromList);
+            FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_INSTALL_FROM_LIST);
         }
         setReadyToInstall(result);
     }

@@ -87,7 +87,7 @@ public class MediaUtil {
             }
 
             if (CommCarePreferences.isSmartInflationEnabled()) {
-                FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_smartImageInflation);
+                FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_SMART_IMG_INFLATION);
                 // scale based on bounding dimens AND native density
                 return getBitmapScaledForNativeDensity(
                         context.getResources().getDisplayMetrics(), imageFile.getAbsolutePath(),

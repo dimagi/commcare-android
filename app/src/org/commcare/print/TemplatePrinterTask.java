@@ -55,7 +55,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
      */
     @Override
     protected PrintTaskResult doInBackground(Void... params) {
-        FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_print);
+        FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_PRINT);
         Logger.log(LogTypes.TYPE_PRINTING, "Successfully prepared document for printing");
         try {
             populateAndSaveHtml(templateFile, templatePopulationMapping, populatedFilepath);

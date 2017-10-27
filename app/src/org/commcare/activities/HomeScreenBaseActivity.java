@@ -798,7 +798,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 asw.reset();
                 break;
             case SessionNavigator.REPORT_CASE_AUTOSELECT:
-                FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_caseAutoselect);
+                FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_CASE_AUTOSELECT);
                 break;
         }
     }

@@ -227,7 +227,7 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportPracticeModeUsage(OfflineUserRestore currentOfflineUserRestoreResource) {
         reportFeatureUsage(
-                AnalyticsParamValue.FEATURE_practiceMode,
+                AnalyticsParamValue.FEATURE_PRACTICE_MODE,
                 currentOfflineUserRestoreResource == null ?
                         AnalyticsParamValue.PRACTICE_MODE_DEFAULT :
                         AnalyticsParamValue.PRACTICE_MODE_CUSTOM);

@@ -29,15 +29,15 @@ public class AnalyticsParamValue {
     public static final String SWIPE = "swipe";
 
     // Param values for options menu items
-    public static final String ITEM_settings = "settings";
-    public static final String ITEM_updateCommcare = "update_commcare";
-    public static final String ITEM_aboutCommcare = "about_commcare";
-    public static final String ITEM_savedForms = "saved_forms";
-    public static final String ITEM_advancedActions = "advanced_actions";
-    public static final String ITEM_changeLanguage = "change_language";
-    public static final String ITEM_saveForm = "save_form";
-    public static final String ITEM_formHierarchy = "form_hierarchy";
-    public static final String ITEM_changeFormSettings = "change_settings";
+    public static final String ITEM_SETTINGS = "settings";
+    public static final String ITEM_UPDATE_CC = "update_commcare";
+    public static final String ITEM_ABOUT_CC = "about_commcare";
+    public static final String ITEM_SAVED_FORMS = "saved_forms";
+    public static final String ITEM_ADVANCED_ACTIONS = "advanced_actions";
+    public static final String ITEM_CHANGE_LANGUAGE = "change_language";
+    public static final String ITEM_SAVE_FORM = "save_form";
+    public static final String ITEM_FORM_HIERARCHY = "form_hierarchy";
+    public static final String ITEM_CHANGE_FORM_SETTINGS = "change_settings";
 
     // Param values for sync attempts
     public static final String SYNC_TRIGGER_USER = "user_triggered_sync";
@@ -46,28 +46,28 @@ public class AnalyticsParamValue {
     static final String SYNC_SUCCESS = "sync_success";
     static final String SYNC_FAILURE = "sync_failure";
 
-    public static final String SYNC_MODE_justPullData = "sync_just_pull";
-    public static final String SYNC_MODE_sendForms = "sync_pull_and_send";
+    public static final String SYNC_MODE_JUST_PULL_DATA = "sync_just_pull";
+    public static final String SYNC_MODE_SEND_FORMS = "sync_pull_and_send";
 
-    public static final String SYNC_FAIL_noConnection = "no_connection";
-    public static final String SYNC_FAIL_auth = "auth_failure";
-    public static final String SYNC_FAIL_badData = "bad_data";
-    public static final String SYNC_FAIL_serverError = "server_error";
-    public static final String SYNC_FAIL_unreachableHost = "unreachable_host";
-    public static final String SYNC_FAIL_connectionTimeout = "connection_timeout";
-    public static final String SYNC_FAIL_unknown = "unknown_failure";
-    public static final String SYNC_FAIL_storageFull = "storage_full";
-    public static final String SYNC_FAIL_actionable = "actionable_failure";
-    public static final String SYNC_FAIL_authOverHttp = "auth_over_http";
+    public static final String SYNC_FAIL_NO_CONNECTION = "no_connection";
+    public static final String SYNC_FAIL_AUTH = "auth_failure";
+    public static final String SYNC_FAIL_BAD_DATA = "bad_data";
+    public static final String SYNC_FAIL_SERVER_ERROR = "server_error";
+    public static final String SYNC_FAIL_UNREACHABLE_HOST = "unreachable_host";
+    public static final String SYNC_FAIL_CONNECTION_TIMEOUT = "connection_timeout";
+    public static final String SYNC_FAIL_UNKNOWN = "unknown_failure";
+    public static final String SYNC_FAIL_STORAGE_FULL = "storage_full";
+    public static final String SYNC_FAIL_ACTIONABLE = "actionable_failure";
+    public static final String SYNC_FAIL_AUTH_OVER_HTTP = "auth_over_http";
 
     // Param values for feature usage
-    public static final String FEATURE_setPin = "set_pin";
-    public static final String FEATURE_print = "print_from_form_or_detail";
-    public static final String FEATURE_resizeImageCapture = "resize_image_capture";
-    public static final String FEATURE_caseAutoselect = "case_autoselect";
-    public static final String FEATURE_smartImageInflation = "smart_image_inflation";
-    public static final String FEATURE_installFromList = "install_from_app_list";
-    static final String FEATURE_practiceMode = "practice_mode";
+    public static final String FEATURE_SET_PIN = "set_pin";
+    public static final String FEATURE_PRINT = "print_from_form_or_detail";
+    public static final String FEATURE_RESIZE_IMAGE_CAPTURE = "resize_image_capture";
+    public static final String FEATURE_CASE_AUTOSELECT = "case_autoselect";
+    public static final String FEATURE_SMART_IMG_INFLATION = "smart_image_inflation";
+    public static final String FEATURE_INSTALL_FROM_LIST = "install_from_app_list";
+    static final String FEATURE_PRACTICE_MODE = "practice_mode";
     static final String PRACTICE_MODE_CUSTOM = "custom_practice_user";
     static final String PRACTICE_MODE_DEFAULT = "default_practice_user";
 

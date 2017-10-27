@@ -191,7 +191,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private void assignPin(String pin) {
         userRecord.assignPinToRecord(pin, unhashedUserPassword);
         CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
-        FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_setPin);
+        FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_SET_PIN);
     }
 
     @Override

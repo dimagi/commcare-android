@@ -508,13 +508,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
         menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_LANGUAGES,
-                AnalyticsParamValue.ITEM_changeLanguage);
+                AnalyticsParamValue.ITEM_CHANGE_LANGUAGE);
         menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_SAVE,
-                AnalyticsParamValue.ITEM_saveForm);
+                AnalyticsParamValue.ITEM_SAVE_FORM);
         menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_HIERARCHY_VIEW,
-                AnalyticsParamValue.ITEM_formHierarchy);
+                AnalyticsParamValue.ITEM_FORM_HIERARCHY);
         menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_PREFERENCES,
-                AnalyticsParamValue.ITEM_changeFormSettings);
+                AnalyticsParamValue.ITEM_CHANGE_FORM_SETTINGS);
         return menuIdToAnalyticsEvent;
     }
 

@@ -95,7 +95,7 @@ public class StandardHomeActivity
             }
             FirebaseAnalyticsUtil.reportSyncFailure(
                     AnalyticsParamValue.SYNC_TRIGGER_USER,
-                    AnalyticsParamValue.SYNC_FAIL_noConnection);
+                    AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
             return;
         }
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
@@ -200,17 +200,17 @@ public class StandardHomeActivity
     private static Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
         menuIdToAnalyticsEvent.put(MENU_UPDATE,
-                AnalyticsParamValue.ITEM_updateCommcare);
+                AnalyticsParamValue.ITEM_UPDATE_CC);
         menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS,
-                AnalyticsParamValue.ITEM_savedForms);
+                AnalyticsParamValue.ITEM_SAVED_FORMS);
         menuIdToAnalyticsEvent.put(MENU_CHANGE_LANGUAGE,
-                AnalyticsParamValue.ITEM_changeLanguage);
+                AnalyticsParamValue.ITEM_CHANGE_LANGUAGE);
         menuIdToAnalyticsEvent.put(MENU_PREFERENCES,
-                AnalyticsParamValue.ITEM_settings);
+                AnalyticsParamValue.ITEM_SETTINGS);
         menuIdToAnalyticsEvent.put(MENU_ADVANCED,
-                AnalyticsParamValue.ITEM_advancedActions);
+                AnalyticsParamValue.ITEM_ADVANCED_ACTIONS);
         menuIdToAnalyticsEvent.put(MENU_ABOUT,
-                AnalyticsParamValue.ITEM_aboutCommcare);
+                AnalyticsParamValue.ITEM_ABOUT_CC);
         return menuIdToAnalyticsEvent;
     }
 

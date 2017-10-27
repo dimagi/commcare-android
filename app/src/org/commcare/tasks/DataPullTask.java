@@ -644,16 +644,16 @@ public abstract class DataPullTask<R>
     public enum PullTaskResult {
         DOWNLOAD_SUCCESS(null),
         RETRY_NEEDED(null),
-        AUTH_FAILED(AnalyticsParamValue.SYNC_FAIL_auth),
-        BAD_DATA(AnalyticsParamValue.SYNC_FAIL_badData),
-        BAD_DATA_REQUIRES_INTERVENTION(AnalyticsParamValue.SYNC_FAIL_badData),
-        UNKNOWN_FAILURE(AnalyticsParamValue.SYNC_FAIL_unknown),
-        ACTIONABLE_FAILURE(AnalyticsParamValue.SYNC_FAIL_actionable),
-        UNREACHABLE_HOST(AnalyticsParamValue.SYNC_FAIL_unreachableHost),
-        CONNECTION_TIMEOUT(AnalyticsParamValue.SYNC_FAIL_connectionTimeout),
-        SERVER_ERROR(AnalyticsParamValue.SYNC_FAIL_serverError),
-        STORAGE_FULL(AnalyticsParamValue.SYNC_FAIL_storageFull),
-        AUTH_OVER_HTTP(AnalyticsParamValue.SYNC_FAIL_authOverHttp);
+        AUTH_FAILED(AnalyticsParamValue.SYNC_FAIL_AUTH),
+        BAD_DATA(AnalyticsParamValue.SYNC_FAIL_BAD_DATA),
+        BAD_DATA_REQUIRES_INTERVENTION(AnalyticsParamValue.SYNC_FAIL_BAD_DATA),
+        UNKNOWN_FAILURE(AnalyticsParamValue.SYNC_FAIL_UNKNOWN),
+        ACTIONABLE_FAILURE(AnalyticsParamValue.SYNC_FAIL_ACTIONABLE),
+        UNREACHABLE_HOST(AnalyticsParamValue.SYNC_FAIL_UNREACHABLE_HOST),
+        CONNECTION_TIMEOUT(AnalyticsParamValue.SYNC_FAIL_CONNECTION_TIMEOUT),
+        SERVER_ERROR(AnalyticsParamValue.SYNC_FAIL_SERVER_ERROR),
+        STORAGE_FULL(AnalyticsParamValue.SYNC_FAIL_STORAGE_FULL),
+        AUTH_OVER_HTTP(AnalyticsParamValue.SYNC_FAIL_AUTH_OVER_HTTP);
 
         public final String analyticsFailureReasonParam;
 

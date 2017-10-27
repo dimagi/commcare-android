@@ -106,9 +106,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 break;
             case DOWNLOAD_SUCCESS:
                 if (formsToSend) {
-                    syncModeParam = AnalyticsParamValue.SYNC_MODE_sendForms;
+                    syncModeParam = AnalyticsParamValue.SYNC_MODE_SEND_FORMS;
                 } else {
-                    syncModeParam = AnalyticsParamValue.SYNC_MODE_justPullData;
+                    syncModeParam = AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
                 }
                 updateUiAfterDataPullOrSend(Localization.get("sync.success.synced"), SUCCESS);
                 break;
