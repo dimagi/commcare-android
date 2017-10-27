@@ -107,8 +107,9 @@ public class AudioWidget extends MediaWidget {
 
     protected void playAudio() {
         Intent i = new Intent("android.intent.action.VIEW");
-        File f = new File(mInstanceFolder + mBinaryName);
-        i.setDataAndType(Uri.fromFile(f), "audio/*");
+        File audioFile = new File(mInstanceFolder + mBinaryName);
+        Uri audioUri = FileUtil.getUriForExternalFile(getContext(), audioFile);
+        i.setDataAndType(audioUri, "audio/*");
         try {
             getContext().startActivity(i);
         } catch (ActivityNotFoundException e) {
