@@ -215,10 +215,7 @@ public class CommCareApplication extends MultiDexApplication {
             initializeAnAppOnStartup();
         }
 
-        if (!FirebaseAnalyticsUtil.versionIncompatible()) {
-            analyticsInstance = FirebaseAnalytics.getInstance(this);
-            FirebaseAnalyticsUtil.reportAppStartup();
-        }
+        FirebaseAnalyticsUtil.reportAppStartup();
     }
 
     /**
@@ -296,8 +293,11 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     synchronized public FirebaseAnalytics getAnalyticsInstance() {
+        if (analyticsInstance == null) {
+            analyticsInstance = FirebaseAnalytics.getInstance(this);
+        }
         analyticsInstance.setUserId(getUserIdOrNull());
-        return this.analyticsInstance;
+        return analyticsInstance;
     }
 
     public int[] getCommCareVersion() {
