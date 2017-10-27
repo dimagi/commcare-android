@@ -16,8 +16,7 @@ import android.support.v7.preference.PreferenceScreen;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.FilePreference;
 import org.commcare.preferences.FilePreferenceDialogFragmentCompat;
 import org.commcare.utils.TemplatePrinterUtils;
@@ -39,7 +38,7 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        GoogleAnalyticsUtils.reportPrefActivityEntry(getAnalyticsCategory());
+        FirebaseAnalyticsUtil.reportPreferenceActivityEntry(this.getClass());
         setTitle();
         initPrefsFile();
         loadPrefs();
@@ -58,9 +57,6 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
     protected void loadPrefs() {
         // Add 'general' preferences, defined in the XML file
         addPreferencesFromResource(getPreferencesResource());
-
-        GoogleAnalyticsUtils.createPreferenceOnClickListeners(getPreferenceManager(), getPrefKeyAnalyticsEventMap(),
-                GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         setupPrefClickListeners();
         setupLocalizedText();
     }
@@ -163,15 +159,8 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
         return false;
     }
 
-
     @NonNull
     protected abstract String getTitle();
-
-    @NonNull
-    protected abstract String getAnalyticsCategory();
-
-    @Nullable
-    protected abstract Map<String, String> getPrefKeyAnalyticsEventMap();
 
     protected abstract void setupPrefClickListeners();
 
@@ -181,5 +170,10 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
     protected abstract int getPreferencesResource();
 
     @Override
-    public abstract void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key);
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        String prefValue = sharedPreferences.getString(key, null);
+        if (prefValue != null) {
+            FirebaseAnalyticsUtil.reportEditPreferenceItem(key, prefValue);
+        }
+    }
 }

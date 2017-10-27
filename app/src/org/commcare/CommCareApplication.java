@@ -23,8 +23,7 @@ import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
@@ -46,7 +45,7 @@ import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.PreInitLogger;
@@ -121,10 +120,6 @@ public class CommCareApplication extends MultiDexApplication {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
-    // Tracking ids for Google Analytics
-    private static final String LIVE_TRACKING_ID = BuildConfig.ANALYTICS_TRACKING_ID_LIVE;
-    private static final String DEV_TRACKING_ID = BuildConfig.ANALYTICS_TRACKING_ID_DEV;
-
     private static final int STATE_UNINSTALLED = 0;
     private static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
@@ -158,8 +153,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
-    private GoogleAnalytics analyticsInstance;
-    private Tracker analyticsTracker;
+    private FirebaseAnalytics analyticsInstance;
 
     private String messageForUserOnDispatch;
     private String titleForUserMessage;
@@ -221,10 +215,7 @@ public class CommCareApplication extends MultiDexApplication {
             initializeAnAppOnStartup();
         }
 
-        if (!GoogleAnalyticsUtils.versionIncompatible()) {
-            analyticsInstance = GoogleAnalytics.getInstance(this);
-            GoogleAnalyticsUtils.reportAndroidApiLevelAtStartup();
-        }
+        FirebaseAnalyticsUtil.reportAppStartup();
     }
 
     /**
@@ -301,22 +292,12 @@ public class CommCareApplication extends MultiDexApplication {
         return getSession().createNewSymmetricKey();
     }
 
-    synchronized public Tracker getDefaultTracker() {
-        if (analyticsTracker == null) {
-            if (BuildConfig.DEBUG) {
-                analyticsTracker = analyticsInstance.newTracker(DEV_TRACKING_ID);
-            } else {
-                analyticsTracker = analyticsInstance.newTracker(LIVE_TRACKING_ID);
-            }
-            analyticsTracker.enableAutoActivityTracking(true);
+    synchronized public FirebaseAnalytics getAnalyticsInstance() {
+        if (analyticsInstance == null) {
+            analyticsInstance = FirebaseAnalytics.getInstance(this);
         }
-        String userId = getCurrentUserId();
-        if (!"".equals(userId)) {
-            analyticsTracker.set("&uid", userId);
-        } else {
-            analyticsTracker.set("&uid", null);
-        }
-        return analyticsTracker;
+        analyticsInstance.setUserId(getUserIdOrNull());
+        return analyticsInstance;
     }
 
     public int[] getCommCareVersion() {
@@ -638,6 +619,14 @@ public class CommCareApplication extends MultiDexApplication {
             return this.getSession().getLoggedInUser().getUniqueId();
         } catch (SessionUnavailableException e) {
             return "";
+        }
+    }
+
+    public String getUserIdOrNull() {
+        try {
+            return this.getSession().getLoggedInUser().getUniqueId();
+        } catch (SessionUnavailableException e) {
+            return null;
         }
     }
 

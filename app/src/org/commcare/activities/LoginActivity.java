@@ -25,6 +25,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
@@ -409,6 +410,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private void loginDemoUser() {
         OfflineUserRestore offlineUserRestore = CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
+        FirebaseAnalyticsUtil.reportPracticeModeUsage(offlineUserRestore);
+
         if (offlineUserRestore != null) {
             tryLocalLogin(offlineUserRestore.getUsername(), OfflineUserRestore.DEMO_USER_PASSWORD,
                     false, false, LoginMode.PASSWORD, true, DataPullMode.CCZ_DEMO);

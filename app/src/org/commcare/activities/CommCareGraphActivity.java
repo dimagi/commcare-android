@@ -4,9 +4,8 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.graph.activities.GraphActivityStateHandler;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
@@ -22,14 +21,14 @@ public class CommCareGraphActivity extends CommCareActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         (new GraphActivityStateHandler(this)).setContent();
-        GoogleAnalyticsUtils.reportGraphViewFullScreenOpened();
+        FirebaseAnalyticsUtil.reportGraphViewFullScreenOpened();
         Logger.log(LogTypes.TYPE_GRAPHING, "Start viewing full screen graph");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        GoogleAnalyticsUtils.reportGraphViewFullScreenClosed();
+        FirebaseAnalyticsUtil.reportGraphViewFullScreenClosed();
         Logger.log(LogTypes.TYPE_GRAPHING, "End viewing full screen graph");
     }
 }

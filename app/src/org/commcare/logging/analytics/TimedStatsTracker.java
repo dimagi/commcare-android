@@ -4,8 +4,8 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
 import java.util.Date;
 
@@ -29,7 +29,7 @@ public class TimedStatsTracker {
                 CommCareApplication.instance().getCurrentApp().getAppPreferences().edit();
         editor.putInt(KEY_LAST_FORM_ID, formID)
                 .putLong(KEY_LAST_FORM_START_TIME, currentTime())
-                .commit();
+                .apply();
     }
 
     public static void registerExitForm(int formID) {
@@ -38,8 +38,7 @@ public class TimedStatsTracker {
         if (enterTime != -1) {
             int formLastEntered = prefs.getInt(KEY_LAST_FORM_ID, -1);
             if (formLastEntered == formID) {
-                reportTimedEvent(GoogleAnalyticsFields.ACTION_TIME_IN_A_FORM,
-                        computeElapsedTimeInSeconds(enterTime, currentTime()));
+                reportTimedSession(AnalyticsParamValue.FORM_ENTRY_SESSION, enterTime);
             } else {
                 Log.i(TAG, "Attempting to report exit form time for a different form than the " +
                         "last form logged as entered");
@@ -73,8 +72,7 @@ public class TimedStatsTracker {
         if (!"".equals(lastLoggedInUser)) {
             if (lastLoggedInUser.equals(loggedOutUser)) {
                 long startTime = prefs.getLong(KEY_LAST_SESSION_START_TIME, -1);
-                reportTimedEvent(GoogleAnalyticsFields.ACTION_SESSION_LENGTH,
-                        computeElapsedTimeInSeconds(startTime, currentTime()));
+                reportTimedSession(AnalyticsParamValue.USER_SESSION, startTime);
             } else {
                 Log.i(TAG, "Attempting to report ending a session for a different user than the " +
                         "last user reported as logged in");
@@ -85,19 +83,26 @@ public class TimedStatsTracker {
         }
     }
 
-    private static int computeElapsedTimeInSeconds(long startTime, long endTime) {
-        return (int)((endTime - startTime) / 1000);
-    }
-
     private static long currentTime() {
         return (new Date()).getTime();
     }
 
     /**
-     * Report the completion of a timed event and its length
+     * Report to analytics the completion of a timed session and its length
      */
-    private static void reportTimedEvent(String timedEvent, int timeInSeconds) {
-        GoogleAnalyticsUtils.reportTimedEvent(timedEvent, timeInSeconds);
+    private static void reportTimedSession(String timedEvent, long startTime) {
+        long endTime = currentTime();
+        FirebaseAnalyticsUtil.reportTimedSession(timedEvent,
+                computeElapsedTimeInSeconds(startTime, endTime),
+                computeElapsedTimeInMinutes(startTime, endTime));
+    }
+
+    private static double computeElapsedTimeInSeconds(long startTime, long endTime) {
+        return (endTime - startTime) / 1000.0;
+    }
+
+    private static double computeElapsedTimeInMinutes(long startTime, long endTime) {
+        return (endTime - startTime) / 1000.0 / 60;
     }
 
 }
