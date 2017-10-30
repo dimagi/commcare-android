@@ -166,7 +166,9 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
             getPreferenceScreen().addPreference(savedSessionEditTextPreference);
             ((EditTextPreference)savedSessionEditTextPreference).setText(getSavedSessionStateAsString());
         } else {
-            getPreferenceScreen().removePreference(savedSessionEditTextPreference);
+            if (savedSessionEditTextPreference != null) {
+                getPreferenceScreen().removePreference(savedSessionEditTextPreference);
+            }
         }
     }
 
