@@ -1094,14 +1094,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             CommCareApplication.instance().expireUserSession();
         } else if (saveStatus != null) {
             String toastMessage = "";
+            boolean shouldRefreshUI = false;
             switch (saveStatus) {
                 case SAVED_COMPLETE:
                     toastMessage = Localization.get("form.entry.complete.save.success");
                     hasSaved = true;
+                    shouldRefreshUI = true;
                     break;
                 case SAVED_INCOMPLETE:
                     toastMessage = Localization.get("form.entry.incomplete.save.success");
                     hasSaved = true;
+                    shouldRefreshUI = true;
                     break;
                 case SAVED_AND_EXIT:
                     toastMessage = Localization.get("form.entry.complete.save.success");
@@ -1113,18 +1116,20 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     // current question to trigger the constraint violation message
                     uiController.refreshView();
                     saveAnswersForCurrentScreen(FormEntryConstants.EVALUATE_CONSTRAINTS);
-                    return;
+                    break;
                 case SAVE_ERROR:
                     if (!CommCareApplication.instance().isConsumerApp()) {
                         UserfacingErrorHandling.createErrorDialog(this, errorMessage,
                                 Localization.get("notification.formentry.save_error.title"), FormEntryConstants.EXIT);
                     }
-                    return;
+                    break;
             }
             if (!"".equals(toastMessage) && !CommCareApplication.instance().isConsumerApp()) {
                 Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
             }
-            uiController.refreshView();
+            if (shouldRefreshUI) {
+                uiController.refreshView();
+            }
         }
     }
 
