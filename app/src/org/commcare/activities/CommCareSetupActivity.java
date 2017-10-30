@@ -333,8 +333,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 return;
         }
 
-        ft.replace(R.id.setup_fragment_container, fragment);
-        ft.commit();
+        if(!fragment.isAdded()) {
+            ft.replace(R.id.setup_fragment_container, fragment);
+            ft.commit();
+        }
     }
 
     private Fragment restoreInstallSetupFragment() {
