@@ -6,6 +6,7 @@ import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.models.database.DbUtil;
@@ -126,7 +127,9 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
         SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
 
-        String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " + whereClause + " AND cache_key IN " + validKeys;
+        String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " +
+                whereClause + " AND " + EntityStorageCache.COL_APP_ID + " = '" + ReportingUtils.getAppId() +
+                "' AND cache_key IN " + validKeys;
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             DbUtil.explainSql(db, sqlStatement, args);
         }

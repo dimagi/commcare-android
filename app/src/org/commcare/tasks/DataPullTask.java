@@ -564,7 +564,7 @@ public abstract class DataPullTask<R>
         CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
         new AndroidCaseIndexTable().wipeTable();
         CommCareApplication.instance().getUserStorage(Ledger.STORAGE_KEY, Ledger.class).removeAll();
-        EntityStorageCache.tryWipeCache();
+        EntityStorageCache.wipeCacheForCurrentApp();
     }
 
     private void updateCurrentUser(String password) {
