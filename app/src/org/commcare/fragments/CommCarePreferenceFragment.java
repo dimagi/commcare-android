@@ -171,25 +171,13 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        String prefValue = getPrefValueAsString2(sharedPreferences, key);
+        String prefValue = getPrefValueAsString(sharedPreferences, key);
         if (prefValue != null) {
             FirebaseAnalyticsUtil.reportEditPreferenceItem(key, prefValue);
         }
     }
 
     private static String getPrefValueAsString(SharedPreferences sharedPreferences, String key) {
-        try {
-            return sharedPreferences.getString(key, null);
-        } catch (ClassCastException e) {
-            try {
-                return String.valueOf(sharedPreferences.getBoolean(key, false));
-            } catch (ClassCastException e2) {
-                return String.valueOf(sharedPreferences.getInt(key, -1));
-            }
-        }
-    }
-
-    private static String getPrefValueAsString2(SharedPreferences sharedPreferences, String key) {
         return String.valueOf(sharedPreferences.getAll().get(key));
     }
 }
