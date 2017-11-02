@@ -201,7 +201,7 @@ public class MediaUtil {
         Bitmap b = null;
         if (cacheKey.exists()) {
             try {
-                b = BitmapFactory.decodeFile(cacheKey.getPath());
+                b = inflateImageSafe(cacheKey.getPath()).first;
             } catch (RuntimeException e) {
                 try {
                     cacheKey.delete();
