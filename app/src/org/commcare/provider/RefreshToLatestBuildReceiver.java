@@ -4,7 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.RefreshToLatestBuildActivity;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
@@ -24,6 +26,14 @@ public class RefreshToLatestBuildReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "Processing test latest build broadcast");
+
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            Toast.makeText(context,
+                    "There is no current app to perform a build refresh on",
+                    Toast.LENGTH_LONG)
+                    .show();
+            return;
+        }
 
         DeveloperPreferences.enableSessionSaving();
 
