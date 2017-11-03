@@ -104,8 +104,9 @@ public class VideoWidget extends MediaWidget {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent("android.intent.action.VIEW");
-                File f = new File(mInstanceFolder + "/" + mBinaryName);
-                i.setDataAndType(Uri.fromFile(f), "video/*");
+                File videoFile = new File(mInstanceFolder + "/" + mBinaryName);
+                Uri videoUri = FileUtil.getUriForExternalFile(getContext(), videoFile);
+                i.setDataAndType(videoUri, "video/*");
                 try {
                     getContext().startActivity(i);
                 } catch (ActivityNotFoundException e) {

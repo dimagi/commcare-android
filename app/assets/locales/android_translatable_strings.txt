@@ -97,12 +97,13 @@ sync.success.sent.singular=1 form sent to server!
 sync.success.sent=${0} forms sent to server!
 sync.success.synced=Sync Successful! Your information is up to date.
 
+sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
 sync.fail.auth.loggedin=Password has changed. Please log in with updated credentials
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occurred with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
-sync.fail.server.error=The server had an error processing your data. Please try again later. If the problem persists, contact technical support.
+sync.fail.server.error=The server encountered an error processing your data. Please try again later. If the problem persists, contact technical support.
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
@@ -185,6 +186,7 @@ app.workflow.forms.scan=Scan Record Integrity
 app.workflow.forms.scan.title.valid=Integrity Scan: PASS
 app.workflow.forms.scan.title.invalid=Integrity Scan: FAIL
 app.workflow.forms.quarantine.report=Submit Quarantine Report
+app.workflow.forms.view.quarantine.reason=View Full Reason for Quarantine
 
 notifications.prompt.details=Select for details. ${0}
 notifications.prompt.more=(${0} More...)
@@ -591,13 +593,18 @@ notification.case.filter.action=Sorting failed because CommCare expected a numbe
 notification.send.malformed.title=Bad Form on SD Card
 notification.send.malformed.detail=The file ${0} on your SD card was malformed and couldn't be read. It has been removed as a precaution.
 
+notification.quarantine.local.title=Form Record Quarantined
+notification.quarantine.local.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
+notification.quarantine.local.action=You can view the record in the saved records screen by selecting the quarantine filter. From there you can restore quarantined records back onto the unsent queue to try to submit them again. Restarting the device and/or ejecting and re-inserting your external storage first may correct the issue.
+
+notification.quarantine.server.title=Form Record Quarantined
+notification.quarantine.server.detail=The server had a problem processing 1 of your forms during submission
+notification.quarantine.server.action=You can view the record in the saved records screen by selecting the quarantine filter. From there, you can place this record back onto the unsent queue to try to submit it again, if you wish.
+
 notification.quarantine.record.issue.title=Form Record Quarantined
 notification.quarantine.record.issue.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
 notification.quarantine.record.issue.action=You can view this record by visiting the Saved screen and checking the Quarantined Forms filter. From there, you can place this record back onto the unsent queue to try to submit it again. Restarting the device and/or ejecting and re-inserting your external storage first may correct this issue.
 
-notification.quarantine.local.processing.title=Form Record Quarantined
-notification.quarantine.local.processing.detail=CommCare could not process one of your forms. This can happen when the form's submission xml has an invalid structure.
-notification.quarantine.local.processing.action=You can view this record by visiting the Saved screen and checking the quarantine filter. However, it is not possible to try to submit this form again by placing it back onto the unsent queue.
 
 notification.formrecord.files.missing.title=Form Record Missing
 notification.formrecord.files.missing.detail=The files for one of your forms are missing. This can happen due to corruption of the storage layer or deletion of the files by other programs.
@@ -796,10 +803,16 @@ nfc.missing.domain=A domain must be provided when specifying a custom type for y
 nfc.read.success=NFC read was successful!
 nfc.read.io.error=An IO error occurred while attempting to read the Ndef message
 nfc.read.msg.malformed=The Ndef message read from the NFC tag was malformed
+nfc.read.error.no.ndef=The message on this NFC tag is not of a format that Android devices can read
 nfc.read.no.data=The provided NFC tag had no data on it to read
 nfc.read.error.unsupported=The message read from the NFC tag is of a type not supported by CommCare
 nfc.read.error.mismatch=The message read from the NFC tag does not match the type specified by this app's configuration
 
+reason.for.quarantine.title=Reason for Quarantine
+reason.for.quarantine.prefix=Quarantine Reason:
 quarantine.reason.local.processing=Local processing of the form failed
-quarantine.reason.record.error=There was an issue with the record that prevented submission
+quarantine.reason.server.processing=The server failed to process the form
+quarantine.reason.record.error=There was an issue with the form record that prevented submission
 quarantine.reason.manual=The form was manually quarantined by a user
+quarantine.reason.fnf=The file backing the form submission could not be found
+quarantine.reason.unknown=Reason for quarantine unknown

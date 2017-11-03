@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.IAnswerData;
@@ -62,7 +62,6 @@ public class CommCareAudioWidget extends AudioWidget
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportRecordingPopupOpened();
                 captureAudio(mPrompt);
             }
         });
@@ -71,7 +70,7 @@ public class CommCareAudioWidget extends AudioWidget
         chooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportAudioFileChosen();
+                FirebaseAnalyticsUtil.reportAudioFileSelected();
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("audio/*");
                 try {
@@ -92,7 +91,7 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportAudioPlayed();
+                FirebaseAnalyticsUtil.reportAudioPlayed();
                 playAudio();
             }
         });
@@ -165,7 +164,7 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportAudioPaused();
+                FirebaseAnalyticsUtil.reportAudioPaused();
                 pauseAudioPlayer();
             }
         });
@@ -177,7 +176,7 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportAudioPlayed();
+                FirebaseAnalyticsUtil.reportAudioPlayed();
                 resumeAudioPlayer();
             }
         });
@@ -189,7 +188,7 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportAudioPaused();
+                FirebaseAnalyticsUtil.reportAudioPaused();
                 pauseAudioPlayer();
             }
         });
@@ -201,7 +200,7 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportAudioPlayed();
+                FirebaseAnalyticsUtil.reportAudioPlayed();
                 playAudio();
             }
         });
