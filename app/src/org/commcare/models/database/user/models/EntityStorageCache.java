@@ -6,6 +6,7 @@ import android.util.Log;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.modern.database.TableBuilder;
@@ -37,7 +38,7 @@ public class EntityStorageCache {
     private final String mAppId;
 
     public EntityStorageCache(String cacheName) {
-        this(cacheName, CommCareApplication.instance().getUserDbHandle(), ReportingUtils.getAppId());
+        this(cacheName, CommCareApplication.instance().getUserDbHandle(), AppUtils.getCurrentAppId());
     }
 
     public EntityStorageCache(String cacheName, SQLiteDatabase db, String appId) {
@@ -102,7 +103,7 @@ public class EntityStorageCache {
      * Removes cache records associated with the provided ID
      */
     public void invalidateCache(String recordId) {
-        int removed = db.delete(TABLE_NAME, COL_APP_ID + " = ? AND " + COL_CACHE_NAME + " = ? AND " + COL_ENTITY_KEY + " = ?", new String[]{mAppId, mCacheName, recordId});
+        int removed = db.delete(TABLE_NAME, COL_CACHE_NAME + " = ? AND " + COL_ENTITY_KEY + " = ?", new String[]{mCacheName, recordId});
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             Log.d(TAG, "Invalidated " + removed + " cached values for entity " + recordId);
         }
@@ -115,8 +116,7 @@ public class EntityStorageCache {
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(recordIds);
         int removed = 0;
         for (Pair<String, String[]> querySet : whereParamList) {
-            removed += db.delete(TABLE_NAME, COL_APP_ID + " = '" + mAppId + "' AND " +
-                    COL_CACHE_NAME + " = '" + mCacheName + "' AND " +
+            removed += db.delete(TABLE_NAME, COL_CACHE_NAME + " = '" + mCacheName + "' AND " +
                     COL_ENTITY_KEY + " IN " + querySet.first, querySet.second);
         }
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
@@ -139,7 +139,7 @@ public class EntityStorageCache {
         SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
         userDb.beginTransaction();
         try {
-            userDb.delete(TABLE_NAME, COL_APP_ID + " = ?", new String[]{ReportingUtils.getAppId()});
+            userDb.delete(TABLE_NAME, COL_APP_ID + " = ?", new String[]{AppUtils.getCurrentAppId()});
             String uuid = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
             setEntityCacheWipedPref(uuid, CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber());
             userDb.setTransactionSuccessful();

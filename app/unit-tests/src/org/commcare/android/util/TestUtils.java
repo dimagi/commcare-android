@@ -2,6 +2,7 @@ package org.commcare.android.util;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.logging.ReportingUtils;
@@ -104,7 +105,7 @@ public class TestUtils {
                     //there's no good lifecycle to manage the bulk processor in, but at least
                     //this will validate that the bulk processor works.
                     if(bulkProcessingEnabled)  {
-                        return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db, ReportingUtils.getAppId()), new AndroidCaseIndexTable(db)) {
+                        return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db, AppUtils.getCurrentAppId()), new AndroidCaseIndexTable(db)) {
                             @Override
                             protected SQLiteDatabase getDbHandle() {
                                 return db;
@@ -112,7 +113,7 @@ public class TestUtils {
                         };
 
                     } else {
-                        return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db, ReportingUtils.getAppId()), new AndroidCaseIndexTable(db)) {
+                        return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db, AppUtils.getCurrentAppId()), new AndroidCaseIndexTable(db)) {
                             @Override
                             protected SQLiteDatabase getDbHandle() {
                                 return db;

@@ -166,4 +166,12 @@ public class AppUtils {
 
         return Localization.get(application.getString(R.string.app_version_string), new String[]{pi.versionName, String.valueOf(pi.versionCode), ccv, buildNumber, buildDate, profileVersion});
     }
+
+    public static String getCurrentAppId() {
+        return CommCareApplication.instance()
+                .getCurrentApp()
+                .getCommCarePlatform()
+                .getCurrentProfile()
+                .getUniqueId();
+    }
 }
