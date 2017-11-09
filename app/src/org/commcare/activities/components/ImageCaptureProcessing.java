@@ -10,6 +10,7 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.UriToFilePath;
 import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.locale.Localization;
 
@@ -117,7 +118,7 @@ public class ImageCaptureProcessing {
 
         // get gp of chosen file
         Uri selectedImage = intent.getData();
-        String imagePath = FileUtil.getPath(activity, selectedImage);
+        String imagePath = UriToFilePath.getPathFromUri(activity, selectedImage);
 
         if (imagePath == null) {
             Toast.makeText(activity, Localization.get("invalid.image.selection"), Toast.LENGTH_LONG).show();
