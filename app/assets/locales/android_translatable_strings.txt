@@ -257,6 +257,7 @@ mult.install.button=Install Multimedia
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}
 mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
 
+zip.install.bad=Could not find target file for unzipping.
 
 bulk.form.prompt=From here you can dump forms to and submit forms from your external SD card. You have ${0} unsynced forms on your phone and ${1} unsynced forms on your SD card
 bulk.form.submit=Submit Forms

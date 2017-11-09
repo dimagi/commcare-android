@@ -1,8 +1,6 @@
 package org.commcare.tasks;
 
-import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.tasks.templates.CommCareTask;
@@ -42,13 +40,12 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
     }
 
     private Integer unZipFromFilePath(String filePath, String destinationPath) {
-        Log.d(TAG, "Unzipping archive '" + filePath + "' to  '" + destinationPath + "'");
         File archive = new File(filePath);
         ZipInputStream zis;
         try {
             zis = new ZipInputStream(new FileInputStream(archive));
         } catch (FileNotFoundException e) {
-            publishProgress("Could not find target file for unzipping.");
+            publishProgress(getInvalidZipFileErrorMessage());
             return -1;
         }
         return unZipFromStream(zis, destinationPath);
@@ -57,13 +54,12 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
     private Integer unZipFromContentUri(String uriString, String destinationPath) {
         // we have a contenturi, use it to get the InputStream
         Uri fileUri = Uri.parse(uriString);
-        Log.d(TAG, "Unzipping archive '" + fileUri.getPath() + "' to  '" + destinationPath + "'");
         ZipInputStream zis;
         try {
             InputStream is = CommCareApplication.instance().getContentResolver().openInputStream(fileUri);
             zis = new ZipInputStream(is);
         } catch (FileNotFoundException e) {
-            publishProgress("Could not find target file for unzipping.");
+            publishProgress(getInvalidZipFileErrorMessage());
             return -1;
         }
         return unZipFromStream(zis, destinationPath);
@@ -75,7 +71,7 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
         ZipEntry entry = null;
         try {
             while ((entry = zis.getNextEntry()) != null) {
-                Localization.get("mult.install.progress", new String[]{String.valueOf(count)});
+                publishProgress(Localization.get("mult.install.progress", new String[]{String.valueOf(count)}));
                 count++;
 
                 if (entry.isDirectory()) {
@@ -133,5 +129,9 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
             StreamsUtil.closeStream(outputStream);
         }
         return true;
+    }
+
+    protected String getInvalidZipFileErrorMessage() {
+        return Localization.get("zip.install.bad");
     }
 }

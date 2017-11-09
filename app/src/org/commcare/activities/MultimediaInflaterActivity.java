@@ -88,8 +88,8 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
                 MultimediaInflaterTask<MultimediaInflaterActivity> task = new MultimediaInflaterTask<MultimediaInflaterActivity>() {
 
                     @Override
-                    protected void deliverResult(MultimediaInflaterActivity receiver, Boolean result) {
-                        if (result == Boolean.TRUE) {
+                    protected void deliverResult(MultimediaInflaterActivity receiver, Integer result) {
+                        if (result > 0) {
                             receiver.done = true;
                             receiver.evalState();
                             receiver.setResult(Activity.RESULT_OK);
