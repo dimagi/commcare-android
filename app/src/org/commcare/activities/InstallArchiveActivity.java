@@ -86,7 +86,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         btnInstallArchive.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
+                createArchive(editFileLocation.getText().toString());
             }
         });
 
@@ -163,7 +163,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @Override
     protected void onResume() {
         super.onResume();
-
         evalState();
     }
 
@@ -176,7 +175,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             return;
         }
 
-        if (!(new File(location)).exists()) {
+        if (!(location.startsWith("content://") || (new File(location)).exists())) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.invalid.path"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallArchive.setEnabled(false);

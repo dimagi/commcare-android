@@ -179,7 +179,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
             return;
         }
 
-        if (!(new File(location)).exists()) {
+        if (!(location.startsWith("content://") || (new File(location)).exists())) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.invalid.path"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallMultimedia.setEnabled(false);

@@ -102,8 +102,13 @@ public class UriToFilePath {
             cursor = context.getContentResolver().query(uri, projection,
                     selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
-                final int column_index = cursor.getColumnIndexOrThrow(column);
-                return cursor.getString(column_index);
+                try {
+                    final int column_index = cursor.getColumnIndexOrThrow(column);
+                    return cursor.getString(column_index);
+                } catch (IllegalArgumentException e) {
+                    // col _data doesn't exist so just return the uri in this case
+                    return uri.toString();
+                }
             }
         } finally {
             if (cursor != null)
