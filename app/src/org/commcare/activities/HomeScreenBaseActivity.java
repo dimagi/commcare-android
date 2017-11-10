@@ -168,31 +168,45 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void processFromLoginLaunch() {
         if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false) &&
                 !loginExtraWasConsumed) {
-
             getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
             loginExtraWasConsumed = true;
+            doLoginLaunchChecksInOrder();
+        }
+    }
 
-            if (tryRestoringFormFromSessionExpiration()) {
-                return;
-            }
+    /**
+     * The order of operations in this method is very deliberate, and the logic for it is as
+     * follows:
+     * - If we're in demo mode, then we don't want to do any of the other checks because they're
+     * not relevant
+     * - Form and session restorations need to happen before we try to sync, because once we sync
+     * it could invalidate those states.
+     * - tryRestoringFormFromSessionExpiration() comes before tryRestoringSession() because it is
+     * of higher importance
+     * - Once we're past the first 3, starting a background form-send process is safe
+     */
+    private void doLoginLaunchChecksInOrder() {
+        if (isDemoUser()) {
+            showDemoModeWarning();
+            return;
+        }
 
-            if (tryRestoringSession()) {
-                return;
-            }
+        if (tryRestoringFormFromSessionExpiration()) {
+            return;
+        }
 
+        if (tryRestoringSession()) {
+            return;
+        }
+
+        if (!CommCareApplication.instance().isSyncPending(false)) {
             // Trigger off a regular unsent task processor, unless we're about to sync (which will
             // then handle this in a blocking fashion)
-            if (!CommCareApplication.instance().isSyncPending(false)) {
-                checkAndStartUnsentFormsTask(false, false);
-            }
+            checkAndStartUnsentFormsTask(false, false);
+        }
 
-            if (isDemoUser()) {
-                showDemoModeWarning();
-                return;
-            }
-            if (checkForPinLaunchConditions()) {
-                return;
-            }
+        if (checkForPinLaunchConditions()) {
+            return;
         }
     }
 
