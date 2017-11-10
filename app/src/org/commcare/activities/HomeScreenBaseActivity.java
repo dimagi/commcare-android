@@ -129,6 +129,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private boolean wasExternal = false;
     private static final String WAS_EXTERNAL_KEY = "was_external";
 
+    private boolean redirectedInOnCreate = true;
+
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
@@ -170,7 +172,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 !loginExtraWasConsumed) {
             getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
             loginExtraWasConsumed = true;
-            doLoginLaunchChecksInOrder();
+            redirectedInOnCreate = doLoginLaunchChecksInOrder();
         }
     }
 
@@ -185,18 +187,18 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      * of higher importance
      * - Once we're past the first 3, starting a background form-send process is safe
      */
-    private void doLoginLaunchChecksInOrder() {
+    private boolean doLoginLaunchChecksInOrder() {
         if (isDemoUser()) {
             showDemoModeWarning();
-            return;
+            return false;
         }
 
         if (tryRestoringFormFromSessionExpiration()) {
-            return;
+            return true;
         }
 
         if (tryRestoringSession()) {
-            return;
+            return true;
         }
 
         if (!CommCareApplication.instance().isSyncPending(false)) {
@@ -205,9 +207,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             checkAndStartUnsentFormsTask(false, false);
         }
 
-        if (checkForPinLaunchConditions()) {
-            return;
-        }
+        checkForPinLaunchConditions();
+
+        return false;
     }
 
     private boolean tryRestoringSession() {
@@ -445,21 +447,30 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     }
                     break;
                 case GET_COMMAND:
-                    boolean fetchNext = processReturnFromGetCommand(resultCode, intent);
-                    if (!fetchNext) {
+                    boolean continueWithSessionNav =
+                            processReturnFromGetCommand(resultCode, intent);
+                    if (!continueWithSessionNav) {
                         return;
                     }
                     break;
                 case GET_CASE:
-                    fetchNext = processReturnFromGetCase(resultCode, intent);
-                    if (!fetchNext) {
+                    continueWithSessionNav = processReturnFromGetCase(resultCode, intent);
+                    if (!continueWithSessionNav) {
                         return;
                     }
                     break;
                 case MODEL_RESULT:
-                    fetchNext = processReturnFromFormEntry(resultCode, intent);
-                    if (!fetchNext) {
+                    continueWithSessionNav = processReturnFromFormEntry(resultCode, intent);
+                    if (!continueWithSessionNav) {
                         return;
+                    }
+                    if (!CommCareApplication.instance().getSession().appHealthChecksCompleted()) {
+                        // If we haven't done these checks yet in this user session, try to
+                        if (checkForPendingAppHealthActions()) {
+                            // If we kick one off, abandon the session navigation that we were
+                            // going to proceed with, because it may be invalid now
+                            return;
+                        }
                     }
                     break;
                 case AUTHENTICATION_FOR_PIN:
@@ -1066,6 +1077,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     protected void onResumeSessionSafe() {
+        if (redirectedInOnCreate) {
+            redirectedInOnCreate = false;
+            return;
+        }
         if (!sessionNavigationProceedingAfterOnResume) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 refreshActionBar();
@@ -1076,9 +1091,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         sessionNavigationProceedingAfterOnResume = false;
     }
 
-    /**
-     * Decides if we should actually be on the home screen, or else should redirect elsewhere
-     */
     private void attemptDispatchHomeScreen() {
         try {
             CommCareApplication.instance().getSession();
@@ -1089,17 +1101,30 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return;
         }
 
-        if (CommCareApplication.instance().isPostUpdateSyncNeeded() && !isDemoUser()) {
-            CommCarePreferences.setPostUpdateSyncNeeded(false);
-            triggerSync(false);
-        } else if (CommCareApplication.instance().isSyncPending(false)) {
-            triggerSync(true);
-        } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
-            return;
-        } else {
+        if (!checkForPendingAppHealthActions()) {
             // Display the home screen!
             refreshUI();
         }
+    }
+
+    /**
+     *
+     * @return true if we kicked off any processes
+     */
+    private boolean checkForPendingAppHealthActions() {
+        CommCareApplication.instance().getSession().setAppHealthChecksCompleted();
+        if (CommCareApplication.instance().isPostUpdateSyncNeeded() && !isDemoUser()) {
+            CommCarePreferences.setPostUpdateSyncNeeded(false);
+            triggerSync(false);
+            return true;
+        } else if (CommCareApplication.instance().isSyncPending(false)) {
+            triggerSync(true);
+            return true;
+        } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
+            return true;
+        }
+        //return false;
+        return true;
     }
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {

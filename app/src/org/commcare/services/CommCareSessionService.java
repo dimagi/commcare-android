@@ -68,7 +68,7 @@ public class CommCareSessionService extends Service {
     /**
      * Session length in MS
      */
-    private static long sessionLength = 1000 * 60 * 60 * 24;
+    private static long sessionLength = 1000 * 60;// * 60 * 24;
 
     /**
      * Lock that must be held to expire the session. Thus if a task holds it,
@@ -114,6 +114,10 @@ public class CommCareSessionService extends Service {
 
     private boolean cczUpdatePromptWasShown;
     private boolean apkUpdatePromptWasShown;
+
+    // Have the app health checks in HomeScreenBaseActivity#checkForPendingAppHealthActions() been
+    // done at least once during this session?
+    private boolean appHealthChecksCompleted;
 
     /**
      * Class for clients to access.  Because we know this service always
@@ -586,7 +590,7 @@ public class CommCareSessionService extends Service {
      * length accordingly.
      */
     private void setSessionLength() {
-        sessionLength = CommCarePreferences.getLoginDuration() * 1000;
+        //sessionLength = CommCarePreferences.getLoginDuration() * 1000;
     }
 
     public void setCurrentUser(User user, String password) {
@@ -630,5 +634,13 @@ public class CommCareSessionService extends Service {
 
     public boolean apkUpdatePromptWasShown() {
         return this.apkUpdatePromptWasShown;
+    }
+
+    public void setAppHealthChecksCompleted() {
+        this.appHealthChecksCompleted = true;
+    }
+
+    public boolean appHealthChecksCompleted() {
+        return this.appHealthChecksCompleted;
     }
 }
