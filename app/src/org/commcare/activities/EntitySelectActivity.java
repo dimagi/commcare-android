@@ -697,7 +697,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         // hide sorting menu when using async loading strategy
         menu.findItem(MENU_SORT).setVisible((shortSelect == null || shortSelect.hasSortField()));
 
-        if (entitySelectSearchUI != null) {
+        if (menu.findItem(R.id.menu_settings) != null) {
             // For the same reason as in onCreateOptionsMenu(), we may be trying to call this
             // before we're ready
             menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
