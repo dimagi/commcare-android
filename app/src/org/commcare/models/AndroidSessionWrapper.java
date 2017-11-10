@@ -121,28 +121,16 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
             return null;
         }
 
-        SqlStorage<FormRecord> storage =
-                CommCareApplication.instance().getUserStorage(FormRecord.class);
-
         SqlStorage<SessionStateDescriptor> sessionStorage =
                 CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
 
-        // TODO: This is really a join situation. Need a way to outline
-        // connections between tables to enable joining
+        // TODO: This is really a join situation. Need a way to outline connections between tables to enable joining
 
         // See if this session's unique hash corresponds to any pending forms.
         Vector<Integer> ids = sessionStorage.getIDsForValue(SessionStateDescriptor.META_DESCRIPTOR_HASH, ssd.getHash());
-
-        // Filter for forms which have actually been started.
         for (int id : ids) {
             try {
-                int recordId = Integer.valueOf(sessionStorage.getMetaDataFieldForRecord(id, SessionStateDescriptor.META_FORM_RECORD_ID));
-                if (!storage.exists(recordId)) {
-                    sessionStorage.remove(id);
-                    Log.d(TAG, "Removing stale ssd record: " + id);
-                    continue;
-                }
-                if (FormRecord.STATUS_INCOMPLETE.equals(storage.getMetaDataFieldForRecord(recordId, FormRecord.META_STATUS))) {
+                if (ssdHasValidFormRecordId(id, sessionStorage)) {
                     return sessionStorage.read(id);
                 }
             } catch (NumberFormatException nfe) {
@@ -150,6 +138,52 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
             }
         }
         return null;
+    }
+
+    /**
+     * @return
+     */
+    public static SessionStateDescriptor getFormStateForInterruptedUserSession() {
+        SqlStorage<SessionStateDescriptor> sessionStorage =
+                CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
+
+        for (SessionStateDescriptor stateDescriptor : sessionStorage) {
+            if (stateDescriptor.wasInterruptedBySessionExpiration() &&
+                    ssdHasValidFormRecordId(stateDescriptor.getID(), sessionStorage)) {
+                // clear this so we don't try it again for the same form
+                stateDescriptor.setInterruptedBySessionExpiration(false);
+                sessionStorage.write(stateDescriptor);
+
+                return stateDescriptor;
+            }
+        }
+        return null;
+    }
+
+    private static boolean ssdHasValidFormRecordId(int ssdId,
+                                                   SqlStorage<SessionStateDescriptor> sessionStorage) {
+        SqlStorage<FormRecord> formRecordStorage =
+                CommCareApplication.instance().getUserStorage(FormRecord.class);
+
+        int correspondingFormRecordId = Integer.valueOf(
+                sessionStorage.getMetaDataFieldForRecord(ssdId, SessionStateDescriptor.META_FORM_RECORD_ID));
+
+        if (!formRecordStorage.exists(correspondingFormRecordId)) {
+            sessionStorage.remove(ssdId);
+            Log.d(TAG, "Removing stale ssd record: " + ssdId);
+            return false;
+        }
+
+        return FormRecord.STATUS_INCOMPLETE.equals(
+                formRecordStorage.getMetaDataFieldForRecord(correspondingFormRecordId, FormRecord.META_STATUS));
+    }
+
+    public void setCurrentStateAsInterrupted() {
+        SqlStorage<SessionStateDescriptor> sessionStorage =
+                CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
+        SessionStateDescriptor current = sessionStorage.read(getSessionDescriptorId());
+        current.setInterruptedBySessionExpiration(true);
+        sessionStorage.write(current);
     }
 
     public void commitStub() {

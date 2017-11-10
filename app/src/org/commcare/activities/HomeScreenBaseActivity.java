@@ -172,13 +172,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
             loginExtraWasConsumed = true;
 
-            CommCareSession session = CommCareApplication.instance().getCurrentSession();
-            if (session.getCommand() != null) {
-                // restore the session state if there is a command.
-                // For debugging and occurs when a serialized
-                // session is stored upon login
-                isRestoringSession = true;
-                sessionNavigator.startNextSessionStep();
+            if (tryRestoringFormFromSessionExpiration()) {
+                return;
+            }
+
+            if (tryRestoringSession()) {
                 return;
             }
 
@@ -196,6 +194,35 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 return;
             }
         }
+    }
+
+    private boolean tryRestoringSession() {
+        CommCareSession session = CommCareApplication.instance().getCurrentSession();
+        if (session.getCommand() != null) {
+            // Restore the session state if there is a command. This is for debugging and
+            // occurs when a serialized session was stored by a previous user session
+            isRestoringSession = true;
+            sessionNavigator.startNextSessionStep();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean tryRestoringFormFromSessionExpiration() {
+        if (CommCarePreferences.needToRestoreFormAfterSessionExpiration()) {
+            // clear the flag so we don't try this again next time the home screen loads
+            CommCarePreferences.setRestoreFormAfterSessionExpiration(false);
+
+            SessionStateDescriptor existing = AndroidSessionWrapper.getFormStateForInterruptedUserSession();
+            if (existing != null) {
+                AndroidSessionWrapper state = CommCareApplication.instance().getCurrentSessionWrapper();
+                state.loadFromStateDescription(existing);
+                formEntry(CommCareApplication.instance().getCommCarePlatform()
+                        .getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

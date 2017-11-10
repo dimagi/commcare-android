@@ -31,10 +31,14 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
     @Persisting(2)
     private String sessionDescriptor = null;
 
+    @Persisting(3)
+    private boolean interruptedBySessionExpiration = false;
+
     @MetaField(value = META_DESCRIPTOR_HASH)
     public String getHash() {
         return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
     }
+
 
     public SessionStateDescriptor() {
 
@@ -74,5 +78,13 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
 
     public String getSessionDescriptor() {
         return this.sessionDescriptor;
+    }
+
+    public void setInterruptedBySessionExpiration(boolean b) {
+        this.interruptedBySessionExpiration = b;
+    }
+
+    public boolean wasInterruptedBySessionExpiration() {
+        return this.interruptedBySessionExpiration;
     }
 }

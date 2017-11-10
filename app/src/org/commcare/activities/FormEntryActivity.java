@@ -53,6 +53,7 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
@@ -218,6 +219,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void formSaveCallback() {
         // note that we have started saving the form
         savingFormOnKeySessionExpiration = true;
+
+        // Set the flags that will allow us to restore this form when we log back in
+        CommCarePreferences.setRestoreFormAfterSessionExpiration(true);
+        CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted();
+
         // start saving form, which will call the key session logout completion
         // function when it finishes.
         saveIncompleteFormToDisk();
