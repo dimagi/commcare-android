@@ -227,18 +227,13 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private boolean tryRestoringFormFromSessionExpiration() {
-        if (CommCarePreferences.needToRestoreFormAfterSessionExpiration()) {
-            // clear the flag so we don't try this again next time the home screen loads
-            CommCarePreferences.setRestoreFormAfterSessionExpiration(false);
-
-            SessionStateDescriptor existing = AndroidSessionWrapper.getFormStateForInterruptedUserSession();
-            if (existing != null) {
-                AndroidSessionWrapper state = CommCareApplication.instance().getCurrentSessionWrapper();
-                state.loadFromStateDescription(existing);
-                formEntry(CommCareApplication.instance().getCommCarePlatform()
-                        .getFormContentUri(state.getSession().getForm()), state.getFormRecord());
-                return true;
-            }
+        SessionStateDescriptor existing = AndroidSessionWrapper.getFormStateForInterruptedUserSession();
+        if (existing != null) {
+            AndroidSessionWrapper state = CommCareApplication.instance().getCurrentSessionWrapper();
+            state.loadFromStateDescription(existing);
+            formEntry(CommCareApplication.instance().getCommCarePlatform()
+                    .getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+            return true;
         }
         return false;
     }

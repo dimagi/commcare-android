@@ -548,13 +548,4 @@ public class CommCarePreferences
                 .putBoolean(CommCarePreferences.POST_UPDATE_SYNC_NEEDED, b).apply();
     }
 
-    public static void setRestoreFormAfterSessionExpiration(boolean b) {
-        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putBoolean(RESTORE_FORM_AFTER_SESSION_EXPIRATION, b).apply();
-    }
-
-    public static boolean needToRestoreFormAfterSessionExpiration() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getBoolean(RESTORE_FORM_AFTER_SESSION_EXPIRATION, false);
-    }
 }

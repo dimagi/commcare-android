@@ -220,12 +220,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // note that we have started saving the form
         savingFormOnKeySessionExpiration = true;
 
-        // Set the flags that will allow us to restore this form when we log back in
-        CommCarePreferences.setRestoreFormAfterSessionExpiration(true);
+        // Set flag that will allow us to restore this form when we log back in
         CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted();
 
-        // start saving form, which will call the key session logout completion
-        // function when it finishes.
+        // Start saving form; will trigger expireUserSession() on completion
         saveIncompleteFormToDisk();
     }
 
