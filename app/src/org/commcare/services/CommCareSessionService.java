@@ -68,7 +68,7 @@ public class CommCareSessionService extends Service {
     /**
      * Session length in MS
      */
-    private static long sessionLength = 1000 * 60;// * 60 * 24;
+    private static long sessionLength = 1000 * 60 * 60 * 24;
 
     /**
      * Lock that must be held to expire the session. Thus if a task holds it,
@@ -590,7 +590,7 @@ public class CommCareSessionService extends Service {
      * length accordingly.
      */
     private void setSessionLength() {
-        //sessionLength = CommCarePreferences.getLoginDuration() * 1000;
+        sessionLength = CommCarePreferences.getLoginDuration() * 1000;
     }
 
     public void setCurrentUser(User user, String password) {
