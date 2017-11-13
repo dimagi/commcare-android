@@ -56,11 +56,13 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.17 - Add global counter metadata field to form records, for use in submission ordering
      * V.18 - Add index on @owner_id for cases
      * V.19 - Rebuild case index table due to the possibility of previous 412 indexing issues
-     * V.20 - Migrate index names on indexed fixtures so that multiple fixtures are able to have an index on the same column name
+     * V.20 - Migrate index names on indexed fixtures so that multiple fixtures are able to have
+     * an index on the same column name
      * V.21 - Reindex all cases to add relationship, and add reasonForQuarantine field to FormRecords
+     * V.22 - Add interruptedBySessionExpiration field to SessionStateDescriptor
      */
 
-    private static final int USER_DB_VERSION = 21;
+    private static final int USER_DB_VERSION = 22;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 

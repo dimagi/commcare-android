@@ -72,6 +72,14 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
         return copy;
     }
 
+    public static SessionStateDescriptor fromV1(SessionStateDescriptorV1 v1Descriptor) {
+        SessionStateDescriptor newDescriptor = new SessionStateDescriptor();
+        newDescriptor.formRecordId = v1Descriptor.getFormRecordId();
+        newDescriptor.sessionDescriptor = v1Descriptor.getSessionDescriptor();
+        newDescriptor.interruptedBySessionExpiration = false;
+        return newDescriptor;
+    }
+
     public void fromBundle(String serializedDescriptor) {
         this.sessionDescriptor = serializedDescriptor;
     }

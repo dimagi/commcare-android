@@ -12,6 +12,7 @@ import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.SessionStateDescriptorV1;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -196,6 +197,24 @@ public class UserDbUpgradeUtils {
                     oldRecord.getAppId());
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
+        }
+    }
+
+    protected static void addInterruptedFieldToSessionStateDescriptors(Context c, SQLiteDatabase db) {
+        SqlStorage<SessionStateDescriptorV1> oldStorage = new SqlStorage<>(
+                SessionStateDescriptor.STORAGE_KEY,
+                SessionStateDescriptorV1.class,
+                new ConcreteAndroidDbHelper(c, db));
+
+        SqlStorage<SessionStateDescriptor> newStorage = new SqlStorage<>(
+                SessionStateDescriptor.STORAGE_KEY,
+                SessionStateDescriptor.class,
+                new ConcreteAndroidDbHelper(c, db));
+
+        for (SessionStateDescriptorV1 ssd : oldStorage) {
+            SessionStateDescriptor newDescriptor = SessionStateDescriptor.fromV1(ssd);
+            newDescriptor.setID(ssd.getID());
+            newStorage.write(newDescriptor);
         }
     }
 }

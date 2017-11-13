@@ -170,6 +170,11 @@ class UserDatabaseUpgrader {
                 oldVersion = 21;
             }
         }
+        if (oldVersion == 21) {
+            if (upgradeTwentyOneTwentyTwo(db)) {
+                oldVersion = 22;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -555,6 +560,17 @@ class UserDatabaseUpgrader {
         try {
             UserDbUpgradeUtils.addRelationshipToAllCases(c, db);
             UserDbUpgradeUtils.migrateFormRecordsToV3(c, db);
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeTwentyOneTwentyTwo(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            UserDbUpgradeUtils.addInterruptedFieldToSessionStateDescriptors(c, db);
             db.setTransactionSuccessful();
             return true;
         } finally {
