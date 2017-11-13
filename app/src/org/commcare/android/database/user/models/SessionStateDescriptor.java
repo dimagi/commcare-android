@@ -39,9 +39,7 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
         return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
     }
 
-
     public SessionStateDescriptor() {
-
     }
 
     public static SessionStateDescriptor buildFromSessionWrapper(AndroidSessionWrapper state) {
@@ -95,4 +93,5 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
     public boolean wasInterruptedBySessionExpiration() {
         return this.interruptedBySessionExpiration;
     }
+
 }

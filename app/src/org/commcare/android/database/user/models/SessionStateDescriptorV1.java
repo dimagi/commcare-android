@@ -1,19 +1,16 @@
 package org.commcare.android.database.user.models;
 
-import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
-import org.commcare.session.SessionDescriptorUtil;
 import org.javarosa.core.util.MD5;
 
 /**
- * A Session State Descriptor contains all of the information that can be persisted
- * about a CommCare session. It is immutable and reflects a specific state.
+ * Represents the version of SessionStateDescriptor that exists in user databases up until CommCare
+ * version 2.40; used to perform the necessary user db migration from V21 --> V22 in CommCare 2.41
  *
- * @author ctsims
  */
 @Table(SessionStateDescriptor.STORAGE_KEY)
 public class SessionStateDescriptorV1 extends Persisted implements EncryptedModel {
