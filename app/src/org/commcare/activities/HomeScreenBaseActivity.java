@@ -131,7 +131,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     // Indicates if 1 of the checks we performed in onCreate resulted in redirecting to a
     // different activity
-    private boolean redirectedInOnCreate = true;
+    private boolean redirectedInOnCreate = false;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
