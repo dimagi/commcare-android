@@ -5,7 +5,6 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
-import org.javarosa.core.util.MD5;
 
 /**
  * Represents the version of SessionStateDescriptor that exists in user databases up until CommCare
@@ -27,11 +26,6 @@ public class SessionStateDescriptorV1 extends Persisted implements EncryptedMode
 
     @Persisting(2)
     private String sessionDescriptor = null;
-
-    @MetaField(value = META_DESCRIPTOR_HASH)
-    public String getHash() {
-        return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
-    }
 
     @Override
     public boolean isEncrypted(String data) {
