@@ -12,6 +12,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.adapters.HierarchyListAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.logging.XPathErrorLogger;
@@ -28,15 +29,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FormHierarchyActivity extends ListActivity {
+
     private Button jumpPreviousButton;
     private List<HierarchyElement> formList;
     private TextView mPath;
+    private boolean cameFromFormRecordListActivity;
+
     public final static int RESULT_XPATH_ERROR = RESULT_FIRST_USER + 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.hierarchy_layout);
+        int launchMode = getIntent().getIntExtra(FormEntryConstants.HIERARCHY_ACTIVITY_LAUNCH_MODE,
+                FormEntryConstants.HIERARCHY_ACTIVITY);
+        this.cameFromFormRecordListActivity =
+                launchMode == FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START;
 
         addActionBarBackArrow();
 
@@ -273,10 +281,11 @@ public class FormHierarchyActivity extends ListActivity {
 
     @Override
     public void onBackPressed() {
-        if (FormEntryActivity.mFormController.getFormIndex().isTerminal()) {
-            super.onBackPressed();
-        } else {
+        if (cameFromFormRecordListActivity
+                && !FormEntryActivity.mFormController.getFormIndex().isTerminal()) {
             goUpLevel();
+        } else {
+            super.onBackPressed();
         }
     }
 

@@ -40,4 +40,7 @@ public class FormEntryConstants {
      * whether to redirect to archive view or sync the form.
      */
     public static final String IS_ARCHIVED_FORM = "is-archive-form";
+
+    public final static String HIERARCHY_ACTIVITY_LAUNCH_MODE = "hierarchy-activity-launch-mode";
+
 }
