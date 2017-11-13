@@ -179,11 +179,13 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
     }
 
     public void setCurrentStateAsInterrupted() {
-        SqlStorage<SessionStateDescriptor> sessionStorage =
-                CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
-        SessionStateDescriptor current = sessionStorage.read(getSessionDescriptorId());
-        current.setInterruptedBySessionExpiration(true);
-        sessionStorage.write(current);
+        if (sessionStateRecordId != -1) {
+            SqlStorage<SessionStateDescriptor> sessionStorage =
+                    CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
+            SessionStateDescriptor current = sessionStorage.read(sessionStateRecordId);
+            current.setInterruptedBySessionExpiration(true);
+            sessionStorage.write(current);
+        }
     }
 
     public void commitStub() {
