@@ -16,8 +16,6 @@ public class SessionStateDescriptorV1 extends Persisted implements EncryptedMode
 
     public static final String STORAGE_KEY = "android_cc_session";
 
-    public static final String META_DESCRIPTOR_HASH = "descriptorhash";
-
     public static final String META_FORM_RECORD_ID = "form_record_id";
 
     @Persisting(1)
