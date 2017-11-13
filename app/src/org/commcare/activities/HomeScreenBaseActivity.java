@@ -129,6 +129,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private boolean wasExternal = false;
     private static final String WAS_EXTERNAL_KEY = "was_external";
 
+    // Indicates if 1 of the checks we performed in onCreate resulted in redirecting to a
+    // different activity
     private boolean redirectedInOnCreate = true;
 
     @Override
@@ -1077,17 +1079,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     protected void onResumeSessionSafe() {
-        if (redirectedInOnCreate) {
-            redirectedInOnCreate = false;
-            return;
-        }
-        if (!sessionNavigationProceedingAfterOnResume) {
+        if (!redirectedInOnCreate && !sessionNavigationProceedingAfterOnResume) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 refreshActionBar();
             }
             attemptDispatchHomeScreen();
         }
 
+        // reset these
+        redirectedInOnCreate = false;
         sessionNavigationProceedingAfterOnResume = false;
     }
 
@@ -1112,19 +1112,20 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      * @return true if we kicked off any processes
      */
     private boolean checkForPendingAppHealthActions() {
-        CommCareApplication.instance().getSession().setAppHealthChecksCompleted();
+        boolean result = false;
         if (CommCareApplication.instance().isPostUpdateSyncNeeded() && !isDemoUser()) {
             CommCarePreferences.setPostUpdateSyncNeeded(false);
             triggerSync(false);
-            return true;
+            result = true;
         } else if (CommCareApplication.instance().isSyncPending(false)) {
             triggerSync(true);
-            return true;
+            result = true;
         } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
-            return true;
+            result = true;
         }
-        //return false;
-        return true;
+
+        CommCareApplication.instance().getSession().setAppHealthChecksCompleted();
+        return result;
     }
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
