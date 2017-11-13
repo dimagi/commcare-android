@@ -303,6 +303,9 @@ public class FormStorageTest {
             // Added in 2.40
             , "org.javarosa.core.model.actions.SendAction"
 
+            // Added in 2.41
+            , "org.commcare.android.database.user.models.SessionStateDescriptorV1"
+
             );
 
 
