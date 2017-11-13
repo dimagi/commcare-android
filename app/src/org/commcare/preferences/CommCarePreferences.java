@@ -96,7 +96,6 @@ public class CommCarePreferences
     public final static String CURRENT_SESSION = "current_user_session";
     public final static String CURRENT_FORM_ENTRY_SESSION = "current_form_entry_session";
     public final static String POST_UPDATE_SYNC_NEEDED = "post-update-sync-needed";
-    public final static String RESTORE_FORM_AFTER_SESSION_EXPIRATION = "restore-form-after-session-expiration";
 
     // Preferences that are sent down by HQ
     public final static String PREFS_LOCALE_KEY = "cur_locale";
@@ -547,5 +546,4 @@ public class CommCarePreferences
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putBoolean(CommCarePreferences.POST_UPDATE_SYNC_NEEDED, b).apply();
     }
-
 }

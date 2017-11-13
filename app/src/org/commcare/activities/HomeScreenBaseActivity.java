@@ -185,9 +185,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      * not relevant
      * - Form and session restorations need to happen before we try to sync, because once we sync
      * it could invalidate those states.
-     * - tryRestoringFormFromSessionExpiration() comes before tryRestoringSession() because it is
-     * of higher importance
-     * - Once we're past the first 3, starting a background form-send process is safe
+     * - Restoring a form that was interrupted by session expiration comes before restoring a saved
+     * session because it is of higher importance
+     * - Once we're past the first 3, starting a background form-send process is safe, and we can
+     * safely do checkForPinLaunchConditions() at the same time
      */
     private boolean doLoginLaunchChecksInOrder() {
         if (isDemoUser()) {
