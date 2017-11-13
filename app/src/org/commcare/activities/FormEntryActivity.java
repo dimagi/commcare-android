@@ -53,7 +53,6 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
