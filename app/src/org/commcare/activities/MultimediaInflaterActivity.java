@@ -136,23 +136,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_FILE_LOCATION) {
             if (resultCode == Activity.RESULT_OK) {
-                // Android versions 4.4 and up sometimes don't return absolute
-                // filepaths from the file chooser. So resolve the URI into a
-                // valid file path.
-                Uri uriPath = intent.getData();
-                if (uriPath == null) {
-                    // issue getting the filepath uri from file browser callout
-                    // result
-                    Toast.makeText(this,
-                            Localization.get("mult.install.state.invalid.path"),
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    String filePath = 
-                        UriToFilePath.getPathFromUri(CommCareApplication.instance(), uriPath);
-                    if (filePath != null) {
-                        editFileLocation.setText(filePath);
-                    }
-                }
+                InstallArchiveActivity.updateFileLocationFromIntent(this, intent, editFileLocation);
             }
         }
     }

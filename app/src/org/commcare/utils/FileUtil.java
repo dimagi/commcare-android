@@ -575,4 +575,18 @@ public class FileUtil {
             return Uri.fromFile(file);
         }
     }
+
+    /**
+     * Makes a copy of file represented by inputStream to dstFile
+     * @param inputStream inputStream for File that needs to be copied
+     * @param dstFile destination File where we need to copy the inputStream
+     * @throws IOException
+     */
+    public static void copyFile(InputStream inputStream, File dstFile) throws IOException {
+        if (inputStream == null) return;
+        OutputStream outputStream = new FileOutputStream(dstFile);
+        StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream);
+        inputStream.close();
+        outputStream.close();
+    }
 }

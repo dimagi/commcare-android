@@ -109,8 +109,7 @@ public class UriToFilePath {
                     final int column_index = cursor.getColumnIndexOrThrow(column);
                     return cursor.getString(column_index);
                 } catch (IllegalArgumentException e) {
-                    // col _data doesn't exist so just return the uri in this case
-                    return uri.toString();
+                    throw new NoDataColumnForUriException();
                 }
             }
         } finally {
@@ -152,4 +151,6 @@ public class UriToFilePath {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
+    public static class NoDataColumnForUriException extends IllegalStateException {
+    }
 }
