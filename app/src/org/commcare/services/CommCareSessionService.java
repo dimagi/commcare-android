@@ -27,7 +27,8 @@ import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenCommCarePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.util.LogTypes;
@@ -586,7 +587,7 @@ public class CommCareSessionService extends Service {
      * length accordingly.
      */
     private void setSessionLength() {
-        sessionLength = CommCarePreferences.getLoginDuration() * 1000;
+        sessionLength = HiddenCommCarePreferences.getLoginDuration() * 1000;
     }
 
     public void setCurrentUser(User user, String password) {

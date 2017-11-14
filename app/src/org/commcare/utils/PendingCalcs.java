@@ -4,7 +4,9 @@ import android.content.SharedPreferences;
 import android.text.format.DateUtils;
 
 import org.commcare.CommCareApplication;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CCPrefValues;
+import org.commcare.preferences.HiddenCommCarePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -14,13 +16,13 @@ public class PendingCalcs {
 
         // Establish whether or not an AutoUpdate is Pending
         String autoUpdateFreq =
-                preferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY,
-                        CommCarePreferences.FREQUENCY_NEVER);
+                preferences.getString(MainConfigurablePreferences.AUTO_UPDATE_FREQUENCY,
+                        CCPrefValues.FREQUENCY_NEVER);
 
         // See if auto update is even turned on
-        if (!autoUpdateFreq.equals(CommCarePreferences.FREQUENCY_NEVER)) {
+        if (!autoUpdateFreq.equals(CCPrefValues.FREQUENCY_NEVER)) {
             long lastUpdateCheck =
-                    preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
+                    preferences.getLong(HiddenCommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
             return isTimeForAutoUpdateCheck(lastUpdateCheck, autoUpdateFreq);
         }
         return false;
@@ -28,7 +30,7 @@ public class PendingCalcs {
 
     public static boolean isTimeForAutoUpdateCheck(long lastUpdateCheck, String autoUpdateFreq) {
         int checkEveryNDays;
-        if (CommCarePreferences.FREQUENCY_DAILY.equals(autoUpdateFreq)) {
+        if (CCPrefValues.FREQUENCY_DAILY.equals(autoUpdateFreq)) {
             checkEveryNDays = 1;
         } else {
             checkEveryNDays = 7;
@@ -87,10 +89,10 @@ public class PendingCalcs {
         }
 
         // new flag, read what it is.
-        String periodic = prefs.getString(CommCarePreferences.AUTO_SYNC_FREQUENCY, CommCarePreferences.FREQUENCY_NEVER);
+        String periodic = prefs.getString(HiddenCommCarePreferences.AUTO_SYNC_FREQUENCY, CCPrefValues.FREQUENCY_NEVER);
 
-        if (!periodic.equals(CommCarePreferences.FREQUENCY_NEVER)) {
-            period = DateUtils.DAY_IN_MILLIS * (periodic.equals(CommCarePreferences.FREQUENCY_DAILY) ? 1 : 7);
+        if (!periodic.equals(CCPrefValues.FREQUENCY_NEVER)) {
+            period = DateUtils.DAY_IN_MILLIS * (periodic.equals(CCPrefValues.FREQUENCY_DAILY) ? 1 : 7);
         }
 
         // If we didn't find a period, bail
@@ -98,7 +100,7 @@ public class PendingCalcs {
             return false;
         }
 
-        long lastRestore = prefs.getLong(CommCarePreferences.LAST_SYNC_ATTEMPT, 0);
+        long lastRestore = prefs.getLong(HiddenCommCarePreferences.LAST_SYNC_ATTEMPT, 0);
         return PendingCalcs.isPending(lastRestore, period);
     }
 

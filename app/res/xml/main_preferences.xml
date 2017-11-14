@@ -6,8 +6,6 @@
         android:entryValues="@array/frequency_vals"
         android:key="cc-autoup-freq"
         android:title="Auto Update Frequency"/>
-    <Preference
-        android:key="server-settings"/>
     <PreferenceScreen
         android:id="@+id/printlocation"
         android:dialogTitle="Set Print Template Location"
@@ -42,7 +40,7 @@
         android:key="cc-password-entry-show-behavior"
         android:title="Configure Password Display"/>
     <Preference
-        android:key="disable-analytics"/>
+        android:key="disable-analytics-button"/>
     <Preference
-        android:key="developer-settings"/>
+        android:key="developer-settings-button"/>
 </PreferenceScreen>

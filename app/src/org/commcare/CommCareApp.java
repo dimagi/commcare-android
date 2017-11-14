@@ -16,7 +16,9 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.Table;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CCPrefValues;
+import org.commcare.preferences.HiddenCommCarePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -216,7 +218,7 @@ public class CommCareApp implements AppFilePathBuilder {
             platform.initialize(global, false);
             try {
                 Localization.setLocale(
-                        getAppPreferences().getString(CommCarePreferences.PREFS_LOCALE_KEY, "default"));
+                        getAppPreferences().getString(MainConfigurablePreferences.PREFS_LOCALE_KEY, "default"));
             } catch (UnregisteredLocaleException urle) {
                 Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
             }
@@ -252,13 +254,14 @@ public class CommCareApp implements AppFilePathBuilder {
     public boolean areMMResourcesValidated() {
         SharedPreferences appPreferences = getAppPreferences();
         return (appPreferences.getBoolean("isValidated", false) ||
-                appPreferences.getString(CommCarePreferences.CONTENT_VALIDATED, "no").equals(CommCarePreferences.YES));
+                appPreferences.getString(HiddenCommCarePreferences.MM_VALIDATED_FROM_HQ, CCPrefValues.NO)
+                        .equals(CCPrefValues.YES));
     }
 
     public void setMMResourcesValidated() {
         SharedPreferences.Editor editor = getAppPreferences().edit();
         editor.putBoolean("isValidated", true);
-        editor.commit();
+        editor.apply();
         record.setResourcesStatus(true);
         CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class).write(record);
     }

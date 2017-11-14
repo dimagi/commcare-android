@@ -37,7 +37,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.CCServerUrls;
 import org.commcare.services.WiFiDirectBroadcastReceiver;
 import org.commcare.tasks.FormRecordToFileTask;
 import org.commcare.tasks.FormTransferTask;
@@ -410,7 +410,7 @@ public class CommCareWiFiDirectActivity
 
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(
-                settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, url),
+                settings.getString(CCServerUrls.PREFS_SUBMISSION_URL_KEY, url),
                 receiveFolder) {
 
             @Override

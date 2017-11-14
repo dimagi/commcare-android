@@ -5,8 +5,9 @@ import android.content.SharedPreferences;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
-import org.commcare.preferences.CommCarePreferences;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.CCServerUrls;
+import org.commcare.preferences.HiddenCommCarePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -31,8 +32,7 @@ import javax.net.ssl.SSLHandshakeException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ResourceInstallUtils {
-    private static final String DEFAULT_APP_SERVER_KEY =
-            CommCareServerPreferences.PREFS_APP_SERVER_KEY;
+    private static final String DEFAULT_APP_SERVER_KEY = CCServerUrls.PREFS_APP_SERVER_KEY;
 
     /**
      * @return Is the current app's designated upgrade table staged and ready
@@ -154,7 +154,7 @@ public class ResourceInstallUtils {
     public static void recordUpdateAttemptTime(CommCareApp app) {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
+        editor.putLong(HiddenCommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
         editor.commit();
     }
 
@@ -177,7 +177,7 @@ public class ResourceInstallUtils {
     private static void updateAutoUpdateInProgressPref(CommCareApp app, boolean value) {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean(CommCarePreferences.AUTO_UPDATE_IN_PROGRESS, value);
+        editor.putBoolean(HiddenCommCarePreferences.AUTO_UPDATE_IN_PROGRESS, value);
         editor.commit();
     }
 
@@ -186,7 +186,7 @@ public class ResourceInstallUtils {
      */
     public static boolean shouldAutoUpdateResume(CommCareApp app) {
         SharedPreferences prefs = app.getAppPreferences();
-        return prefs.getBoolean(CommCarePreferences.AUTO_UPDATE_IN_PROGRESS, false);
+        return prefs.getBoolean(HiddenCommCarePreferences.AUTO_UPDATE_IN_PROGRESS, false);
     }
 
     public static void logInstallError(Exception e, String logMessage) {
@@ -215,7 +215,7 @@ public class ResourceInstallUtils {
             return profileRef;
         }
 
-        String targetParam = CommCarePreferences.getUpdateTargetParam();
+        String targetParam = MainConfigurablePreferences.getUpdateTargetParam();
         if (!"".equals(targetParam)) {
             if (profileUrl.getQuery() != null) {
                 // url already has query strings, so add a new one to the end

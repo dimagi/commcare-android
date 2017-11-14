@@ -18,7 +18,7 @@ import android.view.View.OnClickListener;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.TimerListener;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenCommCarePreferences;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.TimeoutTimer;
@@ -59,7 +59,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         if (mLong > 0) {
             mTimer = new TimeoutTimer(mLong, this);
         } else {
-            mTimer = new TimeoutTimer(CommCarePreferences.getGpsWidgetTimeoutInMilliseconds(), this);
+            mTimer = new TimeoutTimer(HiddenCommCarePreferences.getGpsWidgetTimeoutInMilliseconds(), this);
         }
         mTimer.start();
     }
@@ -174,14 +174,14 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
                     R.string.location_provider_accuracy, accuracy));
 
             // If location is accurate, we're done
-            if (this.location.getAccuracy() <= CommCarePreferences.getGpsWidgetGoodAccuracy()) {
+            if (this.location.getAccuracy() <= HiddenCommCarePreferences.getGpsWidgetGoodAccuracy()) {
                 returnLocation();
             }
 
             // If location isn't great but might be acceptable, notify
             // the user and let them decide whether or not to record it
             locationDialog.setLocationFound(
-                    this.location.getAccuracy() < CommCarePreferences.getGpsWidgetAcceptableAccuracy()
+                    this.location.getAccuracy() < HiddenCommCarePreferences.getGpsWidgetAcceptableAccuracy()
                             || mTimer.getMillisUntilFinished() == 0
             );
         }

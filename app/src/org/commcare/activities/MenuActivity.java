@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.MenuList;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Menu;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -34,7 +34,7 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
 
     private static boolean useGridMenu(String currentCommand) {
         // First check if this is enabled in profile
-        if (CommCarePreferences.isGridMenuEnabled()) {
+        if (MainConfigurablePreferences.isGridMenuEnabled()) {
             return true;
         }
         // If not, check style attribute for this particular menu block

@@ -14,8 +14,8 @@ import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorSerializer;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.network.CommcareRequestGenerator;
-import org.commcare.preferences.CommCarePreferences;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.CCServerUrls;
+import org.commcare.preferences.HiddenCommCarePreferences;
 import org.commcare.tasks.LogSubmissionTask.LogSubmitOutcomes;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadUtil;
@@ -97,8 +97,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     }
 
     public static String getSubmissionUrl(SharedPreferences appPreferences) {
-        return appPreferences.getString(CommCareServerPreferences.PREFS_LOG_POST_URL_KEY,
-                appPreferences.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null));
+        return appPreferences.getString(CCServerUrls.PREFS_LOG_POST_URL_KEY,
+                appPreferences.getString(CCServerUrls.PREFS_SUBMISSION_URL_KEY, null));
     }
 
     @Override
@@ -144,7 +144,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
         //update the last recorded record
-        settings.edit().putLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, new Date().getTime()).commit();
+        settings.edit().putLong(HiddenCommCarePreferences.LOG_LAST_DAILY_SUBMIT, new Date().getTime()).commit();
 
         DeviceReportRecord record = DeviceReportRecord.generateNewRecordStub();
 

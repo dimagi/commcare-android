@@ -13,7 +13,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.CCServerUrls;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
@@ -60,7 +60,7 @@ public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportPr
     private void sendReportEmail(String report) {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("message/rfc822");
-        i.putExtra(Intent.EXTRA_EMAIL, new String[]{CommCareServerPreferences.getSupportEmailAddress()});
+        i.putExtra(Intent.EXTRA_EMAIL, new String[]{ CCServerUrls.getSupportEmailAddress()});
         i.putExtra(Intent.EXTRA_TEXT, ReportProblemActivity.buildMessage(report));
         i.putExtra(Intent.EXTRA_SUBJECT, "Mobile Error Report");
 

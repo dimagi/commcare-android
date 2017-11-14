@@ -16,8 +16,8 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
-import org.commcare.preferences.CommCarePreferences;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.CCServerUrls;
+import org.commcare.preferences.HiddenCommCarePreferences;
 import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.util.LogTypes;
@@ -90,7 +90,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
                 SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
                 SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(
-                        settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, url),
+                        settings.getString(CCServerUrls.PREFS_SUBMISSION_URL_KEY, url),
                         getFolderPath()) {
                     @Override
                     protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
@@ -225,7 +225,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
     private String getFolderName() {
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return settings.getString(CommCarePreferences.DUMP_FOLDER_PATH, Localization.get("bulk.form.foldername"));
+        return settings.getString(HiddenCommCarePreferences.DUMP_FOLDER_PATH, Localization.get("bulk.form.foldername"));
     }
 
     private File getFolderPath() {

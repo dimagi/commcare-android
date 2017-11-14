@@ -2,7 +2,8 @@ package org.commcare.network;
 
 import org.commcare.CommCareApplication;
 import org.commcare.modern.util.Pair;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenCommCarePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.CredentialUtil;
 import org.commcare.utils.SessionUnavailableException;
@@ -38,7 +39,7 @@ public class HttpUtils {
             } catch (SessionUnavailableException sue) {
                 throw new RuntimeException("Can't find user to make authenticated http request.");
             }
-            domain = CommCarePreferences.getUserDomain();
+            domain = HiddenCommCarePreferences.getUserDomain();
         }
         return new Pair<>(user, domain);
     }
@@ -52,7 +53,7 @@ public class HttpUtils {
 
     private static String buildDomainUser(String username) {
         if (username != null && !username.contains("@")) {
-            String domain = CommCarePreferences.getUserDomain();
+            String domain = HiddenCommCarePreferences.getUserDomain();
             if (domain != null) {
                 username += "@" + domain;
             }

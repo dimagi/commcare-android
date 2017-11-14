@@ -30,7 +30,7 @@ import org.commcare.core.graph.util.GraphException;
 import org.commcare.dalvik.R;
 import org.commcare.graph.view.GraphLoader;
 import org.commcare.graph.view.GraphView;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenCommCarePreferences;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.LogTypes;
@@ -136,7 +136,7 @@ public class EntityDetailView extends FrameLayout {
 
         imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
         int height;
-        if (CommCarePreferences.isSmartInflationEnabled()) {
+        if (HiddenCommCarePreferences.isSmartInflationEnabled()) {
             // If using smart inflation, we don't want to do any other artificial resizing of images
             height = LayoutParams.WRAP_CONTENT;
         } else {

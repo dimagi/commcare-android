@@ -10,7 +10,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.CCServerUrls;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
@@ -96,7 +96,7 @@ public class HeartbeatRequester {
 
     protected void requestHeartbeat() {
         String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getString(CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
+                .getString(CCServerUrls.PREFS_HEARTBEAT_URL_KEY, null);
         Log.i(TAG, "Requesting heartbeat from " + urlString);
         ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
