@@ -532,7 +532,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case BARCODE_FETCH:
                 processBarcodeFetch(resultCode, intent);
@@ -594,8 +594,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     refreshView();
                 }
                 break;
-            default:
-                super.onActivityResult(requestCode, resultCode, intent);
         }
     }
 

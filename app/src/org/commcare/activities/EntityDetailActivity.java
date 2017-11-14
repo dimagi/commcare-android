@@ -174,25 +174,22 @@ public class EntityDetailActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        switch (requestCode) {
-            case DetailCalloutListenerDefaultImpl.CALL_OUT:
-                if (resultCode == RESULT_CANCELED) {
-                    mDetailView.refresh(detail, mTreeReference, detailIndex);
-                    return;
-                } else {
-                    long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
+    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == DetailCalloutListenerDefaultImpl.CALL_OUT) {
+            if (resultCode == RESULT_CANCELED) {
+                mDetailView.refresh(detail, mTreeReference, detailIndex);
+                return;
+            } else {
+                long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
 
-                    Intent i = new Intent(EntityDetailActivity.this.getIntent());
-                    loadOutgoingIntent(i);
-                    i.putExtra(CallOutActivity.CALL_DURATION, duration);
-                    setResult(RESULT_OK, i);
+                Intent i = new Intent(EntityDetailActivity.this.getIntent());
+                loadOutgoingIntent(i);
+                i.putExtra(CallOutActivity.CALL_DURATION, duration);
+                setResult(RESULT_OK, i);
 
-                    finish();
-                    return;
-                }
-            default:
-                super.onActivityResult(requestCode, resultCode, intent);
+                finish();
+                return;
+            }
         }
     }
 

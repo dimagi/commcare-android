@@ -73,7 +73,7 @@ public abstract class PromptUpdateActivity extends SessionAwareCommCareActivity 
     abstract void setUpTypeSpecificUIComponents();
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (requestCode == DO_AN_UPDATE) {
             refreshUpdateToPromptObject();
             if (updateToPrompt == null) {

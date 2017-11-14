@@ -58,7 +58,6 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
     @Override
     protected void onPause() {
         super.onPause();
-
         SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
     }
 }

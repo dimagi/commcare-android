@@ -449,7 +449,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();
         }
-        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     private void performCustomRestore() {

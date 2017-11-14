@@ -278,9 +278,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
+    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (requestCode == FormEntryConstants.FORM_PREFERENCES_KEY) {
             uiController.refreshCurrentView(false);
             return;
