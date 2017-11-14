@@ -60,7 +60,7 @@ public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportPr
     private void sendReportEmail(String report) {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("message/rfc822");
-        i.putExtra(Intent.EXTRA_EMAIL, new String[]{ CCServerUrls.getSupportEmailAddress()});
+        i.putExtra(Intent.EXTRA_EMAIL, new String[]{CCServerUrls.getSupportEmailAddress()});
         i.putExtra(Intent.EXTRA_TEXT, ReportProblemActivity.buildMessage(report));
         i.putExtra(Intent.EXTRA_SUBJECT, "Mobile Error Report");
 

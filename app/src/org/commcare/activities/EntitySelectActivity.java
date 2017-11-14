@@ -38,7 +38,6 @@ import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.HiddenCommCarePreferences;
-import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;

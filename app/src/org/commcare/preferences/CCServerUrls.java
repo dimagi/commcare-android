@@ -9,7 +9,6 @@ import org.commcare.dalvik.R;
 /**
  * Created by amstone326 on 11/14/17.
  */
-
 public class CCServerUrls {
 
     // Server URL settings keys -- All of these values are sent down via the app's profile

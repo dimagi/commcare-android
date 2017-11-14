@@ -16,7 +16,6 @@ import android.support.v4.content.ContextCompat;
 
 import org.commcare.CommCareApplication;
 import org.commcare.preferences.HiddenCommCarePreferences;
-import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.utils.GeoUtils;
 
 import java.util.ArrayList;

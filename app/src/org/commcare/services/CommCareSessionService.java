@@ -28,7 +28,6 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
 import org.commcare.preferences.HiddenCommCarePreferences;
-import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.util.LogTypes;

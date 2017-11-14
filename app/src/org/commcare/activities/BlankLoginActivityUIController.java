@@ -6,7 +6,6 @@ import android.widget.EditText;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.HiddenCommCarePreferences;
-import org.commcare.preferences.MainConfigurablePreferences;
 
 import java.util.ArrayList;
 

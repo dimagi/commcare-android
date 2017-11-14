@@ -3,7 +3,6 @@ package org.commcare.network;
 import org.commcare.CommCareApplication;
 import org.commcare.modern.util.Pair;
 import org.commcare.preferences.HiddenCommCarePreferences;
-import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.CredentialUtil;
 import org.commcare.utils.SessionUnavailableException;
