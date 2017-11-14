@@ -18,7 +18,7 @@ import org.commcare.logging.XPathErrorLogger;
 import org.commcare.logic.FormHierarchyBuilder;
 import org.commcare.logic.HierarchyElement;
 import org.commcare.logic.HierarchyEntryType;
-import org.commcare.utils.SessionActivityRegistration;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
@@ -27,15 +27,21 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FormHierarchyActivity extends ListActivity {
+public class FormHierarchyActivity extends SessionAwareListActivity {
     private Button jumpPreviousButton;
     private List<HierarchyElement> formList;
     private TextView mPath;
     public final static int RESULT_XPATH_ERROR = RESULT_FIRST_USER + 1;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
+
+        if (FormEntryActivity.mFormController == null) {
+            throw new SessionUnavailableException(
+                    "Resuming form hierarchy view after process was killed. Form state is unrecoverable.");
+        }
+
         setContentView(R.layout.hierarchy_layout);
 
         addActionBarBackArrow();
@@ -107,20 +113,6 @@ public class FormHierarchyActivity extends ListActivity {
                 bar.setDisplayHomeAsUpEnabled(true);
             }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
     }
 
     private void goUpLevel() {
