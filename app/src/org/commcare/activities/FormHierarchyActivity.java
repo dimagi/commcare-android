@@ -45,6 +45,7 @@ public class FormHierarchyActivity extends ListActivity {
                 FormEntryConstants.HIERARCHY_ACTIVITY);
         this.cameFromFormRecordListActivity =
                 launchMode == FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START;
+        FormEntryActivity.mFormController.storeFormIndexToReturnTo();
 
         addActionBarBackArrow();
 
@@ -285,6 +286,7 @@ public class FormHierarchyActivity extends ListActivity {
                 && !FormEntryActivity.mFormController.getFormIndex().isTerminal()) {
             goUpLevel();
         } else {
+            FormEntryActivity.mFormController.returnToStoredIndex();
             super.onBackPressed();
         }
     }
@@ -298,4 +300,5 @@ public class FormHierarchyActivity extends ListActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }
