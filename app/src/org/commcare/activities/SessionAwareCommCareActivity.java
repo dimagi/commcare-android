@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.commcare.CommCareApplication;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionUnavailableException;
 
@@ -17,6 +18,7 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
+            CommCareApplication.instance().getSession();
             onCreateSessionSafe(savedInstanceState);
         } catch (SessionUnavailableException e) {
             SessionActivityRegistration.redirectToLogin(this);

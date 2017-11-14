@@ -17,7 +17,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
@@ -134,7 +135,8 @@ public class EntityDetailActivity
         next.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportEntityDetailContinue(false, mDetailView.getTabCount() == 1);
+                FirebaseAnalyticsUtil.reportEntityDetailContinue(
+                        AnalyticsParamValue.NAV_BUTTON_PRESS, mDetailView.getTabCount());
                 select();
             }
         });
@@ -199,7 +201,8 @@ public class EntityDetailActivity
         if (isFinalSwipeActionEnabled &&
                 mDetailView.getCurrentTab() >= mDetailView.getTabCount() - 1) {
             select();
-            GoogleAnalyticsUtils.reportEntityDetailContinue(true, mDetailView.getTabCount() == 1);
+            FirebaseAnalyticsUtil.reportEntityDetailContinue(
+                    AnalyticsParamValue.SWIPE, mDetailView.getTabCount());
             return true;
         }
         return false;
@@ -211,7 +214,8 @@ public class EntityDetailActivity
         if (isFinalSwipeActionEnabled &&
                 mDetailView.getCurrentTab() < 1) {
             finish();
-            GoogleAnalyticsUtils.reportEntityDetailExit(true, mDetailView.getTabCount() == 1);
+            FirebaseAnalyticsUtil.reportEntityDetailExit(
+                    AnalyticsParamValue.SWIPE, mDetailView.getTabCount());
             return true;
         }
         return false;
@@ -238,7 +242,8 @@ public class EntityDetailActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        GoogleAnalyticsUtils.reportEntityDetailExit(false, mDetailView.getTabCount() == 1);
+        FirebaseAnalyticsUtil.reportEntityDetailExit(
+                AnalyticsParamValue.BACK_BUTTON_PRESS, mDetailView.getTabCount());
     }
 
     @Override

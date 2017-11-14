@@ -1,6 +1,5 @@
 package org.commcare.preferences;
 
-import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,8 +19,6 @@ import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.TemplatePrinterUtils;
@@ -126,18 +123,12 @@ public class CommCarePreferences
     private static final int REQUEST_TEMPLATE = 0;
     private static final int REQUEST_DEVELOPER_PREFERENCES = 1;
 
-    private final static Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
 
     static {
         keyToTitleMap.put(SERVER_SETTINGS, "settings.server.listing");
         keyToTitleMap.put(DEVELOPER_SETTINGS, "settings.developer.options");
         keyToTitleMap.put(DISABLE_ANALYTICS, "home.menu.disable.analytics");
-
-        prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
-        prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
-        prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
-        prefKeyToAnalyticsEvent.put(UPDATE_TARGET, GoogleAnalyticsFields.LABEL_UPDATE_TARGET);
     }
 
     @Override
@@ -160,17 +151,6 @@ public class CommCarePreferences
     @Override
     protected String getTitle() {
         return Localization.get("settings.main.title");
-    }
-
-    @NonNull
-    @Override
-    protected String getAnalyticsCategory() {
-        return GoogleAnalyticsFields.CATEGORY_CC_PREFS;
-    }
-
-    @Override
-    protected Map<String, String> getPrefKeyAnalyticsEventMap() {
-        return prefKeyToAnalyticsEvent;
     }
 
     @Override
@@ -224,9 +204,6 @@ public class CommCarePreferences
         printTemplateSetting.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportPrefItemClick(
-                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                        GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
                 startFileBrowser(CommCarePreferences.this, REQUEST_TEMPLATE, "cannot.set.template");
                 return true;
             }
@@ -239,9 +216,6 @@ public class CommCarePreferences
             developerSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    GoogleAnalyticsUtils.reportPrefItemClick(
-                            GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                            GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
                     startDeveloperOptions();
                     return true;
                 }
@@ -323,44 +297,6 @@ public class CommCarePreferences
             }
         }
     }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        int editPrefValue = -1;
-        switch (key) {
-            case AUTO_UPDATE_FREQUENCY:
-                String freq = sharedPreferences.getString(key, CommCarePreferences.FREQUENCY_NEVER);
-                if (CommCarePreferences.FREQUENCY_NEVER.equals(freq)) {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_NEVER;
-                } else if (CommCarePreferences.FREQUENCY_DAILY.equals(freq)) {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_DAILY;
-                } else {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_WEEKLY;
-                }
-                break;
-            case PREFS_FUZZY_SEARCH_KEY:
-                if (isFuzzySearchEnabled()) {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_ENABLED;
-                } else {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_DISABLED;
-                }
-                break;
-            case UPDATE_TARGET:
-                String target = sharedPreferences.getString(key, UPDATE_TARGET_STARRED);
-                if (UPDATE_TARGET_BUILD.equals(target)) {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_BUILD;
-                } else if (UPDATE_TARGET_SAVED.equals(target)) {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_SAVED;
-                } else {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_STARRED;
-                }
-                break;
-        }
-
-        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                prefKeyToAnalyticsEvent.get(key), editPrefValue);
-    }
-
 
     public static boolean isIncompleteFormsEnabled() {
         if (CommCareApplication.instance().isConsumerApp()) {

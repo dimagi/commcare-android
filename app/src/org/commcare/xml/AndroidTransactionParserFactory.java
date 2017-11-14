@@ -150,7 +150,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
             @Override
             public AndroidBulkCaseXmlParser getParser(KXmlParser parser) {
                 if (created == null) {
-                    created = new AndroidBulkCaseXmlParser(parser, (SqlStorage<ACase>)sandbox.getCaseStorage(), generator) {
+                    created = new AndroidBulkCaseXmlParser(parser, (SqlStorage<ACase>)sandbox.getCaseStorage()) {
 
                         @Override
                         public void onIndexDisrupted(String caseId) {
