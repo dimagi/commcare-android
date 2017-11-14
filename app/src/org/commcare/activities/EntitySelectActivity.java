@@ -154,8 +154,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             new LocationNotificationHandler(this);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         createDataSetObserver();
         restoreSavedState(savedInstanceState);

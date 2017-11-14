@@ -140,6 +140,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
+
         platform = CommCareApplication.instance().getCommCarePlatform();
         setContentView(R.layout.entity_select_layout);
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
