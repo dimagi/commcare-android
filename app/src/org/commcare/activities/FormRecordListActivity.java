@@ -620,7 +620,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         String passOrFail = integrityScanResult.first ? "PASSED:" : "FAILED:";
         Logger.log(
                 LogTypes.TYPE_ERROR_STORAGE,
-                String.format("Integrity scan for form record with ID %s has %s. Report Details: %",
+                String.format("Integrity scan for form record with ID %s has %s. Report Details: %s",
                         r.getInstanceID(),
                         passOrFail,
                         integrityScanResult.second));
