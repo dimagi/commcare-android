@@ -60,6 +60,7 @@ public class AndroidFormController extends FormController implements PendingCall
         if (this.formIndexToReturnTo != null) {
             jumpToIndex(this.formIndexToReturnTo);
         }
+        this.formIndexToReturnTo = null;
     }
 
 }
