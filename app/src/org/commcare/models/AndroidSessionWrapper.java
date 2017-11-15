@@ -160,14 +160,6 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         return null;
     }
 
-    public static void clearInterruptedFlagForAllSessionStateDescriptors() {
-        SqlStorage<SessionStateDescriptor> sessionStorage =
-                CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
-        for (SessionStateDescriptor stateDescriptor : sessionStorage) {
-            stateDescriptor.setInterruptedBySessionExpiration(false);
-        }
-    }
-
     private static boolean ssdHasValidFormRecordId(int ssdId,
                                                    SqlStorage<SessionStateDescriptor> sessionStorage) {
         SqlStorage<FormRecord> formRecordStorage =
@@ -193,6 +185,14 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
             SessionStateDescriptor current = sessionStorage.read(sessionStateRecordId);
             current.setInterruptedBySessionExpiration(true);
             sessionStorage.write(current);
+        }
+    }
+
+    public static void clearInterruptedFlagForAllSessionStateDescriptors() {
+        SqlStorage<SessionStateDescriptor> sessionStorage =
+                CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
+        for (SessionStateDescriptor stateDescriptor : sessionStorage) {
+            stateDescriptor.setInterruptedBySessionExpiration(false);
         }
     }
 
