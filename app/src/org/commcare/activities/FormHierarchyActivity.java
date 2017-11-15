@@ -12,7 +12,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.adapters.HierarchyListAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.logging.XPathErrorLogger;
