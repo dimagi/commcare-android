@@ -714,6 +714,9 @@ wifi.direct.status.submit.message=This mode will allow you to submit forms to th
 form.transfer.no.forms=No forms to send.
 
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
+form.attachment.notfound=Unable to find the choosen file. Please try again.
+form.attachment.copy.fail=Unable to copy the choosen file.
+form.attachment.success=Successfully added file.
 
 form.hierarchy=Form Hierarchy
 

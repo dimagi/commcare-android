@@ -22,7 +22,9 @@ import org.commcare.utils.UriToFilePath;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to
@@ -37,13 +39,14 @@ public class AudioWidget extends MediaWidget {
 
     protected String recordedFileName;
     private String customFileTag;
+    private String destAudioPath;
 
     public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt, pic);
     }
 
     @Override
-    protected void initializeButtons(){
+    protected void initializeButtons() {
         // setup capture button
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
@@ -110,6 +113,8 @@ public class AudioWidget extends MediaWidget {
         File audioFile = new File(mInstanceFolder + mBinaryName);
         Uri audioUri = FileUtil.getUriForExternalFile(getContext(), audioFile);
         i.setDataAndType(audioUri, "audio/*");
+
+        UriToFilePath.grantPermissionForUri(getContext(), i, audioUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
         try {
             getContext().startActivity(i);
         } catch (ActivityNotFoundException e) {
@@ -143,28 +148,26 @@ public class AudioWidget extends MediaWidget {
         if (binaryPath == null) {
             return;
         }
-        File source = new File(binaryPath);
 
-        // get the file path and create a copy in the instance folder
-        String[] filenameSegments = binaryPath.split("\\.");
-        String extension = "";
-        if (filenameSegments.length > 1) {
-            extension = "." + filenameSegments[filenameSegments.length - 1];
-        }
+        File newAudio;
 
-        String[] filePathSegments = binaryPath.split("/");
-        if(filePathSegments.length >1){
-            recordedFileName = filePathSegments[filePathSegments.length-1];
-        }
+        if (!destAudioPath.isEmpty()) {
+            // we have already copied the file at newPath during createFilePath
+            newAudio = new File(destAudioPath);
+        } else {
+            recordedFileName = FileUtil.getFileName(binaryPath);
+            destAudioPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + FileUtil.getExtension(binaryPath);
 
-        String destAudioPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + extension;
-
-        File newAudio = new File(destAudioPath);
-        try {
-            FileUtil.copyFile(source, newAudio);
-        }catch (IOException e) {
-            Log.e(TAG, "IOExeception while copying audio");
-            e.printStackTrace();
+            // Copy to destAudioPath
+            File source = new File(binaryPath);
+            newAudio = new File(destAudioPath);
+            try {
+                FileUtil.copyFile(source, newAudio);
+            } catch (IOException e) {
+                showToast("form.attachment.copy.fail");
+                Log.e(TAG, "IOExeception while copying audio");
+                e.printStackTrace();
+            }
         }
 
         if (newAudio.exists()) {
@@ -179,6 +182,7 @@ public class AudioWidget extends MediaWidget {
                     getContext().getContentResolver().insert(Audio.Media.EXTERNAL_CONTENT_URI, values);
             String audioUriString = audioUri == null ? "null" : audioUri.toString();
             Log.i(TAG, "Inserting AUDIO returned uri = " + audioUriString);
+            showToast("form.attachment.success");
         } else {
             Log.e(TAG, "Inserting Audio file FAILED");
         }
@@ -192,18 +196,41 @@ public class AudioWidget extends MediaWidget {
      * Set value of customFileTag if the file is a recent recording from the RecordingFragment
      */
     @Override
-    protected String createFilePath(Object binaryuri){
-        String path;
+    protected String createFilePath(Object binaryuri) {
+        String path = "";
+        destAudioPath = "";
+        if (binaryuri instanceof Uri) {
+            try {
+                path = UriToFilePath.getPathFromUri(CommCareApplication.instance(),
+                        (Uri)binaryuri);
+            } catch (UriToFilePath.NoDataColumnForUriException e) {
+                // Need to make a copy of file using uri, so might as well copy to final destination path directly
+                InputStream inputStream;
+                try {
+                    inputStream = getContext().getContentResolver().openInputStream((Uri)binaryuri);
+                } catch (FileNotFoundException e1) {
+                    showToast("form.attachment.notfound");
+                    e1.printStackTrace();
+                    return "";
+                }
 
-        if(binaryuri instanceof Uri){
-            path = UriToFilePath.getPathFromUri(CommCareApplication.instance(),
-                    (Uri)binaryuri);
+                recordedFileName = FileUtil.getFileName(((Uri)binaryuri).getPath());
+                destAudioPath = mInstanceFolder + System.currentTimeMillis() + FileUtil.getExtension(((Uri)binaryuri).getPath());
+
+                try {
+                    FileUtil.copyFile(inputStream, new File(destAudioPath));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                    showToast("form.attachment.copy.fail");
+                    return "";
+                }
+                path = destAudioPath;
+            }
             customFileTag = "";
-        }else{
-            path = (String) binaryuri;
+        } else {
+            path = (String)binaryuri;
             customFileTag = CUSTOM_TAG;
         }
-
         return path;
     }
 }

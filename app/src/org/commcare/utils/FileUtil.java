@@ -1,19 +1,15 @@
 package org.commcare.utils;
 
 import android.annotation.SuppressLint;
-import android.content.ContentUris;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.util.Pair;
 
+import org.commcare.CommCareApplication;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
@@ -449,6 +445,13 @@ public class FileUtil {
         return "";
     }
 
+    public static String getFileName(String filePath) {
+        if (filePath.contains("/")) {
+            return last(filePath.split("/"));
+        }
+        return "";
+    }
+
     /**
      * Get the last element of a String array.
      */
@@ -588,5 +591,15 @@ public class FileUtil {
         StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream);
         inputStream.close();
         outputStream.close();
+    }
+
+    public static boolean isSupportedMultiMediaFile(Uri media) {
+        try {
+            String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), media);
+            return FormUploadUtil.isSupportedMultimediaFile(binaryPath);
+        } catch (UriToFilePath.NoDataColumnForUriException e) {
+            // No file path available, work with the media uri instead
+            return FormUploadUtil.isSupportedMultimediaFile(media.getPath());
+        }
     }
 }
