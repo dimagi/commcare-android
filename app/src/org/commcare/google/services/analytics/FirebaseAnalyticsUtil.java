@@ -7,7 +7,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
 
@@ -254,7 +254,7 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static boolean analyticsDisabled() {
-        return !CommCarePreferences.isAnalyticsEnabled();
+        return !MainConfigurablePreferences.isAnalyticsEnabled();
     }
 
     public static boolean versionIncompatible() {

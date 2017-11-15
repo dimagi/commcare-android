@@ -15,7 +15,7 @@ import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 
 import org.commcare.CommCareApplication;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.GeoUtils;
 
 import java.util.ArrayList;
@@ -93,7 +93,7 @@ public enum PollSensorController implements LocationListener {
 
             // Cancel polling after maximum time is exceeded
             timeoutTimer.schedule(new PollingTimeoutTask(),
-                    CommCarePreferences.getGpsAutoCaptureTimeoutInMilliseconds());
+                    HiddenPreferences.getGpsAutoCaptureTimeoutInMilliseconds());
         }
     }
 
@@ -108,7 +108,7 @@ public enum PollSensorController implements LocationListener {
                     action.updateReference(location);
                 }
 
-                if (location.getAccuracy() <= CommCarePreferences.getGpsAutoCaptureAccuracy()) {
+                if (location.getAccuracy() <= HiddenPreferences.getGpsAutoCaptureAccuracy()) {
                     stopLocationPolling();
                 }
             }
