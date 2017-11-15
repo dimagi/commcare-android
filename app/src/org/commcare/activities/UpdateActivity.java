@@ -569,8 +569,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     @Override
     public synchronized void onMicronodeDiscovery() {
-        boolean appsAvailable = false;
-
         //If we aren't staged, don't go down this road
         if (CommCareApplication.instance().getCurrentApp() == null) {
             return;
