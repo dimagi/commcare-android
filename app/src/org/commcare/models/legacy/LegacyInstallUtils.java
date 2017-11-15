@@ -32,7 +32,7 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
 import org.commcare.modern.models.EncryptedModel;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.resources.model.Resource;
@@ -315,7 +315,8 @@ public class LegacyInstallUtils {
             }
 
             //See if we can find a user who was the last to log in
-            if (preferred == null || u.getUsername().toLowerCase().equals(globalPreferences.getString(CommCarePreferences.LAST_LOGGED_IN_USER, "").toLowerCase())) {
+            if (preferred == null || u.getUsername().toLowerCase().equals(
+                    globalPreferences.getString(HiddenPreferences.LAST_LOGGED_IN_USER, "").toLowerCase())) {
                 preferred = u;
             }
 
@@ -336,7 +337,7 @@ public class LegacyInstallUtils {
         globalPreferences.edit().putString(LEGACY_UPGRADE_PROGRESS, UPGRADE_COMPLETE).commit();
 
         //Trigger all new resends
-        app.getAppPreferences().edit().putLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0).commit();
+        app.getAppPreferences().edit().putLong(HiddenPreferences.LOG_LAST_DAILY_SUBMIT, 0).commit();
 
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Legacy| App labelled. Attempting user transition");
 

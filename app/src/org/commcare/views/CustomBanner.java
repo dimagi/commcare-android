@@ -9,7 +9,7 @@ import android.widget.ImageView;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.MediaUtil;
 
 public class CustomBanner {
@@ -33,11 +33,11 @@ public class CustomBanner {
         }
 
         String customBannerURI =
-                app.getAppPreferences().getString(CommCarePreferences.BRAND_BANNER_HOME, "");
+                app.getAppPreferences().getString(HiddenPreferences.BRAND_BANNER_HOME, "");
 
         if (CommCareApplication.instance().isInDemoMode(false)) {
             customBannerURI =
-                    app.getAppPreferences().getString(CommCarePreferences.BRAND_BANNER_HOME_DEMO,
+                    app.getAppPreferences().getString(HiddenPreferences.BRAND_BANNER_HOME_DEMO,
                             customBannerURI);
         }
 

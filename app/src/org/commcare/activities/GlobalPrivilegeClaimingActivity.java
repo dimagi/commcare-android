@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Menu;
@@ -15,16 +14,11 @@ import android.widget.Toast;
 
 import org.commcare.dalvik.R;
 import org.commcare.modern.util.Pair;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.PrivilegesUtility;
-import org.commcare.utils.SigningUtil;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localization;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 
 /**
