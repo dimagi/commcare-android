@@ -24,7 +24,8 @@ import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.RemoteDataPullResponse;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.ServerUrls;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.templates.CommCareTask;
@@ -221,7 +222,7 @@ public abstract class DataPullTask<R>
     }
 
     private static boolean shouldGenerateFirstKey() {
-        String keyServer = CommCarePreferences.getKeyServer();
+        String keyServer = ServerUrls.getKeyServer();
         return keyServer == null || keyServer.equals("");
     }
 
@@ -463,8 +464,8 @@ public abstract class DataPullTask<R>
     private static void recordSyncAttempt() {
         //TODO: This should be per _user_, not per app
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putLong(CommCarePreferences.LAST_SYNC_ATTEMPT, new Date().getTime()).apply();
-        CommCarePreferences.setPostUpdateSyncNeeded(false);
+                .putLong(HiddenPreferences.LAST_SYNC_ATTEMPT, new Date().getTime()).apply();
+        HiddenPreferences.setPostUpdateSyncNeeded(false);
     }
 
     private static void recordSuccessfulSyncTime(String username) {

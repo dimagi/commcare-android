@@ -13,7 +13,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.network.mocks.LocalFilePullResponseFactory;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormSubmissionProgressBarListener;
@@ -138,7 +138,7 @@ public class FormAndDataSyncer {
 
     private static String getFormPostURL(final Context context) {
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
+        return settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY,
                 context.getString(R.string.PostURL));
     }
 
@@ -159,17 +159,13 @@ public class FormAndDataSyncer {
         }
 
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        syncData(activity, formsToSend, userTriggeredSync,
-                CommCareServerPreferences.getDataServerKey(),
+        syncData(activity, formsToSend, userTriggeredSync, ServerUrls.getDataServerKey(),
                 u.getUsername(), u.getCachedPwd(), u.getUniqueId());
     }
 
     public void performOtaRestore(LoginActivity context, String username, String password) {
-        syncData(context, false, false,
-                CommCareServerPreferences.getDataServerKey(),
-                username,
-                password,
-                null);
+        syncData(context, false, false, ServerUrls.getDataServerKey(),
+                username, password,null);
     }
 
     public <I extends CommCareActivity & PullTaskResultReceiver> void performCustomRestoreFromFile(

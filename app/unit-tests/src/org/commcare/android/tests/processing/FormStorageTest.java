@@ -305,6 +305,7 @@ public class FormStorageTest {
 
             // Added in 2.41
             , "org.commcare.android.database.user.models.SessionStateDescriptorV1"
+            , "org.javarosa.xpath.expr.XPathDistinctValuesFunc"
 
             );
 
