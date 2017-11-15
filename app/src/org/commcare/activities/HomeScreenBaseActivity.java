@@ -130,7 +130,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private static final String WAS_EXTERNAL_KEY = "was_external";
 
     // Indicates if 1 of the checks we performed in onCreate resulted in redirecting to a
-    // different activity
+    // different activity or starting a UI-blocking task
     private boolean redirectedInOnCreate = false;
 
     @Override
@@ -174,7 +174,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 !loginExtraWasConsumed) {
             getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
             loginExtraWasConsumed = true;
-            redirectedInOnCreate = doLoginLaunchChecksInOrder();
+            try {
+                redirectedInOnCreate = doLoginLaunchChecksInOrder();
+            } finally {
+                // make sure this happens no matter what
+                clearOneTimeLoginActionFlags();
+            }
         }
     }
 
@@ -184,10 +189,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      * - If we're in demo mode, then we don't want to do any of the other checks because they're
      * not relevant
      * - Form and session restorations need to happen before we try to sync, because once we sync
-     * it could invalidate those states.
+     * it could invalidate those states
      * - Restoring a form that was interrupted by session expiration comes before restoring a saved
      * session because it is of higher importance
-     * - Once we're past the first 3, starting a background form-send process is safe, and we can
+     * - Check for a post-update sync before doing a standard background form-send, since a sync
+     * action will include a form-send action
+     * - Once we're past that point, starting a background form-send process is safe, and we can
      * safely do checkForPinLaunchConditions() at the same time
      */
     private boolean doLoginLaunchChecksInOrder() {
@@ -204,6 +211,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return true;
         }
 
+        if (CommCareApplication.instance().isPostUpdateSyncNeeded()) {
+            CommCarePreferences.setPostUpdateSyncNeeded(false);
+            triggerSync(false);
+            return true;
+        }
+
         if (!CommCareApplication.instance().isSyncPending(false)) {
             // Trigger off a regular unsent task processor, unless we're about to sync (which will
             // then handle this in a blocking fashion)
@@ -213,6 +226,16 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         checkForPinLaunchConditions();
 
         return false;
+    }
+
+    /**
+     * Regardless of what action(s) we ended up executing in doLoginLaunchChecksInOrder(), we
+     * don't want to end up trying the actions associated with these flags again at a later point.
+     * They either need to happen the first time on login, or not at all.
+     */
+    private void clearOneTimeLoginActionFlags() {
+        CommCarePreferences.setPostUpdateSyncNeeded(false);
+        AndroidSessionWrapper.clearInterruptedFlagForAllSessionStateDescriptors();
     }
 
     private boolean tryRestoringFormFromSessionExpiration() {
@@ -1103,11 +1126,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      */
     private boolean checkForPendingAppHealthActions() {
         boolean result = false;
-        if (CommCareApplication.instance().isPostUpdateSyncNeeded() && !isDemoUser()) {
-            CommCarePreferences.setPostUpdateSyncNeeded(false);
-            triggerSync(false);
-            result = true;
-        } else if (CommCareApplication.instance().isSyncPending(false)) {
+        if (CommCareApplication.instance().isSyncPending(false)) {
             triggerSync(true);
             result = true;
         } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
