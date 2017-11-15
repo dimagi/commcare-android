@@ -9,7 +9,7 @@ import org.commcare.logging.AndroidLogSerializer;
 import org.commcare.logging.DeviceReportWriter;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.network.CommcareRequestGenerator;
-import org.commcare.preferences.CCServerUrls;
+import org.commcare.preferences.ServerUrls;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.User;
 
@@ -139,7 +139,7 @@ public class ForceCloseLogger {
     private static String getSubmissionUri() {
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         if (currentApp != null) {
-            return currentApp.getAppPreferences().getString(CCServerUrls.PREFS_SUBMISSION_URL_KEY,
+            return currentApp.getAppPreferences().getString(ServerUrls.PREFS_SUBMISSION_URL_KEY,
                     CommCareApplication.instance().getString(R.string.PostURL));
         } else {
             return CommCareApplication.instance().getString(R.string.PostURL);

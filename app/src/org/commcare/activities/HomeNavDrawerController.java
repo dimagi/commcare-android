@@ -12,7 +12,7 @@ import android.widget.ListView;
 import org.commcare.activities.components.NavDrawerItem;
 import org.commcare.adapters.NavDrawerAdapter;
 import org.commcare.dalvik.R;
-import org.commcare.preferences.HiddenCommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.services.locale.Localization;
@@ -101,7 +101,7 @@ public class HomeNavDrawerController {
     }
 
     private void determineDrawerItemsToInclude() {
-        boolean hideSavedFormsItem = !HiddenCommCarePreferences.isSavedFormsEnabled();
+        boolean hideSavedFormsItem = !HiddenPreferences.isSavedFormsEnabled();
         boolean hideChangeLanguageItem = ChangeLocaleUtil.getLocaleNames().length <= 1;
         int numItemsToInclude = allDrawerItems.size()
                 - (hideChangeLanguageItem ? 1 : 0)

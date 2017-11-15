@@ -42,9 +42,9 @@ public class DevSessionRestorer {
             SharedPreferences prefs =
                     CommCareApplication.instance().getCurrentApp().getAppPreferences();
             String lastUser =
-                    prefs.getString(HiddenCommCarePreferences.LAST_LOGGED_IN_USER, "");
+                    prefs.getString(HiddenPreferences.LAST_LOGGED_IN_USER, "");
             String lastPass =
-                    prefs.getString(HiddenCommCarePreferences.LAST_PASSWORD, "");
+                    prefs.getString(HiddenPreferences.LAST_PASSWORD, "");
 
             if (!"".equals(lastPass)) {
                 return new Pair<>(lastUser, lastPass);
@@ -58,7 +58,7 @@ public class DevSessionRestorer {
         tryAutoLoginPasswordSave(password, true);
         SharedPreferences prefs =
                 CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        prefs.edit().putString(HiddenCommCarePreferences.LAST_LOGGED_IN_USER, username).apply();
+        prefs.edit().putString(HiddenPreferences.LAST_LOGGED_IN_USER, username).apply();
     }
 
     /**
@@ -68,7 +68,7 @@ public class DevSessionRestorer {
         if (force || autoLoginEnabled()) {
             SharedPreferences prefs =
                     CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            prefs.edit().putString(HiddenCommCarePreferences.LAST_PASSWORD, password).apply();
+            prefs.edit().putString(HiddenPreferences.LAST_PASSWORD, password).apply();
         }
     }
 
@@ -79,19 +79,19 @@ public class DevSessionRestorer {
     public static void enableAutoLogin() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
-                .putString(DeveloperPreferences.ENABLE_AUTO_LOGIN, CCPrefValues.YES)
+                .putString(DeveloperPreferences.ENABLE_AUTO_LOGIN, PrefValues.YES)
                 .apply();
     }
 
     public static void enableSessionSaving() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
-                .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, CCPrefValues.YES)
+                .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, PrefValues.YES)
                 .apply();
     }
 
     public static void clearPassword(SharedPreferences prefs) {
-        prefs.edit().remove(HiddenCommCarePreferences.LAST_PASSWORD).apply();
+        prefs.edit().remove(HiddenPreferences.LAST_PASSWORD).apply();
     }
 
     /**

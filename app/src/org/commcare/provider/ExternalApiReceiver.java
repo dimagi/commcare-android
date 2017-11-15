@@ -16,7 +16,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.models.legacy.LegacyInstallUtils;
-import org.commcare.preferences.CCServerUrls;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ExternalManageKeyRecordTask;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -128,7 +128,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
             ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(
                     context,
-                    settings.getString(CCServerUrls.PREFS_SUBMISSION_URL_KEY,
+                    settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY,
                             context.getString(R.string.PostURL))) {
                 @Override
                 protected void deliverResult(Object receiver, FormUploadResult result) {
@@ -169,7 +169,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 u.getUsername(),
                 u.getCachedPwd(),
                 u.getUniqueId(),
-                CCServerUrls.getDataServerKey(),
+                ServerUrls.getDataServerKey(),
                 context) {
 
             @Override

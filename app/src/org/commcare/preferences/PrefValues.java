@@ -5,7 +5,7 @@ import android.util.DisplayMetrics;
 /**
  * Created by amstone326 on 11/14/17.
  */
-public class CCPrefValues {
+public class PrefValues {
 
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";

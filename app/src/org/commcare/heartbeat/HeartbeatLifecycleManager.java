@@ -2,7 +2,7 @@ package org.commcare.heartbeat;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.preferences.CCServerUrls;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
@@ -67,7 +67,7 @@ public class HeartbeatLifecycleManager {
     private boolean appHasHeartbeatUrl() {
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         String urlString = currentApp.getAppPreferences().getString(
-                CCServerUrls.PREFS_HEARTBEAT_URL_KEY, null);
+                ServerUrls.PREFS_HEARTBEAT_URL_KEY, null);
         return urlString != null;
     }
 

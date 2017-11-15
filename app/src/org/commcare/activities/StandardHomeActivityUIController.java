@@ -11,7 +11,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.adapters.HomeScreenAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.preferences.HiddenCommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
 
@@ -53,11 +53,11 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
         Profile p = ccApp.getCommCarePlatform().getCurrentProfile();
         if ((p != null && !p.isFeatureActive(Profile.FEATURE_REVIEW))
-                || !HiddenCommCarePreferences.isSavedFormsEnabled()) {
+                || !HiddenPreferences.isSavedFormsEnabled()) {
             hiddenButtons.add("saved");
         }
 
-        if (!HiddenCommCarePreferences.isIncompleteFormsEnabled()) {
+        if (!HiddenPreferences.isIncompleteFormsEnabled()) {
             hiddenButtons.add("incomplete");
         }
         if (!DeveloperPreferences.isHomeReportEnabled()) {

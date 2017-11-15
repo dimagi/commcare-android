@@ -71,7 +71,7 @@ import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpUtils;
-import org.commcare.preferences.HiddenCommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.ProviderUtils;
@@ -714,7 +714,7 @@ public class CommCareApplication extends MultiDexApplication {
                         // Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
                             getCurrentApp().getAppPreferences().edit().putString(
-                                    HiddenCommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).apply();
+                                    HiddenPreferences.LAST_LOGGED_IN_USER, record.getUsername()).apply();
 
                             // clear any files orphaned by file-backed db transaction failures
                             HybridFileBackedSqlHelpers.removeOrphanedFiles(mBoundService.getUserDbHandle());
@@ -766,7 +766,7 @@ public class CommCareApplication extends MultiDexApplication {
 
         LogSubmissionTask task = new LogSubmissionTask(
                 force || PendingCalcs.isPending(settings.getLong(
-                        HiddenCommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
+                        HiddenPreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
                 dataListener,
                 url);
 
@@ -895,7 +895,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     public boolean isPostUpdateSyncNeeded() {
         return getCurrentApp().getAppPreferences()
-                .getBoolean(HiddenCommCarePreferences.POST_UPDATE_SYNC_NEEDED, false);
+                .getBoolean(HiddenPreferences.POST_UPDATE_SYNC_NEEDED, false);
     }
 
     public boolean isStorageAvailable() {

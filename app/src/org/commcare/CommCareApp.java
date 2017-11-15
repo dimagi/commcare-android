@@ -16,8 +16,8 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.Table;
-import org.commcare.preferences.CCPrefValues;
-import org.commcare.preferences.HiddenCommCarePreferences;
+import org.commcare.preferences.PrefValues;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.resources.model.Resource;
@@ -254,8 +254,8 @@ public class CommCareApp implements AppFilePathBuilder {
     public boolean areMMResourcesValidated() {
         SharedPreferences appPreferences = getAppPreferences();
         return (appPreferences.getBoolean("isValidated", false) ||
-                appPreferences.getString(HiddenCommCarePreferences.MM_VALIDATED_FROM_HQ, CCPrefValues.NO)
-                        .equals(CCPrefValues.YES));
+                appPreferences.getString(HiddenPreferences.MM_VALIDATED_FROM_HQ, PrefValues.NO)
+                        .equals(PrefValues.YES));
     }
 
     public void setMMResourcesValidated() {

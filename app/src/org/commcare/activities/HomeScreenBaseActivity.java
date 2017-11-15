@@ -33,9 +33,9 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
-import org.commcare.preferences.CCPrefValues;
+import org.commcare.preferences.PrefValues;
 import org.commcare.preferences.DevSessionRestorer;
-import org.commcare.preferences.HiddenCommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.FormsProviderAPI;
@@ -217,7 +217,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     .getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
             boolean alreadyDismissedPinCreation =
                     CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                            .getBoolean(HiddenCommCarePreferences.HAS_DISMISSED_PIN_CREATION, false);
+                            .getBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, false);
             if (!alreadyDismissedPinCreation || userManuallyEnteredPasswordMode) {
                 showPinChoiceDialog(loginMode);
                 return true;
@@ -261,7 +261,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 dismissAlertDialog();
                 CommCareApplication.instance().getCurrentApp().getAppPreferences()
                         .edit()
-                        .putBoolean(HiddenCommCarePreferences.HAS_DISMISSED_PIN_CREATION, true)
+                        .putBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, true)
                         .apply();
                 showPinFutureAccessDialog();
             }
@@ -942,7 +942,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      */
     private void startFormEntry(AndroidSessionWrapper state) {
         if (state.getFormRecordId() == -1) {
-            if (HiddenCommCarePreferences.isIncompleteFormsEnabled()) {
+            if (HiddenPreferences.isIncompleteFormsEnabled()) {
                 // Are existing (incomplete) forms using the same case?
                 SessionStateDescriptor existing =
                         state.getExistingIncompleteCaseDescriptor();
@@ -992,8 +992,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             i.setData(formUri);
         }
 
-        i.putExtra(FormEntryActivity.KEY_RESIZING_ENABLED, HiddenCommCarePreferences.getResizeMethod());
-        i.putExtra(FormEntryActivity.KEY_INCOMPLETE_ENABLED, HiddenCommCarePreferences.isIncompleteFormsEnabled());
+        i.putExtra(FormEntryActivity.KEY_RESIZING_ENABLED, HiddenPreferences.getResizeMethod());
+        i.putExtra(FormEntryActivity.KEY_INCOMPLETE_ENABLED, HiddenPreferences.isIncompleteFormsEnabled());
         i.putExtra(FormEntryActivity.KEY_AES_STORAGE_KEY, Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
         i.putExtra(FormEntryActivity.KEY_FORM_CONTENT_URI, FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
         i.putExtra(FormEntryActivity.KEY_INSTANCE_CONTENT_URI, InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
@@ -1017,7 +1017,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void triggerSync(boolean triggeredByAutoSyncPending) {
         if (triggeredByAutoSyncPending) {
             long lastSync = CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                    .getLong(HiddenCommCarePreferences.LAST_SYNC_ATTEMPT, 0);
+                    .getLong(HiddenPreferences.LAST_SYNC_ATTEMPT, 0);
             String footer = lastSync == 0 ? "never" :
                     SimpleDateFormat.getDateTimeInstance().format(lastSync);
             Logger.log(LogTypes.TYPE_USER, "autosync triggered. Last Sync|" + footer);
@@ -1053,7 +1053,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
 
         if (CommCareApplication.instance().isPostUpdateSyncNeeded() && !isDemoUser()) {
-            HiddenCommCarePreferences.setPostUpdateSyncNeeded(false);
+            HiddenPreferences.setPostUpdateSyncNeeded(false);
             triggerSync(false);
         } else if (CommCareApplication.instance().isSyncPending(false)) {
             triggerSync(true);
@@ -1137,7 +1137,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (mDeveloperModeClicks == 4) {
             CommCareApplication.instance().getCurrentApp().getAppPreferences()
                     .edit()
-                    .putString(DeveloperPreferences.SUPERUSER_ENABLED, CCPrefValues.YES)
+                    .putString(DeveloperPreferences.SUPERUSER_ENABLED, PrefValues.YES)
                     .apply();
             Toast.makeText(this, Localization.get("home.developer.options.enabled"),
                     Toast.LENGTH_SHORT).show();

@@ -9,7 +9,7 @@ import org.commcare.dalvik.R;
 /**
  * Created by amstone326 on 11/14/17.
  */
-public class CCServerUrls {
+public class ServerUrls {
 
     // Server URL settings keys -- All of these values are sent down via the app's profile
     public final static String PREFS_APP_SERVER_KEY = "default_app_server";

@@ -285,31 +285,31 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
      */
     public static boolean isSuperuserEnabled() {
         return doesPropertyMatch(SUPERUSER_ENABLED,
-                BuildConfig.DEBUG ? CCPrefValues.YES : CCPrefValues.NO,
-                CCPrefValues.YES);
+                BuildConfig.DEBUG ? PrefValues.YES : PrefValues.NO,
+                PrefValues.YES);
     }
 
     public static boolean isActionBarEnabled() {
-        return doesPropertyMatch(ACTION_BAR_ENABLED, CCPrefValues.YES, CCPrefValues.YES);
+        return doesPropertyMatch(ACTION_BAR_ENABLED, PrefValues.YES, PrefValues.YES);
     }
 
     public static boolean isNewNavEnabled() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(NAV_UI_ENABLED, CCPrefValues.YES).equals(CCPrefValues.YES);
+        return properties.getString(NAV_UI_ENABLED, PrefValues.YES).equals(PrefValues.YES);
     }
 
     public static boolean isCssEnabled() {
-        return doesPropertyMatch(CSS_ENABLED, CCPrefValues.NO, CCPrefValues.YES);
+        return doesPropertyMatch(CSS_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean isListRefreshEnabled() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(LIST_REFRESH_ENABLED, CCPrefValues.NO).equals(CCPrefValues.YES);
+        return properties.getString(LIST_REFRESH_ENABLED, PrefValues.NO).equals(PrefValues.YES);
     }
 
     public static boolean isAutoLoginEnabled() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(ENABLE_AUTO_LOGIN, CCPrefValues.NO).equals(CCPrefValues.YES);
+        return properties.getString(ENABLE_AUTO_LOGIN, PrefValues.NO).equals(PrefValues.YES);
     }
 
     public static boolean isSessionSavingEnabled() {
@@ -318,35 +318,35 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
             return false;
         } else {
             SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            return properties.getString(ENABLE_SAVE_SESSION, CCPrefValues.NO).equals(CCPrefValues.YES);
+            return properties.getString(ENABLE_SAVE_SESSION, PrefValues.NO).equals(PrefValues.YES);
         }
     }
 
     public static void enableSessionSaving() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
-                .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, CCPrefValues.YES)
+                .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, PrefValues.YES)
                 .apply();
     }
 
     public static boolean isMarkdownEnabled() {
-        return doesPropertyMatch(MARKDOWN_ENABLED, CCPrefValues.NO, CCPrefValues.YES);
+        return doesPropertyMatch(MARKDOWN_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean imageAboveTextEnabled() {
-        return doesPropertyMatch(ALTERNATE_QUESTION_LAYOUT_ENABLED, CCPrefValues.NO, CCPrefValues.YES);
+        return doesPropertyMatch(ALTERNATE_QUESTION_LAYOUT_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean isHomeReportEnabled() {
-        return doesPropertyMatch(HOME_REPORT_ENABLED, CCPrefValues.NO, CCPrefValues.YES);
+        return doesPropertyMatch(HOME_REPORT_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean shouldOfferPinForLogin() {
-        return doesPropertyMatch(OFFER_PIN_FOR_LOGIN, CCPrefValues.NO, CCPrefValues.YES);
+        return doesPropertyMatch(OFFER_PIN_FOR_LOGIN, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean isAutoPurgeEnabled() {
-        return doesPropertyMatch(AUTO_PURGE_ENABLED, CCPrefValues.NO, CCPrefValues.YES);
+        return doesPropertyMatch(AUTO_PURGE_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
     public static String formLoadPayloadStatus() {
@@ -359,29 +359,29 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
      * exit from the case detail screen
      */
     public static boolean isDetailTabSwipeActionEnabled() {
-        return doesPropertyMatch(DETAIL_TAB_SWIPE_ACTION_ENABLED, CCPrefValues.YES, CCPrefValues.YES);
+        return doesPropertyMatch(DETAIL_TAB_SWIPE_ACTION_ENABLED, PrefValues.YES, PrefValues.YES);
     }
 
     public static boolean useRootModuleMenuAsHomeScreen() {
-        return doesPropertyMatch(USE_ROOT_MENU_AS_HOME_SCREEN, CCPrefValues.NO, CCPrefValues.YES);
+        return doesPropertyMatch(USE_ROOT_MENU_AS_HOME_SCREEN, PrefValues.NO, PrefValues.YES);
     }
 
 
     public static boolean collectAndDisplayEntityTraces() {
-        return doesPropertyMatch(SHOW_ADB_ENTITY_LIST_TRACES, CCPrefValues.NO, CCPrefValues.YES);
+        return doesPropertyMatch(SHOW_ADB_ENTITY_LIST_TRACES, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean useObfuscatedPassword() {
-        return doesPropertyMatch(USE_OBFUSCATED_PW, CCPrefValues.NO, CCPrefValues.YES);
+        return doesPropertyMatch(USE_OBFUSCATED_PW, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean isBulkPerformanceEnabled() {
-        return doesPropertyMatch(ENABLE_BULK_PERFORMANCE, CCPrefValues.NO, CCPrefValues.YES);
+        return doesPropertyMatch(ENABLE_BULK_PERFORMANCE, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean shouldShowUpdateOptionsSetting() {
-        return doesPropertyMatch(SHOW_UPDATE_OPTIONS_SETTING, CCPrefValues.NO,
-                CCPrefValues.YES) || BuildConfig.DEBUG;
+        return doesPropertyMatch(SHOW_UPDATE_OPTIONS_SETTING, PrefValues.NO,
+                PrefValues.YES) || BuildConfig.DEBUG;
     }
 
     public static String getLocalFormPayloadFilePath() {
@@ -400,11 +400,11 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     }
 
     public static boolean shouldHideReportIssue() {
-        return doesPropertyMatch(HIDE_ISSUE_REPORT, CCPrefValues.NO, CCPrefValues.YES);
+        return doesPropertyMatch(HIDE_ISSUE_REPORT, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean isEnforceSecureEndpointEnabled() {
-        return doesPropertyMatch(ENFORCE_SECURE_ENDPOINT, CCPrefValues.NO, CCPrefValues.YES);
+        return doesPropertyMatch(ENFORCE_SECURE_ENDPOINT, PrefValues.NO, PrefValues.YES);
     }
 
     private void hideOrShowDangerousSettings() {

@@ -16,7 +16,7 @@ import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.HttpCalloutTask;
-import org.commcare.preferences.CCServerUrls;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -105,7 +105,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         if (blockRemoteKeyManagement) {
             keyServerUrl = null;
         } else {
-            keyServerUrl = CCServerUrls.getKeyServer();
+            keyServerUrl = ServerUrls.getKeyServer();
             //long story
             keyServerUrl = "".equals(keyServerUrl) ? null : keyServerUrl;
         }

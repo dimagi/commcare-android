@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  *
  * Created by amstone326 on 11/14/17.
  */
-public class HiddenCommCarePreferences {
+public class HiddenPreferences {
 
     // Preferences that are set in the course of CommCare usage, based upon a user's workflow/actions
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
@@ -140,11 +140,11 @@ public class HiddenCommCarePreferences {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         // If there is a setting for form management it takes precedence
         if (properties.contains(RESIZING_METHOD)) {
-            return properties.getString(RESIZING_METHOD, CCPrefValues.NONE);
+            return properties.getString(RESIZING_METHOD, PrefValues.NONE);
         }
 
         // Otherwise, see if we're in sense mode
-        return CCPrefValues.NONE;
+        return PrefValues.NONE;
     }
 
     public static boolean isSmartInflationEnabled() {
@@ -153,25 +153,25 @@ public class HiddenCommCarePreferences {
             return false;
         }
         String targetDensitySetting = app.getAppPreferences().getString(KEY_TARGET_DENSITY,
-                CCPrefValues.NONE);
-        return !targetDensitySetting.equals(CCPrefValues.NONE);
+                PrefValues.NONE);
+        return !targetDensitySetting.equals(PrefValues.NONE);
     }
 
     public static int getTargetInflationDensity() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return Integer.parseInt(properties.getString(KEY_TARGET_DENSITY, CCPrefValues.DEFAULT_TARGET_DENSITY));
+        return Integer.parseInt(properties.getString(KEY_TARGET_DENSITY, PrefValues.DEFAULT_TARGET_DENSITY));
     }
 
     public static boolean isEntityDetailLoggingEnabled() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(LOG_ENTITY_DETAIL, CCPrefValues.FALSE).equals(CCPrefValues.TRUE);
+        return properties.getString(LOG_ENTITY_DETAIL, PrefValues.FALSE).equals(PrefValues.TRUE);
     }
 
     public static boolean isSavedFormsEnabled() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         // If there is a setting for form management it takes precedence
         return !properties.contains(ENABLE_SAVED_FORMS) ||
-                properties.getString(ENABLE_SAVED_FORMS, CCPrefValues.YES).equals(CCPrefValues.YES);
+                properties.getString(ENABLE_SAVED_FORMS, PrefValues.YES).equals(PrefValues.YES);
     }
 
     public static boolean isIncompleteFormsEnabled() {
@@ -182,7 +182,7 @@ public class HiddenCommCarePreferences {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         // If there is a setting for form management it takes precedence
         return !properties.contains(ENABLE_INCOMPLETE_FORMS) ||
-                properties.getString(ENABLE_INCOMPLETE_FORMS, CCPrefValues.YES).equals(CCPrefValues.YES);
+                properties.getString(ENABLE_INCOMPLETE_FORMS, PrefValues.YES).equals(PrefValues.YES);
     }
 
     public static String getUserDomain() {

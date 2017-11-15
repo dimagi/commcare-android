@@ -213,12 +213,12 @@ public class MainConfigurablePreferences
 
     public static boolean isGridMenuEnabled() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(GRID_MENUS_ENABLED, CCPrefValues.NO).equals(CCPrefValues.YES);
+        return properties.getString(GRID_MENUS_ENABLED, PrefValues.NO).equals(PrefValues.YES);
     }
 
     public static boolean isFuzzySearchEnabled() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(PREFS_FUZZY_SEARCH_KEY, CCPrefValues.NO).equals(CCPrefValues.YES);
+        return properties.getString(PREFS_FUZZY_SEARCH_KEY, PrefValues.NO).equals(PrefValues.YES);
     }
 
     public static boolean isAnalyticsEnabled() {
@@ -239,8 +239,8 @@ public class MainConfigurablePreferences
 
     public static String getUpdateTargetParam() {
         String updateTarget = getUpdateTarget();
-        if (CCPrefValues.UPDATE_TARGET_BUILD.equals(updateTarget)
-                || CCPrefValues.UPDATE_TARGET_SAVED.equals(updateTarget)) {
+        if (PrefValues.UPDATE_TARGET_BUILD.equals(updateTarget)
+                || PrefValues.UPDATE_TARGET_SAVED.equals(updateTarget)) {
             // We only need to add a query param to the update URL if the target is set to
             // something other than the default
             return updateTarget;
@@ -258,13 +258,13 @@ public class MainConfigurablePreferences
      */
     private static String getUpdateTarget() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(UPDATE_TARGET, CCPrefValues.UPDATE_TARGET_STARRED);
+        return properties.getString(UPDATE_TARGET, PrefValues.UPDATE_TARGET_STARRED);
     }
 
     public static void setUpdateTarget(String updateTargetValue) {
-        if (CCPrefValues.UPDATE_TARGET_BUILD.equals(updateTargetValue) ||
-                CCPrefValues.UPDATE_TARGET_SAVED.equals(updateTargetValue) ||
-                CCPrefValues.UPDATE_TARGET_STARRED.equals(updateTargetValue)) {
+        if (PrefValues.UPDATE_TARGET_BUILD.equals(updateTargetValue) ||
+                PrefValues.UPDATE_TARGET_SAVED.equals(updateTargetValue) ||
+                PrefValues.UPDATE_TARGET_STARRED.equals(updateTargetValue)) {
             CommCareApplication.instance().getCurrentApp().getAppPreferences()
                     .edit()
                     .putString(UPDATE_TARGET, updateTargetValue)

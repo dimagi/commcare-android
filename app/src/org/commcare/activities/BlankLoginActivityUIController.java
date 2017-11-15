@@ -5,7 +5,7 @@ import android.widget.EditText;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.preferences.HiddenCommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 
 import java.util.ArrayList;
 
@@ -69,7 +69,7 @@ public class BlankLoginActivityUIController extends LoginActivityUIController {
     @Override
     protected void restoreLastUser() {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        String lastUser = prefs.getString(HiddenCommCarePreferences.LAST_LOGGED_IN_USER, null);
+        String lastUser = prefs.getString(HiddenPreferences.LAST_LOGGED_IN_USER, null);
         if (lastUser != null) {
             username.setText(lastUser);
             password.requestFocus();

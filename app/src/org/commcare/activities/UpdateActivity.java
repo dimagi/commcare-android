@@ -21,8 +21,8 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.preferences.CCPrefValues;
-import org.commcare.preferences.HiddenCommCarePreferences;
+import org.commcare.preferences.PrefValues;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.InstallStagedUpdateTask;
@@ -439,7 +439,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private void logoutOnSuccessfulUpdate() {
         final String upgradeFinishedText =
                 Localization.get("updates.install.finished");
-        HiddenCommCarePreferences.setPostUpdateSyncNeeded(!isLocalUpdate && !BuildConfig.DEBUG);
+        HiddenPreferences.setPostUpdateSyncNeeded(!isLocalUpdate && !BuildConfig.DEBUG);
         CommCareApplication.instance().expireUserSession();
         if (proceedAutomatically) {
             finishWithResult(RefreshToLatestBuildActivity.UPDATE_SUCCESS);
@@ -520,7 +520,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 Localization.get("update.option.starred"), -1, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainConfigurablePreferences.setUpdateTarget(CCPrefValues.UPDATE_TARGET_STARRED);
+                MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_STARRED);
                 dialog.dismiss();
             }
         });
@@ -529,7 +529,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 Localization.get("update.option.build"), -1, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainConfigurablePreferences.setUpdateTarget(CCPrefValues.UPDATE_TARGET_BUILD);
+                MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_BUILD);
                 dialog.dismiss();
             }
         });
@@ -538,7 +538,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 Localization.get("update.option.saved"), -1, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainConfigurablePreferences.setUpdateTarget(CCPrefValues.UPDATE_TARGET_SAVED);
+                MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_SAVED);
                 dialog.dismiss();
             }
         });
