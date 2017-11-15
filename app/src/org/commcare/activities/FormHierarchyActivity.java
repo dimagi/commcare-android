@@ -33,7 +33,6 @@ public class FormHierarchyActivity extends ListActivity {
     private Button jumpPreviousButton;
     private List<HierarchyElement> formList;
     private TextView mPath;
-    private boolean cameFromFormRecordListActivity;
 
     public final static int RESULT_XPATH_ERROR = RESULT_FIRST_USER + 1;
 
@@ -41,10 +40,6 @@ public class FormHierarchyActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.hierarchy_layout);
-        int launchMode = getIntent().getIntExtra(FormEntryConstants.HIERARCHY_ACTIVITY_LAUNCH_MODE,
-                FormEntryConstants.HIERARCHY_ACTIVITY);
-        this.cameFromFormRecordListActivity =
-                launchMode == FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START;
         FormEntryActivity.mFormController.storeFormIndexToReturnTo();
 
         addActionBarBackArrow();
@@ -282,13 +277,8 @@ public class FormHierarchyActivity extends ListActivity {
 
     @Override
     public void onBackPressed() {
-        if (cameFromFormRecordListActivity
-                && !FormEntryActivity.mFormController.getFormIndex().isTerminal()) {
-            goUpLevel();
-        } else {
-            FormEntryActivity.mFormController.returnToStoredIndex();
-            super.onBackPressed();
-        }
+        FormEntryActivity.mFormController.returnToStoredIndex();
+        super.onBackPressed();
     }
 
     @Override

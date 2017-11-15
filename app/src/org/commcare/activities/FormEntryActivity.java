@@ -489,7 +489,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
                 }
                 Intent i = new Intent(this, FormHierarchyActivity.class);
-                i.putExtra(FormEntryConstants.HIERARCHY_ACTIVITY_LAUNCH_MODE, FormEntryConstants.HIERARCHY_ACTIVITY);
                 startActivityForResult(i, FormEntryConstants.HIERARCHY_ACTIVITY);
                 return true;
             case FormEntryConstants.MENU_PREFERENCES:
@@ -968,7 +967,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } else {
             // we've just loaded a saved form, so start in the hierarchy view
             Intent i = new Intent(this, FormHierarchyActivity.class);
-            i.putExtra(FormEntryConstants.HIERARCHY_ACTIVITY_LAUNCH_MODE, FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START);
             startActivityForResult(i, FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START);
             return; // so we don't show the intro screen before jumping to the hierarchy
         }
