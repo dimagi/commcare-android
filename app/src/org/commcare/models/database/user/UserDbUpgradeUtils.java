@@ -6,14 +6,17 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.FormRecordV2;
+import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.util.LogTypes;
@@ -157,5 +160,42 @@ public class UserDbUpgradeUtils {
             idToDateIndex.put(id, dateAsSeconds);
         }
         return idToDateIndex;
+    }
+
+    protected static void addRelationshipToAllCases(Context c, SQLiteDatabase db) {
+        SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+                new ConcreteAndroidDbHelper(c, db));
+
+        db.execSQL(DbUtil.addColumnToTable(
+                AndroidCaseIndexTable.TABLE_NAME,
+                "relationship",
+                "TEXT"));
+
+        AndroidCaseIndexTable indexTable = new AndroidCaseIndexTable(db);
+        indexTable.reIndexAllCases(caseStorage);
+    }
+
+    protected static void migrateFormRecordsToV3(Context c, SQLiteDatabase db) {
+        SqlStorage<FormRecordV3> oldStorage = new SqlStorage<>(
+                FormRecord.STORAGE_KEY,
+                FormRecordV3.class,
+                new ConcreteAndroidDbHelper(c, db));
+
+        SqlStorage<FormRecord> newStorage = new SqlStorage<>(
+                FormRecord.STORAGE_KEY,
+                FormRecord.class,
+                new ConcreteAndroidDbHelper(c, db));
+        for (FormRecordV3 oldRecord : oldStorage) {
+            FormRecord newRecord = new FormRecord(
+                    oldRecord.getInstanceURIString(),
+                    oldRecord.getStatus(),
+                    oldRecord.getFormNamespace(),
+                    oldRecord.getAesKey(),
+                    oldRecord.getInstanceID(),
+                    oldRecord.lastModified(),
+                    oldRecord.getAppId());
+            newRecord.setID(oldRecord.getID());
+            newStorage.write(newRecord);
+        }
     }
 }

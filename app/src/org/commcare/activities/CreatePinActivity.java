@@ -21,8 +21,8 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -103,7 +103,12 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 // processes the done/next keyboard action
                 if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
-                    continueButton.performClick();
+                    if (pinLengthIsValid(enterPinBox.getText())) {
+                        continueButton.performClick();
+                    } else {
+                        Toast.makeText(CreatePinActivity.this, Localization.get("pin.length.error"),
+                                Toast.LENGTH_LONG).show();
+                    }
                     return true;
                 }
                 return false;
@@ -186,7 +191,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private void assignPin(String pin) {
         userRecord.assignPinToRecord(pin, unhashedUserPassword);
         CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
-        GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_SET_USER_PIN);
+        FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_SET_PIN);
     }
 
     @Override
@@ -247,13 +252,13 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.length() == 4) {
-                    confirmButton.setEnabled(true);
-                } else {
-                    confirmButton.setEnabled(false);
-                }
+                confirmButton.setEnabled(pinLengthIsValid(s));
             }
         };
+    }
+
+    public static boolean pinLengthIsValid(CharSequence s) {
+        return s.length() == 4;
     }
 
     @Override

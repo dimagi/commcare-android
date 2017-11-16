@@ -8,8 +8,9 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
@@ -21,8 +22,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -54,20 +53,13 @@ public class HeartbeatRequester {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                 JSONObject jsonResponse = new JSONObject(responseAsString);
                 passResponseToUiThread(jsonResponse);
-            }
-            catch (JSONException e) {
+            } catch (JSONException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "Heartbeat response was not properly-formed JSON: " + e.getMessage());
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "IO error while processing heartbeat response: " + e.getMessage());
             }
-        }
-
-        @Override
-        public void processRedirection(int responseCode) {
-            processErrorResponse(responseCode);
         }
 
         @Override
@@ -87,9 +79,13 @@ public class HeartbeatRequester {
 
         @Override
         public void handleIOException(IOException exception) {
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Encountered IOException while getting response stream for heartbeat response: "
-                            + exception.getMessage());
+            if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
+                Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException while sending heartbeat request: Sending password over HTTP");
+            } else if (exception instanceof IOException) {
+                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
+                        "Encountered IOException while getting response stream for heartbeat response: "
+                                + exception.getMessage());
+            }
         }
 
         private void processErrorResponse(int responseCode) {
@@ -100,19 +96,16 @@ public class HeartbeatRequester {
 
     protected void requestHeartbeat() {
         String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getString(CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
-        try {
-            Log.i(TAG, "Requesting heartbeat from " + urlString);
-            ModernHttpRequester requester =
-                    CommCareApplication.instance().buildHttpRequesterForLoggedInUser(
-                            CommCareApplication.instance(), new URL(urlString),
-                            getParamsForHeartbeatRequest(), true, false);
-            requester.setResponseProcessor(responseProcessor);
-            requester.request();
-        } catch (MalformedURLException e) {
-            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
-                    "Heartbeat URL was malformed: " + e.getMessage());
-        }
+                .getString(ServerUrls.PREFS_HEARTBEAT_URL_KEY, null);
+        Log.i(TAG, "Requesting heartbeat from " + urlString);
+        ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
+                CommCareApplication.instance(),
+                urlString,
+                getParamsForHeartbeatRequest(),
+                new HashMap(),
+                null,
+                responseProcessor);
+        requester.makeRequestAndProcess();
     }
 
     private static HashMap<String, String> getParamsForHeartbeatRequest() {

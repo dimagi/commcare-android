@@ -27,7 +27,11 @@ import java.io.IOException;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class DevSessionRestorer {
+
     private static final String TAG = DevSessionRestorer.class.getSimpleName();
+
+    public final static String CURRENT_SESSION = "current_user_session";
+    public final static String CURRENT_FORM_ENTRY_SESSION = "current_form_entry_session";
 
     /**
      * @return Username and password of last login; null if auto-login not
@@ -38,9 +42,9 @@ public class DevSessionRestorer {
             SharedPreferences prefs =
                     CommCareApplication.instance().getCurrentApp().getAppPreferences();
             String lastUser =
-                    prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, "");
+                    prefs.getString(HiddenPreferences.LAST_LOGGED_IN_USER, "");
             String lastPass =
-                    prefs.getString(CommCarePreferences.LAST_PASSWORD, "");
+                    prefs.getString(HiddenPreferences.LAST_PASSWORD, "");
 
             if (!"".equals(lastPass)) {
                 return new Pair<>(lastUser, lastPass);
@@ -54,7 +58,7 @@ public class DevSessionRestorer {
         tryAutoLoginPasswordSave(password, true);
         SharedPreferences prefs =
                 CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        prefs.edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, username).apply();
+        prefs.edit().putString(HiddenPreferences.LAST_LOGGED_IN_USER, username).apply();
     }
 
     /**
@@ -64,7 +68,7 @@ public class DevSessionRestorer {
         if (force || autoLoginEnabled()) {
             SharedPreferences prefs =
                     CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            prefs.edit().putString(CommCarePreferences.LAST_PASSWORD, password).commit();
+            prefs.edit().putString(HiddenPreferences.LAST_PASSWORD, password).apply();
         }
     }
 
@@ -75,19 +79,19 @@ public class DevSessionRestorer {
     public static void enableAutoLogin() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
-                .putString(DeveloperPreferences.ENABLE_AUTO_LOGIN, CommCarePreferences.YES)
+                .putString(DeveloperPreferences.ENABLE_AUTO_LOGIN, PrefValues.YES)
                 .apply();
     }
 
     public static void enableSessionSaving() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
-                .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, CommCarePreferences.YES)
+                .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, PrefValues.YES)
                 .apply();
     }
 
     public static void clearPassword(SharedPreferences prefs) {
-        prefs.edit().remove(CommCarePreferences.LAST_PASSWORD).commit();
+        prefs.edit().remove(HiddenPreferences.LAST_PASSWORD).apply();
     }
 
     /**
@@ -98,7 +102,7 @@ public class DevSessionRestorer {
     public static AndroidSessionWrapper restoreSessionFromPrefs(CommCarePlatform platform) {
         SharedPreferences prefs =
                 CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        String serializedSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, null);
+        String serializedSession = prefs.getString(DevSessionRestorer.CURRENT_SESSION, null);
         if (serializedSession != null) {
             try {
                 byte[] sessionBytes = Base64.decode(serializedSession, Base64.DEFAULT);
@@ -133,8 +137,8 @@ public class DevSessionRestorer {
         String formEntrySession = FormEntryActivity.getFormEntrySessionString();
 
         ccApp.getAppPreferences().edit()
-                .putString(CommCarePreferences.CURRENT_SESSION, serializedSession)
-                .putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, formEntrySession)
+                .putString(DevSessionRestorer.CURRENT_SESSION, serializedSession)
+                .putString(DevSessionRestorer.CURRENT_FORM_ENTRY_SESSION, formEntrySession)
                 .apply();
     }
 
@@ -165,7 +169,7 @@ public class DevSessionRestorer {
     public static boolean savedSessionPresent() {
         SharedPreferences prefs =
                 CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        String serializedSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, null);
+        String serializedSession = prefs.getString(DevSessionRestorer.CURRENT_SESSION, null);
         return serializedSession != null;
     }
 
@@ -175,8 +179,8 @@ public class DevSessionRestorer {
 
     private static void clearSession(SharedPreferences prefs) {
         prefs.edit()
-                .remove(CommCarePreferences.CURRENT_SESSION)
-                .remove(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION)
-                .commit();
+                .remove(DevSessionRestorer.CURRENT_SESSION)
+                .remove(DevSessionRestorer.CURRENT_FORM_ENTRY_SESSION)
+                .apply();
     }
 }

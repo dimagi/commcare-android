@@ -5,33 +5,42 @@ import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
-import org.commcare.network.DataSubmissionEntity;
+import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.EncryptedFileBody;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
+import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 public class FormUploadUtil {
     private static final String TAG = FormUploadUtil.class.getSimpleName();
@@ -133,15 +142,14 @@ public class FormUploadUtil {
             throw new FileNotFoundException("Folder at path " + folder.getAbsolutePath() + " had no files.");
         }
 
-        // mime post
-        MultipartEntity entity =
-                new DataSubmissionEntity(myListener, submissionNumber);
-        if (!buildMultipartEntity(entity, key, files)) {
+        List<MultipartBody.Part> parts = new ArrayList<>();
+
+        if (!buildMultipartEntity(parts, key, files)) {
             return FormUploadResult.RECORD_FAILURE;
         }
 
-        HttpRequestGenerator generator = new HttpRequestGenerator(user);
-        return submitEntity(entity, url, generator);
+        CommcareRequestGenerator generator = new CommcareRequestGenerator(user);
+        return submitEntity(parts, url, generator);
     }
 
     /**
@@ -149,12 +157,13 @@ public class FormUploadUtil {
      *
      * @return submission status of multipart entity post
      */
-    private static FormUploadResult submitEntity(MultipartEntity entity, String url,
-                                                 HttpRequestGenerator generator) {
-        HttpResponse response;
+
+    private static FormUploadResult submitEntity(List<MultipartBody.Part> parts, String url,
+                                                 CommcareRequestGenerator generator) {
+        Response<ResponseBody> response;
 
         try {
-            response = generator.postData(url, entity);
+            response = generator.postMultipart(url, parts);
         } catch (InputIOException ioe) {
             // This implies that there was a problem with the _source_ of the
             // transmission, not the processing or receiving end.
@@ -162,11 +171,16 @@ public class FormUploadUtil {
                     "Internal error reading form record during submission: " +
                             ioe.getWrapped().getMessage());
             return FormUploadResult.RECORD_FAILURE;
-        } catch (ClientProtocolException | UnknownHostException e) {
+        } catch (UnknownHostException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK,
                     "Client network issues during submission: " + e.getMessage());
             return FormUploadResult.TRANSPORT_FAILURE;
+        } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
+                    "Encountered PlainTextPasswordException while submission: Sending password over HTTP");
+            return FormUploadResult.AUTH_OVER_HTTP;
         } catch (IOException | IllegalStateException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_ERROR_STORAGE,
@@ -176,33 +190,53 @@ public class FormUploadUtil {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            StreamsUtil.writeFromInputToOutputNew(response.getEntity().getContent(), bos);
+            if (response.body() != null) {
+                InputStream responseStream = response.body().byteStream();
+                StreamsUtil.writeFromInputToOutputNew(responseStream, bos);
+            }
         } catch (IllegalStateException | IOException e) {
             e.printStackTrace();
         }
 
         String responseString = new String(bos.toByteArray());
-        int responseCode = response.getStatusLine().getStatusCode();
+        int responseCode = response.code();
         logResponse(responseCode, responseString);
 
         if (responseCode >= 200 && responseCode < 300) {
             return FormUploadResult.FULL_SUCCESS;
         } else if (responseCode == 401) {
             return FormUploadResult.AUTH_FAILURE;
+        } else if (responseCode == 422) {
+            return handleProcessingFailure(response.errorBody().byteStream());
         } else {
             return FormUploadResult.FAILURE;
         }
     }
 
+    private static FormUploadResult handleProcessingFailure(InputStream responseStream) {
+        FormUploadResult result = FormUploadResult.PROCESSING_FAILURE;
+        try {
+            result.setProcessingFailureReason(parseProcessingFailureResponse(responseStream));
+        } catch (IOException | InvalidStructureException | XmlPullParserException |
+                UnfullfilledRequirementsException e) {
+            // If we can't parse out the failure reason then we won't quarantine this form, because
+            // we won't have any clear info about what happened
+            result = FormUploadResult.FAILURE;
+            Logger.exception(e);
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     private static void logResponse(int responseCode, String responseString) {
-        String responseCodeMessage = "Response code to form submission attempt: " + responseCode;
+        String responseCodeMessage = "Response code to form submission attempt was: " + responseCode;
         Log.e(TAG, responseCodeMessage);
         Log.d(TAG, responseString);
         if (!(responseCode >= 200 && responseCode < 300)) {
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, responseCodeMessage);
             Logger.log(LogTypes.TYPE_FORM_SUBMISSION, responseCodeMessage);
             Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
-                    "Response string to failed form submission attempt: " + responseString);
+                    "Response string to failed form submission attempt was: " + responseString);
         }
     }
 
@@ -261,52 +295,43 @@ public class FormUploadUtil {
      * Add files of supported type to the multipart entity, encrypting xml
      * files.
      *
-     * @param entity Add files to this
-     * @param key    Used to encrypt xml files
-     * @param files  The files to be added to the entity,
+     * @param parts Add files to this
+     * @param key   Used to encrypt xml files
+     * @param files The files to be added to the entity,
      * @return false if invalid xml files are found; otherwise true.
      * @throws FileNotFoundException Is raised when an xml doesn't exist on the
      *                               file-system
      */
-    private static boolean buildMultipartEntity(MultipartEntity entity,
+    private static boolean buildMultipartEntity(List<MultipartBody.Part> parts,
                                                 SecretKeySpec key,
                                                 File[] files)
             throws FileNotFoundException {
+
         int numAttachmentsInInstanceFolder = 0;
         int numAttachmentsSuccessfullyAdded = 0;
-        for (File f : files) {
-            ContentBody fb;
 
+        for (File f : files) {
             if (f.getName().endsWith(".xml")) {
                 if (key != null) {
                     if (!validateSubmissionFile(f)) {
                         return false;
                     }
-                    fb = new EncryptedFileBody(f, FormUploadUtil.getDecryptCipher(key),
-                            ContentType.TEXT_XML);
+                    parts.add(createEncryptedFilePart("xml_submission_file", f, "text/xml", key));
                 } else {
-                    fb = new FileBody(f, ContentType.TEXT_XML, f.getName());
+                    parts.add(createFilePart("xml_submission_file", f, "text/xml"));
                 }
-                entity.addPart("xml_submission_file", fb);
-            } else if (f.getName().endsWith(".jpg")) {
-                numAttachmentsInInstanceFolder++;
-                fb = new FileBody(f, ContentType.create("image/jpeg"), f.getName());
-                numAttachmentsSuccessfullyAdded += addPartToEntity(entity, f, fb);
-            } else if (f.getName().endsWith(".3gpp")) {
-                numAttachmentsInInstanceFolder++;
-                fb = new FileBody(f, ContentType.create("audio/3gpp"), f.getName());
-                numAttachmentsSuccessfullyAdded += addPartToEntity(entity, f, fb);
-            } else if (f.getName().endsWith(".3gp")) {
-                numAttachmentsInInstanceFolder++;
-                fb = new FileBody(f, ContentType.create("video/3gpp"), f.getName());
-                numAttachmentsSuccessfullyAdded += addPartToEntity(entity, f, fb);
-            } else if (isSupportedMultimediaFile(f.getName())) {
-                numAttachmentsInInstanceFolder++;
-                fb = new FileBody(f, ContentType.APPLICATION_OCTET_STREAM, f.getName());
-                numAttachmentsSuccessfullyAdded += addPartToEntity(entity, f, fb);
             } else {
-                Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
-                        "Could not add unsupported file type to submission entity: " + f.getName());
+                String contentType = getFileContentType(f);
+                if (contentType != null) {
+                    numAttachmentsInInstanceFolder++;
+                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, contentType);
+                } else if (isSupportedMultimediaFile(f.getName())) {
+                    numAttachmentsInInstanceFolder++;
+                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, "application/octet-stream");
+                } else {
+                    Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
+                            "Could not add unsupported file type to submission entity: " + f.getName());
+                }
             }
         }
         Logger.log(LogTypes.TYPE_FORM_SUBMISSION, "Attempted to add "
@@ -316,15 +341,53 @@ public class FormUploadUtil {
         return true;
     }
 
-    private static int addPartToEntity(MultipartEntity entity, File f, ContentBody fb) {
-        if (fb.getContentLength() <= MAX_BYTES) {
-            entity.addPart(f.getName(), fb);
+    private static int addPartToEntity(List<MultipartBody.Part> parts, File f, String contentType) {
+        if (f.length() <= MAX_BYTES) {
+            parts.add(createFilePart(f.getName(), f, contentType));
             return 1;
         } else {
             Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
                     "Failed to add attachment to submission entity (too large): " + f.getName());
             return 0;
         }
+    }
+
+
+    private static String getFileContentType(File f) {
+        if (f.getName().endsWith(".xml")) {
+            return "text/xml";
+        } else if (f.getName().endsWith(".jpg")) {
+            return "image/jpeg";
+        } else if (f.getName().endsWith(".3gpp")) {
+            return "audio/3gpp";
+        } else if (f.getName().endsWith(".3gp")) {
+            return "video/3gpp";
+        }
+        return null;
+    }
+
+    private static MultipartBody.Part createFilePart(String partName, File file, String contentType) {
+
+        // create RequestBody instance from file
+        RequestBody requestFile = RequestBody.create(
+                MediaType.parse(contentType),
+                file);
+
+        // MultipartBody.Part is used to send also the actual file name
+        return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
+    }
+
+
+    public static MultipartBody.Part createEncryptedFilePart(String partName, File file, String contentType, SecretKeySpec key) {
+
+        // create RequestBody instance from file
+        RequestBody requestFile = new EncryptedFileBody(
+                MediaType.parse(contentType),
+                file,
+                FormUploadUtil.getDecryptCipher(key));
+
+        // MultipartBody.Part is used to send also the actual file name
+        return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
     }
 
     /**
@@ -361,5 +424,29 @@ public class FormUploadUtil {
         }
 
         return false;
+    }
+
+    public static String parseProcessingFailureResponse(InputStream responseStream)
+            throws IOException, InvalidStructureException, UnfullfilledRequirementsException,
+            XmlPullParserException {
+
+        KXmlParser baseParser = ElementParser.instantiateParser(responseStream);
+        ElementParser<String> responseParser = new ElementParser<String>(baseParser) {
+            @Override
+            public String parse() throws InvalidStructureException, IOException,
+                    XmlPullParserException, UnfullfilledRequirementsException {
+                checkNode("OpenRosaResponse");
+                nextTag("message");
+                String natureOfResponse = parser.getAttributeValue(null, "nature");
+                if ("processing_failure".equals(natureOfResponse)) {
+                    return parser.nextText();
+                } else {
+                    throw new UnfullfilledRequirementsException(
+                            "<message> for 422 response did not contain expected content",
+                            CommCareElementParser.SEVERITY_UNKOWN);
+                }
+            }
+        };
+        return responseParser.parse();
     }
 }

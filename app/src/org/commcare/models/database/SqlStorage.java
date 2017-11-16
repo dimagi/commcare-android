@@ -14,6 +14,9 @@ import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.util.Pair;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
+import org.javarosa.core.model.condition.Abandonable;
+import org.javarosa.core.model.condition.LifecycleSignaler;
+import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -89,11 +92,13 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return getIDsForValues(new String[]{fieldName}, new Object[]{value});
     }
 
+    @Override
     public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
         return getIDsForValues(fieldNames, values, null);
     }
 
-    public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet<Integer> returnSet) {
+    @Override
+    public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet returnSet) {
         SQLiteDatabase db = helper.getHandle();
 
         Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);
@@ -174,6 +179,25 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             c.close();
         }
     }
+
+    @Override
+    public String[] getMetaDataForRecord(int recordId, String[] metaDataNames) {
+        String rid = String.valueOf(recordId);
+        String[] scrubbedNames = scrubMetadataNames(metaDataNames);
+        String[] projection = getProjectedFieldsWithId(false, scrubbedNames);
+        Cursor c = helper.getHandle().query(table, projection, DatabaseHelper.ID_COL + "=?", new String[]{rid}, null, null, null);
+        try {
+            if (c.getCount() == 0) {
+                throw new NoSuchElementException("No record in table " + table + " for ID " + recordId);
+            }
+            c.moveToFirst();
+
+            return readMetaDataFromCursor(c, scrubbedNames);
+        } finally {
+            c.close();
+        }
+    }
+
 
     public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
         SQLiteDatabase appDb = helper.getHandle();
@@ -390,7 +414,23 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      *                          independently of any other data.
      */
     public SqlStorageIterator<T> iterate(boolean includeData, String[] metaDataToInclude) {
-        String[] projection = new String[metaDataToInclude.length + (includeData ? 2 : 1)];
+        String[] projection = getProjectedFieldsWithId(includeData, scrubMetadataNames(metaDataToInclude));
+
+        Cursor c = helper.getHandle().query(table, projection, null, null, null, null, DatabaseHelper.ID_COL);
+        return new SqlStorageIterator<>(c, this, metaDataToInclude);
+    }
+
+    private String[] scrubMetadataNames(String[] metaDataNames) {
+        String[] scrubbedNames = new String[metaDataNames.length];
+
+        for(int i = 0 ; i < metaDataNames.length; ++i ){
+            scrubbedNames[i] = TableBuilder.scrubName(metaDataNames[i]);
+        }
+        return scrubbedNames;
+    }
+
+    private String[] getProjectedFieldsWithId(boolean includeData, String[] columnNamesToInclude) {
+        String[] projection = new String[columnNamesToInclude.length + (includeData ? 2 : 1)];
         int firstIndex = 0;
         projection[firstIndex] = DatabaseHelper.ID_COL;
         firstIndex++;
@@ -398,12 +438,10 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             projection[firstIndex] = DatabaseHelper.DATA_COL;
             firstIndex++;
         }
-        for (int i = 0; i < metaDataToInclude.length ; ++i) {
-            projection[i + firstIndex] = TableBuilder.scrubName(metaDataToInclude[i]);
+        for (int i = 0; i < columnNamesToInclude.length ; ++i) {
+            projection[i + firstIndex] = columnNamesToInclude[i];
         }
-
-        Cursor c = helper.getHandle().query(table, projection, null, null, null, null, DatabaseHelper.ID_COL);
-        return new SqlStorageIterator<>(c, this, metaDataToInclude);
+        return projection;
     }
 
     @Override
@@ -466,7 +504,10 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     @Override
     public void removeAll() {
-        SQLiteDatabase db = helper.getHandle();
+        wipeTable(helper.getHandle(), table);
+    }
+
+    public static void wipeTable(SQLiteDatabase db, String table) {
         db.beginTransaction();
         try {
             db.delete(table, null, null);
@@ -614,6 +655,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     @Override
     public void bulkRead(LinkedHashSet cuedCases, HashMap recordMap) {
+        this.bulkRead(cuedCases, recordMap, null);
+    }
+
+    @Override
+    public void bulkRead(LinkedHashSet cuedCases, HashMap recordMap, Abandonable abandonable) throws RequestAbandonedException {
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(cuedCases);
         for (Pair<String, String[]> querySet : whereParamList) {
             Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + " IN " + querySet.first, querySet.second, null, null, null);
@@ -624,6 +670,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                     c.moveToFirst();
                     int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
                     while (!c.isAfterLast()) {
+                        LifecycleSignaler.AssertNotAbandoned(abandonable);
                         byte[] data = c.getBlob(index);
                         recordMap.put(c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)),
                                 newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
@@ -634,6 +681,47 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 c.close();
             }
         }
+    }
+
+    @Override
+    public void bulkReadMetadata(LinkedHashSet cuedCases, String[] metaDataIds, HashMap metadataMap) {
+        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(cuedCases);
+        String [] scrubbedNames = scrubMetadataNames(metaDataIds);
+        String[] projection = getProjectedFieldsWithId(false, scrubbedNames);
+
+        for (Pair<String, String[]> querySet : whereParamList) {
+            Cursor c = helper.getHandle().query(table, projection, DatabaseHelper.ID_COL + " IN " + querySet.first, querySet.second, null, null, null);
+            try {
+                if (c.getCount() == 0) {
+                    return;
+                } else {
+                    c.moveToFirst();
+                    int idIndex = c.getColumnIndexOrThrow(DatabaseHelper.ID_COL);
+                    while (!c.isAfterLast()) {
+                        String[] metaRead = readMetaDataFromCursor(c, scrubbedNames);
+                        metadataMap.put(c.getInt(idIndex), metaRead);
+                        c.moveToNext();
+                    }
+                }
+            } finally {
+                c.close();
+            }
+        }
+    }
+
+    /**
+     * Reads out the metadata columns from the provided cursor.
+     *
+     * NOTE: The column names _must be scrubbed here_ before the method is called
+     */
+    private String[] readMetaDataFromCursor(Cursor c, String[] columnNames) {
+        String[] results = new String[columnNames.length];
+        int i = 0;
+        for(String columnName : columnNames) {
+            results[i] = c.getString(c.getColumnIndexOrThrow(columnName));
+            i++;
+        }
+        return results;
     }
 
     /**

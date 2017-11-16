@@ -297,23 +297,6 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     }
 
     @Override
-    public void remove(Persistable p) {
-        this.remove(p.getID());
-    }
-
-    @Override
-    public void removeAll() {
-        SQLiteDatabase db = helper.getHandle();
-        db.beginTransaction();
-        try {
-            db.delete(table, null, null);
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
         Vector<Integer> removed = new Vector<>();
         for (IStorageIterator iterator = this.iterate(); iterator.hasMore(); ) {

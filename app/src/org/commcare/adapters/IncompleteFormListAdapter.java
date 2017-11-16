@@ -29,8 +29,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 /**
- * Responsible for delegating the loading of form lists and performing
- * filtering over them.
+ * Responsible for delegating the loading of form lists and performing filtering over them.
  *
  * @author ctsims
  */

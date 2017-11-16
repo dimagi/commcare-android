@@ -17,7 +17,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
@@ -27,13 +28,17 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.DetailFieldPrintInfo;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UiElement;
+import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xpath.XPathException;
 
 import java.util.HashMap;
 
@@ -131,7 +136,8 @@ public class EntityDetailActivity
         next.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportEntityDetailContinue(false, mDetailView.getTabCount() == 1);
+                FirebaseAnalyticsUtil.reportEntityDetailContinue(
+                        AnalyticsParamValue.NAV_BUTTON_PRESS, mDetailView.getTabCount());
                 select();
             }
         });
@@ -199,7 +205,8 @@ public class EntityDetailActivity
         if (isFinalSwipeActionEnabled &&
                 mDetailView.getCurrentTab() >= mDetailView.getTabCount() - 1) {
             select();
-            GoogleAnalyticsUtils.reportEntityDetailContinue(true, mDetailView.getTabCount() == 1);
+            FirebaseAnalyticsUtil.reportEntityDetailContinue(
+                    AnalyticsParamValue.SWIPE, mDetailView.getTabCount());
             return true;
         }
         return false;
@@ -211,7 +218,8 @@ public class EntityDetailActivity
         if (isFinalSwipeActionEnabled &&
                 mDetailView.getCurrentTab() < 1) {
             finish();
-            GoogleAnalyticsUtils.reportEntityDetailExit(true, mDetailView.getTabCount() == 1);
+            FirebaseAnalyticsUtil.reportEntityDetailExit(
+                    AnalyticsParamValue.SWIPE, mDetailView.getTabCount());
             return true;
         }
         return false;
@@ -238,7 +246,8 @@ public class EntityDetailActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        GoogleAnalyticsUtils.reportEntityDetailExit(false, mDetailView.getTabCount() == 1);
+        FirebaseAnalyticsUtil.reportEntityDetailExit(
+                AnalyticsParamValue.BACK_BUTTON_PRESS, mDetailView.getTabCount());
     }
 
     @Override
@@ -257,7 +266,7 @@ public class EntityDetailActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case MENU_PRINT_DETAIL:
                 printDetail();
                 return true;
@@ -266,16 +275,20 @@ public class EntityDetailActivity
     }
 
     private void printDetail() {
-        Intent i = new Intent(this, TemplatePrinterActivity.class);
-        i.putExtra(TemplatePrinterActivity.PRINT_TEMPLATE_REF_STRING,
-                detail.getPrintTemplatePath());
+        Logger.log(LogTypes.TYPE_PRINTING, "User initiated printing of case detail");
+        try {
+            Intent i = new Intent(this, TemplatePrinterActivity.class);
+            i.putExtra(TemplatePrinterActivity.PRINT_TEMPLATE_REF_STRING,
+                    detail.getPrintTemplatePath());
 
-        HashMap<String, DetailFieldPrintInfo> keyValueMap =
-                detail.getKeyValueMapForPrint(mTreeReference, asw.getEvaluationContext());
-        for (String key : keyValueMap.keySet()) {
-            i.putExtra(key, new PrintableDetailField(keyValueMap.get(key)));
+            HashMap<String, DetailFieldPrintInfo> keyValueMap =
+                    detail.getKeyValueMapForPrint(mTreeReference, asw.getEvaluationContext());
+            for (String key : keyValueMap.keySet()) {
+                i.putExtra(key, new PrintableDetailField(keyValueMap.get(key)));
+            }
+            startActivityForResult(i, PRINT_DETAIL);
+        } catch (XPathException xe) {
+            UserfacingErrorHandling.logErrorAndShowDialog(this, xe, true);
         }
-        startActivityForResult(i, PRINT_DETAIL);
     }
-
 }

@@ -9,6 +9,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryInstanceState;
+import org.commcare.android.javarosa.AndroidXFormHttpRequester;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.core.process.CommCareInstanceInitializer;
@@ -184,6 +185,8 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     }
 
     private FormEntryController initFormDef(FormDef formDef) {
+        setupAndroidPlatformImplementations(formDef);
+
         // create FormEntryController from formdef
         FormEntryModel fem = new FormEntryModel(formDef);
         FormEntryController fec;
@@ -202,7 +205,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         }
 
         try {
-            formDef.initialize(isNewFormInstance, iif, getSystemLocale());
+            formDef.initialize(isNewFormInstance, iif, getSystemLocale(), mReadOnly);
         } catch (XPathException e) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
             throw new UserCausedRuntimeException(e.getMessage(), e);
@@ -347,6 +350,14 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             data.free();
             data = null;
         }
+    }
+
+    /**
+     * Configure android specific platform code for the provided formDef Object
+     */
+    public void setupAndroidPlatformImplementations(FormDef formDef) {
+        formDef.setSendCalloutHandler(new AndroidXFormHttpRequester());
+
     }
 
     protected static class FECWrapper {

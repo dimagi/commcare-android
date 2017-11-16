@@ -8,6 +8,9 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
 import org.commcare.core.encryption.CryptUtil;
+import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.CommCareNetworkServiceGenerator;
+import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.heartbeat.HeartbeatRequester;
@@ -21,6 +24,7 @@ import org.commcare.modern.util.Pair;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.HttpUtils;
 import org.commcare.network.LocalReferencePullResponseFactory;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.model.User;
@@ -41,6 +45,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 import static junit.framework.Assert.fail;
 
@@ -209,17 +219,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
-    public ModernHttpRequester buildHttpRequesterForLoggedInUser(Context context, URL url,
-                                                                 HashMap<String, String> params,
-                                                                 boolean isAuthenticatedRequest,
-                                                                 boolean isPostRequest) {
-        Pair<User, String> userAndDomain = HttpUtils.getUserAndDomain(isAuthenticatedRequest);
-        return new ModernHttpRequesterMock(new AndroidCacheDirSetup(context),
-                url, params, userAndDomain.first, userAndDomain.second,
-                isAuthenticatedRequest, isPostRequest);
-    }
-
-    @Override
     public DataPullRequester getDataPullRequester() {
         return LocalReferencePullResponseFactory.INSTANCE;
     }
@@ -233,7 +232,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     public void afterTest(Method method) {
         Robolectric.flushBackgroundThreadScheduler();
         if (!asyncExceptions.isEmpty()) {
-            for(Throwable throwable: asyncExceptions) {
+            for (Throwable throwable : asyncExceptions) {
                 throwable.printStackTrace();
                 fail("Test failed due to " + asyncExceptions.size() +
                         " threads crashing off the main thread. See error log for more details");
@@ -249,5 +248,22 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     @Override
     public void prepareTest(Object test) {
 
+    }
+
+    @Override
+    public ModernHttpRequester buildHttpRequester(Context context, String url, Map<String, String> params,
+                                                  HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
+                                                  HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith, HttpResponseProcessor responseProcessor) {
+        return new ModernHttpRequesterMock(new AndroidCacheDirSetup(context),
+                url,
+                params,
+                headers,
+                requestBody,
+                parts,
+                CommCareNetworkServiceGenerator.createCommCareNetworkService(
+                        HttpUtils.getCredential(usernameAndPasswordToAuthWith),
+                        DeveloperPreferences.isEnforceSecureEndpointEnabled()),
+                method,
+                responseProcessor);
     }
 }

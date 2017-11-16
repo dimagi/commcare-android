@@ -98,6 +98,6 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
 
     @Override
     public void deliverLoadError(Exception e) {
-        ((CommCareActivity)getActivity()).displayCaseListFilterException(e);
+        ((CommCareActivity)getActivity()).displayCaseListLoadException(e);
     }
 }

@@ -3,7 +3,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="org.commcare.dalvik"
           android:versionCode="106"
-          android:versionName="2.39">
+          android:versionName="2.41">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -314,6 +314,18 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="${applicationId}.action.CommCareKeyAccessRequest"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="org.commcare.android.nfc.NfcWriteActivity">
+            <intent-filter>
+                <action android:name="org.commcare.nfc.WRITE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="org.commcare.android.nfc.NfcReadActivity">
+            <intent-filter>
+                <action android:name="org.commcare.nfc.READ"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>

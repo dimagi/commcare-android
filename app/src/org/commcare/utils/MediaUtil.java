@@ -1,6 +1,7 @@
 package org.commcare.utils;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
@@ -10,9 +11,9 @@ import android.view.WindowManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.engine.references.JavaFileReference;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -85,12 +86,12 @@ public class MediaUtil {
                 boundingWidth = displayMetrics.widthPixels;
             }
 
-            if (CommCarePreferences.isSmartInflationEnabled()) {
-                GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_USING_SMART_IMAGE_INFLATION);
+            if (HiddenPreferences.isSmartInflationEnabled()) {
+                FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_SMART_IMG_INFLATION);
                 // scale based on bounding dimens AND native density
                 return getBitmapScaledForNativeDensity(
                         context.getResources().getDisplayMetrics(), imageFile.getAbsolutePath(),
-                        boundingHeight, boundingWidth, CommCarePreferences.getTargetInflationDensity());
+                        boundingHeight, boundingWidth, HiddenPreferences.getTargetInflationDensity());
             } else {
                 // just scale down if the original image is way too big for its container
                 return getBitmapScaledToContainer(imageFile.getAbsolutePath(), boundingHeight,
@@ -101,6 +102,15 @@ public class MediaUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static int getActionBarHeightInPixels(Context context) {
+        final TypedArray styledAttributes = context.getTheme().obtainStyledAttributes(
+                new int[] { android.R.attr.actionBarSize });
+        int actionBarSize = (int) styledAttributes.getDimension(0, 0);
+        styledAttributes.recycle();
+
+        return actionBarSize;
     }
 
     public static Bitmap inflateDisplayImage(Context context, String jrUri,
@@ -191,7 +201,7 @@ public class MediaUtil {
         Bitmap b = null;
         if (cacheKey.exists()) {
             try {
-                b = BitmapFactory.decodeFile(cacheKey.getPath());
+                b = inflateImageSafe(cacheKey.getPath()).first;
             } catch (RuntimeException e) {
                 try {
                     cacheKey.delete();

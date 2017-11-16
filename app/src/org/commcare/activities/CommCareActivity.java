@@ -57,6 +57,10 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
+import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+
 /**
  * Base class for CommCareActivities to simplify
  * common localization and workflow tasks
@@ -73,6 +77,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     private int invalidTaskIdMessageThrown = -2;
     private TaskConnectorFragment<R> stateHolder;
+
+    CompositeDisposable disposableEventHost = new CompositeDisposable();
 
 
     // Fields for implementing task transitions for CommCareTaskConnector
@@ -291,6 +297,20 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disposableEventHost.dispose();
+    }
+
+    /**
+     * Attaches a reactivex disposable to the lifecycle of this activity, so the disposable
+     * will be cancelled / halted when this activity is destroyed.
+     */
+    public void attachDisposableToLifeCycle(Disposable subscribe) {
+        disposableEventHost.add(subscribe);
+    }
+
+    @Override
     public <A, B, C> void connectTask(CommCareTask<A, B, C, R> task) {
         stateHolder.connectTask(task, this);
 
@@ -399,7 +419,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 message, android.R.drawable.ic_dialog_info, listener));
     }
 
-    public void displayCaseListFilterException(Exception e) {
+    public void displayCaseListLoadException(Exception e) {
         displayException(
                 Localization.get("notification.case.predicate.title"),
                 Localization.get("notification.case.predicate.action", new String[]{e.getMessage()}));

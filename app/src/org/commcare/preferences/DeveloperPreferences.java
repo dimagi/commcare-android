@@ -14,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GlobalPrivilegeClaimingActivity;
@@ -22,11 +21,8 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.javarosa.core.services.locale.Localization;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +30,7 @@ import java.util.Set;
 public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     public static final int RESULT_SYNC_CUSTOM = Activity.RESULT_FIRST_USER + 1;
+    public static final int RESULT_DEV_OPTIONS_DISABLED = Activity.RESULT_FIRST_USER + 2;
 
     private static final int MENU_ENABLE_PRIVILEGES = 0;
 
@@ -58,6 +55,10 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public static final String LOCAL_FORM_PAYLOAD_FILE_PATH = "cc-local-form-payload-file-path";
     public final static String REMOTE_FORM_PAYLOAD_URL = "remote-form-payload-url";
     public final static String HIDE_ISSUE_REPORT = "cc-hide-issue-report";
+    public final static String ENFORCE_SECURE_ENDPOINT = "cc-enforce-secure-endpoint";
+
+    public final static String PROJECT_SET_ACCESS_CODE = "cc-dev-prefs-access-code";
+    public final static String USER_ENTERED_ACCESS_CODE = "cc-dev-prefs-user-entered-code";
 
     /**
      * Stores last used password and performs auto-login when that password is
@@ -75,31 +76,12 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     // ENDREGION
 
     private static final Set<String> WHITELISTED_DEVELOPER_PREF_KEYS = new HashSet<>();
-    private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
 
     static {
         WHITELISTED_DEVELOPER_PREF_KEYS.add(SUPERUSER_ENABLED);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(SHOW_UPDATE_OPTIONS_SETTING);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(AUTO_PURGE_ENABLED);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(ALTERNATE_QUESTION_LAYOUT_ENABLED);
-
-        prefKeyToAnalyticsEvent.put(SUPERUSER_ENABLED, GoogleAnalyticsFields.LABEL_DEV_MODE);
-        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);
-        prefKeyToAnalyticsEvent.put(NAV_UI_ENABLED, GoogleAnalyticsFields.LABEL_NAV_UI);
-        prefKeyToAnalyticsEvent.put(LIST_REFRESH_ENABLED, GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH);
-        prefKeyToAnalyticsEvent.put(ENABLE_AUTO_LOGIN, GoogleAnalyticsFields.LABEL_AUTO_LOGIN);
-        prefKeyToAnalyticsEvent.put(ENABLE_SAVE_SESSION, GoogleAnalyticsFields.LABEL_SESSION_SAVING);
-        prefKeyToAnalyticsEvent.put(EDIT_SAVE_SESSION, GoogleAnalyticsFields.LABEL_EDIT_SAVED_SESSION);
-        prefKeyToAnalyticsEvent.put(CSS_ENABLED, GoogleAnalyticsFields.LABEL_CSS);
-        prefKeyToAnalyticsEvent.put(MARKDOWN_ENABLED, GoogleAnalyticsFields.LABEL_MARKDOWN);
-        prefKeyToAnalyticsEvent.put(ALTERNATE_QUESTION_LAYOUT_ENABLED, GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT);
-        prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
-        prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
-        prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
-        prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
-        prefKeyToAnalyticsEvent.put(PREFS_CUSTOM_RESTORE_DOC_LOCATION, GoogleAnalyticsFields.LABEL_CUSTOM_RESTORE);
-        prefKeyToAnalyticsEvent.put(LOCAL_FORM_PAYLOAD_FILE_PATH, GoogleAnalyticsFields.LABEL_LOCAL_FORM_PAYLOAD_FILE_PATH);
-        prefKeyToAnalyticsEvent.put(REMOTE_FORM_PAYLOAD_URL, GoogleAnalyticsFields.LABEL_REMOTE_FORM_PAYLOAD_URL);
     }
 
     /**
@@ -113,18 +95,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     @Override
     protected String getTitle() {
         return Localization.get("settings.developer.title");
-    }
-
-    @NonNull
-    @Override
-    protected String getAnalyticsCategory() {
-        return GoogleAnalyticsFields.CATEGORY_DEV_PREFS;
-    }
-
-    @Nullable
-    @Override
-    protected Map<String, String> getPrefKeyAnalyticsEventMap() {
-        return prefKeyToAnalyticsEvent;
     }
 
     @Override
@@ -147,7 +117,28 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         super.onCreatePreferences(savedInstanceState, rootKey);
         setHasOptionsMenu(true);
-        savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
+    }
+
+    @Override
+    protected void loadPrefs() {
+        if (userAccessCodeNeeded()) {
+            addPreferencesFromResource(R.xml.preferences_developer_access_code);
+        } else {
+            super.loadPrefs();
+        }
+    }
+
+    private static boolean userAccessCodeNeeded() {
+        if (GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled()) {
+            return false;
+        }
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        String projectAccessCode = prefs.getString(PROJECT_SET_ACCESS_CODE, null);
+        if (projectAccessCode == null || "".equals(projectAccessCode)) {
+            return false;
+        }
+        String userAccessCode = prefs.getString(USER_ENTERED_ACCESS_CODE, null);
+        return !projectAccessCode.equals(userAccessCode);
     }
 
     @Override
@@ -158,6 +149,13 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     @Override
     public void onStart() {
         super.onStart();
+        if (!userAccessCodeNeeded()) {
+            configureSettingsAfterLoad();
+        }
+    }
+
+    private void configureSettingsAfterLoad() {
+        savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
         hideOrShowDangerousSettings();
         setSessionEditText();
     }
@@ -167,19 +165,22 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
             getPreferenceScreen().addPreference(savedSessionEditTextPreference);
             ((EditTextPreference)savedSessionEditTextPreference).setText(getSavedSessionStateAsString());
         } else {
-            getPreferenceScreen().removePreference(savedSessionEditTextPreference);
+            if (savedSessionEditTextPreference != null) {
+                getPreferenceScreen().removePreference(savedSessionEditTextPreference);
+            }
         }
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        String analyticsLabelForPref = prefKeyToAnalyticsEvent.get(key);
-        if (analyticsLabelForPref != null) {
-            GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
-                    analyticsLabelForPref, getEditPrefValue(key));
-        }
+        super.onSharedPreferenceChanged(sharedPreferences, key);
 
         switch (key) {
+            case SUPERUSER_ENABLED:
+                clearUserEnteredAccessCode();
+                this.getActivity().setResult(RESULT_DEV_OPTIONS_DISABLED);
+                this.getActivity().finish();
+                break;
             case ENABLE_AUTO_LOGIN:
                 if (!isAutoLoginEnabled()) {
                     DevSessionRestorer.clearPassword(sharedPreferences);
@@ -205,13 +206,41 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
                     getActivity().finish();
                 }
                 break;
+            case USER_ENTERED_ACCESS_CODE:
+                if (CommCareApplication.instance().getCurrentApp().getAppPreferences().getString(USER_ENTERED_ACCESS_CODE, null) == null) {
+                    // if this is being triggered by us clearing it out, don't do anything
+                    return;
+                } else if (userEnteredAccessCodeMatches()) {
+                    getPreferenceScreen().removeAll();
+                    loadPrefs();
+                    configureSettingsAfterLoad();
+                    Toast.makeText(this.getContext(), Localization.get("dev.options.access.granted"),
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    clearUserEnteredAccessCode();
+                    Toast.makeText(this.getContext(), Localization.get("dev.options.code.incorrect"),
+                            Toast.LENGTH_SHORT).show();
+                }
+                break;
         }
+    }
+
+    private static boolean userEnteredAccessCodeMatches() {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        String projectAccessCode = prefs.getString(PROJECT_SET_ACCESS_CODE, null);
+        String userAccessCode = prefs.getString(USER_ENTERED_ACCESS_CODE, null);
+        return userAccessCode == null ? false : userAccessCode.equals(projectAccessCode);
+    }
+
+    private static void clearUserEnteredAccessCode() {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putString(USER_ENTERED_ACCESS_CODE, null).apply();
     }
 
     private static String getSavedSessionStateAsString() {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        String navSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, "");
-        String formEntrySession = prefs.getString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, "");
+        String navSession = prefs.getString(DevSessionRestorer.CURRENT_SESSION, "");
+        String formEntrySession = prefs.getString(DevSessionRestorer.CURRENT_FORM_ENTRY_SESSION, "");
         if ("".equals(navSession) && "".equals(formEntrySession)) {
             return "";
         } else {
@@ -224,20 +253,10 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
                 CommCareApplication.instance().getCurrentApp().getAppPreferences().edit();
         String[] sessionParts = sessionString.split(NAV_AND_FORM_SESSION_SPACER);
 
-        editor.putString(CommCarePreferences.CURRENT_SESSION, sessionParts[0]);
-        editor.putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, sessionParts[1]);
+        editor.putString(DevSessionRestorer.CURRENT_SESSION, sessionParts[0]);
+        editor.putString(DevSessionRestorer.CURRENT_FORM_ENTRY_SESSION, sessionParts[1]);
         editor.commit();
     }
-
-    private static int getEditPrefValue(String key) {
-        if (CommCareApplication.instance().getCurrentApp().getAppPreferences().
-                getString(key, CommCarePreferences.NO).equals(CommCarePreferences.YES)) {
-            return GoogleAnalyticsFields.VALUE_ENABLED;
-        } else {
-            return GoogleAnalyticsFields.VALUE_DISABLED;
-        }
-    }
-
 
     /**
      * Try to lookup key in app preferences and test equality of the result to
@@ -265,30 +284,32 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
      * @return is the superuser developer preference enabled?
      */
     public static boolean isSuperuserEnabled() {
-        return doesPropertyMatch(SUPERUSER_ENABLED, BuildConfig.DEBUG ? CommCarePreferences.YES : CommCarePreferences.NO, CommCarePreferences.YES);
+        return doesPropertyMatch(SUPERUSER_ENABLED,
+                BuildConfig.DEBUG ? PrefValues.YES : PrefValues.NO,
+                PrefValues.YES);
     }
 
     public static boolean isActionBarEnabled() {
-        return doesPropertyMatch(ACTION_BAR_ENABLED, CommCarePreferences.YES, CommCarePreferences.YES);
+        return doesPropertyMatch(ACTION_BAR_ENABLED, PrefValues.YES, PrefValues.YES);
     }
 
     public static boolean isNewNavEnabled() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(NAV_UI_ENABLED, CommCarePreferences.YES).equals(CommCarePreferences.YES);
+        return properties.getString(NAV_UI_ENABLED, PrefValues.YES).equals(PrefValues.YES);
     }
 
     public static boolean isCssEnabled() {
-        return doesPropertyMatch(CSS_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
+        return doesPropertyMatch(CSS_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean isListRefreshEnabled() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        return properties.getString(LIST_REFRESH_ENABLED, PrefValues.NO).equals(PrefValues.YES);
     }
 
     public static boolean isAutoLoginEnabled() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(ENABLE_AUTO_LOGIN, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        return properties.getString(ENABLE_AUTO_LOGIN, PrefValues.NO).equals(PrefValues.YES);
     }
 
     public static boolean isSessionSavingEnabled() {
@@ -297,40 +318,35 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
             return false;
         } else {
             SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            return properties.getString(ENABLE_SAVE_SESSION, CommCarePreferences.NO).
-                    equals(CommCarePreferences.YES);
+            return properties.getString(ENABLE_SAVE_SESSION, PrefValues.NO).equals(PrefValues.YES);
         }
     }
 
     public static void enableSessionSaving() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
-                .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, CommCarePreferences.YES)
+                .putString(DeveloperPreferences.ENABLE_SAVE_SESSION, PrefValues.YES)
                 .apply();
     }
 
     public static boolean isMarkdownEnabled() {
-        return doesPropertyMatch(MARKDOWN_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
+        return doesPropertyMatch(MARKDOWN_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean imageAboveTextEnabled() {
-        return doesPropertyMatch(ALTERNATE_QUESTION_LAYOUT_ENABLED, CommCarePreferences.NO,
-                CommCarePreferences.YES);
+        return doesPropertyMatch(ALTERNATE_QUESTION_LAYOUT_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean isHomeReportEnabled() {
-        return doesPropertyMatch(HOME_REPORT_ENABLED, CommCarePreferences.NO,
-                CommCarePreferences.YES);
+        return doesPropertyMatch(HOME_REPORT_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean shouldOfferPinForLogin() {
-        return doesPropertyMatch(OFFER_PIN_FOR_LOGIN, CommCarePreferences.NO,
-                CommCarePreferences.YES);
+        return doesPropertyMatch(OFFER_PIN_FOR_LOGIN, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean isAutoPurgeEnabled() {
-        return doesPropertyMatch(AUTO_PURGE_ENABLED, CommCarePreferences.NO,
-                CommCarePreferences.YES);
+        return doesPropertyMatch(AUTO_PURGE_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
     public static String formLoadPayloadStatus() {
@@ -343,29 +359,29 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
      * exit from the case detail screen
      */
     public static boolean isDetailTabSwipeActionEnabled() {
-        return doesPropertyMatch(DETAIL_TAB_SWIPE_ACTION_ENABLED, CommCarePreferences.YES, CommCarePreferences.YES);
+        return doesPropertyMatch(DETAIL_TAB_SWIPE_ACTION_ENABLED, PrefValues.YES, PrefValues.YES);
     }
 
     public static boolean useRootModuleMenuAsHomeScreen() {
-        return doesPropertyMatch(USE_ROOT_MENU_AS_HOME_SCREEN, CommCarePreferences.NO, CommCarePreferences.YES);
+        return doesPropertyMatch(USE_ROOT_MENU_AS_HOME_SCREEN, PrefValues.NO, PrefValues.YES);
     }
 
 
     public static boolean collectAndDisplayEntityTraces() {
-        return doesPropertyMatch(SHOW_ADB_ENTITY_LIST_TRACES, CommCarePreferences.NO, CommCarePreferences.YES);
+        return doesPropertyMatch(SHOW_ADB_ENTITY_LIST_TRACES, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean useObfuscatedPassword() {
-        return doesPropertyMatch(USE_OBFUSCATED_PW, CommCarePreferences.NO, CommCarePreferences.YES);
+        return doesPropertyMatch(USE_OBFUSCATED_PW, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean isBulkPerformanceEnabled() {
-        return doesPropertyMatch(ENABLE_BULK_PERFORMANCE, CommCarePreferences.NO, CommCarePreferences.YES);
+        return doesPropertyMatch(ENABLE_BULK_PERFORMANCE, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean shouldShowUpdateOptionsSetting() {
-        return doesPropertyMatch(SHOW_UPDATE_OPTIONS_SETTING, CommCarePreferences.NO,
-                CommCarePreferences.YES) || BuildConfig.DEBUG;
+        return doesPropertyMatch(SHOW_UPDATE_OPTIONS_SETTING, PrefValues.NO,
+                PrefValues.YES) || BuildConfig.DEBUG;
     }
 
     public static String getLocalFormPayloadFilePath() {
@@ -384,7 +400,11 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     }
 
     public static boolean shouldHideReportIssue() {
-        return doesPropertyMatch(HIDE_ISSUE_REPORT, CommCarePreferences.NO, CommCarePreferences.YES);
+        return doesPropertyMatch(HIDE_ISSUE_REPORT, PrefValues.NO, PrefValues.YES);
+    }
+
+    public static boolean isEnforceSecureEndpointEnabled() {
+        return doesPropertyMatch(ENFORCE_SECURE_ENDPOINT, PrefValues.NO, PrefValues.YES);
     }
 
     private void hideOrShowDangerousSettings() {

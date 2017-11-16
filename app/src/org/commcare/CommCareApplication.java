@@ -3,7 +3,6 @@ package org.commcare;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -18,13 +17,13 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
+import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
@@ -35,6 +34,10 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.android.logging.ReportingUtils;
+import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.CommCareNetworkServiceGenerator;
+import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -42,7 +45,7 @@ import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.PreInitLogger;
@@ -60,16 +63,17 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
+import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.util.Pair;
 import org.commcare.modern.util.PerformanceTuningUtil;
-import org.commcare.network.AndroidModernHttpRequester;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpUtils;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
@@ -102,18 +106,19 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
-import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
-public class CommCareApplication extends Application {
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+
+public class CommCareApplication extends MultiDexApplication {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
-
-    // Tracking ids for Google Analytics
-    private static final String LIVE_TRACKING_ID = BuildConfig.ANALYTICS_TRACKING_ID_LIVE;
-    private static final String DEV_TRACKING_ID = BuildConfig.ANALYTICS_TRACKING_ID_DEV;
 
     private static final int STATE_UNINSTALLED = 0;
     private static final int STATE_READY = 2;
@@ -148,8 +153,7 @@ public class CommCareApplication extends Application {
 
     private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
-    private GoogleAnalytics analyticsInstance;
-    private Tracker analyticsTracker;
+    private FirebaseAnalytics analyticsInstance;
 
     private String messageForUserOnDispatch;
     private String titleForUserMessage;
@@ -211,10 +215,7 @@ public class CommCareApplication extends Application {
             initializeAnAppOnStartup();
         }
 
-        if (!GoogleAnalyticsUtils.versionIncompatible()) {
-            analyticsInstance = GoogleAnalytics.getInstance(this);
-            GoogleAnalyticsUtils.reportAndroidApiLevelAtStartup();
-        }
+        FirebaseAnalyticsUtil.reportAppStartup();
     }
 
     /**
@@ -291,22 +292,12 @@ public class CommCareApplication extends Application {
         return getSession().createNewSymmetricKey();
     }
 
-    synchronized public Tracker getDefaultTracker() {
-        if (analyticsTracker == null) {
-            if (BuildConfig.DEBUG) {
-                analyticsTracker = analyticsInstance.newTracker(DEV_TRACKING_ID);
-            } else {
-                analyticsTracker = analyticsInstance.newTracker(LIVE_TRACKING_ID);
-            }
-            analyticsTracker.enableAutoActivityTracking(true);
+    synchronized public FirebaseAnalytics getAnalyticsInstance() {
+        if (analyticsInstance == null) {
+            analyticsInstance = FirebaseAnalytics.getInstance(this);
         }
-        String userId = getCurrentUserId();
-        if (!"".equals(userId)) {
-            analyticsTracker.set("&uid", userId);
-        } else {
-            analyticsTracker.set("&uid", null);
-        }
-        return analyticsTracker;
+        analyticsInstance.setUserId(getUserIdOrNull());
+        return analyticsInstance;
     }
 
     public int[] getCommCareVersion() {
@@ -349,7 +340,8 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public @NonNull String getPhoneId() {
+    @NonNull
+    public String getPhoneId() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
             return "000000000000000";
         }
@@ -630,6 +622,14 @@ public class CommCareApplication extends Application {
         }
     }
 
+    public String getUserIdOrNull() {
+        try {
+            return this.getSession().getLoggedInUser().getUniqueId();
+        } catch (SessionUnavailableException e) {
+            return null;
+        }
+    }
+
     public void prepareTemporaryStorage() {
         String tempRoot = this.getAndroidFsTemp();
         FileUtil.deleteFileOrDir(tempRoot);
@@ -713,12 +713,17 @@ public class CommCareApplication extends Application {
 
                         // Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
-                            getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
+                            getCurrentApp().getAppPreferences().edit().putString(
+                                    HiddenPreferences.LAST_LOGGED_IN_USER, record.getUsername()).apply();
 
                             // clear any files orphaned by file-backed db transaction failures
                             HybridFileBackedSqlHelpers.removeOrphanedFiles(mBoundService.getUserDbHandle());
 
                             PurgeStaleArchivedFormsTask.launchPurgeTask();
+                        }
+
+                        if (EntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
+                            EntityStorageCache.tryWipeCache();
                         }
                     }
 
@@ -760,7 +765,8 @@ public class CommCareApplication extends Application {
         DataSubmissionListener dataListener = getSession().getListenerForSubmissionNotification(R.string.submission_logs_title);
 
         LogSubmissionTask task = new LogSubmissionTask(
-                force || PendingCalcs.isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
+                force || PendingCalcs.isPending(settings.getLong(
+                        HiddenPreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
                 dataListener,
                 url);
 
@@ -889,7 +895,7 @@ public class CommCareApplication extends Application {
 
     public boolean isPostUpdateSyncNeeded() {
         return getCurrentApp().getAppPreferences()
-                .getBoolean(CommCarePreferences.POST_UPDATE_SYNC_NEEDED, false);
+                .getBoolean(HiddenPreferences.POST_UPDATE_SYNC_NEEDED, false);
     }
 
     public boolean isStorageAvailable() {
@@ -917,6 +923,7 @@ public class CommCareApplication extends Application {
     public String getAndroidFsTemp() {
         return Environment.getExternalStorageDirectory().toString() + "/Android/data/" + getPackageName() + "/temp/";
     }
+
     public String getAndroidFsExternalTemp() {
         return getAndroidFsRoot() + "/temp/external/";
     }
@@ -1005,16 +1012,6 @@ public class CommCareApplication extends Application {
         return false;
     }
 
-    public ModernHttpRequester buildHttpRequesterForLoggedInUser(Context context, URL url,
-                                                                 HashMap<String, String> params,
-                                                                 boolean isAuthenticatedRequest,
-                                                                 boolean isPostRequest) {
-        Pair<User, String> userAndDomain =
-                HttpUtils.getUserAndDomain(isAuthenticatedRequest);
-        return new AndroidModernHttpRequester(new AndroidCacheDirSetup(context), url, params,
-                userAndDomain.first, userAndDomain.second, isAuthenticatedRequest, isPostRequest);
-    }
-
     public DataPullRequester getDataPullRequester() {
         return DataPullResponseFactory.INSTANCE;
     }
@@ -1048,4 +1045,26 @@ public class CommCareApplication extends Application {
         return app.noficationManager;
     }
 
+    public ModernHttpRequester buildHttpRequester(Context context, String url, Map<String, String> params,
+                                                  HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
+                                                  HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
+                                                  @Nullable HttpResponseProcessor responseProcessor) {
+        return new ModernHttpRequester(new AndroidCacheDirSetup(context),
+                url,
+                params,
+                headers,
+                requestBody,
+                parts,
+                CommCareNetworkServiceGenerator.createCommCareNetworkService(
+                        HttpUtils.getCredential(usernameAndPasswordToAuthWith),
+                        DeveloperPreferences.isEnforceSecureEndpointEnabled()),
+                method,
+                responseProcessor);
+    }
+
+    public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
+                                                  HashMap headers, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
+                                                  @Nullable HttpResponseProcessor responseProcessor) {
+        return buildHttpRequester(context, url, params, headers, null, null, HTTPMethod.GET, usernameAndPasswordToAuthWith, responseProcessor);
+    }
 }

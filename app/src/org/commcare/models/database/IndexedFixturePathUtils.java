@@ -38,11 +38,11 @@ public class IndexedFixturePathUtils {
         }
     }
 
-    public static Set<String> getAllIndexedFixtureNames(SQLiteDatabase db) {
+    public static List<String> getAllIndexedFixtureNames(SQLiteDatabase db) {
         Cursor c = db.query(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
                 new String[]{IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME},
                 null, null, null, null, null);
-        Set<String> fixtureNames = new HashSet<>();
+        List<String> fixtureNames = new ArrayList<>();
         try {
             if (c.moveToFirst()) {
                 int desiredColumnIndex = c.getColumnIndexOrThrow(
@@ -70,9 +70,11 @@ public class IndexedFixturePathUtils {
 
         db.beginTransaction();
         try {
-            long ret = db.insertOrThrow(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
+            long ret = db.insertWithOnConflict(
+                    IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
                     IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE,
-                    contentValues);
+                    contentValues,
+                    SQLiteDatabase.CONFLICT_REPLACE);
 
             if (ret > Integer.MAX_VALUE) {
                 throw new RuntimeException("Waaaaaaaaaay too many values");

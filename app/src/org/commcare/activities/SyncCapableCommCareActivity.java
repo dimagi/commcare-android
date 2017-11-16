@@ -16,9 +16,9 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.UiLoadedListener;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
@@ -92,9 +92,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         if (CommCareApplication.instance().isConsumerApp()) {
             return;
         }
+
         DataPullTask.PullTaskResult result = resultAndError.data;
-        String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
-        int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
+        String syncModeParam = null;
 
         switch (result) {
             case AUTH_FAILED:
@@ -106,9 +106,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 break;
             case DOWNLOAD_SUCCESS:
                 if (formsToSend) {
-                    reportSyncValue = GoogleAnalyticsFields.VALUE_WITH_SEND_FORMS;
+                    syncModeParam = AnalyticsParamValue.SYNC_MODE_SEND_FORMS;
                 } else {
-                    reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
+                    syncModeParam = AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
                 }
                 updateUiAfterDataPullOrSend(Localization.get("sync.success.synced"), SUCCESS);
                 break;
@@ -127,16 +127,18 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             case ACTIONABLE_FAILURE:
                 updateUiAfterDataPullOrSend(resultAndError.errorMessage, FAIL);
                 break;
+            case AUTH_OVER_HTTP:
+                updateUiAfterDataPullOrSend(Localization.get("auth.over.http"), FAIL);
+                break;
         }
 
-        if (userTriggeredSync) {
-            GoogleAnalyticsUtils.reportSyncAttempt(
-                    GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
-                    reportSyncLabel, reportSyncValue);
+        String syncTriggerParam =
+                userTriggeredSync ? AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO;
+
+        if (result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
+            FirebaseAnalyticsUtil.reportSyncSuccess(syncTriggerParam, syncModeParam);
         } else {
-            GoogleAnalyticsUtils.reportSyncAttempt(
-                    GoogleAnalyticsFields.ACTION_AUTO_SYNC_ATTEMPT,
-                    reportSyncLabel, reportSyncValue);
+            FirebaseAnalyticsUtil.reportSyncFailure(syncTriggerParam, result.analyticsFailureReasonParam);
         }
     }
 

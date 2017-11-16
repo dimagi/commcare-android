@@ -104,9 +104,18 @@ public class FormRecordProcessor {
     }
 
     public FormRecord updateRecordStatus(FormRecord record, String newStatus) {
-        // update the records to show that the form has been processed and is
-        // ready to be sent;
         record = record.updateInstanceAndStatus(record.getInstanceURI().toString(), newStatus);
+        storage.write(record);
+        return record;
+    }
+
+    public FormRecord quarantineRecord(FormRecord record, String reasonType) {
+        return quarantineRecord(record, reasonType, null);
+    }
+    
+    public FormRecord quarantineRecord(FormRecord record, String reasonType, String reasonDetail) {
+        record = updateRecordStatus(record, FormRecord.STATUS_QUARANTINED);
+        record.setQuarantineReason(reasonType, reasonDetail);
         storage.write(record);
         return record;
     }

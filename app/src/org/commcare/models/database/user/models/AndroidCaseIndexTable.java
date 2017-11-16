@@ -200,13 +200,7 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
      * Removes all records from the case index table
      */
     public void wipeTable() {
-        db.beginTransaction();
-        try {
-            db.delete(TABLE_NAME, null, null);
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
+        SqlStorage.wipeTable(db, TABLE_NAME);
     }
 
     /**

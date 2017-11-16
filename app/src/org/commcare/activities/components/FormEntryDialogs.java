@@ -8,8 +8,6 @@ import android.view.View;
 
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.StringUtils;
@@ -33,7 +31,6 @@ public class FormEntryDialogs {
         View.OnClickListener stayInFormListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_BACK_TO_FORM);
                 activity.dismissAlertDialog();
             }
         };
@@ -46,7 +43,6 @@ public class FormEntryDialogs {
             @Override
             public void onClick(View v) {
                 activity.dismissAlertDialog();
-                GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
                 ViewUtil.hideVirtualKeyboard(activity);
                 activity.discardChangesAndExit();
             }
@@ -61,7 +57,6 @@ public class FormEntryDialogs {
             View.OnClickListener saveIncompleteListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_SAVE_AND_EXIT);
                     activity.saveFormToDisk(FormEntryConstants.EXIT);
                     activity.dismissAlertDialog();
                 }

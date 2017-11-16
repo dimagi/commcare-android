@@ -107,10 +107,10 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             }
             return true;
         } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
-            // SSLHandshakeException is thrown by the HttpRequestGenerator on
+            // SSLHandshakeException is thrown by the CommcareRequestGenerator on
             // 4.3 devices when the peer certificate is bad.
             //
-            // SSLPeerUnverifiedException is thrown by the HttpRequestGenerator
+            // SSLPeerUnverifiedException is thrown by the CommcareRequestGenerator
             // on 2.3 devices when the peer certificate is bad.
             //
             // Deliver these errors upstream to the SetupActivity as an

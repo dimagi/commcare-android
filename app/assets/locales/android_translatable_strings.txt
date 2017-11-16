@@ -95,17 +95,20 @@ menu.privilege.claim.disable=Disable Privileges
 sync.success.sent.none=No forms sent to server!
 sync.success.sent.singular=1 form sent to server!
 sync.success.sent=${0} forms sent to server!
-sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
-sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
-
 sync.success.synced=Sync Successful! Your information is up to date.
 
+sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
+sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
 sync.fail.auth.loggedin=Password has changed. Please log in with updated credentials
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occurred with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
-sync.fail.server.error=The server had an error processing your data. Please try again later. If the problem persists, contact technical support.
+sync.fail.server.error=The server encountered an error processing your data. Please try again later. If the problem persists, contact technical support.
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
+sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
+sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
+
+auth.over.http=CommCare can't connect with authentication to an insecure (HTTP) server.
 
 sync.communicating.title=Communicating with Server
 sync.waiting.title=Waiting for Server Progress
@@ -157,19 +160,19 @@ query.response.format.error=Error processing server response: ${0}
 query.response.empty=Query response had no results
 post.request.button=Claim
 post.generic.error=An error occurred while preparing the HTTP request
-post.not.using.https=${0} is an invalid URL. You must use HTTPS.
 post.dialog.title=Claiming...
 post.dialog.body=Claiming chosen data from server
 post.io.error=Error reading server response: ${0}
 post.unknown.response=Received unknown resonse code (${0}) from server
 post.client.error=Client-side error (code ${0}) received from network request.
 post.server.error=Server-side error (code ${0}) received from network request.
-post.redirection.error=Network request resulted in redirection (code ${0}). Please use a non-redirecting url.
 post.gone.error=Case is not present on server.
 post.conflict.error=You have already claimed this case.
 
 version.id.long=CommCare Android, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
 version.id.short=CCDroid:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
+
+auth.request.not.using.https=${0} is an invalid URL. CommCare can't connect with authentication to an insecure (HTTP) server.
 
 app.workflow.incomplete.heading=Incomplete Forms
 app.workflow.saved.heading=Saved Forms
@@ -183,6 +186,7 @@ app.workflow.forms.scan=Scan Record Integrity
 app.workflow.forms.scan.title.valid=Integrity Scan: PASS
 app.workflow.forms.scan.title.invalid=Integrity Scan: FAIL
 app.workflow.forms.quarantine.report=Submit Quarantine Report
+app.workflow.forms.view.quarantine.reason=View Full Reason for Quarantine
 
 notifications.prompt.details=Select for details. ${0}
 notifications.prompt.more=(${0} More...)
@@ -431,6 +435,7 @@ pin.directive.confirm=Re-Enter the PIN you chose
 pins.dont.match=Entered PINs don't match. Please try again.
 pin.set.success=PIN set successfully
 pin.not.set=No PIN was set
+pin.length.error=Your pin must be 4 digits
 pin.auth.failed.pin=Entered PIN was incorrect. Please try again.
 pin.auth.failed.password=Entered password was incorrect. Please try again.
 pin.auth.prompt.pin=Enter your current PIN
@@ -588,9 +593,18 @@ notification.case.filter.action=Sorting failed because CommCare expected a numbe
 notification.send.malformed.title=Bad Form on SD Card
 notification.send.malformed.detail=The file ${0} on your SD card was malformed and couldn't be read. It has been removed as a precaution.
 
-notification.sending.quarantine.title=Form Record Quarantined
-notification.sending.quarantine.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
-notification.sending.quarantine.action=You can view the record in the saved records screen by checking the quarantine filter. From there you can restore quarantined records back onto the unsent queue to try to submit them again. Restarting the device and/or ejecting and re-inserting your external storage first may correct the issue. 
+notification.quarantine.local.title=Form Record Quarantined
+notification.quarantine.local.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
+notification.quarantine.local.action=You can view the record in the saved records screen by selecting the quarantine filter. From there you can restore quarantined records back onto the unsent queue to try to submit them again. Restarting the device and/or ejecting and re-inserting your external storage first may correct the issue.
+
+notification.quarantine.server.title=Form Record Quarantined
+notification.quarantine.server.detail=The server had a problem processing 1 of your forms during submission
+notification.quarantine.server.action=You can view the record in the saved records screen by selecting the quarantine filter. From there, you can place this record back onto the unsent queue to try to submit it again, if you wish.
+
+notification.quarantine.record.issue.title=Form Record Quarantined
+notification.quarantine.record.issue.detail=CommCare had a problem reading one of your forms during submission. This can happen if your storage layer wrote a corrupted record to disk, or if the SD card is damaged. CommCare has quarantined this form in order to continue sending other records.
+notification.quarantine.record.issue.action=You can view this record by visiting the Saved screen and checking the Quarantined Forms filter. From there, you can place this record back onto the unsent queue to try to submit it again. Restarting the device and/or ejecting and re-inserting your external storage first may correct this issue.
+
 
 notification.formrecord.files.missing.title=Form Record Missing
 notification.formrecord.files.missing.detail=The files for one of your forms are missing. This can happen due to corruption of the storage layer or deletion of the files by other programs.
@@ -734,8 +748,6 @@ intent.callout.activity.missing=Couldn't find intent for callout!
 intent.callout.not.supported=This intent callout is not supported on this device
 fingerprints.scanned=Fingerprints scanned: ${0}
 
-settings.server.listing=Server Settings
-settings.server.title=CommCare > Server Settings
 settings.developer.options=Developer Options
 settings.developer.title=Developer Options
 settings.main.title=CommCare > Settings
@@ -745,6 +757,9 @@ clear.user.data.warning.title=Clear User Data
 clear.user.data.warning.message=Are you sure you want to clear all mobile user data? All unsynced data will be lost!
 force.log.submit=Force Log Submission
 recovery.mode=Recovery Mode
+
+dev.options.code.incorrect=The Developer Options access code that you entered was incorrect
+dev.options.access.granted=Access to Developer Options granted!
 
 repeat.dialog.go.back=Go Back
 repeat.dialog.leave=Do Not Add
@@ -769,3 +784,33 @@ calendar.low.year=Year value below min value of
 calendar.high.year=Year value above max value of ${0}
 calendar.low.day=Day value below min value of 1
 calendar.high.day=Day value above max value of ${0}
+
+nfc.instructions.write=Hold your NFC tag up to the back of this phone or tablet
+nfc.instructions.read=Hold your NFC tag up to the back of this phone or tablet
+nfc.min.version=NFC support in CommCare is only available for Android versions 4.1 and above
+nfc.not.supported=This Android device does not have NFC capabilities
+nfc.not.enabled=NFC capabilities are not currently enabled on this device. You can enable them in Settings and then try again.
+nfc.write.no.payload=NFC write action requires specifying a payload
+nfc.write.no.type=NFC write action requires specifying a type for the payload
+nfc.read.no.type=NFC read action requires specifying at least 1 acceptable type
+nfc.write.type.not.supported=The well-known type you tried to write is not supported by CommCare. The only well-known type that CommCare supports is 'text'
+nfc.write.io.error=An IO error occurred while attempting to write the Ndef message to your NFC tag
+nfc.write.msg.malformed=The Ndef message that you attempted to write was malformed
+nfc.write.success=NFC write was successful!
+nfc.missing.domain=A domain must be provided when specifying a custom type for your NFC action
+nfc.read.success=NFC read was successful!
+nfc.read.io.error=An IO error occurred while attempting to read the Ndef message
+nfc.read.msg.malformed=The Ndef message read from the NFC tag was malformed
+nfc.read.error.no.ndef=The message on this NFC tag is not of a format that Android devices can read
+nfc.read.no.data=The provided NFC tag had no data on it to read
+nfc.read.error.unsupported=The message read from the NFC tag is of a type not supported by CommCare
+nfc.read.error.mismatch=The message read from the NFC tag does not match the type specified by this app's configuration
+
+reason.for.quarantine.title=Reason for Quarantine
+reason.for.quarantine.prefix=Quarantine Reason:
+quarantine.reason.local.processing=Local processing of the form failed
+quarantine.reason.server.processing=The server failed to process the form
+quarantine.reason.record.error=There was an issue with the form record that prevented submission
+quarantine.reason.manual=The form was manually quarantined by a user
+quarantine.reason.fnf=The file backing the form submission could not be found
+quarantine.reason.unknown=Reason for quarantine unknown

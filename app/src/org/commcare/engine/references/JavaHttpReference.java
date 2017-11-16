@@ -1,13 +1,12 @@
 package org.commcare.engine.references;
 
-import org.commcare.interfaces.HttpRequestEndpoints;
-import org.commcare.network.HttpRequestGenerator;
+import org.commcare.interfaces.CommcareRequestEndpoints;
+import org.commcare.network.CommcareRequestGenerator;
 import org.javarosa.core.reference.Reference;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 
 /**
  * @author ctsims
@@ -15,9 +14,9 @@ import java.net.URL;
 public class JavaHttpReference implements Reference {
 
     private final String uri;
-    private HttpRequestEndpoints generator;
+    private CommcareRequestEndpoints generator;
 
-    public JavaHttpReference(String uri, HttpRequestGenerator generator) {
+    public JavaHttpReference(String uri, CommcareRequestGenerator generator) {
         this.uri = uri;
         this.generator = generator;
     }
@@ -36,8 +35,7 @@ public class JavaHttpReference implements Reference {
 
     @Override
     public InputStream getStream() throws IOException {
-        URL url = new URL(uri);
-        return generator.simpleGet(url);
+        return generator.simpleGet(uri).body().byteStream();
     }
 
     @Override
@@ -63,7 +61,7 @@ public class JavaHttpReference implements Reference {
 
     //TODO: This should get changed to be set from the root, don't assume this will
     //still be here indefinitely
-    public void setHttpRequestor(HttpRequestEndpoints generator) {
+    public void setHttpRequestor(CommcareRequestEndpoints generator) {
         this.generator = generator;
     }
 }

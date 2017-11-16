@@ -1,13 +1,15 @@
 package org.commcare.network;
 
-import org.apache.http.HttpResponse;
-import org.commcare.interfaces.HttpRequestEndpoints;
+import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.tasks.DataPullTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * Builds data pull requester that gets data from a local CommCare reference.
@@ -19,7 +21,7 @@ public enum LocalReferencePullResponseFactory implements DataPullRequester {
 
     // data pull requests will pop off and use the top reference in this list
     private final List<String> xmlPayloadReferences = new ArrayList<>();
-    public int numTries = 0;
+    private int numTries = 0;
 
     public static void setRequestPayloads(String[] payloadReferences) {
         INSTANCE.xmlPayloadReferences.clear();
@@ -33,16 +35,16 @@ public enum LocalReferencePullResponseFactory implements DataPullRequester {
     // this is what DataPullTask will call when it's being run in a test
     @Override
     public RemoteDataPullResponse makeDataPullRequest(DataPullTask task,
-                                                      HttpRequestEndpoints requestor,
+                                                      CommcareRequestEndpoints requestor,
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
         numTries++;
-        HttpResponse response = requestor.makeCaseFetchRequest(server, includeSyncToken);
+        Response<ResponseBody> response = requestor.makeCaseFetchRequest(server, includeSyncToken);
         return new LocalReferencePullResponse(xmlPayloadReferences.remove(0), response);
     }
 
     @Override
-    public HttpRequestEndpoints getHttpGenerator(String username, String password, String userId) {
-        return new HttpRequestEndpointsMock();
+    public CommcareRequestEndpoints getHttpGenerator(String username, String password, String userId) {
+        return new CommcareRequestEndpointsMock();
     }
 }
