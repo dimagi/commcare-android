@@ -389,6 +389,7 @@ no.file.browser.title=No File Browser Available
 no.file.browser=Your device does not have a file browser installed. Please download one from the playstore and then try again.
 template.error=Your template is not correctly formatted
 
+file.copy.failed=A problem occurred while copying file
 file.not.exist=File does not exist
 file.not.selected=No file selected
 file.wrong.type=Wrong file type. Please select file of type ${0}
