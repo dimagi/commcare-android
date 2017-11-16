@@ -12,20 +12,17 @@ import android.view.MenuItem;
 
 import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.preferences.AdvancedActionsPreferences;
-import org.commcare.preferences.CommCarePreferences;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.FormEntryPreferences;
 
 
 public class CommCarePreferenceActivity extends FragmentActivity {
 
-
     public static final String EXTRA_PREF_TYPE = "extra_pref_type";
 
     //List of Pref Types
     public static final String PREF_TYPE_COMMCARE = "pref_type_commcare";
-    public static final String PREF_TYPE_SERVER = "pref_type_server";
     public static final String PREF_TYPE_DEVELOPER = "pref_type_developer";
     public static final String PREF_TYPE_ADVANCED_ACTIONS = "pref_type_advanced_actions";
     public static final String PREF_TYPE_FORM_ENTRY = "pref_type_form_entry";
@@ -48,10 +45,7 @@ public class CommCarePreferenceActivity extends FragmentActivity {
             CommCarePreferenceFragment commCarePreferenceFragment;
             switch (prefType) {
                 case PREF_TYPE_COMMCARE:
-                    commCarePreferenceFragment = new CommCarePreferences();
-                    break;
-                case PREF_TYPE_SERVER:
-                    commCarePreferenceFragment = new CommCareServerPreferences();
+                    commCarePreferenceFragment = new MainConfigurablePreferences();
                     break;
                 case PREF_TYPE_DEVELOPER:
                     commCarePreferenceFragment = new DeveloperPreferences();

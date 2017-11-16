@@ -37,7 +37,7 @@ import org.commcare.fragments.ContainerFragment;
 import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -511,7 +511,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (adapter.getItemViewType(position) == EntityListAdapter.ENTITY_TYPE) {
             TreeReference selection = adapter.getItem(position);
-            if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
+            if (HiddenPreferences.isEntityDetailLoggingEnabled()) {
                 Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
             }
             if (inAwesomeMode) {
