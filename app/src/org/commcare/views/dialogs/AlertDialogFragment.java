@@ -1,10 +1,12 @@
 package org.commcare.views.dialogs;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 
 /**
  * Wrapper for CommCareAlertDialogs that allows them to persist across screen orientation changes,
@@ -34,6 +36,9 @@ public class AlertDialogFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        if (underlyingDialog == null) {
+            dismiss();
+        }
     }
 
     @Override
@@ -51,8 +56,13 @@ public class AlertDialogFragment extends DialogFragment {
     @Override
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        if (underlyingDialog == null) {
+            return super.onCreateDialog(savedInstanceState);
+        }
         return underlyingDialog.getDialog();
     }
+
+
 
     @Override
     public void onDestroyView() {
