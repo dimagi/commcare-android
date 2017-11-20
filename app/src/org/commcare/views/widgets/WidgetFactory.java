@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
@@ -119,12 +121,7 @@ public class WidgetFactory {
             case Constants.DATATYPE_GEOPOINT:
                 return new GeoPointWidget(context, fep, pendingCalloutInterface);
             case Constants.DATATYPE_BARCODE:
-                IntentCallout intentCallout = new IntentCallout("com.google.zxing.client.android.SCAN", null, null,
-                        null, null, null, Localization.get("intent.barcode.get"),
-                        Localization.get("intent.barcode.update"), appearance);
-                intentCallout.attachToForm(formDef);
-                Intent intent = intentCallout.generate(formDef.getEvaluationContext());
-                return new BarcodeWidget(context, fep, intent, intentCallout, pendingCalloutInterface);
+                return new BarcodeWidget(context, fep, pendingCalloutInterface, appearance, formDef);
             case Constants.DATATYPE_TEXT:
                 if (appearance != null && (appearance.equalsIgnoreCase("numbers") || appearance.equalsIgnoreCase("numeric"))) {
                     return new StringNumberWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
