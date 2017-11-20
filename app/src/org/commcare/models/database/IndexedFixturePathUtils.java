@@ -61,6 +61,12 @@ public class IndexedFixturePathUtils {
         }
     }
 
+    public static Set<String> getAllIndexedFixtureNamesAsSet(SQLiteDatabase db) {
+        Set<String> fixtureNamesAsSet = new HashSet<>();
+        fixtureNamesAsSet.addAll(getAllIndexedFixtureNames(db));
+        return fixtureNamesAsSet;
+    }
+
     public static void insertIndexedFixturePathBases(SQLiteDatabase db, String fixtureName,
                                                      String baseName, String childName) {
         ContentValues contentValues = new ContentValues();
