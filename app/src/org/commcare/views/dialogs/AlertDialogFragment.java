@@ -60,8 +60,6 @@ public class AlertDialogFragment extends DialogFragment {
         return underlyingDialog.getDialog();
     }
 
-
-
     @Override
     public void onDestroyView() {
         // Ohh, you know, just a 5 year old Android bug ol' G hasn't fixed yet
