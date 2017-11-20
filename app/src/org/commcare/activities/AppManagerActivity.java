@@ -15,8 +15,8 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.AppManagerAdapter;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -42,7 +42,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.app_manager);
         ((ListView)this.findViewById(R.id.apps_list_view)).setOnItemClickListener(this);
-        GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_OPEN_APP_MANAGER);
+        FirebaseAnalyticsUtil.reportAppManagerAction(AnalyticsParamValue.OPEN_APP_MANAGER);
     }
 
     @Override
@@ -119,7 +119,8 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
         switch (requestCode) {
             case DispatchActivity.INIT_APP:
                 if (resultCode == RESULT_OK) {
-                    GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_INSTALL_FROM_MANAGER);
+                    FirebaseAnalyticsUtil.reportAppManagerAction(
+                            AnalyticsParamValue.INSTALL_FROM_MANAGER);
                     // If we have just returned from installation and the currently-seated app's
                     // resources are not validated, launch the MM verification activity
                     if (!CommCareApplication.instance().getCurrentApp().areMMResourcesValidated()) {

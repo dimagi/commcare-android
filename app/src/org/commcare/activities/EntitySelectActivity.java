@@ -37,7 +37,7 @@ import org.commcare.fragments.ContainerFragment;
 import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -511,7 +511,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (adapter.getItemViewType(position) == EntityListAdapter.ENTITY_TYPE) {
             TreeReference selection = adapter.getItem(position);
-            if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
+            if (HiddenPreferences.isEntityDetailLoggingEnabled()) {
                 Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
             }
             if (inAwesomeMode) {
@@ -696,7 +696,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
         // hide sorting menu when using async loading strategy
         menu.findItem(MENU_SORT).setVisible((shortSelect == null || shortSelect.hasSortField()));
-        menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
+
+        if (menu.findItem(R.id.menu_settings) != null) {
+            // For the same reason as in onCreateOptionsMenu(), we may be trying to call this
+            // before we're ready
+            menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
+        }
+
         return super.onPrepareOptionsMenu(menu);
     }
 

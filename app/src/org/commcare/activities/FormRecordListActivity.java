@@ -35,8 +35,8 @@ import org.commcare.adapters.IncompleteFormListAdapter;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logic.ArchivedFormRemoteRestore;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.preferences.DeveloperPreferences;
@@ -361,9 +361,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (incompleteMode) {
-            GoogleAnalyticsUtils.reportOpenArchivedForm(GoogleAnalyticsFields.LABEL_INCOMPLETE);
+            FirebaseAnalyticsUtil.reportOpenArchivedForm(AnalyticsParamValue.INCOMPLETE);
         } else {
-            GoogleAnalyticsUtils.reportOpenArchivedForm(GoogleAnalyticsFields.LABEL_COMPLETE);
+            FirebaseAnalyticsUtil.reportOpenArchivedForm(AnalyticsParamValue.SAVED);
         }
         returnItem(position);
     }
@@ -444,6 +444,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     FormRecord theRecord = (FormRecord)adapter.getItem(info.position);
                     Pair<Boolean, String> result = new FormRecordProcessor(this).verifyFormRecordIntegrity(theRecord);
                     createFormRecordScanResultDialog(result, theRecord);
+                    logIntegrityScanResult(theRecord, result);
                     return true;
                 case VIEW_QUARANTINE_REASON:
                     createQuarantineReasonDialog(selectedRecord);
@@ -610,10 +611,19 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         for (int i = 0; i < adapter.getCount(); ++i) {
             FormRecord r = (FormRecord)adapter.getItem(i);
             Pair<Boolean, String> integrity = this.formRecordProcessor.verifyFormRecordIntegrity(r);
-            String passfail = integrity.first ? "PASS:" : "FAIL:";
-            Logger.log(LogTypes.TYPE_ERROR_STORAGE, passfail + integrity.second);
+            logIntegrityScanResult(r, integrity);
         }
         CommCareUtil.triggerLogSubmission(this);
+    }
+
+    private static void logIntegrityScanResult(FormRecord r, Pair<Boolean, String> integrityScanResult) {
+        String passOrFail = integrityScanResult.first ? "PASSED:" : "FAILED:";
+        Logger.log(
+                LogTypes.TYPE_ERROR_STORAGE,
+                String.format("Integrity scan for form record with ID %s has %s. Report Details: %s",
+                        r.getInstanceID(),
+                        passOrFail,
+                        integrityScanResult.second));
     }
 
     @Override

@@ -33,9 +33,9 @@ import org.commcare.fragments.InstallConfirmFragment;
 import org.commcare.fragments.InstallPermissionsFragment;
 import org.commcare.fragments.SelectInstallModeFragment;
 import org.commcare.fragments.SetupEnterURLFragment;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.RuntimePermissionRequester;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.model.InvalidResourceException;
@@ -333,8 +333,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 return;
         }
 
-        ft.replace(R.id.setup_fragment_container, fragment);
-        ft.commit();
+        if(!fragment.isAdded()) {
+            ft.replace(R.id.setup_fragment_container, fragment);
+            ft.commit();
+            fm.executePendingTransactions();
+        }
     }
 
     private Fragment restoreInstallSetupFragment() {
@@ -407,7 +410,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
 
         if (lastInstallMode == INSTALL_MODE_FROM_LIST) {
-            GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_INSTALL_FROM_LIST);
+            FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_INSTALL_FROM_LIST);
         }
         setReadyToInstall(result);
     }
@@ -696,7 +699,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         CommCareApplication.notificationManager().clearNotifications("install_update");
 
         if (newAppInstalled) {
-            GoogleAnalyticsUtils.reportAppInstall(lastInstallMode);
+            FirebaseAnalyticsUtil.reportAppInstall(getAnalyticsParamForInstallMethod(lastInstallMode));
         } else {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
@@ -922,16 +925,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
-    public static String getAnalyticsActionFromInstallMode(int installModeCode) {
+    private static String getAnalyticsParamForInstallMethod(int installModeCode) {
         switch (installModeCode) {
             case INSTALL_MODE_BARCODE:
-                return GoogleAnalyticsFields.ACTION_BARCODE_INSTALL;
+                return AnalyticsParamValue.BARCODE_INSTALL;
             case INSTALL_MODE_OFFLINE:
-                return GoogleAnalyticsFields.ACTION_OFFLINE_INSTALL;
+                return AnalyticsParamValue.OFFLINE_INSTALL;
             case INSTALL_MODE_SMS:
-                return GoogleAnalyticsFields.ACTION_SMS_INSTALL;
+                return AnalyticsParamValue.SMS_INSTALL;
             case INSTALL_MODE_URL:
-                return GoogleAnalyticsFields.ACTION_URL_INSTALL;
+                return AnalyticsParamValue.URL_INSTALL;
             default:
                 return "";
         }

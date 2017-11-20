@@ -19,7 +19,6 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.modern.database.TableBuilder;
-import org.commcare.network.CommcareRequestEndpointsMock;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.FormSaveUtil;
@@ -104,7 +103,7 @@ public class TestUtils {
                     //there's no good lifecycle to manage the bulk processor in, but at least
                     //this will validate that the bulk processor works.
                     if(bulkProcessingEnabled)  {
-                        return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new AndroidCaseIndexTable(db), new CommcareRequestEndpointsMock()) {
+                        return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new AndroidCaseIndexTable(db)) {
                             @Override
                             protected SQLiteDatabase getDbHandle() {
                                 return db;

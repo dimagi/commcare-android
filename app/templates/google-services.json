@@ -197,35 +197,32 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:729925342863:android:3fcb586559e496d9",
+        "mobilesdk_app_id": "1:768065119425:android:4e058a2bb3994794",
         "android_client_info": {
-          "package_name": "org.commcare.managed"
+          "package_name": "org.commcare.dalvik.debug"
         }
       },
       "oauth_client": [
         {
-          "client_id": "729925342863-n2hj7r0d62d51uk62ts3b2k2j67k44b4.apps.googleusercontent.com",
+          "client_id": "768065119425-hg10t0osvjqrt6pne3toaobabn5gobqs.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDFDJv-bUIEUHuT_idSKb5QWmN2Aj6UUWw"
+          "current_key": "@apiKey@"
         }
       ],
       "services": {
         "analytics_service": {
-          "status": 2,
-          "analytics_property": {
-            "tracking_id": "UA-69708208-2"
-          }
+          "status": 1
         },
         "appinvite_service": {
           "status": 1,
           "other_platform_oauth_client": []
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }

@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -30,7 +30,7 @@ public class PasswordShow {
     }
 
     public void setupPasswordVisibility() {
-        switch (CommCarePreferences.getPasswordDisplayOption()) {
+        switch (MainConfigurablePreferences.getPasswordDisplayOption()) {
             case ALWAYS_HIDDEN:
                 passwordAlwaysHiddenState();
                 break;

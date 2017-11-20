@@ -21,7 +21,7 @@ import android.webkit.WebViewClient;
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.dalvik.R;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.print.TemplatePrinterTask.PopulateListener;
 import org.commcare.util.LogTypes;
@@ -170,7 +170,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             }
         } else {
             // Try to use the document location that was set in Settings menu
-            path = CommCarePreferences.getGlobalTemplatePath();
+            path = MainConfigurablePreferences.getGlobalTemplatePath();
             if (path == null) {
                 showErrorDialog(Localization.get("missing.template.file"));
             }

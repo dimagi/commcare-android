@@ -47,7 +47,7 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
     private static boolean isAuthenticated = true;
     private static boolean enforceSecureEndpointValidation;
 
-    public ModernHttpRequesterMock(BitCacheFactory.CacheDirSetup cacheDirSetup, String url, HashMap<String, String> params,
+    public ModernHttpRequesterMock(BitCacheFactory.CacheDirSetup cacheDirSetup, String url, Map<String, String> params,
                                    HashMap<String, String> headers, @Nullable RequestBody requestBody, @Nullable List<MultipartBody.Part> parts,
                                    CommCareNetworkService commCareNetworkService, HTTPMethod method, HttpResponseProcessor responseProcessor) {
         super(cacheDirSetup, url, params, headers, requestBody, parts, commCareNetworkService, method, responseProcessor);
