@@ -34,9 +34,6 @@ public class AlertDialogFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        if (underlyingDialog == null) {
-            dismiss();
-        }
     }
 
     @Override
@@ -55,6 +52,9 @@ public class AlertDialogFragment extends DialogFragment {
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (underlyingDialog == null) {
+            // We are in a bad state likely caused by fragment state restore after it got killed,
+            // return an empty dialogue to prevent NPE and dismiss it so that users don't see it
+            dismiss();
             return super.onCreateDialog(savedInstanceState);
         }
         return underlyingDialog.getDialog();
