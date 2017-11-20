@@ -1,12 +1,10 @@
 package org.commcare.views.dialogs;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 
 /**
  * Wrapper for CommCareAlertDialogs that allows them to persist across screen orientation changes,
