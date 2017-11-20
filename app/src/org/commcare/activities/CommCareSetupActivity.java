@@ -1,8 +1,8 @@
 package org.commcare.activities;
 
 import android.Manifest;
-import android.app.ActionBar;
-import android.app.Activity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.RestrictionsManager;
@@ -260,7 +260,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onAttachFragment(fragment);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar actionBar = getActionBar();
+            ActionBar actionBar = getSupportActionBar();
             if (actionBar != null) {
                 // removes the back button from the action bar
                 actionBar.setDisplayHomeAsUpEnabled(false);
@@ -381,7 +381,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         String result = null;
         switch (requestCode) {
             case BARCODE_CAPTURE:
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == AppCompatActivity.RESULT_OK) {
                     result = data.getStringExtra("SCAN_RESULT");
                     String dbg = "Got url from barcode scanner: " + result;
                     Log.i(TAG, dbg);
@@ -389,13 +389,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 }
                 break;
             case OFFLINE_INSTALL:
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == AppCompatActivity.RESULT_OK) {
                     lastInstallMode = INSTALL_MODE_OFFLINE;
                     result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
                 }
                 break;
             case GET_APPS_FROM_HQ:
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == AppCompatActivity.RESULT_OK) {
                     lastInstallMode = INSTALL_MODE_FROM_LIST;
                     result = data.getStringExtra(InstallFromListActivity.PROFILE_REF);
                 }

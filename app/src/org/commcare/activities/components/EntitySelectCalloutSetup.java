@@ -1,6 +1,6 @@
 package org.commcare.activities.components;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -64,7 +64,7 @@ public class EntitySelectCalloutSetup {
     /**
      * @return A click listener that launches QR code scanner
      */
-    public static View.OnClickListener makeBarcodeClickListener(final Activity activity) {
+    public static View.OnClickListener makeBarcodeClickListener(final AppCompatActivity activity) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,7 +88,7 @@ public class EntitySelectCalloutSetup {
      * @return click listener that launches the callout's activity with the
      * associated callout extras
      */
-    public static View.OnClickListener makeCalloutClickListener(final Activity activity,
+    public static View.OnClickListener makeCalloutClickListener(final AppCompatActivity activity,
                                                                 Callout callout, EvaluationContext ec) {
         final Intent i = buildCalloutIntent(callout, ec);
         return new View.OnClickListener() {

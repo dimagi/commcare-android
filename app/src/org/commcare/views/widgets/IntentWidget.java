@@ -1,6 +1,6 @@
 package org.commcare.views.widgets;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -131,7 +131,7 @@ public class IntentWidget extends QuestionWidget {
         if (calloutIsSupportedOnDevice()) {
             try {
                 loadCurrentAnswerToIntent();
-                ((Activity) getContext()).startActivityForResult(intent, FormEntryConstants.INTENT_CALLOUT);
+                ((AppCompatActivity) getContext()).startActivityForResult(intent, FormEntryConstants.INTENT_CALLOUT);
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getContext(),

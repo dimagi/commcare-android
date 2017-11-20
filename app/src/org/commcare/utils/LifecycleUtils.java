@@ -1,6 +1,6 @@
 package org.commcare.utils;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 
@@ -28,11 +28,11 @@ public class LifecycleUtils {
         c.startActivity(i);
     }
 
-    public static void restartCommCare(Activity originActivity, boolean systemExit) {
+    public static void restartCommCare(AppCompatActivity originActivity, boolean systemExit) {
         restartCommCare(originActivity, DispatchActivity.class, systemExit);
     }
 
-    public static void restartCommCare(Activity originActivity, Class c, boolean systemExit) {
+    public static void restartCommCare(AppCompatActivity originActivity, Class c, boolean systemExit) {
         Intent intent = new Intent(originActivity, c);
 
         // Make sure that the new stack starts with the given class, and clear everything between.

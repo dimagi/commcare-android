@@ -1,7 +1,7 @@
 package org.commcare.views;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -56,7 +56,7 @@ public final class ViewUtil {
         }
     }
 
-    public static void hideVirtualKeyboard(Activity activity) {
+    public static void hideVirtualKeyboard(AppCompatActivity activity) {
         InputMethodManager inputManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 
         View focus = activity.getCurrentFocus();

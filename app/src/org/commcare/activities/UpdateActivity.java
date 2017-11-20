@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -552,7 +552,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case OFFLINE_UPDATE:
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == AppCompatActivity.RESULT_OK) {
                     offlineUpdateRef = intent.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
                     if (offlineUpdateRef != null) {
                         isLocalUpdate = true;

@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import org.commcare.utils.LifecycleUtils;
 import org.commcare.views.dialogs.AlertDialogFragment;
@@ -12,7 +13,7 @@ import org.javarosa.core.services.locale.Localization;
 /**
  * @author ctsims
  */
-public class UnrecoverableErrorActivity extends FragmentActivity {
+public class UnrecoverableErrorActivity extends AppCompatActivity {
 
     public static final String EXTRA_ERROR_TITLE = "UnrecoverableErrorActivity_Title";
     public static final String EXTRA_ERROR_MESSAGE = "UnrecoverableErrorActivity_Message";

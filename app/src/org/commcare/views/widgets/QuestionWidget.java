@@ -1,6 +1,6 @@
 package org.commcare.views.widgets;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -479,7 +479,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
                 }
             };
             mAlertDialog.setCancelable(true);
-            mAlertDialog.setButton(StringUtils.getStringSpannableRobust(this.getContext(), R.string.ok), errorListener);
+            mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE,
+                    StringUtils.getStringSpannableRobust(this.getContext(), R.string.ok),
+                    errorListener);
             mAlertDialog.show();
         } else {
 

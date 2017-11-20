@@ -2,6 +2,7 @@ package org.commcare.activities;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;

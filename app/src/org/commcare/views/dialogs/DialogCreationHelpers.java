@@ -1,6 +1,7 @@
 package org.commcare.views.dialogs;
 
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
@@ -20,7 +21,7 @@ import org.javarosa.core.services.locale.Localization;
  */
 public class DialogCreationHelpers {
 
-    public static CommCareAlertDialog buildAboutCommCareDialog(Activity activity) {
+    public static CommCareAlertDialog buildAboutCommCareDialog(AppCompatActivity activity) {
 
         LayoutInflater li = LayoutInflater.from(activity);
         View view = li.inflate(R.layout.scrolling_info_dialog, null);

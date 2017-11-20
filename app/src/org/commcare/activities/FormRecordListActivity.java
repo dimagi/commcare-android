@@ -1,7 +1,7 @@
 package org.commcare.activities;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -205,7 +205,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     //This is only relevant with the new menu format, old menus have a hard
                     //button and don't need their menu to be rebuilt
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        invalidateOptionsMenu();
+                        supportInvalidateOptionsMenu();
                     }
                 }
 
@@ -229,7 +229,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         this.formRecordProcessor = new FormRecordProcessor(this);
     }
 
-    private static void callBarcodeScanIntent(Activity act) {
+    private static void callBarcodeScanIntent(AppCompatActivity act) {
         Intent i = new Intent("com.google.zxing.client.android.SCAN");
         try {
             act.startActivityForResult(i, BARCODE_FETCH);
@@ -270,7 +270,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     private void onBarcodeFetch(int resultCode, Intent intent) {
-        if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == AppCompatActivity.RESULT_OK) {
             String result = intent.getStringExtra("SCAN_RESULT");
             if (result != null) {
                 result = result.trim();

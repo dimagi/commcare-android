@@ -1,6 +1,7 @@
 package org.commcare.views.widgets;
 
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;

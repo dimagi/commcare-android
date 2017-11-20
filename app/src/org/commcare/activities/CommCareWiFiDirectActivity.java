@@ -1,8 +1,8 @@
 package org.commcare.activities;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -206,7 +206,7 @@ public class CommCareWiFiDirectActivity
         uiController.refreshView();
     }
 
-    private void showDialog(Activity activity, String title, String message) {
+    private void showDialog(AppCompatActivity activity, String title, String message) {
         StandardAlertDialog d = new StandardAlertDialog(activity, title, message);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override

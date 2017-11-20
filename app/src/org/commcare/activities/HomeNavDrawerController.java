@@ -1,10 +1,10 @@
 package org.commcare.activities;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -61,7 +61,7 @@ public class HomeNavDrawerController {
         navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
         refreshItems();
 
-        ActionBar actionBar = activity.getActionBar();
+        ActionBar actionBar = activity.getSupportActionBar();
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(false);
         actionBar.setDisplayUseLogoEnabled(false);

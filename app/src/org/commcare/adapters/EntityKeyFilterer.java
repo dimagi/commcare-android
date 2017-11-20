@@ -1,6 +1,6 @@
 package org.commcare.adapters;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
@@ -27,7 +27,7 @@ public class EntityKeyFilterer extends EntityFiltererBase {
     public EntityKeyFilterer(EntityListAdapter adapter,
                              NodeEntityFactory nodeFactory,
                              List<Entity<TreeReference>> fullEntityList,
-                             Activity context, LinkedHashSet<String> orderedKeySet) {
+                             AppCompatActivity context, LinkedHashSet<String> orderedKeySet) {
         super(context, nodeFactory, adapter, fullEntityList);
 
         this.orderedKeySet = orderedKeySet;

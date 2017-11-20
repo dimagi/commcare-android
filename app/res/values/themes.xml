@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="AppBaseTheme" parent="android:Theme.Light">
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/cc_brand_color</item>
+        <item name="colorPrimaryDark">#283593</item>
+        <item name="colorAccent">#69F0AE</item>
+
         <!-- API 11 theme customizations can go here. -->
         <item name="android:colorBackground">@color/cc_neutral_bg</item>
         <item name="android:progressBarStyleHorizontal">@drawable/progressbar_modern</item>

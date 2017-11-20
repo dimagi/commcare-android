@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
@@ -92,7 +92,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
                         if (result == Boolean.TRUE) {
                             receiver.done = true;
                             receiver.evalState();
-                            receiver.setResult(Activity.RESULT_OK);
+                            receiver.setResult(AppCompatActivity.RESULT_OK);
                             receiver.finish();
                         } else {
                             //assume that we've already set the error message, but make it look scary
@@ -135,7 +135,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_FILE_LOCATION) {
-            if (resultCode == Activity.RESULT_OK) {
+            if (resultCode == AppCompatActivity.RESULT_OK) {
                 // Android versions 4.4 and up sometimes don't return absolute
                 // filepaths from the file chooser. So resolve the URI into a
                 // valid file path.

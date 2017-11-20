@@ -1,6 +1,6 @@
 package org.commcare.activities.components;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -118,11 +118,11 @@ public class MenuList implements AdapterView.OnItemClickListener {
             // are already in our home activity. Instead, just manually launch the same code path
             // that would have been initiated by onActivityResult of HomeScreenBaseActivity
             HomeScreenBaseActivity homeActivity = (HomeScreenBaseActivity)activity;
-            if (homeActivity.processReturnFromGetCommand(Activity.RESULT_OK, i)) {
+            if (homeActivity.processReturnFromGetCommand(AppCompatActivity.RESULT_OK, i)) {
                 homeActivity.startNextSessionStepSafe();
             }
         } else {
-            activity.setResult(Activity.RESULT_OK, i);
+            activity.setResult(AppCompatActivity.RESULT_OK, i);
             activity.finish();
         }
     }

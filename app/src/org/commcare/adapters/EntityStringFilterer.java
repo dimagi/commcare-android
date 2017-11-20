@@ -1,6 +1,6 @@
 package org.commcare.adapters;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -34,7 +34,7 @@ public class EntityStringFilterer extends EntityFiltererBase {
                                 boolean isFuzzySearchEnabled,
                                 NodeEntityFactory nodeFactory,
                                 List<Entity<TreeReference>> fullEntityList,
-                                Activity context) {
+                                AppCompatActivity context) {
         super(context, nodeFactory, adapter, fullEntityList);
 
         this.isFuzzySearchEnabled = isFuzzySearchEnabled;

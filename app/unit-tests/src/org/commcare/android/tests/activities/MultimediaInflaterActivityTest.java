@@ -1,6 +1,6 @@
 package org.commcare.android.tests.activities;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.widget.ImageButton;
 
@@ -54,7 +54,7 @@ public class MultimediaInflaterActivityTest {
         ShadowActivity shadowActivity =
                 Shadows.shadowOf(multimediaInflaterActivity);
         shadowActivity.receiveResult(fileSelectIntent,
-                Activity.RESULT_OK,
+                AppCompatActivity.RESULT_OK,
                 emptyFileSelectResult);
 
         Assert.assertEquals(Localization.get("mult.install.state.invalid.path"),

@@ -1,6 +1,6 @@
 package org.commcare.graph.activities;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Window;
 import android.webkit.WebView;
@@ -13,9 +13,9 @@ import org.commcare.graph.view.GraphView;
  * Created by jschweers on 11/20/2015.
  */
 public class GraphActivityStateHandler {
-    private final Activity activity;
+    private final AppCompatActivity activity;
 
-    public GraphActivityStateHandler(Activity a) {
+    public GraphActivityStateHandler(AppCompatActivity a) {
         activity = a;
     }
 

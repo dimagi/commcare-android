@@ -1,6 +1,6 @@
 package org.commcare.views;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
@@ -13,7 +13,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.MediaUtil;
 
 public class CustomBanner {
-    public static boolean useCustomBannerFitToActivity(Activity activity,
+    public static boolean useCustomBannerFitToActivity(AppCompatActivity activity,
                                                        @NonNull ImageView topBannerImageView) {
         DisplayMetrics displaymetrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);

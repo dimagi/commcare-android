@@ -1,6 +1,6 @@
 package org.commcare.views;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.DialogInterface;
 
 import org.commcare.activities.CommCareActivity;
@@ -47,7 +47,7 @@ public class UserfacingErrorHandling {
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         if (shouldExit) {
-                            activity.setResult(Activity.RESULT_CANCELED);
+                            activity.setResult(AppCompatActivity.RESULT_CANCELED);
                             activity.finish();
                         }
                         activity.dismissAlertDialog();
@@ -62,7 +62,7 @@ public class UserfacingErrorHandling {
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
                         if (shouldExit) {
-                            activity.setResult(Activity.RESULT_CANCELED);
+                            activity.setResult(AppCompatActivity.RESULT_CANCELED);
                             activity.finish();
                         }
                         activity.dismissAlertDialog();

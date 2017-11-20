@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -27,7 +27,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Aliza Stone (astone@dimagi.com), created 6/9/16.
  */
-public class GlobalPrivilegeClaimingActivity extends Activity {
+public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
 
     private static final String TAG = GlobalPrivilegeClaimingActivity.class.getSimpleName();
     public static final String KEY_PRIVILEGE_NAME = "key-privilege-name";

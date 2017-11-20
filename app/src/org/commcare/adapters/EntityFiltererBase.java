@@ -1,6 +1,6 @@
 package org.commcare.adapters;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
@@ -21,9 +21,9 @@ public abstract class EntityFiltererBase {
     protected final List<Entity<TreeReference>> fullEntityList;
     private Thread thread;
     private boolean cancelled = false;
-    private final Activity context;
+    private final AppCompatActivity context;
 
-    public EntityFiltererBase(Activity context,
+    public EntityFiltererBase(AppCompatActivity context,
                               NodeEntityFactory nodeFactory,
                               EntityListAdapter adapter,
                               List<Entity<TreeReference>> fullEntityList) {

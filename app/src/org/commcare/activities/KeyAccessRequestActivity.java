@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -41,7 +41,7 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
                 AndroidSharedKeyRecord record = AndroidSharedKeyRecord.generateNewSharingKey();
                 CommCareApplication.instance().getGlobalStorage(AndroidSharedKeyRecord.class).write(record);
                 record.writeResponseToIntent(response);
-                setResult(Activity.RESULT_OK, response);
+                setResult(AppCompatActivity.RESULT_OK, response);
                 finish();
             }
         });
@@ -50,7 +50,7 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
 
             @Override
             public void onClick(View v) {
-                setResult(Activity.RESULT_CANCELED);
+                setResult(AppCompatActivity.RESULT_CANCELED);
                 finish();
             }
 

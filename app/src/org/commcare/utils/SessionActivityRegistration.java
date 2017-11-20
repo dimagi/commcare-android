@@ -1,6 +1,7 @@
 package org.commcare.utils;
 
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

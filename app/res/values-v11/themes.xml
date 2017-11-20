@@ -3,28 +3,28 @@
         Base application theme for API 11+. This theme completely replaces
         AppBaseTheme from res/values/styles.xml on API 11+ devices.
     -->
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
-        <!-- API 11 theme customizations can go here. -->
-        <item name="android:colorBackground">@color/cc_neutral_bg</item>
-        <item name="detail_odd_row_color">@color/cc_neutral_bg</item>
-        <item name="detail_even_row_color">@color/transparent</item>
-        <item name="entity_view_header_background_color">@color/cc_brand_text</item>
-        <item name="entity_view_header_text_color">@color/cc_core_bg</item>
-        <item name="searchbox_action_bar_color">@color/white</item>
-        <item name="drawer_pulldown_text_color">@color/white</item>
-        <item name="drawer_pulldown_even_row_color">@color/cc_brand_bg</item>
-        <item name="drawer_pulldown_odd_row_color">@color/drawer_pulldown_odd_row_color</item>
-        <item name="android:actionBarStyle">@style/ActionBar</item>
-        <item name="android:actionOverflowButtonStyle">@style/OverflowButton</item>
-        <item name="android:textViewStyle">@style/AppTheme.Widget.TextView</item>
-        <item name="android:textSize">@dimen/text_medium</item>
-        <item name="menu_tile_title_text_color">@color/cc_brand_bg</item>
-        <item name="entity_select_title_text_color">@color/cc_light_warm_accent_text</item>
-        <item name="filter_select_background_color">@color/cc_brand_text</item>
-        <item name="filter_select_text_color">@color/cc_light_warm_accent_text</item>
-        <!-- disable drop shadows, we'll make out own per screen (yay!) -->
-        <item name="android:windowContentOverlay">@null</item>
-    </style>
+    <!--<style name="AppBaseTheme" parent="android:Theme.Holo.Light">-->
+        <!--&lt;!&ndash; API 11 theme customizations can go here. &ndash;&gt;-->
+        <!--<item name="android:colorBackground">@color/cc_neutral_bg</item>-->
+        <!--<item name="detail_odd_row_color">@color/cc_neutral_bg</item>-->
+        <!--<item name="detail_even_row_color">@color/transparent</item>-->
+        <!--<item name="entity_view_header_background_color">@color/cc_brand_text</item>-->
+        <!--<item name="entity_view_header_text_color">@color/cc_core_bg</item>-->
+        <!--<item name="searchbox_action_bar_color">@color/white</item>-->
+        <!--<item name="drawer_pulldown_text_color">@color/white</item>-->
+        <!--<item name="drawer_pulldown_even_row_color">@color/cc_brand_bg</item>-->
+        <!--<item name="drawer_pulldown_odd_row_color">@color/drawer_pulldown_odd_row_color</item>-->
+        <!--<item name="android:actionBarStyle">@style/ActionBar</item>-->
+        <!--<item name="android:actionOverflowButtonStyle">@style/OverflowButton</item>-->
+        <!--<item name="android:textViewStyle">@style/AppTheme.Widget.TextView</item>-->
+        <!--<item name="android:textSize">@dimen/text_medium</item>-->
+        <!--<item name="menu_tile_title_text_color">@color/cc_brand_bg</item>-->
+        <!--<item name="entity_select_title_text_color">@color/cc_light_warm_accent_text</item>-->
+        <!--<item name="filter_select_background_color">@color/cc_brand_text</item>-->
+        <!--<item name="filter_select_text_color">@color/cc_light_warm_accent_text</item>-->
+        <!--&lt;!&ndash; disable drop shadows, we'll make out own per screen (yay!) &ndash;&gt;-->
+        <!--<item name="android:windowContentOverlay">@null</item>-->
+    <!--</style>-->
 
     <style name="radio_button_modern" parent="@android:style/Widget.CompoundButton.RadioButton">
         <item name="android:button">@drawable/radio_button_modern</item>

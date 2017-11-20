@@ -1,7 +1,7 @@
 package org.commcare.utils;
 
 import android.Manifest;
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -106,7 +106,7 @@ public class GeoUtils {
      * @param onChange Listener to call when dialog button is pressed.
      * @param onCancel Listener to call when dialog is canceled.
      */
-    public static void showNoGpsDialog(Activity activity,
+    public static void showNoGpsDialog(AppCompatActivity activity,
                                        DialogInterface.OnClickListener onChange,
                                        DialogInterface.OnCancelListener onCancel) {
         StandardAlertDialog factory = setupAlertFactory(activity, onChange, onCancel);

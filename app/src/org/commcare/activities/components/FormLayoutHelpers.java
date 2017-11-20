@@ -1,6 +1,6 @@
 package org.commcare.activities.components;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Build;
@@ -83,7 +83,7 @@ public class FormLayoutHelpers {
         }
     }
 
-    private static int getFontSizeInPx(Activity activity) {
+    private static int getFontSizeInPx(AppCompatActivity activity) {
         SharedPreferences settings =
                 PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
         String question_font =
@@ -97,8 +97,8 @@ public class FormLayoutHelpers {
 
     private static int getActionBarSize(CommCareActivity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB &&
-                activity.getActionBar() != null) {
-            int actionBarHeight = activity.getActionBar().getHeight();
+                activity.getSupportActionBar() != null) {
+            int actionBarHeight = activity.getSupportActionBar().getHeight();
 
             if (actionBarHeight != 0) {
                 return actionBarHeight;

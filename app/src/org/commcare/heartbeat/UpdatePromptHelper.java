@@ -1,6 +1,6 @@
 package org.commcare.heartbeat;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.util.Base64;
 
@@ -23,7 +23,7 @@ public class UpdatePromptHelper {
     /**
      * @return - If the user was prompted to update
      */
-    public static boolean promptForUpdateIfNeeded(Activity context) {
+    public static boolean promptForUpdateIfNeeded(AppCompatActivity context) {
         try {
             CommCareSessionService currentSession = CommCareApplication.instance().getSession();
             if (!currentSession.apkUpdatePromptWasShown() &&

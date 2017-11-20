@@ -1,6 +1,6 @@
 package org.commcare.android.tests.activities;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -58,7 +58,7 @@ public class QueryRequestActivityTest {
                 Robolectric.buildActivity(QueryRequestActivity.class)
                         .withIntent(queryActivityIntent).setup().get();
 
-        assertEquals(Activity.RESULT_CANCELED,
+        assertEquals(AppCompatActivity.RESULT_CANCELED,
                 Shadows.shadowOf(queryRequestActivity).getResultCode());
         assertTrue(queryRequestActivity.isFinishing());
     }
@@ -93,7 +93,7 @@ public class QueryRequestActivityTest {
         Button queryButton = (Button)queryRequestActivity.findViewById(R.id.request_button);
         queryButton.performClick();
 
-        assertEquals(Activity.RESULT_OK,
+        assertEquals(AppCompatActivity.RESULT_OK,
                 Shadows.shadowOf(queryRequestActivity).getResultCode());
         assertTrue(queryRequestActivity.isFinishing());
     }
@@ -228,7 +228,7 @@ public class QueryRequestActivityTest {
                 ShadowToast.getTextOfLatestToast());
 
         queryButton.performClick();
-        assertEquals(Activity.RESULT_OK,
+        assertEquals(AppCompatActivity.RESULT_OK,
                 Shadows.shadowOf(queryRequestActivity).getResultCode());
         assertTrue(queryRequestActivity.isFinishing());
     }

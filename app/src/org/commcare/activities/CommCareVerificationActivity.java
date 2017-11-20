@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -231,7 +231,7 @@ public class CommCareVerificationActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == GET_MULTIMEDIA && resultCode == Activity.RESULT_OK) {
+        if (requestCode == GET_MULTIMEDIA && resultCode == AppCompatActivity.RESULT_OK) {
             // we found some media, so try validating it
             newMediaToValidate = true;
             return;

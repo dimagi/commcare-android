@@ -1,6 +1,7 @@
 package org.commcare.views.widgets;
 
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;

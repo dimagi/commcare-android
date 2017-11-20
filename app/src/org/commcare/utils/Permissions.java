@@ -2,6 +2,7 @@ package org.commcare.utils;
 
 import android.Manifest;
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;

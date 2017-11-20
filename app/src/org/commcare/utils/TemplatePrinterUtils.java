@@ -1,6 +1,7 @@
 package org.commcare.utils;
 
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -158,7 +159,7 @@ public abstract class TemplatePrinterUtils {
         }).showNonPersistentDialog();
     }
 
-    public static void showPrintStatusDialog(final Activity activity, String title, String msg,
+    public static void showPrintStatusDialog(final AppCompatActivity activity, String title, String msg,
                                              final boolean printInitiated) {
         StandardAlertDialog.getBasicAlertDialog(activity, title, msg,
                 new DialogInterface.OnClickListener() {
@@ -169,7 +170,7 @@ public abstract class TemplatePrinterUtils {
                         Bundle responses = new Bundle();
                         responses.putString("print_initiated", "" + printInitiated);
                         intent.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, responses);
-                        activity.setResult(Activity.RESULT_OK, intent);
+                        activity.setResult(AppCompatActivity.RESULT_OK, intent);
                         activity.finish();
                     }
                 }).showNonPersistentDialog();

@@ -1,7 +1,7 @@
 package org.commcare.activities;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Rect;
@@ -67,7 +67,7 @@ import io.reactivex.disposables.Disposable;
  *
  * @author ctsims
  */
-public abstract class CommCareActivity<R> extends FragmentActivity
+public abstract class CommCareActivity<R> extends AppCompatActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener, DetailCalloutListener{
 
     private static final String TAG = CommCareActivity.class.getSimpleName();
@@ -143,7 +143,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         persistManagedUiState(fm);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && shouldShowBreadcrumbBar()) {
-            getActionBar().setDisplayShowCustomEnabled(true);
+            getSupportActionBar().setDisplayShowCustomEnabled(true);
 
             // Add breadcrumb bar
             BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
@@ -679,7 +679,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @param menu         Menu passed through onCreateOptionsMenu
      * @param instantiator Optional ActionBarInstantiator for additional setup code.
      */
-    protected void tryToAddSearchActionToAppBar(Activity activity, Menu menu,
+    protected void tryToAddSearchActionToAppBar(AppCompatActivity activity, Menu menu,
                                                 ActionBarInstantiator instantiator) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuInflater inflater = activity.getMenuInflater();
@@ -799,7 +799,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      *
      * @return True iff the movement is a definitive horizontal swipe.
      */
-    private static boolean isHorizontalSwipe(Activity activity, MotionEvent e1, MotionEvent e2) {
+    private static boolean isHorizontalSwipe(AppCompatActivity activity, MotionEvent e1, MotionEvent e2) {
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 

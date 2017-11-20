@@ -1,6 +1,7 @@
 package org.commcare.fragments;
 
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -79,7 +80,7 @@ public class SetupEnterURLFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        Activity activity = this.getActivity();
+        Activity activity = getActivity();
 
         if (activity != null) {
             if (activity.getCurrentFocus() != null) {
@@ -92,7 +93,7 @@ public class SetupEnterURLFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Activity activity = this.getActivity();
+        Activity activity = getActivity();
 
         if (activity != null) {
             View editBox = activity.findViewById(R.id.edit_profile_location);
@@ -107,8 +108,8 @@ public class SetupEnterURLFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if (context instanceof Activity) {
-            ((Activity)context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        if (context instanceof AppCompatActivity) {
+            ((AppCompatActivity)context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
 
         if (!(context instanceof URLInstaller)) {

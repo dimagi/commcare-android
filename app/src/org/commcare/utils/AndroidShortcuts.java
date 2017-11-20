@@ -1,6 +1,6 @@
 package org.commcare.utils;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 /**
  * @author ctsims
  */
-public class AndroidShortcuts extends Activity {
+public class AndroidShortcuts extends AppCompatActivity {
 
     public static final String EXTRA_KEY_SHORTCUT = "org.commcare.dalvik.application.shortcut.command";
 

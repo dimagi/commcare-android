@@ -1,7 +1,7 @@
 package org.commcare.android.nfc;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.IntentFilter;
@@ -26,12 +26,12 @@ public class NfcManager {
             throw new NfcNotEnabledException();
     }
 
-    public void enableForegroundDispatch(Activity activity, PendingIntent intent,
+    public void enableForegroundDispatch(AppCompatActivity activity, PendingIntent intent,
                                                     IntentFilter[] filters, String[][] techLists) {
         this.nfcAdapter.enableForegroundDispatch(activity,intent, filters, techLists);
     }
 
-    public void disableForegroundDispatch(Activity activity) {
+    public void disableForegroundDispatch(AppCompatActivity activity) {
         if (nfcAdapter != null) {
             nfcAdapter.disableForegroundDispatch(activity);
         }

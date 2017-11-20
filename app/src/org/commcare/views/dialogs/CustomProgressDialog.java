@@ -1,6 +1,6 @@
 package org.commcare.views.dialogs;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;

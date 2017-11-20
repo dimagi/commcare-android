@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore.Images;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -198,21 +198,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        /*
-         * EventLog accepts only proper Strings as input, but prior to this version,
-         * Android would try to send SpannedStrings to it, thus crashing the app.
-         * This makes sure the title is actually a String.
-         * This fixes bug 174626.
-         */
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
-                && item.getTitleCondensed() != null) {
-            item.setTitleCondensed(item.getTitleCondensed().toString());
-        }
-
-        return super.onMenuItemSelected(featureId, item);
-    }
+//    @Override
+//    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+//        /*
+//         * EventLog accepts only proper Strings as input, but prior to this version,
+//         * Android would try to send SpannedStrings to it, thus crashing the app.
+//         * This makes sure the title is actually a String.
+//         * This fixes bug 174626.
+//         */
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
+//                && item.getTitleCondensed() != null) {
+//            item.setTitleCondensed(item.getTitleCondensed().toString());
+//        }
+//
+//        return super.onMenuItemSelected(featureId, item);
+//    }
 
     @Override
     public void formSaveCallback() {
@@ -646,7 +646,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         //We need to ignore this even if it's processed by the action
         //bar (if one exists)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar bar = getActionBar();
+            ActionBar bar = getSupportActionBar();
             if (bar != null) {
                 View customView = bar.getCustomView();
                 if (customView != null && customView.dispatchTouchEvent(mv)) {
@@ -956,7 +956,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mFormController = fc;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // Newer menus may have already built the menu, before all data was ready
-            invalidateOptionsMenu();
+            supportInvalidateOptionsMenu();
         }
 
         registerSessionFormSaveCallback();

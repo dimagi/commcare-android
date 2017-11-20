@@ -1,7 +1,7 @@
 package org.commcare.activities;
 
 import android.Manifest;
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,7 +30,7 @@ import java.util.Set;
 /**
  * Activity that blocks user until the current GPS location is captured
  */
-public class GeoPointActivity extends Activity implements LocationListener, TimerListener {
+public class GeoPointActivity extends AppCompatActivity implements LocationListener, TimerListener {
     private GeoProgressDialog locationDialog;
     private LocationManager locationManager;
     private Location location;
