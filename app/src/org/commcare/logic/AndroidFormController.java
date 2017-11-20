@@ -15,6 +15,7 @@ public class AndroidFormController extends FormController implements PendingCall
 
     private FormIndex mPendingCalloutFormIndex = null;
     private boolean wasPendingCalloutCancelled;
+    private FormIndex formIndexToReturnTo = null;
 
     public AndroidFormController(FormEntryController fec, boolean readOnly) {
         super(fec, readOnly);
@@ -45,6 +46,21 @@ public class AndroidFormController extends FormController implements PendingCall
     //this ended up in the "logic" division.
     public WidgetFactory getWidgetFactory() {
         return new WidgetFactory(mFormEntryController.getModel().getForm(), this);
+    }
+
+    /**
+     * Should be used to store the current form index if we are about to perform any actions that
+     * may muck with its value, but will want to be able to restore the original one later
+     */
+    public void storeFormIndexToReturnTo() {
+        this.formIndexToReturnTo = this.getFormIndex();
+    }
+
+    public void returnToStoredIndex() {
+        if (this.formIndexToReturnTo != null) {
+            jumpToIndex(this.formIndexToReturnTo);
+        }
+        this.formIndexToReturnTo = null;
     }
 
 }
