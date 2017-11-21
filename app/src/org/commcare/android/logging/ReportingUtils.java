@@ -31,7 +31,7 @@ public class ReportingUtils {
     public static String getAppId() {
         try {
             return AppUtils.getCurrentAppId();
-        } catch (NullPointerException npe) {
+        } catch (Exception e) {
             // don't fail hard, return empty string
             return "";
         }

@@ -169,7 +169,6 @@ public class AppUtils {
 
     public static String getCurrentAppId() {
         return CommCareApplication.instance()
-                .getCurrentApp()
                 .getCommCarePlatform()
                 .getCurrentProfile()
                 .getUniqueId();
