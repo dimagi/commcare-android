@@ -123,9 +123,14 @@ public class HeartbeatRequester {
     }
 
     private static String getISO8601FormattedLastSyncTime() {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-        df.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return df.format(SyncDetailCalculations.getLastSyncTime());
+        long lastSyncTime = SyncDetailCalculations.getLastSyncTime();
+        if (lastSyncTime == 0) {
+            return "";
+        } else {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+            df.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return df.format(lastSyncTime);
+        }
     }
 
     protected static void passResponseToUiThread(final JSONObject responseAsJson) {
