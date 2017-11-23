@@ -53,12 +53,12 @@ import java.util.Hashtable;
  * @author ctsims
  */
 public class TestUtils {
-    
+
     //TODO: Move this to the application or somewhere better static
 
     /**
      * Initialize all of the static hooks we need to make storage possible
-     * in the mocked/shadow world 
+     * in the mocked/shadow world
      */
     public static void initializeStaticTestStorage() {
         //Sets the static strategy for the deserializtion code to be
@@ -81,9 +81,9 @@ public class TestUtils {
         return getFactory(db, false);
     }
 
-        /**
-         * Get a form instance and case enabled parsing factory
-         */
+    /**
+     * Get a form instance and case enabled parsing factory
+     */
     private static TransactionParserFactory getFactory(final SQLiteDatabase db, final boolean bulkProcessingEnabled) {
         final Hashtable<String, String> formInstanceNamespaces;
         if (CommCareApplication.instance().getCurrentApp() != null) {
@@ -99,13 +99,19 @@ public class TestUtils {
                     return new FormInstanceXmlParser(parser, CommCareApplication.instance(),
                             Collections.unmodifiableMap(formInstanceNamespaces),
                             CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
-                } else if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
+                } else if (CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
 
                     //Note - this isn't even actually bulk processing. since this class is static
                     //there's no good lifecycle to manage the bulk processor in, but at least
                     //this will validate that the bulk processor works.
-                    if(bulkProcessingEnabled)  {
-                        return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db, AppUtils.getCurrentAppId()), new AndroidCaseIndexTable(db)) {
+                    EntityStorageCache entityStorageCache;
+                    try {
+                        entityStorageCache = new EntityStorageCache("case", db, AppUtils.getCurrentAppId());
+                    } catch (Exception e) {
+                        entityStorageCache = null;
+                    }
+                    if (bulkProcessingEnabled) {
+                        return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), entityStorageCache, new AndroidCaseIndexTable(db)) {
                             @Override
                             protected SQLiteDatabase getDbHandle() {
                                 return db;
@@ -113,7 +119,7 @@ public class TestUtils {
                         };
 
                     } else {
-                        return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db, AppUtils.getCurrentAppId()), new AndroidCaseIndexTable(db)) {
+                        return new AndroidCaseXmlParser(parser, getCaseStorage(db), entityStorageCache, new AndroidCaseIndexTable(db)) {
                             @Override
                             protected SQLiteDatabase getDbHandle() {
                                 return db;
@@ -122,8 +128,7 @@ public class TestUtils {
                     }
 
 
-
-                }  else if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
+                } else if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
                     return new LedgerXmlParsers(parser, getLedgerStorage(db));
                 }
                 return null;
@@ -138,23 +143,23 @@ public class TestUtils {
         processResourceTransaction(resourcePath, false);
     }
 
-        /**
-         * Process an input XML file for transactions and update the relevant databases.
-         */
+    /**
+     * Process an input XML file for transactions and update the relevant databases.
+     */
     public static void processResourceTransaction(String resourcePath,
                                                   boolean bulkProcessingEnabled) {
         final SQLiteDatabase db = getTestDb();
 
         DataModelPullParser parser;
 
-        try{
+        try {
             InputStream is = System.class.getResourceAsStream(resourcePath);
 
             parser = new DataModelPullParser(is, getFactory(db, bulkProcessingEnabled), true, true);
             parser.parse();
             is.close();
 
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
             throw wrapError(ioe, "IO Error parsing transactions");
         } catch (InvalidStructureException e) {
             throw wrapError(e, "Bad Transaction");
@@ -177,14 +182,14 @@ public class TestUtils {
             androidTransactionFactory.initFormInstanceParser(formInstanceNamespaces);
         }
 
-        try{
+        try {
             InputStream is = System.class.getResourceAsStream(resourcePath);
-            
+
             parser = new DataModelPullParser(is, androidTransactionFactory, true, true);
             parser.parse();
             is.close();
-        
-        } catch(IOException ioe) {
+
+        } catch (IOException ioe) {
             throw wrapError(ioe, "IO Error parsing transactions");
         } catch (InvalidStructureException e) {
             throw wrapError(e, "Bad Transaction");
@@ -194,19 +199,19 @@ public class TestUtils {
             throw wrapError(e, "Bad State");
         }
     }
-    
+
     /**
-     * @return The hook for the test user-db 
+     * @return The hook for the test user-db
      */
     private static SQLiteDatabase getTestDb() {
         DatabaseUserOpenHelper helper = new DatabaseUserOpenHelper(RuntimeEnvironment.application, "Test");
         return helper.getWritableDatabase("Test");
     }
 
-    public static PrototypeFactory getStaticPrototypeFactory(){
+    public static PrototypeFactory getStaticPrototypeFactory() {
         return CommCareTestApplication.instance().getPrototypeFactory(RuntimeEnvironment.application);
     }
-    
+
     /**
      * @return A test-db case storage object
      */
@@ -242,12 +247,12 @@ public class TestUtils {
      * @return The case storage object for the provided db
      */
     private static SqlStorage<ACase> getCaseStorage(SQLiteDatabase db) {
-            return new SqlStorage<>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
-                @Override
-                public PrototypeFactory getPrototypeFactory() {
-                    return getStaticPrototypeFactory();
-                }
-            });
+        return new SqlStorage<>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
+            @Override
+            public PrototypeFactory getPrototypeFactory() {
+                return getStaticPrototypeFactory();
+            }
+        });
     }
 
     private static SqlStorage<Ledger> getLedgerStorage(SQLiteDatabase db) {
@@ -260,13 +265,14 @@ public class TestUtils {
     }
 
     //TODO: Make this work natively with the CommCare Android IIF
+
     /**
      * @return An evaluation context which is capable of evaluating against
      * the connected storage instances: casedb is the only one supported for now
      */
     public static EvaluationContext getEvaluationContextWithoutSession() {
         final SQLiteDatabase db = getTestDb();
-        
+
         AndroidInstanceInitializer iif = new AndroidInstanceInitializer() {
             @Override
             public AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
