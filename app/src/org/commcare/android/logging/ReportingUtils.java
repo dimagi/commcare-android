@@ -7,7 +7,7 @@ import android.content.pm.PackageManager;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
 import org.commcare.utils.SessionStateUninitException;
@@ -54,7 +54,7 @@ public class ReportingUtils {
 
     public static String getDomain() {
         try {
-            String domain = CommCarePreferences.getUserDomain();
+            String domain = HiddenPreferences.getUserDomain();
             if (domain == null) {
                 domain = "not found";
             }
@@ -66,7 +66,7 @@ public class ReportingUtils {
 
     public static String getPostURL() {
         try {
-            String domain = CommCarePreferences.getUserDomain();
+            String domain = HiddenPreferences.getUserDomain();
             if (domain == null) {
                 domain = "not found";
             }

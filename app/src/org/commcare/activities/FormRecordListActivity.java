@@ -30,6 +30,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.IncompleteFormListAdapter;
 import org.commcare.android.database.user.models.FormRecord;
@@ -230,9 +232,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     private static void callBarcodeScanIntent(Activity act) {
-        Intent i = new Intent("com.google.zxing.client.android.SCAN");
+        Intent intent = new IntentIntegrator(act).createScanIntent();
         try {
-            act.startActivityForResult(i, BARCODE_FETCH);
+            act.startActivityForResult(intent, BARCODE_FETCH);
         } catch (ActivityNotFoundException anfe) {
             Toast.makeText(act,
                     "No barcode reader available! You can install one " +
@@ -620,7 +622,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         String passOrFail = integrityScanResult.first ? "PASSED:" : "FAILED:";
         Logger.log(
                 LogTypes.TYPE_ERROR_STORAGE,
-                String.format("Integrity scan for form record with ID %s has %s. Report Details: %",
+                String.format("Integrity scan for form record with ID %s has %s. Report Details: %s",
                         r.getInstanceID(),
                         passOrFail,
                         integrityScanResult.second));

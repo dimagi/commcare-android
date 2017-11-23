@@ -748,8 +748,6 @@ intent.callout.activity.missing=Couldn't find intent for callout!
 intent.callout.not.supported=This intent callout is not supported on this device
 fingerprints.scanned=Fingerprints scanned: ${0}
 
-settings.server.listing=Server Settings
-settings.server.title=CommCare > Server Settings
 settings.developer.options=Developer Options
 settings.developer.title=Developer Options
 settings.main.title=CommCare > Settings

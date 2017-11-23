@@ -9,7 +9,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
@@ -101,7 +101,7 @@ public class AppUtils {
     public static void clearUserData() {
         wipeSandboxForUser(CommCareApplication.instance().getSession().getLoggedInUser().getUsername());
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(CommCarePreferences.LAST_LOGGED_IN_USER, null).commit();
+                .putString(HiddenPreferences.LAST_LOGGED_IN_USER, null).commit();
         CommCareApplication.instance().closeUserSession();
     }
 

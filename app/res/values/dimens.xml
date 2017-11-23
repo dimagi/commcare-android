@@ -112,10 +112,6 @@
 
     <dimen name="min_button_padding">20dp</dimen>
 
-    <!-- audio playback -->
-    <dimen name="expanded_audio_playback_margin_bottom">24dp</dimen>
-    <dimen name="expanded_audio_playback_margin">21dp</dimen>
-
     <!--Custom Preferences Dialog-->
     <dimen name="pref_dialog_margin_top">48dp</dimen>
     <dimen name="pref_dialog_margin_bottom">48dp</dimen>

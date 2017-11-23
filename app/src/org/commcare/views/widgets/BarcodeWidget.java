@@ -1,5 +1,6 @@
 package org.commcare.views.widgets;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.text.Editable;
@@ -7,9 +8,13 @@ import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.form.api.FormEntryPrompt;
 
 /**
@@ -19,11 +24,17 @@ public class BarcodeWidget extends IntentWidget implements TextWatcher {
 
     private boolean hasTextChanged;
 
-    public BarcodeWidget(Context context, FormEntryPrompt prompt, Intent i, IntentCallout ic,
-                         PendingCalloutInterface pendingCalloutInterface) {
-        super(context, prompt, i, ic, pendingCalloutInterface,
+    public BarcodeWidget(Context context, FormEntryPrompt prompt, PendingCalloutInterface pendingCalloutInterface,
+                         String appearance, FormDef formDef) {
+        super(context, prompt, null, pendingCalloutInterface,
                 "intent.barcode.get", "intent.barcode.update", "barcode.reader.missing",
-                ic.getAppearance() != null && ic.getAppearance().contains("editable"));
+                appearance != null && appearance.contains("editable"), appearance, formDef);
+        // this has to be done after call to super in order to be able to access getContext()
+        this.intent = new IntentIntegrator((Activity)getContext()).createScanIntent();
+    }
+
+    public void processBarcodeResponse(TreeReference intentQuestionRef, String scanResult) {
+        IntentCallout.setNodeValue(this.formDef, intentQuestionRef, scanResult);
     }
 
     @Override
@@ -55,7 +66,7 @@ public class BarcodeWidget extends IntentWidget implements TextWatcher {
     private void storeTextAnswerToForm() {
         hasTextChanged = false;
         String textFieldAnswer = mStringAnswer.getText().toString();
-        ic.processBarcodeResponse(mPrompt.getIndex().getReference(), textFieldAnswer);
+        processBarcodeResponse(mPrompt.getIndex().getReference(), textFieldAnswer);
     }
 
     @Override
