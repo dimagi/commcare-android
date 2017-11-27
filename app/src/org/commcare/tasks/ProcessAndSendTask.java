@@ -221,13 +221,16 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         String logMessage = "";
         if (e instanceof InvalidStructureException) {
             logMessage =
-                    "Quarantining form record due to transaction data|";
+                    String.format("Quarantining form record with ID %s due to transaction data|",
+                            record.getInstanceID());
         } else if (e instanceof XmlPullParserException) {
             logMessage =
-                    "Quarantining form record due to bad xml|";
+                    String.format("Quarantining form record with ID %s due to bad xml|",
+                            record.getInstanceID());
         } else if (e instanceof UnfullfilledRequirementsException) {
             logMessage =
-                    "Quarantining form record due to bad requirements|";
+                    String.format("Quarantining form record with ID %s due to bad requirements|",
+                            record.getInstanceID());
         }
         logMessage = logMessage + getExceptionText(e);
 
