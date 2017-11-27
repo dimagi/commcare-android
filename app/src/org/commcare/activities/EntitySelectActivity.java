@@ -168,34 +168,36 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         asw = CommCareApplication.instance().getCurrentSessionWrapper();
         session = asw.getSession();
 
-        // avoid session dependent when there is no command
-        if (session.getCommand() != null) {
-            selectDatum = (EntityDatum)session.getNeededDatum();
-            shortSelect = session.getDetail(selectDatum.getShortDetail());
-            if (shortSelect.forcesLandscape()) {
-                this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            }
-            this.customCallout = initCustomCallout();
+        if (session.getCommand() == null) {
+            // Avoid session-dependent setup if the session has ended, and we'll finish in onResume
+            return;
+        }
 
-            mNoDetailMode = selectDatum.getLongDetail() == null;
-            mViewMode = session.isViewCommand(session.getCommand());
+        selectDatum = (EntityDatum)session.getNeededDatum();
+        shortSelect = session.getDetail(selectDatum.getShortDetail());
+        if (shortSelect.forcesLandscape()) {
+            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+        this.customCallout = initCustomCallout();
 
-            // Don't show actions (e.g. 'register patient', 'claim patient') at all  when in the
-            // middle of workflow triggered by a (sync) action. Also hide them from the entity
-            // list (but not the options menu) when we are showing the entity list in grid mode
-            hideActionsFromEntityList = session.isRemoteRequestCommand(session.getCommand()) ||
-                    shortSelect.shouldBeLaidOutInGrid();
-            hideActionsFromOptionsMenu = session.isRemoteRequestCommand(session.getCommand());
+        mNoDetailMode = selectDatum.getLongDetail() == null;
+        mViewMode = session.isViewCommand(session.getCommand());
 
-            boolean isOrientationChange = savedInstanceState != null;
-            setupUI(isOrientationChange);
+        // Don't show actions (e.g. 'register patient', 'claim patient') at all  when in the
+        // middle of workflow triggered by a (sync) action. Also hide them from the entity
+        // list (but not the options menu) when we are showing the entity list in grid mode
+        hideActionsFromEntityList = session.isRemoteRequestCommand(session.getCommand()) ||
+                shortSelect.shouldBeLaidOutInGrid();
+        hideActionsFromOptionsMenu = session.isRemoteRequestCommand(session.getCommand());
 
-            // On some devices, onCreateOptionsMenu() can get called before onCreate() has completed
-            // if the action bar is in use. Since we can't deploy all of the logic in onCreateOptionsMenu
-            // until this has happened, we should try to do it again when onCreate is complete
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                invalidateOptionsMenu();
-            }
+        boolean isOrientationChange = savedInstanceState != null;
+        setupUI(isOrientationChange);
+
+        // On some devices, onCreateOptionsMenu() can get called before onCreate() has completed
+        // if the action bar is in use. Since we can't deploy all of the logic in onCreateOptionsMenu
+        // until this has happened, we should try to do it again when onCreate is complete
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            invalidateOptionsMenu();
         }
     }
 
@@ -356,7 +358,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     protected void onResumeSessionSafe() {
-        if (!isFinishing() && !isStartingDetailActivity) {
+        if (session.getCommand() == null) {
+            Intent i = new Intent(this.getIntent());
+            setResult(RESULT_CANCELED, i);
+            finish();
+        } else if (!isFinishing() && !isStartingDetailActivity) {
             if (adapter != null) {
                 adapter.registerDataSetObserver(mListStateObserver);
             }
