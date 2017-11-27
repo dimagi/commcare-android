@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Menu;
@@ -13,18 +12,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+
 import org.commcare.dalvik.R;
 import org.commcare.modern.util.Pair;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.PrivilegesUtility;
-import org.commcare.utils.SigningUtil;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localization;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 
 /**
@@ -94,9 +90,10 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     }
 
     private void callOutToBarcodeScanner() {
-        Intent i = new Intent("com.google.zxing.client.android.SCAN");
-        i.putExtra("SCAN_FORMATS", "QR_CODE");
-        startActivityForResult(i, BARCODE_CAPTURE);
+        Intent intent = new IntentIntegrator(this)
+                .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
+                .createScanIntent();
+        startActivityForResult(intent, BARCODE_CAPTURE);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.app.ActionBar;
-import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +30,7 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
     private Button jumpPreviousButton;
     private List<HierarchyElement> formList;
     private TextView mPath;
+
     public final static int RESULT_XPATH_ERROR = RESULT_FIRST_USER + 1;
 
     @Override
@@ -43,6 +43,7 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
         }
 
         setContentView(R.layout.hierarchy_layout);
+        FormEntryActivity.mFormController.storeFormIndexToReturnTo();
 
         addActionBarBackArrow();
 
@@ -265,11 +266,8 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
 
     @Override
     public void onBackPressed() {
-        if (FormEntryActivity.mFormController.getFormIndex().isTerminal()) {
-            super.onBackPressed();
-        } else {
-            goUpLevel();
-        }
+        FormEntryActivity.mFormController.returnToStoredIndex();
+        super.onBackPressed();
     }
 
     @Override
@@ -281,4 +279,5 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }

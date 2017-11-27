@@ -377,15 +377,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         String result = null;
         switch (requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == Activity.RESULT_OK) {
-                    result = data.getStringExtra("SCAN_RESULT");
-                    String dbg = "Got url from barcode scanner: " + result;
-                    Log.i(TAG, dbg);
                     lastInstallMode = INSTALL_MODE_BARCODE;
+                    result = data.getStringExtra("SCAN_RESULT");
+                    Log.i(TAG, "Got url from barcode scanner: " + result);
                 }
                 break;
             case OFFLINE_INSTALL:
@@ -404,6 +402,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
+
         }
         if (result == null) {
             return;

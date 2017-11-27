@@ -9,7 +9,7 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
@@ -134,16 +134,16 @@ public class AutoUpdateTest {
         // should be ready for update if last check was 3 days ago
         long checkedThreeDaysAgo = DateTime.now().minusDays(3).getMillis();
         Assert.assertTrue(PendingCalcs.isTimeForAutoUpdateCheck(checkedThreeDaysAgo,
-                CommCarePreferences.FREQUENCY_DAILY));
+                PrefValues.FREQUENCY_DAILY));
 
         // shouldn't be ready for update if last check was 3 hours ago
         long checkedThreeHoursAgo = DateTime.now().minusHours(3).getMillis();
         if (isSameDayAsNow(checkedThreeHoursAgo)) {
             Assert.assertFalse(PendingCalcs.isTimeForAutoUpdateCheck(checkedThreeHoursAgo,
-                    CommCarePreferences.FREQUENCY_DAILY));
+                    PrefValues.FREQUENCY_DAILY));
         } else {
             Assert.assertTrue(PendingCalcs.isTimeForAutoUpdateCheck(checkedThreeHoursAgo,
-                    CommCarePreferences.FREQUENCY_DAILY));
+                    PrefValues.FREQUENCY_DAILY));
         }
 
         // test different calendar day less than 24 hours ago trigger when
@@ -155,23 +155,23 @@ public class AutoUpdateTest {
         long diff = yesterdayNearMidnight.minus(now.getMillis()).getMillis();
         Assert.assertTrue(diff < DateUtils.DAY_IN_MILLIS);
         Assert.assertTrue(PendingCalcs.isTimeForAutoUpdateCheck(yesterdayNearMidnight.getMillis(),
-                CommCarePreferences.FREQUENCY_DAILY));
+                PrefValues.FREQUENCY_DAILY));
 
         // test timeshift a couple of hours in the future, shouldn't be enough
         // to warrant a update trigger
         long hoursInTheFuture = DateTime.now().plusHours(2).getMillis();
         Assert.assertFalse(PendingCalcs.isTimeForAutoUpdateCheck(hoursInTheFuture,
-                CommCarePreferences.FREQUENCY_DAILY));
+                PrefValues.FREQUENCY_DAILY));
 
         // test timeshift where if we last checked more than one day in the
         // future then we trigger
         long daysLater = DateTime.now().plusDays(2).getMillis();
         Assert.assertTrue(PendingCalcs.isTimeForAutoUpdateCheck(daysLater,
-                CommCarePreferences.FREQUENCY_DAILY));
+                PrefValues.FREQUENCY_DAILY));
 
         long weekLater = DateTime.now().plusWeeks(1).getMillis();
         Assert.assertTrue(PendingCalcs.isTimeForAutoUpdateCheck(weekLater,
-                CommCarePreferences.FREQUENCY_DAILY));
+                PrefValues.FREQUENCY_DAILY));
     }
 
     private static boolean isSameDayAsNow(long checkTime) {
