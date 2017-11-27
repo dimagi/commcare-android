@@ -53,7 +53,7 @@ public class IntentCallout implements Externalizable {
 
     private String type;
     private String component;
-    private String data;
+    private XPathExpression data;
     private String buttonLabel;
     private String updateButtonLabel;
     private String appearance;
@@ -81,7 +81,7 @@ public class IntentCallout implements Externalizable {
      */
     public IntentCallout(String className, Hashtable<String, XPathExpression> refs,
                          Hashtable<String, Vector<TreeReference>> responseToRefMap, String type,
-                         String component, String data, String buttonLabel,
+                         String component, XPathExpression data, String buttonLabel,
                          String updateButtonLabel, String appearance) {
         this.className = className;
         this.refs = refs;
@@ -104,16 +104,19 @@ public class IntentCallout implements Externalizable {
             i.setAction(className);
         }
 
-        if(data != null && type != null){
+        Object dataResult = data.eval(ec);
+        String dataString = FunctionUtils.toString(dataResult);
+
+        if(dataString != null && !"".equals(dataString) && type != null){
             // Weird hack but this call seems specifically to be needed to play video
             // http://stackoverflow.com/questions/1572107/android-intent-for-playing-video
-            i.setDataAndType(Uri.parse(data), type);
+            i.setDataAndType(Uri.parse(dataString), type);
         } else {
             if (type != null) {
                 i.setType(type);
             }
-            if (data != null) {
-                i.setData(Uri.parse(data));
+            if (data != null && !"".equals(dataString)) {
+                i.setData(Uri.parse(dataString));
             }
         }
         if (component != null) {
@@ -292,7 +295,7 @@ public class IntentCallout implements Externalizable {
         buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         updateButtonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         type = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
-        data = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        data = (XPathExpression)ExtUtil.read(in, new ExtWrapNullable(XPathExpression.class), pf);
     }
 
     @Override

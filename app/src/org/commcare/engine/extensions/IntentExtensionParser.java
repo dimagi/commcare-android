@@ -39,10 +39,14 @@ public class IntentExtensionParser implements IElementHandler {
 
         String component = e.getAttributeValue(null, "component");
         String type = e.getAttributeValue(null, "type");
-        String data = e.getAttributeValue(null, "data");
-        String appearance = e.getAttributeValue(null, "appearance");
+        XPathExpression data = null;
 
-        Log.d(TAG, "0123 extention parser appearance is: " + appearance);
+        try {
+            data = XPathParseTool.parseXPath(e.getAttributeValue(null, "data"));
+        } catch (XPathSyntaxException xpe) {
+            throw new XFormParseException("Error parsing Intent Extra: " + xpe.getMessage(), e);
+        }
+        String appearance = e.getAttributeValue(null, "appearance");
 
         String getButtonLabel = e.getAttributeValue(null, "button-label");
         String updateButtonLabel = e.getAttributeValue(null, "update-button-label");
