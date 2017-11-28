@@ -103,20 +103,21 @@ public class IntentCallout implements Externalizable {
         if (className != null) {
             i.setAction(className);
         }
-
-        Object dataResult = data.eval(ec);
-        String dataString = FunctionUtils.toString(dataResult);
-
-        if(dataString != null && !"".equals(dataString) && type != null){
-            // Weird hack but this call seems specifically to be needed to play video
-            // http://stackoverflow.com/questions/1572107/android-intent-for-playing-video
-            i.setDataAndType(Uri.parse(dataString), type);
-        } else {
-            if (type != null) {
-                i.setType(type);
-            }
-            if (data != null && !"".equals(dataString)) {
-                i.setData(Uri.parse(dataString));
+        if (data != null) {
+            Object dataResult = data.eval(ec);
+            String dataString = FunctionUtils.toString(dataResult);
+            
+            if (dataString != null && !"".equals(dataString) && type != null) {
+                // Weird hack but this call seems specifically to be needed to play video
+                // http://stackoverflow.com/questions/1572107/android-intent-for-playing-video
+                i.setDataAndType(Uri.parse(dataString), type);
+            } else {
+                if (type != null) {
+                    i.setType(type);
+                }
+                if (data != null && !"".equals(dataString)) {
+                    i.setData(Uri.parse(dataString));
+                }
             }
         }
         if (component != null) {

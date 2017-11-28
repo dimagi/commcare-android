@@ -42,7 +42,10 @@ public class IntentExtensionParser implements IElementHandler {
         XPathExpression data = null;
 
         try {
-            data = XPathParseTool.parseXPath(e.getAttributeValue(null, "data"));
+            String dataString = e.getAttributeValue(null, "data");
+            if (dataString != null && !"".equals(dataString)) {
+                data = XPathParseTool.parseXPath(e.getAttributeValue(null, "data"));
+            }
         } catch (XPathSyntaxException xpe) {
             throw new XFormParseException("Error parsing Intent Extra: " + xpe.getMessage(), e);
         }
