@@ -24,7 +24,7 @@ public class CommCareGraphActivity extends CommCareActivity {
         FirebaseAnalyticsUtil.reportGraphViewFullScreenOpened();
         Logger.log(LogTypes.TYPE_GRAPHING,
                 "Start viewing full screen graph" +
-                        (getTitle() == null ? "" : String.format(" for graph %s", getTitle()))
+                        (String.format(" for graph %s", getTitle() == null ? "" : getTitle()))
         );
     }
 
@@ -34,7 +34,7 @@ public class CommCareGraphActivity extends CommCareActivity {
         FirebaseAnalyticsUtil.reportGraphViewFullScreenClosed();
         Logger.log(LogTypes.TYPE_GRAPHING,
                 "End viewing full screen graph" +
-                        (getTitle() == null ? "" : String.format(" for graph %s", getTitle()))
+                        (String.format(" for graph %s", getTitle() == null ? "" : getTitle()))
         );
     }
 }
