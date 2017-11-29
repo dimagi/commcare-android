@@ -22,19 +22,19 @@ public class CommCareGraphActivity extends CommCareActivity {
         super.onCreate(savedInstanceState);
         (new GraphActivityStateHandler(this)).setContent();
         FirebaseAnalyticsUtil.reportGraphViewFullScreenOpened();
+
+        String title = getTitle() == null || getTitle().length() == 0 ? "(no title)" : getTitle().toString();
         Logger.log(LogTypes.TYPE_GRAPHING,
-                "Start viewing full screen graph" +
-                        (String.format(" for graph %s", getTitle() == null ? "" : getTitle()))
-        );
+                String.format("Start viewing full screen graph for graph %s", title));
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         FirebaseAnalyticsUtil.reportGraphViewFullScreenClosed();
+
+        String title = getTitle() == null || getTitle().length() == 0 ? "(no title)" : getTitle().toString();
         Logger.log(LogTypes.TYPE_GRAPHING,
-                "End viewing full screen graph" +
-                        (String.format(" for graph %s", getTitle() == null ? "" : getTitle()))
-        );
+                String.format("End viewing full screen graph for graph %s", title));
     }
 }
