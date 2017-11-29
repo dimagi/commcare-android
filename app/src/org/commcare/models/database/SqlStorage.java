@@ -507,6 +507,10 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         wipeTable(helper.getHandle(), table);
     }
 
+    public static void wipeTableWithoutCommit(SQLiteDatabase db, String table) {
+        db.delete(table, null, null);
+    }
+
     public static void wipeTable(SQLiteDatabase db, String table) {
         db.beginTransaction();
         try {
