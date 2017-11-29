@@ -133,20 +133,17 @@ public class EntityStorageCache {
         }
     }
 
-    public static void setCachedWipedPref() {
-        String uuid = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
-        setEntityCacheWipedPref(uuid, CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber());
-    }
-
     public static void tryWipeCache() {
         SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
         SqlStorage.wipeTable(userDb, TABLE_NAME);
-        setCachedWipedPref();
+        setEntityCacheWipedPref();
     }
 
-    public static void setEntityCacheWipedPref(String username, int version) {
+    public static void setEntityCacheWipedPref() {
+        String uuid = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
+        int versionNumber = CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber();
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putInt(username + "_" + ENTITY_CACHE_WIPED_PREF_SUFFIX, version).apply();
+                .putInt(uuid + "_" + ENTITY_CACHE_WIPED_PREF_SUFFIX, versionNumber).apply();
     }
 
     public static int getEntityCacheWipedPref(String uuid) {

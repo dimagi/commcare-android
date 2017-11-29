@@ -533,8 +533,8 @@ public abstract class DataPullTask<R>
         //Wipe storage
         SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
         wipeStorageForFourTwelveSync(userDb);
+        userDb.beginTransaction();
 
-        String failureReason = "";
         try {
             String syncToken = readInputWithoutCommit(cache.retrieveCache(), factory);
             updateUserSyncToken(syncToken);
@@ -545,21 +545,20 @@ public abstract class DataPullTask<R>
                 | UnfullfilledRequirementsException | SessionUnavailableException
                 | IOException e) {
             Logger.exception("Sync recovery failed|" + e.getLocalizedMessage(), e);
+            return new Pair<>(PROGRESS_RECOVERY_FAIL_BAD, e.getLocalizedMessage());
         } finally {
-            //destroy temp file
             userDb.endTransaction();
+            //destroy temp file
             cache.release();
         }
-        return new Pair<>(PROGRESS_RECOVERY_FAIL_BAD, failureReason);
     }
 
     private void wipeStorageForFourTwelveSync(SQLiteDatabase userDb) {
-        userDb.beginTransaction();
         SqlStorage.wipeTableWithoutCommit(userDb, ACase.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, Ledger.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, AndroidCaseIndexTable.TABLE_NAME);
         SqlStorage.wipeTableWithoutCommit(userDb, EntityStorageCache.TABLE_NAME);
-        EntityStorageCache.setCachedWipedPref();
+        EntityStorageCache.setEntityCacheWipedPref();
     }
 
     private void updateCurrentUser(String password) {
