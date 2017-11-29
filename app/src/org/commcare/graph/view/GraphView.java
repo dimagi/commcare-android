@@ -22,25 +22,29 @@ import org.javarosa.core.services.Logger;
  */
 public class GraphView {
 
-    public static final String HTML = "html";
-    public static final String TITLE = "title";
+    public static final String HTML_EXTRA = "html";
+    public static final String TITLE_EXTRA = "title";
+    public static final String DETAIL_ID_EXTRA = "detail-id";
 
     private final Context mContext;
     private final String mTitle;
     private final boolean mIsFullScreen;
+    private final String detailId;
 
     public String myHTML;
 
-    public GraphView(Context context, String title, boolean isFullScreen) {
+    public GraphView(Context context, String title, boolean isFullScreen, String detailId) {
         mContext = context;
         mTitle = title;
         mIsFullScreen = isFullScreen;
+        this.detailId = detailId;
     }
 
     public Intent getIntent(String html, Class className) {
         Intent intent = new Intent(mContext, className);
-        intent.putExtra(HTML, html);
-        intent.putExtra(TITLE, mTitle);
+        intent.putExtra(HTML_EXTRA, html);
+        intent.putExtra(TITLE_EXTRA, mTitle);
+        intent.putExtra(DETAIL_ID_EXTRA, detailId);
         return intent;
     }
 
@@ -84,18 +88,22 @@ public class GraphView {
         protected void onAttachedToWindow() {
             super.onAttachedToWindow();
             FirebaseAnalyticsUtil.reportGraphViewAttached();
+
+            String displayTitle = mTitle == null || "".equals(mTitle) ? "(no title)" : mTitle;
             Logger.log(LogTypes.TYPE_GRAPHING,
-                    String.format("Start viewing graph in list for graph %s",
-                            mTitle == null ? "" : mTitle));
+                    String.format("Start viewing graph in list for graph %s in detail %s",
+                            displayTitle, detailId));
         }
 
         @Override
         protected void onDetachedFromWindow() {
             super.onDetachedFromWindow();
             FirebaseAnalyticsUtil.reportGraphViewDetached();
+
+            String displayTitle = mTitle == null || "".equals(mTitle) ? "(no title)" : mTitle;
             Logger.log(LogTypes.TYPE_GRAPHING,
-                    String.format("End viewing graph in list for graph %s",
-                            mTitle == null ? "" : mTitle));
+                    String.format("End viewing graph in list for graph %s in detail %s",
+                            displayTitle, detailId));
         }
     }
 

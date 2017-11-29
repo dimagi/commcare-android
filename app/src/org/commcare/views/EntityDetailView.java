@@ -81,6 +81,8 @@ public class EntityDetailView extends FrameLayout {
     private final LinearLayout.LayoutParams origLabel;
     private final LinearLayout.LayoutParams fill;
 
+    private final Detail detail;
+
     // Potential "forms" of a detail field
     private static final String FORM_VIDEO = MediaUtil.FORM_VIDEO;
     private static final String FORM_AUDIO = MediaUtil.FORM_AUDIO;
@@ -115,6 +117,7 @@ public class EntityDetailView extends FrameLayout {
                             int index, int detailNumber) {
         super(context);
 
+        detail = d;
         detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
         label = (TextView)detailRow.findViewById(R.id.detail_type_text);
         spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer);
@@ -348,7 +351,7 @@ public class EntityDetailView extends FrameLayout {
             cached = false;
             graphView = getGraphView(index, labelText, (GraphData)field, orientation);
         }
-        final Intent finalIntent = getGraphIntent(index, labelText, (GraphData)field);
+        final Intent finalIntent = getFullScreenGraphIntent(index, labelText, (GraphData)field);
 
         // Open full-screen graph intent on double tap
         if (!graphsWithErrors.contains(index)) {
@@ -465,7 +468,7 @@ public class EntityDetailView extends FrameLayout {
     private View getGraphView(int index, String title, GraphData field, int orientation) {
         Context context = getContext();
         View graphView;
-        GraphView g = new GraphView(context, title, false);
+        GraphView g = new GraphView(context, title, false, detail.getId());
         try {
             String graphHTML = field.getGraphHTML(title);
             graphView = g.getView(graphHTML);
@@ -481,13 +484,10 @@ public class EntityDetailView extends FrameLayout {
         return graphView;
     }
 
-    /**
-     * Fetch full-screen graph intent from cache, or create it.
-     */
-    private Intent getGraphIntent(int index, String title, GraphData field) {
+    private Intent getFullScreenGraphIntent(int index, String title, GraphData field) {
         Intent graphIntent = graphIntentsCache.get(index);
         if (graphIntent == null && !graphsWithErrors.contains(index)) {
-            GraphView g = new GraphView(this.getContext(), title, true);
+            GraphView g = new GraphView(this.getContext(), title, true, detail.getId());
             try {
                 String html = field.getGraphHTML(title);
                 graphIntent = g.getIntent(html, CommCareGraphActivity.class);
