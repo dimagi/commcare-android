@@ -87,7 +87,7 @@ public class GraphView {
 
             String displayTitle = mTitle == null || "".equals(mTitle) ? "(no title)" : mTitle;
             Logger.log(LogTypes.TYPE_GRAPHING,
-                    String.format("Start viewing graph in list for graph %s", displayTitle));
+                    String.format("Start viewing graph in list for %s", displayTitle));
         }
 
         @Override
@@ -97,7 +97,7 @@ public class GraphView {
 
             String displayTitle = mTitle == null || "".equals(mTitle) ? "(no title)" : mTitle;
             Logger.log(LogTypes.TYPE_GRAPHING,
-                    String.format("End viewing graph in list for graph %s", displayTitle));
+                    String.format("End viewing graph in list for %s", displayTitle));
         }
     }
 

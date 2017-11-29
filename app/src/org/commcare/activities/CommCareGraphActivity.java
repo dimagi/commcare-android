@@ -25,7 +25,7 @@ public class CommCareGraphActivity extends CommCareActivity {
 
         String title = getTitle() == null || getTitle().length() == 0 ? "(no title)" : getTitle().toString();
         Logger.log(LogTypes.TYPE_GRAPHING,
-                String.format("Start viewing full screen graph for graph %s", title));
+                String.format("Start viewing full screen graph for %s", title));
     }
 
     @Override
@@ -35,6 +35,6 @@ public class CommCareGraphActivity extends CommCareActivity {
 
         String title = getTitle() == null || getTitle().length() == 0 ? "(no title)" : getTitle().toString();
         Logger.log(LogTypes.TYPE_GRAPHING,
-                String.format("End viewing full screen graph for graph %s", title));
+                String.format("End viewing full screen graph for %s", title));
     }
 }
