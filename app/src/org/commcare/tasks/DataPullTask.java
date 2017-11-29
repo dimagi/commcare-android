@@ -544,7 +544,7 @@ public abstract class DataPullTask<R>
         } catch (InvalidStructureException | XmlPullParserException
                 | UnfullfilledRequirementsException | SessionUnavailableException
                 | IOException e) {
-            Logger.exception("Sync recovery failed|" + e.getMessage(), e);
+            Logger.exception("Sync recovery failed|" + e.getLocalizedMessage(), e);
             userDb.endTransaction();
         } finally {
             //destroy temp file
