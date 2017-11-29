@@ -65,8 +65,6 @@ public class EntityView extends LinearLayout {
     private boolean mIsAsynchronous = false;
     private String extraData = null;
 
-    private final Detail detail;
-
     /**
      * Creates row entry for entity
      */
@@ -75,7 +73,6 @@ public class EntityView extends LinearLayout {
                        boolean mFuzzySearchEnabled, String extraData) {
         super(context);
 
-        this.detail = d;
         //this is bad :(
         mIsAsynchronous = e instanceof AsyncEntity;
         this.searchTerms = searchTerms;
@@ -105,7 +102,6 @@ public class EntityView extends LinearLayout {
                        boolean hasCalloutResponseData) {
         super(context);
 
-        this.detail = d;
         DetailField calloutResponseDetailField = null;
         if (hasCalloutResponseData && d.getCallout() != null) {
             calloutResponseDetailField = d.getCallout().getResponseDetailField();
@@ -285,7 +281,7 @@ public class EntityView extends LinearLayout {
             setupImageLayout(view, (String)field);
         } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
             int orientation = getResources().getConfiguration().orientation;
-            GraphView g = new GraphView(getContext(), "", false, detail.getId());
+            GraphView g = new GraphView(getContext(), "", false);
             View rendered = null;
             if (renderedGraphsCache.get(rowId) != null) {
                 rendered = renderedGraphsCache.get(rowId).get(orientation);

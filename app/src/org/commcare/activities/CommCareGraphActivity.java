@@ -6,7 +6,6 @@ import android.os.Bundle;
 
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.graph.activities.GraphActivityStateHandler;
-import org.commcare.graph.view.GraphView;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
@@ -23,23 +22,19 @@ public class CommCareGraphActivity extends CommCareActivity {
         super.onCreate(savedInstanceState);
         (new GraphActivityStateHandler(this)).setContent();
         FirebaseAnalyticsUtil.reportGraphViewFullScreenOpened();
-
-        String title = getTitle() == null || getTitle().length() == 0 ? "(no title)" : getTitle().toString();
-        String detailId = getIntent().getExtras().getString(GraphView.DETAIL_ID_EXTRA);
         Logger.log(LogTypes.TYPE_GRAPHING,
-                String.format("Start viewing full screen graph for graph %s in detail %s",
-                        title == null ? "(no title)" : title, detailId));
+                "Start viewing full screen graph" +
+                        (String.format(" for graph %s", getTitle() == null ? "" : getTitle()))
+        );
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         FirebaseAnalyticsUtil.reportGraphViewFullScreenClosed();
-
-        String title = getTitle() == null || getTitle().length() == 0 ? "(no title)" : getTitle().toString();
-        String detailId = getIntent().getExtras().getString(GraphView.DETAIL_ID_EXTRA);
         Logger.log(LogTypes.TYPE_GRAPHING,
-                String.format("End viewing full screen graph for graph %s in detail %s",
-                        title, detailId));
+                "End viewing full screen graph" +
+                        (String.format(" for graph %s", getTitle() == null ? "" : getTitle()))
+        );
     }
 }

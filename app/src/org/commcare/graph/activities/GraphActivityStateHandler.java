@@ -21,16 +21,15 @@ public class GraphActivityStateHandler {
 
     public void setContent() {
         Bundle extras = activity.getIntent().getExtras();
-        String title = extras.getString(GraphView.TITLE_EXTRA);
+        String title = extras.getString(GraphView.TITLE);
         if (title == null) {
             activity.requestWindowFeature(Window.FEATURE_NO_TITLE);
         } else if (title.length() > 0) {
             activity.setTitle(title);
         }
 
-        String detailId = extras.getString(GraphView.DETAIL_ID_EXTRA);
-        String html = extras.getString(GraphView.HTML_EXTRA);
-        GraphView graphView = new GraphView(activity, title, true, detailId);
+        String html = extras.getString(GraphView.HTML);
+        GraphView graphView = new GraphView(activity, title, true);
         WebView webView = graphView.getView(html);
         activity.setContentView(webView);
     }
