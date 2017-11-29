@@ -545,7 +545,6 @@ public abstract class DataPullTask<R>
                 | UnfullfilledRequirementsException | SessionUnavailableException
                 | IOException e) {
             Logger.exception("Sync recovery failed|" + e.getLocalizedMessage(), e);
-            userDb.endTransaction();
         } finally {
             //destroy temp file
             userDb.endTransaction();
