@@ -632,7 +632,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return mSaveToDiskTask;
 
         // mFormEntryController is static so we don't need to pass it.
-        if (mFormController != null && currentPromptIsQuestion()) {
+        if (mFormController != null && currentPromptIsQuestion() && uiController.questionsView != null) {
             saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         }
         return null;
