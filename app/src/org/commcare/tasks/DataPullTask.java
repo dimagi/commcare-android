@@ -587,28 +587,39 @@ public abstract class DataPullTask<R>
         factory.initFormInstanceParser(formNamespaces);
     }
 
+    private void parseStream(InputStream stream,
+                             AndroidTransactionParserFactory factory)
+            throws InvalidStructureException, IOException, XmlPullParserException,
+            UnfullfilledRequirementsException {
+        DataModelPullParser parser = new DataModelPullParser(stream, factory, true, false, this);
+        parser.parse();
+    }
+
     private String readInputWithoutCommit(InputStream stream,
                                           AndroidTransactionParserFactory factory)
             throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
         initParsers(factory);
-        DataModelPullParser parser = new DataModelPullParser(stream, factory, true, false, this);
-        parser.parse();
-        //Return the sync token ID
+        parseStream(stream, factory);
         return factory.getSyncToken();
     }
 
     private String readInput(InputStream stream, AndroidTransactionParserFactory factory)
             throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
+        initParsers(factory);
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
         SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
         db.beginTransaction();
         try {
-            return readInputWithoutCommit(stream, factory);
+            parseStream(stream, factory);
+            db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
+
+        //Return the sync token ID
+        return factory.getSyncToken();
     }
 
     //BEGIN - OTA Listener methods below - Note that most of the methods
