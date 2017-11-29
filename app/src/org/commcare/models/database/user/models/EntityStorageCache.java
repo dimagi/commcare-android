@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class EntityStorageCache {
     private static final String TAG = EntityStorageCache.class.getSimpleName();
-    private static final String TABLE_NAME = "entity_cache";
+    public static final String TABLE_NAME = "entity_cache";
 
     private static final String COL_CACHE_NAME = "cache_name";
     private static final String COL_ENTITY_KEY = "entity_key";
@@ -133,11 +133,15 @@ public class EntityStorageCache {
         }
     }
 
+    public static void setCachedWipedPref() {
+        String uuid = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
+        setEntityCacheWipedPref(uuid, CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber());
+    }
+
     public static void tryWipeCache() {
         SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
         SqlStorage.wipeTable(userDb, TABLE_NAME);
-        String uuid = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
-        setEntityCacheWipedPref(uuid, CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber());
+        setCachedWipedPref();
     }
 
     public static void setEntityCacheWipedPref(String username, int version) {
