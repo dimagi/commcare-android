@@ -532,8 +532,8 @@ public abstract class DataPullTask<R>
 
         //Wipe storage
         SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
-        wipeStorageForFourTwelveSync(userDb);
         userDb.beginTransaction();
+        wipeStorageForFourTwelveSync(userDb);
 
         try {
             String syncToken = readInputWithoutCommit(cache.retrieveCache(), factory);
