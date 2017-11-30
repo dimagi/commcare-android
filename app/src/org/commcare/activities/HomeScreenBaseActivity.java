@@ -361,7 +361,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_RESTART) {
             sessionNavigator.startNextSessionStep();
         } else {
@@ -452,7 +452,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();
         }
-        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     private void performCustomRestore() {

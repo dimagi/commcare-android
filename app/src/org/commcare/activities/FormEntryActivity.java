@@ -161,6 +161,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     @SuppressLint("NewApi")
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
         instanceState = new FormEntryInstanceState();
 
         // must be at the beginning of any activity that can be called from an external intent
@@ -281,9 +282,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
+    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (requestCode == FormEntryConstants.FORM_PREFERENCES_KEY) {
             uiController.refreshCurrentView(false);
             return;
@@ -635,7 +634,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return mSaveToDiskTask;
 
         // mFormEntryController is static so we don't need to pass it.
-        if (mFormController != null && currentPromptIsQuestion()) {
+        if (mFormController != null && currentPromptIsQuestion() && uiController.questionsView != null) {
             saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         }
         return null;
