@@ -30,13 +30,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.IncompleteFormListAdapter;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logic.ArchivedFormRemoteRestore;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.preferences.DeveloperPreferences;
@@ -50,6 +52,7 @@ import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
+import org.commcare.utils.QuarantineUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.IncompleteFormRecordView;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -66,6 +69,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private static final int DELETE_RECORD = Menu.FIRST + 1;
     private static final int RESTORE_RECORD = Menu.FIRST + 2;
     private static final int SCAN_RECORD = Menu.FIRST + 3;
+    private static final int VIEW_QUARANTINE_REASON = Menu.FIRST + 4;
 
     private static final int DOWNLOAD_FORMS_FROM_SERVER = Menu.FIRST;
     private static final int MENU_SUBMIT_QUARANTINE_REPORT = Menu.FIRST + 1;
@@ -137,8 +141,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         platform = CommCareApplication.instance().getCommCarePlatform();
         setContentView(R.layout.entity_select_layout);
@@ -228,9 +232,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     private static void callBarcodeScanIntent(Activity act) {
-        Intent i = new Intent("com.google.zxing.client.android.SCAN");
+        Intent intent = new IntentIntegrator(act).createScanIntent();
         try {
-            act.startActivityForResult(i, BARCODE_FETCH);
+            act.startActivityForResult(intent, BARCODE_FETCH);
         } catch (ActivityNotFoundException anfe) {
             Toast.makeText(act,
                     "No barcode reader available! You can install one " +
@@ -267,26 +271,21 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         saveLastQueryString();
     }
 
-    private void onBarcodeFetch(int resultCode, Intent intent) {
-        if (resultCode == Activity.RESULT_OK) {
-            String result = intent.getStringExtra("SCAN_RESULT");
-            if (result != null) {
-                result = result.trim();
-            }
-            setSearchText(result);
+    @Override
+    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+        if (resultCode == Activity.RESULT_OK && requestCode == BARCODE_FETCH) {
+            onBarcodeFetch(intent);
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        switch (requestCode) {
-            case BARCODE_FETCH:
-                onBarcodeFetch(resultCode, intent);
-                break;
-            default:
-                super.onActivityResult(requestCode, resultCode, intent);
+    private void onBarcodeFetch(Intent intent) {
+        String result = intent.getStringExtra("SCAN_RESULT");
+        if (result != null) {
+            result = result.trim();
         }
+        setSearchText(result);
     }
+
 
     @Override
     public String getActivityTitle() {
@@ -359,9 +358,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (incompleteMode) {
-            GoogleAnalyticsUtils.reportOpenArchivedForm(GoogleAnalyticsFields.LABEL_INCOMPLETE);
+            FirebaseAnalyticsUtil.reportOpenArchivedForm(AnalyticsParamValue.INCOMPLETE);
         } else {
-            GoogleAnalyticsUtils.reportOpenArchivedForm(GoogleAnalyticsFields.LABEL_COMPLETE);
+            FirebaseAnalyticsUtil.reportOpenArchivedForm(AnalyticsParamValue.SAVED);
         }
         returnItem(position);
     }
@@ -396,12 +395,17 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, Localization.get("app.workflow.forms.delete"));
         }
 
-        if (FormRecord.STATUS_QUARANTINED.equals(value.getStatus()) &&
-                !FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR.equals(value.getReasonForQuarantine())) {
-            // Records that were quarantined due to a local processing error can't attempt re-submission,
-            // since doing so would send them straight to "Unsent" when they haven't even been processed
-            menu.add(Menu.NONE, RESTORE_RECORD, RESTORE_RECORD,
-                    Localization.get("app.workflow.forms.restore"));
+        if (FormRecord.STATUS_QUARANTINED.equals(value.getStatus())) {
+            menu.add(Menu.NONE, VIEW_QUARANTINE_REASON, VIEW_QUARANTINE_REASON,
+                    Localization.get("app.workflow.forms.view.quarantine.reason"));
+
+            if (!FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR.equals(value.getQuarantineReasonType())) {
+                // Records that were quarantined due to a local processing error can't attempt
+                // re-submission, since doing so would send them straight to "Unsent" when they
+                // haven't even been processed
+                menu.add(Menu.NONE, RESTORE_RECORD, RESTORE_RECORD,
+                        Localization.get("app.workflow.forms.restore"));
+            }
         }
 
         menu.add(Menu.NONE, SCAN_RECORD, SCAN_RECORD, Localization.get("app.workflow.forms.scan"));
@@ -411,6 +415,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public boolean onContextItemSelected(MenuItem item) {
         try {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+            FormRecord selectedRecord = (FormRecord)adapter.getItem(info.position);
             switch (item.getItemId()) {
                 case OPEN_RECORD:
                     returnItem(info.position);
@@ -428,8 +433,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     });
                     return true;
                 case RESTORE_RECORD:
-                    FormRecord record = (FormRecord)adapter.getItem(info.position);
-                    new FormRecordProcessor(this).updateRecordStatus(record, FormRecord.STATUS_UNSENT);
+                    new FormRecordProcessor(this).updateRecordStatus(selectedRecord, FormRecord.STATUS_UNSENT);
                     adapter.resetRecords();
                     adapter.notifyDataSetChanged();
                     return true;
@@ -437,6 +441,11 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     FormRecord theRecord = (FormRecord)adapter.getItem(info.position);
                     Pair<Boolean, String> result = new FormRecordProcessor(this).verifyFormRecordIntegrity(theRecord);
                     createFormRecordScanResultDialog(result, theRecord);
+                    logIntegrityScanResult(theRecord, result);
+                    return true;
+                case VIEW_QUARANTINE_REASON:
+                    createQuarantineReasonDialog(selectedRecord);
+                    return true;
             }
             return true;
         } catch (SessionUnavailableException e) {
@@ -461,7 +470,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    quarantineRecord(record);
+                    manuallyQuarantineRecord(record);
                     dismissAlertDialog();
                 }
             });
@@ -470,7 +479,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         showAlertDialog(dialog);
     }
 
-    private void quarantineRecord(FormRecord record) {
+    private void manuallyQuarantineRecord(FormRecord record) {
         this.formRecordProcessor.quarantineRecord(record, FormRecord.QuarantineReason_MANUAL);
         listView.post(new Runnable() {
             @Override
@@ -479,6 +488,12 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             }
         });
         record.logManualQuarantine();
+    }
+
+    private void createQuarantineReasonDialog(FormRecord record) {
+        String title = Localization.get("reason.for.quarantine.title");
+        String message = QuarantineUtil.getQuarantineReasonDisplayString(record, true);
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, message, null));
     }
 
     /**
@@ -593,10 +608,19 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         for (int i = 0; i < adapter.getCount(); ++i) {
             FormRecord r = (FormRecord)adapter.getItem(i);
             Pair<Boolean, String> integrity = this.formRecordProcessor.verifyFormRecordIntegrity(r);
-            String passfail = integrity.first ? "PASS:" : "FAIL:";
-            Logger.log(LogTypes.TYPE_ERROR_STORAGE, passfail + integrity.second);
+            logIntegrityScanResult(r, integrity);
         }
         CommCareUtil.triggerLogSubmission(this);
+    }
+
+    private static void logIntegrityScanResult(FormRecord r, Pair<Boolean, String> integrityScanResult) {
+        String passOrFail = integrityScanResult.first ? "PASSED:" : "FAILED:";
+        Logger.log(
+                LogTypes.TYPE_ERROR_STORAGE,
+                String.format("Integrity scan for form record with ID %s has %s. Report Details: %s",
+                        r.getInstanceID(),
+                        passOrFail,
+                        integrityScanResult.second));
     }
 
     @Override

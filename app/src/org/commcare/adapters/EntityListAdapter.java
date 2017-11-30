@@ -14,7 +14,7 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.AndroidSortableEntityAdapter;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
@@ -112,7 +112,7 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
         }
 
         this.usesCaseTiles = detail.usesEntityTileView();
-        this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
+        this.mFuzzySearchEnabled = MainConfigurablePreferences.isFuzzySearchEnabled();
 
         setCurrent(new ArrayList<>(full));
     }
@@ -322,7 +322,7 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
         currentSearchTerms = searchTerms;
         searchQuery = filterRaw;
         entityFilterer =
-                new EntityStringFilterer(this, searchTerms, asyncMode,
+                new EntityStringFilterer(this, searchTerms,
                         mFuzzySearchEnabled, mNodeFactory, full, commCareActivity);
         entityFilterer.start();
     }

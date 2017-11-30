@@ -5,7 +5,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
-import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
@@ -27,24 +26,20 @@ import java.util.Set;
  * @author ctsims
  */
 public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
-    private CommcareRequestEndpoints generator;
     private final EntityStorageCache mEntityCache;
     private final AndroidCaseIndexTable mCaseIndexTable;
     private final SqlStorage<ACase> storage;
 
     public AndroidBulkCaseXmlParser(KXmlParser parser,
-                                         SqlStorage<ACase> storage,
-                                         CommcareRequestEndpoints generator) {
-        this(parser, storage, new EntityStorageCache("case"), new AndroidCaseIndexTable(), generator);
+                                    SqlStorage<ACase> storage) {
+        this(parser, storage, new EntityStorageCache("case"), new AndroidCaseIndexTable());
     }
 
     public AndroidBulkCaseXmlParser(KXmlParser parser,
                                     SqlStorage<ACase> storage,
                                     EntityStorageCache entityStorageCache,
-                                    AndroidCaseIndexTable indexTable,
-                                    CommcareRequestEndpoints generator) {
+                                    AndroidCaseIndexTable indexTable) {
         super(parser);
-        this.generator = generator;
         mEntityCache = entityStorageCache;
         mCaseIndexTable = indexTable;
         this.storage = storage;
@@ -87,7 +82,9 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
                 storage.write(c);
                 recordIdsToWipe.add(c.getID());
             }
-            mEntityCache.invalidateCaches(recordIdsToWipe);
+            if (mEntityCache != null) {
+                mEntityCache.invalidateCaches(recordIdsToWipe);
+            }
             mCaseIndexTable.clearCaseIndices(recordIdsToWipe);
 
             for (String cid : writeLog.keySet()) {

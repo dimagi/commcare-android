@@ -4,16 +4,14 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.core.graph.model.GraphData;
 import org.commcare.core.graph.util.GraphUtil;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
@@ -85,15 +83,21 @@ public class GraphView {
         @Override
         protected void onAttachedToWindow() {
             super.onAttachedToWindow();
-            GoogleAnalyticsUtils.reportGraphViewAttached();
-            Logger.log(LogTypes.TYPE_GRAPHING, "Start viewing graph in list");
+            FirebaseAnalyticsUtil.reportGraphViewAttached();
+
+            String displayTitle = mTitle == null || "".equals(mTitle) ? "(no title)" : mTitle;
+            Logger.log(LogTypes.TYPE_GRAPHING,
+                    String.format("Start viewing graph in list for %s", displayTitle));
         }
 
         @Override
         protected void onDetachedFromWindow() {
             super.onDetachedFromWindow();
-            GoogleAnalyticsUtils.reportGraphViewDetached();
-            Logger.log(LogTypes.TYPE_GRAPHING, "End viewing graph in list");
+            FirebaseAnalyticsUtil.reportGraphViewDetached();
+
+            String displayTitle = mTitle == null || "".equals(mTitle) ? "(no title)" : mTitle;
+            Logger.log(LogTypes.TYPE_GRAPHING,
+                    String.format("End viewing graph in list for %s", displayTitle));
         }
     }
 

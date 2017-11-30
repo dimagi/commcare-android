@@ -4,9 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.RefreshToLatestBuildActivity;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.PrefValues;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 
 /**
@@ -25,12 +28,20 @@ public class RefreshToLatestBuildReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "Processing test latest build broadcast");
 
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            Toast.makeText(context,
+                    "There is no current app to perform a build refresh on",
+                    Toast.LENGTH_LONG)
+                    .show();
+            return;
+        }
+
         DeveloperPreferences.enableSessionSaving();
 
         if (intent.getBooleanExtra("useLatestSaved", false)) {
-            CommCarePreferences.setUpdateTarget(CommCarePreferences.UPDATE_TARGET_SAVED);
+            MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_SAVED);
         } else if (intent.getBooleanExtra("useLatestBuild", false)) {
-            CommCarePreferences.setUpdateTarget(CommCarePreferences.UPDATE_TARGET_BUILD);
+            MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_BUILD);
         }
 
         Intent i = new Intent(context, RefreshToLatestBuildActivity.class);

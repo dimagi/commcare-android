@@ -41,8 +41,8 @@ import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.AdvanceToNextListener;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.FormSaveCallback;
@@ -160,8 +160,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     @SuppressLint("NewApi")
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
         instanceState = new FormEntryInstanceState();
 
         // must be at the beginning of any activity that can be called from an external intent
@@ -180,7 +180,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         PropertyManager.setPropertyManager(new AndroidPropertyManager(getApplicationContext()));
 
         if (savedInstanceState == null) {
-            GoogleAnalyticsUtils.reportLanguageAtPointOfFormEntry(Localization.getCurrentLocale());
+            FirebaseAnalyticsUtil.reportFormEntry(Localization.getCurrentLocale());
         } else {
             loadStateFromBundle(savedInstanceState);
         }
@@ -278,9 +278,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
+    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (requestCode == FormEntryConstants.FORM_PREFERENCES_KEY) {
             uiController.refreshCurrentView(false);
             return;
@@ -399,25 +397,23 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
         if (pendingIntentWidget != null) {
-            // get the original intent callout
-            IntentCallout ic = pendingIntentWidget.getIntentCallout();
-
             if (!wasIntentCancelled) {
-                isQuick = "quick".equals(ic.getAppearance());
-                TreeReference context = null;
+                isQuick = "quick".equals(pendingIntentWidget.getAppearance());
+                TreeReference contextRef = null;
                 if (mFormController.getPendingCalloutFormIndex() != null) {
-                    context = mFormController.getPendingCalloutFormIndex().getReference();
+                    contextRef = mFormController.getPendingCalloutFormIndex().getReference();
                 }
                 if (pendingIntentWidget instanceof BarcodeWidget) {
                     String scanResult = response.getStringExtra("SCAN_RESULT");
                     if (scanResult != null) {
-                        ic.processBarcodeResponse(context, scanResult);
+                        ((BarcodeWidget)pendingIntentWidget).processBarcodeResponse(contextRef, scanResult);
                         wasAnswerSet = true;
                     }
                 } else {
                     // Set our instance destination for binary data if needed
                     String destination = FormEntryInstanceState.getInstanceFolder();
-                    wasAnswerSet = ic.processResponse(response, context, new File(destination));
+                    wasAnswerSet = pendingIntentWidget.getIntentCallout()
+                            .processResponse(response, contextRef, new File(destination));
                 }
             }
 
@@ -444,7 +440,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return super.onPrepareOptionsMenu(menu);
         }
 
-        GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY);
+        FirebaseAnalyticsUtil.reportOptionsMenuEntry(this.getClass());
 
         menu.removeItem(FormEntryConstants.MENU_LANGUAGES);
         menu.removeItem(FormEntryConstants.MENU_HIERARCHY_VIEW);
@@ -472,10 +468,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Map<Integer, String> menuIdToAnalyticsEventLabel = createMenuItemToEventMapping();
-        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                menuIdToAnalyticsEventLabel.get(item.getItemId()));
+        Map<Integer, String> menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
+
+        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
+                menuIdToAnalyticsParam.get(item.getItemId()));
+
         switch (item.getItemId()) {
             case FormEntryConstants.MENU_LANGUAGES:
                 FormEntryDialogs.createLanguageDialog(this);
@@ -496,7 +493,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 startActivityForResult(pref, FormEntryConstants.FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
-                GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_NAV_BAR_ARROW);
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS);
                 triggerUserQuitInput();
                 return true;
 
@@ -504,12 +501,16 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         return super.onOptionsItemSelected(item);
     }
 
-    private static Map<Integer, String> createMenuItemToEventMapping() {
+    private static Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
-        menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_LANGUAGES, GoogleAnalyticsFields.LABEL_CHANGE_LANGUAGE);
-        menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_SAVE, GoogleAnalyticsFields.LABEL_SAVE_FORM);
-        menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_HIERARCHY_VIEW, GoogleAnalyticsFields.LABEL_FORM_HIERARCHY);
-        menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_CHANGE_SETTINGS);
+        menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_LANGUAGES,
+                AnalyticsParamValue.ITEM_CHANGE_LANGUAGE);
+        menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_SAVE,
+                AnalyticsParamValue.ITEM_SAVE_FORM);
+        menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_HIERARCHY_VIEW,
+                AnalyticsParamValue.ITEM_FORM_HIERARCHY);
+        menuIdToAnalyticsEvent.put(FormEntryConstants.MENU_PREFERENCES,
+                AnalyticsParamValue.ITEM_CHANGE_FORM_SETTINGS);
         return menuIdToAnalyticsEvent;
     }
 
@@ -629,7 +630,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return mSaveToDiskTask;
 
         // mFormEntryController is static so we don't need to pass it.
-        if (mFormController != null && currentPromptIsQuestion()) {
+        if (mFormController != null && currentPromptIsQuestion() && uiController.questionsView != null) {
             saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         }
         return null;
@@ -966,7 +967,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return; // so we don't show the intro screen before jumping to the hierarchy
         }
 
-        reportFormEntry();
+        reportFormEntryTime();
 
         formEntryRestoreSession.replaySession(this);
 
@@ -995,7 +996,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             FormEntryDialogs.createQuitDialog(this, mIncompleteEnabled);
             return;
         }
-        GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_NO_DIALOG);
     }
 
     /**
@@ -1013,7 +1013,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_DEVICE_BUTTON);
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.BACK_BUTTON_PRESS);
                 triggerUserQuitInput();
                 return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
@@ -1199,29 +1199,30 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         dismissProgressDialog();
-        reportFormExit();
+        reportFormExitTime();
         finish();
     }
 
     @Override
     protected boolean onBackwardSwipe() {
-        GoogleAnalyticsUtils.reportFormNavBackward(GoogleAnalyticsFields.LABEL_SWIPE);
+        FirebaseAnalyticsUtil.reportFormNav(
+                AnalyticsParamValue.DIRECTION_BACKWARD,
+                AnalyticsParamValue.SWIPE);
+
         uiController.showPreviousView(true);
         return true;
     }
 
     @Override
     protected boolean onForwardSwipe() {
+        FirebaseAnalyticsUtil.reportFormNav(
+                AnalyticsParamValue.DIRECTION_FORWARD,
+                AnalyticsParamValue.SWIPE);
+
         if (canNavigateForward()) {
-            GoogleAnalyticsUtils.reportFormNavForward(
-                    GoogleAnalyticsFields.LABEL_SWIPE,
-                    GoogleAnalyticsFields.VALUE_FORM_NOT_DONE);
             uiController.next();
             return true;
         } else {
-            GoogleAnalyticsUtils.reportFormNavForward(
-                    GoogleAnalyticsFields.LABEL_SWIPE,
-                    GoogleAnalyticsFields.VALUE_FORM_DONE);
             FormNavigationUI.animateFinishArrow(this);
             return true;
         }
@@ -1391,11 +1392,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
 
-    private void reportFormEntry() {
+    private void reportFormEntryTime() {
         TimedStatsTracker.registerEnterForm(getCurrentFormID());
     }
 
-    private void reportFormExit() {
+    private void reportFormExitTime() {
         TimedStatsTracker.registerExitForm(getCurrentFormID());
     }
 

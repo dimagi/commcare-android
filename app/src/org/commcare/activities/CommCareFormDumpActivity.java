@@ -16,8 +16,8 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
-import org.commcare.preferences.CommCarePreferences;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.ServerUrls;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.util.LogTypes;
@@ -66,11 +66,10 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     private int formsOnSD;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         final String url = this.getString(R.string.PostURL);
-
-        super.onCreate(savedInstanceState);
 
         updateCounters();
 
@@ -90,7 +89,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
                 SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
                 SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(
-                        settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, url),
+                        settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY, url),
                         getFolderPath()) {
                     @Override
                     protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
@@ -225,7 +224,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
     private String getFolderName() {
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return settings.getString(CommCarePreferences.DUMP_FOLDER_PATH, Localization.get("bulk.form.foldername"));
+        return settings.getString(HiddenPreferences.DUMP_FOLDER_PATH, Localization.get("bulk.form.foldername"));
     }
 
     private File getFolderPath() {

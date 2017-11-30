@@ -13,7 +13,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.CommCareUtil;
@@ -47,8 +47,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         if (savedInstanceState == null) {
             // launching activity, not just changing orientation
@@ -68,7 +68,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                 ProcessAndSendTask<RecoveryActivity> mProcess =
                         new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this,
-                                settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
+                                settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY,
                                         RecoveryActivity.this.getString(R.string.PostURL)), true) {
 
                             @Override

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.annotation.Nullable;
@@ -131,7 +132,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     public static HashMap getHeaders(String lastToken) {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("X-OpenRosa-Version", "2.1");
+        headers.put("X-OpenRosa-Version", "3.0");
         if (lastToken != null) {
             headers.put("X-CommCareHQ-LastSyncToken", lastToken);
         }
@@ -215,11 +216,16 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     @Override
     public Response<ResponseBody> simpleGet(String uri) throws IOException {
+        return simpleGet(uri, new HashMap());
+    }
+
+    @Override
+    public Response<ResponseBody> simpleGet(String uri, Map<String, String> httpParams) throws IOException {
 
         ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 uri,
-                new HashMap(),
+                httpParams,
                 getHeaders(""),
                 new Pair(username, password),
                 null);

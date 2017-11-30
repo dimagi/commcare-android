@@ -10,15 +10,22 @@ import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
+import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -150,6 +157,7 @@ public class FormUploadUtil {
      *
      * @return submission status of multipart entity post
      */
+
     private static FormUploadResult submitEntity(List<MultipartBody.Part> parts, String url,
                                                  CommcareRequestGenerator generator) {
         Response<ResponseBody> response;
@@ -174,16 +182,15 @@ public class FormUploadUtil {
                     "Encountered PlainTextPasswordException while submission: Sending password over HTTP");
             return FormUploadResult.AUTH_OVER_HTTP;
         } catch (IOException | IllegalStateException e) {
-            e.printStackTrace();
-            Logger.log(LogTypes.TYPE_ERROR_STORAGE,
-                    "Error reading form during submission: " + e.getMessage());
+            Logger.exception("Error reading form during submission: " + e.getMessage(), e);
             return FormUploadResult.TRANSPORT_FAILURE;
         }
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             if (response.body() != null) {
-                StreamsUtil.writeFromInputToOutputNew(response.body().byteStream(), bos);
+                InputStream responseStream = response.body().byteStream();
+                StreamsUtil.writeFromInputToOutputNew(responseStream, bos);
             }
         } catch (IllegalStateException | IOException e) {
             e.printStackTrace();
@@ -197,20 +204,37 @@ public class FormUploadUtil {
             return FormUploadResult.FULL_SUCCESS;
         } else if (responseCode == 401) {
             return FormUploadResult.AUTH_FAILURE;
+        } else if (responseCode == 422) {
+            return handleProcessingFailure(response.errorBody().byteStream());
         } else {
             return FormUploadResult.FAILURE;
         }
     }
 
+    private static FormUploadResult handleProcessingFailure(InputStream responseStream) {
+        FormUploadResult result = FormUploadResult.PROCESSING_FAILURE;
+        try {
+            result.setProcessingFailureReason(parseProcessingFailureResponse(responseStream));
+        } catch (IOException | InvalidStructureException | XmlPullParserException |
+                UnfullfilledRequirementsException e) {
+            // If we can't parse out the failure reason then we won't quarantine this form, because
+            // we won't have any clear info about what happened
+            result = FormUploadResult.FAILURE;
+            Logger.exception(e);
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     private static void logResponse(int responseCode, String responseString) {
-        String responseCodeMessage = "Response code to form submission attempt: " + responseCode;
+        String responseCodeMessage = "Response code to form submission attempt was: " + responseCode;
         Log.e(TAG, responseCodeMessage);
         Log.d(TAG, responseString);
         if (!(responseCode >= 200 && responseCode < 300)) {
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, responseCodeMessage);
             Logger.log(LogTypes.TYPE_FORM_SUBMISSION, responseCodeMessage);
             Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
-                    "Response string to failed form submission attempt: " + responseString);
+                    "Response string to failed form submission attempt was: " + responseString);
         }
     }
 
@@ -398,5 +422,29 @@ public class FormUploadUtil {
         }
 
         return false;
+    }
+
+    public static String parseProcessingFailureResponse(InputStream responseStream)
+            throws IOException, InvalidStructureException, UnfullfilledRequirementsException,
+            XmlPullParserException {
+
+        KXmlParser baseParser = ElementParser.instantiateParser(responseStream);
+        ElementParser<String> responseParser = new ElementParser<String>(baseParser) {
+            @Override
+            public String parse() throws InvalidStructureException, IOException,
+                    XmlPullParserException, UnfullfilledRequirementsException {
+                checkNode("OpenRosaResponse");
+                nextTag("message");
+                String natureOfResponse = parser.getAttributeValue(null, "nature");
+                if ("processing_failure".equals(natureOfResponse)) {
+                    return parser.nextText();
+                } else {
+                    throw new UnfullfilledRequirementsException(
+                            "<message> for 422 response did not contain expected content",
+                            CommCareElementParser.SEVERITY_UNKOWN);
+                }
+            }
+        };
+        return responseParser.parse();
     }
 }

@@ -17,7 +17,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
-import org.commcare.google.services.analytics.GoogleAnalyticsUtils;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
@@ -77,9 +78,10 @@ public class EntityDetailActivity
     private TabbedDetailView mDetailView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        Intent i = getIntent();
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
+        Intent i = getIntent();
         CommCareSession session;
         try {
             asw = CommCareApplication.instance().getCurrentSessionWrapper();
@@ -113,8 +115,6 @@ public class EntityDetailActivity
             this.mEntityContext = new Pair<>(shortDetail, mTreeReference);
         }
 
-        super.onCreate(savedInstanceState);
-        
         /* Caution: The detailIndex field comes from EntitySelectActivity, which is the 
          * source of this intent. In some instances, the detailIndex may not have been assigned,
          * in which case it will take on a value of -1. If making use of the detailIndex, it may
@@ -135,7 +135,8 @@ public class EntityDetailActivity
         next.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportEntityDetailContinue(false, mDetailView.getTabCount() == 1);
+                FirebaseAnalyticsUtil.reportEntityDetailContinue(
+                        AnalyticsParamValue.NAV_BUTTON_PRESS, mDetailView.getTabCount());
                 select();
             }
         });
@@ -175,25 +176,22 @@ public class EntityDetailActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        switch (requestCode) {
-            case DetailCalloutListenerDefaultImpl.CALL_OUT:
-                if (resultCode == RESULT_CANCELED) {
-                    mDetailView.refresh(detail, mTreeReference, detailIndex);
-                    return;
-                } else {
-                    long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
+    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == DetailCalloutListenerDefaultImpl.CALL_OUT) {
+            if (resultCode == RESULT_CANCELED) {
+                mDetailView.refresh(detail, mTreeReference, detailIndex);
+                return;
+            } else {
+                long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
 
-                    Intent i = new Intent(EntityDetailActivity.this.getIntent());
-                    loadOutgoingIntent(i);
-                    i.putExtra(CallOutActivity.CALL_DURATION, duration);
-                    setResult(RESULT_OK, i);
+                Intent i = new Intent(EntityDetailActivity.this.getIntent());
+                loadOutgoingIntent(i);
+                i.putExtra(CallOutActivity.CALL_DURATION, duration);
+                setResult(RESULT_OK, i);
 
-                    finish();
-                    return;
-                }
-            default:
-                super.onActivityResult(requestCode, resultCode, intent);
+                finish();
+                return;
+            }
         }
     }
 
@@ -203,7 +201,8 @@ public class EntityDetailActivity
         if (isFinalSwipeActionEnabled &&
                 mDetailView.getCurrentTab() >= mDetailView.getTabCount() - 1) {
             select();
-            GoogleAnalyticsUtils.reportEntityDetailContinue(true, mDetailView.getTabCount() == 1);
+            FirebaseAnalyticsUtil.reportEntityDetailContinue(
+                    AnalyticsParamValue.SWIPE, mDetailView.getTabCount());
             return true;
         }
         return false;
@@ -215,7 +214,8 @@ public class EntityDetailActivity
         if (isFinalSwipeActionEnabled &&
                 mDetailView.getCurrentTab() < 1) {
             finish();
-            GoogleAnalyticsUtils.reportEntityDetailExit(true, mDetailView.getTabCount() == 1);
+            FirebaseAnalyticsUtil.reportEntityDetailExit(
+                    AnalyticsParamValue.SWIPE, mDetailView.getTabCount());
             return true;
         }
         return false;
@@ -242,7 +242,8 @@ public class EntityDetailActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        GoogleAnalyticsUtils.reportEntityDetailExit(false, mDetailView.getTabCount() == 1);
+        FirebaseAnalyticsUtil.reportEntityDetailExit(
+                AnalyticsParamValue.BACK_BUTTON_PRESS, mDetailView.getTabCount());
     }
 
     @Override

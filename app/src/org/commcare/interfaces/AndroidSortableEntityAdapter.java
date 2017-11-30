@@ -17,7 +17,8 @@ import java.util.List;
 public abstract class AndroidSortableEntityAdapter extends SortableEntityAdapter {
 
     public AndroidSortableEntityAdapter(List<Entity<TreeReference>> entityList, Detail detail, NodeEntityFactory factory) {
-        super(entityList, detail, factory instanceof AsyncNodeEntityFactory);
+        super(entityList, detail,
+                !(factory instanceof AsyncNodeEntityFactory) || ((AsyncNodeEntityFactory)factory).isBlockingAsyncMode());
     }
 
     @Override

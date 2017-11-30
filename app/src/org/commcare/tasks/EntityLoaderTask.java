@@ -69,7 +69,7 @@ public class EntityLoaderTask
                 }
             }
 
-            factory.prepareEntities();
+            factory.prepareEntities(full);
             factory.printAndClearTraces("build");
             return new Pair<>(full, references);
         } catch (XPathException xe) {

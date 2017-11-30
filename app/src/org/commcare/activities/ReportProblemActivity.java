@@ -13,15 +13,15 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportProblemActivity> implements OnClickListener {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
         setContentView(R.layout.activity_report_problem);
         Button submitButton = (Button)findViewById(R.id.ReportButton01);
         submitButton.setText(this.localize("problem.report.button"));
@@ -60,7 +60,7 @@ public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportPr
     private void sendReportEmail(String report) {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("message/rfc822");
-        i.putExtra(Intent.EXTRA_EMAIL, new String[]{CommCareServerPreferences.getSupportEmailAddress()});
+        i.putExtra(Intent.EXTRA_EMAIL, new String[]{ ServerUrls.getSupportEmailAddress()});
         i.putExtra(Intent.EXTRA_TEXT, ReportProblemActivity.buildMessage(report));
         i.putExtra(Intent.EXTRA_SUBJECT, "Mobile Error Report");
 

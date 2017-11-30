@@ -31,7 +31,6 @@ import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
-import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
@@ -168,6 +167,11 @@ class UserDatabaseUpgrader {
         if (oldVersion == 20) {
             if (upgradeTwentyTwentyOne(db)) {
                 oldVersion = 21;
+            }
+        }
+        if (oldVersion == 21) {
+            if (upgradeTwentyOneTwentyTwo(db)) {
+                oldVersion = 22;
             }
         }
     }
@@ -528,11 +532,11 @@ class UserDatabaseUpgrader {
             db.endTransaction();
         }
     }
-    
+
     private boolean upgradeNineteenTwenty(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            List<String> allIndexedFixtures = IndexedFixturePathUtils.getAllIndexedFixtureNames(db);
+            Set<String> allIndexedFixtures = IndexedFixturePathUtils.getAllIndexedFixtureNamesAsSet(db);
             for (String fixtureName : allIndexedFixtures) {
                 String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
                 SqlStorage<StorageIndexedTreeElementModel> storageForThisFixture =
@@ -561,6 +565,19 @@ class UserDatabaseUpgrader {
             db.endTransaction();
         }
 
+    }
+
+    private boolean upgradeTwentyOneTwentyTwo(SQLiteDatabase db) {
+        //drop the existing table and recreate using current definition
+        db.beginTransaction();
+        try {
+            db.execSQL("DROP TABLE IF EXISTS " + EntityStorageCache.TABLE_NAME);
+            db.execSQL(EntityStorageCache.getTableDefinition());
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private void migrateV2FormRecordsForSingleApp(String appId,

@@ -56,7 +56,6 @@ dependencies {
     compile 'com.madgag.spongycastle:prov:1.54.0.0'
     compile 'com.google.android.gms:play-services-maps:10.0.1'
     compile 'com.google.android.gms:play-services-analytics:10.0.1'
-    compile 'com.google.zxing:core:3.3.0'
     compile 'joda-time:joda-time:2.9.4'
     compile 'net.sf.kxml:kxml2:2.3.0'
     compile 'net.zetetic:android-database-sqlcipher:3.5.4@aar'
@@ -71,6 +70,7 @@ dependencies {
     compile 'com.google.firebase:firebase-ads:10.0.1'
     compile 'com.carrotsearch:hppc:0.7.2'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'com.journeyapps:zxing-android-embedded:3.5.0'
     compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }
@@ -110,8 +110,6 @@ afterEvaluate {
     processLtsReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
     processCommcareDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
     processCommcareReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processManagedDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processManagedReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
 }
 
 gradle.taskGraph.beforeTask { Task task ->
@@ -294,10 +292,6 @@ android {
             manifest.srcFile 'CommcareAndroidManifest.xml'
         }
 
-        managed {
-            manifest.srcFile 'CommcareAndroidManifest.xml'
-        }
-
         standalone {
             res.srcDirs = ['standalone/res']
             assets.srcDirs = ['standalone/assets']
@@ -321,11 +315,6 @@ android {
         commcare {
             // builds normal commcare
             // use the settings from defaultConfig
-        }
-
-        managed {
-            applicationId "org.commcare.managed"
-            resValue "string", "application_name", " CommCare Managed Configuration"
         }
 
         lts {
@@ -397,10 +386,20 @@ android {
 
     buildTypes {
         debug {
+            applicationIdSuffix ".debug"
+            def applicationId = "org.commcare.dalvik.debug"
+            project.ext.COMMCARE_APP_ID = applicationId
+            resValue "string", "application_name", "CommCare Debug"
+            def odkProviderStr = "org.commcare.dalvik.debug.provider.odk"
+            manifestPlaceholders = [odkProvider: odkProviderStr]
+
             minifyEnabled true
             debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+
             // used in test suite to build the prototype factory; otherwise unneeded
+            buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
+            buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
             buildConfigField "String", "BUILD_DIR", fixEscaping("\"${buildDir}\"")
             buildConfigField "String", "PROJECT_DIR", fixEscaping("\"${projectDir}\"")
 

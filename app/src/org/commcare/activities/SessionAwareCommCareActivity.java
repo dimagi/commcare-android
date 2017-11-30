@@ -1,7 +1,9 @@
 package org.commcare.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import org.commcare.CommCareApplication;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionUnavailableException;
 
@@ -16,6 +18,7 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
+            CommCareApplication.instance().getSession();
             onCreateSessionSafe(savedInstanceState);
         } catch (SessionUnavailableException e) {
             SessionActivityRegistration.redirectToLogin(this);
@@ -37,14 +40,26 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
         }
     }
 
-     protected void onResumeSessionSafe() {
+    protected void onResumeSessionSafe() {
 
-     }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        boolean redirectedToLogin =
+                SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+        if (!redirectedToLogin) {
+            onActivityResultSessionSafe(requestCode, resultCode, intent);
+        }
+    }
+
+    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+
+    }
 
     @Override
     protected void onPause() {
         super.onPause();
-
         SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
     }
 }

@@ -15,15 +15,17 @@ import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
-import org.commcare.google.services.analytics.GoogleAnalyticsFields;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
+import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.RemoteDataPullResponse;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.ServerUrls;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.templates.CommCareTask;
@@ -220,7 +222,7 @@ public abstract class DataPullTask<R>
     }
 
     private static boolean shouldGenerateFirstKey() {
-        String keyServer = CommCarePreferences.getKeyServer();
+        String keyServer = ServerUrls.getKeyServer();
         return keyServer == null || keyServer.equals("");
     }
 
@@ -462,8 +464,8 @@ public abstract class DataPullTask<R>
     private static void recordSyncAttempt() {
         //TODO: This should be per _user_, not per app
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putLong(CommCarePreferences.LAST_SYNC_ATTEMPT, new Date().getTime()).apply();
-        CommCarePreferences.setPostUpdateSyncNeeded(false);
+                .putLong(HiddenPreferences.LAST_SYNC_ATTEMPT, new Date().getTime()).apply();
+        HiddenPreferences.setPostUpdateSyncNeeded(false);
     }
 
     private static void recordSuccessfulSyncTime(String username) {
@@ -563,6 +565,7 @@ public abstract class DataPullTask<R>
         CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
         new AndroidCaseIndexTable().wipeTable();
         CommCareApplication.instance().getUserStorage(Ledger.STORAGE_KEY, Ledger.class).removeAll();
+        EntityStorageCache.wipeCacheForCurrentApp();
     }
 
     private void updateCurrentUser(String password) {
@@ -640,35 +643,23 @@ public abstract class DataPullTask<R>
     }
 
     public enum PullTaskResult {
-        DOWNLOAD_SUCCESS(-1),
-        RETRY_NEEDED(-1),
-        AUTH_FAILED(GoogleAnalyticsFields.VALUE_AUTH_FAILED),
-        BAD_DATA(GoogleAnalyticsFields.VALUE_BAD_DATA),
-        BAD_DATA_REQUIRES_INTERVENTION(GoogleAnalyticsFields.VALUE_BAD_DATA_REQUIRES_INTERVENTION),
-        UNKNOWN_FAILURE(GoogleAnalyticsFields.VALUE_UNKNOWN_FAILURE),
-        ACTIONABLE_FAILURE(GoogleAnalyticsFields.VALUE_ACTIONABLE_FAILURE),
-        UNREACHABLE_HOST(GoogleAnalyticsFields.VALUE_UNREACHABLE_HOST),
-        CONNECTION_TIMEOUT(GoogleAnalyticsFields.VALUE_CONNECTION_TIMEOUT),
-        SERVER_ERROR(GoogleAnalyticsFields.VALUE_SERVER_ERROR),
-        STORAGE_FULL(GoogleAnalyticsFields.VALUE_STORAGE_FULL),
-        AUTH_OVER_HTTP(GoogleAnalyticsFields.AUTH_OVER_HTTP);
+        DOWNLOAD_SUCCESS(null),
+        RETRY_NEEDED(null),
+        AUTH_FAILED(AnalyticsParamValue.SYNC_FAIL_AUTH),
+        BAD_DATA(AnalyticsParamValue.SYNC_FAIL_BAD_DATA),
+        BAD_DATA_REQUIRES_INTERVENTION(AnalyticsParamValue.SYNC_FAIL_BAD_DATA),
+        UNKNOWN_FAILURE(AnalyticsParamValue.SYNC_FAIL_UNKNOWN),
+        ACTIONABLE_FAILURE(AnalyticsParamValue.SYNC_FAIL_ACTIONABLE),
+        UNREACHABLE_HOST(AnalyticsParamValue.SYNC_FAIL_UNREACHABLE_HOST),
+        CONNECTION_TIMEOUT(AnalyticsParamValue.SYNC_FAIL_CONNECTION_TIMEOUT),
+        SERVER_ERROR(AnalyticsParamValue.SYNC_FAIL_SERVER_ERROR),
+        STORAGE_FULL(AnalyticsParamValue.SYNC_FAIL_STORAGE_FULL),
+        AUTH_OVER_HTTP(AnalyticsParamValue.SYNC_FAIL_AUTH_OVER_HTTP);
 
-        private final int googleAnalyticsValue;
+        public final String analyticsFailureReasonParam;
 
-        PullTaskResult(int googleAnalyticsValue) {
-            this.googleAnalyticsValue = googleAnalyticsValue;
-        }
-
-        public int getCorrespondingGoogleAnalyticsValue() {
-            return googleAnalyticsValue;
-        }
-
-        public String getCorrespondingGoogleAnalyticsLabel() {
-            if (this == DOWNLOAD_SUCCESS) {
-                return GoogleAnalyticsFields.LABEL_SYNC_SUCCESS;
-            } else {
-                return GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
-            }
+        PullTaskResult(String analyticsParam) {
+            this.analyticsFailureReasonParam = analyticsParam;
         }
     }
 }

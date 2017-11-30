@@ -37,7 +37,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.services.WiFiDirectBroadcastReceiver;
 import org.commcare.tasks.FormRecordToFileTask;
 import org.commcare.tasks.FormTransferTask;
@@ -104,8 +104,8 @@ public class CommCareWiFiDirectActivity
     private FormRecord[] cachedRecords;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         setContentView(R.layout.wifi_direct_main);
 
@@ -410,7 +410,7 @@ public class CommCareWiFiDirectActivity
 
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(
-                settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, url),
+                settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY, url),
                 receiveFolder) {
 
             @Override
