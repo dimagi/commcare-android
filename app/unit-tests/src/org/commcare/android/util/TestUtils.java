@@ -104,12 +104,12 @@ public class TestUtils {
                     //Note - this isn't even actually bulk processing. since this class is static
                     //there's no good lifecycle to manage the bulk processor in, but at least
                     //this will validate that the bulk processor works.
-                    EntityStorageCache entityStorageCache;
-                    try {
+                    EntityStorageCache entityStorageCache = null;
+
+                    if (CommCareApplication.instance().getCurrentApp() != null) {
                         entityStorageCache = new EntityStorageCache("case", db, AppUtils.getCurrentAppId());
-                    } catch (Exception e) {
-                        entityStorageCache = null;
                     }
+
                     if (bulkProcessingEnabled) {
                         return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), entityStorageCache, new AndroidCaseIndexTable(db)) {
                             @Override
