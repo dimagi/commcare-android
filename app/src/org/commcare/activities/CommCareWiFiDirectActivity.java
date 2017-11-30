@@ -835,7 +835,7 @@ public class CommCareWiFiDirectActivity
             out.close();
             inputStream.close();
         } catch (IOException e) {
-            Logger.log(TAG, "Copy in File Server failed with exception " + e);
+            Logger.exception("Copy in File Server failed with exception " + e, e);
             throw e;
         }
         Logger.log(TAG, "Copy in File Server successful");

@@ -137,7 +137,7 @@ public class FileServerFragment extends Fragment {
 
                 } catch (IOException e) {
                     String errorMessage = "File Server crashed after transfer with IO Exception: " + e.getMessage();
-                    Logger.log(TAG, errorMessage);
+                    Logger.exception(errorMessage, e);
                     publishProgress(errorMessage);
                     return null;
                 } finally {
