@@ -96,8 +96,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
     @Override
     protected FormUploadResult doTaskBackground(FormRecord... records) {
-        boolean needToSendLogs = false;
-
+        boolean wroteErrorToLogs = false;
         try {
             results = new FormUploadResult[records.length];
             for (int i = 0; i < records.length; ++i) {
@@ -107,7 +106,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             //The first thing we need to do is make sure everything is processed,
             //we can't actually proceed before that.
             try {
-                needToSendLogs = checkFormRecordStatus(records);
+                wroteErrorToLogs = checkFormRecordStatus(records);
             } catch (FileNotFoundException e) {
                 return FormUploadResult.PROGRESS_SDCARD_REMOVED;
             } catch (TaskCancelledException e) {
@@ -152,14 +151,17 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             this.cancel(false);
             return FormUploadResult.PROGRESS_LOGGED_OUT;
         } finally {
-            this.endSubmissionProcess(
-                    FormUploadResult.FULL_SUCCESS.equals(FormUploadResult.getWorstResult(results)));
+            boolean success =
+                    FormUploadResult.FULL_SUCCESS.equals(FormUploadResult.getWorstResult(results));
+            this.endSubmissionProcess(success);
 
             synchronized (processTasks) {
                 processTasks.remove(this);
             }
 
-            if (needToSendLogs) {
+            if (success || wroteErrorToLogs) {
+                // Try to send logs if we either know we have a good connection, or know we wrote
+                // an error to the logs during form submission attempt
                 CommCareApplication.instance().notifyLogsPending();
             }
         }
@@ -167,7 +169,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
 
     private boolean checkFormRecordStatus(FormRecord[] records)
             throws FileNotFoundException, TaskCancelledException {
-        boolean needToSendLogs = false;
+        boolean wroteErrorToLogs = false;
         processor.beginBulkSubmit();
         for (int i = 0; i < records.length; ++i) {
             if (isCancelled()) {
@@ -191,7 +193,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 } catch (InvalidStructureException | XmlPullParserException |
                         UnfullfilledRequirementsException e) {
                     records[i] = handleExceptionFromFormProcessing(record, e);
-                    needToSendLogs = true;
+                    wroteErrorToLogs = true;
                 } catch (FileNotFoundException e) {
                     if (CommCareApplication.instance().isStorageAvailable()) {
                         //If storage is available generally, this is a bug in the app design
@@ -201,6 +203,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                 "the xml submission file associated with the record could not be found");
                         FormRecordCleanupTask.wipeRecord(c, record);
                         records[i] = FormRecord.StandInForDeletedRecord();
+                        wroteErrorToLogs = true;
                     } else {
                         CommCareApplication.notificationManager().reportNotificationMessage(
                                 NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
@@ -210,11 +213,12 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 } catch (IOException e) {
                     Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. " +
                             "Tentatively not removing in case they are resolvable|" + getExceptionText(e));
+                    wroteErrorToLogs = true;
                 }
             }
         }
         processor.closeBulkSubmit();
-        return needToSendLogs;
+        return wroteErrorToLogs;
     }
 
     private FormRecord handleExceptionFromFormProcessing(FormRecord record, Exception e) {
