@@ -141,7 +141,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
         platform = CommCareApplication.instance().getCommCarePlatform();
@@ -272,7 +272,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     @Override
-    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (resultCode == Activity.RESULT_OK && requestCode == BARCODE_FETCH) {
             onBarcodeFetch(intent);
         }
@@ -309,7 +309,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     @Override
-    protected void onResumeSessionSafe() {
+    public void onResumeSessionSafe() {
         attachToPurgeTask();
 
         if (adapter != null && initialSelection != -1) {

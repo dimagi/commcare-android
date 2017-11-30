@@ -78,7 +78,7 @@ public class EntityDetailActivity
     private TabbedDetailView mDetailView;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
         Intent i = getIntent();
@@ -176,7 +176,7 @@ public class EntityDetailActivity
     }
 
     @Override
-    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (requestCode == DetailCalloutListenerDefaultImpl.CALL_OUT) {
             if (resultCode == RESULT_CANCELED) {
                 mDetailView.refresh(detail, mTreeReference, detailIndex);

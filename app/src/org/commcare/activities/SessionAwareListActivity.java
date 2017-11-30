@@ -1,58 +1,48 @@
 package org.commcare.activities;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 
-import org.commcare.CommCareApplication;
 import org.commcare.utils.SessionActivityRegistration;
-import org.commcare.utils.SessionUnavailableException;
 
 /**
  * Reproduction of SessionAwareCommCareActivity, but for an activity that must extend ListActivity
  *
  * @author Aliza Stone
  */
-public abstract class SessionAwareListActivity extends ListActivity {
+public abstract class SessionAwareListActivity extends ListActivity implements SessionAwareInterface {
 
     private boolean redirectedInOnCreate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            CommCareApplication.instance().getSession();
-            onCreateSessionSafe(savedInstanceState);
-        } catch (SessionUnavailableException e) {
-            redirectedInOnCreate = true;
-            SessionActivityRegistration.redirectToLogin(this);
-        }
+        redirectedInOnCreate = SessionAwareHelper.onCreateHelper(this, this, savedInstanceState);
     }
 
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
-
+    @Override
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        boolean redirectedToLogin =
-                SessionActivityRegistration.handleOrListenForSessionExpiration(this) ||
-                        redirectedInOnCreate;
-        if (!redirectedToLogin) {
-            onResumeSessionSafe();
-        }
+        SessionAwareHelper.onResumeHelper(this, this, redirectedInOnCreate);
     }
 
-    protected void onResumeSessionSafe() {
-
+    @Override
+    public void onResumeSessionSafe() {
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
         SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
+    }
+
+    @Override
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
     }
 
 }

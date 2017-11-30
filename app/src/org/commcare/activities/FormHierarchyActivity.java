@@ -34,7 +34,7 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
     public final static int RESULT_XPATH_ERROR = RESULT_FIRST_USER + 1;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
         if (FormEntryActivity.mFormController == null) {
