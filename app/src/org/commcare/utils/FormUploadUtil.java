@@ -167,18 +167,19 @@ public class FormUploadUtil {
         } catch (InputIOException ioe) {
             // This implies that there was a problem with the _source_ of the
             // transmission, not the processing or receiving end.
-            Logger.exception(
-                    "Internal error reading form record during submission: " + ioe.getWrapped().getMessage(),
-                    ioe);
+            Logger.log(LogTypes.TYPE_ERROR_STORAGE,
+                    "Internal error reading form record during submission: " +
+                            ioe.getWrapped().getMessage());
             return FormUploadResult.RECORD_FAILURE;
         } catch (UnknownHostException e) {
-            Logger.exception("Client network issues during submission: " + e.getMessage(),
-                    e);
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK,
+                    "Client network issues during submission: " + e.getMessage());
             return FormUploadResult.TRANSPORT_FAILURE;
         } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
-            Logger.exception(
-                    "Encountered PlainTextPasswordException while submission: Sending password over HTTP",
-                    e);
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
+                    "Encountered PlainTextPasswordException while submission: Sending password over HTTP");
             return FormUploadResult.AUTH_OVER_HTTP;
         } catch (IOException | IllegalStateException e) {
             Logger.exception("Error reading form during submission: " + e.getMessage(), e);
