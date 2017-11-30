@@ -60,8 +60,8 @@ public class PostRequestActivity
     private boolean inErrorState;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         loadStateFromSavedInstance(savedInstanceState);
         loadStateFromIntent(getIntent());

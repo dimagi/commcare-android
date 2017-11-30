@@ -154,8 +154,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             new LocationNotificationHandler(this);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         createDataSetObserver();
         restoreSavedState(savedInstanceState);
@@ -538,7 +538,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case BARCODE_FETCH:
                 processBarcodeFetch(resultCode, intent);
@@ -600,8 +600,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     refreshView();
                 }
                 break;
-            default:
-                super.onActivityResult(requestCode, resultCode, intent);
         }
     }
 
