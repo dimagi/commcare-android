@@ -98,4 +98,18 @@ public class IntentCalloutTests {
         assert intent.getData() == null;
         assert intent.getAction().equals("android.intent.action.CALL");
     }
+
+    @Test
+    public void testIntentCalloutHardCodedData() {
+        ShadowActivity shadowActivity =
+                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f3");
+        Intent formEntryIntent = shadowActivity.getNextStartedActivity();
+        FormEntryActivity formEntryActivity =
+                Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
+                        .create().start().resume().get();
+        IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
+        Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
+        assert intent.getData().equals("tel:3333333333");
+        assert intent.getAction().equals("android.intent.action.CALL");
+    }
 }
