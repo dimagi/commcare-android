@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="107" descriptor="Suite File">
+  <xform>
+    <resource id="55675424bd8efde5b65fbc57c68933baff30ae2a" version="107" descriptor="Form: (Module Phone Call) - Phone Call Question Data">
+      <location authority="local">./modules-0/forms-0.xml</location>
+      <location authority="remote">./modules-0/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="6469b9677f7aec21f7d1710b3ed8162b21bbb13b" version="107" descriptor="Form: (Module Phone Call) - Phone Call No Data">
+      <location authority="local">./modules-0/forms-1.xml</location>
+      <location authority="remote">./modules-0/forms-1.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="9c97bf70492453dbd7f54596a8044c5fa66292e2" version="107" descriptor="Form: (Module Phone Call) - Phone Call Null Data">
+      <location authority="local">./modules-0/forms-2.xml</location>
+      <location authority="remote">./modules-0/forms-2.xml</location>
+    </resource>
+  </xform>
+  <locale language="default">
+    <resource id="app_default_strings" version="107" descriptor="Translations: Default Language">
+      <location authority="local">./default/app_strings.txt</location>
+      <location authority="remote">./default/app_strings.txt</location>
+    </resource>
+  </locale>
+  <locale language="en">
+    <resource id="app_en_strings" version="107" descriptor="Translations: English">
+      <location authority="local">./en/app_strings.txt</location>
+      <location authority="remote">./en/app_strings.txt</location>
+    </resource>
+  </locale>
+  <detail id="m0_case_short">
+    <title>
+      <text>
+        <locale id="cchq.case"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m0_case_long">
+    <title>
+      <text>
+        <locale id="cchq.case"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <entry>
+    <form>http://openrosa.org/formdesigner/E2E07B3C-9665-4247-B2E9-D0162C4B0D6C</form>
+    <command id="m0-f0">
+      <text>
+        <locale id="forms.m0f0"/>
+      </text>
+    </command>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/6469b9677f7aec21f7d1710b3ed8162b21bbb13b</form>
+    <command id="m0-f1">
+      <text>
+        <locale id="forms.m0f1"/>
+      </text>
+    </command>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/9c97bf70492453dbd7f54596a8044c5fa66292e2</form>
+    <command id="m0-f2">
+      <text>
+        <locale id="forms.m0f2"/>
+      </text>
+    </command>
+  </entry>
+  <menu id="root">
+    <text>
+      <locale id="modules.m0"/>
+    </text>
+    <command id="m0-f0"/>
+    <command id="m0-f1"/>
+    <command id="m0-f2"/>
+  </menu>
+</suite>
