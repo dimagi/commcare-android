@@ -390,11 +390,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     protected void goToFormArchive(boolean incomplete, FormRecord record) {
-        if (incomplete) {
-            FirebaseAnalyticsUtil.reportViewArchivedFormsList(AnalyticsParamValue.INCOMPLETE);
-        } else {
-            FirebaseAnalyticsUtil.reportViewArchivedFormsList(AnalyticsParamValue.SAVED);
-        }
+        FirebaseAnalyticsUtil.reportViewArchivedFormsList(incomplete);
         Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
         if (incomplete) {
             i.putExtra(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);

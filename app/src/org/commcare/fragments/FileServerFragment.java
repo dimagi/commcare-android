@@ -94,7 +94,7 @@ public class FileServerFragment extends Fragment {
      * A simple server socket that accepts connection and writes some data on
      * the stream.
      */
-    public static class FileServerAsyncTask extends AsyncTask<Void, String, String> {
+    static class FileServerAsyncTask extends AsyncTask<Void, String, String> {
 
         private final FileServerFragment mListener;
         private boolean socketOccupied;
@@ -136,8 +136,9 @@ public class FileServerFragment extends Fragment {
                     return f.getAbsolutePath();
 
                 } catch (IOException e) {
-                    Logger.log(TAG, e.getMessage());
-                    publishProgress("File Server crashed after transfer with IO Exception: " + e.getMessage());
+                    String errorMessage = "File Server crashed after transfer with IO Exception: " + e.getMessage();
+                    Logger.exception(errorMessage, e);
+                    publishProgress(errorMessage);
                     return null;
                 } finally {
                     try {
