@@ -36,7 +36,6 @@ import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.activities.components.FormFileSystemHelpers;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.ImageCaptureProcessing;
-import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
@@ -179,9 +178,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // needed to override rms property manager
         PropertyManager.setPropertyManager(new AndroidPropertyManager(getApplicationContext()));
 
-        if (savedInstanceState == null) {
-            FirebaseAnalyticsUtil.reportFormEntry(Localization.getCurrentLocale());
-        } else {
+        if (savedInstanceState != null) {
             loadStateFromBundle(savedInstanceState);
         }
 
@@ -443,8 +440,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // Do not show options menu at all if this is a consumer app
             return super.onPrepareOptionsMenu(menu);
         }
-
-        FirebaseAnalyticsUtil.reportOptionsMenuEntry(this.getClass());
 
         menu.removeItem(FormEntryConstants.MENU_LANGUAGES);
         menu.removeItem(FormEntryConstants.MENU_HIERARCHY_VIEW);

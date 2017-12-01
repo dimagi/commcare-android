@@ -41,7 +41,6 @@ public class ImageCaptureProcessing {
             if (currentWidget != null) {
                 int maxDimen = currentWidget.getMaxDimen();
                 if (maxDimen != -1) {
-                    FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_RESIZE_IMAGE_CAPTURE);
                     savedScaledImage = FileUtil.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
                 }
             }

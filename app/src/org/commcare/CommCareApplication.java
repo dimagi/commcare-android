@@ -214,8 +214,6 @@ public class CommCareApplication extends MultiDexApplication {
             AppUtils.checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
         }
-
-        FirebaseAnalyticsUtil.reportAppStartup();
     }
 
     /**
