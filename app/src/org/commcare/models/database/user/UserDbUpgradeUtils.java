@@ -18,6 +18,7 @@ import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
+import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.util.LogTypes;
@@ -198,6 +199,12 @@ public class UserDbUpgradeUtils {
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
+    }
+
+    protected static void addAppIdColumnToEntityCacheTable(SQLiteDatabase db) {
+        // Drop the existing table and recreate using current definition
+        db.execSQL("DROP TABLE IF EXISTS " + EntityStorageCache.TABLE_NAME);
+        db.execSQL(EntityStorageCache.getTableDefinition());
     }
 
     protected static void addInterruptedFieldToSessionStateDescriptors(Context c, SQLiteDatabase db) {

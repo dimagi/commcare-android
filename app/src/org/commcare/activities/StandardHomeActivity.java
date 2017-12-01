@@ -45,7 +45,7 @@ public class StandardHomeActivity
     private StandardHomeActivityUIController uiController;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
     }

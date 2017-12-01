@@ -158,10 +158,6 @@ public class IntentCallout implements Externalizable {
     private boolean isPrintIntentCallout() {
         return "org.commcare.dalvik.action.PRINT".equals(this.className);
     }
-    
-    public void processBarcodeResponse(TreeReference intentQuestionRef, String scanResult) {
-        setNodeValue(formDef, intentQuestionRef, scanResult);
-    }
 
     private static boolean intentInvalid(Intent intent) {
         if (intent == null) {
@@ -322,6 +318,10 @@ public class IntentCallout implements Externalizable {
 
     public String getAppearance() {
         return appearance;
+    }
+
+    public FormDef getFormDef() {
+        return formDef;
     }
 
     public boolean isSimprintsCallout() {

@@ -68,7 +68,7 @@ public class AndroidResourceManager extends ResourceManager {
      */
     public AppInstallStatus checkAndPrepareUpgradeResources(String profileRef, int profileAuthority)
             throws UnfullfilledRequirementsException, UnresolvedResourceException {
-        synchronized (updateLock) {
+        synchronized (platform) {
             this.profileRef = profileRef;
             try {
                 instantiateLatestUpgradeProfile(profileAuthority);

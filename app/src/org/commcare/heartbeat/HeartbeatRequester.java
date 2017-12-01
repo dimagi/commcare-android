@@ -22,8 +22,10 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 /**
  * Responsible for making a heartbeat request to the server when signaled to do so by the current
@@ -116,8 +118,19 @@ public class HeartbeatRequester {
         params.put(CC_VERSION, ReportingUtils.getCommCareVersionString());
         params.put(QUARANTINED_FORMS_PARAM, "" + StorageUtils.getNumQuarantinedForms());
         params.put(UNSENT_FORMS_PARAM, "" + StorageUtils.getNumUnsentForms());
-        params.put(LAST_SYNC_TIME_PARAM, new Date(SyncDetailCalculations.getLastSyncTime()).toString());
+        params.put(LAST_SYNC_TIME_PARAM, getISO8601FormattedLastSyncTime());
         return params;
+    }
+
+    private static String getISO8601FormattedLastSyncTime() {
+        long lastSyncTime = SyncDetailCalculations.getLastSyncTime();
+        if (lastSyncTime == 0) {
+            return "";
+        } else {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+            df.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return df.format(lastSyncTime);
+        }
     }
 
     protected static void passResponseToUiThread(final JSONObject responseAsJson) {
