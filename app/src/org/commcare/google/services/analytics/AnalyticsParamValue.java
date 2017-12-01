@@ -6,15 +6,6 @@ package org.commcare.google.services.analytics;
 
 public class AnalyticsParamValue {
 
-    // Param values for audio widget interaction
-    static final String CHOOSE_AUDIO_FILE = "choose_audio_file";
-    static final String START_RECORDING = "start_recording_audio";
-    static final String STOP_RECORDING = "stop_recording";
-    static final String SAVE_RECORDING = "save_recording";
-    static final String PLAY_AUDIO = "play_audio";
-    static final String PAUSE_AUDIO = "pause_audio";
-    static final String RECORD_AGAIN = "record_again";
-
     // Param values for graphing actions
     static final String GRAPH_ATTACH = "start_viewing_graph";
     static final String GRAPH_DETACH = "stop_viewing_graph";
@@ -63,10 +54,7 @@ public class AnalyticsParamValue {
     // Param values for feature usage
     public static final String FEATURE_SET_PIN = "set_pin";
     public static final String FEATURE_PRINT = "print_from_form_or_detail";
-    public static final String FEATURE_RESIZE_IMAGE_CAPTURE = "resize_image_capture";
     public static final String FEATURE_CASE_AUTOSELECT = "case_autoselect";
-    public static final String FEATURE_SMART_IMG_INFLATION = "smart_image_inflation";
-    public static final String FEATURE_INSTALL_FROM_LIST = "install_from_app_list";
     static final String FEATURE_PRACTICE_MODE = "practice_mode";
     static final String PRACTICE_MODE_CUSTOM = "custom_practice_user";
     static final String PRACTICE_MODE_DEFAULT = "default_practice_user";
@@ -76,6 +64,8 @@ public class AnalyticsParamValue {
     public static final String OFFLINE_INSTALL = "offline_install";
     public static final String URL_INSTALL = "url_install";
     public static final String SMS_INSTALL = "sms_install";
+    public static final String FROM_LIST_INSTALL = "from_list_install";
+    public static final String MANAGED_CONFIG_INSTALL = "managed_configuration_install";
 
     // Param values for app manager actions
     public static final String OPEN_APP_MANAGER = "open_app_manager";
@@ -84,11 +74,9 @@ public class AnalyticsParamValue {
     public static final String INSTALL_FROM_MANAGER = "install_app";
 
     // Param values for home buttons
-    public static final String START_BUTTON = "start";
     public static final String SAVED_FORMS_BUTTON = "saved_forms";
     public static final String INCOMPLETE_FORMS_BUTTON = "incomplete_forms";
     public static final String SYNC_BUTTON = "sync";
-    public static final String LOGOUT_BUTTON = "logout";
     public static final String REPORT_BUTTON = "report_an_issue";
 
     // Param values for form types
