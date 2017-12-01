@@ -16,10 +16,8 @@ import org.commcare.utils.FileUtil;
 import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.engine.models.Step;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
