@@ -11,10 +11,12 @@ import android.widget.Toast;
 import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.UriToFilePath;
-import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.engine.models.Step;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -52,27 +54,11 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
         if (requestCode == REQUEST_FILE) {
             if (resultCode == RESULT_OK && intent != null) {
                 Uri uri = intent.getData();
-                String filePath = "";
+                String filePath;
                 try {
                     filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uri);
                 } catch (UriToFilePath.NoDataColumnForUriException e) {
-                    // We can't get access to filePath but only the uri and
-                    // since we are going to use this path later on in some other
-                    // activity stack which will not have permissions for this uri
-                    // we need to copy the file internally and pass the filepath of the new file
-
-                    filePath = getContext().getFilesDir().getAbsolutePath() + "/temp/" + FileUtil.getFileName(uri.toString());
-                    File file = new File(filePath);
-                    try {
-                        InputStream fileStream = getContext().getContentResolver().openInputStream(uri);
-                        FileUtil.ensureFilePathExists(file);
-                        FileUtil.copyFile(fileStream, file);
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                        String failureMessage = e1 instanceof FileNotFoundException ? Localization.get("file.not.exist") : Localization.get("file.copy.failed");
-                        Toast.makeText(getActivity(), failureMessage, Toast.LENGTH_LONG).show();
-                        return;
-                    }
+                    filePath = getNewPathFromUri(uri);
                 }
                 validateFile(filePath);
             } else {
@@ -80,6 +66,26 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
                 Toast.makeText(getActivity(), Localization.get("file.not.selected"), Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private String getNewPathFromUri(Uri uri) {
+        // We can't get access to filePath but only the uri and
+        // since we are going to use this path later on in some other
+        // activity stack which will not have permissions for this uri
+        // we need to copy the file internally and pass the filepath of the new file
+        String filePath = getContext().getFilesDir().getAbsolutePath() + "/temp/" + FileUtil.getFileName(uri.toString());
+        File file = new File(filePath);
+        try {
+            InputStream fileStream = getContext().getContentResolver().openInputStream(uri);
+            FileUtil.ensureFilePathExists(file);
+            FileUtil.copyFile(fileStream, file);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Getting new file path from uri failed due to " + e1.getMessage());
+            Toast.makeText(getActivity(), Localization.get("file.selection.failed"), Toast.LENGTH_LONG).show();
+            return null;
+        }
+        return filePath;
     }
 
     @Override

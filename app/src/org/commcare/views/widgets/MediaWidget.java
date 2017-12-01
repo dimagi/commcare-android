@@ -289,7 +289,7 @@ public abstract class MediaWidget extends QuestionWidget {
             Toast.makeText(getContext(),
                     StringUtils.getStringSpannableRobust(getContext(),
                             R.string.activity_not_found,
-                            "play media"),
+                            "play " + mediaType.substring(0, mediaType.indexOf("/"))),
                     Toast.LENGTH_SHORT).show();
         }
     }

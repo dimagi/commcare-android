@@ -136,7 +136,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_FILE_LOCATION) {
             if (resultCode == Activity.RESULT_OK) {
-                InstallArchiveActivity.updateFileLocationFromIntent(this, intent, editFileLocation);
+                FileUtil.updateFileLocationFromIntent(this, intent, editFileLocation);
             }
         }
     }
@@ -163,7 +163,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
             return;
         }
 
-        if (!(location.startsWith("content://") || (new File(location)).exists())) {
+        if (!location.startsWith("content://") && !(new File(location)).exists()) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.invalid.path"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallMultimedia.setEnabled(false);

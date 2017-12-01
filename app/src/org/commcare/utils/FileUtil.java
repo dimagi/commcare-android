@@ -2,12 +2,15 @@ package org.commcare.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.util.Pair;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.resources.model.MissingMediaException;
@@ -18,6 +21,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.io.File;
@@ -600,6 +604,36 @@ public class FileUtil {
         } catch (UriToFilePath.NoDataColumnForUriException e) {
             // No file path available, work with the media uri instead
             return FormUploadUtil.isSupportedMultimediaFile(media.getPath());
+        }
+    }
+
+    /**
+     * Tries to get a filePath from an intent returned from file provider and sets it to the given  <code>filePathEditText</code>
+     * @param context Context of the Activity File Provider returned to
+     * @param intent Intent returned from File Provider
+     * @param filePathEditText EditText where we need to show the file path
+     */
+    public static void updateFileLocationFromIntent(Context context, Intent intent, EditText filePathEditText) {
+        // Android versions 4.4 and up sometimes don't return absolute
+        // filepaths from the file chooser. So resolve the URI into a
+        // valid file path.
+        Uri uriPath = intent.getData();
+        if (uriPath == null) {
+            // issue getting the filepath uri from file browser callout
+            // result
+            Toast.makeText(context,
+                    Localization.get("file.invalid.path"),
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            String filePath;
+            try {
+                filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uriPath);
+            } catch (UriToFilePath.NoDataColumnForUriException e) {
+                filePath = uriPath.toString();
+            }
+            if (filePath != null) {
+                filePathEditText.setText(filePath);
+            }
         }
     }
 }

@@ -80,20 +80,6 @@ public class ImageCaptureProcessing {
         }
     }
 
-    private static void moveFile(InputStream inputStream, File finalFile, FormEntryActivity formEntryActivity, Uri imageUri) throws IOException {
-        try {
-            FileUtil.copyFile(inputStream, finalFile);
-            try {
-                formEntryActivity.getContentResolver().delete(imageUri, null, null);
-            } catch (SecurityException e) {
-                Logger.log(LogTypes.TYPE_MAINTENANCE, "Unable to delete file represented by " + imageUri + " because of " + e.toString());
-            }
-        } catch (IOException e) {
-            throw new IOException("Failed to rename " + imageUri.getPath() +
-                    " to " + finalFile.getAbsolutePath());
-        }
-    }
-
     /**
      * Processes the return from an image capture intent, launched by either an ImageWidget or
      * SignatureWidget
@@ -174,6 +160,15 @@ public class ImageCaptureProcessing {
             return;
         }
         processImageGivenFilePath(activity, instanceFolder, finalFilePath);
+    }
+
+    private static void moveFile(InputStream inputStream, File finalFile, FormEntryActivity formEntryActivity, Uri imageUri) throws IOException {
+        FileUtil.copyFile(inputStream, finalFile);
+        try {
+            formEntryActivity.getContentResolver().delete(imageUri, null, null);
+        } catch (SecurityException e) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Unable to delete file represented by " + imageUri + " because of " + e.getMessage());
+        }
     }
 
     private static void processImageGivenFilePath(FormEntryActivity activity, String instanceFolder, String imagePath) {
