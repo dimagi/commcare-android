@@ -34,7 +34,8 @@ import java.util.ArrayList;
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
-public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<MultimediaInflaterActivity> {
+public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> {
+
     private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
 
     private static final String LOG_TAG = "CC-MultimediaInflator";
@@ -158,7 +159,8 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
     }
 
     @Override
-    protected void onResumeSessionSafe() {
+    protected void onResume() {
+        super.onResume();
         evalState();
     }
 

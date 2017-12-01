@@ -48,7 +48,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     private UiLoadedListener uiLoadedListener;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         formAndDataSyncer = new FormAndDataSyncer();
         computeSyncState(savedInstanceState == null ?
                 SyncIconTrigger.NO_ANIMATION :

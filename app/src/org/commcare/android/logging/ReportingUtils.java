@@ -30,15 +30,8 @@ public class ReportingUtils {
 
     public static String getAppId() {
         try {
-            CommCareApp app = CommCareApplication.instance().getCurrentApp();
-            if (app != null) {
-                Profile profile = app.getCommCarePlatform().getCurrentProfile();
-                if (profile != null) {
-                    return profile.getUniqueId();
-                }
-            }
-            return "";
-        } catch (NullPointerException npe) {
+            return AppUtils.getCurrentAppId();
+        } catch (Exception e) {
             // don't fail hard, return empty string
             return "";
         }

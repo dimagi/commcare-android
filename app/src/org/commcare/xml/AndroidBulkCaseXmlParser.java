@@ -82,7 +82,9 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
                 storage.write(c);
                 recordIdsToWipe.add(c.getID());
             }
-            mEntityCache.invalidateCaches(recordIdsToWipe);
+            if (mEntityCache != null) {
+                mEntityCache.invalidateCaches(recordIdsToWipe);
+            }
             mCaseIndexTable.clearCaseIndices(recordIdsToWipe);
 
             for (String cid : writeLog.keySet()) {

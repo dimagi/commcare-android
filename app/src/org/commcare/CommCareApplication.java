@@ -723,7 +723,7 @@ public class CommCareApplication extends MultiDexApplication {
                         }
 
                         if (EntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
-                            EntityStorageCache.tryWipeCache();
+                            EntityStorageCache.wipeCacheForCurrentApp();
                         }
                     }
 

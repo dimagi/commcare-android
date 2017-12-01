@@ -169,6 +169,11 @@ class UserDatabaseUpgrader {
                 oldVersion = 21;
             }
         }
+        if (oldVersion == 21) {
+            if (upgradeTwentyOneTwentyTwo(db)) {
+                oldVersion = 22;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -527,7 +532,7 @@ class UserDatabaseUpgrader {
             db.endTransaction();
         }
     }
-    
+
     private boolean upgradeNineteenTwenty(SQLiteDatabase db) {
         db.beginTransaction();
         try {
@@ -560,6 +565,19 @@ class UserDatabaseUpgrader {
             db.endTransaction();
         }
 
+    }
+
+    private boolean upgradeTwentyOneTwentyTwo(SQLiteDatabase db) {
+        //drop the existing table and recreate using current definition
+        db.beginTransaction();
+        try {
+            db.execSQL("DROP TABLE IF EXISTS " + EntityStorageCache.TABLE_NAME);
+            db.execSQL(EntityStorageCache.getTableDefinition());
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private void migrateV2FormRecordsForSingleApp(String appId,

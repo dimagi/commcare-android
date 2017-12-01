@@ -552,13 +552,12 @@ public abstract class DataPullTask<R>
             cache.release();
         }
     }
-
+    
     private void wipeStorageForFourTwelveSync(SQLiteDatabase userDb) {
         SqlStorage.wipeTableWithoutCommit(userDb, ACase.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, Ledger.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, AndroidCaseIndexTable.TABLE_NAME);
-        SqlStorage.wipeTableWithoutCommit(userDb, EntityStorageCache.TABLE_NAME);
-        EntityStorageCache.setEntityCacheWipedPref();
+        EntityStorageCache.wipeCacheForCurrentAppWithoutCommit(userDb);
     }
 
     private void updateCurrentUser(String password) {

@@ -34,7 +34,7 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
         File archive = new File(params[0]);
         File destination = new File(params[1]);
 
-        Log.d(TAG, "Unzipping archive '" + archive + "' to  '" + destination + "'");
+        Logger.log(TAG, "Unzipping archive '" + archive + "' to  '" + destination + "'");
 
         int count = 0;
         ZipFile zipfile;
@@ -49,6 +49,8 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
             Localization.get("mult.install.progress", new String[]{String.valueOf(count)});
             count++;
             ZipEntry entry = (ZipEntry)e.nextElement();
+
+            Logger.log(TAG, "Unzipped entry " + entry.getName());
 
             if (entry.isDirectory()) {
                 FileUtil.createFolder(new File(destination, entry.getName()).toString());
