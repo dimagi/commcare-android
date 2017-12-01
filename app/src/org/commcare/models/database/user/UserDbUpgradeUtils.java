@@ -198,5 +198,4 @@ public class UserDbUpgradeUtils {
             newStorage.write(newRecord);
         }
     }
-
 }

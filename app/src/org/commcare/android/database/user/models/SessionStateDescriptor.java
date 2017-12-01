@@ -37,6 +37,7 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
     }
 
     public SessionStateDescriptor() {
+
     }
 
     public static SessionStateDescriptor buildFromSessionWrapper(AndroidSessionWrapper state) {
@@ -74,5 +75,4 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
     public String getSessionDescriptor() {
         return this.sessionDescriptor;
     }
-
 }

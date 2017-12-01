@@ -564,12 +564,13 @@ class UserDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
+
     }
 
     private boolean upgradeTwentyOneTwentyTwo(SQLiteDatabase db) {
+        //drop the existing table and recreate using current definition
         db.beginTransaction();
         try {
-            // Drop the existing table and recreate using current definition
             db.execSQL("DROP TABLE IF EXISTS " + EntityStorageCache.TABLE_NAME);
             db.execSQL(EntityStorageCache.getTableDefinition());
             db.setTransactionSuccessful();
