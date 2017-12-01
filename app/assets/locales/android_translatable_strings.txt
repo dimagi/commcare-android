@@ -92,6 +92,8 @@ menu.print.detail=Print Case Detail
 menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 
+install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact technical support.
+
 sync.success.sent.none=No forms sent to server!
 sync.success.sent.singular=1 form sent to server!
 sync.success.sent=${0} forms sent to server!
