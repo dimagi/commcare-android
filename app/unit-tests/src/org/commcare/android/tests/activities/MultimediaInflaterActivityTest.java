@@ -57,7 +57,7 @@ public class MultimediaInflaterActivityTest {
                 Activity.RESULT_OK,
                 emptyFileSelectResult);
 
-        Assert.assertEquals(Localization.get("mult.install.state.invalid.path"),
+        Assert.assertEquals(Localization.get("file.invalid.path"),
                 ShadowToast.getTextOfLatestToast());
     }
 }
