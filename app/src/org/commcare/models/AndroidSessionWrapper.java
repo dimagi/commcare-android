@@ -7,6 +7,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.modern.session.SessionWrapperInterface;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionDescriptorUtil;
 import org.commcare.session.SessionFrame;
@@ -144,20 +145,14 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
      * @return
      */
     public static SessionStateDescriptor getFormStateForInterruptedUserSession() {
+        int idOfInterrupted = HiddenPreferences.getIdOfInterruptedSSD();
+        if (idOfInterrupted == -1) {
+            return null;
+        }
         SqlStorage<SessionStateDescriptor> sessionStorage =
                 CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
-
-        for (SessionStateDescriptor stateDescriptor : sessionStorage) {
-            if (stateDescriptor.wasInterruptedBySessionExpiration() &&
-                    ssdHasValidFormRecordId(stateDescriptor.getID(), sessionStorage)) {
-                // clear this so we don't try it again for the same form
-                stateDescriptor.setInterruptedBySessionExpiration(false);
-                sessionStorage.write(stateDescriptor);
-
-                return stateDescriptor;
-            }
-        }
-        return null;
+        SessionStateDescriptor interrupted = sessionStorage.read(idOfInterrupted);
+        return interrupted;
     }
 
     private static boolean ssdHasValidFormRecordId(int ssdId,
@@ -183,16 +178,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
             SqlStorage<SessionStateDescriptor> sessionStorage =
                     CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
             SessionStateDescriptor current = sessionStorage.read(sessionStateRecordId);
-            current.setInterruptedBySessionExpiration(true);
-            sessionStorage.write(current);
-        }
-    }
-
-    public static void clearInterruptedFlagForAllSessionStateDescriptors() {
-        SqlStorage<SessionStateDescriptor> sessionStorage =
-                CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
-        for (SessionStateDescriptor stateDescriptor : sessionStorage) {
-            stateDescriptor.setInterruptedBySessionExpiration(false);
+            HiddenPreferences.setInterruptedSSD(current.getID());
         }
     }
 

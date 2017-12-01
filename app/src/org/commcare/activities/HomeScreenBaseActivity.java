@@ -238,7 +238,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      */
     private void clearOneTimeLoginActionFlags() {
         HiddenPreferences.setPostUpdateSyncNeeded(false);
-        AndroidSessionWrapper.clearInterruptedFlagForAllSessionStateDescriptors();
+        HiddenPreferences.clearInterruptedSSD();
     }
 
     private boolean tryRestoringFormFromSessionExpiration() {

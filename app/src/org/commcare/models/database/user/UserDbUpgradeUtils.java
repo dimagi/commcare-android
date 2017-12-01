@@ -12,13 +12,11 @@ import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.database.user.models.SessionStateDescriptorV1;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
-import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.util.LogTypes;
@@ -83,9 +81,9 @@ public class UserDbUpgradeUtils {
                 FormRecordV1.class,
                 new ConcreteAndroidDbHelper(c, db));
 
-        SqlStorage<SessionStateDescriptorV1> ssdStorage = new SqlStorage<>(
+        SqlStorage<SessionStateDescriptor> ssdStorage = new SqlStorage<>(
                 SessionStateDescriptor.STORAGE_KEY,
-                SessionStateDescriptorV1.class,
+                SessionStateDescriptor.class,
                 new ConcreteAndroidDbHelper(c, db));
 
         formRecordStorage.removeAll();
@@ -201,27 +199,4 @@ public class UserDbUpgradeUtils {
         }
     }
 
-    protected static void addAppIdColumnToEntityCacheTable(SQLiteDatabase db) {
-        // Drop the existing table and recreate using current definition
-        db.execSQL("DROP TABLE IF EXISTS " + EntityStorageCache.TABLE_NAME);
-        db.execSQL(EntityStorageCache.getTableDefinition());
-    }
-
-    protected static void addInterruptedFieldToSessionStateDescriptors(Context c, SQLiteDatabase db) {
-        SqlStorage<SessionStateDescriptorV1> oldStorage = new SqlStorage<>(
-                SessionStateDescriptor.STORAGE_KEY,
-                SessionStateDescriptorV1.class,
-                new ConcreteAndroidDbHelper(c, db));
-
-        SqlStorage<SessionStateDescriptor> newStorage = new SqlStorage<>(
-                SessionStateDescriptor.STORAGE_KEY,
-                SessionStateDescriptor.class,
-                new ConcreteAndroidDbHelper(c, db));
-
-        for (SessionStateDescriptorV1 ssd : oldStorage) {
-            SessionStateDescriptor newDescriptor = SessionStateDescriptor.fromV1(ssd);
-            newDescriptor.setID(ssd.getID());
-            newStorage.write(newDescriptor);
-        }
-    }
 }

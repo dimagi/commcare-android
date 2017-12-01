@@ -28,6 +28,7 @@ public class HiddenPreferences {
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
     public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
+    public final static String ID_OF_INTERRUPTED_SSD = "interrupted-ssd-id";
 
     // Preferences that are only ever set by being sent down from HQ via the profile file
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
@@ -193,5 +194,20 @@ public class HiddenPreferences {
     public static void setPostUpdateSyncNeeded(boolean b) {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putBoolean(POST_UPDATE_SYNC_NEEDED, b).apply();
+    }
+
+    public static void setInterruptedSSD(int ssdId) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putInt(ID_OF_INTERRUPTED_SSD, ssdId).apply();
+    }
+
+    public static int getIdOfInterruptedSSD() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getInt(ID_OF_INTERRUPTED_SSD, -1);
+    }
+
+    public static void clearInterruptedSSD() {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putInt(ID_OF_INTERRUPTED_SSD, -1).apply();
     }
 }

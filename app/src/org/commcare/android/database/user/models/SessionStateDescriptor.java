@@ -31,9 +31,6 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
     @Persisting(2)
     private String sessionDescriptor = null;
 
-    @Persisting(3)
-    private boolean interruptedBySessionExpiration = false;
-
     @MetaField(value = META_DESCRIPTOR_HASH)
     public String getHash() {
         return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
@@ -70,28 +67,12 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
         return copy;
     }
 
-    public static SessionStateDescriptor fromV1(SessionStateDescriptorV1 v1Descriptor) {
-        SessionStateDescriptor newDescriptor = new SessionStateDescriptor();
-        newDescriptor.formRecordId = v1Descriptor.getFormRecordId();
-        newDescriptor.sessionDescriptor = v1Descriptor.getSessionDescriptor();
-        newDescriptor.interruptedBySessionExpiration = false;
-        return newDescriptor;
-    }
-
     public void fromBundle(String serializedDescriptor) {
         this.sessionDescriptor = serializedDescriptor;
     }
 
     public String getSessionDescriptor() {
         return this.sessionDescriptor;
-    }
-
-    public void setInterruptedBySessionExpiration(boolean b) {
-        this.interruptedBySessionExpiration = b;
-    }
-
-    public boolean wasInterruptedBySessionExpiration() {
-        return this.interruptedBySessionExpiration;
     }
 
 }

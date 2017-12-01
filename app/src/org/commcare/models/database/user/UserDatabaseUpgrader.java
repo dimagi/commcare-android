@@ -569,8 +569,9 @@ class UserDatabaseUpgrader {
     private boolean upgradeTwentyOneTwentyTwo(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            UserDbUpgradeUtils.addAppIdColumnToEntityCacheTable(db);
-            UserDbUpgradeUtils.addInterruptedFieldToSessionStateDescriptors(c, db);
+            // Drop the existing table and recreate using current definition
+            db.execSQL("DROP TABLE IF EXISTS " + EntityStorageCache.TABLE_NAME);
+            db.execSQL(EntityStorageCache.getTableDefinition());
             db.setTransactionSuccessful();
             return true;
         } finally {
