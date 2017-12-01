@@ -137,9 +137,7 @@ public class EntityStorageCache {
 
     public static void wipeCacheForCurrentAppWithoutCommit(SQLiteDatabase userDb) {
         userDb.delete(TABLE_NAME, COL_APP_ID + " = ?", new String[]{AppUtils.getCurrentAppId()});
-        String uuid = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
         setEntityCacheWipedPref();
-        userDb.setTransactionSuccessful();
     }
 
     public static void wipeCacheForCurrentApp() {
