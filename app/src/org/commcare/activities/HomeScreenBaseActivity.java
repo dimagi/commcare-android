@@ -133,7 +133,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private static final String WAS_EXTERNAL_KEY = "was_external";
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         loadInstanceState(savedInstanceState);
         CrashUtil.registerAppData();
@@ -361,7 +361,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     @Override
-    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_RESTART) {
             sessionNavigator.startNextSessionStep();
         } else {
@@ -1027,7 +1027,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     @Override
-    protected void onResumeSessionSafe() {
+    public void onResumeSessionSafe() {
         if (!sessionNavigationProceedingAfterOnResume) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 refreshActionBar();

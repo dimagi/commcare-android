@@ -1,23 +1,24 @@
 package org.commcare.activities;
 
+import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 
 import org.commcare.utils.SessionActivityRegistration;
 
 /**
- * Manage redirection to login screen when session expiration occurs.
+ * Reproduction of SessionAwareCommCareActivity, but for an activity that must extend ListActivity
  *
- * @author Phillip Mates (pmates@dimagi.com)
+ * @author Aliza Stone
  */
-public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R> implements SessionAwareInterface {
+public abstract class SessionAwareListActivity extends ListActivity implements SessionAwareInterface {
 
     private boolean redirectedInOnCreate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.redirectedInOnCreate = SessionAwareHelper.onCreateHelper(this, this, savedInstanceState);
+        redirectedInOnCreate = SessionAwareHelper.onCreateHelper(this, this, savedInstanceState);
     }
 
     @Override
@@ -35,17 +36,13 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        SessionAwareHelper.onActivityResultHelper(this, this, requestCode, resultCode, intent);
+    protected void onPause() {
+        super.onPause();
+        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
     }
 
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
-    }
 }

@@ -154,7 +154,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             new LocationNotificationHandler(this);
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
         createDataSetObserver();
@@ -357,7 +357,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    protected void onResumeSessionSafe() {
+    public void onResumeSessionSafe() {
         if (session.getCommand() == null) {
             Intent i = new Intent(this.getIntent());
             setResult(RESULT_CANCELED, i);
@@ -538,7 +538,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case BARCODE_FETCH:
                 processBarcodeFetch(resultCode, intent);

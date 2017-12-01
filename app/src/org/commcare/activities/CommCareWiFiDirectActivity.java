@@ -104,7 +104,7 @@ public class CommCareWiFiDirectActivity
     private FormRecord[] cachedRecords;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
         setContentView(R.layout.wifi_direct_main);
@@ -157,7 +157,7 @@ public class CommCareWiFiDirectActivity
      * register the broadcast receiver
      */
     @Override
-    protected void onResumeSessionSafe() {
+    public void onResumeSessionSafe() {
         Logger.log(TAG, "resuming wi-fi direct activity");
 
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment)getSupportFragmentManager()

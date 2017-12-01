@@ -34,7 +34,7 @@ public abstract class PromptUpdateActivity extends SessionAwareCommCareActivity 
     private TextView helpText;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         refreshUpdateToPromptObject();
         setupUI();
