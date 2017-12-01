@@ -83,9 +83,9 @@ public class UserDbUpgradeUtils {
                 FormRecordV1.class,
                 new ConcreteAndroidDbHelper(c, db));
 
-        SqlStorage<SessionStateDescriptor> ssdStorage = new SqlStorage<>(
+        SqlStorage<SessionStateDescriptorV1> ssdStorage = new SqlStorage<>(
                 SessionStateDescriptor.STORAGE_KEY,
-                SessionStateDescriptor.class,
+                SessionStateDescriptorV1.class,
                 new ConcreteAndroidDbHelper(c, db));
 
         formRecordStorage.removeAll();
