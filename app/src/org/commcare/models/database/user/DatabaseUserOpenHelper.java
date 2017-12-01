@@ -58,9 +58,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.19 - Rebuild case index table due to the possibility of previous 412 indexing issues
      * V.20 - Migrate index names on indexed fixtures so that multiple fixtures are able to have an index on the same column name
      * V.21 - Reindex all cases to add relationship, and add reasonForQuarantine field to FormRecords
+     * V.22 - Add column for appId in entity_cache table
      */
 
-    private static final int USER_DB_VERSION = 21;
+    private static final int USER_DB_VERSION = 22;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 

@@ -28,15 +28,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FormHierarchyActivity extends ListActivity {
+
     private Button jumpPreviousButton;
     private List<HierarchyElement> formList;
     private TextView mPath;
+
     public final static int RESULT_XPATH_ERROR = RESULT_FIRST_USER + 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.hierarchy_layout);
+        FormEntryActivity.mFormController.storeFormIndexToReturnTo();
 
         addActionBarBackArrow();
 
@@ -273,11 +276,8 @@ public class FormHierarchyActivity extends ListActivity {
 
     @Override
     public void onBackPressed() {
-        if (FormEntryActivity.mFormController.getFormIndex().isTerminal()) {
-            super.onBackPressed();
-        } else {
-            goUpLevel();
-        }
+        FormEntryActivity.mFormController.returnToStoredIndex();
+        super.onBackPressed();
     }
 
     @Override
@@ -289,4 +289,5 @@ public class FormHierarchyActivity extends ListActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }

@@ -159,8 +159,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     @SuppressLint("NewApi")
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
         instanceState = new FormEntryInstanceState();
 
         // must be at the beginning of any activity that can be called from an external intent
@@ -277,9 +277,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
+    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (requestCode == FormEntryConstants.FORM_PREFERENCES_KEY) {
             uiController.refreshCurrentView(false);
             return;
@@ -397,25 +395,23 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
         if (pendingIntentWidget != null) {
-            // get the original intent callout
-            IntentCallout ic = pendingIntentWidget.getIntentCallout();
-
             if (!wasIntentCancelled) {
-                isQuick = "quick".equals(ic.getAppearance());
-                TreeReference context = null;
+                isQuick = "quick".equals(pendingIntentWidget.getAppearance());
+                TreeReference contextRef = null;
                 if (mFormController.getPendingCalloutFormIndex() != null) {
-                    context = mFormController.getPendingCalloutFormIndex().getReference();
+                    contextRef = mFormController.getPendingCalloutFormIndex().getReference();
                 }
                 if (pendingIntentWidget instanceof BarcodeWidget) {
                     String scanResult = response.getStringExtra("SCAN_RESULT");
                     if (scanResult != null) {
-                        ic.processBarcodeResponse(context, scanResult);
+                        ((BarcodeWidget)pendingIntentWidget).processBarcodeResponse(contextRef, scanResult);
                         wasAnswerSet = true;
                     }
                 } else {
                     // Set our instance destination for binary data if needed
                     String destination = FormEntryInstanceState.getInstanceFolder();
-                    wasAnswerSet = ic.processResponse(response, context, new File(destination));
+                    wasAnswerSet = pendingIntentWidget.getIntentCallout()
+                            .processResponse(response, contextRef, new File(destination));
                 }
             }
 
@@ -632,7 +628,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return mSaveToDiskTask;
 
         // mFormEntryController is static so we don't need to pass it.
-        if (mFormController != null && currentPromptIsQuestion()) {
+        if (mFormController != null && currentPromptIsQuestion() && uiController.questionsView != null) {
             saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         }
         return null;

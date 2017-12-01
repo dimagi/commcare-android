@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 /**
  * @author ctsims
  */
@@ -36,11 +38,12 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     private File folder;
     private final boolean processAttachments = true;
     private CommcareRequestEndpoints generator;
+    @Nullable
     private final EntityStorageCache mEntityCache;
     private final AndroidCaseIndexTable mCaseIndexTable;
 
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage,
-                                EntityStorageCache entityCache, AndroidCaseIndexTable indexTable) {
+                                @Nullable EntityStorageCache entityCache, AndroidCaseIndexTable indexTable) {
         super(parser, storage);
         mEntityCache = entityCache;
         mCaseIndexTable = indexTable;
@@ -93,7 +96,9 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         db.beginTransaction();
         try {
             super.commit(parsed);
-            mEntityCache.invalidateCache(String.valueOf(parsed.getID()));
+            if (mEntityCache != null) {
+                mEntityCache.invalidateCache(String.valueOf(parsed.getID()));
+            }
             mCaseIndexTable.clearCaseIndices(parsed);
             mCaseIndexTable.indexCase(parsed);
             db.setTransactionSuccessful();

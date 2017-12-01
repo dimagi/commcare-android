@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Callout;
@@ -68,9 +70,9 @@ public class EntitySelectCalloutSetup {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent("com.google.zxing.client.android.SCAN");
+                Intent intent = new IntentIntegrator(activity).createScanIntent();
                 try {
-                    activity.startActivityForResult(i, EntitySelectActivity.BARCODE_FETCH);
+                    activity.startActivityForResult(intent, EntitySelectActivity.BARCODE_FETCH);
                 } catch (ActivityNotFoundException anfe) {
                     Toast.makeText(activity,
                             Localization.get("barcode.reader.missing"),

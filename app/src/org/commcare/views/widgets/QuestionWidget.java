@@ -423,7 +423,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             // Create the layout for audio, image, text
             String imageURI = mPrompt.getImageText();
             String audioURI = mPrompt.getAudioText();
-            String expandedAudioURI = mPrompt.getSpecialFormQuestionText("expanded-audio");
             String videoURI = mPrompt.getSpecialFormQuestionText("video");
             String inlineVideoUri = mPrompt.getSpecialFormQuestionText("video-inline");
             String qrCodeContent = mPrompt.getSpecialFormQuestionText("qrcode");

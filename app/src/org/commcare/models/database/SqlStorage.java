@@ -14,15 +14,12 @@ import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.util.Pair;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
-import org.javarosa.core.model.condition.Abandonable;
-import org.javarosa.core.model.condition.LifecycleSignaler;
 import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -654,12 +651,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     @Override
-    public void bulkRead(LinkedHashSet cuedCases, HashMap recordMap) {
-        this.bulkRead(cuedCases, recordMap, null);
-    }
-
-    @Override
-    public void bulkRead(LinkedHashSet cuedCases, HashMap recordMap, Abandonable abandonable) throws RequestAbandonedException {
+    public void bulkRead(LinkedHashSet cuedCases, HashMap recordMap) throws RequestAbandonedException {
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(cuedCases);
         for (Pair<String, String[]> querySet : whereParamList) {
             Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + " IN " + querySet.first, querySet.second, null, null, null);
@@ -670,7 +662,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                     c.moveToFirst();
                     int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
                     while (!c.isAfterLast()) {
-                        LifecycleSignaler.AssertNotAbandoned(abandonable);
+                        if(Thread.interrupted()) {
+                            throw new RequestAbandonedException();
+                        }
                         byte[] data = c.getBlob(index);
                         recordMap.put(c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)),
                                 newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
