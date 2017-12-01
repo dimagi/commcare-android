@@ -135,22 +135,28 @@ public class EntityStorageCache {
         }
     }
 
+    public static void wipeCacheForCurrentAppWithoutCommit(SQLiteDatabase userDb) {
+        userDb.delete(TABLE_NAME, COL_APP_ID + " = ?", new String[]{AppUtils.getCurrentAppId()});
+        setEntityCacheWipedPref();
+    }
+
     public static void wipeCacheForCurrentApp() {
         SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
         userDb.beginTransaction();
         try {
             userDb.delete(TABLE_NAME, COL_APP_ID + " = ?", new String[]{AppUtils.getCurrentAppId()});
-            String uuid = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
-            setEntityCacheWipedPref(uuid, CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber());
+            setEntityCacheWipedPref();
             userDb.setTransactionSuccessful();
         } finally {
             userDb.endTransaction();
         }
     }
 
-    public static void setEntityCacheWipedPref(String username, int version) {
+    public static void setEntityCacheWipedPref() {
+        String uuid = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
+        int versionNumber = CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber();
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putInt(username + "_" + ENTITY_CACHE_WIPED_PREF_SUFFIX, version).apply();
+                .putInt(uuid + "_" + ENTITY_CACHE_WIPED_PREF_SUFFIX, versionNumber).apply();
     }
 
     public static int getEntityCacheWipedPref(String uuid) {
