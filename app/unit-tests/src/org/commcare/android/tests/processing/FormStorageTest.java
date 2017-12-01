@@ -304,7 +304,6 @@ public class FormStorageTest {
             , "org.javarosa.core.model.actions.SendAction"
 
             // Added in 2.41
-            , "org.commcare.android.database.user.models.SessionStateDescriptorV1"
             , "org.javarosa.xpath.expr.XPathDistinctValuesFunc"
             , "org.javarosa.xpath.expr.XPathSleepFunc"
 

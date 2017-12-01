@@ -197,17 +197,20 @@ public class HiddenPreferences {
     }
 
     public static void setInterruptedSSD(int ssdId) {
+        String currentUserId = CommCareApplication.instance().getCurrentUserId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putInt(ID_OF_INTERRUPTED_SSD, ssdId).apply();
+                .putInt(ID_OF_INTERRUPTED_SSD + currentUserId, ssdId).apply();
     }
 
     public static int getIdOfInterruptedSSD() {
+        String currentUserId = CommCareApplication.instance().getCurrentUserId();
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getInt(ID_OF_INTERRUPTED_SSD, -1);
+                .getInt(ID_OF_INTERRUPTED_SSD + currentUserId, -1);
     }
 
     public static void clearInterruptedSSD() {
+        String currentUserId = CommCareApplication.instance().getCurrentUserId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putInt(ID_OF_INTERRUPTED_SSD, -1).apply();
+                .putInt(ID_OF_INTERRUPTED_SSD + currentUserId, -1).apply();
     }
 }
