@@ -43,7 +43,7 @@ public class JavaHttpReference implements Reference {
         if (response.isSuccessful()) {
             return response.body().byteStream();
         } else {
-            throw new RuntimeException(Localization.get("install.fail.error", Integer.toString(response.code())));
+            throw new IOException(Localization.get("install.fail.error", Integer.toString(response.code())));
         }
     }
 
