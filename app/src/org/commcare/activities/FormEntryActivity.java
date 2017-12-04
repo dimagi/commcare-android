@@ -36,7 +36,6 @@ import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.activities.components.FormFileSystemHelpers;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.ImageCaptureProcessing;
-import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
@@ -159,7 +158,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     @SuppressLint("NewApi")
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         instanceState = new FormEntryInstanceState();
 
@@ -178,9 +177,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // needed to override rms property manager
         PropertyManager.setPropertyManager(new AndroidPropertyManager(getApplicationContext()));
 
-        if (savedInstanceState == null) {
-            FirebaseAnalyticsUtil.reportFormEntry(Localization.getCurrentLocale());
-        } else {
+        if (savedInstanceState != null) {
             loadStateFromBundle(savedInstanceState);
         }
 
@@ -193,6 +190,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             mSaveToDiskTask.setFormSavedListener(this);
         } else if (hasFormLoadBeenTriggered && !hasFormLoadFailed) {
             // Screen orientation change
+            if (mFormController == null) {
+                throw new SessionUnavailableException(
+                        "Resuming form entry after process was killed. Form state is unrecoverable.");
+            }
             uiController.refreshView();
         }
     }
@@ -217,8 +218,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void formSaveCallback() {
         // note that we have started saving the form
         savingFormOnKeySessionExpiration = true;
-        // start saving form, which will call the key session logout completion
-        // function when it finishes.
+
+        // Set flag that will allow us to restore this form when we log back in
+        CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted();
+
+        // Start saving form; will trigger expireUserSession() on completion
         saveIncompleteFormToDisk();
     }
 
@@ -277,7 +281,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    protected void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (requestCode == FormEntryConstants.FORM_PREFERENCES_KEY) {
             uiController.refreshCurrentView(false);
             return;
@@ -437,8 +441,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // Do not show options menu at all if this is a consumer app
             return super.onPrepareOptionsMenu(menu);
         }
-
-        FirebaseAnalyticsUtil.reportOptionsMenuEntry(this.getClass());
 
         menu.removeItem(FormEntryConstants.MENU_LANGUAGES);
         menu.removeItem(FormEntryConstants.MENU_HIERARCHY_VIEW);
@@ -846,7 +848,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    protected void onResumeSessionSafe() {
+    public void onResumeSessionSafe() {
         if (!hasFormLoadBeenTriggered) {
             loadForm();
         }

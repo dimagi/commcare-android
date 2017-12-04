@@ -134,7 +134,6 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(AnalyticsParamValue.START_BUTTON);
                 activity.enterRootModule();
             }
         };
@@ -185,7 +184,6 @@ public class HomeButtons {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reportButtonClick(AnalyticsParamValue.LOGOUT_BUTTON);
                 activity.userTriggeredLogout();
             }
         };

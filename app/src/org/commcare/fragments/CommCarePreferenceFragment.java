@@ -38,7 +38,6 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        FirebaseAnalyticsUtil.reportPreferenceActivityEntry(this.getClass());
         setTitle();
         initPrefsFile();
         loadPrefs();

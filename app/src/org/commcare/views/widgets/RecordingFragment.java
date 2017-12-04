@@ -128,14 +128,12 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportRecordingStarted();
                 startRecording();
             }
         });
         saveRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportAudioFileSaved();
                 saveRecording();
             }
         });
@@ -164,7 +162,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         saveRecording.setVisibility(View.INVISIBLE);
         recordAgain.setVisibility(View.INVISIBLE);
         recordingDuration.setVisibility(View.INVISIBLE);
-        FirebaseAnalyticsUtil.reportRecordingRecycled();
     }
 
     private void startRecording() {
@@ -177,7 +174,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportRecordingStopped();
                 stopRecording();
             }
         });
@@ -218,7 +214,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
             @Override
             public void onClick(View v) {
                 playAudio();
-                FirebaseAnalyticsUtil.reportAudioPlayed();
             }
         });
         saveRecording.setEnabled(true);
@@ -296,7 +291,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportAudioPaused();
                 pauseAudioPlayer();
             }
         });
@@ -310,7 +304,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportAudioPlayed();
                 resumeAudioPlayer();
             }
         });
@@ -324,7 +317,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportAudioPaused();
                 pauseAudioPlayer();
             }
         });
@@ -337,7 +329,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportAudioPlayed();
                 playAudio();
             }
         });

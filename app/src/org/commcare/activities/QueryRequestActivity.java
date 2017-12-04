@@ -72,7 +72,7 @@ public class QueryRequestActivity
     private final Hashtable<String, EditText> promptsBoxes = new Hashtable<>();
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         AndroidSessionWrapper sessionWrapper = CommCareApplication.instance().getCurrentSessionWrapper();
         remoteQuerySessionManager =

@@ -115,6 +115,10 @@ public class CommCareSessionService extends Service {
     private boolean cczUpdatePromptWasShown;
     private boolean apkUpdatePromptWasShown;
 
+    // Have the app health checks in HomeScreenBaseActivity#checkForPendingAppHealthActions() been
+    // done at least once during this session?
+    private boolean appHealthChecksCompleted;
+
     /**
      * Class for clients to access.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with
@@ -630,5 +634,13 @@ public class CommCareSessionService extends Service {
 
     public boolean apkUpdatePromptWasShown() {
         return this.apkUpdatePromptWasShown;
+    }
+
+    public void setAppHealthChecksCompleted() {
+        this.appHealthChecksCompleted = true;
+    }
+
+    public boolean appHealthChecksCompleted() {
+        return this.appHealthChecksCompleted;
     }
 }

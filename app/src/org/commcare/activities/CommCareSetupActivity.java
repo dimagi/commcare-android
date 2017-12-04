@@ -408,9 +408,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return;
         }
 
-        if (lastInstallMode == INSTALL_MODE_FROM_LIST) {
-            FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_INSTALL_FROM_LIST);
-        }
         setReadyToInstall(result);
     }
 
@@ -934,6 +931,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 return AnalyticsParamValue.SMS_INSTALL;
             case INSTALL_MODE_URL:
                 return AnalyticsParamValue.URL_INSTALL;
+            case INSTALL_MODE_FROM_LIST:
+                return AnalyticsParamValue.FROM_LIST_INSTALL;
+            case INSTALL_MODE_MANAGED_CONFIGURATION:
+                return AnalyticsParamValue.MANAGED_CONFIG_INSTALL;
             default:
                 return "";
         }

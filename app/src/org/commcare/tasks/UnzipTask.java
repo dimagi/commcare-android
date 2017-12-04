@@ -40,6 +40,8 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
             return -1;
         }
         ZipInputStream zis = new ZipInputStream(inputStream);
+
+        Logger.log(TAG, "Unzipping archive '" + params[0] + "' to  '" + params[1] + "'");
         return unZipFromStream(zis, params[1]);
     }
 
@@ -59,6 +61,8 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
             while ((entry = zis.getNextEntry()) != null) {
                 publishProgress(Localization.get("mult.install.progress", new String[]{String.valueOf(count)}));
                 count++;
+
+                Logger.log(TAG, "Unzipped entry " + entry.getName());
 
                 if (entry.isDirectory()) {
                     FileUtil.createFolder(new File(destination, entry.getName()).toString());

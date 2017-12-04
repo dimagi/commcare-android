@@ -47,7 +47,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
         if (savedInstanceState == null) {

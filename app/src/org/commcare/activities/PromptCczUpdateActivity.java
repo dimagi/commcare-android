@@ -16,7 +16,7 @@ import org.javarosa.core.services.locale.Localization;
 public class PromptCczUpdateActivity extends PromptUpdateActivity {
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         CommCareApplication.instance().getSession().setCczUpdatePromptWasShown();
     }
