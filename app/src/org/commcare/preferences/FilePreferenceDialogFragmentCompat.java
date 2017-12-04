@@ -52,11 +52,15 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
         if (requestCode == REQUEST_FILE) {
             if (resultCode == RESULT_OK && intent != null) {
                 Uri uri = intent.getData();
-                String filePath;
+                String filePath = null;
                 try {
                     filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uri);
                 } catch (UriToFilePath.NoDataColumnForUriException e) {
-                    filePath = getNewPathFromUri(uri);
+                    try {
+                        filePath = getNewPathFromUri(uri);
+                    } catch (IOException ioe) {
+                        Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
+                    }
                 }
                 validateFile(filePath);
             } else {
@@ -66,23 +70,16 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
         }
     }
 
-    private String getNewPathFromUri(Uri uri) {
+    private String getNewPathFromUri(Uri uri) throws IOException {
         // We can't get access to filePath but only the uri and
         // since we are going to use this path later on in some other
         // activity stack which will not have permissions for this uri
         // we need to copy the file internally and pass the filepath of the new file
         String filePath = getContext().getFilesDir().getAbsolutePath() + "/temp/" + FileUtil.getFileName(uri.toString());
         File file = new File(filePath);
-        try {
-            InputStream fileStream = getContext().getContentResolver().openInputStream(uri);
-            FileUtil.ensureFilePathExists(file);
-            FileUtil.copyFile(fileStream, file);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "Getting new file path from uri failed due to " + e1.getMessage());
-            Toast.makeText(getActivity(), Localization.get("file.selection.failed"), Toast.LENGTH_LONG).show();
-            return null;
-        }
+        InputStream fileStream = getContext().getContentResolver().openInputStream(uri);
+        FileUtil.ensureFilePathExists(file);
+        FileUtil.copyFile(fileStream, file);
         return filePath;
     }
 

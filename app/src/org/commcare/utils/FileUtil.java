@@ -450,10 +450,7 @@ public class FileUtil {
     }
 
     public static String getFileName(String filePath) {
-        if (filePath.contains("/")) {
-            return last(filePath.split("/"));
-        }
-        return "";
+        return last(filePath.split("/"));
     }
 
     /**

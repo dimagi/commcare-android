@@ -16,6 +16,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
@@ -23,6 +24,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -114,7 +116,7 @@ public abstract class MediaWidget extends QuestionWidget {
     /**
      * @return resolved filepath or null if the target is too big to upload
      */
-    protected String getBinaryPathWithSizeCheck(Object binaryURI) {
+    private String getBinaryPathWithSizeCheck(Object binaryURI) throws IOException {
         String binaryPath = createFilePath(binaryURI);
         File source = new File(binaryPath);
         boolean isTooLargeToUpload = checkFileSize(source);
@@ -183,9 +185,18 @@ public abstract class MediaWidget extends QuestionWidget {
 
     @Override
     public void setBinaryData(Object binaryuri) {
-        String binaryPath = getBinaryPathWithSizeCheck(binaryuri);
+        String binaryPath;
+        try {
+            binaryPath = getBinaryPathWithSizeCheck(binaryuri);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("form.attachment.copy.fail");
+            Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
+            return;
+        }
+
         if (binaryPath == null) {
-            // if we have already copied the file to destMediaPath, delete it
+            // if file is too large and we have already copied the file to destMediaPath, delete it
             if (!destMediaPath.isEmpty()) {
                 new File(destMediaPath).delete();
             }
@@ -208,7 +219,7 @@ public abstract class MediaWidget extends QuestionWidget {
                 FileUtil.copyFile(source, newMedia);
             } catch (IOException e) {
                 showToast("form.attachment.copy.fail");
-                Log.e(TAG, "IOExeception while copying media");
+                Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
                 e.printStackTrace();
             }
         }
@@ -238,7 +249,7 @@ public abstract class MediaWidget extends QuestionWidget {
      * If file is auto-selected after recording_fragment, then the recordingfragment will provide a string file path
      * Set value of customFileTag if the file is a recent recording from the RecordingFragment
      */
-    protected String createFilePath(Object binaryuri) {
+    private String createFilePath(Object binaryuri) throws IOException {
         String path = "";
         destMediaPath = "";
         if (binaryuri instanceof Uri) {
@@ -247,25 +258,10 @@ public abstract class MediaWidget extends QuestionWidget {
                         (Uri)binaryuri);
             } catch (UriToFilePath.NoDataColumnForUriException e) {
                 // Need to make a copy of file using uri, so might as well copy to final destination path directly
-                InputStream inputStream;
-                try {
-                    inputStream = getContext().getContentResolver().openInputStream((Uri)binaryuri);
-                } catch (FileNotFoundException e1) {
-                    showToast("form.attachment.notfound");
-                    e1.printStackTrace();
-                    return "";
-                }
-
+                InputStream inputStream = getContext().getContentResolver().openInputStream((Uri)binaryuri);
                 recordedFileName = FileUtil.getFileName(((Uri)binaryuri).getPath());
                 destMediaPath = mInstanceFolder + System.currentTimeMillis() + FileUtil.getExtension(((Uri)binaryuri).getPath());
-
-                try {
-                    FileUtil.copyFile(inputStream, new File(destMediaPath));
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                    showToast("form.attachment.copy.fail");
-                    return "";
-                }
+                FileUtil.copyFile(inputStream, new File(destMediaPath));
                 path = destMediaPath;
             }
             customFileTag = "";

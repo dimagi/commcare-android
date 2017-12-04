@@ -153,22 +153,13 @@ public class ImageCaptureProcessing {
 
         File finalFile = new File(finalFilePath);
         try {
-            moveFile(inputStream, finalFile, activity, imageUri);
+            FileUtil.copyFile(inputStream, finalFile);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
             return;
         }
         processImageGivenFilePath(activity, instanceFolder, finalFilePath);
-    }
-
-    private static void moveFile(InputStream inputStream, File finalFile, FormEntryActivity formEntryActivity, Uri imageUri) throws IOException {
-        FileUtil.copyFile(inputStream, finalFile);
-        try {
-            formEntryActivity.getContentResolver().delete(imageUri, null, null);
-        } catch (SecurityException e) {
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "Unable to delete file represented by " + imageUri + " because of " + e.getMessage());
-        }
     }
 
     private static void processImageGivenFilePath(FormEntryActivity activity, String instanceFolder, String imagePath) {

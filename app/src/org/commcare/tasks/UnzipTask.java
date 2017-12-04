@@ -32,37 +32,23 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
 
     @Override
     protected Integer doTaskBackground(String... params) {
-        if (params[0].startsWith("content://")) {
-            return unZipFromContentUri(params[0], params[1]);
+        InputStream inputStream;
+        try {
+            inputStream = getInputStreamForFile(params[0]);
+        } catch (FileNotFoundException e) {
+            publishProgress(getInvalidZipFileErrorMessage());
+            return -1;
+        }
+        ZipInputStream zis = new ZipInputStream(inputStream);
+        return unZipFromStream(zis, params[1]);
+    }
+
+    private InputStream getInputStreamForFile(String filePathOrUri) throws FileNotFoundException {
+        if (filePathOrUri.startsWith("content://")) {
+            return CommCareApplication.instance().getContentResolver().openInputStream(Uri.parse(filePathOrUri));
         } else {
-            return unZipFromFilePath(params[0], params[1]);
+            return new FileInputStream(new File(filePathOrUri));
         }
-    }
-
-    private Integer unZipFromFilePath(String filePath, String destinationPath) {
-        File archive = new File(filePath);
-        ZipInputStream zis;
-        try {
-            zis = new ZipInputStream(new FileInputStream(archive));
-        } catch (FileNotFoundException e) {
-            publishProgress(getInvalidZipFileErrorMessage());
-            return -1;
-        }
-        return unZipFromStream(zis, destinationPath);
-    }
-
-    private Integer unZipFromContentUri(String uriString, String destinationPath) {
-        // we have a contenturi, use it to get the InputStream
-        Uri fileUri = Uri.parse(uriString);
-        ZipInputStream zis;
-        try {
-            InputStream is = CommCareApplication.instance().getContentResolver().openInputStream(fileUri);
-            zis = new ZipInputStream(is);
-        } catch (FileNotFoundException e) {
-            publishProgress(getInvalidZipFileErrorMessage());
-            return -1;
-        }
-        return unZipFromStream(zis, destinationPath);
     }
 
     private Integer unZipFromStream(ZipInputStream zis, String destinationPath) {
