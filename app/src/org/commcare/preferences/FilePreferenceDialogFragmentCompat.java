@@ -60,6 +60,8 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
                         filePath = getNewPathFromUri(uri);
                     } catch (IOException ioe) {
                         Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
+                        Toast.makeText(getActivity(), Localization.get("file.selection.failed"), Toast.LENGTH_LONG).show();
+                        return;
                     }
                 }
                 validateFile(filePath);
