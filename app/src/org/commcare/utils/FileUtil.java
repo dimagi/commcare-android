@@ -62,7 +62,7 @@ public class FileUtil {
         if (!f.exists()) {
             return true;
         }
-        if (f.isDirectory()) {
+        if (f.isDirectory() && f.listFiles().length > 0) {
             for (File child : f.listFiles()) {
                 if (!deleteFileOrDir(child)) {
                     return false;
