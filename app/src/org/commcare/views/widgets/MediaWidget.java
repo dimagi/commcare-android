@@ -13,11 +13,13 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.model.data.IAnswerData;
@@ -25,6 +27,7 @@ import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -210,7 +213,19 @@ public abstract class MediaWidget extends QuestionWidget {
             newMedia = new File(destMediaPath);
         } else {
             recordedFileName = FileUtil.getFileName(binaryPath);
-            destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + FileUtil.getExtension(binaryPath);
+            String extension = FileUtil.getExtension(binaryPath);
+            if (!FormUploadUtil.isSupportedMultimediaFile(extension)) {
+                Toast.makeText(getContext(),
+                        Localization.get("form.attachment.invalid"),
+                        Toast.LENGTH_LONG).show();
+                Log.e(TAG, String.format(
+                        "Could not save file with URI %s because of bad extension %s.",
+                        binaryPath,
+                        extension
+                ));
+                return;
+            }
+            destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + "." + FileUtil.getExtension(binaryPath);
 
             // Copy to destMediaPath
             File source = new File(binaryPath);
