@@ -167,7 +167,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             activity.hideTaskCancelButton();
         } else if (progressCode == DataPullTask.PROGRESS_PROCESSING) {
             activity.updateProgress(
-                    Localization.get("sync.progress", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}),
+                    getSyncProgressMessage(update),
                     Localization.get("sync.processing.title"),
                     DataPullTask.DATA_PULL_TASK_ID);
             activity.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
@@ -177,11 +177,19 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             activity.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
         } else if (progressCode == DataPullTask.PROGRESS_SERVER_PROCESSING) {
             activity.updateProgress(
-                    Localization.get("sync.progress", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}),
+                    getSyncProgressMessage(update),
                     Localization.get("sync.waiting.title"),
                     DataPullTask.DATA_PULL_TASK_ID);
             activity.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
         }
+    }
+
+    private static String getSyncProgressMessage(Integer[] update) {
+        Integer numerator = update[1];
+        Integer denominator = update[2];
+        // If denominator is less than the numerator, use numerator instead to avoid confusion
+        denominator = Math.max(numerator, denominator);
+        return Localization.get("sync.progress", new String[]{String.valueOf(numerator), String.valueOf(denominator)});
     }
 
     @Override
