@@ -210,7 +210,7 @@ public abstract class MediaWidget extends QuestionWidget {
             newMedia = new File(destMediaPath);
         } else {
             recordedFileName = FileUtil.getFileName(binaryPath);
-            destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + FileUtil.getExtension(binaryPath);
+            destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + "." + FileUtil.getExtension(binaryPath);
 
             // Copy to destMediaPath
             File source = new File(binaryPath);
