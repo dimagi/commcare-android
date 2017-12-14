@@ -214,7 +214,7 @@ public abstract class MediaWidget extends QuestionWidget {
         } else {
             recordedFileName = FileUtil.getFileName(binaryPath);
             String extension = FileUtil.getExtension(binaryPath);
-            if (!FormUploadUtil.isSupportedMultimediaFile(extension)) {
+            if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
                 Toast.makeText(getContext(),
                         Localization.get("form.attachment.invalid"),
                         Toast.LENGTH_LONG).show();
@@ -225,7 +225,7 @@ public abstract class MediaWidget extends QuestionWidget {
                 ));
                 return;
             }
-            destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + "." + FileUtil.getExtension(binaryPath);
+            destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + "." + extension;
 
             // Copy to destMediaPath
             File source = new File(binaryPath);
