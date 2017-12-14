@@ -225,7 +225,7 @@ public abstract class MediaWidget extends QuestionWidget {
                 ));
                 return;
             }
-            destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + "." + FileUtil.getExtension(binaryPath);
+            destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + "." + extension;
 
             // Copy to destMediaPath
             File source = new File(binaryPath);
