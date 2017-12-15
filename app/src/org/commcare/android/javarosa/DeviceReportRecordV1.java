@@ -6,7 +6,7 @@ import org.commcare.models.framework.Persisting;
  * Represents the format of DeviceReportRecord that existed on all devices on user DB versions 22
  * and below (CommCare versions 2.41 and below)
  *
- * @author ctsims
+ * @author Aliza Stone
  */
 
 public class DeviceReportRecordV1 extends DeviceReportRecord {
