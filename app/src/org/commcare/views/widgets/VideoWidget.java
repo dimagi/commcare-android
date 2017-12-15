@@ -13,6 +13,7 @@ import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 /**
@@ -51,6 +52,10 @@ public class VideoWidget extends MediaWidget {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
                                     R.string.activity_not_found, "capture video"),
+                            Toast.LENGTH_SHORT).show();
+                } catch (SecurityException e) {
+                    Toast.makeText(getContext(),
+                            Localization.get("camera.permissions.denied"),
                             Toast.LENGTH_SHORT).show();
                 }
             }

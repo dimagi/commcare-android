@@ -35,6 +35,7 @@ import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.UploadQuestionExtension;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -114,6 +115,10 @@ public class ImageWidget extends QuestionWidget {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
                                     R.string.activity_not_found, "image capture"),
+                            Toast.LENGTH_SHORT).show();
+                } catch (SecurityException e) {
+                    Toast.makeText(getContext(),
+                            Localization.get("camera.permissions.denied"),
                             Toast.LENGTH_SHORT).show();
                 }
             }
