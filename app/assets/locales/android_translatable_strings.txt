@@ -238,6 +238,7 @@ key.manage.migrate=The server has provided new encryption keys. Migrating your d
 
 key.manage.purge=Purging expired data from your local device
 
+file.invalid.path=The file path selected is not a valid file. Please select a valid file.
 
 mult.install.title=Unzipping your Multimedia Resources
 mult.install.progress=Unzipped ${0} files...
@@ -257,6 +258,7 @@ mult.install.button=Install Multimedia
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}
 mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
 
+zip.install.bad=Could not find target file for unzipping.
 
 bulk.form.prompt=From here you can dump forms to and submit forms from your external SD card. You have ${0} unsynced forms on your phone and ${1} unsynced forms on your SD card
 bulk.form.submit=Submit Forms
@@ -388,6 +390,8 @@ no.file.browser.title=No File Browser Available
 no.file.browser=Your device does not have a file browser installed. Please download one from the playstore and then try again.
 template.error=Your template is not correctly formatted
 
+file.selection.failed=Unable to resolve the chosen file. If the issue persists, you may need to delete the file you are targeting and then re-add it to the file system.
+file.copy.failed=A problem occurred while copying file
 file.not.exist=File does not exist
 file.not.selected=No file selected
 file.wrong.type=Wrong file type. Please select file of type ${0}
@@ -713,6 +717,9 @@ wifi.direct.status.submit.message=This mode will allow you to submit forms to th
 form.transfer.no.forms=No forms to send.
 
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
+form.attachment.notfound=Unable to find the choosen file. Please try again.
+form.attachment.copy.fail=Unable to copy the choosen file.
+form.attachment.success=Successfully added file.
 
 form.hierarchy=Form Hierarchy
 
