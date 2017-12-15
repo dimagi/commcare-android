@@ -9,9 +9,11 @@ import org.commcare.modern.models.EncryptedModel;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.PropertyUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Date;
 
@@ -35,6 +37,8 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
     private String fileName;
     @Persisting(2)
     private byte[] aesKey;
+    @Persisting(3)
+    private String uuid;
 
     public DeviceReportRecord() {
         // for externalization
@@ -52,6 +56,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
                         + FileUtil.SanitizeFileName(File.separator
                         + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".xml").getAbsolutePath();
         slr.aesKey = CommCareApplication.instance().createNewSymmetricKey().getEncoded();
+        slr.uuid = PropertyUtils.genUUID();
         return slr;
     }
 
@@ -70,12 +75,17 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
         return aesKey;
     }
 
+    public String getUuid() {
+        return uuid;
+    }
+
     public String getFilePath() {
         return fileName;
     }
 
     public final OutputStream openOutputStream() throws FileNotFoundException {
-        return EncryptionIO.createFileOutputStream(getFilePath(),
-                new SecretKeySpec(getKey(), "AES"));
+        return new FileOutputStream(getFilePath());
+        //return EncryptionIO.createFileOutputStream(getFilePath(),
+          //      new SecretKeySpec(getKey(), "AES"));
     }
 }

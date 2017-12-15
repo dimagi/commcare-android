@@ -8,6 +8,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
+import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.android.javarosa.DeviceReportRecordV1;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
@@ -172,6 +174,10 @@ class UserDatabaseUpgrader {
         if (oldVersion == 21) {
             if (upgradeTwentyOneTwentyTwo(db)) {
                 oldVersion = 22;
+            }
+        } if (oldVersion == 22) {
+            if (upgradeTwentyTwoTwentyThree(db)) {
+                oldVersion = 23;
             }
         }
     }
@@ -573,6 +579,20 @@ class UserDatabaseUpgrader {
         try {
             db.execSQL("DROP TABLE IF EXISTS " + EntityStorageCache.TABLE_NAME);
             db.execSQL(EntityStorageCache.getTableDefinition());
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeTwentyTwoTwentyThree(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage<DeviceReportRecord> existingStorage =
+                    new SqlStorage<>(DeviceReportRecord.STORAGE_KEY, DeviceReportRecordV1.class,
+                            new ConcreteAndroidDbHelper(c, db));
+            updateModels(existingStorage);
             db.setTransactionSuccessful();
             return true;
         } finally {
