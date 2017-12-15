@@ -84,8 +84,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
     }
 
     public final OutputStream openOutputStream() throws FileNotFoundException {
-        return new FileOutputStream(getFilePath());
-        //return EncryptionIO.createFileOutputStream(getFilePath(),
-          //      new SecretKeySpec(getKey(), "AES"));
+        return EncryptionIO.createFileOutputStream(getFilePath(),
+                new SecretKeySpec(getKey(), "AES"));
     }
 }
