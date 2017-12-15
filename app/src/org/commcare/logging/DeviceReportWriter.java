@@ -70,16 +70,17 @@ public class DeviceReportWriter {
                     } catch (Exception e) {
                     }
                 }
+
+                if (this.uuid != null) {
+                    // If this write() was triggered by ForceCloseLogger.sendToServerOrStore(),
+                    // we have no uuid because we're sending a single log entry that just happened and
+                    // hasn't been written to the db
+                    writeMetaBlock();
+                }
             } finally {
                 serializer.endTag(XMLNS, "device_report");
             }
 
-            if (this.uuid != null) {
-                // If this write() was triggered by ForceCloseLogger.sendToServerOrStore(),
-                // we have no uuid because we're sending a single log entry that just happened and
-                // hasn't been written to the db
-                writeMetaBlock();
-            }
             serializer.endDocument();
         } finally {
             try {
