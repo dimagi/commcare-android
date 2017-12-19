@@ -818,9 +818,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void showDemoModeWarning() {
-        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this,
-                Localization.get("demo.mode.warning.title"), Localization.get("demo.mode.warning"),
-                android.R.drawable.ic_dialog_info, null));
+        StandardAlertDialog d = StandardAlertDialog.getBasicAlertDialogWithIcon(this,
+                Localization.get("demo.mode.warning.title"), Localization.get("demo.mode.warning.part1"),
+                android.R.drawable.ic_dialog_info, null);
+        d.addEmphasizedMessage(Localization.get("demo.mode.warning.part2"));
+        showAlertDialog(d);
     }
 
     private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
