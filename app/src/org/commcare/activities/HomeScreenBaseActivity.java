@@ -62,6 +62,7 @@ import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
@@ -819,9 +820,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     private void showDemoModeWarning() {
         StandardAlertDialog d = StandardAlertDialog.getBasicAlertDialogWithIcon(this,
-                Localization.get("demo.mode.warning.title"), Localization.get("demo.mode.warning.part1"),
+                StringUtils.getStringRobust(this, R.string.demo_mode_warning_title),
+                StringUtils.getStringRobust(this, R.string.demo_mode_warning_main),
                 android.R.drawable.ic_dialog_info, null);
-        d.addEmphasizedMessage(Localization.get("demo.mode.warning.part2"));
+        d.addEmphasizedMessage(StringUtils.getStringRobust(this, R.string.demo_mode_warning_emphasized));
         showAlertDialog(d);
     }
 
