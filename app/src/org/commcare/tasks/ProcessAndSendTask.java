@@ -385,7 +385,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 throw sue;
             } catch (Exception e) {
                 //Just try to skip for now. Hopefully this doesn't wreck the model :/
-                Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
+                Logger.exception("Totally Unexpected Error during form submission" + getExceptionText(e), e);
             }
         }
     }
