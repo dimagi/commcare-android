@@ -37,7 +37,7 @@ public class SelectMultiWidget extends QuestionWidget {
     public SelectMultiWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
         mCheckboxes = new Vector<>();
-        mItems = mPrompt.getSelectChoices();
+        mItems = getSelectChoices();
 
         setOrientation(LinearLayout.VERTICAL);
 
@@ -49,7 +49,7 @@ public class SelectMultiWidget extends QuestionWidget {
         //Is this safe enough from collisions?
         buttonIdBase = Math.abs(mPrompt.getIndex().hashCode());
 
-        if (mPrompt.getSelectChoices() != null) {
+        if (mItems != null) {
             for (int i = 0; i < mItems.size(); i++) {
                 // no checkbox group so id by answer + offset
                 final CheckBox c = new CheckBox(getContext());

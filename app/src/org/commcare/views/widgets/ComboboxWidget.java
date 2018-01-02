@@ -67,7 +67,7 @@ public class ComboboxWidget extends QuestionWidget {
     }
 
     private void initChoices(FormEntryPrompt prompt) {
-        choices = prompt.getSelectChoices();
+        choices = getSelectChoices();
         choiceTexts = new Vector<>();
         for (int i = 0; i < choices.size(); i++) {
             choiceTexts.add(prompt.getSelectChoiceText(choices.get(i)));

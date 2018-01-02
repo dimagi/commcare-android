@@ -29,6 +29,7 @@ import android.widget.TextView;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.models.ODKStorage;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BlockingActionsManager;
@@ -52,6 +53,7 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
+import java.util.Vector;
 
 public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
     private final static String TAG = QuestionWidget.class.getSimpleName();
@@ -707,6 +709,20 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
                     FileUtil.getFileSize(file) + ""));
         }
         return false;
+    }
+
+
+    protected Vector<SelectChoice> getSelectChoices() {
+        Vector<SelectChoice> selectChoices = mPrompt.getSelectChoices();
+        if (!DeveloperPreferences.isSpaceAllowedInSelectChoices() && selectChoices != null) {
+            for (int i = 0; i < selectChoices.size(); i++) {
+                if (selectChoices.get(i).getValue().contains(" ")) {
+                    throw new IllegalArgumentException("Select answer option cannot contain spaces in question '" +
+                            mPrompt.getLongText() + "' with option '" + mPrompt.getSelectChoiceText(selectChoices.get(i)) + "'");
+                }
+            }
+        }
+        return selectChoices;
     }
 
     /*

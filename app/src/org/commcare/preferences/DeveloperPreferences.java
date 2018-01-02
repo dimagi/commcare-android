@@ -56,6 +56,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public final static String REMOTE_FORM_PAYLOAD_URL = "remote-form-payload-url";
     public final static String HIDE_ISSUE_REPORT = "cc-hide-issue-report";
     public final static String ENFORCE_SECURE_ENDPOINT = "cc-enforce-secure-endpoint";
+    public final static String ALLOW_SPACE_IN_SELECT_CHOICES = "cc-allow-space-in-select-choices";
 
     public final static String PROJECT_SET_ACCESS_CODE = "cc-dev-prefs-access-code";
     public final static String USER_ENTERED_ACCESS_CODE = "cc-dev-prefs-user-entered-code";
@@ -405,6 +406,10 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     public static boolean isEnforceSecureEndpointEnabled() {
         return doesPropertyMatch(ENFORCE_SECURE_ENDPOINT, PrefValues.NO, PrefValues.YES);
+    }
+
+    public static boolean isSpaceAllowedInSelectChoices() {
+        return doesPropertyMatch(ALLOW_SPACE_IN_SELECT_CHOICES, PrefValues.YES, PrefValues.YES);
     }
 
     private void hideOrShowDangerousSettings() {
