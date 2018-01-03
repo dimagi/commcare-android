@@ -26,9 +26,11 @@ public class DeviceReportWriter {
     private final XmlSerializer serializer;
     private final OutputStream os;
     private final ArrayList<DeviceReportElement> elements = new ArrayList<>();
+    private String uuid;
 
     public DeviceReportWriter(DeviceReportRecord record) throws IOException {
         this(record.openOutputStream());
+        this.uuid = record.getUuid();
     }
 
     public DeviceReportWriter(OutputStream outputStream) throws IOException {
@@ -68,6 +70,13 @@ public class DeviceReportWriter {
                     } catch (Exception e) {
                     }
                 }
+
+                if (this.uuid != null) {
+                    // If this write() was triggered by ForceCloseLogger.sendToServerOrStore(),
+                    // we have no uuid because we're sending a single log entry that just happened and
+                    // hasn't been written to the db
+                    writeMetaBlock();
+                }
             } finally {
                 serializer.endTag(XMLNS, "device_report");
             }
@@ -79,6 +88,12 @@ public class DeviceReportWriter {
             } catch (IOException e) {
             }
         }
+    }
+
+    private void writeMetaBlock() throws IllegalArgumentException, IllegalStateException, IOException {
+        serializer.startTag(XMLNS, "meta");
+        writeText("instanceID", this.uuid);
+        serializer.endTag(XMLNS, "meta");
     }
 
     private void writeHeader() throws IllegalArgumentException, IllegalStateException, IOException {
