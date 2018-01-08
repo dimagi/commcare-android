@@ -37,7 +37,7 @@ import org.commcare.fragments.ContainerFragment;
 import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -51,7 +51,7 @@ import org.commcare.tasks.EntityLoaderTask;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.EntitySelectRefreshTimer;
-import org.commcare.utils.HereFunctionHandler;
+import org.commcare.utils.AndroidHereFunctionHandler;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.views.EntityView;
 import org.commcare.views.TabbedDetailView;
@@ -62,6 +62,7 @@ import org.commcare.views.dialogs.LocationNotificationHandler;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.HereFunctionHandlerListener;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -75,7 +76,7 @@ import java.util.List;
  * @author ctsims
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
-        implements EntityLoaderListener, OnItemClickListener {
+        implements EntityLoaderListener, OnItemClickListener, HereFunctionHandlerListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
 
@@ -145,7 +146,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     // Although only one instance is created, which is used by NodeEntityFactory,
     // every instance of EntitySelectActivity registers itself (one at a time)
     // to listen to the handler and refresh whenever a new location is obtained.
-    private static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
+    private static final AndroidHereFunctionHandler hereFunctionHandler = new AndroidHereFunctionHandler();
+
     private boolean containsHereFunction = false;
     private boolean locationChangedWhileLoading = false;
 
@@ -154,48 +156,50 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             new LocationNotificationHandler(this);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         createDataSetObserver();
         restoreSavedState(savedInstanceState);
 
         if (savedInstanceState == null) {
-            hereFunctionHandler.refreshLocation();
+            hereFunctionHandler.clearLocation();
         }
 
         refreshTimer = new EntitySelectRefreshTimer();
         asw = CommCareApplication.instance().getCurrentSessionWrapper();
         session = asw.getSession();
 
-        // avoid session dependent when there is no command
-        if (session.getCommand() != null) {
-            selectDatum = (EntityDatum)session.getNeededDatum();
-            shortSelect = session.getDetail(selectDatum.getShortDetail());
-            if (shortSelect.forcesLandscape()) {
-                this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            }
-            this.customCallout = initCustomCallout();
+        if (session.getCommand() == null) {
+            // Avoid session-dependent setup if the session has ended, and we'll finish in onResume
+            return;
+        }
 
-            mNoDetailMode = selectDatum.getLongDetail() == null;
-            mViewMode = session.isViewCommand(session.getCommand());
+        selectDatum = (EntityDatum)session.getNeededDatum();
+        shortSelect = session.getDetail(selectDatum.getShortDetail());
+        if (shortSelect.forcesLandscape()) {
+            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+        this.customCallout = initCustomCallout();
 
-            // Don't show actions (e.g. 'register patient', 'claim patient') at all  when in the
-            // middle of workflow triggered by a (sync) action. Also hide them from the entity
-            // list (but not the options menu) when we are showing the entity list in grid mode
-            hideActionsFromEntityList = session.isRemoteRequestCommand(session.getCommand()) ||
-                    shortSelect.shouldBeLaidOutInGrid();
-            hideActionsFromOptionsMenu = session.isRemoteRequestCommand(session.getCommand());
+        mNoDetailMode = selectDatum.getLongDetail() == null;
+        mViewMode = session.isViewCommand(session.getCommand());
 
-            boolean isOrientationChange = savedInstanceState != null;
-            setupUI(isOrientationChange);
+        // Don't show actions (e.g. 'register patient', 'claim patient') at all  when in the
+        // middle of workflow triggered by a (sync) action. Also hide them from the entity
+        // list (but not the options menu) when we are showing the entity list in grid mode
+        hideActionsFromEntityList = session.isRemoteRequestCommand(session.getCommand()) ||
+                shortSelect.shouldBeLaidOutInGrid();
+        hideActionsFromOptionsMenu = session.isRemoteRequestCommand(session.getCommand());
 
-            // On some devices, onCreateOptionsMenu() can get called before onCreate() has completed
-            // if the action bar is in use. Since we can't deploy all of the logic in onCreateOptionsMenu
-            // until this has happened, we should try to do it again when onCreate is complete
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                invalidateOptionsMenu();
-            }
+        boolean isOrientationChange = savedInstanceState != null;
+        setupUI(isOrientationChange);
+
+        // On some devices, onCreateOptionsMenu() can get called before onCreate() has completed
+        // if the action bar is in use. Since we can't deploy all of the logic in onCreateOptionsMenu
+        // until this has happened, we should try to do it again when onCreate is complete
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            invalidateOptionsMenu();
         }
     }
 
@@ -355,8 +359,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    protected void onResumeSessionSafe() {
-        if (!isFinishing() && !isStartingDetailActivity) {
+    public void onResumeSessionSafe() {
+        if (session.getCommand() == null) {
+            Intent i = new Intent(this.getIntent());
+            setResult(RESULT_CANCELED, i);
+            finish();
+        } else if (!isFinishing() && !isStartingDetailActivity) {
             if (adapter != null) {
                 adapter.registerDataSetObserver(mListStateObserver);
             }
@@ -367,7 +375,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 }
             }
 
-            hereFunctionHandler.registerEvalLocationListener(this);
+            hereFunctionHandler.registerListener(this);
             if (containsHereFunction) {
                 hereFunctionHandler.allowGpsUse();
             }
@@ -481,7 +489,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         hereFunctionHandler.forbidGpsUse();
-        hereFunctionHandler.unregisterEvalLocationListener();
+        hereFunctionHandler.unregisterListener();
     }
 
     @Override
@@ -511,7 +519,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (adapter.getItemViewType(position) == EntityListAdapter.ENTITY_TYPE) {
             TreeReference selection = adapter.getItem(position);
-            if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
+            if (HiddenPreferences.isEntityDetailLoggingEnabled()) {
                 Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
             }
             if (inAwesomeMode) {
@@ -532,7 +540,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case BARCODE_FETCH:
                 processBarcodeFetch(resultCode, intent);
@@ -594,8 +602,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     refreshView();
                 }
                 break;
-            default:
-                super.onActivityResult(requestCode, resultCode, intent);
         }
     }
 
@@ -696,7 +702,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
         // hide sorting menu when using async loading strategy
         menu.findItem(MENU_SORT).setVisible((shortSelect == null || shortSelect.hasSortField()));
-        menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
+
+        if (menu.findItem(R.id.menu_settings) != null) {
+            // For the same reason as in onCreateOptionsMenu(), we may be trying to call this
+            // before we're ready
+            menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
+        }
+
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -971,6 +983,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return true;
     }
 
+    public static AndroidHereFunctionHandler getHereFunctionHandler() {
+        return hereFunctionHandler;
+    }
+
+    @Override
     public void onEvalLocationChanged() {
         boolean loaded = loadEntities();
         if (!loaded) {
@@ -978,13 +995,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    public static HereFunctionHandler getHereFunctionHandler() {
-        return hereFunctionHandler;
-    }
-
+    @Override
     public void onHereFunctionEvaluated() {
         if (!containsHereFunction) {  // First time here() is evaluated
-            hereFunctionHandler.refreshLocation();
+            hereFunctionHandler.clearLocation();
             hereFunctionHandler.allowGpsUse();
             containsHereFunction = true;
 

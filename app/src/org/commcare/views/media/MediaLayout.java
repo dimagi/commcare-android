@@ -23,7 +23,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import org.commcare.dalvik.R;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
@@ -409,7 +409,7 @@ public class MediaLayout extends RelativeLayout {
 
     private boolean useResizingImageView() {
         // only allow ResizingImageView to be used if not also using smart inflation
-        return !CommCarePreferences.isSmartInflationEnabled() &&
+        return !HiddenPreferences.isSmartInflationEnabled() &&
                 ("full".equals(ResizingImageView.resizeMethod)
                         || "half".equals(ResizingImageView.resizeMethod)
                         || "width".equals(ResizingImageView.resizeMethod));

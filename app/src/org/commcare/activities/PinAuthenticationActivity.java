@@ -47,7 +47,7 @@ public class PinAuthenticationActivity extends
     private UserKeyRecord currentRecord;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
         if (!setRecordAndAuthMode()) {

@@ -24,7 +24,8 @@ import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.RemoteDataPullResponse;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.ServerUrls;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.templates.CommCareTask;
@@ -221,7 +222,7 @@ public abstract class DataPullTask<R>
     }
 
     private static boolean shouldGenerateFirstKey() {
-        String keyServer = CommCarePreferences.getKeyServer();
+        String keyServer = ServerUrls.getKeyServer();
         return keyServer == null || keyServer.equals("");
     }
 
@@ -463,8 +464,8 @@ public abstract class DataPullTask<R>
     private static void recordSyncAttempt() {
         //TODO: This should be per _user_, not per app
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putLong(CommCarePreferences.LAST_SYNC_ATTEMPT, new Date().getTime()).apply();
-        CommCarePreferences.setPostUpdateSyncNeeded(false);
+                .putLong(HiddenPreferences.LAST_SYNC_ATTEMPT, new Date().getTime()).apply();
+        HiddenPreferences.setPostUpdateSyncNeeded(false);
     }
 
     private static void recordSuccessfulSyncTime(String username) {
@@ -530,41 +531,33 @@ public abstract class DataPullTask<R>
         //this is the temporary implementation of everything past this point
 
         //Wipe storage
-        //TODO: move table instead. Should be straightforward with sandboxed db's
-        wipeStorageForFourTwelveSync();
+        SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
+        userDb.beginTransaction();
+        wipeStorageForFourTwelveSync(userDb);
 
-        String failureReason = "";
         try {
-            //Get new data
-            String syncToken = readInput(cache.retrieveCache(), factory);
+            String syncToken = readInputWithoutCommit(cache.retrieveCache(), factory);
             updateUserSyncToken(syncToken);
             Logger.log(LogTypes.TYPE_USER, "Sync Recovery Successful");
+            userDb.setTransactionSuccessful();
             return new Pair<>(PROGRESS_DONE, "");
-        } catch (ActionableInvalidStructureException e) {
-            e.printStackTrace();
-            failureReason = e.getLocalizedMessage();
         } catch (InvalidStructureException | XmlPullParserException
-                | UnfullfilledRequirementsException | SessionUnavailableException | IOException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
+                | UnfullfilledRequirementsException | SessionUnavailableException
+                | IOException e) {
+            Logger.exception("Sync recovery failed|" + e.getLocalizedMessage(), e);
+            return new Pair<>(PROGRESS_RECOVERY_FAIL_BAD, e.getLocalizedMessage());
         } finally {
+            userDb.endTransaction();
             //destroy temp file
             cache.release();
         }
-
-        //OK, so we would have returned success by now if things had worked out, which means that instead we got an error
-        //while trying to parse everything out. We need to recover from that error here and rollback the changes
-
-        //TODO: Roll back changes
-        Logger.log(LogTypes.TYPE_USER, "Sync recovery failed|" + failureReason);
-        return new Pair<>(PROGRESS_RECOVERY_FAIL_BAD, failureReason);
     }
-
-    private void wipeStorageForFourTwelveSync() {
-        CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
-        new AndroidCaseIndexTable().wipeTable();
-        CommCareApplication.instance().getUserStorage(Ledger.STORAGE_KEY, Ledger.class).removeAll();
-        EntityStorageCache.tryWipeCache();
+    
+    private void wipeStorageForFourTwelveSync(SQLiteDatabase userDb) {
+        SqlStorage.wipeTableWithoutCommit(userDb, ACase.STORAGE_KEY);
+        SqlStorage.wipeTableWithoutCommit(userDb, Ledger.STORAGE_KEY);
+        SqlStorage.wipeTableWithoutCommit(userDb, AndroidCaseIndexTable.TABLE_NAME);
+        EntityStorageCache.wipeCacheForCurrentAppWithoutCommit(userDb);
     }
 
     private void updateCurrentUser(String password) {
@@ -584,23 +577,39 @@ public abstract class DataPullTask<R>
         }
     }
 
+    private void initParsers(AndroidTransactionParserFactory factory) {
+        factory.initCaseParser();
+        factory.initStockParser();
+        Hashtable<String, String> formNamespaces = FormSaveUtil.getNamespaceToFilePathMap(context);
+        factory.initFormInstanceParser(formNamespaces);
+    }
+
+    private void parseStream(InputStream stream,
+                             AndroidTransactionParserFactory factory)
+            throws InvalidStructureException, IOException, XmlPullParserException,
+            UnfullfilledRequirementsException {
+        DataModelPullParser parser = new DataModelPullParser(stream, factory, true, false, this);
+        parser.parse();
+    }
+
+    private String readInputWithoutCommit(InputStream stream,
+                                          AndroidTransactionParserFactory factory)
+            throws InvalidStructureException, IOException, XmlPullParserException,
+            UnfullfilledRequirementsException {
+        initParsers(factory);
+        parseStream(stream, factory);
+        return factory.getSyncToken();
+    }
+
     private String readInput(InputStream stream, AndroidTransactionParserFactory factory)
             throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
-        DataModelPullParser parser;
-
-        factory.initCaseParser();
-        factory.initStockParser();
-
-        Hashtable<String, String> formNamespaces = FormSaveUtil.getNamespaceToFilePathMap(context);
-        factory.initFormInstanceParser(formNamespaces);
-
+        initParsers(factory);
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
         SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
         db.beginTransaction();
         try {
-            parser = new DataModelPullParser(stream, factory, true, false, this);
-            parser.parse();
+            parseStream(stream, factory);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

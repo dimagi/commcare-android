@@ -8,7 +8,8 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.RefreshToLatestBuildActivity;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.PrefValues;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 
 /**
@@ -38,9 +39,9 @@ public class RefreshToLatestBuildReceiver extends BroadcastReceiver {
         DeveloperPreferences.enableSessionSaving();
 
         if (intent.getBooleanExtra("useLatestSaved", false)) {
-            CommCarePreferences.setUpdateTarget(CommCarePreferences.UPDATE_TARGET_SAVED);
+            MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_SAVED);
         } else if (intent.getBooleanExtra("useLatestBuild", false)) {
-            CommCarePreferences.setUpdateTarget(CommCarePreferences.UPDATE_TARGET_BUILD);
+            MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_BUILD);
         }
 
         Intent i = new Intent(context, RefreshToLatestBuildActivity.class);

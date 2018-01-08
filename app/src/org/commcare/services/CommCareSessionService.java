@@ -27,7 +27,7 @@ import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.util.LogTypes;
@@ -114,6 +114,10 @@ public class CommCareSessionService extends Service {
 
     private boolean cczUpdatePromptWasShown;
     private boolean apkUpdatePromptWasShown;
+
+    // Have the app health checks in HomeScreenBaseActivity#checkForPendingAppHealthActions() been
+    // done at least once during this session?
+    private boolean appHealthChecksCompleted;
 
     /**
      * Class for clients to access.  Because we know this service always
@@ -586,7 +590,7 @@ public class CommCareSessionService extends Service {
      * length accordingly.
      */
     private void setSessionLength() {
-        sessionLength = CommCarePreferences.getLoginDuration() * 1000;
+        sessionLength = HiddenPreferences.getLoginDuration() * 1000;
     }
 
     public void setCurrentUser(User user, String password) {
@@ -630,5 +634,13 @@ public class CommCareSessionService extends Service {
 
     public boolean apkUpdatePromptWasShown() {
         return this.apkUpdatePromptWasShown;
+    }
+
+    public void setAppHealthChecksCompleted() {
+        this.appHealthChecksCompleted = true;
+    }
+
+    public boolean appHealthChecksCompleted() {
+        return this.appHealthChecksCompleted;
     }
 }

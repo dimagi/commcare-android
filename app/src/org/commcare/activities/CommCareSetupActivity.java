@@ -377,15 +377,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         String result = null;
         switch (requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == Activity.RESULT_OK) {
-                    result = data.getStringExtra("SCAN_RESULT");
-                    String dbg = "Got url from barcode scanner: " + result;
-                    Log.i(TAG, dbg);
                     lastInstallMode = INSTALL_MODE_BARCODE;
+                    result = data.getStringExtra("SCAN_RESULT");
+                    Log.i(TAG, "Got url from barcode scanner: " + result);
                 }
                 break;
             case OFFLINE_INSTALL:
@@ -404,14 +402,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
+
         }
         if (result == null) {
             return;
         }
 
-        if (lastInstallMode == INSTALL_MODE_FROM_LIST) {
-            FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_INSTALL_FROM_LIST);
-        }
         setReadyToInstall(result);
     }
 
@@ -935,6 +931,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 return AnalyticsParamValue.SMS_INSTALL;
             case INSTALL_MODE_URL:
                 return AnalyticsParamValue.URL_INSTALL;
+            case INSTALL_MODE_FROM_LIST:
+                return AnalyticsParamValue.FROM_LIST_INSTALL;
+            case INSTALL_MODE_MANAGED_CONFIGURATION:
+                return AnalyticsParamValue.MANAGED_CONFIG_INSTALL;
             default:
                 return "";
         }

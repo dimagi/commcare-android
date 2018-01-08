@@ -7,7 +7,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
 
@@ -40,11 +40,6 @@ public class FirebaseAnalyticsUtil {
         CommCareApplication.instance().getAnalyticsInstance().logEvent(eventName, b);
     }
 
-    public static void reportOptionsMenuEntry(Class location) {
-        reportEvent(CCAnalyticsEvent.OPEN_OPTIONS_MENU,
-                FirebaseAnalytics.Param.LOCATION, location.getSimpleName());
-    }
-
     /**
      * Report a user event of selecting an item within an options menu
      */
@@ -52,11 +47,6 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.SELECT_OPTIONS_MENU_ITEM,
                 new String[]{FirebaseAnalytics.Param.LOCATION, CCAnalyticsParam.OPTIONS_MENU_ITEM},
                 new String[]{location.getSimpleName(), itemLabel});
-    }
-
-    public static void reportPreferenceActivityEntry(Class location) {
-        reportEvent(CCAnalyticsEvent.ENTER_PREF_MENU,
-                FirebaseAnalytics.Param.LOCATION, location.getSimpleName());
     }
 
     /**
@@ -77,7 +67,8 @@ public class FirebaseAnalyticsUtil {
                 FirebaseAnalytics.Param.ITEM_NAME, buttonName);
     }
 
-    public static void reportViewArchivedFormsList(String formType) {
+    public static void reportViewArchivedFormsList(boolean forIncomplete) {
+        String formType = forIncomplete ? AnalyticsParamValue.INCOMPLETE : AnalyticsParamValue.SAVED;
         reportEvent(CCAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST,
                 CCAnalyticsParam.FORM_TYPE, formType);
     }
@@ -92,47 +83,9 @@ public class FirebaseAnalyticsUtil {
                 CCAnalyticsParam.METHOD, installMethod);
     }
 
-    public static void reportAppStartup() {
-        reportEvent(CCAnalyticsEvent.APP_STARTUP,
-                CCAnalyticsParam.API_LEVEL, "" + Build.VERSION.SDK_INT);
-    }
-
     public static void reportAppManagerAction(String action) {
         reportEvent(CCAnalyticsEvent.APP_MANAGER_ACTION,
                 CCAnalyticsParam.ACTION_TYPE, action);
-    }
-
-    public static void reportAudioFileSelected() {
-        reportAudioWidgetInteraction(AnalyticsParamValue.CHOOSE_AUDIO_FILE);
-    }
-
-    public static void reportAudioPlayed() {
-        reportAudioWidgetInteraction(AnalyticsParamValue.PLAY_AUDIO);
-    }
-
-    public static void reportAudioPaused() {
-        reportAudioWidgetInteraction(AnalyticsParamValue.PAUSE_AUDIO);
-    }
-
-    public static void reportAudioFileSaved() {
-        reportAudioWidgetInteraction(AnalyticsParamValue.SAVE_RECORDING);
-    }
-
-    public static void reportRecordingStarted() {
-        reportAudioWidgetInteraction(AnalyticsParamValue.START_RECORDING);
-    }
-
-    public static void reportRecordingStopped() {
-        reportAudioWidgetInteraction(AnalyticsParamValue.STOP_RECORDING);
-    }
-
-    public static void reportRecordingRecycled() {
-        reportAudioWidgetInteraction(AnalyticsParamValue.RECORD_AGAIN);
-    }
-
-    private static void reportAudioWidgetInteraction(String interactionType) {
-        reportEvent(CCAnalyticsEvent.AUDIO_WIDGET_INTERACTION,
-                CCAnalyticsParam.ACTION_TYPE, interactionType);
     }
 
     public static void reportGraphViewAttached() {
@@ -157,17 +110,15 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportFormNav(String direction, String method) {
-        reportEvent(CCAnalyticsEvent.FORM_NAVIGATION,
-                new String[]{ CCAnalyticsParam.DIRECTION, CCAnalyticsParam.METHOD},
-                new String[]{direction, method});
+        if (rateLimitReporting(.1)) {
+            reportEvent(CCAnalyticsEvent.FORM_NAVIGATION,
+                    new String[]{ CCAnalyticsParam.DIRECTION, CCAnalyticsParam.METHOD },
+                    new String[]{ direction, method });
+        }
     }
 
     public static void reportFormQuitAttempt(String method) {
         reportEvent(CCAnalyticsEvent.FORM_EXIT_ATTEMPT, CCAnalyticsParam.METHOD, method);
-    }
-
-    public static void reportFormEntry(String currentLocale) {
-        reportEvent(CCAnalyticsEvent.ENTER_FORM, CCAnalyticsParam.LOCALE, currentLocale);
     }
 
     /**
@@ -240,13 +191,15 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportTimedSession(String sessionType, double timeInSeconds, double timeInMinutes) {
-        reportEvent(CCAnalyticsEvent.TIMED_SESSION,
-                new String[]{ CCAnalyticsParam.SESSION_TYPE,
-                        CCAnalyticsParam.TIME_IN_SECONDS,
-                        CCAnalyticsParam.TIME_IN_MINUTES},
-                new String[]{sessionType,
-                        ""+roundToOneDecimal(timeInSeconds),
-                        ""+roundToOneDecimal(timeInMinutes)});
+        if (rateLimitReporting(.25)) {
+            reportEvent(CCAnalyticsEvent.TIMED_SESSION,
+                    new String[]{ CCAnalyticsParam.SESSION_TYPE,
+                            CCAnalyticsParam.TIME_IN_SECONDS,
+                            CCAnalyticsParam.TIME_IN_MINUTES },
+                    new String[]{ sessionType,
+                            "" + roundToOneDecimal(timeInSeconds),
+                            "" + roundToOneDecimal(timeInMinutes) });
+        }
     }
 
     private static double roundToOneDecimal(double d) {
@@ -254,12 +207,16 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static boolean analyticsDisabled() {
-        return !CommCarePreferences.isAnalyticsEnabled();
+        return !MainConfigurablePreferences.isAnalyticsEnabled();
     }
 
     public static boolean versionIncompatible() {
         // According to https://firebase.google.com/docs/android/setup,
         // Firebase should only be used on devices running Android 4.0 and above
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+    }
+
+    private static boolean rateLimitReporting(double percentOfEventsToReport) {
+        return Math.random() < percentOfEventsToReport;
     }
 }

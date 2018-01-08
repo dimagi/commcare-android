@@ -303,6 +303,10 @@ public class FormStorageTest {
             // Added in 2.40
             , "org.javarosa.core.model.actions.SendAction"
 
+            // Added in 2.41
+            , "org.javarosa.xpath.expr.XPathDistinctValuesFunc"
+            , "org.javarosa.xpath.expr.XPathSleepFunc"
+
             );
 
 

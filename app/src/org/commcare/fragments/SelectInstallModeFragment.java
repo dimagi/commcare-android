@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.util.Pair;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
@@ -74,9 +75,10 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                     if (currentActivity instanceof CommCareSetupActivity) {
                         ((CommCareSetupActivity)currentActivity).clearErrorMessage();
                     }
-                    Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                    i.putExtra("SCAN_FORMATS", "QR_CODE");
-                    getActivity().startActivityForResult(i, CommCareSetupActivity.BARCODE_CAPTURE);
+                    Intent intent = new IntentIntegrator(getActivity())
+                            .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
+                            .createScanIntent();
+                    currentActivity.startActivityForResult(intent, CommCareSetupActivity.BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getActivity(), "No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
                     barcodeButtonContainer.setVisibility(View.GONE);

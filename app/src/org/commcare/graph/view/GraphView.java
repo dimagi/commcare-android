@@ -84,14 +84,20 @@ public class GraphView {
         protected void onAttachedToWindow() {
             super.onAttachedToWindow();
             FirebaseAnalyticsUtil.reportGraphViewAttached();
-            Logger.log(LogTypes.TYPE_GRAPHING, "Start viewing graph in list");
+
+            String displayTitle = mTitle == null || "".equals(mTitle) ? "(no title)" : mTitle;
+            Logger.log(LogTypes.TYPE_GRAPHING,
+                    String.format("Start viewing graph in list for %s", displayTitle));
         }
 
         @Override
         protected void onDetachedFromWindow() {
             super.onDetachedFromWindow();
             FirebaseAnalyticsUtil.reportGraphViewDetached();
-            Logger.log(LogTypes.TYPE_GRAPHING, "End viewing graph in list");
+
+            String displayTitle = mTitle == null || "".equals(mTitle) ? "(no title)" : mTitle;
+            Logger.log(LogTypes.TYPE_GRAPHING,
+                    String.format("End viewing graph in list for %s", displayTitle));
         }
     }
 

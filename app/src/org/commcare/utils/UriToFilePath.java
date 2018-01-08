@@ -3,12 +3,17 @@ package org.commcare.utils;
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+
+import java.util.List;
 
 /**
  * Util for turning URIs into a normal file path strings Needed because new
@@ -32,7 +37,7 @@ public class UriToFilePath {
      * filepath couldn't be succesfully extracted.
      */
     @SuppressLint("NewApi")
-    public static String getPathFromUri(final Context context, final Uri uri) {
+    public static String getPathFromUri(final Context context, final Uri uri) throws NoDataColumnForUriException {
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
         if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
@@ -72,6 +77,10 @@ public class UriToFilePath {
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
         } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            // Return the remote address
+            if (isGooglePhotosUri(uri)) {
+                return uri.getLastPathSegment();
+            }
             return getDataColumn(context, uri, null, null);
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
@@ -91,7 +100,7 @@ public class UriToFilePath {
      * @return The value of the _data column, which is typically a file path.
      */
     private static String getDataColumn(Context context, Uri uri, String selection,
-                                        String[] selectionArgs) {
+                                        String[] selectionArgs) throws NoDataColumnForUriException {
         Cursor cursor = null;
         final String column = "_data";
         final String[] projection = {
@@ -102,8 +111,12 @@ public class UriToFilePath {
             cursor = context.getContentResolver().query(uri, projection,
                     selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
-                final int column_index = cursor.getColumnIndexOrThrow(column);
-                return cursor.getString(column_index);
+                try {
+                    final int column_index = cursor.getColumnIndexOrThrow(column);
+                    return cursor.getString(column_index);
+                } catch (IllegalArgumentException e) {
+                    throw new NoDataColumnForUriException();
+                }
             }
         } finally {
             if (cursor != null)
@@ -134,5 +147,31 @@ public class UriToFilePath {
      */
     private static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is Google Photos.
+     */
+    private static boolean isGooglePhotosUri(Uri uri) {
+        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+    }
+
+    /**
+     * Gives the activities that can handle given intent permissions for given uri. Not doing so will result in a SecurityException from Android N upwards
+     * @param context context of the activity requesting resolution for given intent
+     * @param intent intent that needs to get resolved
+     * @param uri uri for which permissions are to be given
+     * @param flags what permissions are to be given
+     */
+    public static void grantPermissionForUri(Context context, Intent intent, Uri uri, int flags) {
+        List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        for (ResolveInfo resolveInfo : resInfoList) {
+            String packageName = resolveInfo.activityInfo.packageName;
+            context.grantUriPermission(packageName, uri, flags);
+        }
+    }
+
+    public static class NoDataColumnForUriException extends Exception {
     }
 }

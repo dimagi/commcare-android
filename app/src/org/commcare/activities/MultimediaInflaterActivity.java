@@ -34,7 +34,8 @@ import java.util.ArrayList;
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
-public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<MultimediaInflaterActivity> {
+public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> {
+
     private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
 
     private static final String LOG_TAG = "CC-MultimediaInflator";
@@ -88,8 +89,8 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
                 MultimediaInflaterTask<MultimediaInflaterActivity> task = new MultimediaInflaterTask<MultimediaInflaterActivity>() {
 
                     @Override
-                    protected void deliverResult(MultimediaInflaterActivity receiver, Boolean result) {
-                        if (result == Boolean.TRUE) {
+                    protected void deliverResult(MultimediaInflaterActivity receiver, Integer result) {
+                        if (result > 0) {
                             receiver.done = true;
                             receiver.evalState();
                             receiver.setResult(Activity.RESULT_OK);
@@ -136,29 +137,14 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_FILE_LOCATION) {
             if (resultCode == Activity.RESULT_OK) {
-                // Android versions 4.4 and up sometimes don't return absolute
-                // filepaths from the file chooser. So resolve the URI into a
-                // valid file path.
-                Uri uriPath = intent.getData();
-                if (uriPath == null) {
-                    // issue getting the filepath uri from file browser callout
-                    // result
-                    Toast.makeText(this,
-                            Localization.get("mult.install.state.invalid.path"),
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    String filePath = 
-                        UriToFilePath.getPathFromUri(CommCareApplication.instance(), uriPath);
-                    if (filePath != null) {
-                        editFileLocation.setText(filePath);
-                    }
-                }
+                FileUtil.updateFileLocationFromIntent(this, intent, editFileLocation);
             }
         }
     }
 
     @Override
-    protected void onResumeSessionSafe() {
+    protected void onResume() {
+        super.onResume();
         evalState();
     }
 
@@ -179,7 +165,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
             return;
         }
 
-        if (!(new File(location)).exists()) {
+        if (!location.startsWith("content://") && !(new File(location)).exists()) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.invalid.path"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallMultimedia.setEnabled(false);

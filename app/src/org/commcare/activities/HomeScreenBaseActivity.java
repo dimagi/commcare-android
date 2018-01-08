@@ -33,7 +33,10 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.PrefValues;
+import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI;
@@ -129,8 +132,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private boolean wasExternal = false;
     private static final String WAS_EXTERNAL_KEY = "was_external";
 
+    // Indicates if 1 of the checks we performed in onCreate resulted in redirecting to a
+    // different activity or starting a UI-blocking task
+    private boolean redirectedInOnCreate = false;
+
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         loadInstanceState(savedInstanceState);
         CrashUtil.registerAppData();
@@ -168,59 +175,113 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void processFromLoginLaunch() {
         if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false) &&
                 !loginExtraWasConsumed) {
-
             getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
             loginExtraWasConsumed = true;
-
-            CommCareSession session = CommCareApplication.instance().getCurrentSession();
-            if (session.getCommand() != null) {
-                // restore the session state if there is a command.
-                // For debugging and occurs when a serialized
-                // session is stored upon login
-                isRestoringSession = true;
-                sessionNavigator.startNextSessionStep();
-                return;
-            }
-
-            // Trigger off a regular unsent task processor, unless we're about to sync (which will
-            // then handle this in a blocking fashion)
-            if (!CommCareApplication.instance().isSyncPending(false)) {
-                checkAndStartUnsentFormsTask(false, false);
-            }
-
-            if (isDemoUser()) {
-                showDemoModeWarning();
-                return;
-            }
-            if (checkForPinLaunchConditions()) {
-                return;
+            try {
+                redirectedInOnCreate = doLoginLaunchChecksInOrder();
+            } finally {
+                // make sure this happens no matter what
+                clearOneTimeLoginActionFlags();
             }
         }
     }
 
     /**
-     * See if we should launch either the pin choice dialog, or the create pin activity directly
-     *
-     * @return true if we launched a dialog
+     * The order of operations in this method is very deliberate, and the logic for it is as
+     * follows:
+     * - If we're in demo mode, then we don't want to do any of the other checks because they're
+     * not relevant
+     * - Form and session restorations need to happen before we try to sync, because once we sync
+     * it could invalidate those states
+     * - Restoring a form that was interrupted by session expiration comes before restoring a saved
+     * session because it is of higher importance
+     * - Check for a post-update sync before doing a standard background form-send, since a sync
+     * action will include a form-send action
+     * - Once we're past that point, starting a background form-send process is safe, and we can
+     * safely do checkForPinLaunchConditions() at the same time
      */
-    private boolean checkForPinLaunchConditions() {
+    private boolean doLoginLaunchChecksInOrder() {
+        if (isDemoUser()) {
+            showDemoModeWarning();
+            return false;
+        }
+
+        if (tryRestoringFormFromSessionExpiration()) {
+            return true;
+        }
+
+        if (tryRestoringSession()) {
+            return true;
+        }
+
+        if (CommCareApplication.instance().isPostUpdateSyncNeeded()) {
+            HiddenPreferences.setPostUpdateSyncNeeded(false);
+            triggerSync(false);
+            return true;
+        }
+
+        if (!CommCareApplication.instance().isSyncPending(false)) {
+            // Trigger off a regular unsent task processor, unless we're about to sync (which will
+            // then handle this in a blocking fashion)
+            checkAndStartUnsentFormsTask(false, false);
+        }
+
+        checkForPinLaunchConditions();
+
+        return false;
+    }
+
+    /**
+     * Regardless of what action(s) we ended up executing in doLoginLaunchChecksInOrder(), we
+     * don't want to end up trying the actions associated with these flags again at a later point.
+     * They either need to happen the first time on login, or not at all.
+     */
+    private void clearOneTimeLoginActionFlags() {
+        HiddenPreferences.setPostUpdateSyncNeeded(false);
+        HiddenPreferences.clearInterruptedSSD();
+    }
+
+    private boolean tryRestoringFormFromSessionExpiration() {
+        SessionStateDescriptor existing = AndroidSessionWrapper.getFormStateForInterruptedUserSession();
+        if (existing != null) {
+            AndroidSessionWrapper state = CommCareApplication.instance().getCurrentSessionWrapper();
+            state.loadFromStateDescription(existing);
+            formEntry(CommCareApplication.instance().getCommCarePlatform()
+                    .getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+            return true;
+        }
+        return false;
+    }
+
+    private boolean tryRestoringSession() {
+        CommCareSession session = CommCareApplication.instance().getCurrentSession();
+        if (session.getCommand() != null) {
+            // Restore the session state if there is a command. This is for debugging and
+            // occurs when a serialized session was stored by a previous user session
+            isRestoringSession = true;
+            sessionNavigator.startNextSessionStep();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * See if we should launch either the pin choice dialog, or the create pin activity directly
+     */
+    private void checkForPinLaunchConditions() {
         LoginMode loginMode = (LoginMode)getIntent().getSerializableExtra(LoginActivity.LOGIN_MODE);
         if (loginMode == LoginMode.PRIMED) {
             launchPinCreateScreen(loginMode);
-            return true;
-        }
-        if (loginMode == LoginMode.PASSWORD && DeveloperPreferences.shouldOfferPinForLogin()) {
+        } else if (loginMode == LoginMode.PASSWORD && DeveloperPreferences.shouldOfferPinForLogin()) {
             boolean userManuallyEnteredPasswordMode = getIntent()
                     .getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
             boolean alreadyDismissedPinCreation =
                     CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                            .getBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, false);
+                            .getBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, false);
             if (!alreadyDismissedPinCreation || userManuallyEnteredPasswordMode) {
                 showPinChoiceDialog(loginMode);
-                return true;
             }
         }
-        return false;
     }
 
     private void showPinChoiceDialog(final LoginMode loginMode) {
@@ -258,8 +319,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 dismissAlertDialog();
                 CommCareApplication.instance().getCurrentApp().getAppPreferences()
                         .edit()
-                        .putBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, true)
-                        .commit();
+                        .putBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, true)
+                        .apply();
                 showPinFutureAccessDialog();
             }
         });
@@ -299,7 +360,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     Localization.setLocale("default");
                 } else {
                     String selectedLocale = localeCodes[position];
-                    CommCarePreferences.setCurrentLocale(selectedLocale);
+                    MainConfigurablePreferences.setCurrentLocale(selectedLocale);
                     Localization.setLocale(selectedLocale);
                 }
                 // rebuild home buttons in case language changed;
@@ -329,11 +390,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     protected void goToFormArchive(boolean incomplete, FormRecord record) {
-        if (incomplete) {
-            FirebaseAnalyticsUtil.reportViewArchivedFormsList(AnalyticsParamValue.INCOMPLETE);
-        } else {
-            FirebaseAnalyticsUtil.reportViewArchivedFormsList(AnalyticsParamValue.SAVED);
-        }
+        FirebaseAnalyticsUtil.reportViewArchivedFormsList(incomplete);
         Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
         if (incomplete) {
             i.putExtra(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
@@ -358,7 +415,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_RESTART) {
             sessionNavigator.startNextSessionStep();
         } else {
@@ -404,21 +461,30 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     }
                     break;
                 case GET_COMMAND:
-                    boolean fetchNext = processReturnFromGetCommand(resultCode, intent);
-                    if (!fetchNext) {
+                    boolean continueWithSessionNav =
+                            processReturnFromGetCommand(resultCode, intent);
+                    if (!continueWithSessionNav) {
                         return;
                     }
                     break;
                 case GET_CASE:
-                    fetchNext = processReturnFromGetCase(resultCode, intent);
-                    if (!fetchNext) {
+                    continueWithSessionNav = processReturnFromGetCase(resultCode, intent);
+                    if (!continueWithSessionNav) {
                         return;
                     }
                     break;
                 case MODEL_RESULT:
-                    fetchNext = processReturnFromFormEntry(resultCode, intent);
-                    if (!fetchNext) {
+                    continueWithSessionNav = processReturnFromFormEntry(resultCode, intent);
+                    if (!continueWithSessionNav) {
                         return;
+                    }
+                    if (!CommCareApplication.instance().getSession().appHealthChecksCompleted()) {
+                        // If we haven't done these checks yet in this user session, try to
+                        if (checkForPendingAppHealthActions()) {
+                            // If we kick one off, abandon the session navigation that we were
+                            // going to proceed with, because it may be invalid now
+                            return;
+                        }
                     }
                     break;
                 case AUTHENTICATION_FOR_PIN:
@@ -449,7 +515,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();
         }
-        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     private void performCustomRestore() {
@@ -939,7 +1004,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      */
     private void startFormEntry(AndroidSessionWrapper state) {
         if (state.getFormRecordId() == -1) {
-            if (CommCarePreferences.isIncompleteFormsEnabled()) {
+            if (HiddenPreferences.isIncompleteFormsEnabled()) {
                 // Are existing (incomplete) forms using the same case?
                 SessionStateDescriptor existing =
                         state.getExistingIncompleteCaseDescriptor();
@@ -977,7 +1042,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         // Create our form entry activity callout
         Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
-        i.putExtra(FormEntryInstanceState.KEY_INSTANCEDESTINATION, CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
+        i.putExtra(FormEntryInstanceState.KEY_INSTANCEDESTINATION,
+                CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
 
         // See if there's existing form data that we want to continue entering
         // (note, this should be stored in the form record as a URI link to
@@ -988,8 +1054,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             i.setData(formUri);
         }
 
-        i.putExtra(FormEntryActivity.KEY_RESIZING_ENABLED, CommCarePreferences.getResizeMethod());
-        i.putExtra(FormEntryActivity.KEY_INCOMPLETE_ENABLED, CommCarePreferences.isIncompleteFormsEnabled());
+        i.putExtra(FormEntryActivity.KEY_RESIZING_ENABLED, HiddenPreferences.getResizeMethod());
+        i.putExtra(FormEntryActivity.KEY_INCOMPLETE_ENABLED, HiddenPreferences.isIncompleteFormsEnabled());
         i.putExtra(FormEntryActivity.KEY_AES_STORAGE_KEY, Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
         i.putExtra(FormEntryActivity.KEY_FORM_CONTENT_URI, FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
         i.putExtra(FormEntryActivity.KEY_INSTANCE_CONTENT_URI, InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
@@ -1001,7 +1067,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             isRestoringSession = false;
             SharedPreferences prefs =
                     CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            String formEntrySession = prefs.getString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, "");
+            String formEntrySession = prefs.getString(DevSessionRestorer.CURRENT_FORM_ENTRY_SESSION, "");
             if (!"".equals(formEntrySession)) {
                 i.putExtra(FormEntrySessionWrapper.KEY_FORM_ENTRY_SESSION, formEntrySession);
             }
@@ -1013,7 +1079,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void triggerSync(boolean triggeredByAutoSyncPending) {
         if (triggeredByAutoSyncPending) {
             long lastSync = CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                    .getLong(CommCarePreferences.LAST_SYNC_ATTEMPT, 0);
+                    .getLong(HiddenPreferences.LAST_SYNC_ATTEMPT, 0);
             String footer = lastSync == 0 ? "never" :
                     SimpleDateFormat.getDateTimeInstance().format(lastSync);
             Logger.log(LogTypes.TYPE_USER, "autosync triggered. Last Sync|" + footer);
@@ -1024,20 +1090,19 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     @Override
-    protected void onResumeSessionSafe() {
-        if (!sessionNavigationProceedingAfterOnResume) {
+    public void onResumeSessionSafe() {
+        if (!redirectedInOnCreate && !sessionNavigationProceedingAfterOnResume) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 refreshActionBar();
             }
             attemptDispatchHomeScreen();
         }
 
+        // reset these
+        redirectedInOnCreate = false;
         sessionNavigationProceedingAfterOnResume = false;
     }
 
-    /**
-     * Decides if we should actually be on the home screen, or else should redirect elsewhere
-     */
     private void attemptDispatchHomeScreen() {
         try {
             CommCareApplication.instance().getSession();
@@ -1048,17 +1113,27 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return;
         }
 
-        if (CommCareApplication.instance().isPostUpdateSyncNeeded() && !isDemoUser()) {
-            CommCarePreferences.setPostUpdateSyncNeeded(false);
-            triggerSync(false);
-        } else if (CommCareApplication.instance().isSyncPending(false)) {
-            triggerSync(true);
-        } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
-            return;
-        } else {
+        if (!checkForPendingAppHealthActions()) {
             // Display the home screen!
             refreshUI();
         }
+    }
+
+    /**
+     *
+     * @return true if we kicked off any processes
+     */
+    private boolean checkForPendingAppHealthActions() {
+        boolean result = false;
+        if (CommCareApplication.instance().isSyncPending(false)) {
+            triggerSync(true);
+            result = true;
+        } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
+            result = true;
+        }
+
+        CommCareApplication.instance().getSession().setAppHealthChecksCompleted();
+        return result;
     }
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
@@ -1133,8 +1208,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (mDeveloperModeClicks == 4) {
             CommCareApplication.instance().getCurrentApp().getAppPreferences()
                     .edit()
-                    .putString(DeveloperPreferences.SUPERUSER_ENABLED, CommCarePreferences.YES)
-                    .commit();
+                    .putString(DeveloperPreferences.SUPERUSER_ENABLED, PrefValues.YES)
+                    .apply();
             Toast.makeText(this, Localization.get("home.developer.options.enabled"),
                     Toast.LENGTH_SHORT).show();
         }

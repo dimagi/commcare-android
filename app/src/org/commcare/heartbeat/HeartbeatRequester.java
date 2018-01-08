@@ -10,7 +10,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.preferences.CommCareServerPreferences;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
@@ -22,8 +22,10 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 /**
  * Responsible for making a heartbeat request to the server when signaled to do so by the current
@@ -96,7 +98,7 @@ public class HeartbeatRequester {
 
     protected void requestHeartbeat() {
         String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getString(CommCareServerPreferences.PREFS_HEARTBEAT_URL_KEY, null);
+                .getString(ServerUrls.PREFS_HEARTBEAT_URL_KEY, null);
         Log.i(TAG, "Requesting heartbeat from " + urlString);
         ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
@@ -116,8 +118,19 @@ public class HeartbeatRequester {
         params.put(CC_VERSION, ReportingUtils.getCommCareVersionString());
         params.put(QUARANTINED_FORMS_PARAM, "" + StorageUtils.getNumQuarantinedForms());
         params.put(UNSENT_FORMS_PARAM, "" + StorageUtils.getNumUnsentForms());
-        params.put(LAST_SYNC_TIME_PARAM, new Date(SyncDetailCalculations.getLastSyncTime()).toString());
+        params.put(LAST_SYNC_TIME_PARAM, getISO8601FormattedLastSyncTime());
         return params;
+    }
+
+    private static String getISO8601FormattedLastSyncTime() {
+        long lastSyncTime = SyncDetailCalculations.getLastSyncTime();
+        if (lastSyncTime == 0) {
+            return "";
+        } else {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+            df.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return df.format(lastSyncTime);
+        }
     }
 
     protected static void passResponseToUiThread(final JSONObject responseAsJson) {

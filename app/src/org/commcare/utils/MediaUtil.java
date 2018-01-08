@@ -13,7 +13,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.engine.references.JavaFileReference;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -86,12 +86,11 @@ public class MediaUtil {
                 boundingWidth = displayMetrics.widthPixels;
             }
 
-            if (CommCarePreferences.isSmartInflationEnabled()) {
-                FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_SMART_IMG_INFLATION);
+            if (HiddenPreferences.isSmartInflationEnabled()) {
                 // scale based on bounding dimens AND native density
                 return getBitmapScaledForNativeDensity(
                         context.getResources().getDisplayMetrics(), imageFile.getAbsolutePath(),
-                        boundingHeight, boundingWidth, CommCarePreferences.getTargetInflationDensity());
+                        boundingHeight, boundingWidth, HiddenPreferences.getTargetInflationDensity());
             } else {
                 // just scale down if the original image is way too big for its container
                 return getBitmapScaledToContainer(imageFile.getAbsolutePath(), boundingHeight,
