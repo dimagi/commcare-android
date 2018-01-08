@@ -350,8 +350,5 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="sign_button" cc:translatable="true">Gather Signature</string>
     <string name="markup_image" cc:translatable="true">Markup Image</string>
     <string name="draw_image" cc:translatable="true">Sketch Image</string>
-    <string name="demo_mode_warning_main" cc:translatable="true">You have logged into CommCare in Practice mode. Practice mode is for testing and practice only.</string>
-    <string name="demo_mode_warning_emphasized" cc:translatable="true">Forms submitted in practice mode will be ignored by CommCare HQ!</string>
-    <string name="demo_mode_warning_title" cc:translatable="true">Starting Practice Mode</string>
 
 </resources>

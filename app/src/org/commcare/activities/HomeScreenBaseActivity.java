@@ -820,10 +820,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     private void showDemoModeWarning() {
         StandardAlertDialog d = StandardAlertDialog.getBasicAlertDialogWithIcon(this,
-                StringUtils.getStringRobust(this, R.string.demo_mode_warning_title),
-                StringUtils.getStringRobust(this, R.string.demo_mode_warning_main),
+                Localization.get("demo.mode.warning.title"),
+                Localization.get("demo.mode.warning.main"),
                 android.R.drawable.ic_dialog_info, null);
-        d.addEmphasizedMessage(StringUtils.getStringRobust(this, R.string.demo_mode_warning_emphasized));
+        d.addEmphasizedMessage(Localization.get("demo.mode.warning.emphasized"));
         showAlertDialog(d);
     }
 

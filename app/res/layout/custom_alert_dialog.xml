@@ -42,7 +42,8 @@
                     android:visibility="gone"
                     android:layout_below="@id/dialog_message"
                     android:layout_marginTop="@dimen/standard_spacer"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="@color/cc_attention_negative_text"/>
 
             </RelativeLayout>
 
