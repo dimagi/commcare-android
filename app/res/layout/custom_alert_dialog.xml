@@ -35,6 +35,16 @@
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/font_size_dp_large"/>
 
+                <TextView
+                    android:id="@+id/emphasized_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:layout_below="@id/dialog_message"
+                    android:layout_marginTop="@dimen/standard_spacer"
+                    android:textStyle="bold"
+                    android:textColor="@color/cc_attention_negative_text"/>
+
             </RelativeLayout>
 
         </ScrollView>
