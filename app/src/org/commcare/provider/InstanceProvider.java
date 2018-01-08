@@ -530,9 +530,6 @@ public class InstanceProvider extends ContentProvider {
             return;
         }
 
-        Logger.log(LogTypes.TYPE_FORM_ENTRY,
-                String.format("Form Entry Completed for record with id %s", current.getInstanceID()));
-
         // The form is either ready for processing, or not, depending on how it was saved
         if (complete) {
             // Form record should now be up to date now and stored correctly.

@@ -12,13 +12,11 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.EntitySelectActivity;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.condition.IFunctionHandler;
+import org.javarosa.core.model.condition.HereFunctionHandler;
 import org.javarosa.core.model.data.GeoPointData;
 
 import java.util.Set;
-import java.util.Vector;
 
 /**
  * Allows evaluation contexts to support the here() XPath function,
@@ -31,8 +29,8 @@ import java.util.Vector;
  *
  * @author Forest Tong, Phillip Mates
  */
-public class HereFunctionHandler implements IFunctionHandler, LocationListener {
-    public static final String HERE_NAME = "here";
+public class AndroidHereFunctionHandler extends HereFunctionHandler implements LocationListener {
+
     // only trigger entity list refresh if distance has changed by this amount
     private static final int REFRESH_METER_DELTA = 30;
 
@@ -47,27 +45,13 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     private final LocationManager mLocationManager = (LocationManager)context.getSystemService(
             Context.LOCATION_SERVICE);
 
-    // If there are more general uses for HereFunctionHandler, the type of this field can be
-    // generalized to a listener interface.
-    private EntitySelectActivity entitySelectActivity;
-
-    public HereFunctionHandler() {
-    }
-
-    public void registerEvalLocationListener(EntitySelectActivity entitySelectActivity) {
-        this.entitySelectActivity = entitySelectActivity;
-    }
-
-    public void unregisterEvalLocationListener() {
-        this.entitySelectActivity = null;
+    public AndroidHereFunctionHandler() {
     }
 
     // The EntitySelectActivity must subscribe before this method is called if a fresh location is desired.
     @Override
     public Object eval(Object[] args, EvaluationContext ec) {
-        if (entitySelectActivity != null) {
-            entitySelectActivity.onHereFunctionEvaluated();
-        }
+        alertOnEval();
         if (location == null) {
             return "";
         }
@@ -86,7 +70,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         }
     }
 
-    public void refreshLocation() {
+    public void clearLocation() {
         this.locationGoodEnough = false;
     }
 
@@ -101,9 +85,9 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         }
 
 
-        if (entitySelectActivity != null && shouldRefreshEntityList()) {
+        if (listener != null && shouldRefreshEntityList()) {
             lastDisplayedLocation = location;
-            entitySelectActivity.onEvalLocationChanged();
+            listener.onEvalLocationChanged();
         }
     }
 
@@ -176,20 +160,4 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     public void onStatusChanged(String provider, int status, Bundle extras) {
     }
 
-    @Override
-    public String getName() {
-        return HERE_NAME;
-    }
-
-    @Override
-    public Vector getPrototypes() {
-        Vector p = new Vector();
-        p.addElement(new Class[0]);
-        return p;
-    }
-
-    @Override
-    public boolean rawArgs() {
-        return false;
-    }
 }
