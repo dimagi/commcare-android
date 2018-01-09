@@ -33,6 +33,14 @@ public class BarcodeWidget extends IntentWidget implements TextWatcher {
         this.intent = new IntentIntegrator((Activity)getContext()).createScanIntent();
     }
 
+    @Override
+    protected void performCallout() {
+        if (this.intent == null) {
+            this.intent = new IntentIntegrator((Activity)getContext()).createScanIntent();
+        }
+        super.performCallout();
+    }
+
     public void processBarcodeResponse(TreeReference intentQuestionRef, String scanResult) {
         IntentCallout.setNodeValue(this.formDef, intentQuestionRef, scanResult);
     }
