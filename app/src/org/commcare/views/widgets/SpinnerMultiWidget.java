@@ -52,7 +52,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
     @SuppressWarnings("unchecked")
     public SpinnerMultiWidget(final Context context, FormEntryPrompt prompt) {
         super(context, prompt);
-        mItems = mPrompt.getSelectChoices();
+        mItems = getSelectChoices();
 
         selections = new boolean[mItems.size()];
         answerItems = new CharSequence[mItems.size()];
@@ -130,7 +130,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
             boolean first = true;
             for (int i = 0; i < selections.length; ++i) {
 
-                String value = mPrompt.getSelectChoices().get(i).getValue();
+                String value = mItems.get(i).getValue();
                 boolean found = false;
                 for (Selection s : ve) {
                     if (value.equals(s.getValue())) {

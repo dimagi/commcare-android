@@ -59,7 +59,7 @@ public class GridMultiWidget extends QuestionWidget {
     @SuppressWarnings("unchecked")
     public GridMultiWidget(Context context, FormEntryPrompt prompt, int numColumns) {
         super(context, prompt);
-        mItems = mPrompt.getSelectChoices();
+        mItems = getSelectChoices();
 
         selected = new boolean[mItems.size()];
         String[] choices = new String[mItems.size()];
