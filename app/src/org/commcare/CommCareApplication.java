@@ -977,7 +977,10 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     private static void setupLoggerStorage(boolean userStorageAvailable) {
-        boolean loggingEnabled = HiddenPreferences.isLoggingEnabled();
+        boolean loggingEnabled = true;
+        if (instance().currentApp != null) {
+            loggingEnabled = HiddenPreferences.isLoggingEnabled();
+        }
         if (userStorageAvailable) {
             if (loggingEnabled) {
                 Logger.registerLogger(new AndroidLogger(app.getUserStorage(AndroidLogEntry.STORAGE_KEY,
