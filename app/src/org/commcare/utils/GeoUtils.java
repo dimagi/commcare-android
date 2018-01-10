@@ -71,7 +71,7 @@ public class GeoUtils {
      * Gets the same list of providers returned by evaluateProviders, but filtered out
      * to include only providers with the appropriate permissions granted.
      */
-    public static Set<String> evaluateProvidersWithPermissions(LocationManager manager, Context context) {
+    protected static Set<String> evaluateProvidersWithPermissions(LocationManager manager, Context context) {
         HashSet<String> set = new HashSet<>();
 
         List<String> providers = manager.getProviders(true);
@@ -129,6 +129,21 @@ public class GeoUtils {
             factory.setOnCancelListener(onCancel);
         }
         return factory;
+    }
+
+    public static boolean locationServicesEnabledGlobally(LocationManager lm) {
+        boolean gpsEnabled = false, networkEnabled = false;
+        try {
+            gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex){
+        }
+
+        try {
+            networkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (Exception ex){
+        }
+
+        return gpsEnabled || networkEnabled;
     }
 
     /**
