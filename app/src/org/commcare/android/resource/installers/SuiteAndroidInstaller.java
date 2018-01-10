@@ -11,6 +11,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
 import org.commcare.utils.FileUtil;
@@ -109,7 +110,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
+    public boolean verifyInstallation(Resource r,
+                                      Vector<MissingMediaException> problems,
+                                      CommCarePlatform instance) {
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
             Suite suite = AndroidSuiteParser.buildVerifyParser(local.getStream(), new DummyResourceTable()).parse();

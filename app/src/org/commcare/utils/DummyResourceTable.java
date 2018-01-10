@@ -95,23 +95,23 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     @Override
-                    public int rollback(Resource r) {
+                    public int rollback(Resource r, CommCarePlatform instance) {
                         throw new RuntimeException("Basic Installer resources can't rolled back");
                     }
 
                     @Override
-                    public boolean uninstall(Resource r)
+                    public boolean uninstall(Resource r, CommCarePlatform instance)
                             throws UnresolvedResourceException {
                         return true;
                     }
 
                     @Override
-                    public boolean unstage(Resource r, int newStatus) {
+                    public boolean unstage(Resource r, int newStatus, CommCarePlatform instance) {
                         return true;
                     }
 
                     @Override
-                    public boolean revert(Resource r, ResourceTable table) {
+                    public boolean revert(Resource r, ResourceTable table, CommCarePlatform instance) {
                         return true;
                     }
 
@@ -127,7 +127,7 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     @Override
-                    public boolean verifyInstallation(Resource r, Vector problems) {
+                    public boolean verifyInstallation(Resource r, Vector problems, CommCarePlatform instance) {
                         return false;
                     }
                 };
@@ -202,7 +202,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void clear() {
+    public void clear(CommCarePlatform instance) {
     }
 
     @Override
