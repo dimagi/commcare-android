@@ -55,7 +55,9 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
 
     @Override
     protected boolean onBackwardSwipe() {
-        onBackPressed();
+        if(!isFinishing()) {
+            onBackPressed();
+        }
         return true;
     }
 }
