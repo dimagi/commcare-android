@@ -51,6 +51,9 @@ public class HiddenPreferences {
     public final static String MM_VALIDATED_FROM_HQ = "cc-content-valid";
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
 
+    private final static String LOGS_ENABLED = "logenabled";
+    private final static String LOGS_ENABLED_YES = "Enabled";
+
     /**
      * @return How many seconds should a user session remain open before expiring?
      */
@@ -173,6 +176,12 @@ public class HiddenPreferences {
         // If there is a setting for form management it takes precedence
         return !properties.contains(ENABLE_SAVED_FORMS) ||
                 properties.getString(ENABLE_SAVED_FORMS, PrefValues.YES).equals(PrefValues.YES);
+    }
+
+    public static boolean isLoggingEnabled() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return !properties.contains(LOGS_ENABLED) ||
+                properties.getString(ENABLE_SAVED_FORMS, LOGS_ENABLED_YES).equals(LOGS_ENABLED_YES);
     }
 
     public static boolean isIncompleteFormsEnabled() {

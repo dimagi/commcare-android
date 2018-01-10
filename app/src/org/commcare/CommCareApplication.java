@@ -980,17 +980,21 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     private static void setupLoggerStorage(boolean userStorageAvailable) {
-        CommCareApplication app = CommCareApplication.instance();
+        boolean loggingEnabled = HiddenPreferences.isLoggingEnabled();
         if (userStorageAvailable) {
-            Logger.registerLogger(new AndroidLogger(app.getUserStorage(AndroidLogEntry.STORAGE_KEY,
-                    AndroidLogEntry.class)));
+            if (loggingEnabled) {
+                Logger.registerLogger(new AndroidLogger(app.getUserStorage(AndroidLogEntry.STORAGE_KEY,
+                        AndroidLogEntry.class)));
+            }
             ForceCloseLogger.registerStorage(app.getUserStorage(ForceCloseLogEntry.STORAGE_KEY,
                     ForceCloseLogEntry.class));
             XPathErrorLogger.registerStorage(app.getUserStorage(XPathErrorEntry.STORAGE_KEY,
                     XPathErrorEntry.class));
         } else {
-            Logger.registerLogger(new AndroidLogger(
-                    app.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+            if (loggingEnabled) {
+                Logger.registerLogger(new AndroidLogger(
+                        app.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+            }
             ForceCloseLogger.registerStorage(
                     app.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
         }
