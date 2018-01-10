@@ -150,8 +150,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean upgrade(Resource r) {
-        boolean fileUpgrade = super.upgrade(r);
+    public boolean upgrade(Resource r, AndroidCommCarePlatform instance) {
+        boolean fileUpgrade = super.upgrade(r, instance);
         return fileUpgrade && updateFilePath();
     }
 

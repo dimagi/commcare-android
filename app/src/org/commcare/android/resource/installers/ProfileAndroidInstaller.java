@@ -12,6 +12,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
@@ -121,8 +122,8 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean upgrade(Resource r) {
-        if (!super.upgrade(r)) {
+    public boolean upgrade(Resource r, AndroidCommCarePlatform instance) {
+        if (!super.upgrade(r, instance)) {
             return false;
         }
 

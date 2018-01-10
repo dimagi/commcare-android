@@ -183,8 +183,6 @@ public class CommCareApplication extends MultiDexApplication {
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
-        PropertyManager.setPropertyManager(new DummyPropertyManager());
-
         SQLiteDatabase.loadLibs(this);
 
         setRoots();

@@ -165,7 +165,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     }
 
     @Override
-    public boolean upgrade(Resource r) {
+    public boolean upgrade(Resource r, AndroidCommCarePlatform instance) {
         try {
             //TODO: This process is silly! Just put the files somewhere as a resource with a unique GUID and stop shuffling them around!
 

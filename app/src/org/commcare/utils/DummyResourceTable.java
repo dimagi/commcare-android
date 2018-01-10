@@ -116,7 +116,7 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     @Override
-                    public boolean upgrade(Resource r)
+                    public boolean upgrade(Resource r, CommCarePlatform instance)
                             throws UnresolvedResourceException {
                         return true;
                     }
@@ -188,7 +188,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void upgradeTable(ResourceTable incoming)
+    public void upgradeTable(ResourceTable incoming, CommCarePlatform instance)
             throws UnresolvedResourceException {
     }
 
