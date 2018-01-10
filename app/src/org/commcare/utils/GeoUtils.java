@@ -4,9 +4,11 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 
 import org.commcare.activities.CommCareActivity;
@@ -131,7 +133,19 @@ public class GeoUtils {
         return factory;
     }
 
-    public static boolean locationServicesEnabledGlobally(LocationManager lm) {
+    public static void goToProperLocationSettingsScreen(Context context) {
+        Intent intent;
+        LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+        if (locationServicesEnabledGlobally(lm)) {
+            intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.fromParts("package", context.getPackageName(), null));
+        } else {
+            intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        }
+        context.startActivity(intent);
+    }
+
+    private static boolean locationServicesEnabledGlobally(LocationManager lm) {
         boolean gpsEnabled = false, networkEnabled = false;
         try {
             gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -142,7 +156,6 @@ public class GeoUtils {
             networkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         } catch (Exception ex){
         }
-
         return gpsEnabled || networkEnabled;
     }
 

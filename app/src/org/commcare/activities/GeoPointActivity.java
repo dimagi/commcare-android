@@ -115,7 +115,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE:
-                        goToProperLocationSettingsScreen();
+                        GeoUtils.goToProperLocationSettingsScreen(GeoPointActivity.this);
                         break;
                     case DialogInterface.BUTTON_NEGATIVE:
                         location = null;
@@ -127,17 +127,6 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         };
 
         GeoUtils.showNoGpsDialog(this, onChangeListener, onCancelListener);
-    }
-
-    private void goToProperLocationSettingsScreen() {
-        Intent intent;
-        if (GeoUtils.locationServicesEnabledGlobally(this.locationManager)) {
-            intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            intent.setData(Uri.fromParts("package", getPackageName(), null));
-        } else {
-            intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        }
-        startActivity(intent);
     }
 
     /**
