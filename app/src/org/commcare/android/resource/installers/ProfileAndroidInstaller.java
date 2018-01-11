@@ -122,8 +122,8 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean upgrade(Resource r, AndroidCommCarePlatform instance) {
-        if (!super.upgrade(r, instance)) {
+    public boolean upgrade(Resource r, AndroidCommCarePlatform platform) {
+        if (!super.upgrade(r, platform)) {
             return false;
         }
 
