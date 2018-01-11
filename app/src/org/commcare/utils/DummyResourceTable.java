@@ -206,7 +206,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void initializeResources(CommCarePlatform instance, boolean isUpgrade) {
+    public void initializeResources(CommCarePlatform platform, boolean isUpgrade) {
     }
 
 }
