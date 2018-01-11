@@ -149,12 +149,16 @@ public class GeoUtils {
         boolean gpsEnabled = false, networkEnabled = false;
         try {
             gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch (Exception ex){
+        } catch (Exception ex) {
+            // Prior to API level 21, this will throw a SecurityException if the location
+            // permissions are not sufficient to use the specified provider
         }
 
         try {
             networkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch (Exception ex){
+        } catch (Exception ex) {
+            // Prior to API level 21, this will throw a SecurityException if the location
+            // permissions are not sufficient to use the specified provider
         }
         return gpsEnabled || networkEnabled;
     }
