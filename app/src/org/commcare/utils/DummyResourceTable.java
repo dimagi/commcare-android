@@ -182,7 +182,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void prepareResources(ResourceTable master, CommCarePlatform instance)
+    public void prepareResources(ResourceTable master, CommCarePlatform platform)
             throws UnresolvedResourceException,
             UnfullfilledRequirementsException {
     }
