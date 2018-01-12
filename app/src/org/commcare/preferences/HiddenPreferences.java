@@ -179,9 +179,12 @@ public class HiddenPreferences {
     }
 
     public static boolean isLoggingEnabled() {
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            return true;
+        }
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return !properties.contains(LOGS_ENABLED) ||
-                properties.getString(ENABLE_SAVED_FORMS, LOGS_ENABLED_YES).equals(LOGS_ENABLED_YES);
+                properties.getString(LOGS_ENABLED, LOGS_ENABLED_YES).equals(LOGS_ENABLED_YES);
     }
 
     public static boolean isIncompleteFormsEnabled() {
