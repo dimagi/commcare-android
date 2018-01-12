@@ -5,7 +5,9 @@ import android.content.ContentValues;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.models.database.SqlStorage;
+import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.services.storage.ExpressionCacheStorage;
+import org.javarosa.xpath.CachedExpression;
 import org.javarosa.xpath.InFormCacheableExpr;
 
 /**
@@ -13,20 +15,13 @@ import org.javarosa.xpath.InFormCacheableExpr;
  */
 
 public class AndroidExpressionCacheStorage implements ExpressionCacheStorage {
-    private final static String formExpressionCacheTableName = "InFormExpressionCache";
-    private final static String CACHE_KEY_COL = "cache_key";
-    private final static String CACHE_VAL_COL = "cache_value";
 
-    private SQLiteDatabase db;
-
-    public AndroidExpressionCacheStorage(SQLiteDatabase userDb) {
-        createExpressionCacheTable(userDb);
+    public AndroidExpressionCacheStorage() {
     }
 
     @Override
-    public void cache(InFormCacheableExpr key, Object value) {
-        ContentValues cv = new ContentValues();
-        db.insertOrThrow(formExpressionCacheTableName, null, cv);
+    public void cache(CachedExpression value) {
+
     }
 
     @Override
@@ -34,15 +29,4 @@ public class AndroidExpressionCacheStorage implements ExpressionCacheStorage {
         return null;
     }
 
-    public static void createExpressionCacheTable(SQLiteDatabase db) {
-        String createStatement =
-                "CREATE TABLE IF NOT EXISTS "
-                        + formExpressionCacheTableName
-                        + " (" + CACHE_KEY_COL + ", " + CACHE_VAL_COL + ");";
-        db.execSQL(createStatement);
-    }
-
-    public static void wipeExpressionCacheTable(SQLiteDatabase db) {
-        SqlStorage.wipeTable(db, formExpressionCacheTableName);
-    }
 }

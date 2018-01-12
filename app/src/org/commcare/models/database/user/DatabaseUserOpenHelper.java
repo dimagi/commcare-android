@@ -22,10 +22,10 @@ import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.modern.database.DatabaseIndexingUtils;
-import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.xpath.CachedExpression;
 
 /**
  * The helper for opening/updating the user (encrypted) db space for
@@ -129,6 +129,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
             builder = new TableBuilder(Ledger.STORAGE_KEY);
             builder.addData(new Ledger());
             builder.setUnique(Ledger.INDEX_ENTITY_ID);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(CachedExpression.STORAGE_KEY);
+            builder.addData(new CachedExpression());
             database.execSQL(builder.getTableCreateString());
 
             //The uniqueness index should be doing this for us
