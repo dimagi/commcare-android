@@ -36,8 +36,8 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean uninstall(Resource r, AndroidCommCarePlatform instance) throws UnresolvedResourceException {
-        boolean success = super.uninstall(r, instance);
+    public boolean uninstall(Resource r, AndroidCommCarePlatform platform) throws UnresolvedResourceException {
+        boolean success = super.uninstall(r, platform);
         if (!success) {
             return false;
         }
@@ -56,7 +56,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
+    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
         return false;
     }
 

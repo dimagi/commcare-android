@@ -60,12 +60,12 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     }
 
     @Override
-    public abstract boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade);
+    public abstract boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade);
 
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           AndroidCommCarePlatform instance, boolean upgrade)
+                           AndroidCommCarePlatform platform, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
             InputStream inputFileStream;
@@ -157,7 +157,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     public abstract boolean requiresRuntimeInitialization();
 
     @Override
-    public boolean uninstall(Resource r, AndroidCommCarePlatform instance) throws UnresolvedResourceException {
+    public boolean uninstall(Resource r, AndroidCommCarePlatform platform) throws UnresolvedResourceException {
         try {
             return new File(ReferenceManager.instance().DeriveReference(this.localLocation).getLocalURI()).delete();
         } catch (InvalidReferenceException e) {
@@ -188,7 +188,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     }
 
     @Override
-    public boolean unstage(Resource r, int newStatus, AndroidCommCarePlatform instance) {
+    public boolean unstage(Resource r, int newStatus, AndroidCommCarePlatform platform) {
         try {
             //Our destination/source are different depending on where we're going
             if (newStatus == Resource.RESOURCE_STATUS_UNSTAGED) {
@@ -222,7 +222,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     }
 
     @Override
-    public boolean revert(Resource r, ResourceTable table, CommCarePlatform instance) {
+    public boolean revert(Resource r, ResourceTable table, CommCarePlatform platform) {
         String finalLocation = null;
         try {
             //use same filename as before
@@ -250,7 +250,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     }
 
     @Override
-    public int rollback(Resource r, CommCarePlatform instance) {
+    public int rollback(Resource r, CommCarePlatform platform) {
         //TODO: These filepath ops need to be the same for this all to work,
         //which is not super robust against changes right now.
 
@@ -342,7 +342,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
 
     @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> issues,
-                                      CommCarePlatform instance) {
+                                      CommCarePlatform platform) {
         try {
             Reference ref = ReferenceManager.instance().DeriveReference(localLocation);
             if (!ref.doesBinaryExist()) {

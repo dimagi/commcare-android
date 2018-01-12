@@ -64,8 +64,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
-        instance.registerXmlns(namespace, contentUri);
+    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
+        platform.registerXmlns(namespace, contentUri);
         return true;
     }
 

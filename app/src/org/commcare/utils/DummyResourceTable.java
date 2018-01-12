@@ -80,14 +80,14 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     @Override
-                    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
+                    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
                         return true;
                     }
 
                     @Override
                     public boolean install(Resource r,
                                            ResourceLocation location, Reference ref,
-                                           ResourceTable table, CommCarePlatform instance,
+                                           ResourceTable table, CommCarePlatform platform,
                                            boolean upgrade)
                             throws UnresolvedResourceException,
                             UnfullfilledRequirementsException {
@@ -95,23 +95,23 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     @Override
-                    public int rollback(Resource r, CommCarePlatform instance) {
+                    public int rollback(Resource r, CommCarePlatform platform) {
                         throw new RuntimeException("Basic Installer resources can't rolled back");
                     }
 
                     @Override
-                    public boolean uninstall(Resource r, CommCarePlatform instance)
+                    public boolean uninstall(Resource r, CommCarePlatform platform)
                             throws UnresolvedResourceException {
                         return true;
                     }
 
                     @Override
-                    public boolean unstage(Resource r, int newStatus, CommCarePlatform instance) {
+                    public boolean unstage(Resource r, int newStatus, CommCarePlatform platform) {
                         return true;
                     }
 
                     @Override
-                    public boolean revert(Resource r, ResourceTable table, CommCarePlatform instance) {
+                    public boolean revert(Resource r, ResourceTable table, CommCarePlatform platform) {
                         return true;
                     }
 
@@ -127,7 +127,7 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     @Override
-                    public boolean verifyInstallation(Resource r, Vector problems, CommCarePlatform instance) {
+                    public boolean verifyInstallation(Resource r, Vector problems, CommCarePlatform platform) {
                         return false;
                     }
                 };
