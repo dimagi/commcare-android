@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -87,32 +88,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
 
         providers = GeoUtils.evaluateProviders(locationManager);
         if (providers.isEmpty()) {
-            DialogInterface.OnCancelListener onCancelListener = new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    location = null;
-                    GeoPointActivity.this.finish();
-                }
-            };
-
-            DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int i) {
-                    switch (i) {
-                        case DialogInterface.BUTTON_POSITIVE:
-                            Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(intent);
-                            break;
-                        case DialogInterface.BUTTON_NEGATIVE:
-                            location = null;
-                            GeoPointActivity.this.finish();
-                            break;
-                    }
-                    dialog.dismiss();
-                }
-            };
-
-            GeoUtils.showNoGpsDialog(this, onChangeListener, onCancelListener);
+            handleNoLocationProviders();
         } else {
             for (String provider : providers) {
                 if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
@@ -123,6 +99,34 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
             // TODO PLM: warn user and ask for permissions if the user has disabled them
             locationDialog.show();
         }
+    }
+
+    private void handleNoLocationProviders() {
+        DialogInterface.OnCancelListener onCancelListener = new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                location = null;
+                GeoPointActivity.this.finish();
+            }
+        };
+
+        DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        GeoUtils.goToProperLocationSettingsScreen(GeoPointActivity.this);
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        location = null;
+                        GeoPointActivity.this.finish();
+                        break;
+                }
+                dialog.dismiss();
+            }
+        };
+
+        GeoUtils.showNoGpsDialog(this, onChangeListener, onCancelListener);
     }
 
     /**

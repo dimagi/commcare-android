@@ -143,8 +143,7 @@ public class FormEntryDialogs {
                 @Override
                 public void onClick(DialogInterface dialog, int i) {
                     if (i == DialogInterface.BUTTON_POSITIVE) {
-                        Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        activity.startActivity(intent);
+                        GeoUtils.goToProperLocationSettingsScreen(activity);
                     }
                     activity.dismissAlertDialog();
                 }

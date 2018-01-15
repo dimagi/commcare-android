@@ -50,7 +50,6 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
-import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
@@ -75,7 +74,6 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathException;
@@ -173,9 +171,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         uiController.setupUI();
         mGestureDetector = new GestureDetector(this, this);
-
-        // needed to override rms property manager
-        PropertyManager.setPropertyManager(new AndroidPropertyManager(getApplicationContext()));
 
         if (savedInstanceState != null) {
             loadStateFromBundle(savedInstanceState);
