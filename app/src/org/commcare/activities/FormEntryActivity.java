@@ -51,6 +51,7 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.models.ODKStorage;
+import org.commcare.models.database.user.AndroidInFormExpressionCacher;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
@@ -75,6 +76,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.ExpressionCacher;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -168,6 +170,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
             return;
         }
+
+        // While we're in form entry, we want to use the real cacher implementation
+        ExpressionCacher.setCacher(new AndroidInFormExpressionCacher());
 
         uiController.setupUI();
         mGestureDetector = new GestureDetector(this, this);
@@ -1047,6 +1052,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 mSaveToDiskTask.cancel(false);
             }
         }
+
+        // As soon as we leave form entry, we don't want to do be doing caching anymore
+        ExpressionCacher.reset();
 
         super.onDestroy();
     }
