@@ -55,17 +55,16 @@ import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
-import org.commcare.models.database.AndroidStorageProvider;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
+import org.commcare.models.database.user.AndroidExpressionCacher;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.models.legacy.LegacyInstallUtils;
-import org.commcare.modern.database.StorageProvider;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.util.Pair;
 import org.commcare.modern.util.PerformanceTuningUtil;
@@ -100,6 +99,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.ExpressionCacher;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -228,7 +228,7 @@ public class CommCareApplication extends MultiDexApplication {
         PerformanceTuningUtil.updateMaxPrefetchCaseBlock(
                 PerformanceTuningUtil.guessLargestSupportedBulkCaseFetchSizeFromHeap(memoryClass * 1024 * 1024));
 
-        StorageProvider.setInstance(new AndroidStorageProvider());
+        ExpressionCacher.setCacher(new AndroidExpressionCacher());
     }
 
     public void startUserSession(byte[] symmetricKey, UserKeyRecord record, boolean restoreSession) {
