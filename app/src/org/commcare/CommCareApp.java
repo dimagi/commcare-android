@@ -199,18 +199,18 @@ public class CommCareApp implements AppFilePathBuilder {
 
         // See if any of our tables got left in a weird state
         if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
-            global.rollbackCommits();
+            global.rollbackCommits(platform);
             logTable("Global after rollback", global);
         }
         if (upgrade.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
-            upgrade.rollbackCommits();
+            upgrade.rollbackCommits(platform);
             logTable("Upgrade after rollback", upgrade);
         }
 
         // See if we got left in the middle of an update
         if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
             // If so, repair the global table. (Always takes priority over maintaining the update)
-            global.repairTable(upgrade);
+            global.repairTable(upgrade, platform);
         }
 
         Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);

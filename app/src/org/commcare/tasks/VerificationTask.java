@@ -33,7 +33,7 @@ public abstract class VerificationTask<Reciever>
                 new SizeBoundUniqueVector<>(10);
 
         setTableListeners(global);
-        global.verifyInstallation(problems);
+        global.verifyInstallation(problems, platform);
         unsetTableListeners(global);
 
         if (problems.size() > 0) {

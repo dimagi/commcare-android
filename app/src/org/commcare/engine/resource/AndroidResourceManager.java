@@ -79,7 +79,7 @@ public class AndroidResourceManager extends ResourceManager {
 
                 if (updateNotNewer(getMasterProfile())) {
                     Logger.log(LogTypes.TYPE_RESOURCES, "App Resources up to Date");
-                    upgradeTable.clear();
+                    upgradeTable.clear(platform);
                     return AppInstallStatus.UpToDate;
                 }
 
@@ -205,7 +205,7 @@ public class AndroidResourceManager extends ResourceManager {
         updateStats.registerUpdateException(new Exception(result.toString()));
 
         if (!result.canReusePartialUpdateTable()) {
-            upgradeTable.clear();
+            upgradeTable.clear(platform);
         }
 
         retryUpdateOrGiveUp(ctx, isAutoUpdate);
@@ -224,7 +224,7 @@ public class AndroidResourceManager extends ResourceManager {
                 ResourceInstallUtils.recordAutoUpdateCompletion(app);
             }
 
-            upgradeTable.clear();
+            upgradeTable.clear(platform);
         } else {
             Log.w(TAG, "Retrying auto-update");
             UpdateStats.saveStatsPersistently(app, updateStats);
