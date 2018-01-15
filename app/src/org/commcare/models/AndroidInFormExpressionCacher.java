@@ -12,19 +12,23 @@ import org.javarosa.xpath.expr.InFormCacheableExpr;
 
 public class AndroidInFormExpressionCacher extends ExpressionCacher {
 
+    SqlStorage<CachedExpression> cacheStorage;
+
     public AndroidInFormExpressionCacher() {
+        cacheStorage = CommCareApplication.instance()
+                .getUserStorage(CachedExpression.STORAGE_KEY, CachedExpression.class);
     }
 
     @Override
     public int cache(InFormCacheableExpr expression, Object value) {
         CachedExpression cached = new CachedExpression(expression, value);
-        getCacheStorage().write(cached);
+        cacheStorage.write(cached);
         return cached.getID();
     }
 
     @Override
     public Object getCachedValue(int idOfStoredCache) {
-        CachedExpression cached = getCacheStorage().read(idOfStoredCache);
+        CachedExpression cached = cacheStorage.read(idOfStoredCache);
         if (cached == null) {
             return null;
         } else {
@@ -39,12 +43,7 @@ public class AndroidInFormExpressionCacher extends ExpressionCacher {
 
     @Override
     public void wipeCacheStorage() {
-        getCacheStorage().removeAll();
-    }
-
-    private SqlStorage<CachedExpression> getCacheStorage() {
-        return CommCareApplication.instance()
-                .getUserStorage(CachedExpression.STORAGE_KEY, CachedExpression.class);
+        cacheStorage.removeAll();
     }
 
 }
