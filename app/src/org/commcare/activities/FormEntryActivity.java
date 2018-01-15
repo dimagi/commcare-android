@@ -51,7 +51,7 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.models.ODKStorage;
-import org.commcare.models.database.user.AndroidInFormExpressionCacher;
+import org.commcare.models.AndroidInFormExpressionCacher;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;

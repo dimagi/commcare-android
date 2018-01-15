@@ -1,4 +1,4 @@
-package org.commcare.models.database.user;
+package org.commcare.models;
 
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
