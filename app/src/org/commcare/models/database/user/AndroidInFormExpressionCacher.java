@@ -3,8 +3,8 @@ package org.commcare.models.database.user;
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.services.ExpressionCacher;
-import org.javarosa.xpath.CachedExpression;
-import org.javarosa.xpath.InFormCacheableExpr;
+import org.javarosa.xpath.expr.CachedExpression;
+import org.javarosa.xpath.expr.InFormCacheableExpr;
 
 /**
  * Created by amstone326 on 1/10/18.
