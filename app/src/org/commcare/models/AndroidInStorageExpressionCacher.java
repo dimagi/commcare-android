@@ -10,11 +10,11 @@ import org.javarosa.xpath.expr.InFormCacheableExpr;
  * Created by amstone326 on 1/10/18.
  */
 
-public class AndroidInFormExpressionCacher extends ExpressionCacher {
+public class AndroidInStorageExpressionCacher extends ExpressionCacher {
 
     SqlStorage<CachedExpression> cacheStorage;
 
-    public AndroidInFormExpressionCacher() {
+    public AndroidInStorageExpressionCacher() {
         cacheStorage = CommCareApplication.instance()
                 .getUserStorage(CachedExpression.STORAGE_KEY, CachedExpression.class);
     }
@@ -42,7 +42,7 @@ public class AndroidInFormExpressionCacher extends ExpressionCacher {
     }
 
     @Override
-    public void wipeCacheStorage() {
+    public void wipeCache() {
         cacheStorage.removeAll();
     }
 
