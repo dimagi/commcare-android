@@ -1,7 +1,7 @@
 package org.commcare.models;
 
-import org.javarosa.core.services.ExpressionCacher;
-import org.javarosa.xpath.expr.CachedExpression;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.InFormExpressionCacher;
 import org.javarosa.xpath.expr.InFormCacheableExpr;
 
 import java.util.HashMap;
@@ -11,12 +11,13 @@ import java.util.Map;
  * Created by amstone326 on 1/16/18.
  */
 
-public class AndroidInMemoryExpressionCacher extends ExpressionCacher {
+public class AndroidInFormExpressionCacher extends InFormExpressionCacher {
 
     private Map<InFormCacheableExpr, Object> cache;
     private Map<InFormCacheableExpr, Integer> cacheRetrievalCounts;
 
-    public AndroidInMemoryExpressionCacher() {
+    public AndroidInFormExpressionCacher(FormInstance formInstance) {
+        this.formInstanceRoot = formInstance.getBase().getChildAt(0).getName();
         cache = new HashMap<>();
     }
 

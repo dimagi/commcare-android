@@ -50,9 +50,8 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
-import org.commcare.models.AndroidInMemoryExpressionCacher;
+import org.commcare.models.AndroidInFormExpressionCacher;
 import org.commcare.models.ODKStorage;
-import org.commcare.models.AndroidInStorageExpressionCacher;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
@@ -77,7 +76,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.ExpressionCacher;
+import org.javarosa.core.services.InFormExpressionCacher;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -171,9 +170,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
             return;
         }
-
-        // While we're in form entry, we want to use the real cacher implementation
-        ExpressionCacher.setCacher(new AndroidInMemoryExpressionCacher());
 
         uiController.setupUI();
         mGestureDetector = new GestureDetector(this, this);
@@ -951,6 +947,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         mFormController = fc;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // Newer menus may have already built the menu, before all data was ready
             invalidateOptionsMenu();
@@ -969,6 +966,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         reportFormEntryTime();
+
+        // While we're in form entry, we want to use the real cacher implementation
+        InFormExpressionCacher.setCacher(new AndroidInFormExpressionCacher(mFormController.getInstance()));
 
         formEntryRestoreSession.replaySession(this);
 
@@ -1055,7 +1055,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         // As soon as we leave form entry, we don't want to do be doing caching anymore
-        ExpressionCacher.reset();
+        InFormExpressionCacher.reset();
 
         super.onDestroy();
     }

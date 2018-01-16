@@ -2,7 +2,7 @@ package org.commcare.models;
 
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
-import org.javarosa.core.services.ExpressionCacher;
+import org.javarosa.core.services.InFormExpressionCacher;
 import org.javarosa.xpath.expr.CachedExpression;
 import org.javarosa.xpath.expr.InFormCacheableExpr;
 
@@ -10,7 +10,7 @@ import org.javarosa.xpath.expr.InFormCacheableExpr;
  * Created by amstone326 on 1/10/18.
  */
 
-public class AndroidInStorageExpressionCacher extends ExpressionCacher {
+public class AndroidInStorageExpressionCacher extends InFormExpressionCacher {
 
     SqlStorage<CachedExpression> cacheStorage;
 
