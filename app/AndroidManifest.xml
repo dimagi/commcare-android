@@ -26,8 +26,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false"/>
@@ -54,13 +55,13 @@
     </permission>
 
     <application
-        android:allowBackup="false"
-        tools:replace="android:label,android:icon, android:allowBackup"
         android:name="org.commcare.CommCareApplication"
+        android:allowBackup="false"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
-        android:hardwareAccelerated="true"
-        android:theme="@style/AppBaseTheme">
+        android:theme="@style/AppBaseTheme"
+        tools:replace="android:label,android:icon, android:allowBackup">
         <activity
             android:name="org.commcare.activities.DispatchActivity"
             android:label="@string/application_name">
@@ -102,12 +103,12 @@
 
         <provider
             android:name="org.commcare.provider.FormsProvider"
-            android:exported="true"
-            android:authorities="${odkProvider}.forms"/>
+            android:authorities="${odkProvider}.forms"
+            android:exported="true"/>
         <provider
             android:name="org.commcare.provider.InstanceProvider"
-            android:exported="true"
-            android:authorities="${odkProvider}.instances"/>
+            android:authorities="${odkProvider}.instances"
+            android:exported="true"/>
         <provider
             android:name="org.commcare.provider.CaseDataContentProvider"
             android:authorities="${applicationId}.case"
@@ -132,11 +133,13 @@
         </provider>
 
 
-        <activity android:name="org.commcare.activities.CommCarePreferenceActivity"
+        <activity
+            android:name="org.commcare.activities.CommCarePreferenceActivity"
             android:theme="@style/PreferenceTheme">
         </activity>
-        <activity android:name="org.commcare.activities.SessionAwarePreferenceActivity"
-                  android:theme="@style/PreferenceTheme">
+        <activity
+            android:name="org.commcare.activities.SessionAwarePreferenceActivity"
+            android:theme="@style/PreferenceTheme">
         </activity>
         <activity android:name="org.commcare.activities.DotsEntryActivity">
             <intent-filter>
@@ -278,7 +281,7 @@
         </activity>
         <activity android:name="org.commcare.activities.InstallFromListActivity">
         </activity>
-        
+
         <uses-library
             android:name="com.google.android.maps"
             android:required="false"/>
@@ -331,9 +334,10 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="org.commcare.provider.RefreshToLatestBuildReceiver"
+        <receiver
+            android:name="org.commcare.provider.RefreshToLatestBuildReceiver"
             android:enabled="true"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="${applicationId}.api.action.RefreshToLatestBuildAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -363,6 +367,10 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="${applicationId}.api.action.ExpireUserKeyRecord"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="${applicationId}.api.action.SetImageWidgetPath"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
@@ -430,7 +438,8 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>
 
-        <meta-data android:name="android.content.APP_RESTRICTIONS"
-            android:resource="@xml/app_restrictions" />
+        <meta-data
+            android:name="android.content.APP_RESTRICTIONS"
+            android:resource="@xml/app_restrictions"/>
     </application>
 </manifest>

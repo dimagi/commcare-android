@@ -7,13 +7,9 @@ import android.provider.MediaStore.Images.Media;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.UriToFilePath;
 import org.commcare.views.widgets.ImageWidget;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
@@ -22,6 +18,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class ImageCaptureProcessing {
+
+    // for selecting image from calabash tests
+    private static String sCustomImagePath;
 
     /**
      * Performs any necessary relocating and scaling of an image coming from either a
@@ -197,5 +196,17 @@ public class ImageCaptureProcessing {
         values.put(Media.MIME_TYPE, "image/jpeg");
         values.put(Media.DATA, unscaledFinalImage.getAbsolutePath());
         return values;
+    }
+
+    public static void processImageFromBroadcast(FormEntryActivity activity, String instanceFolder) {
+        processImageGivenFilePath(activity, instanceFolder, sCustomImagePath);
+    }
+
+    public static void setCustomImagePath(String filePath) {
+        sCustomImagePath = filePath;
+    }
+
+    public static String getCustomImagePath() {
+        return sCustomImagePath;
     }
 }

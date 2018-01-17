@@ -9,6 +9,7 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.LoginActivity;
+import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.SqlStorage;
@@ -46,6 +47,8 @@ public class DebugControlsReceiver extends BroadcastReceiver {
             invalidateUserKeyRecord(intent.getStringExtra("username"));
         } else if (action.endsWith("ClearCacheOnRestore")) {
             CommCareApplication.instance().setInvalidateCacheFlag(true);
+        } else if (action.endsWith("SetImageWidgetPath")) {
+            ImageCaptureProcessing.setCustomImagePath(intent.getStringExtra("file_path"));
         }
     }
 
