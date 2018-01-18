@@ -429,6 +429,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                             } else {
                                 showView(next, AnimationType.FADE, false);
                             }
+                            activity.saveAnswersForCurrentScreen(FormEntryConstants.EVALUATE_CONSTRAINTS);
+                            FormNavigationUI.updateNavigationCues(activity, FormEntryActivity.mFormController, next);
                             break group_skip;
                         case FormEntryController.EVENT_END_OF_FORM:
                             // auto-advance questions might advance past the last form quesion
@@ -450,6 +452,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                                 } else {
                                     showView(nextGroupView, AnimationType.FADE, false);
                                 }
+                                activity.saveAnswersForCurrentScreen(FormEntryConstants.EVALUATE_CONSTRAINTS);
+                                FormNavigationUI.updateNavigationCues(activity, FormEntryActivity.mFormController, nextGroupView);
                                 break group_skip;
                             }
                             // otherwise it's not a field-list group, so just skip it
