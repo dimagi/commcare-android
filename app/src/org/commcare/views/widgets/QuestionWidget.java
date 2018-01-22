@@ -241,7 +241,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             }
         }
         TextView messageView = (TextView)this.warningView.findViewById(R.id.message);
-        messageView.setText(text);
+        messageView.setText(forceMarkdown(text));
 
         //If the warningView already exists, we can just scroll to it right now
         //if not, we actually have to do it later, when we lay this all back out
