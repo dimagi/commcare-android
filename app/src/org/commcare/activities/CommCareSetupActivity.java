@@ -333,7 +333,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 return;
         }
 
-        if(!fragment.isAdded()) {
+        if(!fragment.isAdded() && !isFinishing()) {
             ft.replace(R.id.setup_fragment_container, fragment);
             ft.commit();
             fm.executePendingTransactions();
