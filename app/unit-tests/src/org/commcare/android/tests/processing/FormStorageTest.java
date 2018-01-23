@@ -307,8 +307,6 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathDistinctValuesFunc"
             , "org.javarosa.xpath.expr.XPathSleepFunc"
 
-            , "org.javarosa.xpath.expr.CachedExpression"
-
             );
 
 
