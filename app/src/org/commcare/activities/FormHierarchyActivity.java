@@ -273,10 +273,11 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            this.onBackPressed();
+            if (!isFinishing()) {
+                this.onBackPressed();
+            }
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
