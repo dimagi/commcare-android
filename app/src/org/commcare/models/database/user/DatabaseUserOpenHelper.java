@@ -22,6 +22,7 @@ import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.Persistable;
