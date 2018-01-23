@@ -38,6 +38,7 @@ import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.expr.InFormCacheableExpr;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -113,6 +114,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         if (fd == null) {
             fd = loadFormFromFile(formXml);
         }
+
+        // Once we have the FormDef, we can turn caching on
+        InFormCacheableExpr.enableCaching(fd.getMainInstance(), true);
 
         // Try to write the form definition to a cached location
         try {

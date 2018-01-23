@@ -192,6 +192,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 throw new SessionUnavailableException(
                         "Resuming form entry after process was killed. Form state is unrecoverable.");
             }
+            InFormCacheableExpr.enableCaching(mFormController.getInstance(), false);
             uiController.refreshView();
         }
     }
@@ -969,8 +970,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         reportFormEntryTime();
-
-        InFormCacheableExpr.enableCaching(mFormController.getInstance());
 
         formEntryRestoreSession.replaySession(this);
 
