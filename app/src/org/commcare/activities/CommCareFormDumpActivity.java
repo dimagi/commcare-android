@@ -66,11 +66,10 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     private int formsOnSD;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         final String url = this.getString(R.string.PostURL);
-
-        super.onCreate(savedInstanceState);
 
         updateCounters();
 

@@ -12,6 +12,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
@@ -44,16 +45,16 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
+    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
         try {
 
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
 
-            ProfileParser parser = new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(), null,
+            ProfileParser parser = new ProfileParser(local.getStream(), platform, platform.getGlobalResourceTable(), null,
                     Resource.RESOURCE_STATUS_INSTALLED, false);
 
             Profile p = parser.parse();
-            instance.setProfile(p);
+            platform.setProfile(p);
 
             return true;
         } catch (UnfullfilledRequirementsException | XmlPullParserException
@@ -67,15 +68,15 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade)
+                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
-        super.install(r, location, ref, table, instance, upgrade);
+        super.install(r, location, ref, table, platform, upgrade);
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
 
 
-            ProfileParser parser = new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(),
+            ProfileParser parser = new ProfileParser(local.getStream(), platform, table, r.getRecordGuid(),
                     Resource.RESOURCE_STATUS_UNINITIALIZED, false);
 
             Profile p = parser.parse();
@@ -121,8 +122,8 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean upgrade(Resource r) {
-        if (!super.upgrade(r)) {
+    public boolean upgrade(Resource r, AndroidCommCarePlatform platform) {
+        if (!super.upgrade(r, platform)) {
             return false;
         }
 

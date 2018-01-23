@@ -78,9 +78,10 @@ public class EntityDetailActivity
     private TabbedDetailView mDetailView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        Intent i = getIntent();
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
+        Intent i = getIntent();
         CommCareSession session;
         try {
             asw = CommCareApplication.instance().getCurrentSessionWrapper();
@@ -114,8 +115,6 @@ public class EntityDetailActivity
             this.mEntityContext = new Pair<>(shortDetail, mTreeReference);
         }
 
-        super.onCreate(savedInstanceState);
-        
         /* Caution: The detailIndex field comes from EntitySelectActivity, which is the 
          * source of this intent. In some instances, the detailIndex may not have been assigned,
          * in which case it will take on a value of -1. If making use of the detailIndex, it may
@@ -177,25 +176,22 @@ public class EntityDetailActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        switch (requestCode) {
-            case DetailCalloutListenerDefaultImpl.CALL_OUT:
-                if (resultCode == RESULT_CANCELED) {
-                    mDetailView.refresh(detail, mTreeReference, detailIndex);
-                    return;
-                } else {
-                    long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == DetailCalloutListenerDefaultImpl.CALL_OUT) {
+            if (resultCode == RESULT_CANCELED) {
+                mDetailView.refresh(detail, mTreeReference, detailIndex);
+                return;
+            } else {
+                long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
 
-                    Intent i = new Intent(EntityDetailActivity.this.getIntent());
-                    loadOutgoingIntent(i);
-                    i.putExtra(CallOutActivity.CALL_DURATION, duration);
-                    setResult(RESULT_OK, i);
+                Intent i = new Intent(EntityDetailActivity.this.getIntent());
+                loadOutgoingIntent(i);
+                i.putExtra(CallOutActivity.CALL_DURATION, duration);
+                setResult(RESULT_OK, i);
 
-                    finish();
-                    return;
-                }
-            default:
-                super.onActivityResult(requestCode, resultCode, intent);
+                finish();
+                return;
+            }
         }
     }
 

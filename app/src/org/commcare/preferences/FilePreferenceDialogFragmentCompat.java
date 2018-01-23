@@ -11,10 +11,15 @@ import android.widget.Toast;
 import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.util.LogTypes;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.UriToFilePath;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -34,7 +39,7 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
     @Override
     protected void onBindDialogView(View view) {
         super.onBindDialogView(view);
-        mEditText = (EditText)view.findViewById(android.R.id.edit);
+        mEditText = view.findViewById(android.R.id.edit);
         view.findViewById(R.id.filefetch).setOnClickListener(v -> {
             MainConfigurablePreferences.startFileBrowser(FilePreferenceDialogFragmentCompat.this,
                     REQUEST_FILE,
@@ -47,13 +52,37 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
         if (requestCode == REQUEST_FILE) {
             if (resultCode == RESULT_OK && intent != null) {
                 Uri uri = intent.getData();
-                String filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uri);
+                String filePath = null;
+                try {
+                    filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uri);
+                } catch (UriToFilePath.NoDataColumnForUriException e) {
+                    try {
+                        filePath = getNewPathFromUri(uri);
+                    } catch (IOException ioe) {
+                        Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
+                        Toast.makeText(getActivity(), Localization.get("file.selection.failed"), Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                }
                 validateFile(filePath);
             } else {
                 //No file selected
                 Toast.makeText(getActivity(), Localization.get("file.not.selected"), Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private String getNewPathFromUri(Uri uri) throws IOException {
+        // We can't get access to filePath but only the uri and
+        // since we are going to use this path later on in some other
+        // activity stack which will not have permissions for this uri
+        // we need to copy the file internally and pass the filepath of the new file
+        String filePath = getContext().getFilesDir().getAbsolutePath() + "/temp/" + FileUtil.getFileName(uri.toString());
+        File file = new File(filePath);
+        InputStream fileStream = getContext().getContentResolver().openInputStream(uri);
+        FileUtil.ensureFilePathExists(file);
+        FileUtil.copyFile(fileStream, file);
+        return filePath;
     }
 
     @Override

@@ -28,6 +28,7 @@ public class HiddenPreferences {
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
     public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
+    public final static String ID_OF_INTERRUPTED_SSD = "interrupted-ssd-id";
 
     // Preferences that are only ever set by being sent down from HQ via the profile file
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
@@ -49,6 +50,9 @@ public class HiddenPreferences {
     // Used to make it so that CommCare will not conduct a multimedia validation check
     public final static String MM_VALIDATED_FROM_HQ = "cc-content-valid";
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
+
+    private final static String LOGS_ENABLED = "logenabled";
+    private final static String LOGS_ENABLED_YES = "Enabled";
 
     /**
      * @return How many seconds should a user session remain open before expiring?
@@ -174,6 +178,15 @@ public class HiddenPreferences {
                 properties.getString(ENABLE_SAVED_FORMS, PrefValues.YES).equals(PrefValues.YES);
     }
 
+    public static boolean isLoggingEnabled() {
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            return true;
+        }
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return !properties.contains(LOGS_ENABLED) ||
+                properties.getString(LOGS_ENABLED, LOGS_ENABLED_YES).equals(LOGS_ENABLED_YES);
+    }
+
     public static boolean isIncompleteFormsEnabled() {
         if (CommCareApplication.instance().isConsumerApp()) {
             return false;
@@ -193,5 +206,23 @@ public class HiddenPreferences {
     public static void setPostUpdateSyncNeeded(boolean b) {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putBoolean(POST_UPDATE_SYNC_NEEDED, b).apply();
+    }
+
+    public static void setInterruptedSSD(int ssdId) {
+        String currentUserId = CommCareApplication.instance().getCurrentUserId();
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putInt(ID_OF_INTERRUPTED_SSD + currentUserId, ssdId).apply();
+    }
+
+    public static int getIdOfInterruptedSSD() {
+        String currentUserId = CommCareApplication.instance().getCurrentUserId();
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getInt(ID_OF_INTERRUPTED_SSD + currentUserId, -1);
+    }
+
+    public static void clearInterruptedSSD() {
+        String currentUserId = CommCareApplication.instance().getCurrentUserId();
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putInt(ID_OF_INTERRUPTED_SSD + currentUserId, -1).apply();
     }
 }

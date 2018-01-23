@@ -61,7 +61,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
     public ListWidget(Context context, FormEntryPrompt prompt, boolean displayLabel) {
         super(context, prompt);
 
-        mItems = mPrompt.getSelectChoices();
+        mItems = getSelectChoices();
         buttons = new Vector<>();
 
         // Layout holds the horizontal list of buttons
@@ -75,7 +75,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
         //Is this safe enough from collisions?
         buttonIdBase = Math.abs(mPrompt.getIndex().hashCode());
 
-        if (mPrompt.getSelectChoices() != null) {
+        if (mItems != null) {
             for (int i = 0; i < mItems.size(); i++) {
                 RadioButton r = new RadioButton(getContext());
 

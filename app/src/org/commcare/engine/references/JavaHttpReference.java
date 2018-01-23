@@ -3,10 +3,14 @@ package org.commcare.engine.references;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.network.CommcareRequestGenerator;
 import org.javarosa.core.reference.Reference;
+import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * @author ctsims
@@ -35,7 +39,12 @@ public class JavaHttpReference implements Reference {
 
     @Override
     public InputStream getStream() throws IOException {
-        return generator.simpleGet(uri).body().byteStream();
+        Response<ResponseBody> response = generator.simpleGet(uri);
+        if (response.isSuccessful()) {
+            return response.body().byteStream();
+        } else {
+            throw new IOException(Localization.get("install.fail.error", Integer.toString(response.code())));
+        }
     }
 
     @Override

@@ -45,7 +45,6 @@ import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.PreInitLogger;
@@ -71,9 +70,9 @@ import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpUtils;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
@@ -87,7 +86,6 @@ import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CrashUtil;
-import org.commcare.utils.DummyPropertyManager;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MultipleAppsUtil;
@@ -99,7 +97,6 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PropertyUtils;
@@ -183,8 +180,6 @@ public class CommCareApplication extends MultiDexApplication {
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
-        PropertyManager.setPropertyManager(new DummyPropertyManager());
-
         SQLiteDatabase.loadLibs(this);
 
         setRoots();
@@ -214,8 +209,6 @@ public class CommCareApplication extends MultiDexApplication {
             AppUtils.checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
         }
-
-        FirebaseAnalyticsUtil.reportAppStartup();
     }
 
     /**
@@ -723,7 +716,7 @@ public class CommCareApplication extends MultiDexApplication {
                         }
 
                         if (EntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
-                            EntityStorageCache.tryWipeCache();
+                            EntityStorageCache.wipeCacheForCurrentApp();
                         }
                     }
 
@@ -984,17 +977,21 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     private static void setupLoggerStorage(boolean userStorageAvailable) {
-        CommCareApplication app = CommCareApplication.instance();
+        boolean loggingEnabled = HiddenPreferences.isLoggingEnabled();
         if (userStorageAvailable) {
-            Logger.registerLogger(new AndroidLogger(app.getUserStorage(AndroidLogEntry.STORAGE_KEY,
-                    AndroidLogEntry.class)));
+            if (loggingEnabled) {
+                Logger.registerLogger(new AndroidLogger(app.getUserStorage(AndroidLogEntry.STORAGE_KEY,
+                        AndroidLogEntry.class)));
+            }
             ForceCloseLogger.registerStorage(app.getUserStorage(ForceCloseLogEntry.STORAGE_KEY,
                     ForceCloseLogEntry.class));
             XPathErrorLogger.registerStorage(app.getUserStorage(XPathErrorEntry.STORAGE_KEY,
                     XPathErrorEntry.class));
         } else {
-            Logger.registerLogger(new AndroidLogger(
-                    app.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+            if (loggingEnabled) {
+                Logger.registerLogger(new AndroidLogger(
+                        app.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+            }
             ForceCloseLogger.registerStorage(
                     app.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
         }

@@ -45,7 +45,7 @@ public class StandardHomeActivity
     private StandardHomeActivityUIController uiController;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
     }
@@ -133,7 +133,6 @@ public class StandardHomeActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        FirebaseAnalyticsUtil.reportOptionsMenuEntry(this.getClass());
         //In Holo theme this gets called on startup
         boolean enableMenus = !isDemoUser();
         menu.findItem(MENU_UPDATE).setVisible(enableMenus);

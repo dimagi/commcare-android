@@ -6,6 +6,7 @@ import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.PropertyUtils;
 import org.kxml2.io.KXmlSerializer;
 import org.xmlpull.v1.XmlSerializer;
 
@@ -68,6 +69,8 @@ public class DeviceReportWriter {
                     } catch (Exception e) {
                     }
                 }
+
+                writeMetaBlock();
             } finally {
                 serializer.endTag(XMLNS, "device_report");
             }
@@ -79,6 +82,12 @@ public class DeviceReportWriter {
             } catch (IOException e) {
             }
         }
+    }
+
+    private void writeMetaBlock() throws IllegalArgumentException, IllegalStateException, IOException {
+        serializer.startTag(XMLNS, "meta");
+        writeText("instanceID", PropertyUtils.genUUID());
+        serializer.endTag(XMLNS, "meta");
     }
 
     private void writeHeader() throws IllegalArgumentException, IllegalStateException, IOException {

@@ -32,7 +32,7 @@ public class LocaleAndroidInstaller extends FileSystemInstaller {
 
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
+    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
         Localization.registerLanguageReference(locale, localLocation);
         return true;
     }

@@ -20,8 +20,8 @@ import org.javarosa.core.services.Logger;
 public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportProblemActivity> implements OnClickListener {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
         setContentView(R.layout.activity_report_problem);
         Button submitButton = (Button)findViewById(R.id.ReportButton01);
         submitButton.setText(this.localize("problem.report.button"));

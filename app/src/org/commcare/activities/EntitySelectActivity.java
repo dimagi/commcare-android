@@ -51,7 +51,7 @@ import org.commcare.tasks.EntityLoaderTask;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.EntitySelectRefreshTimer;
-import org.commcare.utils.HereFunctionHandler;
+import org.commcare.utils.AndroidHereFunctionHandler;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.views.EntityView;
 import org.commcare.views.TabbedDetailView;
@@ -62,6 +62,7 @@ import org.commcare.views.dialogs.LocationNotificationHandler;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.HereFunctionHandlerListener;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -75,7 +76,7 @@ import java.util.List;
  * @author ctsims
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
-        implements EntityLoaderListener, OnItemClickListener {
+        implements EntityLoaderListener, OnItemClickListener, HereFunctionHandlerListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
 
@@ -145,7 +146,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     // Although only one instance is created, which is used by NodeEntityFactory,
     // every instance of EntitySelectActivity registers itself (one at a time)
     // to listen to the handler and refresh whenever a new location is obtained.
-    private static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
+    private static final AndroidHereFunctionHandler hereFunctionHandler = new AndroidHereFunctionHandler();
+
     private boolean containsHereFunction = false;
     private boolean locationChangedWhileLoading = false;
 
@@ -154,14 +156,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             new LocationNotificationHandler(this);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         createDataSetObserver();
         restoreSavedState(savedInstanceState);
 
         if (savedInstanceState == null) {
-            hereFunctionHandler.refreshLocation();
+            hereFunctionHandler.clearLocation();
         }
 
         refreshTimer = new EntitySelectRefreshTimer();
@@ -357,7 +359,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    protected void onResumeSessionSafe() {
+    public void onResumeSessionSafe() {
         if (session.getCommand() == null) {
             Intent i = new Intent(this.getIntent());
             setResult(RESULT_CANCELED, i);
@@ -373,7 +375,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 }
             }
 
-            hereFunctionHandler.registerEvalLocationListener(this);
+            hereFunctionHandler.registerListener(this);
             if (containsHereFunction) {
                 hereFunctionHandler.allowGpsUse();
             }
@@ -487,7 +489,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         hereFunctionHandler.forbidGpsUse();
-        hereFunctionHandler.unregisterEvalLocationListener();
+        hereFunctionHandler.unregisterListener();
     }
 
     @Override
@@ -538,7 +540,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case BARCODE_FETCH:
                 processBarcodeFetch(resultCode, intent);
@@ -600,8 +602,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     refreshView();
                 }
                 break;
-            default:
-                super.onActivityResult(requestCode, resultCode, intent);
         }
     }
 
@@ -983,6 +983,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return true;
     }
 
+    public static AndroidHereFunctionHandler getHereFunctionHandler() {
+        return hereFunctionHandler;
+    }
+
+    @Override
     public void onEvalLocationChanged() {
         boolean loaded = loadEntities();
         if (!loaded) {
@@ -990,13 +995,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    public static HereFunctionHandler getHereFunctionHandler() {
-        return hereFunctionHandler;
-    }
-
+    @Override
     public void onHereFunctionEvaluated() {
         if (!containsHereFunction) {  // First time here() is evaluated
-            hereFunctionHandler.refreshLocation();
+            hereFunctionHandler.clearLocation();
             hereFunctionHandler.allowGpsUse();
             containsHereFunction = true;
 

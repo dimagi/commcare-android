@@ -1,7 +1,6 @@
 package org.commcare.views.dialogs;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 
@@ -36,8 +35,7 @@ public class LocationNotificationHandler extends Handler {
                 public void onClick(DialogInterface dialog, int i) {
                     switch (i) {
                         case DialogInterface.BUTTON_POSITIVE:
-                            Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            activity.startActivity(intent);
+                            GeoUtils.goToProperLocationSettingsScreen(activity);
                             EntitySelectActivity.getHereFunctionHandler().allowGpsUse();
                             break;
                         case DialogInterface.BUTTON_NEGATIVE:

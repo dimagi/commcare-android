@@ -1,19 +1,18 @@
 package org.commcare.utils;
 
 import android.annotation.SuppressLint;
-import android.content.ContentUris;
 import android.content.Context;
-import android.database.Cursor;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.util.Pair;
+import android.widget.EditText;
+import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
@@ -22,6 +21,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.io.File;
@@ -62,7 +62,7 @@ public class FileUtil {
         if (!f.exists()) {
             return true;
         }
-        if (f.isDirectory()) {
+        if (f.isDirectory() && f.listFiles().length > 0) {
             for (File child : f.listFiles()) {
                 if (!deleteFileOrDir(child)) {
                     return false;
@@ -449,6 +449,10 @@ public class FileUtil {
         return "";
     }
 
+    public static String getFileName(String filePath) {
+        return last(filePath.split("/"));
+    }
+
     /**
      * Get the last element of a String array.
      */
@@ -563,141 +567,6 @@ public class FileUtil {
     }
 
     /**
-     * Get's the correct path for different Android API levels
-     */
-    @SuppressLint("NewApi")
-    public static String getPath(final Context context, final Uri uri) {
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-
-        // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
-            // ExternalStorageProvider
-            if (isExternalStorageDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
-                }
-
-                // TODO handle non-primary volumes
-            }
-            // DownloadsProvider
-            else if (isDownloadsDocument(uri)) {
-
-                final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-
-                return getDataColumn(context, contentUri, null, null);
-            }
-            // MediaProvider
-            else if (isMediaDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                Uri contentUri = null;
-                if ("image".equals(type)) {
-                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                } else if ("video".equals(type)) {
-                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                } else if ("audio".equals(type)) {
-                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                }
-
-                final String selection = "_id=?";
-                final String[] selectionArgs = new String[]{
-                        split[1]
-                };
-
-                return getDataColumn(context, contentUri, selection, selectionArgs);
-            }
-        }
-        // MediaStore (and general)
-        else if ("content".equalsIgnoreCase(uri.getScheme())) {
-
-            // Return the remote address
-            if (isGooglePhotosUri(uri))
-                return uri.getLastPathSegment();
-
-            return getDataColumn(context, uri, null, null);
-        }
-        // File
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            return uri.getPath();
-        }
-
-        return null;
-    }
-
-    /**
-     * Get the value of the data column for this Uri. This is useful for
-     * MediaStore Uris, and other file-based ContentProviders.
-     *
-     * @param context       The context.
-     * @param uri           The Uri to query.
-     * @param selection     (Optional) Filter used in the query.
-     * @param selectionArgs (Optional) Selection arguments used in the query.
-     * @return The value of the _data column, which is typically a file path.
-     */
-    private static String getDataColumn(Context context, Uri uri, String selection,
-                                        String[] selectionArgs) {
-
-        Cursor cursor = null;
-        final String column = "_data";
-        final String[] projection = {
-                column
-        };
-
-        try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                    null);
-            if (cursor != null && cursor.moveToFirst()) {
-                final int index = cursor.getColumnIndexOrThrow(column);
-                return cursor.getString(index);
-            }
-        } finally {
-            if (cursor != null)
-                cursor.close();
-        }
-        return null;
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is ExternalStorageProvider.
-     */
-    private static boolean isExternalStorageDocument(Uri uri) {
-        return "com.android.externalstorage.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is DownloadsProvider.
-     */
-    private static boolean isDownloadsDocument(Uri uri) {
-        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is MediaProvider.
-     */
-    private static boolean isMediaDocument(Uri uri) {
-        return "com.android.providers.media.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is Google Photos.
-     */
-    private static boolean isGooglePhotosUri(Uri uri) {
-        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
-    }
-
-    /**
      * @return A platform-dependent URI for the file at the provided URI. If using SDK24+ only files
      * supported by a FileProvider are able to be shared externally by these URI's
      */
@@ -711,4 +580,57 @@ public class FileUtil {
         }
     }
 
+    /**
+     * Makes a copy of file represented by inputStream to dstFile
+     * @param inputStream inputStream for File that needs to be copied
+     * @param dstFile destination File where we need to copy the inputStream
+     * @throws IOException
+     */
+    public static void copyFile(InputStream inputStream, File dstFile) throws IOException {
+        if (inputStream == null) return;
+        OutputStream outputStream = new FileOutputStream(dstFile);
+        StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream);
+        inputStream.close();
+        outputStream.close();
+    }
+
+    public static boolean isSupportedMultiMediaFile(Uri media) {
+        try {
+            String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), media);
+            return FormUploadUtil.isSupportedMultimediaFile(binaryPath);
+        } catch (UriToFilePath.NoDataColumnForUriException e) {
+            // No file path available, work with the media uri instead
+            return FormUploadUtil.isSupportedMultimediaFile(media.getPath());
+        }
+    }
+
+    /**
+     * Tries to get a filePath from an intent returned from file provider and sets it to the given  <code>filePathEditText</code>
+     * @param context Context of the Activity File Provider returned to
+     * @param intent Intent returned from File Provider
+     * @param filePathEditText EditText where we need to show the file path
+     */
+    public static void updateFileLocationFromIntent(Context context, Intent intent, EditText filePathEditText) {
+        // Android versions 4.4 and up sometimes don't return absolute
+        // filepaths from the file chooser. So resolve the URI into a
+        // valid file path.
+        Uri uriPath = intent.getData();
+        if (uriPath == null) {
+            // issue getting the filepath uri from file browser callout
+            // result
+            Toast.makeText(context,
+                    Localization.get("file.invalid.path"),
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            String filePath;
+            try {
+                filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uriPath);
+            } catch (UriToFilePath.NoDataColumnForUriException e) {
+                filePath = uriPath.toString();
+            }
+            if (filePath != null) {
+                filePathEditText.setText(filePath);
+            }
+        }
+    }
 }

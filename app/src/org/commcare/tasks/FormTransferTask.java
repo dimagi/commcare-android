@@ -61,10 +61,8 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
             is.close();
             return true;
         } catch (IOException ioe) {
-
             Log.e(TAG, ioe.getMessage());
             publishProgress("Error opening input stream: " + ioe.getMessage());
-
             return false;
         } finally {
             try {

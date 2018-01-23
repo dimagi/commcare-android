@@ -2,27 +2,18 @@ package org.commcare.views.widgets;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.provider.MediaStore.Audio;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
-import org.commcare.utils.UriToFilePath;
 import org.javarosa.form.api.FormEntryPrompt;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to
@@ -32,18 +23,13 @@ import java.io.IOException;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class AudioWidget extends MediaWidget {
-    private static final String TAG = AudioWidget.class.getSimpleName();
-    protected static final String CUSTOM_TAG = "custom";
-
-    protected String recordedFileName;
-    private String customFileTag;
 
     public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt, pic);
     }
 
     @Override
-    protected void initializeButtons(){
+    protected void initializeButtons() {
         // setup capture button
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
@@ -106,19 +92,7 @@ public class AudioWidget extends MediaWidget {
     }
 
     protected void playAudio() {
-        Intent i = new Intent("android.intent.action.VIEW");
-        File audioFile = new File(mInstanceFolder + mBinaryName);
-        Uri audioUri = FileUtil.getUriForExternalFile(getContext(), audioFile);
-        i.setDataAndType(audioUri, "audio/*");
-        try {
-            getContext().startActivity(i);
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(getContext(),
-                    StringUtils.getStringSpannableRobust(getContext(),
-                            R.string.activity_not_found,
-                            "play audio"),
-                    Toast.LENGTH_SHORT).show();
-        }
+        playMedia("audio/*");
     }
 
     protected void captureAudio(FormEntryPrompt prompt) {
@@ -135,75 +109,5 @@ public class AudioWidget extends MediaWidget {
                             "audio capture"),
                     Toast.LENGTH_SHORT).show();
         }
-    }
-
-    @Override
-    public void setBinaryData(Object binaryuri) {
-        String binaryPath = getBinaryPathWithSizeCheck(binaryuri);
-        if (binaryPath == null) {
-            return;
-        }
-        File source = new File(binaryPath);
-
-        // get the file path and create a copy in the instance folder
-        String[] filenameSegments = binaryPath.split("\\.");
-        String extension = "";
-        if (filenameSegments.length > 1) {
-            extension = "." + filenameSegments[filenameSegments.length - 1];
-        }
-
-        String[] filePathSegments = binaryPath.split("/");
-        if(filePathSegments.length >1){
-            recordedFileName = filePathSegments[filePathSegments.length-1];
-        }
-
-        String destAudioPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + extension;
-
-        File newAudio = new File(destAudioPath);
-        try {
-            FileUtil.copyFile(source, newAudio);
-        }catch (IOException e) {
-            Log.e(TAG, "IOExeception while copying audio");
-            e.printStackTrace();
-        }
-
-        if (newAudio.exists()) {
-            // Add the copy to the content provider
-            ContentValues values = new ContentValues(6);
-            values.put(Audio.Media.TITLE, newAudio.getName());
-            values.put(Audio.Media.DISPLAY_NAME, newAudio.getName());
-            values.put(Audio.Media.DATE_ADDED, System.currentTimeMillis());
-            values.put(Audio.Media.DATA, newAudio.getAbsolutePath());
-
-            Uri audioUri =
-                    getContext().getContentResolver().insert(Audio.Media.EXTERNAL_CONTENT_URI, values);
-            String audioUriString = audioUri == null ? "null" : audioUri.toString();
-            Log.i(TAG, "Inserting AUDIO returned uri = " + audioUriString);
-        } else {
-            Log.e(TAG, "Inserting Audio file FAILED");
-        }
-
-        mBinaryName = newAudio.getName();
-    }
-
-    /**
-     * If file is chosen by user, the file selection intent will return an URI
-     * If file is auto-selected after recording_fragment, then the recordingfragment will provide a string file path
-     * Set value of customFileTag if the file is a recent recording from the RecordingFragment
-     */
-    @Override
-    protected String createFilePath(Object binaryuri){
-        String path;
-
-        if(binaryuri instanceof Uri){
-            path = UriToFilePath.getPathFromUri(CommCareApplication.instance(),
-                    (Uri)binaryuri);
-            customFileTag = "";
-        }else{
-            path = (String) binaryuri;
-            customFileTag = CUSTOM_TAG;
-        }
-
-        return path;
     }
 }

@@ -11,6 +11,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
 import org.commcare.utils.FileUtil;
@@ -46,7 +47,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(final AndroidCommCarePlatform instance, boolean isUpgrade) {
+    public boolean initialize(final AndroidCommCarePlatform platform, boolean isUpgrade) {
         try {
             if (localLocation == null) {
                 throw new RuntimeException("Error initializing the suite, its file location is null!");
@@ -55,14 +56,14 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
             SuiteParser parser;
             if (isUpgrade) {
-                parser = AndroidSuiteParser.buildUpgradeParser(local.getStream(), instance.getGlobalResourceTable(), instance.getFixtureStorage());
+                parser = AndroidSuiteParser.buildUpgradeParser(local.getStream(), platform.getGlobalResourceTable(), platform.getFixtureStorage());
             } else {
-                parser = AndroidSuiteParser.buildInitParser(local.getStream(), instance.getGlobalResourceTable(), instance.getFixtureStorage());
+                parser = AndroidSuiteParser.buildInitParser(local.getStream(), platform.getGlobalResourceTable(), platform.getFixtureStorage());
             }
 
             Suite s = parser.parse();
 
-            instance.registerSuite(s);
+            platform.registerSuite(s);
 
             return true;
         } catch (InvalidStructureException | InvalidReferenceException
@@ -76,15 +77,15 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, final AndroidCommCarePlatform instance,
+                           ResourceTable table, final AndroidCommCarePlatform platform,
                            boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
-        super.install(r, location, ref, table, instance, upgrade);
+        super.install(r, location, ref, table, platform, upgrade);
 
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
 
-            AndroidSuiteParser.buildInstallParser(local.getStream(), table, r.getRecordGuid(), instance.getFixtureStorage()).parse();
+            AndroidSuiteParser.buildInstallParser(local.getStream(), table, r.getRecordGuid(), platform.getFixtureStorage()).parse();
 
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
@@ -109,7 +110,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
+    public boolean verifyInstallation(Resource r,
+                                      Vector<MissingMediaException> problems,
+                                      CommCarePlatform platform) {
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
             Suite suite = AndroidSuiteParser.buildVerifyParser(local.getStream(), new DummyResourceTable()).parse();
