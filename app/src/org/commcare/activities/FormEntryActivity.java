@@ -50,7 +50,6 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
-import org.commcare.models.AndroidInFormExpressionCacher;
 import org.commcare.models.ODKStorage;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
@@ -76,10 +75,10 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.InFormExpressionCacher;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.InFormCacheableExpr;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -971,8 +970,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         reportFormEntryTime();
 
-        // While we're in form entry, we want to use the real cacher implementation
-        InFormExpressionCacher.setCacher(new AndroidInFormExpressionCacher(mFormController.getInstance()));
+        InFormCacheableExpr.enableCaching(mFormController.getInstance());
 
         formEntryRestoreSession.replaySession(this);
 
@@ -1062,7 +1060,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         // As soon as we leave form entry, we don't want to do be doing caching anymore
-        InFormExpressionCacher.reset();
+        InFormCacheableExpr.disableCaching();
 
         super.onDestroy();
     }
