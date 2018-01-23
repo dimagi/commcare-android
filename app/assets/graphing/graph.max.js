@@ -170,6 +170,7 @@ var intervalID = setInterval(function() {
                 if (legend.length) {
                     legend = legend[0];
                     legend.style.opacity = data.lineOpacities[yID];
+                    legend.style.stroke =  data.barColors[yID][0];
                 }
 
                 // Point shapes
