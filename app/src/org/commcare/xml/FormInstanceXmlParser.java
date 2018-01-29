@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.provider.InstanceProviderAPI;
@@ -83,30 +84,21 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
         KXmlSerializer serializer = new KXmlSerializer();
 
+
         String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
+        InstanceRecord instanceRecord = new InstanceRecord("Historical Form", filePath, InstanceRecord.STATUS_COMPLETE,
+                Boolean.toString(false), xmlns, "");
+
 
         //Register this instance for inspection
-        ContentValues values = new ContentValues();
-        values.put(InstanceColumns.DISPLAY_NAME, "Historical Form");
-        values.put(InstanceColumns.SUBMISSION_URI, "");
-        values.put(InstanceColumns.INSTANCE_FILE_PATH, filePath);
-        values.put(InstanceColumns.JR_FORM_ID, xmlns);
-        values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_COMPLETE);
-        values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, false);
-
-        // Unindexed flag tells content provider to link this instance to a
+        // Unindexed flag tells save to link this instance to a
         // new, unindexed form record that isn't attached to the
         // AndroidSessionWrapper
-        values.put(InstanceProviderAPI.UNINDEXED_SUBMISSION, true);
-
-        Uri instanceRecord =
-                c.getContentResolver().insert(InstanceColumns.CONTENT_URI, values);
+        instanceRecord.save(InstanceRecord.INSERTION_TYPE_UNINDEXED_IMPORT);
 
         // Find the form record attached to the form instance during insertion
         IStorageUtilityIndexed<FormRecord> storage = cachedStorage();
-        FormRecord attachedRecord =
-                storage.getRecordForValue(FormRecord.META_INSTANCE_URI,
-                        instanceRecord.toString());
+        FormRecord attachedRecord = storage.getRecordForValue(FormRecord.META_INSTANCE_ID, instanceRecord.getID());
 
         if (attachedRecord == null) {
             throw new RuntimeException("No FormRecord was attached to the inserted form instance");

@@ -5,9 +5,11 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.provider.FormsProviderAPI;
 
 import java.util.Hashtable;
+import java.util.NoSuchElementException;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
@@ -22,21 +24,12 @@ public class FormSaveUtil {
         Hashtable<String, String> formNamespaces = new Hashtable<>();
 
         for (String xmlns : CommCareApplication.instance().getCommCarePlatform().getInstalledForms()) {
-            Cursor cur = null;
+            int formDefId = CommCareApplication.instance().getCommCarePlatform().getFormDefId(xmlns);
             try {
-                Uri formContentUri = CommCareApplication.instance().getCommCarePlatform().getFormContentUri(xmlns);
-                cur = context.getContentResolver().query(formContentUri, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH}, null, null, null);
-                if (cur != null && cur.moveToFirst()) {
-                    String path = cur.getString(cur.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
-                    formNamespaces.put(xmlns, path);
-                } else {
-                    throw new RuntimeException("No form registered for xmlns at content URI: " +
-                            CommCareApplication.instance().getCommCarePlatform().getFormContentUri(xmlns));
-                }
-            } finally {
-                if (cur != null) {
-                    cur.close();
-                }
+                FormDefRecord formDefRecord = FormDefRecord.getFormDef(formDefId);
+                formNamespaces.put(xmlns, formDefRecord.getFilePath());
+            } catch (NoSuchElementException e) {
+                throw new RuntimeException("No form registered for xmlns with id: " + formDefId);
             }
         }
         return formNamespaces;

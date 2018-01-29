@@ -7,7 +7,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -36,6 +35,8 @@ import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.activities.components.FormFileSystemHelpers;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.ImageCaptureProcessing;
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
@@ -51,8 +52,6 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.models.ODKStorage;
-import org.commcare.provider.FormsProviderAPI.FormsColumns;
-import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.util.LogTypes;
@@ -98,8 +97,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         WithUIController, AdvanceToNextListener, WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
 
-    public static final String KEY_FORM_CONTENT_URI = "form_content_uri";
-    public static final String KEY_INSTANCE_CONTENT_URI = "instance_content_uri";
+    public static final String KEY_INSTANCE_ID = "key_instance_id";
+    public static final String KEY_FORM_DEF_ID = "key_form_def_id";
     public static final String KEY_AES_STORAGE_KEY = "key_aes_storage";
     public static final String KEY_HEADER_STRING = "form_header";
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
@@ -139,9 +138,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private FormLoaderTask<FormEntryActivity> mFormLoaderTask;
     private SaveToDiskTask mSaveToDiskTask;
-
-    private Uri formProviderContentURI = FormsColumns.CONTENT_URI;
-    private Uri instanceProviderContentURI = InstanceColumns.CONTENT_URI;
 
     private static String mHeaderString;
 
@@ -252,9 +248,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_FORM_LOAD_FAILED, hasFormLoadFailed);
         outState.putString(KEY_LOC_ERROR, locationRecieverErrorAction);
         outState.putString(KEY_LOC_ERROR_PATH, badLocationXpath);
-
-        outState.putString(KEY_FORM_CONTENT_URI, formProviderContentURI.toString());
-        outState.putString(KEY_INSTANCE_CONTENT_URI, instanceProviderContentURI.toString());
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
@@ -668,7 +661,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public void saveFormToDisk(boolean exit) {
         if (formHasLoaded()) {
-            boolean isFormComplete = FormEntryInstanceState.isInstanceComplete(this, instanceProviderContentURI);
+            boolean isFormComplete = FormEntryInstanceState.isInstanceComplete();
             saveDataToDisk(exit, isFormComplete, null, false);
         } else if (exit) {
             showSaveErrorAndExit();
@@ -720,8 +713,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return;
         }
 
-        mSaveToDiskTask =
-                new SaveToDiskTask(getIntent().getData(), exit, complete, updatedSaveName, this, instanceProviderContentURI, symetricKey, headless);
+        mSaveToDiskTask = new SaveToDiskTask(getIntent().getIntExtra(KEY_INSTANCE_ID, -1),
+                getIntent().getIntExtra(KEY_FORM_DEF_ID, -1),
+                exit, complete, updatedSaveName, symetricKey, headless);
         if (!headless) {
             mSaveToDiskTask.connect(this);
         }
@@ -730,26 +724,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     public void discardChangesAndExit() {
-        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this,
-                FormEntryInstanceState.mInstancePath, instanceProviderContentURI);
+        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this, FormEntryInstanceState.mInstancePath);
         finishReturnInstance(false);
     }
 
     public void setFormLanguage(String[] languages, int index) {
-        // Update the language in the content provider when selecting a new
-        // language
-        ContentValues values = new ContentValues();
-        values.put(FormsColumns.LANGUAGE, languages[index]);
-        String selection = FormsColumns.FORM_FILE_PATH + "=?";
-        String selectArgs[] = {
-                instanceState.getFormPath()
-        };
-        int updated =
-                getContentResolver().update(formProviderContentURI, values,
-                        selection, selectArgs);
+        int updated = FormDefRecord.updateLanguage(instanceState.getFormPath(), languages[index]);
         Log.i(TAG, "Updated language to: " + languages[index] + " in "
                 + updated + " rows");
-
         mFormController.setLanguage(languages[index]);
         dismissAlertDialog();
         if (currentPromptIsQuestion()) {
@@ -873,45 +855,30 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         Intent intent = getIntent();
         if (intent != null) {
             loadIntentFormData(intent);
-
             setTitleToLoading();
-
-            Uri uri = intent.getData();
-            final String contentType = getContentResolver().getType(uri);
-            Uri formUri;
-            if (contentType == null) {
-                UserfacingErrorHandling.createErrorDialog(this, "form URI resolved to null", FormEntryConstants.EXIT);
-                return;
-            }
-
+            int formId = -1;
             try {
-                switch (contentType) {
-                    case InstanceColumns.CONTENT_ITEM_TYPE:
-                        Pair<Uri, Boolean> instanceAndStatus = FormEntryInstanceState.getInstanceUri(this, uri, formProviderContentURI, instanceState);
-                        formUri = instanceAndStatus.first;
-                        this.instanceIsReadOnly = instanceAndStatus.second;
-                        break;
-                    case FormsColumns.CONTENT_ITEM_TYPE:
-                        formUri = uri;
-                        instanceState.setFormPath(FormFileSystemHelpers.getFormPath(this, uri));
-                        break;
-                    default:
-                        Log.e(TAG, "unrecognized URI");
-                        UserfacingErrorHandling.createErrorDialog(this, "unrecognized URI: " + uri, FormEntryConstants.EXIT);
-                        return;
+                if (intent.hasExtra(KEY_INSTANCE_ID)) {
+                    Pair<Integer, Boolean> instanceAndStatus = FormEntryInstanceState.getFormDefIdForInstance(
+                            intent.getIntExtra(KEY_INSTANCE_ID, -1),
+                            instanceState);
+                    formId = instanceAndStatus.first;
+                    instanceIsReadOnly = instanceAndStatus.second;
+                } else if (intent.hasExtra(KEY_FORM_DEF_ID)) {
+                    formId = intent.getIntExtra(KEY_FORM_DEF_ID, -1);
+                    instanceState.setFormPath(FormFileSystemHelpers.getFormPath(formId));
+                } else {
+                    UserfacingErrorHandling.createErrorDialog(this,
+                            "Intent to start FormEntryActivity must contain either instance id or form def id",
+                            FormEntryConstants.EXIT);
+                    return;
                 }
             } catch (FormQueryException e) {
                 UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
                 return;
             }
 
-            if (formUri == null) {
-                Log.e(TAG, "unrecognized URI");
-                UserfacingErrorHandling.createErrorDialog(this, "couldn't locate FormDB entry for the item at: " + uri, FormEntryConstants.EXIT);
-                return;
-            }
-
-            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, this.instanceIsReadOnly, formEntryRestoreSession.isRecording(), this) {
+            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, instanceIsReadOnly, formEntryRestoreSession.isRecording(), this) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
@@ -934,7 +901,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
             };
             mFormLoaderTask.connect(this);
-            mFormLoaderTask.executeParallel(formUri);
+            mFormLoaderTask.executeParallel(formId);
             hasFormLoadBeenTriggered = true;
         }
     }
@@ -1162,30 +1129,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void finishReturnInstance(boolean reportSaved) {
         String action = getIntent().getAction();
         if (Intent.ACTION_PICK.equals(action) || Intent.ACTION_EDIT.equals(action)) {
-            // caller is waiting on a picked form
-            String selection = InstanceColumns.INSTANCE_FILE_PATH + "=?";
-            String[] selectionArgs = {
-                    FormEntryInstanceState.mInstancePath
-            };
-
-
+            InstanceRecord instanceRecord = InstanceRecord.getInstance(FormEntryInstanceState.mInstancePath);
             Intent formReturnIntent = new Intent();
-            Cursor c = null;
-            try {
-                c = getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
-                if (c != null && c.getCount() > 0) {
-                    // should only be one...
-                    c.moveToFirst();
-                    String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
-                    Uri instance = Uri.withAppendedPath(instanceProviderContentURI, id);
-                    formReturnIntent.setData(instance);
-                }
-            } finally {
-                if (c != null) {
-                    c.close();
-                }
-            }
-
+            formReturnIntent.putExtra(KEY_INSTANCE_ID, instanceRecord.getID());
             formReturnIntent.putExtra(FormEntryConstants.IS_ARCHIVED_FORM,
                     mFormController.isFormReadOnly());
             formReturnIntent.putExtra(KEY_IS_RESTART_AFTER_EXPIRATION,
@@ -1289,12 +1235,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             locationRecieverErrorAction = savedInstanceState.getString(KEY_LOC_ERROR);
             badLocationXpath = savedInstanceState.getString(KEY_LOC_ERROR_PATH);
 
-            if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
-                formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
-            }
-            if (savedInstanceState.containsKey(KEY_INSTANCE_CONTENT_URI)) {
-                instanceProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_INSTANCE_CONTENT_URI));
-            }
             if (savedInstanceState.containsKey(KEY_INCOMPLETE_ENABLED)) {
                 mIncompleteEnabled = savedInstanceState.getBoolean(KEY_INCOMPLETE_ENABLED);
             }
@@ -1334,12 +1274,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void loadIntentFormData(Intent intent) {
-        if (intent.hasExtra(KEY_FORM_CONTENT_URI)) {
-            this.formProviderContentURI = Uri.parse(intent.getStringExtra(KEY_FORM_CONTENT_URI));
-        }
-        if (intent.hasExtra(KEY_INSTANCE_CONTENT_URI)) {
-            this.instanceProviderContentURI = Uri.parse(intent.getStringExtra(KEY_INSTANCE_CONTENT_URI));
-        }
         instanceState.loadFromIntent(intent);
         if (intent.hasExtra(KEY_AES_STORAGE_KEY)) {
             String base64Key = intent.getStringExtra(KEY_AES_STORAGE_KEY);

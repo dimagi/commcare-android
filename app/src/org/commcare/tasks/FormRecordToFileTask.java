@@ -185,7 +185,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
                     if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
                         File folder;
                         try {
-                            folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
+                            folder = new File(record.getPath()).getCanonicalFile().getParentFile();
                         } catch (IOException e) {
                             Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
                             continue;

@@ -351,6 +351,10 @@ public class CommCareApp implements AppFilePathBuilder {
         this.record = MultipleAppsUtil.getAppById(this.record.getUniqueId());
     }
 
+    public DatabaseAppOpenHelper getAppDatabaseHelper(){
+        return new DatabaseAppOpenHelper(CommCareApplication.instance(), record.getApplicationId());
+    }
+
     /**
      * For testing purposes only
      */

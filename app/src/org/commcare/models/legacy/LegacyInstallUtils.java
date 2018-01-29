@@ -17,6 +17,8 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.app.models.ResourceModelUpdater;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -231,38 +233,17 @@ public class LegacyInstallUtils {
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Legacy| Files moved. Updating Handles");
 
         //We also need to tell the XForm Provider that any/all of its forms have been moved
-
-        ArrayList<Pair<Uri, String>> toReplace = new ArrayList<>();
-        Cursor ef = null;
-        try {
-            ef = c.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns._ID}, null, null, null);
-            if (ef != null) {
-                while (ef.moveToNext()) {
-                    String filePath = ef.getString(ef.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
-                    String newFilePath = replaceOldRoot(filePath, getOldFileSystemRoot(), newRoot);
-                    if (!newFilePath.equals(filePath)) {
-                        Uri uri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, ef.getLong(ef.getColumnIndex(FormsProviderAPI.FormsColumns._ID)));
-                        toReplace.add(new Pair<>(uri, newFilePath));
-                    }
-                }
-            }
-        } finally {
-            if (ef != null) {
-                ef.close();
+        int updateCount = 0;
+        for (FormDefRecord formDefRecord : FormDefRecord.getFormDefStorage()) {
+            String filePath = formDefRecord.getFilePath();
+            String newFilePath = replaceOldRoot(filePath, getOldFileSystemRoot(), newRoot);
+            if (!newFilePath.equals(filePath)) {
+                formDefRecord.updateFilePath(newFilePath);
+                updateCount++;
             }
         }
 
-        for (Pair<Uri, String> p : toReplace) {
-            ContentValues cv = new ContentValues();
-            cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, p.second);
-            int updated = c.getContentResolver().update(p.first, cv, null, null);
-            if (updated != 1) {
-                Logger.log(LogTypes.TYPE_MAINTENANCE, "Legacy| Warning: wrong number of xform content URI's updated: " + updated);
-
-            }
-        }
-
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "Legacy| " + toReplace.size() + " xform content file paths updated. Moving prefs");
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Legacy| " + updateCount + " xform content file paths updated. Moving prefs");
 
         //3) Ok, so now we have app settings to copy over. Basically everything in the SharedPreferences should get put in the new app
         //preferences
@@ -502,12 +483,10 @@ public class LegacyInstallUtils {
                     public FormRecord transform(FormRecord t) {
                         String formRecordPath;
                         try {
-                            formRecordPath = t.getPath(c);
+                            formRecordPath = t.getPath();
                             String newPath = replaceOldRoot(formRecordPath, oldRoot, newFileSystemRoot);
                             if (!newPath.equals(formRecordPath)) {
-                                ContentValues cv = new ContentValues();
-                                cv.put(InstanceColumns.INSTANCE_FILE_PATH, newPath);
-                                c.getContentResolver().update(t.getInstanceURI(), cv, null, null);
+                                InstanceRecord.updateFilePath(t.getInstanceId(), newPath);
                             }
                             return t;
                         } catch (FileNotFoundException e) {

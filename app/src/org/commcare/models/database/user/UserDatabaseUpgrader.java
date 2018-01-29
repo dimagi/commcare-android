@@ -623,7 +623,7 @@ class UserDatabaseUpgrader {
                 //Update forms marked as incomplete with the appropriate status
                 if (FormRecord.STATUS_INCOMPLETE.equals(record.getStatus())) {
                     //update to complete to process/send.
-                    storage.write(record.updateInstanceAndStatus(record.getInstanceURI().toString(), FormRecord.STATUS_COMPLETE));
+                    storage.write(record.updateInstanceAndStatus(record.getInstanceId(), FormRecord.STATUS_COMPLETE));
                 }
             }
         }

@@ -1,15 +1,12 @@
 package org.commcare.android.database.user.models;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-
+import org.apache.commons.lang3.StringUtils;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
-import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
@@ -24,7 +21,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
 
     public static final String STORAGE_KEY = "FORMRECORDS";
 
-    public static final String META_INSTANCE_URI = "INSTANCE_URI";
+    public static final String META_INSTANCE_ID = "INSTANCE_ID";
     public static final String META_STATUS = "STATUS";
     public static final String META_UUID = "UUID";
     public static final String META_XMLNS = "XMLNS";
@@ -87,8 +84,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
     private String xmlns;
 
     @Persisting(2)
-    @MetaField(META_INSTANCE_URI)
-    private String instanceURI;
+    @MetaField(META_INSTANCE_ID)
+    private int instanceId = -1;
 
     @Persisting(3)
     @MetaField(META_STATUS)
@@ -123,9 +120,9 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * Creates a record of a form entry with the provided data. Note that none
      * of the parameters can be null...
      */
-    public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid,
+    public FormRecord(int instanceId, String status, String xmlns, byte[] aesKey, String uuid,
                       Date lastModified, String appId) {
-        this.instanceURI = instanceURI;
+        this.instanceId = instanceId;
         this.status = status;
         this.xmlns = xmlns;
         this.aesKey = aesKey;
@@ -142,8 +139,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * Create a copy of the current form record, with an updated instance uri
      * and status.
      */
-    public FormRecord updateInstanceAndStatus(String instanceURI, String newStatus) {
-        FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid,
+    public FormRecord updateInstanceAndStatus(int instanceId, String newStatus) {
+        FormRecord fr = new FormRecord(instanceId, newStatus, xmlns, aesKey, uuid,
                 lastModified, appId);
         fr.recordId = this.recordId;
         fr.submissionOrderingNumber = this.submissionOrderingNumber;
@@ -156,11 +153,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return r;
     }
 
-    public Uri getInstanceURI() {
-        if ("".equals(instanceURI)) {
-            return null;
-        }
-        return Uri.parse(instanceURI);
+    public int getInstanceId() {
+        return instanceId;
     }
 
     public byte[] getAesKey() {
@@ -232,29 +226,19 @@ public class FormRecord extends Persisted implements EncryptedModel {
     /**
      * Get the file system path to the encrypted XML submission file.
      *
-     * @param context Android context
      * @return A string containing the location of the encrypted XML instance for this form
      * @throws FileNotFoundException If there isn't a record available defining a path for this form
      */
-    public String getPath(Context context) throws FileNotFoundException {
-        Uri uri = getInstanceURI();
-        if (uri == null) {
-            throw new FileNotFoundException("No form instance URI exists for formrecord " + recordId);
+    public String getPath() throws FileNotFoundException {
+        int instanceId = getInstanceId();
+        if (instanceId == -1) {
+            throw new FileNotFoundException("No form instance id exists for formrecord " + recordId);
         }
-
-        Cursor c = null;
-        try {
-            c = context.getContentResolver().query(uri, new String[]{InstanceColumns.INSTANCE_FILE_PATH}, null, null, null);
-            if (c == null || !c.moveToFirst()) {
-                throw new FileNotFoundException("No Instances were found at for formrecord " + recordId + " at isntance URI " + uri.toString());
-            }
-
-            return c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-        } finally {
-            if (c != null) {
-                c.close();
-            }
+        String instanceFilePath = InstanceRecord.getInstance(instanceId).getFilePath();
+        if (StringUtils.isEmpty(instanceFilePath)) {
+            throw new FileNotFoundException("No Instances were found for formrecord " + recordId + " at isntance URI " + instanceId);
         }
+        return instanceFilePath;
     }
 
     @Override
@@ -263,7 +247,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     }
 
     public void setFormNumberForSubmissionOrdering(int num) {
-        this.submissionOrderingNumber = ""+num;
+        this.submissionOrderingNumber = "" + num;
     }
 
     public void logPendingDeletion(String classTag, String reason) {

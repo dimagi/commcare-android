@@ -11,6 +11,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
+import org.commcare.android.database.user.models.FormRecordV4;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -186,7 +187,7 @@ public class UserDbUpgradeUtils {
                 FormRecord.class,
                 new ConcreteAndroidDbHelper(c, db));
         for (FormRecordV3 oldRecord : oldStorage) {
-            FormRecord newRecord = new FormRecord(
+            FormRecordV4 newRecord = new FormRecordV4(
                     oldRecord.getInstanceURIString(),
                     oldRecord.getStatus(),
                     oldRecord.getFormNamespace(),

@@ -6,8 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
@@ -19,6 +17,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -38,7 +37,6 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.DeveloperPreferences;
-import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -79,6 +77,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 /**
@@ -247,7 +246,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             AndroidSessionWrapper state = CommCareApplication.instance().getCurrentSessionWrapper();
             state.loadFromStateDescription(existing);
             formEntry(CommCareApplication.instance().getCommCarePlatform()
-                    .getFormContentUri(state.getSession().getForm()), state.getFormRecord(),
+                            .getFormDefId(state.getSession().getForm()), state.getFormRecord(),
                     null, true);
             return true;
         }
@@ -457,7 +456,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                         }
 
                         AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
-                        formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
+                        formEntry(platform.getFormDefId(r.getFormNamespace()), r);
                         return;
                     }
                     break;
@@ -700,11 +699,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         if (resultCode == RESULT_OK) {
             // Determine if the form instance is complete
-            Uri resultInstanceURI = null;
+            int resultInstanceId = -1;
             if (intent != null) {
-                resultInstanceURI = intent.getData();
+                resultInstanceId = intent.getIntExtra(FormEntryActivity.KEY_INSTANCE_ID, -1);
             }
-            if (resultInstanceURI == null) {
+            if (resultInstanceId == -1) {
                 CommCareApplication.notificationManager().reportNotificationMessage(
                         NotificationMessageFactory.message(
                                 NotificationMessageFactory.StockMessages.FormEntry_Unretrievable));
@@ -717,19 +716,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 return false;
             }
 
-            Cursor c = null;
             String instanceStatus;
             try {
-                c = getContentResolver().query(resultInstanceURI, null, null, null, null);
-                if (!c.moveToFirst()) {
-                    throw new IllegalArgumentException("Empty query for instance record!");
-                }
-                instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
-            } finally {
-                if (c != null) {
-                    c.close();
-                }
+                instanceStatus = InstanceRecord.getInstance(resultInstanceId).getStatus();
+            } catch (NoSuchElementException e) {
+                throw new IllegalArgumentException("Empty query for instance record!");
             }
+
+
             // was the record marked complete?
             boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
 
@@ -777,7 +771,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // If the form was unstarted, we want to wipe the record.
             if (current.getStatus().equals(FormRecord.STATUS_UNSTARTED)) {
                 // Entry was cancelled.
-                FormRecordCleanupTask.wipeRecord(this, currentState);
+                FormRecordCleanupTask.wipeRecord(currentState);
             }
 
             if (wasExternal) {
@@ -1031,15 +1025,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         FormRecord record = state.getFormRecord();
         AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
-        formEntry(platform.getFormContentUri(record.getFormNamespace()), record,
+        formEntry(platform.getFormDefId(record.getFormNamespace()), record,
                 CommCareActivity.getTitle(this, null), false);
     }
 
-    private void formEntry(Uri formUri, FormRecord r) {
-        formEntry(formUri, r, null, false);
+    private void formEntry(long formDefId, FormRecord r) {
+        formEntry(formDefId, r, null, false);
     }
 
-    private void formEntry(Uri formUri, FormRecord r, String headerTitle,
+    private void formEntry(long formDefId, FormRecord r, String headerTitle,
                            boolean isRestartAfterSessionExpiration) {
         Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
 
@@ -1053,19 +1047,17 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
 
         // See if there's existing form data that we want to continue entering
-        // (note, this should be stored in the form record as a URI link to
+        // Note, this should be stored in the form record as a URI link to
         // the instance provider in the future)
-        if (r.getInstanceURI() != null) {
-            i.setData(r.getInstanceURI());
+        if (r.getInstanceId() != -1) {
+            i.putExtra(FormEntryActivity.KEY_INSTANCE_ID, r.getInstanceId());
         } else {
-            i.setData(formUri);
+            i.putExtra(FormEntryActivity.KEY_FORM_DEF_ID, formDefId);
         }
 
         i.putExtra(FormEntryActivity.KEY_RESIZING_ENABLED, HiddenPreferences.getResizeMethod());
         i.putExtra(FormEntryActivity.KEY_INCOMPLETE_ENABLED, HiddenPreferences.isIncompleteFormsEnabled());
         i.putExtra(FormEntryActivity.KEY_AES_STORAGE_KEY, Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
-        i.putExtra(FormEntryActivity.KEY_FORM_CONTENT_URI, FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
-        i.putExtra(FormEntryActivity.KEY_INSTANCE_CONTENT_URI, InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
         i.putExtra(FormEntrySessionWrapper.KEY_RECORD_FORM_ENTRY_SESSION, DeveloperPreferences.isSessionSavingEnabled());
         i.putExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, isRestartAfterSessionExpiration);
         if (headerTitle != null) {
@@ -1080,7 +1072,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 i.putExtra(FormEntrySessionWrapper.KEY_FORM_ENTRY_SESSION, formEntrySession);
             }
         }
-
         startActivityForResult(i, MODEL_RESULT);
     }
 
@@ -1128,7 +1119,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     /**
-     *
      * @return true if we kicked off any processes
      */
     private boolean checkForPendingAppHealthActions() {
@@ -1156,16 +1146,16 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     case DialogInterface.BUTTON_POSITIVE:
                         // use the old form instance and load the it's state from the descriptor
                         state.loadFromStateDescription(existing);
-                        formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+                        formEntry(platform.getFormDefId(state.getSession().getForm()), state.getFormRecord());
                         break;
                     case DialogInterface.BUTTON_NEGATIVE:
                         // delete the old incomplete form
-                        FormRecordCleanupTask.wipeRecord(HomeScreenBaseActivity.this, existing);
+                        FormRecordCleanupTask.wipeRecord(existing);
                         // fallthrough to new now that old record is gone
                     case DialogInterface.BUTTON_NEUTRAL:
                         // create a new form record and begin form entry
                         state.commitStub();
-                        formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+                        formEntry(platform.getFormDefId(state.getSession().getForm()), state.getFormRecord());
                 }
                 dismissAlertDialog();
             }

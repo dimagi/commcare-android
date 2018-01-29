@@ -11,8 +11,12 @@ import android.util.Pair;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Vector;
 
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.InstanceRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.models.ODKStorage;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI;
@@ -38,92 +42,34 @@ public class FormEntryInstanceState {
      *
      * @return true if form has been marked completed, false otherwise.
      */
-    public static boolean isInstanceComplete(Context context, Uri instanceProviderContentURI) {
-        // default to false if we're mid form
-        boolean complete = false;
-
-        // Then see if we've already marked this form as complete before
-        String selection = InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH + "=?";
-        String[] selectionArgs = {
-                mInstancePath
-        };
-
-        Cursor c = null;
-        try {
-            c = context.getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
-            if (c != null && c.getCount() > 0) {
-                c.moveToFirst();
-                String status = c.getString(c.getColumnIndex(InstanceProviderAPI.InstanceColumns.STATUS));
-                if (InstanceProviderAPI.STATUS_COMPLETE.compareTo(status) == 0) {
-                    complete = true;
-                }
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-        return complete;
+    public static boolean isInstanceComplete() {
+       return InstanceRecord.isInstanceComplete(mInstancePath);
     }
 
-    public static Pair<Uri, Boolean> getInstanceUri(Context context, Uri uri,
-                                                    Uri formProviderContentURI,
-                                                    FormEntryInstanceState instanceState)
+    public static Pair<Integer, Boolean> getFormDefIdForInstance(int instanceId, FormEntryInstanceState instanceState)
             throws FormEntryActivity.FormQueryException {
-        Cursor instanceCursor = null;
-        Cursor formCursor = null;
         Boolean isInstanceReadOnly = false;
-        Uri formUri = null;
-        try {
-            instanceCursor = context.getContentResolver().query(uri, null, null, null, null);
-            if (instanceCursor == null) {
-                throw new FormEntryActivity.FormQueryException("Bad URI: resolved to null");
-            } else if (instanceCursor.getCount() != 1) {
-                throw new FormEntryActivity.FormQueryException("Bad URI: " + uri);
-            } else {
-                instanceCursor.moveToFirst();
-                mInstancePath =
-                        instanceCursor.getString(instanceCursor
-                                .getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH));
+        InstanceRecord instanceRecord = InstanceRecord.getInstance(instanceId);
+        mInstancePath = instanceRecord.getFilePath();
 
-                final String jrFormId =
-                        instanceCursor.getString(instanceCursor
-                                .getColumnIndex(InstanceProviderAPI.InstanceColumns.JR_FORM_ID));
-
-
-                //If this form is both already completed
-                if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.STATUS)))) {
-                    if (!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
-                        isInstanceReadOnly = true;
-                    }
-                }
-                final String[] selectionArgs = {
-                        jrFormId
-                };
-                final String selection = FormsProviderAPI.FormsColumns.JR_FORM_ID + " like ?";
-
-                formCursor = context.getContentResolver().query(formProviderContentURI, null, selection, selectionArgs, null);
-                if (formCursor == null || formCursor.getCount() < 1) {
-                    throw new FormEntryActivity.FormQueryException("Parent form does not exist");
-                } else if (formCursor.getCount() == 1) {
-                    formCursor.moveToFirst();
-                    instanceState.setFormPath(
-                            formCursor.getString(formCursor
-                                    .getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH)));
-                    formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsProviderAPI.FormsColumns._ID)));
-                } else if (formCursor.getCount() > 1) {
-                    throw new FormEntryActivity.FormQueryException("More than one possible parent form");
-                }
-            }
-        } finally {
-            if (instanceCursor != null) {
-                instanceCursor.close();
-            }
-            if (formCursor != null) {
-                formCursor.close();
+        //If this form is both already completed
+        if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceRecord.getStatus())) {
+            if (!Boolean.parseBoolean(instanceRecord.getCanEditWhenComplete())) {
+                isInstanceReadOnly = true;
             }
         }
-        return new Pair<>(formUri, isInstanceReadOnly);
+
+        Vector<FormDefRecord> formDefRecords = FormDefRecord.getFormDefsByJrFormId(instanceRecord.getJrFormId());
+
+        if (formDefRecords.size() == 1) {
+            FormDefRecord formDefRecord = formDefRecords.get(0);
+            instanceState.setFormPath(formDefRecord.getFilePath());
+            return new Pair<>(formDefRecord.getID(), isInstanceReadOnly);
+        } else if (formDefRecords.size() < 1) {
+            throw new FormEntryActivity.FormQueryException("Parent form does not exist");
+        } else {
+            throw new FormEntryActivity.FormQueryException("More than one possible parent form");
+        }
     }
 
     /**

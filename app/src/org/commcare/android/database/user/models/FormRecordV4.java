@@ -2,49 +2,53 @@ package org.commcare.android.database.user.models;
 
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
-import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 
 import java.util.Date;
 
 /**
  * This class represents the version of a FormRecord that exists on any devices running versions
- * 2.26 though 2.34 of CommCare, which was deprecated in user db version 17. This class is used
+ * 2.39 through 2.41 of CommCare, which was deprecated in user db version 23. This class is used
  * to read a form record that exists in such a database, in order to run a db upgrade.
- *
- * @author Aliza Stone
  */
-@Table("FORMRECORDS")
-public class FormRecordV2 extends Persisted {
+
+public class FormRecordV4 extends Persisted {
 
     @Persisting(1)
     @MetaField(FormRecord.META_XMLNS)
     private String xmlns;
+
     @Persisting(2)
     @MetaField(FormRecord.META_INSTANCE_ID)
     private String instanceURI;
+
     @Persisting(3)
     @MetaField(FormRecord.META_STATUS)
     private String status;
+
     @Persisting(4)
     private byte[] aesKey;
+
     @Persisting(value = 5, nullable = true)
     @MetaField(FormRecord.META_UUID)
     private String uuid;
+
     @Persisting(6)
     @MetaField(FormRecord.META_LAST_MODIFIED)
     private Date lastModified;
+
     @Persisting(7)
     @MetaField(FormRecord.META_APP_ID)
     private String appId;
 
-    /*
-     * Deserialization only
-     */
-    public FormRecordV2() {
-    }
+    @Persisting(value = 8, nullable = true)
+    @MetaField(FormRecord.META_SUBMISSION_ORDERING_NUMBER)
+    private String submissionOrderingNumber;
 
-    public FormRecordV2(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid,
+    @Persisting(value = 9, nullable = true)
+    private String quarantineReason;
+
+    public FormRecordV4(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid,
                       Date lastModified, String appId) {
         this.instanceURI = instanceURI;
         this.status = status;
@@ -87,4 +91,7 @@ public class FormRecordV2 extends Persisted {
         return this.appId;
     }
 
+    public void setFormNumberForSubmissionOrdering(int num) {
+        this.submissionOrderingNumber = ""+num;
+    }
 }

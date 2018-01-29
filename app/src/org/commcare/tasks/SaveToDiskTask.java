@@ -1,22 +1,18 @@
 package org.commcare.tasks;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryInstanceState;
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.encryption.EncryptionIO;
-import org.commcare.provider.FormsProviderAPI.FormsColumns;
-import org.commcare.provider.InstanceProviderAPI;
-import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.EncryptionUtils;
@@ -51,13 +47,10 @@ public class SaveToDiskTask extends
     private FormSavedListener mSavedListener;
     private final Boolean exitAfterSave;
     private final Boolean mMarkCompleted;
-    // URI to the thing we are saving
-    private Uri mUri;
+    private final int mInstanceId;
+    private final int mFormDefId;
     // The name of the form we are saving
     private final String mInstanceName;
-    private final Context context;
-    // URI to the table we are saving to
-    private final Uri instanceContentUri;
 
     private final SecretKeySpec symetricKey;
 
@@ -71,17 +64,16 @@ public class SaveToDiskTask extends
 
     public static final int SAVING_TASK_ID = 17;
 
-    public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted,
-                          String updatedName, Context context, Uri instanceContentUri,
+    public SaveToDiskTask(int instanceId, int formDefId, Boolean saveAndExit, Boolean markCompleted,
+                          String updatedName,
                           SecretKeySpec symetricKey, boolean headless) {
         TAG = SaveToDiskTask.class.getSimpleName();
 
-        this.mUri = mUri;
+        mInstanceId = instanceId;
+        mFormDefId = formDefId;
         exitAfterSave = saveAndExit;
         mMarkCompleted = markCompleted;
         mInstanceName = updatedName;
-        this.context = context;
-        this.instanceContentUri = instanceContentUri;
         this.symetricKey = symetricKey;
 
         if (headless) {
@@ -97,11 +89,11 @@ public class SaveToDiskTask extends
      */
     @Override
     protected ResultAndError<SaveStatus> doTaskBackground(Void... nothing) {
-        try{
+        try {
             if (hasInvalidAnswers(mMarkCompleted)) {
                 return new ResultAndError<>(SaveStatus.INVALID_ANSWER);
             }
-        } catch(XPathException xpe) {
+        } catch (XPathException xpe) {
             String cleanedMessage = "An error in your form prevented it from saving: \n" +
                     xpe.getMessage();
 
@@ -116,11 +108,11 @@ public class SaveToDiskTask extends
             e.printStackTrace();
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
                     "Something is blocking acesss to the submission file in " + FormEntryInstanceState.mInstancePath);
-        } catch(XFormSerializer.UnsupportedUnicodeSurrogatesException e) {
+        } catch (XFormSerializer.UnsupportedUnicodeSurrogatesException e) {
             Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Form contains invalid data encoding\n\n" + ForceCloseLogger.getStackTrace(e));
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
                     Localization.get("form.entry.save.invalid.unicode", e.getMessage()));
-        }  catch (IOException e) {
+        } catch (IOException e) {
             Logger.log(LogTypes.TYPE_ERROR_STORAGE, "I/O Error when serializing form\n\n" + ForceCloseLogger.getStackTrace(e));
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
                     "Unable to write xml to " + FormEntryInstanceState.mInstancePath);
@@ -151,73 +143,49 @@ public class SaveToDiskTask extends
      */
     private void updateInstanceDatabase(boolean incomplete, boolean canEditAfterCompleted)
             throws FormInstanceTransactionException {
-        ContentValues values = new ContentValues();
-        if (mInstanceName != null) {
-            values.put(InstanceColumns.DISPLAY_NAME, mInstanceName);
+
+        String instanceStatus;
+        if (incomplete || !mMarkCompleted) {
+            instanceStatus = InstanceRecord.STATUS_INCOMPLETE;
+        } else {
+            instanceStatus = InstanceRecord.STATUS_COMPLETE;
         }
 
-        if (incomplete || !mMarkCompleted) {
-            values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
-        } else {
-            values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_COMPLETE);
-        }
         // update this whether or not the status is complete.
-        values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(canEditAfterCompleted));
+        String canEditWhenComplete = Boolean.toString(canEditAfterCompleted);
 
         // Insert or update the form instance into the database.
-        String resolverType = context.getContentResolver().getType(mUri);
-        if (InstanceColumns.CONTENT_ITEM_TYPE.equals(resolverType)) {
+        if (mInstanceId != -1) {
             // Started with a concrete instance (e.i. by editing an existing
             // form), so just update it.
             try {
-                context.getContentResolver().update(mUri, values, null, null);
+                InstanceRecord instanceRecord = InstanceRecord.getInstance(mInstanceId);
+                instanceRecord.updateStatus(instanceStatus, mInstanceName, canEditWhenComplete);
             } catch (IllegalStateException e) {
                 throw new FormInstanceTransactionException(e);
             }
-        } else if (FormsColumns.CONTENT_ITEM_TYPE.equals(resolverType)) {
+        } else if (mFormDefId != -1) {
             // Started with an empty form or possibly a manually saved form.
             // Try updating, and create a new instance if that fails.
-            String[] whereArgs = {FormEntryInstanceState.mInstancePath};
-            int rowsUpdated;
-            try {
-                rowsUpdated = context.getContentResolver().update(instanceContentUri, values,
-                        InstanceColumns.INSTANCE_FILE_PATH + "=?", whereArgs);
-            } catch (IllegalStateException e) {
-                throw new FormInstanceTransactionException(e);
-            }
-            if (rowsUpdated == 0) {
+            InstanceRecord instanceRecord = InstanceRecord.getInstance(FormEntryInstanceState.mInstancePath);
+            if (instanceRecord != null) {
+                instanceRecord.updateStatus(instanceStatus, mInstanceName, canEditWhenComplete);
+                Log.i(TAG, "Instance already exists, updating");
+            } else {
                 // Form instance didn't exist in the table, so create it.
                 Log.e(TAG, "No instance found, creating");
-                Cursor c = null;
-                try {
-                    // grab the first entry in the instance table for the form
-                    c = context.getContentResolver().query(mUri, null, null, null, null);
-                    c.moveToFirst();
-                    // copy data out of that entry, into the entry we are creating
-                    values.put(InstanceColumns.JR_FORM_ID,
-                            c.getString(c.getColumnIndex(FormsColumns.JR_FORM_ID)));
-                    values.put(InstanceColumns.SUBMISSION_URI,
-                            c.getString(c.getColumnIndex(FormsColumns.SUBMISSION_URI)));
 
-                    if (mInstanceName == null) {
-                        values.put(InstanceColumns.DISPLAY_NAME,
-                                c.getString(c.getColumnIndex(FormsColumns.DISPLAY_NAME)));
-                    }
-                } finally {
-                    if (c != null) {
-                        c.close();
-                    }
+                // grab the first entry in the form table for the instance
+                FormDefRecord formDefRecord = FormDefRecord.getFormDef(mFormDefId);
+
+                String instanceName = mInstanceName;
+                if (instanceName == null) {
+                    instanceName = formDefRecord.getDisplayname();
                 }
-                values.put(InstanceColumns.INSTANCE_FILE_PATH, FormEntryInstanceState.mInstancePath);
-                try {
-                    mUri = context.getContentResolver().insert(instanceContentUri, values);
-                } catch (IllegalStateException e) {
-                    throw new FormInstanceTransactionException(e);
-                }
-            } else if (rowsUpdated == 1) {
-                Log.i(TAG, "Instance already exists, updating");
-            } else{
-                Log.w(TAG, "Updated more than one entry, that's not good");
+
+                instanceRecord = new InstanceRecord(instanceName, FormEntryInstanceState.mInstancePath, instanceStatus, canEditWhenComplete,
+                        formDefRecord.getJrFormId(), formDefRecord.getSubmissionUri());
+                instanceRecord.save(InstanceRecord.INSERTION_TYPE_SESSION_LINKED);
             }
         }
     }
@@ -266,8 +234,8 @@ public class SaveToDiskTask extends
                     EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
 
             // see if the form is encrypted and we can encrypt it...
-            EncryptedFormInformation formInfo = EncryptionUtils.getEncryptedFormInformation(mUri, FormEntryActivity.mFormController.getSubmissionMetadata(), context, instanceContentUri);
-            if ( formInfo != null ) {
+            EncryptedFormInformation formInfo = EncryptionUtils.getEncryptedFormInformation(mInstanceId, mFormDefId, FormEntryActivity.mFormController.getSubmissionMetadata());
+            if (formInfo != null) {
                 // if we are encrypting, the form cannot be reopened afterward
                 canEditAfterCompleted = false;
                 // and encrypt the submission (this is a one-way operation)...
@@ -300,7 +268,7 @@ public class SaveToDiskTask extends
                 // files are handled during form deletion.
 
                 // delete the restore Xml file.
-                if ( !instanceXml.delete() ) {
+                if (!instanceXml.delete()) {
                     Log.e(TAG, "Error deleting " + instanceXml.getAbsolutePath()
                             + " prior to renaming submission.xml");
                     return;
@@ -377,10 +345,10 @@ public class SaveToDiskTask extends
 
         int event;
         while ((event =
-            FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
+                FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
             if (event == FormEntryController.EVENT_QUESTION) {
                 int saveStatus =
-                            FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
+                        FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
                 if (markCompleted &&
                         (saveStatus == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY ||
                                 saveStatus == FormEntryController.ANSWER_CONSTRAINT_VIOLATED)) {

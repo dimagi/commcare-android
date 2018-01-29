@@ -60,7 +60,7 @@ public class FormRecordProcessor {
     public FormRecord process(FormRecord record)
             throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
-        String form = record.getPath(c);
+        String form = record.getPath();
 
         final File f = new File(form);
 
@@ -104,7 +104,7 @@ public class FormRecordProcessor {
     }
 
     public FormRecord updateRecordStatus(FormRecord record, String newStatus) {
-        record = record.updateInstanceAndStatus(record.getInstanceURI().toString(), newStatus);
+        record = record.updateInstanceAndStatus(record.getInstanceId(), newStatus);
         storage.write(record);
         return record;
     }
@@ -161,7 +161,7 @@ public class FormRecordProcessor {
             String formPath;
             try {
                 //make sure we can retrieve a record. 
-                formPath = r.getPath(c);
+                formPath = r.getPath();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 reporter.append("ERROR - No file path found for form record. ").append(e.getMessage()).append("\n");

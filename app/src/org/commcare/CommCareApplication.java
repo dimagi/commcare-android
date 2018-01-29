@@ -552,6 +552,10 @@ public class CommCareApplication extends MultiDexApplication {
         });
     }
 
+    public DatabaseAppOpenHelper getAppDatabaseHelper() {
+        return currentApp.getAppDatabaseHelper();
+    }
+
     public <T extends Persistable> SqlStorage<T> getAppStorage(Class<T> c) {
         return getAppStorage(c.getAnnotation(Table.class).value(), c);
     }

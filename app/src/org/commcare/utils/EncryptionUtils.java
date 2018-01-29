@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.util.Base64;
 import org.javarosa.form.api.FormController.InstanceMetadata;
 import org.commcare.provider.FormsProviderAPI;
@@ -35,6 +37,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -227,127 +231,97 @@ public class EncryptionUtils {
     }
 
     /**
-     * Retrieve the encryption information for this uri.
-     *
-     * @param mUri either an instance URI (if previously saved) or a form URI
+     * Retrieve the encryption information for the given instanceId/formDefId.
      */
-    public static EncryptedFormInformation getEncryptedFormInformation(Uri mUri, InstanceMetadata instanceMetadata, Context context, Uri instanceContentUri) {
-
-        ContentResolver cr = context.getContentResolver();
-
+    public static EncryptedFormInformation getEncryptedFormInformation(int instanceId, int formDefId, InstanceMetadata instanceMetadata) {
         // fetch the form information
-        String formId;
-        Integer modelVersion;
-        Integer uiVersion;
-        PublicKey pk;
-        Base64Wrapper wrapper;
-
-        Cursor formCursor = null;
-        try {
-            if (InstanceProviderAPI.InstanceColumns.CONTENT_ITEM_TYPE.equals(cr.getType(mUri))) {
-                // chain back to the Form record...
-                String[] selectionArgs = null;
-                Cursor instanceCursor = null;
-                try {
-                    instanceCursor = cr.query(mUri, null, null, null, null);
-                    if (instanceCursor.getCount() != 1) {
-                        Log.e(t, "Not exactly one record for this instance!");
-                        return null; // save unencrypted.
-                    }
-                    instanceCursor.moveToFirst();
-                    String jrFormId = instanceCursor.getString(instanceCursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.JR_FORM_ID));
-                    selectionArgs = new String[]{jrFormId};
-                } finally {
-                    if (instanceCursor != null) {
-                        instanceCursor.close();
-                    }
-                }
-                String selection = FormsProviderAPI.FormsColumns.JR_FORM_ID + " like ?";
-
-                formCursor = cr.query(instanceContentUri, null, selection, selectionArgs,
-                        null);
-
-                if (formCursor.getCount() != 1) {
-                    Log.e(t, "Not exactly one blank form matches this jr_form_id");
-                    return null; // save unencrypted
-                }
-                formCursor.moveToFirst();
-            } else if (FormsProviderAPI.FormsColumns.CONTENT_ITEM_TYPE.equals(cr.getType(mUri))) {
-                formCursor = cr.query(mUri, null, null, null, null);
-                if (formCursor.getCount() != 1) {
-                    Log.e(t, "Not exactly one blank form!");
-                    return null; // save unencrypted.
-                }
-                formCursor.moveToFirst();
+        FormDefRecord formDefRecord = null;
+        if (instanceId != -1) {
+            // chain back to the Form record...
+            InstanceRecord instanceRecord = InstanceRecord.getInstance(instanceId);
+            if (instanceRecord == null) {
+                Log.e(t, "No record found for this instance id " + instanceId);
+                return null; // save unencrypted.
             }
 
-            formId = formCursor.getString(formCursor.getColumnIndex(FormsProviderAPI.FormsColumns.JR_FORM_ID));
-            if (formId == null || formId.length() == 0) {
-                Log.e(t, "No FormId specified???");
-                return null;
+            Vector<FormDefRecord> formDefRecords = FormDefRecord.getFormDefsByJrFormId(instanceRecord.getJrFormId());
+            if (formDefRecords.size() != 1) {
+                Log.e(t, "Not exactly one record for this instance!");
+                return null; // save unencrypted.
             }
-            int idxModelVersion = formCursor.getColumnIndex(FormsProviderAPI.FormsColumns.MODEL_VERSION);
-            int idxUiVersion = formCursor.getColumnIndex(FormsProviderAPI.FormsColumns.UI_VERSION);
-            int idxBase64RsaPublicKey = formCursor.getColumnIndex(FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY);
-            String base64RsaPublicKey;
+            formDefRecord = formDefRecords.get(0);
+        } else if (formDefId != -1) {
             try {
-                modelVersion = formCursor.isNull(idxModelVersion)
-                        ? null : formCursor.getInt(idxModelVersion);
-                uiVersion = formCursor.isNull(idxUiVersion)
-                        ? null : formCursor.getInt(idxUiVersion);
-                base64RsaPublicKey = formCursor.isNull(idxBase64RsaPublicKey)
-                        ? null : formCursor.getString(idxBase64RsaPublicKey);
-            } catch (ArrayIndexOutOfBoundsException e) {
-                Log.w(t, "Had trouble looking up form encryption parameters;" +
-                        " should only happen in tests");
-                Log.e(t, e.getMessage());
-                return null;
-            }
-
-            if (base64RsaPublicKey == null || base64RsaPublicKey.length() == 0) {
-                return null; // this is legitimately not an encrypted form
-            }
-
-            int version = android.os.Build.VERSION.SDK_INT;
-            if (version < 8) {
-                Log.e(t, "Phone does not support encryption.");
-                return null; // save unencrypted
-            }
-
-            // this constructor will throw an exception if we are not
-            // running on version 8 or above (if Base64 is not found).
-            try {
-                wrapper = new Base64Wrapper();
-            } catch (ClassNotFoundException e) {
-                Log.e(t, "Phone does not have Base64 class but API level is "
-                        + version);
-                e.printStackTrace();
-                return null; // save unencrypted
-            }
-
-            // OK -- Base64 decode (requires API Version 8 or higher)
-            byte[] publicKey = wrapper.decode(base64RsaPublicKey);
-            X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKey);
-            KeyFactory kf;
-            try {
-                kf = KeyFactory.getInstance(RSA_ALGORITHM);
-            } catch (NoSuchAlgorithmException e) {
-                Log.e(t, "Phone does not support RSA encryption.");
-                e.printStackTrace();
-                return null;
-            }
-            try {
-                pk = kf.generatePublic(publicKeySpec);
-            } catch (InvalidKeySpecException e) {
-                e.printStackTrace();
-                Log.e(t, "Invalid RSA public key.");
-                return null;
-            }
-        } finally {
-            if (formCursor != null) {
-                formCursor.close();
+                formDefRecord = FormDefRecord.getFormDef(formDefId);
+            } catch (NoSuchElementException e) {
+                Log.e(t, "No blank form for id " + formDefId);
+                return null; // save unencrypted.
             }
         }
+
+        String jRFormId = formDefRecord.getJrFormId();
+        if (jRFormId == null || jRFormId.length() == 0) {
+            Log.e(t, "No FormId specified???");
+            return null;
+        }
+
+        int modelVersion;
+        int uiVersion;
+        String base64RsaPublicKey;
+        try {
+            modelVersion = formDefRecord.getModelVersion();
+            uiVersion = formDefRecord.getUiVersion();
+            base64RsaPublicKey = formDefRecord.getBase64RsaPublicKey();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            Log.w(t, "Had trouble looking up form encryption parameters;" +
+                    " should only happen in tests");
+            Log.e(t, e.getMessage());
+            return null;
+        }
+
+        if (base64RsaPublicKey == null || base64RsaPublicKey.length() == 0) {
+            return null; // this is legitimately not an encrypted form
+        }
+
+        int version = android.os.Build.VERSION.SDK_INT;
+        if (version < 8) {
+            Log.e(t, "Phone does not support encryption.");
+            return null; // save unencrypted
+        }
+
+        Base64Wrapper wrapper;
+        // this constructor will throw an exception if we are not
+        // running on version 8 or above (if Base64 is not found).
+        try {
+            wrapper = new Base64Wrapper();
+        } catch (ClassNotFoundException e) {
+            Log.e(t, "Phone does not have Base64 class but API level is "
+                    + version);
+            e.printStackTrace();
+            return null; // save unencrypted
+        }
+
+        // OK -- Base64 decode (requires API Version 8 or higher)
+        byte[] publicKey = wrapper.decode(base64RsaPublicKey);
+        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKey);
+        KeyFactory kf;
+        try {
+            kf = KeyFactory.getInstance(RSA_ALGORITHM);
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(t, "Phone does not support RSA encryption.");
+            e.printStackTrace();
+            return null;
+        }
+
+        PublicKey pk;
+        try {
+            pk = kf.generatePublic(publicKeySpec);
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+            Log.e(t, "Invalid RSA public key.");
+            return null;
+        }
+
 
         // submission must have an OpenRosa metadata block with a non-null
         // instanceID value.
@@ -356,7 +330,7 @@ public class EncryptionUtils {
             return null;
         }
 
-        return new EncryptedFormInformation(formId, modelVersion, uiVersion, instanceMetadata,
+        return new EncryptedFormInformation(jRFormId, modelVersion, uiVersion, instanceMetadata,
                 pk, wrapper);
     }
 

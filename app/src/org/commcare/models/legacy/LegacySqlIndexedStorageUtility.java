@@ -335,18 +335,6 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     }
 
     @Override
-    public void update(int id, Externalizable e) {
-        SQLiteDatabase db = helper.getHandle();
-        db.beginTransaction();
-        try {
-            db.update(table, helper.getContentValues(e), DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    @Override
     public void write(Persistable p) {
         if (p.getID() != -1) {
             update(p.getID(), p);

@@ -1,15 +1,13 @@
 package org.commcare.android.resource.installers;
 
-import android.content.ContentProviderClient;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.RemoteException;
 import android.util.Log;
+import android.util.SparseIntArray;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.AppDbContract;
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.FormDefSource;
 import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.engine.extensions.IntentExtensionParser;
 import org.commcare.engine.extensions.PollSensorExtensionParser;
@@ -52,7 +50,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = XFormAndroidInstaller.class.getSimpleName();
 
     private String namespace;
-    private String contentUri;
+    private int formDefId = -1;
 
     @SuppressWarnings("unused")
     public XFormAndroidInstaller() {
@@ -65,7 +63,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
-        platform.registerXmlns(namespace, contentUri);
+        platform.registerXmlns(namespace, formDefId);
         return true;
     }
 
@@ -79,66 +77,29 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             throw new UnresolvedResourceException(r, xfpe.getMessage(), true);
         }
 
-
         this.namespace = formDef.getInstance().schema;
         if (namespace == null) {
             throw new UnresolvedResourceException(r, "Invalid XForm, no namespace defined", true);
         }
 
-
-        //TODO: Where should this context be?
-        ContentResolver cr = CommCareApplication.instance().getContentResolver();
-        ContentProviderClient cpc = cr.acquireContentProviderClient(FormsProviderAPI.FormsColumns.CONTENT_URI);
-
-        ContentValues cv = new ContentValues();
-        cv.put(FormsProviderAPI.FormsColumns.DISPLAY_NAME, "NAME");
-        cv.put(FormsProviderAPI.FormsColumns.DESCRIPTION, "NAME"); //nullable
-        cv.put(FormsProviderAPI.FormsColumns.JR_FORM_ID, formDef.getMainInstance().schema); // ? 
-        cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, local.getLocalURI());
-        cv.put(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH, GlobalConstants.MEDIA_REF);
-        //cv.put(FormsProviderAPI.FormsColumns.SUBMISSION_URI, "NAME"); //nullable
-        //cv.put(FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY, "NAME"); //nullable
-
-
-        Cursor existingforms = null;
-        try {
-            existingforms = cr.query(FormsProviderAPI.FormsColumns.CONTENT_URI,
-                    new String[]{FormsProviderAPI.FormsColumns._ID},
-                    FormsProviderAPI.FormsColumns.JR_FORM_ID + "=?",
-                    new String[]{formDef.getMainInstance().schema}, null);
-
-
-            if (existingforms != null && existingforms.moveToFirst()) {
-                //we already have one form. Hopefully this is during an upgrade...
-                if (!upgrade) {
-                    //Hm, error out?
-                }
-
-                //So we know there's another form here. We should wait until it's time for
-                //the upgrade and replace the pointer to here.
-                Uri recordId = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, existingforms.getLong(0));
-
-                //Grab the URI we should update
-                this.contentUri = recordId.toString();
-
-                //TODO: Check to see if there is more than one form, and deal
-
-            } else {
-                Uri result = cpc.insert(FormsProviderAPI.FormsColumns.CONTENT_URI, cv);
-                this.contentUri = result.toString();
+        Vector<Integer> existingforms = FormDefRecord.getFormDefIdsByJrFormId(formDef.getMainInstance().schema);
+        if (existingforms != null && existingforms.size() > 0) {
+            //we already have one form. Hopefully this is during an upgrade...
+            if (!upgrade) {
+                //Hm, error out?
+                Logger.log(LogTypes.SOFT_ASSERT, "Form with schema " + formDef.getMainInstance().schema + " already present during the install");
             }
-        } catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            throw new IOException("couldn't talk to form database to install form");
-        } finally {
-            if (existingforms != null) {
-                existingforms.close();
-            }
-        }
 
-        if (cpc != null) {
-            cpc.release();
+            //So we know there's another form here. We should wait until it's time for
+            //the upgrade and replace the pointer to here.
+            formDefId = existingforms.get(0);
+
+            if (existingforms.size() > 1) {
+                Logger.log(LogTypes.SOFT_ASSERT, "More than one Form with schema " + formDef.getMainInstance().schema + "present during the install");
+            }
+        } else {
+            FormDefRecord formDefRecord = new FormDefRecord("NAME", "NAME", formDef.getMainInstance().schema, local.getLocalURI(), GlobalConstants.MEDIA_REF);
+            formDefId = formDefRecord.save();
         }
 
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
@@ -169,18 +130,9 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             return false;
         }
 
-        //We're maintaining this whole Content setup now, so we've goota update things when we move them.
-        ContentResolver cr = CommCareApplication.instance().getContentResolver();
-
-        ContentValues cv = new ContentValues();
-        cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, new File(localRawUri).getAbsolutePath());
-
         //Update the form file path
-        int updatedRows = cr.update(Uri.parse(this.contentUri), cv, null, null);
-        if (updatedRows > 1) {
-            throw new RuntimeException("Bad URI stored for xforms installer: " + this.contentUri);
-        }
-        return updatedRows != 0;
+        FormDefRecord.updateFilePath(formDefId, new File(localRawUri).getAbsolutePath());
+        return true;
     }
 
     @Override
@@ -213,14 +165,14 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
         this.namespace = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        this.contentUri = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        this.formDefId = (int)ExtUtil.readNumeric(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(namespace));
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(contentUri));
+        ExtUtil.writeNumeric(out, formDefId);
     }
 
     @Override

@@ -7,6 +7,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI;
 
@@ -15,52 +17,15 @@ import java.io.File;
 public class FormFileSystemHelpers {
     private static final String TAG = FormFileSystemHelpers.class.getSimpleName();
 
-    public static String getFormPath(Context context, Uri uri) throws FormEntryActivity.FormQueryException {
-        Cursor c = null;
-        try {
-            c = context.getContentResolver().query(uri, null, null, null, null);
-            if (c == null) {
-                throw new FormEntryActivity.FormQueryException("Bad URI: resolved to null");
-            } else if (c.getCount() != 1) {
-                throw new FormEntryActivity.FormQueryException("Bad URI: " + uri);
-            } else {
-                c.moveToFirst();
-                return c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
+    public static String getFormPath(int formId) {
+        FormDefRecord formDefRecord = FormDefRecord.getFormDef(formId);
+        return formDefRecord.getFilePath();
     }
 
-    private static int getFormInstanceCount(Context context,
-                                            String instancePath,
-                                            Uri instanceProviderContentURI) {
-        String selection =
-                InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH + " like '"
-                        + instancePath + "'";
-        Cursor c = null;
-        int instanceCount = 0;
-        try {
-            c = context.getContentResolver().query(instanceProviderContentURI, null, selection, null, null);
-            if (c != null) {
-                instanceCount = c.getCount();
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-        return instanceCount;
-    }
-
-    public static void removeMediaAttachedToUnsavedForm(Context context,
-                                                        String instancePath,
-                                                        Uri instanceProviderContentURI) {
-        int instanceCount = getFormInstanceCount(context, instancePath, instanceProviderContentURI);
+    public static void removeMediaAttachedToUnsavedForm(Context context, String instancePath) {
+        InstanceRecord instanceRecord = InstanceRecord.getInstance(instancePath);
         // if it's not already saved, erase everything
-        if (instanceCount < 1) {
+        if (instanceRecord == null) {
             int images = 0;
             int audio = 0;
             int video = 0;
