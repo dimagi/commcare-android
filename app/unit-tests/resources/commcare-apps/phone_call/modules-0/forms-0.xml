@@ -21,7 +21,7 @@
 				</translation>
 			</itext>
 		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
-		<odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="call" class="android.intent.action.CALL" data="concat('tel:', /data/phone_number)"/>
+		<odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="call" class="android.intent.action.CALL" data="cc:xpath_key:concat('tel:', /data/phone_number)"/>
 	</h:head>
 	<h:body>
 		<input ref="/data/phone_number" appearance="numeric">

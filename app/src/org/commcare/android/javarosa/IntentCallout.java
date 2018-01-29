@@ -104,13 +104,13 @@ public class IntentCallout implements Externalizable {
 
     private String parseData(EvaluationContext context) {
         boolean overridePlainTextAssumption = data.startsWith(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX);
-        data = data.replace(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX, "");
+        String dataString = data.replace(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX, "");
 
         if (!overridePlainTextAssumption) {
-            return data;
+            return dataString;
         } else {
             try {
-                return FunctionUtils.toString(XPathParseTool.parseXPath(data).eval(context));
+                return FunctionUtils.toString(XPathParseTool.parseXPath(dataString).eval(context));
             } catch (XPathSyntaxException e) {
                 return null;
             }

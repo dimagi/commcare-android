@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Environment;
 import android.widget.ImageButton;
 
+import junit.framework.Assert;
+
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
@@ -55,8 +57,8 @@ public class IntentCalloutTests {
 
         IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
         Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
-        assert intent.getData().equals("tel:1234567890");
-        assert intent.getAction().equals("android.intent.action.CALL");
+        Assert.assertEquals(intent.getData().toString(), "tel:1234567890");
+        Assert.assertEquals(intent.getAction(), "android.intent.action.CALL");
     }
 
     private FormEntryActivity navigateFormStructure(Intent formEntryIntent) {
@@ -81,8 +83,8 @@ public class IntentCalloutTests {
                         .create().start().resume().get();
         IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
         Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
-        assert intent.getData().equals("");
-        assert intent.getAction().equals("android.intent.action.CALL");
+        Assert.assertEquals(intent.getData(), null);
+        Assert.assertEquals(intent.getAction(), "android.intent.action.CALL");
     }
 
     @Test
@@ -95,8 +97,8 @@ public class IntentCalloutTests {
                         .create().start().resume().get();
         IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
         Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
-        assert intent.getData() == null;
-        assert intent.getAction().equals("android.intent.action.CALL");
+        Assert.assertEquals(intent.getData(), null);
+        Assert.assertEquals(intent.getAction(), "android.intent.action.CALL");
     }
 
     @Test
@@ -109,7 +111,7 @@ public class IntentCalloutTests {
                         .create().start().resume().get();
         IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
         Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
-        assert intent.getData().equals("tel:3333333333");
-        assert intent.getAction().equals("android.intent.action.CALL");
+        Assert.assertEquals(intent.getData().toString(), "tel:3333333333");
+        Assert.assertEquals(intent.getAction(), "android.intent.action.CALL");
     }
 }
