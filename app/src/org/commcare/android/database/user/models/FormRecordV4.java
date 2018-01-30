@@ -2,6 +2,7 @@ package org.commcare.android.database.user.models;
 
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
+import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 
 import java.util.Date;
@@ -12,6 +13,7 @@ import java.util.Date;
  * to read a form record that exists in such a database, in order to run a db upgrade.
  */
 
+@Table("FORMRECORDS")
 public class FormRecordV4 extends Persisted {
 
     @Persisting(1)
@@ -48,8 +50,12 @@ public class FormRecordV4 extends Persisted {
     @Persisting(value = 9, nullable = true)
     private String quarantineReason;
 
+    //   Deserialization only
+    public FormRecordV4() {
+    }
+
     public FormRecordV4(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid,
-                      Date lastModified, String appId) {
+                        Date lastModified, String appId) {
         this.instanceURI = instanceURI;
         this.status = status;
         this.xmlns = xmlns;
@@ -92,6 +98,6 @@ public class FormRecordV4 extends Persisted {
     }
 
     public void setFormNumberForSubmissionOrdering(int num) {
-        this.submissionOrderingNumber = ""+num;
+        this.submissionOrderingNumber = "" + num;
     }
 }
