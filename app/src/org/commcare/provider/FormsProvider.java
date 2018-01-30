@@ -158,7 +158,6 @@ public class FormsProvider extends ContentProvider {
 
 
     @Override
-    @Deprecated
     public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
         init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();

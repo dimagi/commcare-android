@@ -184,7 +184,7 @@ class AppDatabaseUpgrader {
     private boolean upgradeSevenEight(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            SqlStorage<Persisted> storage = new SqlStorage<Persisted>(
+            SqlStorage<Persisted> storage = new SqlStorage<>(
                     UserKeyRecordV1.STORAGE_KEY,
                     UserKeyRecordV1.class,
                     new ConcreteAndroidDbHelper(context, db));
@@ -210,26 +210,49 @@ class AppDatabaseUpgrader {
         }
     }
 
-    // Migrate records form FormProvider and InstanceProvider to FormDefRecord and InstanceRecord respectively
+    // Migrate records form FormProvider and InstanceProvider to new FormDefRecord and InstanceRecord respectively
     private boolean upgradeEightNine(SQLiteDatabase db) {
         db.beginTransaction();
         android.database.Cursor cursor = null;
         try {
+
+            // Create FormDef table
+            TableBuilder builder = new TableBuilder(FormDefRecord.class);
+            db.execSQL(builder.getTableCreateString());
+
+            // Create Instance table
+            builder = new TableBuilder(InstanceRecord.class);
+            db.execSQL(builder.getTableCreateString());
+
+            // migrate InstanceProvider entries
             cursor = context.getContentResolver().query(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
+                SqlStorage<InstanceRecord> instanceRecordStorage = new SqlStorage<>(
+                        InstanceRecord.STORAGE_KEY,
+                        InstanceRecord.class,
+                        new ConcreteAndroidDbHelper(context, db));
+                InstanceRecord.setinstanceRecordStorage(instanceRecordStorage);
                 while (cursor.moveToNext()) {
                     InstanceRecord instanceRecord = new InstanceRecord(cursor);
                     instanceRecord.save(InstanceRecord.INSERTION_TYPE_SANDBOX_MIGRATED);
                 }
             }
 
+            // migrate FormProvider entries
             cursor = context.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
+                SqlStorage<FormDefRecord> formDefRecordStorage = new SqlStorage<>(
+                        FormDefRecord.STORAGE_KEY,
+                        FormDefRecord.class,
+                        new ConcreteAndroidDbHelper(context, db));
+                FormDefRecord.setFormDefStorage(formDefRecordStorage);
                 while (cursor.moveToNext()) {
                     FormDefRecord formDefRecord = new FormDefRecord(cursor);
                     formDefRecord.save();
                 }
             }
+
+            // Delete the migrated tables
             context.getContentResolver().delete(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null);
             context.getContentResolver().delete(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null);
             db.setTransactionSuccessful();

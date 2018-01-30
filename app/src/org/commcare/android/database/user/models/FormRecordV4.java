@@ -16,12 +16,14 @@ import java.util.Date;
 @Table("FORMRECORDS")
 public class FormRecordV4 extends Persisted {
 
+    public static final String META_INSTANCE_URI = "INSTANCE_URI";
+
     @Persisting(1)
     @MetaField(FormRecord.META_XMLNS)
     private String xmlns;
 
     @Persisting(2)
-    @MetaField(FormRecord.META_INSTANCE_ID)
+    @MetaField(META_INSTANCE_URI)
     private String instanceURI;
 
     @Persisting(3)

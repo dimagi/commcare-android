@@ -178,7 +178,6 @@ public class InstanceProvider extends ContentProvider {
      * files:  form.xml, [formmd5].formdef, formname-media {directory}
      */
     @Override
-    @Deprecated
     public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
         init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -204,7 +203,6 @@ public class InstanceProvider extends ContentProvider {
 //                }
                 count = db.delete(INSTANCES_TABLE_NAME, where, whereArgs);
                 break;
-
             case INSTANCE_ID:
                 throw new IllegalArgumentException("delete not implemented for " + uri + ". Consider using " + InstanceRecord.class.getName() + " instead");
             default:

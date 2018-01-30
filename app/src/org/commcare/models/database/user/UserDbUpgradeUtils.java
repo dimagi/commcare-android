@@ -14,6 +14,7 @@ import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.database.user.models.FormRecordV4;
+import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -198,8 +199,9 @@ public class UserDbUpgradeUtils {
 
     protected static void migrateV4FormRecords(Context c, SQLiteDatabase db) {
         SqlStorage<FormRecordV4> oldStorage = getFormRecordStorage(c, db, FormRecordV4.class);
-        SqlStorage<FormRecord> newStorage = getFormRecordStorage(c, db, FormRecord.class);
 
+        // Transform old records to new add to newRecords
+        Vector<FormRecord> newRecords = new Vector<>();
         for (FormRecordV4 oldRecord : oldStorage) {
             String instanceUri = oldRecord.getInstanceURIString();
             int instanceId;
@@ -218,6 +220,17 @@ public class UserDbUpgradeUtils {
                     oldRecord.lastModified(),
                     oldRecord.getAppId());
             newRecord.setID(oldRecord.getID());
+            newRecords.add(newRecord);
+        }
+
+        // Drop old Table and create it again with new definition
+        db.execSQL("DROP TABLE IF EXISTS " + FormRecord.STORAGE_KEY);
+        TableBuilder builder = new TableBuilder(FormRecord.class);
+        db.execSQL(builder.getTableCreateString());
+
+        // Write to the new table
+        SqlStorage<FormRecord> newStorage = getFormRecordStorage(c, db, FormRecord.class);
+        for (FormRecord newRecord : newRecords) {
             newStorage.write(newRecord);
         }
     }

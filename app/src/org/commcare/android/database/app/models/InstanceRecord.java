@@ -66,6 +66,7 @@ public class InstanceRecord extends Persisted {
     public static final String STATUS_COMPLETE = "complete";
     public static final String STATUS_SUBMITTED = "submitted";
     public static final String STATUS_SUBMISSION_FAILED = "submissionFailed";
+    private static SqlStorage<InstanceRecord> sInstanceRecordStorage;
 
     @StringDef({STATUS_INCOMPLETE, STATUS_COMPLETE, STATUS_SUBMITTED, STATUS_SUBMISSION_FAILED})
     @Retention(RetentionPolicy.SOURCE)
@@ -169,10 +170,6 @@ public class InstanceRecord extends Persisted {
 
     public static InstanceRecord getInstance(int instanceId) {
         return getInstanceRecordStorage().read(instanceId);
-    }
-
-    private static SqlStorage<InstanceRecord> getInstanceRecordStorage() {
-        return CommCareApplication.instance().getAppStorage(InstanceRecord.class);
     }
 
     public static void updateFilePath(int instanceId, String newPath) {
@@ -412,6 +409,17 @@ public class InstanceRecord extends Persisted {
         public InvalidStateException(String message) {
             super(message);
         }
+    }
+
+    private static SqlStorage<InstanceRecord> getInstanceRecordStorage() {
+        if (sInstanceRecordStorage == null) {
+            sInstanceRecordStorage = CommCareApplication.instance().getAppStorage(InstanceRecord.class);
+        }
+        return sInstanceRecordStorage;
+    }
+
+    public static void setinstanceRecordStorage(SqlStorage<InstanceRecord> instanceRecordStorage) {
+        sInstanceRecordStorage = instanceRecordStorage;
     }
 
     public String getFilePath() {
