@@ -122,17 +122,7 @@ public class KeyRecordTest {
     }
 
     private static void assertFormInstanceCount(int expectedCount) {
-
-        Cursor c =
-                RuntimeEnvironment.application.getContentResolver().query(InstanceProviderAPI.InstanceColumns.CONTENT_URI,
-                        null, null, null, null);
-        if (c == null) {
-            fail("Query returned 'null' when we expected to find " + expectedCount + " instances");
-        } else {
-            assertEquals(expectedCount, InstanceRecord.getCount());
-        }
-
-        c.close();
+        assertEquals(expectedCount, InstanceRecord.getCount());
     }
 
     private static void testOpeningMigratedForm() {

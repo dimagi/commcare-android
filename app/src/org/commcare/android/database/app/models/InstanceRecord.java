@@ -72,8 +72,23 @@ public class InstanceRecord extends Persisted {
     }
 
     // Insertion types
+    /**
+     * Used to signal an instance insertion should be attached to the
+     * session's form record
+     */
     public static final int INSERTION_TYPE_SESSION_LINKED = 0;
+
+    /**
+     * Used to signal an instance insertion shouldn't be attached to the
+     * session's form record, but rather create a new record to register with.
+     */
     public static final int INSERTION_TYPE_UNINDEXED_IMPORT = 1;
+
+    /**
+     * If a user sandbox needs to be migrated, instances will be moved by
+     * inserting them into the new sandbox and updating existing form records
+     * to point to the newly inserted data.
+     */
     public static final int INSERTION_TYPE_SANDBOX_MIGRATED = 2;
 
     @IntDef({INSERTION_TYPE_SESSION_LINKED, INSERTION_TYPE_UNINDEXED_IMPORT, INSERTION_TYPE_SANDBOX_MIGRATED})

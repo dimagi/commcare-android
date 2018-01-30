@@ -17,6 +17,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.utils.FileUtil;
 
 import java.io.File;
@@ -25,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+// Replaced by FormDefRecord in 2.42, only used for DB Migration now
 public class FormsProvider extends ContentProvider {
 
     private static final String t = "FormsProvider";
@@ -148,255 +151,23 @@ public class FormsProvider extends ContentProvider {
     }
 
     @Override
+    @Deprecated
     public Uri insert(@NonNull Uri uri, ContentValues initialValues) {
-        init();
-        // Validate the requested uri
-        if (sUriMatcher.match(uri) != FORMS) {
-            throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-
-        ContentValues values;
-        if (initialValues != null) {
-            values = new ContentValues(initialValues);
-        } else {
-            values = new ContentValues();
-        }
-
-        Long now = System.currentTimeMillis();
-
-        // Make sure that the necessary fields are all set
-        if (!values.containsKey(FormsProviderAPI.FormsColumns.DATE)) {
-            values.put(FormsProviderAPI.FormsColumns.DATE, now);
-        }
-
-        if (!values.containsKey(FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT)) {
-            Date today = new Date();
-            String ts = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(today);
-            values.put(FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT, "Added on " + ts);
-        }
-
-        // if we don't have a path to the file, the rest are irrelevant.
-        // it should fail anyway because you can't have a null file path.
-        if (values.containsKey(FormsProviderAPI.FormsColumns.FORM_FILE_PATH)) {
-            String filePath = values.getAsString(FormsProviderAPI.FormsColumns.FORM_FILE_PATH);
-            File form = new File(filePath);
-
-            if (!values.containsKey(FormsProviderAPI.FormsColumns.DISPLAY_NAME)) {
-                values.put(FormsProviderAPI.FormsColumns.DISPLAY_NAME, form.getName());
-            }
-
-            // don't let users put in a manual md5 hash
-            if (values.containsKey(FormsProviderAPI.FormsColumns.MD5_HASH)) {
-                values.remove(FormsProviderAPI.FormsColumns.MD5_HASH);
-            }
-            String md5 = FileUtil.getMd5Hash(form);
-            values.put(FormsProviderAPI.FormsColumns.MD5_HASH, md5);
-
-            if (!values.containsKey(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH)) {
-                String cachePath = Environment.getExternalStorageDirectory().getPath() + "odk/.cache/" + md5 + ".formdef";
-                values.put(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH, cachePath);
-            }
-            if (!values.containsKey(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH)) {
-                String pathNoExtension = filePath.substring(0, filePath.lastIndexOf("."));
-                String mediaPath = pathNoExtension + "-media";
-                values.put(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH, mediaPath);
-            }
-
-        }
-
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        long rowId = db.insert(FORMS_TABLE_NAME, null, values);
-        db.close();
-
-        if (rowId > 0) {
-            Uri formUri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, rowId);
-            getContext().getContentResolver().notifyChange(formUri, null);
-            return formUri;
-        }
-
-        throw new SQLException("Failed to insert row into " + uri);
+        throw new IllegalArgumentException("insert not implemented for " + uri + ". Consider using " + FormDefRecord.class.getName() + " instead");
     }
 
-    /**
-     * This method removes the entry from the content provider, and also removes any associated
-     * files. files: form.xml, [formmd5].formdef, formname-media {directory}
-     */
+
     @Override
+    @Deprecated
     public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
-        init();
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        int count;
-
-        switch (sUriMatcher.match(uri)) {
-            case FORMS:
-                Cursor del = null;
-                try {
-                    del = this.query(uri, null, where, whereArgs, null);
-                    del.moveToPosition(-1);
-                    while (del.moveToNext()) {
-                        FileUtil.deleteFileOrDir(del.getString(del
-                                .getColumnIndex(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH)));
-                        FileUtil.deleteFileOrDir(del.getString(del.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH)));
-                        FileUtil.deleteFileOrDir(del.getString(del.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH)));
-                    }
-                } finally {
-                    if (del != null) {
-                        del.close();
-                    }
-                }
-                count = db.delete(FORMS_TABLE_NAME, where, whereArgs);
-                break;
-
-            case FORM_ID:
-                String formId = uri.getPathSegments().get(1);
-
-                Cursor c = null;
-                try {
-                    c = this.query(uri, null, where, whereArgs, null);
-                    // This should only ever return 1 record.
-                    c.moveToPosition(-1);
-                    while (c.moveToNext()) {
-                        FileUtil.deleteFileOrDir(c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH)));
-                        FileUtil.deleteFileOrDir(c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH)));
-                        FileUtil.deleteFileOrDir(c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH)));
-                    }
-                } finally {
-                    if (c != null) {
-                        c.close();
-                    }
-                }
-
-                count =
-                        db.delete(FORMS_TABLE_NAME,
-                                FormsProviderAPI.FormsColumns._ID + "=" + formId
-                                        + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""),
-                                whereArgs);
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-
-        db.close();
-
-        getContext().getContentResolver().notifyChange(uri, null);
-        return count;
+        throw new IllegalArgumentException("delete not implemented for " + uri + ". Consider using " + FormDefRecord.class.getName() + " instead");
     }
 
 
     @Override
+    @Deprecated
     public int update(@NonNull Uri uri, ContentValues values, String where, String[] whereArgs) {
-        init();
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        int count = 0;
-        switch (sUriMatcher.match(uri)) {
-            case FORMS:
-                // don't let users manually update md5
-                if (values.containsKey(FormsProviderAPI.FormsColumns.MD5_HASH)) {
-                    values.remove(FormsProviderAPI.FormsColumns.MD5_HASH);
-                }
-                // if values contains path, then all filepaths and md5s will get updated
-                // this probably isn't a great thing to do.
-                if (values.containsKey(FormsProviderAPI.FormsColumns.FORM_FILE_PATH)) {
-                    String formFile = values.getAsString(FormsProviderAPI.FormsColumns.FORM_FILE_PATH);
-                    values.put(FormsProviderAPI.FormsColumns.MD5_HASH, FileUtil.getMd5Hash(new File(formFile)));
-                }
-
-                //We used to delete the old files here, but we don't do that in CCODK. the
-                //app is responsible for those resources;
-
-                // Make sure that the necessary fields are all set
-                if (values.containsKey(FormsProviderAPI.FormsColumns.DATE)) {
-                    Date today = new Date();
-                    String ts = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(today);
-                    values.put(FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT, "Added on " + ts);
-                }
-
-                count = db.update(FORMS_TABLE_NAME, values, where, whereArgs);
-                break;
-
-            case FORM_ID:
-                String formId = uri.getPathSegments().get(1);
-                // Whenever file paths are updated, delete the old files.
-
-                Cursor update = null;
-                try {
-                    update = this.query(uri, null, where, whereArgs, null);
-
-                    // This should only ever return 1 record.
-                    if (update.getCount() > 0) {
-                        update.moveToFirst();
-
-                        // don't let users manually update md5
-                        if (values.containsKey(FormsProviderAPI.FormsColumns.MD5_HASH)) {
-                            values.remove(FormsProviderAPI.FormsColumns.MD5_HASH);
-                        }
-
-                        // the order here is important (jrcache needs to be before form file)
-                        // because we update the jrcache file if there's a new form file
-                        if (values.containsKey(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH)) {
-                            FileUtil.deleteFileOrDir(update.getString(update
-                                    .getColumnIndex(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH)));
-                        }
-
-                        if (values.containsKey(FormsProviderAPI.FormsColumns.FORM_FILE_PATH)) {
-                            String formFile = values.getAsString(FormsProviderAPI.FormsColumns.FORM_FILE_PATH);
-                            String oldFile =
-                                    update.getString(update.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
-
-                            try {
-                                if (new File(oldFile).getCanonicalPath().equals(new File(formFile).getCanonicalPath())) {
-                                    // Files are the same, so we may have just copied over something we had
-                                    // already
-                                } else {
-                                    // New file name. This probably won't ever happen, though.
-                                    FileUtil.deleteFileOrDir(oldFile);
-                                }
-                            } catch (IOException ioe) {
-                                //we only get here if we couldn't canonicalize, in which case we can't risk deleting the old file
-                                //so don't do anything.
-                            }
-
-                            // we're updating our file, so update the md5
-                            // and get rid of the cache (doesn't harm anything)
-                            FileUtil.deleteFileOrDir(update.getString(update
-                                    .getColumnIndex(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH)));
-                            String newMd5 = FileUtil.getMd5Hash(new File(formFile));
-                            values.put(FormsProviderAPI.FormsColumns.MD5_HASH, newMd5);
-                            values.put(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH, Environment.getExternalStorageDirectory().getPath() + "odk/.cache" + newMd5
-                                    + ".formdef");
-                        }
-
-                        // Make sure that the necessary fields are all set
-                        if (values.containsKey(FormsProviderAPI.FormsColumns.DATE)) {
-                            Date today = new Date();
-                            String ts =
-                                    new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(today);
-                            values.put(FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT, "Added on " + ts);
-                        }
-
-                        count =
-                                db.update(FORMS_TABLE_NAME, values, FormsProviderAPI.FormsColumns._ID + "=" + formId
-                                                + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""),
-                                        whereArgs);
-                    } else {
-                        Log.e(t, "Attempting to update row that does not exist");
-                    }
-                } finally {
-                    if (update != null) {
-                        update.close();
-                    }
-                }
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-
-        db.close();
-
-        getContext().getContentResolver().notifyChange(uri, null);
-        return count;
+        throw new IllegalArgumentException("update not implemented for " + uri + ". Consider using " + FormDefRecord.class.getName() + " instead");
     }
 
     static {
