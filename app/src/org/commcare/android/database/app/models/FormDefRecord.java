@@ -1,5 +1,6 @@
 package org.commcare.android.database.app.models;
 
+import android.database.Cursor;
 import android.database.SQLException;
 import android.os.Environment;
 
@@ -11,6 +12,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.provider.FormsProviderAPI;
 import org.commcare.utils.FileUtil;
 
 import java.io.File;
@@ -112,6 +114,24 @@ public class FormDefRecord extends Persisted {
         mJrFormId = jrFormId;
         mFormFilePath = formFilePath;
         mFormMediaPath = formMediaPath;
+    }
+
+    // Only for DB Migration
+    public FormDefRecord(Cursor cursor) {
+        mDisplayName = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.DISPLAY_NAME));
+        mDisplaySubtext = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT));
+        mDescription = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.DESCRIPTION));
+        mJrFormId = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.JR_FORM_ID));
+        mModelVersion = cursor.getInt(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.MODEL_VERSION));
+        mUiVersion = cursor.getInt(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.UI_VERSION));
+        mMd5Hash = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.MD5_HASH));
+        mFormMediaPath = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH));
+        mFormFilePath = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
+        mLanguage = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.LANGUAGE));
+        mSubmissionUri = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.SUBMISSION_URI));
+        mBase64RsaPublicKey = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY));
+        mJrcacheFilePath = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH));
+        mDate = new Date(cursor.getInt(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.DATE)));
     }
 
     public static Vector<Integer> getFormDefIdsByJrFormId(String jrFormId) {

@@ -5,6 +5,8 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -14,6 +16,8 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.app.models.UserKeyRecordV1;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.provider.FormsProviderAPI;
+import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.resources.model.Resource;
 
 import java.util.ArrayList;
@@ -73,6 +77,12 @@ class AppDatabaseUpgrader {
         if (oldVersion == 7) {
             if (upgradeSevenEight(db)) {
                 oldVersion = 8;
+            }
+        }
+
+        if (oldVersion == 8) {
+            if (upgradeEightNine(db)) {
+                oldVersion = 9;
             }
         }
         //NOTE: If metadata changes are made to the Resource model, they need to be
@@ -199,6 +209,39 @@ class AppDatabaseUpgrader {
             db.endTransaction();
         }
     }
+
+    // Migrate records form FormProvider and InstanceProvider to FormDefRecord and InstanceRecord respectively
+    private boolean upgradeEightNine(SQLiteDatabase db) {
+        db.beginTransaction();
+        android.database.Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null, null, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                while (cursor.moveToNext()) {
+                    InstanceRecord instanceRecord = new InstanceRecord(cursor);
+                    instanceRecord.save(InstanceRecord.INSERTION_TYPE_SANDBOX_MIGRATED);
+                }
+            }
+
+            cursor = context.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null, null, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                while (cursor.moveToNext()) {
+                    FormDefRecord formDefRecord = new FormDefRecord(cursor);
+                    formDefRecord.save();
+                }
+            }
+            context.getContentResolver().delete(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null);
+            context.getContentResolver().delete(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null);
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
 
     /**
      * UserKeyRecordV1 does not have the 'isActive' field (because it is being introduced with

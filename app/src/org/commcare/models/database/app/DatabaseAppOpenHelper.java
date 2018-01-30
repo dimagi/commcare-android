@@ -7,9 +7,7 @@ import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.app.models.FormDefSource;
 import org.commcare.android.database.app.models.InstanceRecord;
-import org.commcare.android.database.app.models.InstancesSource;
 import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
@@ -36,7 +34,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.8 - Add fields to UserKeyRecord to support PIN auth
      * V.9 - Adds FormRecord and Instance Record tables
      */
-    private static final int DB_VERSION_APP = 8;
+    private static final int DB_VERSION_APP = 9;
 
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
 

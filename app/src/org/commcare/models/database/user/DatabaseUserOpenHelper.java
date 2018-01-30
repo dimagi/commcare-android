@@ -62,7 +62,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.23 - Changes FormRecord's instanceUri String field to  instanceId Long field
      */
 
-    private static final int USER_DB_VERSION = 22;
+    private static final int USER_DB_VERSION = 23;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 

@@ -174,6 +174,12 @@ class UserDatabaseUpgrader {
                 oldVersion = 22;
             }
         }
+
+        if (oldVersion == 22) {
+            if (upgradeTwentyTwoTwentyThree(db)) {
+                oldVersion = 23;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -573,6 +579,18 @@ class UserDatabaseUpgrader {
         try {
             db.execSQL("DROP TABLE IF EXISTS " + EntityStorageCache.TABLE_NAME);
             db.execSQL(EntityStorageCache.getTableDefinition());
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeTwentyTwoTwentyThree(SQLiteDatabase db) {
+        //drop the existing table and recreate using current definition
+        db.beginTransaction();
+        try {
+            UserDbUpgradeUtils.migrateV4FormRecords(c, db);
             db.setTransactionSuccessful();
             return true;
         } finally {

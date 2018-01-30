@@ -160,7 +160,38 @@ public class FormsProvider extends ContentProvider {
     @Override
     @Deprecated
     public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
-        throw new IllegalArgumentException("delete not implemented for " + uri + ". Consider using " + FormDefRecord.class.getName() + " instead");
+        init();
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        int count;
+
+        switch (sUriMatcher.match(uri)) {
+            case FORMS:
+//                Cursor del = null;
+//                try {
+//                    del = this.query(uri, null, where, whereArgs, null);
+//                    del.moveToPosition(-1);
+//                    while (del.moveToNext()) {
+//                        FileUtil.deleteFileOrDir(del.getString(del
+//                                .getColumnIndex(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH)));
+//                        FileUtil.deleteFileOrDir(del.getString(del.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH)));
+//                        FileUtil.deleteFileOrDir(del.getString(del.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH)));
+//                    }
+//                } finally {
+//                    if (del != null) {
+//                        del.close();
+//                    }
+//                }
+                count = db.delete(FORMS_TABLE_NAME, where, whereArgs);
+                break;
+
+            case FORM_ID:
+                throw new IllegalArgumentException("delete not implemented for " + uri + ". Consider using " + FormDefRecord.class.getName() + " instead");
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        db.close();
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
     }
 
 

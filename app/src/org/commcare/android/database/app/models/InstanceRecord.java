@@ -1,5 +1,6 @@
 package org.commcare.android.database.app.models;
 
+import android.database.Cursor;
 import android.database.SQLException;
 import android.support.annotation.IntDef;
 import android.support.annotation.StringDef;
@@ -130,6 +131,18 @@ public class InstanceRecord extends Persisted {
 
     //    Serialization Only!
     public InstanceRecord() {
+    }
+
+    // For DB Migration Only!
+    public InstanceRecord(Cursor cursor) {
+        mDisplayName = cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.DISPLAY_NAME));
+        mSubmissionUri = cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.SUBMISSION_URI));
+        mCanEditWhenComplete = cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.CAN_EDIT_WHEN_COMPLETE));
+        mInstanceFilePath = cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH));
+        mJrFormId = cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.JR_FORM_ID));
+        mStatus = cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.STATUS));
+        mLastStatusChangeDate = new Date(cursor.getLong(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.LAST_STATUS_CHANGE_DATE)));
+        mDisplaySubtext = cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.DISPLAY_SUBTEXT));
     }
 
     public InstanceRecord(String displayName, String instancePath, @InstanceStatus String status, String canEditWhenComplete, String jrFormId, String submissionUri) {

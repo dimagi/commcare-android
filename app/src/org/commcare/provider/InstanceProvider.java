@@ -40,6 +40,8 @@ import java.util.HashMap;
 
 import javax.crypto.SecretKey;
 
+import static org.commcare.utils.FileUtil.deleteFileOrDir;
+
 // Replaced by InstanceRecord in 2.42, only used for DB Migration now
 public class InstanceProvider extends ContentProvider {
     private static final String t = "InstancesProvider";
@@ -178,7 +180,47 @@ public class InstanceProvider extends ContentProvider {
     @Override
     @Deprecated
     public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
-        throw new IllegalArgumentException("delete not implemented for " + uri + ". Consider using " + InstanceRecord.class.getName() + " instead");
+        init();
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        int count;
+
+        switch (sUriMatcher.match(uri)) {
+            case INSTANCES:
+//                Cursor del = null;
+//                try {
+//                    del = query(uri, null, where, whereArgs, null);
+//                    if (del != null) {
+//                        del.moveToPosition(-1);
+//                        while (del.moveToNext()) {
+//                            String instanceFile = del.getString(del.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH));
+//                            String instanceDir = (new File(instanceFile)).getParent();
+//                            deleteFileOrDir(instanceDir);
+//                        }
+//                    }
+//                } finally {
+//                    if (del != null) {
+//                        del.close();
+//                    }
+//                }
+                count = db.delete(INSTANCES_TABLE_NAME, where, whereArgs);
+                break;
+
+            case INSTANCE_ID:
+                throw new IllegalArgumentException("delete not implemented for " + uri + ". Consider using " + InstanceRecord.class.getName() + " instead");
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        db.close();
+
+        notifyChangeSafe(getContext(), uri);
+        return count;
+
+    }
+
+    private static void notifyChangeSafe(Context context, Uri uri) {
+        if (context != null) {
+            context.getContentResolver().notifyChange(uri, null);
+        }
     }
 
     @Override

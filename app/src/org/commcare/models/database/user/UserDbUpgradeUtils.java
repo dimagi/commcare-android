@@ -1,9 +1,11 @@
 package org.commcare.models.database.user;
 
 import android.content.Context;
+import android.net.Uri;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.ACase;
@@ -119,7 +121,7 @@ public class UserDbUpgradeUtils {
     }
 
     protected static void sortRecordsByDate(Vector<Integer> ids,
-                                         SqlStorage<FormRecordV2> storage) {
+                                            SqlStorage<FormRecordV2> storage) {
         final HashMap<Integer, Long> idToDateIndex =
                 getIdToDateMap(ids, storage);
 
@@ -177,15 +179,9 @@ public class UserDbUpgradeUtils {
     }
 
     protected static void migrateFormRecordsToV3(Context c, SQLiteDatabase db) {
-        SqlStorage<FormRecordV3> oldStorage = new SqlStorage<>(
-                FormRecord.STORAGE_KEY,
-                FormRecordV3.class,
-                new ConcreteAndroidDbHelper(c, db));
+        SqlStorage<FormRecordV3> oldStorage = getFormRecordStorage(c, db, FormRecordV3.class);
+        SqlStorage<FormRecordV4> newStorage = getFormRecordStorage(c, db, FormRecordV4.class);
 
-        SqlStorage<FormRecord> newStorage = new SqlStorage<>(
-                FormRecord.STORAGE_KEY,
-                FormRecord.class,
-                new ConcreteAndroidDbHelper(c, db));
         for (FormRecordV3 oldRecord : oldStorage) {
             FormRecordV4 newRecord = new FormRecordV4(
                     oldRecord.getInstanceURIString(),
@@ -199,4 +195,38 @@ public class UserDbUpgradeUtils {
             newStorage.write(newRecord);
         }
     }
+
+    protected static void migrateV4FormRecords(Context c, SQLiteDatabase db) {
+        SqlStorage<FormRecordV4> oldStorage = getFormRecordStorage(c, db, FormRecordV4.class);
+        SqlStorage<FormRecord> newStorage = getFormRecordStorage(c, db, FormRecord.class);
+
+        for (FormRecordV4 oldRecord : oldStorage) {
+            String instanceUri = oldRecord.getInstanceURIString();
+            int instanceId;
+            if (StringUtils.isEmpty(instanceUri)) {
+                instanceId = -1;
+            } else {
+                instanceId = Integer.valueOf(Uri.parse(instanceUri).getLastPathSegment());
+            }
+
+            FormRecord newRecord = new FormRecord(
+                    instanceId,
+                    oldRecord.getStatus(),
+                    oldRecord.getFormNamespace(),
+                    oldRecord.getAesKey(),
+                    oldRecord.getInstanceID(),
+                    oldRecord.lastModified(),
+                    oldRecord.getAppId());
+            newRecord.setID(oldRecord.getID());
+            newStorage.write(newRecord);
+        }
+    }
+
+    private static SqlStorage getFormRecordStorage(Context c, SQLiteDatabase db, Class formRecordClass) {
+        return new SqlStorage<>(
+                FormRecord.STORAGE_KEY,
+                formRecordClass,
+                new ConcreteAndroidDbHelper(c, db));
+    }
+
 }
