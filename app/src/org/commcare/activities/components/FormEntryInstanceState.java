@@ -43,7 +43,7 @@ public class FormEntryInstanceState {
      * @return true if form has been marked completed, false otherwise.
      */
     public static boolean isInstanceComplete() {
-       return InstanceRecord.isInstanceComplete(mInstancePath);
+        return InstanceRecord.isInstanceComplete(mInstancePath);
     }
 
     public static Pair<Integer, Boolean> getFormDefIdForInstance(int instanceId, FormEntryInstanceState instanceState)
@@ -75,25 +75,10 @@ public class FormEntryInstanceState {
     /**
      * Get the default title for ODK's "Form title" field
      */
-    public static String getDefaultFormTitle(Context context, Intent intent) {
+    public static String getDefaultFormTitle(int instanceId) {
         String saveName = FormEntryActivity.mFormController.getFormTitle();
-        if (InstanceProviderAPI.InstanceColumns.CONTENT_ITEM_TYPE.equals(context.getContentResolver().getType(intent.getData()))) {
-            Uri instanceUri = intent.getData();
-
-            Cursor instance = null;
-            try {
-                instance = context.getContentResolver().query(instanceUri, null, null, null, null);
-                if (instance != null && instance.getCount() == 1) {
-                    instance.moveToFirst();
-                    saveName =
-                            instance.getString(instance
-                                    .getColumnIndex(InstanceProviderAPI.InstanceColumns.DISPLAY_NAME));
-                }
-            } finally {
-                if (instance != null) {
-                    instance.close();
-                }
-            }
+        if (instanceId != -1) {
+            saveName = InstanceRecord.getInstance(instanceId).getDisplayName();
         }
         return saveName;
     }

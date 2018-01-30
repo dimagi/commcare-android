@@ -99,7 +99,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             renameFile(localReference.getLocalURI(), tempFile);
 
             //TODO: Sketch - if this fails, we'll still have the file at that location.
-            int status = customInstall(r, localReference, upgrade);
+            int status = customInstall(r, localReference, upgrade, platform);
 
             table.commit(r, status);
 
@@ -151,7 +151,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     /**
      * Perform any custom installation actions required for this resource.
      */
-    protected abstract int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException;
+    protected abstract int customInstall(Resource r, Reference local, boolean upgrade, AndroidCommCarePlatform platform) throws IOException, UnresolvedResourceException;
 
     @Override
     public abstract boolean requiresRuntimeInitialization();

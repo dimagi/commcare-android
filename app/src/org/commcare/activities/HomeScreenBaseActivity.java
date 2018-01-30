@@ -1029,11 +1029,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 CommCareActivity.getTitle(this, null), false);
     }
 
-    private void formEntry(long formDefId, FormRecord r) {
+    private void formEntry(int formDefId, FormRecord r) {
         formEntry(formDefId, r, null, false);
     }
 
-    private void formEntry(long formDefId, FormRecord r, String headerTitle,
+    private void formEntry(int formDefId, FormRecord r, String headerTitle,
                            boolean isRestartAfterSessionExpiration) {
         Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
 

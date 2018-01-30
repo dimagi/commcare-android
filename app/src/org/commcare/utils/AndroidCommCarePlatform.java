@@ -4,7 +4,10 @@ import android.net.Uri;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.engine.resource.AndroidResourceTable;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
@@ -109,5 +112,9 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 
     public IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
         return app.getFileBackedStorage("fixture", FormInstance.class);
+    }
+
+    public SqlStorage<FormDefRecord> getFormDefStorage() {
+        return app.getStorage(FormDefRecord.class);
     }
 }

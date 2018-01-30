@@ -974,7 +974,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (mFormController.isFormReadOnly()) {
             finishReturnInstance(false);
         } else {
-            saveCompletedFormToDisk(FormEntryInstanceState.getDefaultFormTitle(this, getIntent()));
+            int instanceId = getIntent().getIntExtra(KEY_INSTANCE_ID, -1);
+            saveCompletedFormToDisk(FormEntryInstanceState.getDefaultFormTitle(instanceId));
         }
     }
 

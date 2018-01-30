@@ -1,18 +1,13 @@
 package org.commcare.android.resource.installers;
 
-import android.content.ContentValues;
 import android.util.Log;
-import android.util.SparseIntArray;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.app.models.AppDbContract;
 import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.app.models.FormDefSource;
 import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.engine.extensions.IntentExtensionParser;
 import org.commcare.engine.extensions.PollSensorExtensionParser;
 import org.commcare.engine.extensions.XFormExtensionUtils;
-import org.commcare.provider.FormsProviderAPI;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -68,7 +63,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
+    protected int customInstall(Resource r, Reference local, boolean upgrade, AndroidCommCarePlatform platform) throws IOException, UnresolvedResourceException {
         registerAndroidLevelFormParsers();
         FormDef formDef;
         try {
@@ -82,6 +77,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             throw new UnresolvedResourceException(r, "Invalid XForm, no namespace defined", true);
         }
 
+        FormDefRecord.setFormDefStorage(platform.getFormDefStorage());
         Vector<Integer> existingforms = FormDefRecord.getFormDefIdsByJrFormId(formDef.getMainInstance().schema);
         if (existingforms != null && existingforms.size() > 0) {
             //we already have one form. Hopefully this is during an upgrade...

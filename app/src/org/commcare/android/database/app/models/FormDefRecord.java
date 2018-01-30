@@ -1,9 +1,7 @@
 package org.commcare.android.database.app.models;
 
-import android.content.ContentValues;
 import android.database.SQLException;
 import android.os.Environment;
-import android.text.TextUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
@@ -11,12 +9,9 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
-import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
-import org.commcare.provider.FormsProviderAPI;
 import org.commcare.utils.FileUtil;
-import org.javarosa.core.model.FormDef;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
 
-@Table(FormRecord.STORAGE_KEY)
+@Table(FormDefRecord.STORAGE_KEY)
 public class FormDefRecord extends Persisted {
 
     public static final String STORAGE_KEY = "form_def";
@@ -49,6 +44,7 @@ public class FormDefRecord extends Persisted {
 
     // this is null on create, and can only be set on an update.
     public static final String META_LANGUAGE = "language";
+    private static SqlStorage<FormDefRecord> sFormDefStorage;
 
     @Persisting(1)
     @MetaField(META_DISPLAY_NAME)
@@ -84,7 +80,7 @@ public class FormDefRecord extends Persisted {
 
     @Persisting(9)
     @MetaField(META_DATE)
-    private long mDate = -1;
+    private Date mDate;
 
     @Persisting(10)
     @MetaField(META_JRCACHE_FILE_PATH)
@@ -96,15 +92,19 @@ public class FormDefRecord extends Persisted {
 
     @Persisting(value = 12, nullable = true)
     @MetaField(META_MODEL_VERSION)
-    private Integer mModelVersion;
+    private int mModelVersion = -1;
 
     @Persisting(value = 13, nullable = true)
     @MetaField(META_UI_VERSION)
-    private Integer mUiVersion;
+    private int mUiVersion = -1;
 
     @Persisting(value = 14, nullable = true)
     @MetaField(META_LANGUAGE)
     private String mLanguage;
+
+    //    Serialization Only!
+    public FormDefRecord() {
+    }
 
     public FormDefRecord(String displayName, String description, String jrFormId, String formFilePath, String formMediaPath) {
         mDisplayName = displayName;
@@ -123,7 +123,10 @@ public class FormDefRecord extends Persisted {
     }
 
     public static SqlStorage<FormDefRecord> getFormDefStorage() {
-        return CommCareApplication.instance().getAppStorage(FormDefRecord.class);
+        if (sFormDefStorage == null) {
+            sFormDefStorage = CommCareApplication.instance().getAppStorage(FormDefRecord.class);
+        }
+        return sFormDefStorage;
     }
 
     public int save() {
@@ -133,8 +136,8 @@ public class FormDefRecord extends Persisted {
             throw new SQLException("Can't save a form def with an empty form file path");
         }
         // Make sure that the necessary fields are all set
-        if (mDate == -1) {
-            mDate = System.currentTimeMillis();
+        if (mDate == null) {
+            mDate = new Date();
         }
 
         if (mDisplaySubtext == null) {
@@ -186,13 +189,6 @@ public class FormDefRecord extends Persisted {
 
 
     public void updateFilePath(String newFilePath) {
-// the order here is important (jrcache needs to be before form file)
-        // because we update the jrcache file if there's a new form file
-//        if (values.containsKey(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH)) {
-//            FileUtil.deleteFileOrDir(existingRecord.getString(existingRecord
-//                    .getColumnIndex(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH)));
-//        }
-
         File newFormFile = new File(newFilePath);
 
         try {
@@ -216,12 +212,6 @@ public class FormDefRecord extends Persisted {
         mFormMediaPath = getMediaPath(newFilePath);
         mMd5Hash = newMd5;
         mJrcacheFilePath = getCachePath(newMd5);
-
-        // Make sure that the necessary fields are all set
-//        if (values.containsKey(FormsProviderAPI.FormsColumns.DATE)) {
-//            values.put(FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT, getDisplaySubtext());
-//        }
-
 
         getFormDefStorage().write(this);
     }
@@ -270,5 +260,9 @@ public class FormDefRecord extends Persisted {
 
     public String getBase64RsaPublicKey() {
         return mBase64RsaPublicKey;
+    }
+
+    public static void setFormDefStorage(SqlStorage<FormDefRecord> formDefStorage) {
+        sFormDefStorage = formDefStorage;
     }
 }

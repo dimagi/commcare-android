@@ -85,7 +85,7 @@ public class InstanceRecord extends Persisted {
     @MetaField(META_DISPLAY_NAME)
     private String mDisplayName;
 
-    @Persisting(2)
+    @Persisting(value = 2, nullable = true)
     @MetaField(META_SUBMISSION_URI)
     private String mSubmissionUri;
 
@@ -107,12 +107,15 @@ public class InstanceRecord extends Persisted {
 
     @Persisting(7)
     @MetaField(META_LAST_STATUS_CHANGE_DATE)
-    private long mLastStatusChangeDate = -1;
+    private Date mLastStatusChangeDate;
 
     @Persisting(8)
     @MetaField(META_DISPLAY_SUBTEXT)
     private String mDisplaySubtext;
 
+    //    Serialization Only!
+    public InstanceRecord() {
+    }
 
     public InstanceRecord(String displayName, String instancePath, @InstanceStatus String status, String canEditWhenComplete, String jrFormId, String submissionUri) {
         mDisplayName = displayName;
@@ -121,7 +124,7 @@ public class InstanceRecord extends Persisted {
         mCanEditWhenComplete = canEditWhenComplete;
         mJrFormId = jrFormId;
         mSubmissionUri = submissionUri;
-        mLastStatusChangeDate = System.currentTimeMillis();
+        mLastStatusChangeDate = new Date();
         mDisplaySubtext = getDisplaySubtext(status);
     }
 
@@ -186,7 +189,7 @@ public class InstanceRecord extends Persisted {
 
         // set the display subtext from the status value
         mDisplaySubtext = getDisplaySubtext(mStatus);
-        mLastStatusChangeDate = System.currentTimeMillis();
+        mLastStatusChangeDate = new Date();
         getInstanceRecordStorage().update(getID(), this);
         finalizeSessionLinkedInsertion();
     }
@@ -405,17 +408,5 @@ public class InstanceRecord extends Persisted {
 
     public String getDisplayName() {
         return mDisplayName;
-    }
-
-    public String getSubmissionUri() {
-        return mSubmissionUri;
-    }
-
-    public long getLastStatusChangeDate() {
-        return mLastStatusChangeDate;
-    }
-
-    public String getDisplaySubText() {
-        return mDisplaySubtext;
     }
 }
