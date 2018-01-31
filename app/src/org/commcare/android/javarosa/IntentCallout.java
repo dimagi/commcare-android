@@ -28,8 +28,10 @@ import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -57,6 +59,8 @@ public class IntentCallout implements Externalizable {
     private String buttonLabel;
     private String updateButtonLabel;
     private String appearance;
+
+    private static final String OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX = "cc:xpath_key:";
 
     // Generic Extra from intent callout extensions
     public static final String INTENT_RESULT_VALUE = "odk_intent_data";
@@ -98,22 +102,40 @@ public class IntentCallout implements Externalizable {
         this.formDef = form;
     }
 
+    private String parseData(EvaluationContext context) {
+        boolean overridePlainTextAssumption = data.startsWith(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX);
+        String dataString = data.replace(OVERRIDE_PLAIN_TEXT_ASSUMPTION_PREFIX, "");
+
+        if (!overridePlainTextAssumption) {
+            return dataString;
+        } else {
+            try {
+                return FunctionUtils.toString(XPathParseTool.parseXPath(dataString).eval(context));
+            } catch (XPathSyntaxException e) {
+                return null;
+            }
+        }
+    }
+
     public Intent generate(EvaluationContext ec) {
         Intent i = new Intent();
         if (className != null) {
             i.setAction(className);
         }
-
-        if(data != null && type != null){
-            // Weird hack but this call seems specifically to be needed to play video
-            // http://stackoverflow.com/questions/1572107/android-intent-for-playing-video
-            i.setDataAndType(Uri.parse(data), type);
-        } else {
-            if (type != null) {
-                i.setType(type);
-            }
-            if (data != null) {
-                i.setData(Uri.parse(data));
+        if (data != null) {
+            String dataString = parseData(ec);
+            
+            if (dataString != null && !"".equals(dataString) && type != null) {
+                // Weird hack but this call seems specifically to be needed to play video
+                // http://stackoverflow.com/questions/1572107/android-intent-for-playing-video
+                i.setDataAndType(Uri.parse(dataString), type);
+            } else {
+                if (type != null) {
+                    i.setType(type);
+                }
+                if (data != null && !"".equals(dataString)) {
+                    i.setData(Uri.parse(dataString));
+                }
             }
         }
         if (component != null) {
