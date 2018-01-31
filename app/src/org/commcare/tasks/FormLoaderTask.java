@@ -1,10 +1,7 @@
 package org.commcare.tasks;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Environment;
-import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
@@ -20,7 +17,6 @@ import org.commcare.logging.XPathErrorLogger;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.logic.FileReferenceFactory;
 import org.commcare.models.encryption.EncryptionIO;
-import org.commcare.provider.FormsProviderAPI;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;

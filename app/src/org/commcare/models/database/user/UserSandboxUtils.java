@@ -1,10 +1,6 @@
 package org.commcare.models.database.user;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -16,8 +12,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.provider.InstanceProviderAPI;
-import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.Logger;

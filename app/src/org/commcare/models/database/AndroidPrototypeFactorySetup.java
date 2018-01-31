@@ -3,7 +3,6 @@ package org.commcare.models.database;
 import android.content.Context;
 
 import org.commcare.models.AndroidPrototypeFactory;
-import org.commcare.models.AndroidPrototypeFactoryV1;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 

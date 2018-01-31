@@ -1,15 +1,11 @@
 package org.commcare.xml;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.InstanceRecord;
-import org.commcare.data.xml.TransactionParser;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.provider.InstanceProviderAPI;
-import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.data.xml.TransactionParser;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -86,8 +82,8 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
 
         String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
-        InstanceRecord instanceRecord = new InstanceRecord("Historical Form", filePath, InstanceRecord.STATUS_COMPLETE,
-                Boolean.toString(false), xmlns, "");
+        InstanceRecord instanceRecord = new InstanceRecord("Historical Form", filePath,
+                InstanceRecord.STATUS_COMPLETE, Boolean.toString(false), xmlns, "");
 
 
         //Register this instance for inspection

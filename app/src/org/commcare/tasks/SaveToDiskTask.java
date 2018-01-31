@@ -1,6 +1,5 @@
 package org.commcare.tasks;
 
-import android.content.Context;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;

@@ -1,11 +1,8 @@
 package org.commcare.utils;
 
-import android.net.Uri;
-
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.engine.resource.AndroidResourceTable;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.resources.model.Resource;

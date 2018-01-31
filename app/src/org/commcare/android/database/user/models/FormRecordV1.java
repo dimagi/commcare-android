@@ -21,7 +21,7 @@ public class FormRecordV1 extends Persisted {
     @MetaField(FormRecord.META_XMLNS)
     private String xmlns;
     @Persisting(2)
-    @MetaField(FormRecord.META_INSTANCE_ID)
+    @MetaField(FormRecordV4.META_INSTANCE_URI)
     private String instanceURI;
     @Persisting(3)
     @MetaField(FormRecord.META_STATUS)

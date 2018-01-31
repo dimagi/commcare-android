@@ -32,12 +32,11 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
-import org.commcare.preferences.PrefValues;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
-import org.commcare.preferences.DeveloperPreferences;
-import org.commcare.provider.InstanceProviderAPI;
+import org.commcare.preferences.PrefValues;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
@@ -725,7 +724,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
 
             // was the record marked complete?
-            boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
+            boolean complete = InstanceRecord.STATUS_COMPLETE.equals(instanceStatus);
 
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
@@ -1047,7 +1046,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
 
         // See if there's existing form data that we want to continue entering
-        // Note, this should be stored in the form record as a URI link to
+        // (note, this should be stored in the form record as a URI link to
         // the instance provider in the future)
         if (r.getInstanceId() != -1) {
             i.putExtra(FormEntryActivity.KEY_INSTANCE_ID, r.getInstanceId());

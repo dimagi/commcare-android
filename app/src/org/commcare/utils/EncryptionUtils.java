@@ -1,17 +1,11 @@
 package org.commcare.utils;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.util.Log;
 
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.util.Base64;
 import org.javarosa.form.api.FormController.InstanceMetadata;
-import org.commcare.provider.FormsProviderAPI;
-import org.commcare.provider.InstanceProviderAPI;
 import org.kxml2.io.KXmlSerializer;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -82,7 +76,7 @@ public class EncryptionUtils {
     private static final String NEW_LINE = "\n";
 
     public static final class EncryptedFormInformation {
-        public final String formId;
+        public final String jRFormId;
         public final Integer modelVersion;
         public final Integer uiVersion;
         public final InstanceMetadata instanceMetadata;
@@ -94,9 +88,9 @@ public class EncryptionUtils {
         public final StringBuilder elementSignatureSource = new StringBuilder();
         public final Base64Wrapper wrapper;
 
-        EncryptedFormInformation(String formId, Integer modelVersion,
+        EncryptedFormInformation(String jRFormId, Integer modelVersion,
                                  Integer uiVersion, InstanceMetadata instanceMetadata, PublicKey rsaPublicKey, Base64Wrapper wrapper) {
-            this.formId = formId;
+            this.jRFormId = jRFormId;
             this.modelVersion = modelVersion;
             this.uiVersion = uiVersion;
             this.instanceMetadata = instanceMetadata;
@@ -148,7 +142,7 @@ public class EncryptionUtils {
             }
 
             // start building elementSignatureSource...
-            appendElementSignatureSource(formId);
+            appendElementSignatureSource(jRFormId);
             if (modelVersion != null) {
                 appendElementSignatureSource(modelVersion.toString());
             }
@@ -497,7 +491,7 @@ public class EncryptionUtils {
         d.setEncoding(UTF_8);
         Element e = d.createElement(XML_ENCRYPTED_TAG_NAMESPACE, DATA);
         e.setPrefix(null, XML_ENCRYPTED_TAG_NAMESPACE);
-        e.setAttribute(null, ID, formInfo.formId);
+        e.setAttribute(null, ID, formInfo.jRFormId);
         if (formInfo.modelVersion != null) {
             e.setAttribute(null, VERSION, Integer.toString(formInfo.modelVersion));
         }

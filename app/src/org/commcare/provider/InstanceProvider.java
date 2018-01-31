@@ -1,46 +1,21 @@
 package org.commcare.provider;
 
 import android.content.ContentProvider;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.util.Log;
-
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.InstanceRecord;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.logging.ForceCloseLogger;
-import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.models.FormRecordProcessor;
-import org.commcare.tasks.FormRecordCleanupTask;
-import org.commcare.util.LogTypes;
-import org.commcare.views.notifications.NotificationMessage;
-import org.commcare.views.notifications.NotificationMessageFactory;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
-
-import javax.crypto.SecretKey;
-
-import static org.commcare.utils.FileUtil.deleteFileOrDir;
 
 // Replaced by InstanceRecord in 2.42, only used for DB Migration now
 public class InstanceProvider extends ContentProvider {
@@ -185,22 +160,6 @@ public class InstanceProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case INSTANCES:
-//                Cursor del = null;
-//                try {
-//                    del = query(uri, null, where, whereArgs, null);
-//                    if (del != null) {
-//                        del.moveToPosition(-1);
-//                        while (del.moveToNext()) {
-//                            String instanceFile = del.getString(del.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH));
-//                            String instanceDir = (new File(instanceFile)).getParent();
-//                            deleteFileOrDir(instanceDir);
-//                        }
-//                    }
-//                } finally {
-//                    if (del != null) {
-//                        del.close();
-//                    }
-//                }
                 count = db.delete(INSTANCES_TABLE_NAME, where, whereArgs);
                 break;
             case INSTANCE_ID:

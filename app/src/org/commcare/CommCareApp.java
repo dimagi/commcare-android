@@ -192,7 +192,7 @@ public class CommCareApp implements AppFilePathBuilder {
         ResourceTable global = platform.getGlobalResourceTable();
         ResourceTable upgrade = platform.getUpgradeResourceTable();
         ResourceTable recovery = platform.getRecoveryTable();
-//
+
         logTable("Global", global);
         logTable("Upgrade", upgrade);
         logTable("Recovery", recovery);
@@ -349,10 +349,6 @@ public class CommCareApp implements AppFilePathBuilder {
      */
     public void refreshAppRecord() {
         this.record = MultipleAppsUtil.getAppById(this.record.getUniqueId());
-    }
-
-    public DatabaseAppOpenHelper getAppDatabaseHelper(){
-        return new DatabaseAppOpenHelper(CommCareApplication.instance(), record.getApplicationId());
     }
 
     /**

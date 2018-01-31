@@ -1,16 +1,11 @@
 package org.commcare.models.legacy;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
-import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
-import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
@@ -35,8 +30,6 @@ import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.provider.FormsProviderAPI;
-import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;

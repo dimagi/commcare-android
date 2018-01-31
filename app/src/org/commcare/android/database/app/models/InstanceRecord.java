@@ -305,7 +305,7 @@ public class InstanceRecord extends Persisted {
         }
 
         // update the form record to mirror the sessions instance uri and status.
-        if (InstanceProviderAPI.STATUS_COMPLETE.equals(mStatus)) {
+        if (STATUS_COMPLETE.equals(mStatus)) {
             record = record.updateInstanceAndStatus(getID(), FormRecord.STATUS_COMPLETE);
         } else {
             record = record.updateInstanceAndStatus(getID(), FormRecord.STATUS_INCOMPLETE);
@@ -348,13 +348,13 @@ public class InstanceRecord extends Persisted {
 
         if (status == null) {
             return "Added on " + ts;
-        } else if (InstanceProviderAPI.STATUS_INCOMPLETE.equalsIgnoreCase(status)) {
+        } else if (STATUS_INCOMPLETE.equalsIgnoreCase(status)) {
             return "Saved on " + ts;
-        } else if (InstanceProviderAPI.STATUS_COMPLETE.equalsIgnoreCase(status)) {
+        } else if (STATUS_COMPLETE.equalsIgnoreCase(status)) {
             return "Finalized on " + ts;
-        } else if (InstanceProviderAPI.STATUS_SUBMITTED.equalsIgnoreCase(status)) {
+        } else if (STATUS_SUBMITTED.equalsIgnoreCase(status)) {
             return "Sent on " + ts;
-        } else if (InstanceProviderAPI.STATUS_SUBMISSION_FAILED.equalsIgnoreCase(status)) {
+        } else if (STATUS_SUBMISSION_FAILED.equalsIgnoreCase(status)) {
             return "Sending failed on " + ts;
         } else {
             return "Added on " + ts;

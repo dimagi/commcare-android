@@ -1,30 +1,20 @@
 package org.commcare.provider;
 
 import android.content.ContentProvider;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.app.models.InstanceRecord;
-import org.commcare.utils.FileUtil;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 
 // Replaced by FormDefRecord in 2.42, only used for DB Migration now
@@ -165,21 +155,6 @@ public class FormsProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case FORMS:
-//                Cursor del = null;
-//                try {
-//                    del = this.query(uri, null, where, whereArgs, null);
-//                    del.moveToPosition(-1);
-//                    while (del.moveToNext()) {
-//                        FileUtil.deleteFileOrDir(del.getString(del
-//                                .getColumnIndex(FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH)));
-//                        FileUtil.deleteFileOrDir(del.getString(del.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH)));
-//                        FileUtil.deleteFileOrDir(del.getString(del.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH)));
-//                    }
-//                } finally {
-//                    if (del != null) {
-//                        del.close();
-//                    }
-//                }
                 count = db.delete(FORMS_TABLE_NAME, where, whereArgs);
                 break;
 

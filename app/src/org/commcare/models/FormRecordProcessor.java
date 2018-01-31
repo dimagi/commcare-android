@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.util.Pair;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.core.process.XmlFormRecordProcessor;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.xml.AndroidTransactionParserFactory;

@@ -6,11 +6,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.app.models.InstanceRecord;
-import org.commcare.provider.FormsProviderAPI;
-import org.commcare.provider.InstanceProviderAPI;
 
 import java.io.File;
 

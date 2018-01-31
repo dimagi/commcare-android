@@ -1,26 +1,19 @@
 package org.commcare.activities.components;
 
-import android.content.ContentUris;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
+
+import org.commcare.activities.FormEntryActivity;
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.InstanceRecord;
+import org.commcare.models.ODKStorage;
+import org.commcare.utils.FileUtil;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Vector;
-
-import org.commcare.activities.FormEntryActivity;
-import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.app.models.InstanceRecord;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.models.ODKStorage;
-import org.commcare.provider.FormsProviderAPI;
-import org.commcare.provider.InstanceProviderAPI;
-import org.commcare.utils.FileUtil;
 
 /**
  * Tracks the current form instance's xml file and auxilary files (multimedia)
@@ -53,7 +46,7 @@ public class FormEntryInstanceState {
         mInstancePath = instanceRecord.getFilePath();
 
         //If this form is both already completed
-        if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceRecord.getStatus())) {
+        if (InstanceRecord.STATUS_COMPLETE.equals(instanceRecord.getStatus())) {
             if (!Boolean.parseBoolean(instanceRecord.getCanEditWhenComplete())) {
                 isInstanceReadOnly = true;
             }

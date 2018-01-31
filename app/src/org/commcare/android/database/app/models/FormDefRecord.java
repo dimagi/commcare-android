@@ -6,7 +6,6 @@ import android.os.Environment;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;

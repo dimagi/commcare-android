@@ -1,12 +1,9 @@
 package org.commcare.utils;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.provider.FormsProviderAPI;
 
 import java.util.Hashtable;
 import java.util.NoSuchElementException;

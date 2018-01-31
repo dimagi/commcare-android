@@ -14,7 +14,6 @@ import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.database.user.models.FormRecordV4;
-import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.models.database.ConcreteAndroidDbHelper;

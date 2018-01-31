@@ -5,18 +5,13 @@ import android.provider.BaseColumns;
 
 import org.commcare.dalvik.BuildConfig;
 
+// Replaced by InstanceRecord in 2.42, only used for DB Migration now
 public final class InstanceProviderAPI {
     public static final String AUTHORITY = BuildConfig.ODK_AUTHORITY + ".instances";
 
     // This class cannot be instantiated
     private InstanceProviderAPI() {
     }
-
-    // status for instances
-    public static final String STATUS_INCOMPLETE = "incomplete";
-    public static final String STATUS_COMPLETE = "complete";
-    public static final String STATUS_SUBMITTED = "submitted";
-    public static final String STATUS_SUBMISSION_FAILED = "submissionFailed";
 
     public static final class InstanceColumns implements BaseColumns {
         // This class cannot be instantiated
