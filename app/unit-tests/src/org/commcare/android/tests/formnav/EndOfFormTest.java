@@ -45,10 +45,6 @@ public class EndOfFormTest {
                 "jr://resource/commcare-apps/form_nav_tests/profile.ccpr",
                 "test", "123");
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
-
-        // Resets Instance Storage
-        InstanceRecord.setinstanceRecordStorage(null);
-
     }
 
     /**

@@ -37,9 +37,6 @@ import static org.junit.Assert.assertNotNull;
 public class FormRecordListActivityTest {
     @Before
     public void setup() {
-        // Resets Instance Storage
-        InstanceRecord.setinstanceRecordStorage(null);
-
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/form_nav_tests/profile.ccpr",
                 "test", "123");

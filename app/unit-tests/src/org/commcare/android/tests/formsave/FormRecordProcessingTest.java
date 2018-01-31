@@ -63,9 +63,6 @@ public class FormRecordProcessingTest {
                 "jr://resource/commcare-apps/form_save_regressions/profile.ccpr",
                 "test", "123");
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
-
-        // Resets Instance Storage
-        InstanceRecord.setinstanceRecordStorage(null);
     }
 
     @Test
@@ -101,6 +98,9 @@ public class FormRecordProcessingTest {
     }
 
     private void fillOutFormWithCaseUpdate() {
+        // Reset Instance Record Storage as we don't want to operate on an already closed DB
+        InstanceRecord.setinstanceRecordStorage(null);
+
         StandardHomeActivity homeActivity = buildHomeActivityForFormEntryLaunch();
 
         ShadowActivity shadowActivity = Shadows.shadowOf(homeActivity);

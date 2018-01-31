@@ -1,6 +1,7 @@
 package org.commcare.android.util;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.CommCarePlatform;
@@ -23,6 +24,9 @@ public class SavedFormLoader {
      * @param payloadFile xml file containing form instances
      */
     public static void loadFormsFromPayload(String payloadFile, String recordStatus) {
+        // Reset Instance Record Storage as we don't want to operate on an already closed DB
+        InstanceRecord.setinstanceRecordStorage(null);
+
         TestUtils.processResourceTransaction(payloadFile);
 
         CommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();

@@ -36,8 +36,6 @@ public class UnsentFormsTest {
         SavedFormLoader.loadFormsFromPayload(
                 "/commcare-apps/archive_form_tests/saved_form_payload.xml",
                 FormRecord.STATUS_SAVED);
-        // Resets Instance Storage
-        InstanceRecord.setinstanceRecordStorage(null);
     }
 
     /**
