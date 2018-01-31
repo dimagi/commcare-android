@@ -56,6 +56,12 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         super(localDestination, upgradeDestination);
     }
 
+    public XFormAndroidInstaller(String localLocation, String localDestination, String upgradeDestination, String namespace, int formDefId) {
+        super(localLocation, localDestination, upgradeDestination);
+        this.namespace = namespace;
+        this.formDefId = formDefId;
+    }
+
     @Override
     public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
         platform.registerXmlns(namespace, formDefId);
@@ -161,7 +167,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
         this.namespace = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        this.formDefId = (int)ExtUtil.readNumeric(in);
+        this.formDefId = ExtUtil.readInt(in);
     }
 
     @Override

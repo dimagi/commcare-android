@@ -51,12 +51,16 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     private String upgradeDestination;
 
     FileSystemInstaller() {
+    }
 
+    FileSystemInstaller(String localLocation, String localDestination, String upgradeDestination) {
+        this.localLocation = localLocation;
+        this.localDestination = localDestination;
+        this.upgradeDestination = upgradeDestination;
     }
 
     FileSystemInstaller(String localDestination, String upgradeDestination) {
-        this.localDestination = localDestination;
-        this.upgradeDestination = upgradeDestination;
+        this(null, localDestination, upgradeDestination);
     }
 
     @Override
@@ -372,5 +376,17 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
 
     @Override
     public void cleanup() {
+    }
+
+    public String getLocalLocation() {
+        return localLocation;
+    }
+
+    public String getLocalDestination() {
+        return localDestination;
+    }
+
+    public String getUpgradeDestination() {
+        return upgradeDestination;
     }
 }

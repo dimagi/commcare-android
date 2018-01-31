@@ -231,7 +231,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             e.readExternal(new DataInputStream(serializedObjectInputStream),
                     helper.getPrototypeFactory());
             e.setID(dbEntryId);
-
             return e;
         } catch (IllegalAccessException e) {
             throw logAndWrap(e, "Illegal Access Exception");

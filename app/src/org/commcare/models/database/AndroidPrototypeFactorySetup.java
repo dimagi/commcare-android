@@ -3,6 +3,7 @@ package org.commcare.models.database;
 import android.content.Context;
 
 import org.commcare.models.AndroidPrototypeFactory;
+import org.commcare.models.AndroidPrototypeFactoryV1;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -47,7 +48,7 @@ public class AndroidPrototypeFactorySetup {
     /**
      * Scans all classes accessible from the context class loader which belong to the given package and subpackages.
      */
-    private static List<String> getClasses(Context c)
+    public static List<String> getClasses(Context c)
             throws IOException {
         ArrayList<String> classNames = new ArrayList<>();
 

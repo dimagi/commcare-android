@@ -1,13 +1,19 @@
 package org.commcare.models.database.app;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.app.models.InstanceRecord;
+import org.commcare.android.resource.installers.XFormAndroidInstaller;
+import org.commcare.android.resource.installers.XFormAndroidInstallerV1;
 import org.commcare.engine.resource.AndroidResourceManager;
+import org.commcare.models.AndroidPrototypeFactoryV1;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -19,6 +25,7 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.resources.model.Resource;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -215,6 +222,7 @@ class AppDatabaseUpgrader {
         db.beginTransaction();
         android.database.Cursor cursor = null;
         try {
+            upgradeXFormAndroidInstallerV1(db);
 
             // Create FormDef table
             TableBuilder builder = new TableBuilder(FormDefRecord.class);
@@ -224,21 +232,19 @@ class AppDatabaseUpgrader {
             builder = new TableBuilder(InstanceRecord.class);
             db.execSQL(builder.getTableCreateString());
 
-            // migrate InstanceProvider entries
-            cursor = context.getContentResolver().query(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null, null, null);
-            if (cursor != null && cursor.getCount() > 0) {
-                SqlStorage<InstanceRecord> instanceRecordStorage = new SqlStorage<>(
-                        InstanceRecord.STORAGE_KEY,
-                        InstanceRecord.class,
-                        new ConcreteAndroidDbHelper(context, db));
-                InstanceRecord.setinstanceRecordStorage(instanceRecordStorage);
-                while (cursor.moveToNext()) {
-                    InstanceRecord instanceRecord = new InstanceRecord(cursor);
-                    instanceRecord.save(InstanceRecord.INSERTION_TYPE_SANDBOX_MIGRATED);
-                }
-            }
+            migrateInstanceProvider(db);
+            migrateFormProvier(db);
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
 
-            // migrate FormProvider entries
+    // migrate formProvider entries to db
+    private void migrateFormProvier(SQLiteDatabase db) {
+        Cursor cursor = null;
+        try {
             cursor = context.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
                 SqlStorage<FormDefRecord> formDefRecordStorage = new SqlStorage<>(
@@ -251,17 +257,87 @@ class AppDatabaseUpgrader {
                     formDefRecord.save();
                 }
             }
-
-            // Delete the migrated tables
-            context.getContentResolver().delete(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null);
-            context.getContentResolver().delete(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null);
-            db.setTransactionSuccessful();
-            return true;
         } finally {
-            db.endTransaction();
-            if (cursor != null) {
-                cursor.close();
+            safeCloseCursor(cursor);
+        }
+
+        // Delete migrated entries
+        context.getContentResolver().delete(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null);
+    }
+
+    // migrate InstanceProvider entries to db
+    private void migrateInstanceProvider(SQLiteDatabase db) {
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null, null, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                SqlStorage<InstanceRecord> instanceRecordStorage = new SqlStorage<>(
+                        InstanceRecord.STORAGE_KEY,
+                        InstanceRecord.class,
+                        new ConcreteAndroidDbHelper(context, db));
+                InstanceRecord.setinstanceRecordStorage(instanceRecordStorage);
+                while (cursor.moveToNext()) {
+                    InstanceRecord instanceRecord = new InstanceRecord(cursor);
+                    instanceRecord.save(InstanceRecord.INSERTION_TYPE_SANDBOX_MIGRATED);
+                }
             }
+        } finally {
+            safeCloseCursor(cursor);
+        }
+
+        // Delete migrated entries
+        context.getContentResolver().delete(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null);
+    }
+
+    private void safeCloseCursor(Cursor cursor) {
+        if (cursor != null) {
+            cursor.close();
+        }
+    }
+
+
+    private void upgradeXFormAndroidInstallerV1(SQLiteDatabase db) {
+        // Get Global Resource Storage using AndroidPrototypeFactoryV1
+        SqlStorage<Resource> oldGlobalResourceStorage = new SqlStorage<>(
+                "GLOBAL_RESOURCE_TABLE",
+                Resource.class,
+                new ConcreteAndroidDbHelper(context, db) {
+                    @Override
+                    public PrototypeFactory getPrototypeFactory() {
+                        return AndroidPrototypeFactoryV1.getAndroidPrototypeFactoryV1(c);
+                    }
+                });
+
+        Vector<Resource> updateResourceList = new Vector<>();
+
+        // If Resource Installer is of Type XFormAndroidInstallerV1 , update it to XFormAndroidInstaller
+        // and add resource record to the updateResourceList
+        for (Resource resource : oldGlobalResourceStorage) {
+            if (resource.getInstaller() instanceof XFormAndroidInstallerV1) {
+                XFormAndroidInstallerV1 oldInstaller = (XFormAndroidInstallerV1)resource.getInstaller();
+                String contentUri = oldInstaller.getContentUri();
+                int formDefId = -1;
+                if (!StringUtils.isEmpty(contentUri)) {
+                    formDefId = Integer.valueOf(Uri.parse(contentUri).getLastPathSegment());
+                }
+                XFormAndroidInstaller newInstaller = new XFormAndroidInstaller(
+                        oldInstaller.getLocalLocation(),
+                        oldInstaller.getLocalDestination(),
+                        oldInstaller.getUpgradeDestination(),
+                        oldInstaller.getNamespace(),
+                        formDefId);
+                resource.setInstaller(newInstaller);
+                updateResourceList.add(resource);
+            }
+        }
+
+        // Rewrite the records in updateResourceList using the standard AndroidProtoTypeFactory
+        SqlStorage<Resource> newGlobalResourceStorage = new SqlStorage<>(
+                "GLOBAL_RESOURCE_TABLE",
+                Resource.class,
+                new ConcreteAndroidDbHelper(context, db));
+        for (Resource resource : updateResourceList) {
+            newGlobalResourceStorage.update(resource.getID(), resource);
         }
     }
 

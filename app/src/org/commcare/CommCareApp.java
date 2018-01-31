@@ -192,7 +192,7 @@ public class CommCareApp implements AppFilePathBuilder {
         ResourceTable global = platform.getGlobalResourceTable();
         ResourceTable upgrade = platform.getUpgradeResourceTable();
         ResourceTable recovery = platform.getRecoveryTable();
-
+//
         logTable("Global", global);
         logTable("Upgrade", upgrade);
         logTable("Recovery", recovery);
