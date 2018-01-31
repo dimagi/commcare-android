@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<profile version="107"
+         update="https://www.commcarehq.org/a/chadbrochill/apps/download/09ddcc25379443c88c28b9bffb89be63/media_profile.ccpr?latest=true&amp;profile=None"
+         requiredMajor="2"
+         requiredMinor="26"
+         uniqueid="ca4d253fd6eac806005e8c0573de0bca"
+         name="1Scratchwork"
+         descriptor="Profile File">
+    <property key="BackupMode" value="file_mode" force="true"/>
+    <property key="backup-url" value="file:///E:/CommCare.Backup" force="true"/>
+    <property key="restore-url" value="file:///E:/CommCare.Backup" force="true"/>
+    <property key="ota-restore-url" value="https://www.commcarehq.org/a/chadbrochill/phone/restore/09ddcc25379443c88c28b9bffb89be63/" force="true"/>
+    <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/chadbrochill/phone/restore/09ddcc25379443c88c28b9bffb89be63/" force="true"/>
+    <property key="PostURL" value="https://www.commcarehq.org/a/chadbrochill/receiver/secure/09ddcc25379443c88c28b9bffb89be63/" force="true"/>
+    <property key="PostTestURL" value="https://www.commcarehq.org/a/chadbrochill/receiver/secure/09ddcc25379443c88c28b9bffb89be63/" force="true"/>
+    <property key="key_server" value="https://www.commcarehq.org/a/chadbrochill/phone/keys/" force="true"/>
+    <property key="cur_locale" value="en" force="false"/>
+    <property key="cc_user_domain" value="chadbrochill.commcarehq.org" force="true"/>
+    <property key="jr_openrosa_api" value="1.0" force="true"/>
+    
+
+    <!-- Properties configured on CommCare HQ 1.0 -->
+    
+        <property key="cc-days-form-retain" value="-1" force="true"/>
+    
+        <property key="cc-show-saved" value="yes" force="true"/>
+    
+        <property key="unsent-time-limit" value="5" force="true"/>
+    
+        <property key="cc-autosync-freq" value="freq-never" force="true"/>
+    
+        <property key="cc-inflation-target-density" value="none" force="true"/>
+    
+        <property key="restore-tolerance" value="loose" force="true"/>
+    
+        <property key="cc-user-mode" value="cc-u-normal" force="true"/>
+    
+        <property key="cc-fuzzy-search-enabled" value="yes" force="true"/>
+    
+        <property key="cc-autoup-freq" value="freq-never" force="true"/>
+    
+        <property key="purge-freq" value="0" force="true"/>
+    
+        <property key="server-tether" value="push-only" force="true"/>
+    
+        <property key="user_reg_server" value="required" force="true"/>
+    
+        <property key="extra_key_action" value="audio" force="true"/>
+    
+        <property key="log_prop_daily" value="log_never" force="true"/>
+    
+        <property key="ViewStyle" value="v_chatterbox" force="true"/>
+    
+        <property key="cc-login-duration-seconds" value="86400" force="true"/>
+    
+        <property key="cc-resize-images" value="none" force="true"/>
+    
+        <property key="cc-entry-mode" value="cc-entry-quick" force="true"/>
+    
+        <property key="cc-send-procedure" value="cc-send-http" force="true"/>
+    
+        <property key="cc-login-images" value="No" force="true"/>
+    
+        <property key="log_prop_weekly" value="log_short" force="true"/>
+    
+        <property key="cc-show-incomplete" value="yes" force="true"/>
+    
+        <property key="cc-send-unsent" value="cc-su-auto" force="true"/>
+    
+        <property key="loose_media" value="no" force="true"/>
+    
+        <property key="password_format" value="n" force="true"/>
+    
+        <property key="unsent-number-limit" value="5" force="true"/>
+    
+        <property key="cc-content-valid" value="no" force="true"/>
+    
+        <property key="logenabled" value="Enabled" force="true"/>
+    
+
+    <!-- end -->
+
+    
+    <!-- Custom Properties added in HQ -->
+    
+        <property key="cc-update-target" value="release" force="true"/>
+    
+    <!-- end -->
+    
+
+    <features>
+        <checkoff active="true"/>
+        <reminders active="false">
+            <time>0</time>
+        </reminders>
+        <package active="false"/>
+        
+            <sense active="false" />
+        
+        <users active="true">
+        </users>
+    </features>
+
+    <suite><resource id="suite" version="107">
+        
+            <location authority="local">./suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/chadbrochill/apps/download/09ddcc25379443c88c28b9bffb89be63/suite.xml</location>
+    </resource></suite>
+    
+</profile>
