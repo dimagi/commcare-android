@@ -48,7 +48,7 @@ public class IntentCalloutTests {
      * Test different behaviors for possibly grouped intent callout views
      */
     @Test
-    public void testIntentCalloutWithData() {
+    public void testIntentCalloutWithDataXPath() {
         ShadowActivity shadowActivity =
                 ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f0");
         Intent formEntryIntent = shadowActivity.getNextStartedActivity();

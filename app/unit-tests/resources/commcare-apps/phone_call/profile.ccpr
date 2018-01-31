@@ -108,11 +108,4 @@
         <location authority="remote">https://www.commcarehq.org/a/chadbrochill/apps/download/09ddcc25379443c88c28b9bffb89be63/suite.xml</location>
     </resource></suite>
     
-    <suite><resource id="media-suite" version="107">
-        
-            <location authority="local">./media_suite.xml</location>
-        
-        <location authority="remote">https://www.commcarehq.org/a/chadbrochill/apps/download/09ddcc25379443c88c28b9bffb89be63/media_suite.xml</location>
-    </resource></suite>
-    
 </profile>
