@@ -10,6 +10,7 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.android.tests.queries.CaseDbQueryTest;
 import org.commcare.android.util.TestAppInstaller;
@@ -62,6 +63,9 @@ public class FormRecordProcessingTest {
                 "jr://resource/commcare-apps/form_save_regressions/profile.ccpr",
                 "test", "123");
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
+
+        // Resets Instance Storage
+        InstanceRecord.setinstanceRecordStorage(null);
     }
 
     @Test

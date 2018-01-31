@@ -10,6 +10,7 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
@@ -44,6 +45,10 @@ public class EndOfFormTest {
                 "jr://resource/commcare-apps/form_nav_tests/profile.ccpr",
                 "test", "123");
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
+
+        // Resets Instance Storage
+        InstanceRecord.setinstanceRecordStorage(null);
+
     }
 
     /**

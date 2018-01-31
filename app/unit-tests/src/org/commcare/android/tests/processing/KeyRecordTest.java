@@ -49,6 +49,9 @@ public class KeyRecordTest {
         TestUtils.initializeStaticTestStorage();
         TestAppInstaller.installApp("jr://resource/commcare-apps/form_nav_tests/profile.ccpr");
         app = CommCareApplication.instance().getCurrentApp();
+
+        // Resets Instance Storage
+        InstanceRecord.setinstanceRecordStorage(null);
     }
 
     /**

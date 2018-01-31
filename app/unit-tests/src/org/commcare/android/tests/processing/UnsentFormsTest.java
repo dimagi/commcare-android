@@ -3,6 +3,7 @@ package org.commcare.android.tests.processing;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
@@ -35,6 +36,8 @@ public class UnsentFormsTest {
         SavedFormLoader.loadFormsFromPayload(
                 "/commcare-apps/archive_form_tests/saved_form_payload.xml",
                 FormRecord.STATUS_SAVED);
+        // Resets Instance Storage
+        InstanceRecord.setinstanceRecordStorage(null);
     }
 
     /**

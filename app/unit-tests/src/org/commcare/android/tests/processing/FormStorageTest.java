@@ -311,6 +311,7 @@ public class FormStorageTest {
             , "org.commcare.android.database.user.models.FormRecordV4"
             , "org.commcare.android.database.app.models.FormDefRecord"
             , "org.commcare.android.database.app.models.InstanceRecord"
+            , "org.commcare.android.resource.installers.XFormAndroidInstallerV1"
 
     );
 

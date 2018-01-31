@@ -10,6 +10,7 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.FormRecordListActivity;
 import org.commcare.adapters.IncompleteFormListAdapter;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
@@ -36,6 +37,9 @@ import static org.junit.Assert.assertNotNull;
 public class FormRecordListActivityTest {
     @Before
     public void setup() {
+        // Resets Instance Storage
+        InstanceRecord.setinstanceRecordStorage(null);
+
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/form_nav_tests/profile.ccpr",
                 "test", "123");
