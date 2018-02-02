@@ -10,6 +10,7 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.InFormCacheableExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +38,11 @@ public class ExpressionCacheTest {
         TestUtils.processResourceTransaction("/inputs/case_test_model_query_lookups.xml");
     }
 
+    @After
+    public void teardown() {
+        InFormCacheableExpr.disableCaching();
+    }
+
     @Test
     public void testFasterWithCaching() {
         long timeWithoutCaching = time100Evaluations(false);
@@ -47,8 +53,6 @@ public class ExpressionCacheTest {
     private long time100Evaluations(boolean enableCaching) {
         if (enableCaching) {
             InFormCacheableExpr.enableCaching(mainFormInstance, true);
-        } else {
-            InFormCacheableExpr.disableCaching();
         }
         EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
 
