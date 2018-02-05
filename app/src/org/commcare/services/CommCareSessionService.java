@@ -337,27 +337,6 @@ public class CommCareSessionService extends Service {
             } finally {
                 CommCareSessionService.sessionAliveLock.unlock();
             }
-        } else if (isActive() && logoutStartedAt == -1 &&
-                (currentTime > sessionExpireDate.getTime() ||
-                        (sessionExpireDate.getTime() - currentTime > sessionLength))) {
-            // If we haven't started closing the session and we're either past
-            // the session expire time, or the session expires more than its
-            // period in the future, we need to log the user out. The second
-            // case occurs if the system's clock is altered.
-
-            // Try and grab the logout lock, aborting if synchronization is in
-            // progress.
-            if (!CommCareSessionService.sessionAliveLock.tryLock()) {
-                return;
-            }
-
-            try {
-                saveFormAndCloseSession();
-            } finally {
-                CommCareSessionService.sessionAliveLock.unlock();
-            }
-
-            showLoggedOutNotification();
         }
     }
 
