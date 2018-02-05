@@ -101,7 +101,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 FragmentManager fm = getActivity().getSupportFragmentManager();
                 FragmentTransaction ft = fm.beginTransaction();
                 ft.remove(SelectInstallModeFragment.this);
-                ft.add(SelectInstallModeFragment.this.getId(), enterUrl);
+                ft.replace(SelectInstallModeFragment.this.getId(), enterUrl);
                 ft.commit();
             }
         });
