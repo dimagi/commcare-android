@@ -100,8 +100,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 // if we use getChildFragmentManager, we're going to have a crash
                 FragmentManager fm = getActivity().getSupportFragmentManager();
                 FragmentTransaction ft = fm.beginTransaction();
-                ft.replace(SelectInstallModeFragment.this.getId(), enterUrl);
-                ft.addToBackStack(null);
+                ft.remove(SelectInstallModeFragment.this);
+                ft.add(SelectInstallModeFragment.this.getId(), enterUrl);
                 ft.commit();
             }
         });
