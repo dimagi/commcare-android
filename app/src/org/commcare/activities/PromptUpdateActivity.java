@@ -37,6 +37,10 @@ public abstract class PromptUpdateActivity extends SessionAwareCommCareActivity 
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         refreshUpdateToPromptObject();
+        if (savedInstanceState == null) {
+            // on initial activity load only
+            updateToPrompt.incrementTimesSeen();
+        }
         setupUI();
     }
 

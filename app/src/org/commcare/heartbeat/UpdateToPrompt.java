@@ -25,14 +25,27 @@ import java.io.IOException;
 
 public class UpdateToPrompt implements Externalizable {
 
-    public static final String KEY_CCZ_UPDATE_TO_PROMPT = "ccz-update-to-prompt";
-    public static final String KEY_APK_UPDATE_TO_PROMPT = "apk-update-to-prompt";
+    private static final String KEY_CCZ_UPDATE_TO_PROMPT = "ccz-update-to-prompt";
+    private static final String KEY_APK_UPDATE_TO_PROMPT = "apk-update-to-prompt";
+
+    private static final String KEY_NUM_VIEWS_BEFORE_REDUCING_FREQ = "num-views-before-reducing-frequency";
+
+    // Both of these settings will be int values N that represent the directive "Show a given
+    // update prompt to the user every N logins"
+    private static final String KEY_REGULAR_SHOW_FREQ = "regular-show-frequency";
+    private static final String KEY_REDUCED_SHOW_FREQ = "reduced-show-frequency";
+    private static final int REGULAR_SHOW_FREQ_DEFAULT_VALUE = 1;
+    private static final int REDUCED_SHOW_FREQ_DEFAULT_VALUE = 4;
+
 
     private String versionString;
     private int cczVersion;
     private ApkVersion apkVersion;
     private boolean isForced;
-    protected Type updateType;
+    private Type updateType;
+
+    private int numTimesSeen;
+    private UpdatePromptShowHistory showHistory;
 
     public enum Type {
         APK_UPDATE(KEY_APK_UPDATE_TO_PROMPT),
@@ -132,6 +145,7 @@ public class UpdateToPrompt implements Externalizable {
         this.versionString = ExtUtil.readString(in);
         this.updateType = Type.valueOf(ExtUtil.readString(in));
         this.isForced = ExtUtil.readBool(in);
+        this.numTimesSeen = ExtUtil.readInt(in);
         buildFromVersionString();
     }
 
@@ -140,10 +154,37 @@ public class UpdateToPrompt implements Externalizable {
         ExtUtil.writeString(out, versionString);
         ExtUtil.writeString(out, updateType.name());
         ExtUtil.writeBool(out, isForced);
+        ExtUtil.writeNumeric(out, numTimesSeen);
     }
 
     public int getCczVersion() {
         return cczVersion;
+    }
+
+    public void incrementTimesSeen() {
+        numTimesSeen++;
+    }
+
+    public boolean shouldShowOnThisLogin() {
+        int showFrequency = useRegularFrequency() ? getRegularShowFrequency() : getReducedShowFrequency();
+        return showHistory.shouldShowOnThisLogin(showFrequency);
+    }
+
+    private boolean useRegularFrequency() {
+        int viewsThresholdForRegularFrequency =
+                CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                        .getInt(KEY_NUM_VIEWS_BEFORE_REDUCING_FREQ, 3);
+        return numTimesSeen <= viewsThresholdForRegularFrequency;
+    }
+
+    private static int getRegularShowFrequency() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getInt(KEY_REGULAR_SHOW_FREQ, REGULAR_SHOW_FREQ_DEFAULT_VALUE);
+    }
+
+    static int getReducedShowFrequency() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getInt(KEY_REDUCED_SHOW_FREQ, REDUCED_SHOW_FREQ_DEFAULT_VALUE);
     }
 
 }
