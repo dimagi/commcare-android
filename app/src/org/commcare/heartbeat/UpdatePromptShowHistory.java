@@ -1,12 +1,21 @@
 package org.commcare.heartbeat;
 
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.LinkedList;
 
 /**
  * Created by amstone326 on 2/12/18.
  */
 
-public class UpdatePromptShowHistory {
+public class UpdatePromptShowHistory implements Externalizable {
 
     private LinkedList<Boolean> showHistory;
     // the number of logins to keep in show history
@@ -53,4 +62,15 @@ public class UpdatePromptShowHistory {
         return showHistory.size() == numLoginsToTrack;
     }
 
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        numLoginsToTrack = ExtUtil.readInt(in);
+        showHistory = (LinkedList<Boolean>)ExtUtil.read(in, new ExtWrapList(Boolean.class, LinkedList.class), pf);
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeNumeric(out, numLoginsToTrack);
+        ExtUtil.write(out, new ExtWrapList(showHistory));
+    }
 }
