@@ -31,13 +31,12 @@ public class UpdateToPrompt implements Externalizable {
     private static final String KEY_NUM_VIEWS_BEFORE_REDUCING_FREQ = "num-views-before-reducing-frequency";
     public static final int NUM_VIEWS_BEFORE_REDUCING_FREQ_DEFAULT_VALUE = 3;
 
-    // Both of these settings will be int values N that represent the directive "Show a given
+    // Both of these settings will be int values N that represent the directive: "Show a given
     // update prompt to the user every N logins"
     private static final String KEY_REGULAR_SHOW_FREQ = "regular-show-frequency";
     private static final String KEY_REDUCED_SHOW_FREQ = "reduced-show-frequency";
     private static final int REGULAR_SHOW_FREQ_DEFAULT_VALUE = 1;
     public static final int REDUCED_SHOW_FREQ_DEFAULT_VALUE = 4;
-
 
     private String versionString;
     private int cczVersion;
@@ -45,8 +44,8 @@ public class UpdateToPrompt implements Externalizable {
     private boolean isForced;
     private Type updateType;
 
-    private int numTimesSeen;
-    private UpdatePromptShowHistory showHistory;
+    public int numTimesSeen;
+    public UpdatePromptShowHistory showHistory;
 
     public enum Type {
         APK_UPDATE(KEY_APK_UPDATE_TO_PROMPT),
@@ -88,8 +87,10 @@ public class UpdateToPrompt implements Externalizable {
 
     public void registerWithSystem() {
         if (isNewerThanCurrentVersion()) {
-            printDebugStatement();
-            writeToPrefsObject(CommCareApplication.instance().getCurrentApp().getAppPreferences());
+            if (!duplicateAlreadyRegistered()) {
+                printDebugStatement();
+                writeToPrefsObject(CommCareApplication.instance().getCurrentApp().getAppPreferences());
+            }
         } else {
             // If the latest signal we're getting is that our current version is up-to-date,
             // then we should wipe any update prompt for this type that was previously stored
@@ -98,6 +99,7 @@ public class UpdateToPrompt implements Externalizable {
     }
 
     private void printDebugStatement() {
+        System.out.println("Registered NEW UpdateToPrompt with system");
         if (this.updateType == Type.APK_UPDATE) {
             System.out.println(".apk version to prompt for update set to " + apkVersion);
         } else {
@@ -131,11 +133,16 @@ public class UpdateToPrompt implements Externalizable {
         }
     }
 
+    private boolean duplicateAlreadyRegistered() {
+        UpdateToPrompt existing = UpdatePromptHelper.getCurrentUpdateToPrompt(this.updateType);
+        return existing != null && existing.equals(this);
+    }
+
     private void writeToPrefsObject(SharedPreferences prefs) {
         try {
             byte[] serializedBytes = SerializationUtil.serialize(this);
             String serializedString = Base64.encodeToString(serializedBytes, Base64.DEFAULT);
-            prefs.edit().putString(this.updateType.getPrefsKey(), serializedString).commit();
+            prefs.edit().putString(this.updateType.getPrefsKey(), serializedString).apply();
         } catch (Exception e) {
             Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                     "Error encountered while serializing UpdateToPrompt: " + e.getMessage());
@@ -167,11 +174,14 @@ public class UpdateToPrompt implements Externalizable {
 
     public void incrementTimesSeen() {
         numTimesSeen++;
+        writeToPrefsObject(CommCareApplication.instance().getCurrentApp().getAppPreferences());
     }
 
     public boolean shouldShowOnThisLogin() {
         int showFrequency = useRegularFrequency() ? getRegularShowFrequency() : getReducedShowFrequency();
-        return showHistory.shouldShowOnThisLogin(showFrequency);
+        boolean shouldShow = showHistory.shouldShowOnThisLogin(showFrequency);
+        writeToPrefsObject(CommCareApplication.instance().getCurrentApp().getAppPreferences());
+        return shouldShow;
     }
 
     private boolean useRegularFrequency() {
@@ -190,6 +200,31 @@ public class UpdateToPrompt implements Externalizable {
     static int getReducedShowFrequency() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getInt(KEY_REDUCED_SHOW_FREQ, REDUCED_SHOW_FREQ_DEFAULT_VALUE);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof UpdateToPrompt)) {
+            return false;
+        }
+        UpdateToPrompt other = (UpdateToPrompt)o;
+        return propertiesEqual(this.updateType, other.updateType) &&
+                propertiesEqual(this.versionString, other.versionString) &&
+                this.isForced == other.isForced;
+    }
+
+    private boolean propertiesEqual(Object a, Object b) {
+        if (a == null) {
+            return b == null;
+        } else {
+            return a.equals(b);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        final int forcedVal = isForced ? 1231 : 1237;
+        return (updateType.hashCode() ^ versionString.hashCode() ^ forcedVal);
     }
 
 }

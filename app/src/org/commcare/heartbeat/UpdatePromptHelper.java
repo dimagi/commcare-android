@@ -37,7 +37,8 @@ public class UpdatePromptHelper {
                     context.startActivity(i);
                     return true;
                 }
-            } else if (!currentSession.cczUpdatePromptWasShown()) {
+            }
+            if (!currentSession.cczUpdatePromptWasShown()) {
                 UpdateToPrompt cczUpdate = getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
                 if (cczUpdate != null && cczUpdate.shouldShowOnThisLogin()) {
                     Intent i = new Intent(context, PromptCczUpdateActivity.class);

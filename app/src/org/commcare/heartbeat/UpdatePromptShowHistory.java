@@ -73,4 +73,14 @@ public class UpdatePromptShowHistory implements Externalizable {
         ExtUtil.writeNumeric(out, numLoginsToTrack);
         ExtUtil.write(out, new ExtWrapList(showHistory));
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < showHistory.size(); i++) {
+            sb.append(showHistory.get(i));
+            sb.append(" ");
+        }
+        return sb.toString();
+    }
 }
