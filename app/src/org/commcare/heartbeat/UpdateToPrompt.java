@@ -29,13 +29,14 @@ public class UpdateToPrompt implements Externalizable {
     private static final String KEY_APK_UPDATE_TO_PROMPT = "apk-update-to-prompt";
 
     private static final String KEY_NUM_VIEWS_BEFORE_REDUCING_FREQ = "num-views-before-reducing-frequency";
+    public static final int NUM_VIEWS_BEFORE_REDUCING_FREQ_DEFAULT_VALUE = 3;
 
     // Both of these settings will be int values N that represent the directive "Show a given
     // update prompt to the user every N logins"
     private static final String KEY_REGULAR_SHOW_FREQ = "regular-show-frequency";
     private static final String KEY_REDUCED_SHOW_FREQ = "reduced-show-frequency";
     private static final int REGULAR_SHOW_FREQ_DEFAULT_VALUE = 1;
-    private static final int REDUCED_SHOW_FREQ_DEFAULT_VALUE = 4;
+    public static final int REDUCED_SHOW_FREQ_DEFAULT_VALUE = 4;
 
 
     private String versionString;
@@ -69,6 +70,7 @@ public class UpdateToPrompt implements Externalizable {
         }
         this.updateType = type;
         this.versionString = version;
+        this.showHistory = new UpdatePromptShowHistory();
         buildFromVersionString();
     }
 
@@ -146,6 +148,7 @@ public class UpdateToPrompt implements Externalizable {
         this.updateType = Type.valueOf(ExtUtil.readString(in));
         this.isForced = ExtUtil.readBool(in);
         this.numTimesSeen = ExtUtil.readInt(in);
+        this.showHistory = (UpdatePromptShowHistory)ExtUtil.read(in, UpdatePromptShowHistory.class, pf);
         buildFromVersionString();
     }
 
@@ -155,6 +158,7 @@ public class UpdateToPrompt implements Externalizable {
         ExtUtil.writeString(out, updateType.name());
         ExtUtil.writeBool(out, isForced);
         ExtUtil.writeNumeric(out, numTimesSeen);
+        ExtUtil.write(out, showHistory);
     }
 
     public int getCczVersion() {
@@ -173,8 +177,9 @@ public class UpdateToPrompt implements Externalizable {
     private boolean useRegularFrequency() {
         int viewsThresholdForRegularFrequency =
                 CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                        .getInt(KEY_NUM_VIEWS_BEFORE_REDUCING_FREQ, 3);
-        return numTimesSeen <= viewsThresholdForRegularFrequency;
+                        .getInt(KEY_NUM_VIEWS_BEFORE_REDUCING_FREQ,
+                                NUM_VIEWS_BEFORE_REDUCING_FREQ_DEFAULT_VALUE);
+        return numTimesSeen < viewsThresholdForRegularFrequency;
     }
 
     private static int getRegularShowFrequency() {
