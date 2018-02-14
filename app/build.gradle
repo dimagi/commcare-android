@@ -58,6 +58,7 @@ dependencies {
 //        exclude module: 'xmlpull'
     }
     // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
+
     implementation fileTree(include: '*.jar',exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation(name: 'android-zebra-interface-1.1', ext: 'aar')
@@ -71,16 +72,16 @@ dependencies {
     implementation 'com.madgag.spongycastle:core:1.54.0.0'
     implementation 'com.madgag.spongycastle:prov:1.54.0.0'
     implementation 'com.google.android.gms:play-services-maps:10.0.1'
-    implementation 'com.google.zxing:core:3.3.0'
     implementation 'joda-time:joda-time:2.9.4'
 //    compile 'net.sf.kxml:kxml2:2.3.0'
-    implementation 'net.zetetic:android-database-sqlcipher:3.5.4@aar'
+    implementation 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
     implementation ('org.apache.james:apache-mime4j:0.7.2') {
 //        exclude module: 'regexp'
         exclude module: 'commons-io'
 //        exclude group: 'me.regexp'
     }
     implementation('org.apache.httpcomponents:httpmime:4.3.6') {
+
         exclude module: 'httpclient'
 //        exclude module: 'regexp'
 //        exclude group: 'me.regexp'
@@ -93,6 +94,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-ads:10.0.1'
     implementation 'com.carrotsearch:hppc:0.7.2'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'com.journeyapps:zxing-android-embedded:3.5.0'
     implementation('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }

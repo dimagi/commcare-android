@@ -67,7 +67,7 @@ public class GridWidget extends QuestionWidget {
     public GridWidget(Context context, FormEntryPrompt prompt,
                       int numColumns, final boolean quickAdvance) {
         super(context, prompt);
-        mItems = mPrompt.getSelectChoices();
+        mItems = getSelectChoices();
         listener = (AdvanceToNextListener)context;
 
         selected = new boolean[mItems.size()];

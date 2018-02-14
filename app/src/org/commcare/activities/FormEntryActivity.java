@@ -50,7 +50,6 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
-import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
@@ -75,7 +74,6 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathException;
@@ -106,6 +104,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_HEADER_STRING = "form_header";
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
+    public static final String KEY_IS_RESTART_AFTER_EXPIRATION = "is-restart-after-session-expiration";
+
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
     private static final String KEY_WIDGET_WITH_VIDEO_PLAYING = "index-of-widget-with-video-playing-on-pause";
     private static final String KEY_POSITION_OF_VIDEO_PLAYING = "position-of-video-playing-on-pause";
@@ -173,9 +173,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         uiController.setupUI();
         mGestureDetector = new GestureDetector(this, this);
-
-        // needed to override rms property manager
-        PropertyManager.setPropertyManager(new AndroidPropertyManager(getApplicationContext()));
 
         if (savedInstanceState != null) {
             loadStateFromBundle(savedInstanceState);
@@ -957,8 +954,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         registerSessionFormSaveCallback();
 
+        boolean isRestartAfterSessionExpiration =
+                getIntent().getBooleanExtra(KEY_IS_RESTART_AFTER_EXPIRATION, false);
         // Set saved answer path
-        if (FormEntryInstanceState.mInstancePath == null) {
+        if (FormEntryInstanceState.mInstancePath == null || isRestartAfterSessionExpiration) {
             instanceState.initInstancePath();
         } else {
             // we've just loaded a saved form, so start in the hierarchy view
@@ -973,6 +972,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         uiController.refreshView();
         FormNavigationUI.updateNavigationCues(this, mFormController, uiController.questionsView);
+        if (isRestartAfterSessionExpiration) {
+            Toast.makeText(this, Localization.get("form.entry.restart.after.expiration"), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void handleXpathErrorBroadcast() {
@@ -1166,6 +1168,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     FormEntryInstanceState.mInstancePath
             };
 
+
+            Intent formReturnIntent = new Intent();
             Cursor c = null;
             try {
                 c = getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
@@ -1174,20 +1178,22 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     c.moveToFirst();
                     String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
                     Uri instance = Uri.withAppendedPath(instanceProviderContentURI, id);
-
-                    Intent formReturnIntent = new Intent();
-                    formReturnIntent.putExtra(FormEntryConstants.IS_ARCHIVED_FORM, mFormController.isFormReadOnly());
-
-                    if (reportSaved || hasSaved) {
-                        setResult(RESULT_OK, formReturnIntent.setData(instance));
-                    } else {
-                        setResult(RESULT_CANCELED, formReturnIntent.setData(instance));
-                    }
+                    formReturnIntent.setData(instance);
                 }
             } finally {
                 if (c != null) {
                     c.close();
                 }
+            }
+
+            formReturnIntent.putExtra(FormEntryConstants.IS_ARCHIVED_FORM,
+                    mFormController.isFormReadOnly());
+            formReturnIntent.putExtra(KEY_IS_RESTART_AFTER_EXPIRATION,
+                    getIntent().getBooleanExtra(KEY_IS_RESTART_AFTER_EXPIRATION, false));
+            if (reportSaved || hasSaved) {
+                setResult(RESULT_OK, formReturnIntent);
+            } else {
+                setResult(RESULT_CANCELED, formReturnIntent);
             }
         }
 
