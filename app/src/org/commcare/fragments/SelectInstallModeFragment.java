@@ -18,8 +18,10 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 
+import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
+import org.commcare.activities.MessageActivity;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
@@ -118,6 +120,13 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         });
 
         mErrorMessageView = (TextView)view.findViewById(R.id.install_error_text);
+        mErrorMessageView.setClickable(true);
+        mErrorMessageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SelectInstallModeFragment.this.onErrorMessageClicked();
+            }
+        });
         showOrHideErrorMessage();
 
         mFetchHubContainer = view.findViewById(R.id.btn_fetch_hub_container);
@@ -126,6 +135,14 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
         return view;
+    }
+
+    private void onErrorMessageClicked() {
+        if(((CommCareSetupActivity) this.getActivity()).shouldLaunchNotificationsOnErrorClick()) {
+            // The PendingIntent to launch our activity if the user selects this notification
+            Intent i = new Intent(this.getContext(), MessageActivity.class);
+            this.getContext().startActivity(i);
+        }
     }
 
     private void showLocalAppDialog() {
