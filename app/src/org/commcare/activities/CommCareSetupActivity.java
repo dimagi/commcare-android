@@ -89,7 +89,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final int SMS_PERMISSIONS_REQUEST = 2;
 
     private static final String FORCE_VALIDATE_KEY = "validate";
-    private static final String KEY_ERROR_CLICKABLE = "error-is-clickable";
+    private static final String KEY_SHOW_NOTIFICATIONS_BUTTON = "show-notifications-button";
 
     /**
      * UI configuration states.
@@ -104,7 +104,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
     private String errorMessageToDisplay;
-    private boolean loadNotificationsOnErrorClick = false;
+    private boolean showNotificationsButton = false;
 
     public static final int MENU_ARCHIVE = Menu.FIRST;
     private static final int MENU_SMS = Menu.FIRST + 2;
@@ -223,7 +223,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         manualSMSInstall = savedInstanceState.getBoolean(KEY_MANUAL_SMS_INSTALL);
         lastInstallMode = savedInstanceState.getInt(KEY_LAST_INSTALL_MODE);
         errorMessageToDisplay = savedInstanceState.getString(KEY_ERROR_MESSAGE);
-        loadNotificationsOnErrorClick = savedInstanceState.getBoolean(KEY_ERROR_CLICKABLE, false);
+        showNotificationsButton = savedInstanceState.getBoolean(KEY_SHOW_NOTIFICATIONS_BUTTON, false);
         // Uggggh, this might not be 100% legit depending on timing, what
         // if we've already reconnected and shut down the dialog?
         startAllowed = savedInstanceState.getBoolean("startAllowed");
@@ -270,8 +270,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
-    public boolean shouldLaunchNotificationsOnErrorClick() {
-        return loadNotificationsOnErrorClick;
+    public boolean shouldShowNotificationErrorButton() {
+        return showNotificationsButton;
     }
 
     @Override
@@ -377,7 +377,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean(KEY_FROM_MANAGER, fromManager);
         outState.putBoolean(KEY_MANUAL_SMS_INSTALL, manualSMSInstall);
         outState.putString(KEY_ERROR_MESSAGE, errorMessageToDisplay);
-        outState.putBoolean(KEY_ERROR_CLICKABLE, loadNotificationsOnErrorClick);
+        outState.putBoolean(KEY_SHOW_NOTIFICATIONS_BUTTON, showNotificationsButton);
         Log.v("UiState", "Saving instance state: " + outState);
     }
 
@@ -663,7 +663,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {
         if (showAsPinnedNotifcation) {
             CommCareApplication.notificationManager().reportNotificationMessage(notificationMessage);
-            loadNotificationsOnErrorClick = true;
+            showNotificationsButton = true;
         }
         fail(notificationMessage.getTitle());
     }
@@ -687,7 +687,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     public void clearErrorMessage() {
         errorMessageToDisplay = null;
-        loadNotificationsOnErrorClick = false;
+        showNotificationsButton = false;
     }
 
     public String getErrorMessageToDisplay() {

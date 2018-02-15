@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -204,7 +203,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             if (msg != null && !"".equals(msg)) {
                 mErrorMessageView.setText(msg);
                 mErrorMessageView.setVisibility(View.VISIBLE);
-                if(((CommCareSetupActivity) this.getActivity()).shouldLaunchNotificationsOnErrorClick()) {
+                if(((CommCareSetupActivity) this.getActivity()).shouldShowNotificationErrorButton()) {
                     mViewErrorContainer.setVisibility(View.VISIBLE);
                 }
 
