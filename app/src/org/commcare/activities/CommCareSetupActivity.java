@@ -661,16 +661,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {
-        String message;
         if (showAsPinnedNotifcation) {
             CommCareApplication.notificationManager().reportNotificationMessage(notificationMessage);
-            message = Localization.get("notification.for.details.onclick.wrapper",
-                    new String[]{notificationMessage.getTitle()});
-        } else {
-            message = notificationMessage.getTitle();
+            loadNotificationsOnErrorClick = true;
         }
-        loadNotificationsOnErrorClick = showAsPinnedNotifcation;
-        fail(message);
+        fail(notificationMessage.getTitle());
     }
 
     /**
