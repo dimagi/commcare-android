@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -36,6 +37,7 @@ import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.ManagedUiFramework;
 import org.commcare.views.PasswordShow;
+import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
@@ -50,8 +52,14 @@ import java.util.Vector;
 @ManagedUi(R.layout.screen_login)
 public class LoginActivityUIController implements CommCareActivityUIController {
 
+    @UiElement(value = R.id.screen_login_error_view)
+    private View errorContainer;
+
+    @UiElement(value = R.id.btn_view_errors_container)
+    private View notificationButtonView;
+
     @UiElement(value = R.id.screen_login_bad_password)
-    private TextView errorBox;
+    private TextView errorTextView;
 
     @UiElement(value = R.id.edit_username, locale = "login.username")
     private AutoCompleteTextView username;
@@ -79,6 +87,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.primed_password_message, locale = "login.primed.prompt")
     private TextView loginPrimedMessage;
+
+    private RectangleButtonWithText notificationButton;
 
     protected final LoginActivity activity;
 
@@ -135,7 +145,22 @@ public class LoginActivityUIController implements CommCareActivityUIController {
                 activity.initiateLoginAttempt(isRestoreSessionChecked());
             }
         });
+
+        notificationButton = activity.findViewById(R.id.btn_view_notifications);
+
+        notificationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onErrorViewButtonClicked();
+            }
+        });
     }
+
+    private void onErrorViewButtonClicked() {
+        Intent i = new Intent(activity, MessageActivity.class);
+        this.activity.startActivity(i);
+    }
+
 
     private void setTextChangeListeners() {
         username.addTextChangedListener(usernameTextWatcher);
@@ -347,7 +372,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         return loginMode;
     }
 
-    protected void setErrorMessageUI(String message) {
+    protected void setErrorMessageUI(String message, boolean showNotificationButton) {
         setLoginBoxesColorError();
 
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg), null, null, null);
@@ -355,8 +380,11 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_attention_negative_bg));
         loginButton.setTextColor(getResources().getColor(R.color.cc_attention_negative_text));
 
-        errorBox.setVisibility(View.VISIBLE);
-        errorBox.setText(message);
+        errorContainer.setVisibility(View.VISIBLE);
+        errorTextView.setText(message);
+        if(showNotificationButton) {
+            notificationButtonView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setLoginBoxesColorNormal() {
@@ -377,13 +405,13 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
         setupLoginButton();
         if (loginButton.isEnabled()) {
-            // don't hide error box when showing permission error
-            errorBox.setVisibility(View.GONE);
+            clearErrorMessage();
         }
     }
 
     protected void clearErrorMessage() {
-        errorBox.setVisibility(View.GONE);
+        errorContainer.setVisibility(View.GONE);
+        notificationButtonView.setVisibility(View.GONE);
     }
 
     private void setSingleAppUIState() {
@@ -406,14 +434,14 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     protected void setPermissionsGrantedState() {
         loginButton.setEnabled(true);
-        errorBox.setVisibility(View.GONE);
-        errorBox.setText("");
+        errorContainer.setVisibility(View.GONE);
+        errorTextView.setText("");
     }
 
     protected void setPermissionDeniedState() {
         loginButton.setEnabled(false);
-        errorBox.setVisibility(View.VISIBLE);
-        errorBox.setText(Localization.get("permission.all.denial.message"));
+        errorContainer.setVisibility(View.VISIBLE);
+        errorTextView.setText(Localization.get("permission.all.denial.message"));
     }
 
     private void setupLoginButton() {
