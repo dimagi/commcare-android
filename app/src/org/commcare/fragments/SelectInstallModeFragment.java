@@ -132,7 +132,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         mViewErrorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SelectInstallModeFragment.this.onErrorMessageClicked();
+                SelectInstallModeFragment.this.onErrorViewButtonClicked();
             }
         });
         showOrHideErrorMessage();
@@ -145,7 +145,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         return view;
     }
 
-    private void onErrorMessageClicked() {
+    private void onErrorViewButtonClicked() {
         Intent i = new Intent(this.getContext(), MessageActivity.class);
         this.getContext().startActivity(i);
     }
