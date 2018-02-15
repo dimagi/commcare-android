@@ -805,7 +805,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
         currentState.reset();
         if (wasExternal) {
-            setResult(RESULT_OK);
+            if (shouldWarnUser) {
+                setResult(RESULT_CANCELED);
+            } else {
+                setResult(RESULT_OK);
+            }
             this.finish();
         }
         refreshUI();
