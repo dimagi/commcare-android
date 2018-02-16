@@ -382,9 +382,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         errorContainer.setVisibility(View.VISIBLE);
         errorTextView.setText(message);
-        if(showNotificationButton) {
-            notificationButtonView.setVisibility(View.VISIBLE);
-        }
+        notificationButtonView.setVisibility(showNotificationButton ? View.VISIBLE : View.GONE);
     }
 
     private void setLoginBoxesColorNormal() {
@@ -411,7 +409,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     protected void clearErrorMessage() {
         errorContainer.setVisibility(View.GONE);
-        notificationButtonView.setVisibility(View.GONE);
     }
 
     private void setSingleAppUIState() {
