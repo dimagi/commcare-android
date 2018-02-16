@@ -1,5 +1,6 @@
 package org.commcare;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 
+import org.commcare.activities.LoginActivity;
 import org.commcare.activities.MessageActivity;
 import org.commcare.dalvik.R;
 import org.commcare.utils.PopupHandler;
@@ -128,5 +130,14 @@ public class CommCareNoficationManager {
             pendingMessages.add(message);
             updateMessageNotification();
         }
+    }
+
+    /**
+     * From the current activity context, perform a (non-return coded) intent callout to
+     * view the notifications screen.
+     */
+    public static void performIntentCalloutToNotificationsView(Activity activity) {
+        Intent i = new Intent(activity, MessageActivity.class);
+        activity.startActivity(i);
     }
 }

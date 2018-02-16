@@ -8,6 +8,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareNoficationManager;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -116,17 +117,10 @@ class UpdateUIController implements CommCareActivityUIController {
         notificationsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onErrorViewButtonClicked();
+                CommCareNoficationManager.performIntentCalloutToNotificationsView(activity);
             }
         });
     }
-
-    private void onErrorViewButtonClicked() {
-        Intent i = new Intent(activity, MessageActivity.class);
-        this.activity.startActivity(i);
-    }
-
-
 
     protected void upToDateUiState() {
         idleUiState();

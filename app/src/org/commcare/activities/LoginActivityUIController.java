@@ -24,6 +24,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareNoficationManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
@@ -151,16 +152,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         notificationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onErrorViewButtonClicked();
+                CommCareNoficationManager.performIntentCalloutToNotificationsView(activity);
             }
         });
     }
-
-    private void onErrorViewButtonClicked() {
-        Intent i = new Intent(activity, MessageActivity.class);
-        this.activity.startActivity(i);
-    }
-
 
     private void setTextChangeListeners() {
         username.addTextChangedListener(usernameTextWatcher);
