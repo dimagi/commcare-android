@@ -61,6 +61,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.screen_login_bad_password)
     private TextView errorTextView;
 
+    @UiElement(value = R.id.btn_view_notifications)
+    private RectangleButtonWithText notificationButton;
+
     @UiElement(value = R.id.edit_username, locale = "login.username")
     private AutoCompleteTextView username;
 
@@ -87,8 +90,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.primed_password_message, locale = "login.primed.prompt")
     private TextView loginPrimedMessage;
-
-    private RectangleButtonWithText notificationButton;
 
     protected final LoginActivity activity;
 
@@ -146,8 +147,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             }
         });
 
-        notificationButton = activity.findViewById(R.id.btn_view_notifications);
-
+        notificationButton.setText(Localization.get("error.button.text"));
         notificationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

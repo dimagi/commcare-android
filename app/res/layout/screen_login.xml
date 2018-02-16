@@ -196,7 +196,6 @@
 
                                         RectangleButtonWithText:backgroundColor="@color/cc_attention_negative_bg"
                                         RectangleButtonWithText:img="@drawable/ic_list_error"
-                                        RectangleButtonWithText:subtitle="See Error Details"
                                         RectangleButtonWithText:textColor="@color/cc_attention_negative_text"/>
 
                                 </FrameLayout>
