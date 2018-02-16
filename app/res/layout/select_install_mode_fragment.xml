@@ -124,8 +124,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/standard_spacer"
-                android:gravity="center">
+                android:gravity="center"
+                android:layout_margin="@dimen/standard_spacer"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/install_error_text"
@@ -135,6 +136,24 @@
                     android:textStyle="bold"
                     android:gravity="center"
                     android:visibility="gone"/>
+
+
+                <FrameLayout
+                    android:id="@+id/btn_view_errors_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/tile_drop_shadow_small_margins">
+                <org.commcare.views.RectangleButtonWithText
+                    android:id="@+id/btn_view_errors"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/rectangle_button_height"
+
+                    SquareButtonWithText:backgroundColor="@color/cc_attention_negative_bg"
+                    SquareButtonWithText:img="@drawable/ic_list_error"
+                    SquareButtonWithText:subtitle="See Error Details"
+                    SquareButtonWithText:textColor="@color/cc_attention_negative_text"/>
+
+                </FrameLayout>
 
             </LinearLayout>
 
