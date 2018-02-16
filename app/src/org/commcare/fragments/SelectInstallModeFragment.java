@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 
+import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
@@ -52,7 +53,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         super.onResume();
 
         NSDDiscoveryTools.registerForNsdServices(this.getContext(), this);
-        if(!new CommCareNoficationManager(this.getContext()).messagesForCommCareArePending()) {
+        if(!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             mViewErrorContainer.setVisibility(View.GONE);
         }
 

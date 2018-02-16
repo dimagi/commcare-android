@@ -79,7 +79,7 @@ class UpdateUIController implements CommCareActivityUIController {
             // don't load app info while changing said app info; that causes crashes
             refreshStatusText();
         }
-        if(!new CommCareNoficationManager(this.activity).messagesForCommCareArePending()) {
+        if(!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationsButtonContainer.setVisibility(View.GONE);
         }
     }
@@ -220,7 +220,7 @@ class UpdateUIController implements CommCareActivityUIController {
     protected void updateProgressText(String msg) {
         progressText.setText(msg);
         progressText.setTextColor(Color.BLACK);
-        if(msg != "") {
+        if(!msg.equals("")) {
             notificationsButtonContainer.setVisibility(View.GONE);
         }
     }
