@@ -52,6 +52,10 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         super.onResume();
 
         NSDDiscoveryTools.registerForNsdServices(this.getContext(), this);
+        if(!new CommCareNoficationManager(this.getContext()).messagesForCommCareArePending()) {
+            mViewErrorContainer.setVisibility(View.GONE);
+        }
+
     }
 
     @Override

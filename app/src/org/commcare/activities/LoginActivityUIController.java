@@ -240,6 +240,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         } else {
             checkEnteredUsernameForMatch();
         }
+
+        if(!new CommCareNoficationManager(this.activity).messagesForCommCareArePending()) {
+            notificationButtonView.setVisibility(View.GONE);
+        }
     }
 
     protected void refreshForNewApp() {

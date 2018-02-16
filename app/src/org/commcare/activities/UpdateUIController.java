@@ -79,6 +79,9 @@ class UpdateUIController implements CommCareActivityUIController {
             // don't load app info while changing said app info; that causes crashes
             refreshStatusText();
         }
+        if(!new CommCareNoficationManager(this.activity).messagesForCommCareArePending()) {
+            notificationsButtonContainer.setVisibility(View.GONE);
+        }
     }
 
     private void setupButtonListeners() {

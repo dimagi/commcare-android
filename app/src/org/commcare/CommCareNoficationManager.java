@@ -140,4 +140,13 @@ public class CommCareNoficationManager {
         Intent i = new Intent(activity, MessageActivity.class);
         activity.startActivity(i);
     }
+
+    /**
+     * @return true if there are pending notifications for CommCare. False otherwise.
+     */
+    public boolean messagesForCommCareArePending() {
+        synchronized (pendingMessages) {
+            return pendingMessages.size() > 0;
+        }
+    }
 }
