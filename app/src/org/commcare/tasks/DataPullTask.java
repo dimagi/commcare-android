@@ -380,7 +380,7 @@ public abstract class DataPullTask<R>
         } catch (IllegalStateException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                    "User sync failed oddly, ISE |" + e.getMessage());
+                    "User sync failed oddly, IllegalStateException |" + e.getMessage());
             throw new UnknownSyncError();
         } catch (RecordTooLargeException e) {
             wipeLoginIfItOccurred();

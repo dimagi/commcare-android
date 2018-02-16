@@ -108,7 +108,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                             @Override
                             protected void deliverError(RecoveryActivity receiver, Exception e) {
-                                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Error in recovery form send: " + ForceCloseLogger.getStackTrace(e));
+                                Logger.log(LogTypes.TYPE_ERROR_EXCEPTION, "Error in recovery form send: " + ForceCloseLogger.getStackTrace(e));
                                 receiver.displayMessage("Error while sending : " + e.getMessage());
                             }
 
@@ -195,7 +195,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             }
             txtUnsentAndQuarantineForms.setText(sb.toString());
         } catch (Exception e) {
-            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, e.getMessage());
+            Logger.log(LogTypes.TYPE_ERROR_EXCEPTION, "Encountere exception during recovery attempt " + e.getMessage());
             txtUnsentAndQuarantineForms.setText("Couldn't read forms. Error : " + e.getMessage());
         }
     }
