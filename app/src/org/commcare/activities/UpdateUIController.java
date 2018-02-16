@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -10,6 +11,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.SquareButtonWithText;
 import org.javarosa.core.services.locale.Localization;
 
@@ -26,6 +28,9 @@ class UpdateUIController implements CommCareActivityUIController {
     private ProgressBar progressBar;
     private TextView currentVersionText;
     private TextView progressText;
+
+    private View notificationsButtonContainer;
+    private RectangleButtonWithText notificationsButton;
 
     protected final UpdateActivity activity;
 
@@ -55,6 +60,13 @@ class UpdateUIController implements CommCareActivityUIController {
         progressText = (TextView)activity.findViewById(R.id.update_progress_text);
         currentVersionText =
                 (TextView)activity.findViewById(R.id.current_version_text);
+
+        notificationsButtonContainer = activity.findViewById(R.id.btn_view_errors_container);
+
+        notificationsButton = activity.findViewById(R.id.update_btn_view_notifications);
+
+        notificationsButton.setText(Localization.get("error.button.text"));
+
 
         setupButtonListeners();
         idleUiState();
@@ -100,7 +112,21 @@ class UpdateUIController implements CommCareActivityUIController {
         String updateVersionPlaceholderMsg =
                 Localization.getWithDefault(applyUpdateButtonTextKey, new String[]{"-1"}, "");
         installUpdateButton.setText(updateVersionPlaceholderMsg);
+
+        notificationsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onErrorViewButtonClicked();
+            }
+        });
     }
+
+    private void onErrorViewButtonClicked() {
+        Intent i = new Intent(activity, MessageActivity.class);
+        this.activity.startActivity(i);
+    }
+
+
 
     protected void upToDateUiState() {
         idleUiState();
@@ -197,11 +223,18 @@ class UpdateUIController implements CommCareActivityUIController {
     protected void updateProgressText(String msg) {
         progressText.setText(msg);
         progressText.setTextColor(Color.BLACK);
+        if(msg != "") {
+            notificationsButtonContainer.setVisibility(View.GONE);
+        }
     }
 
     protected void updateErrorText(String msg) {
         progressText.setText(msg);
         progressText.setTextColor(Color.RED);
+    }
+
+    protected void setNotificationsVisible() {
+        notificationsButtonContainer.setVisibility(View.VISIBLE);
     }
 
     protected void updateProgressBar(int currentProgress, int max) {

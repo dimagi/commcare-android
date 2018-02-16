@@ -74,24 +74,24 @@ public class CommCareNoficationManager {
     }
 
     public void clearNotifications(String category) {
-        synchronized (pendingMessages) {
-            NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
-            Vector<NotificationMessage> toRemove = new Vector<>();
-            for (NotificationMessage message : pendingMessages) {
-                if (category == null || category.equals(message.getCategory())) {
-                    toRemove.add(message);
+            synchronized (pendingMessages) {
+                NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
+                Vector<NotificationMessage> toRemove = new Vector<>();
+                for (NotificationMessage message : pendingMessages) {
+                    if (category == null || category.equals(message.getCategory())) {
+                        toRemove.add(message);
+                    }
+                }
+
+                for (NotificationMessage message : toRemove) {
+                    pendingMessages.remove(message);
+                }
+                if (pendingMessages.size() == 0) {
+                    mNM.cancel(MESSAGE_NOTIFICATION);
+                } else {
+                    updateMessageNotification();
                 }
             }
-
-            for (NotificationMessage message : toRemove) {
-                pendingMessages.remove(message);
-            }
-            if (pendingMessages.size() == 0) {
-                mNM.cancel(MESSAGE_NOTIFICATION);
-            } else {
-                updateMessageNotification();
-            }
-        }
     }
 
     public ArrayList<NotificationMessage> purgeNotifications() {
