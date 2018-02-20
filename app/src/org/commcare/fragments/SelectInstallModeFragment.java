@@ -18,12 +18,16 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 
+import org.commcare.CommCareApplication;
+import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
+import org.commcare.activities.MessageActivity;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
 import org.commcare.dalvik.R;
+import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.SquareButtonWithText;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
@@ -40,6 +44,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
     private View mFetchHubContainer;
     private TextView mErrorMessageView;
+    private RectangleButtonWithText mViewErrorButton;
+    private View mViewErrorContainer;
     private ArrayList<MicroNode.AppManifest> mLocalApps = new ArrayList<>();
 
     @Override
@@ -47,6 +53,10 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         super.onResume();
 
         NSDDiscoveryTools.registerForNsdServices(this.getContext(), this);
+        if(!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+            mViewErrorContainer.setVisibility(View.GONE);
+        }
+
     }
 
     @Override
@@ -118,6 +128,19 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         });
 
         mErrorMessageView = (TextView)view.findViewById(R.id.install_error_text);
+
+        mViewErrorContainer = view.findViewById(R.id.btn_view_errors_container);
+
+        mViewErrorButton = view.findViewById(R.id.btn_view_errors);
+
+        mViewErrorButton.setText(Localization.get("error.button.text"));
+
+        mViewErrorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CommCareNoficationManager.performIntentCalloutToNotificationsView(getActivity());
+            }
+        });
         showOrHideErrorMessage();
 
         mFetchHubContainer = view.findViewById(R.id.btn_fetch_hub_container);
@@ -181,8 +204,13 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             if (msg != null && !"".equals(msg)) {
                 mErrorMessageView.setText(msg);
                 mErrorMessageView.setVisibility(View.VISIBLE);
-            } else {
+                if(((CommCareSetupActivity) this.getActivity()).shouldShowNotificationErrorButton()) {
+                    mViewErrorContainer.setVisibility(View.VISIBLE);
+                }
+
+                } else {
                 mErrorMessageView.setVisibility(View.GONE);
+                mViewErrorContainer.setVisibility(View.GONE);
             }
         }
     }
