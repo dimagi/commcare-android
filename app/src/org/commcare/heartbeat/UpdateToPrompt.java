@@ -178,13 +178,13 @@ public class UpdateToPrompt implements Externalizable {
     }
 
     public boolean shouldShowOnThisLogin() {
-        int showFrequency = useRegularFrequency() ? getRegularShowFrequency() : getReducedShowFrequency();
+        int showFrequency = useRegularFrequency(numTimesSeen) ? getRegularShowFrequency() : getReducedShowFrequency();
         boolean shouldShow = showHistory.shouldShowOnThisLogin(showFrequency);
         writeToPrefsObject(CommCareApplication.instance().getCurrentApp().getAppPreferences());
         return shouldShow;
     }
 
-    private boolean useRegularFrequency() {
+    private static boolean useRegularFrequency(int numTimesSeen) {
         int viewsThresholdForRegularFrequency =
                 CommCareApplication.instance().getCurrentApp().getAppPreferences()
                         .getInt(KEY_NUM_VIEWS_BEFORE_REDUCING_FREQ,
