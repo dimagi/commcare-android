@@ -307,6 +307,9 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathDistinctValuesFunc"
             , "org.javarosa.xpath.expr.XPathSleepFunc"
 
+            // Added in 2.43
+            , "org.commcare.heartbeat.UpdatePromptShowHistory"
+
             );
 
 
