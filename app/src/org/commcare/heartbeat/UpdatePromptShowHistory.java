@@ -18,11 +18,8 @@ import java.util.LinkedList;
 public class UpdatePromptShowHistory implements Externalizable {
 
     private LinkedList<Boolean> showHistory;
-    // the number of logins to keep in show history
-    private int numLoginsToTrack;
 
     public UpdatePromptShowHistory() {
-        this.numLoginsToTrack = UpdateToPrompt.getReducedShowFrequency() - 1;
         this.showHistory = new LinkedList<>();
     }
 
@@ -58,19 +55,23 @@ public class UpdatePromptShowHistory implements Externalizable {
         showHistory.add(lastShowValue);
     }
 
+    /**
+     * The maximum number of previous shows that the show history could ever need to know about is
+     * 1 less than the reduced show frequency number (e.g. if the reduced show frequency is 4,
+     * that means we need to show the prompt once every 4 logins, which means that on any given
+     * login, we need to know about the prior 3 logins in order to decide whether or not to show it.
+     */
     private boolean isFull() {
-        return showHistory.size() == numLoginsToTrack;
+        return showHistory.size() == UpdateToPrompt.getReducedShowFrequency()-1;
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        numLoginsToTrack = ExtUtil.readInt(in);
         showHistory = (LinkedList<Boolean>)ExtUtil.read(in, new ExtWrapList(Boolean.class, LinkedList.class), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeNumeric(out, numLoginsToTrack);
         ExtUtil.write(out, new ExtWrapList(showHistory));
     }
 
