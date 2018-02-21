@@ -44,8 +44,6 @@ public abstract class PromptUpdateActivity extends SessionAwareCommCareActivity 
             updateToPrompt.incrementTimesSeen();
         }
         setupUI();
-        System.out.println("num views for updateToPrompt being shown: " + updateToPrompt.numTimesSeen);
-        System.out.println("show history for updateToPrompt being shown: " + updateToPrompt.showHistory);
     }
 
     abstract void refreshUpdateToPromptObject();

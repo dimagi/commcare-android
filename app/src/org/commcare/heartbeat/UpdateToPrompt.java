@@ -32,7 +32,7 @@ public class UpdateToPrompt implements Externalizable {
     public static final int NUM_VIEWS_BEFORE_REDUCING_FREQ_DEFAULT_VALUE = 3;
 
     // Both of these settings will be int values N that represent the directive: "Show a given
-    // update prompt to the user every N logins"
+    // update prompt to the user once every N logins"
     private static final String KEY_REGULAR_SHOW_FREQ = "regular-show-frequency";
     private static final String KEY_REDUCED_SHOW_FREQ = "reduced-show-frequency";
     private static final int REGULAR_SHOW_FREQ_DEFAULT_VALUE = 1;
@@ -44,8 +44,8 @@ public class UpdateToPrompt implements Externalizable {
     private boolean isForced;
     private Type updateType;
 
-    public int numTimesSeen;
-    public UpdatePromptShowHistory showHistory;
+    private int numTimesSeen;
+    private UpdatePromptShowHistory showHistory;
 
     public enum Type {
         APK_UPDATE(KEY_APK_UPDATE_TO_PROMPT),
@@ -172,6 +172,31 @@ public class UpdateToPrompt implements Externalizable {
         return cczVersion;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof UpdateToPrompt)) {
+            return false;
+        }
+        UpdateToPrompt other = (UpdateToPrompt)o;
+        return propertiesEqual(this.updateType, other.updateType) &&
+                propertiesEqual(this.versionString, other.versionString) &&
+                this.isForced == other.isForced;
+    }
+
+    private boolean propertiesEqual(Object a, Object b) {
+        if (a == null) {
+            return b == null;
+        } else {
+            return a.equals(b);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        final int forcedVal = isForced ? 1231 : 1237;
+        return (updateType.hashCode() ^ versionString.hashCode() ^ forcedVal);
+    }
+
     public void incrementTimesSeen() {
         numTimesSeen++;
         writeToPrefsObject(CommCareApplication.instance().getCurrentApp().getAppPreferences());
@@ -200,31 +225,6 @@ public class UpdateToPrompt implements Externalizable {
     static int getReducedShowFrequency() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getInt(KEY_REDUCED_SHOW_FREQ, REDUCED_SHOW_FREQ_DEFAULT_VALUE);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof UpdateToPrompt)) {
-            return false;
-        }
-        UpdateToPrompt other = (UpdateToPrompt)o;
-        return propertiesEqual(this.updateType, other.updateType) &&
-                propertiesEqual(this.versionString, other.versionString) &&
-                this.isForced == other.isForced;
-    }
-
-    private boolean propertiesEqual(Object a, Object b) {
-        if (a == null) {
-            return b == null;
-        } else {
-            return a.equals(b);
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        final int forcedVal = isForced ? 1231 : 1237;
-        return (updateType.hashCode() ^ versionString.hashCode() ^ forcedVal);
     }
 
 }

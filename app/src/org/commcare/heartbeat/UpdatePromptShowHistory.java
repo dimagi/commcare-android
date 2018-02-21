@@ -12,9 +12,11 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 /**
+ * A helper object of an UpdateToPrompt, for tracking whether or not the prompt was shown on the
+ * most recent set of logins, in order to inform whether it should be shown on the next one.
+ *
  * Created by amstone326 on 2/12/18.
  */
-
 public class UpdatePromptShowHistory implements Externalizable {
 
     private LinkedList<Boolean> showHistory;
