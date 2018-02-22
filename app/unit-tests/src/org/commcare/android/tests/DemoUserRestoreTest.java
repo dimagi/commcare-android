@@ -4,10 +4,10 @@ import android.content.Intent;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.activities.LoginActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.adapters.EntityListAdapter;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -27,7 +27,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests logging in as demo user with and without an app-level demo user
@@ -71,7 +71,7 @@ public class DemoUserRestoreTest {
         ShadowActivity shadowActivity = Shadows.shadowOf(homeActivity);
 
         // Demo users shouldn't have an options menu
-        assertFalse(shadowActivity.getOptionsMenu().hasVisibleItems());
+        assertTrue(shadowActivity.getOptionsMenu().hasVisibleItems());
     }
 
     /**
