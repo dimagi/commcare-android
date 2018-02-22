@@ -6,7 +6,7 @@ dialog.ok=OK
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
 updates.success=App is up to date
 updates.check.begin=Checking for updates...
-updates.check.failed=Failed to download updates. See notification for details.
+updates.check.failed=Failed to download updates due to an error
 updates.check.start=Recheck
 updates.check.cancel=Stop checking
 updates.check.cancelling=Cancelling check for updates
@@ -217,7 +217,7 @@ app.storage.missing.button=Shutdown CommCare
 cchq.case=Case
 select.placeholder.message=Please select a ${0}
 notification.for.details.wrapper=${0} (See notification for details)
-notification.for.details.setup.wrapper=${0} (Press "See More" or see notification for details)
+error.button.text=See Error Details
 
 session.refresh.error.title=Session Refresh Required
 session.refresh.error.message=Something happened that required us to refresh your session of CommCare. You should now be able to return to your prior place in the app as normal. If this happens again, contact a supervisor for assistance.
