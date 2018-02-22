@@ -137,7 +137,7 @@ public class StandardHomeActivity
         boolean enableMenus = !isDemoUser();
         menu.findItem(MENU_UPDATE).setVisible(enableMenus);
         menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
-        menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(enableMenus);
+        menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(true);
         menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
         menu.findItem(MENU_ADVANCED).setVisible(enableMenus);
         menu.findItem(MENU_ABOUT).setVisible(enableMenus);
