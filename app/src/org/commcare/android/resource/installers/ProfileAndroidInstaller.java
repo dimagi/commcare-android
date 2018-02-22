@@ -3,9 +3,12 @@ package org.commcare.android.resource.installers;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -33,6 +36,8 @@ import java.util.ArrayList;
  * @author ctsims
  */
 public class ProfileAndroidInstaller extends FileSystemInstaller {
+
+    private static final String KEY_TARGET_PACKAGE_ID = "target-package-id";
 
     @SuppressWarnings("unused")
     public ProfileAndroidInstaller() {
@@ -86,6 +91,8 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                 checkDuplicate(p);
             }
 
+            checkAppTarget(p);
+
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
             return true;
         } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
@@ -95,6 +102,21 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         }
 
         return false;
+    }
+
+    private void checkAppTarget(Profile p) throws UnfullfilledRequirementsException {
+        SharedPreferences prefs = CommCareApp.currentSandbox.getAppPreferences();
+        if(prefs.contains(KEY_TARGET_PACKAGE_ID)){
+            String targetPackage = prefs.getString(KEY_TARGET_PACKAGE_ID, "");
+            if(!StringUtils.isEmpty(targetPackage)){
+                String myAppPackage = CommCareApplication.instance().getPackageName();
+                if(!myAppPackage.contentEquals(targetPackage)){
+                    throw new UnfullfilledRequirementsException(
+                            "Your app doesn't match with this commcare flavour",
+                            CommCareElementParser.SEVERITY_PROMPT, true);
+                }
+            }
+        }
     }
 
     // Check that this app is not already installed on the phone
