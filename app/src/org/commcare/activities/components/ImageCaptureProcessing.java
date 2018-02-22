@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
@@ -41,15 +42,16 @@ public class ImageCaptureProcessing {
 
         boolean savedScaledImage = false;
         if (shouldScale) {
-            ImageWidget currentWidget = (ImageWidget)formEntryActivity.getPendingWidget();
+            ImageWidget currentWidget = (ImageWidget) formEntryActivity.getPendingWidget();
             if (currentWidget != null) {
                 int maxDimen = currentWidget.getMaxDimen();
+                Log.d("shubham", "max dimen " + maxDimen);
                 if (maxDimen != -1) {
                     savedScaledImage = FileUtil.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
                 }
             }
         }
-
+        Log.d("shubham", "scaled " + savedScaledImage);
         if (!savedScaledImage) {
             // If we didn't create a scaled image and save it to the final path, then relocate the
             // original image from the temp filepath to our final path

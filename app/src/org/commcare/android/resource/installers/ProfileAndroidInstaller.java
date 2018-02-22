@@ -86,6 +86,8 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                 checkDuplicate(p);
             }
 
+            checkTargetPackage(p);
+
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
             return true;
         } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
@@ -95,6 +97,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         }
 
         return false;
+    }
+
+    private void checkTargetPackage(Profile p) {
+
     }
 
     // Check that this app is not already installed on the phone
