@@ -38,11 +38,6 @@ public class ExpressionCacheTest {
         TestUtils.processResourceTransaction("/inputs/case_test_model_query_lookups.xml");
     }
 
-    @After
-    public void teardown() {
-        InFormCacheableExpr.disableCaching();
-    }
-
     @Test
     public void testFasterWithCaching() {
         long timeWithoutCaching = time100Evaluations(false);
@@ -51,10 +46,10 @@ public class ExpressionCacheTest {
     }
 
     private long time100Evaluations(boolean enableCaching) {
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(mainFormInstance);
         if (enableCaching) {
-            InFormCacheableExpr.enableCaching(mainFormInstance, true);
+            ec.setCachingAllowed();
         }
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
 
         long start = System.currentTimeMillis();
         for (int i = 0; i < 100; i++) {
@@ -77,11 +72,10 @@ public class ExpressionCacheTest {
         }
     }
 
-
     @Test
     public void testAccuracyWithCaching() {
-        InFormCacheableExpr.enableCaching(mainFormInstance, true);
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(mainFormInstance);
+        ec.setCachingAllowed();
         for (int i = 0; i < 3; i++) {
             CaseDbQueryTest.evaluate("join(',',instance('casedb')/casedb/case[@case_type='unit_test_child_child']" +
                             "[@status='open'][true() and instance('casedb')/casedb/case[@case_id = " +

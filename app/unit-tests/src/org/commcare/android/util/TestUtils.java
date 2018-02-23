@@ -271,6 +271,9 @@ public class TestUtils {
      * the connected storage instances: casedb is the only one supported for now
      */
     public static EvaluationContext getEvaluationContextWithoutSession() {
+        return getEvaluationContextWithoutSession(null);
+    }
+    public static EvaluationContext getEvaluationContextWithoutSession(DataInstance mainInstanceForEC) {
         final SQLiteDatabase db = getTestDb();
 
         AndroidInstanceInitializer iif = new AndroidInstanceInitializer() {
@@ -289,15 +292,15 @@ public class TestUtils {
             }
         };
 
-        return buildEvaluationContext(iif);
+        return buildEvaluationContext(iif, mainInstanceForEC);
     }
 
     public static EvaluationContext getEvaluationContextWithAndroidIIF() {
         AndroidInstanceInitializer iif = new AndroidInstanceInitializer(CommCareApplication.instance().getCurrentSession());
-        return buildEvaluationContext(iif);
+        return buildEvaluationContext(iif, null);
     }
 
-    private static EvaluationContext buildEvaluationContext(AndroidInstanceInitializer iif) {
+    private static EvaluationContext buildEvaluationContext(AndroidInstanceInitializer iif, DataInstance mainInstance) {
         ExternalDataInstance edi = new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, "casedb");
         DataInstance specializedDataInstance = edi.initialize(iif, "casedb");
 
@@ -308,7 +311,7 @@ public class TestUtils {
         formInstances.put("casedb", specializedDataInstance);
         formInstances.put("ledger", ledgerDataInstance);
 
-        return new EvaluationContext(new EvaluationContext(null), formInstances, TreeReference.rootRef());
+        return new EvaluationContext(new EvaluationContext(mainInstance), formInstances, TreeReference.rootRef());
     }
 
     public static RuntimeException wrapError(Exception e, String prefix) {
