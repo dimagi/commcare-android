@@ -1,121 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
+    android:id="@+id/screen_first_start_main"
     xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/cc_core_bg"
-    android:id="@+id/screen_first_start_main"
-    android:layout_height="fill_parent"
     android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/cc_core_bg"
     android:orientation="vertical">
 
     <ScrollView
-        android:background="@color/cc_core_bg"
-        android:layout_height="wrap_content"
         android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/cc_core_bg"
         android:scrollbars="none">
 
         <LinearLayout
-            android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <include layout="@layout/grid_header_top_banner"/>
 
             <LinearLayout
-                android:gravity="center_horizontal"
-                android:layout_height="match_parent"
                 android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal"
                 android:orientation="vertical">
 
                 <TextView
-                    android:gravity="center"
                     android:id="@+id/str_setup_message"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/content_min_margin"
                     android:layout_marginRight="@dimen/content_min_margin"
-                    android:layout_width="fill_parent"
+                    android:gravity="center"
                     android:textSize="@dimen/text_small"
                     android:textStyle="bold"/>
 
                 <TextView
-                    android:gravity="center"
                     android:id="@+id/str_setup_message_2"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/content_min_margin"
                     android:layout_marginLeft="@dimen/content_min_margin"
                     android:layout_marginRight="@dimen/content_min_margin"
-                    android:layout_width="fill_parent"
+                    android:gravity="center"
                     android:textSize="@dimen/text_small"/>
 
                 <LinearLayout
                     android:id="@+id/screen_first_start_bottom"
-                    android:layout_height="wrap_content"
                     android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <FrameLayout
-                        android:background="@drawable/tile_drop_shadow_small_margins"
                         android:id="@+id/btn_fetch_uri_container"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_marginLeft="@dimen/standard_spacer"
                         android:layout_weight="1"
-                        android:layout_width="0dp">
+                        android:background="@drawable/tile_drop_shadow_small_margins">
 
                         <org.commcare.views.SquareButtonWithText
+                            android:id="@+id/btn_fetch_uri"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
                             SquareButtonWithText:backgroundColor="@color/cc_brand_color"
                             SquareButtonWithText:img="@drawable/startup_barcode"
                             SquareButtonWithText:subtitle="Scan Application Barcode"
-                            SquareButtonWithText:textColor="@color/white"
-                            android:id="@+id/btn_fetch_uri"
-                            android:layout_height="match_parent"
-                            android:layout_width="wrap_content"/>
+                            SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
 
                     <FrameLayout
-                        android:background="@drawable/tile_drop_shadow_small_margins"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_marginRight="@dimen/standard_spacer"
                         android:layout_weight="1"
-                        android:layout_width="0dp">
+                        android:background="@drawable/tile_drop_shadow_small_margins">
 
                         <org.commcare.views.SquareButtonWithText
+                            android:id="@+id/enter_app_location"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/tile_drop_shadow_small_margins"
+                            android:gravity="end"
                             SquareButtonWithText:backgroundColor="@color/cc_light_cool_accent_color"
                             SquareButtonWithText:img="@drawable/startup_url"
                             SquareButtonWithText:subtitle="Enter Code"
-                            SquareButtonWithText:textColor="@color/white"
-                            android:background="@drawable/tile_drop_shadow_small_margins"
-                            android:gravity="end"
-                            android:id="@+id/enter_app_location"
-                            android:layout_height="match_parent"
-                            android:layout_width="wrap_content"/>
+                            SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
                 </LinearLayout>
-
                 <LinearLayout
                     android:id="@+id/screen_first_start_second_row"
-                    android:layout_height="wrap_content"
                     android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:paddingBottom="@dimen/content_min_margin"
                     android:weightSum="2">
 
                     <FrameLayout
-                        android:background="@drawable/tile_drop_shadow_small_margins"
                         android:id="@+id/btn_fetch_hub_container"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_marginLeft="@dimen/standard_spacer"
                         android:layout_weight="1"
-                        android:layout_width="0dp"
+                        android:background="@drawable/tile_drop_shadow_small_margins"
                         android:visibility="gone">
 
                         <org.commcare.views.SquareButtonWithText
+                            android:id="@+id/btn_fetch_hub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
                             SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
                             SquareButtonWithText:img="@drawable/startup_micronode"
                             SquareButtonWithText:subtitle="Install From Local"
-                            SquareButtonWithText:textColor="@color/white"
-                            android:id="@+id/btn_fetch_hub"
-                            android:layout_height="match_parent"
-                            android:layout_width="wrap_content"/>
+                            SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
 
                 </LinearLayout>
@@ -123,36 +122,36 @@
             </LinearLayout>
 
             <LinearLayout
-                android:gravity="center"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/standard_spacer"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="@dimen/standard_spacer"
                 android:orientation="vertical">
 
                 <TextView
-                    android:gravity="center"
                     android:id="@+id/install_error_text"
-                    android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:textColor="@color/red"
                     android:textStyle="bold"
+                    android:gravity="center"
                     android:visibility="gone"/>
 
 
                 <FrameLayout
-                    android:background="@drawable/tile_drop_shadow_small_margins"
                     android:id="@+id/btn_view_errors_container"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_width="match_parent">
+                    android:background="@drawable/tile_drop_shadow_small_margins">
+                <org.commcare.views.RectangleButtonWithText
+                    android:id="@+id/btn_view_errors"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/rectangle_button_height"
 
-                    <org.commcare.views.RectangleButtonWithText
-                        SquareButtonWithText:backgroundColor="@color/cc_attention_negative_bg"
-                        SquareButtonWithText:img="@drawable/ic_list_error"
-                        SquareButtonWithText:subtitle="See Error Details"
-                        SquareButtonWithText:textColor="@color/cc_attention_negative_text"
-                        android:id="@+id/btn_view_errors"
-                        android:layout_height="@dimen/rectangle_button_height"
-                        android:layout_width="match_parent"/>
+                    SquareButtonWithText:backgroundColor="@color/cc_attention_negative_bg"
+                    SquareButtonWithText:img="@drawable/ic_list_error"
+                    SquareButtonWithText:subtitle="See Error Details"
+                    SquareButtonWithText:textColor="@color/cc_attention_negative_text"/>
 
                 </FrameLayout>
 
