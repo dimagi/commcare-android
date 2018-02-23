@@ -1,14 +1,5 @@
 package org.commcare.heartbeat;
 
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapList;
-import org.javarosa.core.util.externalizable.Externalizable;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.LinkedList;
 
 /**
@@ -17,12 +8,20 @@ import java.util.LinkedList;
  *
  * Created by amstone326 on 2/12/18.
  */
-public class UpdatePromptShowHistory implements Externalizable {
+public class UpdatePromptShowHistory {
 
-    private LinkedList<Boolean> showHistory;
+    private LinkedList<Boolean> historyQueue;
 
-    public UpdatePromptShowHistory() {
-        this.showHistory = new LinkedList<>();
+    UpdatePromptShowHistory() {
+        this.historyQueue = new LinkedList<>();
+    }
+
+    void setHistory(LinkedList<Boolean> history) {
+        this.historyQueue = history;
+    }
+
+    LinkedList<Boolean> getHistory() {
+        return historyQueue;
     }
 
     /**
@@ -36,9 +35,9 @@ public class UpdatePromptShowHistory implements Externalizable {
         boolean shouldShow = true;
 
         int numChecked = 0;
-        int index = showHistory.size() - 1;
+        int index = historyQueue.size() - 1;
         while (index >= 0 && numChecked < showFrequency-1) {
-            if (showHistory.get(index)) {
+            if (historyQueue.get(index)) {
                 shouldShow = false;
                 break;
             }
@@ -52,9 +51,9 @@ public class UpdatePromptShowHistory implements Externalizable {
 
     private void updateHistoryWithLatest(boolean lastShowValue) {
         if (isFull()) {
-            showHistory.poll();
+            historyQueue.poll();
         }
-        showHistory.add(lastShowValue);
+        historyQueue.add(lastShowValue);
     }
 
     /**
@@ -64,24 +63,14 @@ public class UpdatePromptShowHistory implements Externalizable {
      * login, we need to know about the prior 3 logins in order to decide whether or not to show it.
      */
     private boolean isFull() {
-        return showHistory.size() == UpdateToPrompt.getReducedShowFrequency()-1;
-    }
-
-    @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        showHistory = (LinkedList<Boolean>)ExtUtil.read(in, new ExtWrapList(Boolean.class, LinkedList.class), pf);
-    }
-
-    @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.write(out, new ExtWrapList(showHistory));
+        return historyQueue.size() == UpdateToPrompt.getReducedShowFrequency()-1;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < showHistory.size(); i++) {
-            sb.append(showHistory.get(i));
+        for (int i = 0; i < historyQueue.size(); i++) {
+            sb.append(historyQueue.get(i));
             sb.append(" ");
         }
         return sb.toString();

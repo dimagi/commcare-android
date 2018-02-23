@@ -12,12 +12,14 @@ import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.LinkedList;
 
 /**
  * Created by amstone326 on 4/13/17.
@@ -155,7 +157,8 @@ public class UpdateToPrompt implements Externalizable {
         this.updateType = Type.valueOf(ExtUtil.readString(in));
         this.isForced = ExtUtil.readBool(in);
         this.numTimesSeen = ExtUtil.readInt(in);
-        this.showHistory = (UpdatePromptShowHistory)ExtUtil.read(in, UpdatePromptShowHistory.class, pf);
+        this.showHistory = new UpdatePromptShowHistory();
+        showHistory.setHistory((LinkedList<Boolean>)ExtUtil.read(in, new ExtWrapList(Boolean.class, LinkedList.class), pf));
         buildFromVersionString();
     }
 
@@ -165,7 +168,7 @@ public class UpdateToPrompt implements Externalizable {
         ExtUtil.writeString(out, updateType.name());
         ExtUtil.writeBool(out, isForced);
         ExtUtil.writeNumeric(out, numTimesSeen);
-        ExtUtil.write(out, showHistory);
+        ExtUtil.write(out, new ExtWrapList(showHistory.getHistory()));
     }
 
     public int getCczVersion() {
