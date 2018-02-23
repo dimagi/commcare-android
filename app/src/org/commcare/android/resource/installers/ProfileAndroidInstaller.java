@@ -106,14 +106,14 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     private void checkAppTarget(Profile p) throws UnfullfilledRequirementsException {
         SharedPreferences prefs = CommCareApp.currentSandbox.getAppPreferences();
-        if(prefs.contains(KEY_TARGET_PACKAGE_ID)){
+        if (prefs.contains(KEY_TARGET_PACKAGE_ID)) {
             String targetPackage = prefs.getString(KEY_TARGET_PACKAGE_ID, "");
-            if(!StringUtils.isEmpty(targetPackage)){
+            if (!StringUtils.isEmpty(targetPackage)) {
                 String myAppPackage = CommCareApplication.instance().getPackageName();
-                if(!myAppPackage.contentEquals(targetPackage)){
+                if (!myAppPackage.contentEquals(targetPackage)) {
                     throw new UnfullfilledRequirementsException(
                             "Your app doesn't match with this commcare flavour",
-                            CommCareElementParser.SEVERITY_PROMPT, true);
+                            UnfullfilledRequirementsException.RequirementType.INCORRECT_TARGET_PACKAGE);
                 }
             }
         }
@@ -128,7 +128,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             if (record.getUniqueId().equals(newAppId)) {
                 throw new UnfullfilledRequirementsException(
                         "The app you are trying to install already exists on this device",
-                        CommCareElementParser.SEVERITY_PROMPT, true);
+                        UnfullfilledRequirementsException.RequirementType.DUPLICATE_APP);
             }
         }
     }
