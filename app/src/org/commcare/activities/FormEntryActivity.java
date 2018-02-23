@@ -78,7 +78,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.javarosa.xpath.expr.InFormCacheableExpr;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -192,7 +191,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 throw new SessionUnavailableException(
                         "Resuming form entry after process was killed. Form state is unrecoverable.");
             }
-            InFormCacheableExpr.enableCaching(mFormController.getInstance(), false);
             uiController.refreshView();
         }
     }
@@ -1057,9 +1055,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 mSaveToDiskTask.cancel(false);
             }
         }
-
-        // As soon as we leave form entry, we don't want to do be doing caching anymore
-        InFormCacheableExpr.disableCaching();
 
         super.onDestroy();
     }
