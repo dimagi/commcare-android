@@ -66,7 +66,7 @@ import java.util.List;
  * Responsible for identifying the state of the application (uninstalled,
  * installed) and performing any necessary setup to get to a place where
  * CommCare can load normally.
- * <p>
+ *
  * If the startup activity identifies that the app is installed properly it
  * should not ever require interaction or be visible to the user.
  *
@@ -216,7 +216,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void loadStateFromInstance(Bundle savedInstanceState) {
-        uiState = (UiState) savedInstanceState.getSerializable(KEY_UI_STATE);
+        uiState = (UiState)savedInstanceState.getSerializable(KEY_UI_STATE);
         incomingRef = savedInstanceState.getString("profileref");
         fromExternal = savedInstanceState.getBoolean(KEY_FROM_EXTERNAL);
         fromManager = savedInstanceState.getBoolean(KEY_FROM_MANAGER);
@@ -232,7 +232,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void persistCommCareAppState() {
         FragmentManager fm = this.getSupportFragmentManager();
 
-        containerFragment = (ContainerFragment<CommCareApp>) fm.findFragmentByTag("cc-app");
+        containerFragment = (ContainerFragment<CommCareApp>)fm.findFragmentByTag("cc-app");
 
         if (containerFragment == null) {
             containerFragment = new ContainerFragment<>();
@@ -934,7 +934,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             uiStateScreenTransition();
         } else {
             InstallPermissionsFragment permFragment =
-                    (InstallPermissionsFragment) getSupportFragmentManager().findFragmentById(R.id.setup_fragment_container);
+                    (InstallPermissionsFragment)getSupportFragmentManager().findFragmentById(R.id.setup_fragment_container);
             permFragment.updateDeniedState();
         }
     }
@@ -963,7 +963,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             // Check for managed configuration
             RestrictionsManager restrictionsManager =
-                    (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
+                    (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
             if (appRestrictions != null && appRestrictions.containsKey("profileUrl")) {
                 Log.d(TAG, "Found managed configuration install URL "

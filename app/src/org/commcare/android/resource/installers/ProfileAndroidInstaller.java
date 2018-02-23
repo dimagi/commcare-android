@@ -8,18 +8,15 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
-import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
-import org.commcare.xml.CommCareElementParser;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -91,8 +88,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                 checkDuplicate(p);
             }
 
-            checkAppTarget(p);
-
+            checkAppTarget();
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
             return true;
         } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
@@ -104,7 +100,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
-    private void checkAppTarget(Profile p) throws UnfullfilledRequirementsException {
+    private void checkAppTarget() throws UnfullfilledRequirementsException {
         SharedPreferences prefs = CommCareApp.currentSandbox.getAppPreferences();
         if (prefs.contains(KEY_TARGET_PACKAGE_ID)) {
             String targetPackage = prefs.getString(KEY_TARGET_PACKAGE_ID, "");
