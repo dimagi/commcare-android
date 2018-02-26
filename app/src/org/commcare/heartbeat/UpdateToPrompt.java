@@ -31,14 +31,14 @@ public class UpdateToPrompt implements Externalizable {
     private static final String KEY_APK_UPDATE_TO_PROMPT = "apk-update-to-prompt";
 
     private static final String KEY_NUM_VIEWS_BEFORE_REDUCING_FREQ = "num-views-before-reducing-frequency";
-    public static final int NUM_VIEWS_BEFORE_REDUCING_FREQ_DEFAULT_VALUE = 3;
+    public static final String NUM_VIEWS_BEFORE_REDUCING_FREQ_DEFAULT_VALUE = "3";
 
     // Both of these settings will be int values N that represent the directive: "Show a given
     // update prompt to the user once every N logins"
     private static final String KEY_REGULAR_SHOW_FREQ = "regular-show-frequency";
     private static final String KEY_REDUCED_SHOW_FREQ = "reduced-show-frequency";
-    private static final int REGULAR_SHOW_FREQ_DEFAULT_VALUE = 1;
-    public static final int REDUCED_SHOW_FREQ_DEFAULT_VALUE = 4;
+    private static final String REGULAR_SHOW_FREQ_DEFAULT_VALUE = "1";
+    public static final String REDUCED_SHOW_FREQ_DEFAULT_VALUE = "4";
 
     private String versionString;
     private int cczVersion;
@@ -213,21 +213,22 @@ public class UpdateToPrompt implements Externalizable {
     }
 
     private static boolean useRegularFrequency(int numTimesSeen) {
-        int viewsThresholdForRegularFrequency =
+        int viewsThresholdForRegularFrequency = Integer.parseInt(
                 CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                        .getInt(KEY_NUM_VIEWS_BEFORE_REDUCING_FREQ,
-                                NUM_VIEWS_BEFORE_REDUCING_FREQ_DEFAULT_VALUE);
+                        .getString(KEY_NUM_VIEWS_BEFORE_REDUCING_FREQ,
+                                NUM_VIEWS_BEFORE_REDUCING_FREQ_DEFAULT_VALUE)
+        );
         return numTimesSeen < viewsThresholdForRegularFrequency;
     }
 
     private static int getRegularShowFrequency() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getInt(KEY_REGULAR_SHOW_FREQ, REGULAR_SHOW_FREQ_DEFAULT_VALUE);
+        return Integer.parseInt(CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(KEY_REGULAR_SHOW_FREQ, REGULAR_SHOW_FREQ_DEFAULT_VALUE));
     }
 
     static int getReducedShowFrequency() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getInt(KEY_REDUCED_SHOW_FREQ, REDUCED_SHOW_FREQ_DEFAULT_VALUE);
+        return Integer.parseInt(CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(KEY_REDUCED_SHOW_FREQ, REDUCED_SHOW_FREQ_DEFAULT_VALUE));
     }
 
 }
