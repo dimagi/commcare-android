@@ -46,7 +46,7 @@ public class ImageCaptureProcessing {
 
         boolean savedScaledImage = false;
         if (shouldScale) {
-            ImageWidget currentWidget = (ImageWidget) formEntryActivity.getPendingWidget();
+            ImageWidget currentWidget = (ImageWidget)formEntryActivity.getPendingWidget();
             if (currentWidget != null) {
                 int maxDimen = currentWidget.getMaxDimen();
                 Log.d("shubham", "max dimen " + maxDimen);
@@ -61,13 +61,22 @@ public class ImageCaptureProcessing {
             // original image from the temp filepath to our final path
             File finalFile = new File(finalFilePath);
 
-            if (!originalImage.renameTo(finalFile)) {
-                throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
-                        " to " + finalFile.getAbsolutePath());
-            } else {
+            try {
+                FileUtil.copyFile(originalImage, finalFile);
                 deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
                 return finalFile;
+            } catch (IOException e) {
+                throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
+                        " to " + finalFile.getAbsolutePath());
             }
+
+//            if (!originalImage.renameTo(finalFile)) {
+//                throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
+//                        " to " + finalFile.getAbsolutePath());
+//            } else {
+//                deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
+//                return finalFile;
+//            }
         } else {
             // Otherwise, relocate the original image to a raw/ folder, so that we still have access
             // to the unmodified version
