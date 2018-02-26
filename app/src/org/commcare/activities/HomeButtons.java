@@ -24,7 +24,7 @@ import java.util.Vector;
  */
 public class HomeButtons {
     private final static String[] buttonNames =
-            new String[]{"start", "saved", "incomplete", "sync", "report", "logout"};
+            new String[]{"start", "saved", "incomplete", "sync", "report", "logout", "training"};
 
     public static HomeCardDisplayData[] buildButtonData(StandardHomeActivity activity,
                                                         Vector<String> buttonsToHide,
@@ -71,6 +71,9 @@ public class HomeButtons {
                         R.drawable.home_logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
                         getLogoutButtonListener(activity),
                         getLogoutButtonTextSetter(activity)),
+                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("training.root.title"), R.color.white,
+                        R.drawable.home_training, R.color.cc_dark_cool_accent_color,
+                        getTrainingButtonListener(activity)),
         };
 
         return getVisibleButtons(allButtons, buttonsToHide);
@@ -135,6 +138,15 @@ public class HomeButtons {
             @Override
             public void onClick(View v) {
                 activity.enterRootModule();
+            }
+        };
+    }
+
+    private static View.OnClickListener getTrainingButtonListener(final StandardHomeActivity activity) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                activity.enterTrainingModule();
             }
         };
     }

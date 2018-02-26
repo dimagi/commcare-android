@@ -35,6 +35,7 @@ public class HomeNavDrawerController {
     private static final String SYNC_DRAWER_ITEM_ID = "sync";
     private static final String SAVED_FORMS_ITEM_ID = "saved-forms";
     private static final String LOGOUT_DRAWER_ITEM_ID = "home-logout";
+    private static final String TRAINING_DRAWER_ITEM_ID = "training";
 
     protected static final String KEY_DRAWER_WAS_OPEN = "drawer-open-before-rotation";
 

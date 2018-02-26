@@ -967,6 +967,13 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         startActivity(i);
     }
 
+    void enterTrainingModule() {
+        Intent i = new Intent(this, MenuActivity.class);
+        addPendingDataExtra(i, CommCareApplication.instance().getCurrentSessionWrapper().getSession());
+        i.putExtra(SessionFrame.STATE_COMMAND_ID, org.commcare.suite.model.Menu.TRAINING_MENU_ROOT);
+        startActivityForResult(i, GET_COMMAND);
+    }
+
     // Launch an intent to load the confirmation screen for the current selection
     private void launchConfirmDetail(AndroidSessionWrapper asw) {
         CommCareSession session = asw.getSession();
