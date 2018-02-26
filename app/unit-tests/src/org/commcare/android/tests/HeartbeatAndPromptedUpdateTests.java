@@ -11,6 +11,7 @@ import org.commcare.android.util.TestAppInstaller;
 import org.commcare.heartbeat.ApkVersion;
 import org.commcare.heartbeat.TestHeartbeatRequester;
 import org.commcare.heartbeat.UpdatePromptHelper;
+import org.commcare.heartbeat.UpdatePromptShowHistory;
 import org.commcare.heartbeat.UpdateToPrompt;
 import org.junit.Before;
 import org.junit.Test;
@@ -164,6 +165,30 @@ public class HeartbeatAndPromptedUpdateTests {
                 System.out.println("Waiting for the test heartbeat response to be parsed");
             }
         }
+    }
+
+    @Test
+    public void testShowHistoryLogic() {
+        requestAndParseHeartbeat(
+                new String[]{RESPONSE_CorrectApp_CczUpdateNeeded});
+        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
+        Assert.assertNotNull(cczUpdate);
+
+        for (int i = 0; i < UpdateToPrompt.NUM_VIEWS_BEFORE_REDUCING_FREQ_DEFAULT_VALUE; i++) {
+            Assert.assertTrue(cczUpdate.shouldShowOnThisLogin());
+            cczUpdate.incrementTimesSeen();
+        }
+
+        for (int i = 0; i < UpdateToPrompt.REDUCED_SHOW_FREQ_DEFAULT_VALUE-1; i++) {
+            Assert.assertFalse(cczUpdate.shouldShowOnThisLogin());
+            cczUpdate.incrementTimesSeen();
+        }
+        Assert.assertTrue(cczUpdate.shouldShowOnThisLogin());
+        for (int i = 0; i < UpdateToPrompt.REDUCED_SHOW_FREQ_DEFAULT_VALUE-1; i++) {
+            Assert.assertFalse(cczUpdate.shouldShowOnThisLogin());
+            cczUpdate.incrementTimesSeen();
+        }
+        Assert.assertTrue(cczUpdate.shouldShowOnThisLogin());
     }
 
 }
