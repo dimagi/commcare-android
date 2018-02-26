@@ -13,4 +13,5 @@
     <dimen name="row_padding_horizontal">12sp</dimen>
 
     <dimen name="edit_text_question_widget_compact_width">120dp</dimen>
+    <dimen name="rectangle_button_height">92dp</dimen>
 </resources>

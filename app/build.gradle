@@ -23,6 +23,7 @@ repositories {
         dirs 'libs'
     }
     maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://jitpack.io" }
 }
 
 configurations {
@@ -58,7 +59,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-analytics:10.0.1'
     compile 'joda-time:joda-time:2.9.4'
     compile 'net.sf.kxml:kxml2:2.3.0'
-    compile 'net.zetetic:android-database-sqlcipher:3.5.4@aar'
+    compile 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
     compile 'org.apache.james:apache-mime4j:0.7.2'
     compile('org.apache.httpcomponents:httpmime:4.3.6') {
         exclude module: 'httpclient'
@@ -74,6 +75,7 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }
+    compile 'com.github.budsmile:bypass-android:1.0.5'
 }
 
 ext {

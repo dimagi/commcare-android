@@ -21,6 +21,7 @@ import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.CrashUtil;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
@@ -249,7 +250,7 @@ public class InstanceRecord extends Persisted {
 
             // Notify the server of this problem (since we aren't going to crash)
             ForceCloseLogger.reportExceptionInBg(e);
-
+            CrashUtil.reportException(e);
             raiseFormEntryError("An error occurred: " + e.getMessage() +
                     " and your data could not be saved.", currentState);
             return;
