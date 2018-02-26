@@ -9,6 +9,7 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.cases.util.StringUtils;
 import org.commcare.modern.util.Pair;
+import org.commcare.util.EntityProvider;
 import org.commcare.util.EntitySortUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.instance.TreeReference;
@@ -96,9 +97,9 @@ public class EntityStringFilterer extends EntityFiltererBase {
                     isFuzzySearchEnabled,
                     matchScores,
                     matchList,
-                    new EntitySortUtil.EntitySortCallbackListener() {
+                    new EntityProvider() {
                         @Override
-                        protected Entity<TreeReference> getEntity(int index) {
+                        public Entity<TreeReference> getEntity(int index) {
                             return getEntityAtIndex(db, index);
                         }
                     });
