@@ -6,7 +6,7 @@ dialog.ok=OK
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
 updates.success=App is up to date
 updates.check.begin=Checking for updates...
-updates.check.failed=Failed to download updates. See notification for details.
+updates.check.failed=Failed to download updates due to an error
 updates.check.start=Recheck
 updates.check.cancel=Stop checking
 updates.check.cancelling=Cancelling check for updates
@@ -92,6 +92,8 @@ menu.print.detail=Print Case Detail
 menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 
+install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact technical support.
+
 sync.success.sent.none=No forms sent to server!
 sync.success.sent.singular=1 form sent to server!
 sync.success.sent=${0} forms sent to server!
@@ -135,6 +137,7 @@ form.entry.incomplete.save.success=Form saved as incomplete
 form.entry.save.error=Sorry, form save failed. Please contact technical support to look into the issue.
 form.entry.save.invalid.unicode=Could not save '${0}' text in form.
 form.entry.finish.button=FINISH
+form.entry.restart.after.expiration=You were logged out due to session expiration. The form you were in the middle of has been saved and resumed.
 
 login.attempt.badcred=Username or password are incorrect. Please try again.
 
@@ -214,7 +217,7 @@ app.storage.missing.button=Shutdown CommCare
 cchq.case=Case
 select.placeholder.message=Please select a ${0}
 notification.for.details.wrapper=${0} (See notification for details)
-notification.for.details.setup.wrapper=${0} (Press "See More" or see notification for details)
+error.button.text=See Error Details
 
 session.refresh.error.title=Session Refresh Required
 session.refresh.error.message=Something happened that required us to refresh your session of CommCare. You should now be able to return to your prior place in the app as normal. If this happens again, contact a supervisor for assistance.

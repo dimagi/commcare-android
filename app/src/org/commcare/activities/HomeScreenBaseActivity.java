@@ -247,7 +247,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             AndroidSessionWrapper state = CommCareApplication.instance().getCurrentSessionWrapper();
             state.loadFromStateDescription(existing);
             formEntry(CommCareApplication.instance().getCommCarePlatform()
-                    .getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+                    .getFormContentUri(state.getSession().getForm()), state.getFormRecord(),
+                    null, true);
             return true;
         }
         return false;
@@ -686,7 +687,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // Viewing an old form, so don't change the historical record
             // regardless of the exit code
             currentState.reset();
-            if (wasExternal) {
+            if (wasExternal ||
+                    intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
                 setResult(RESULT_CANCELED);
                 this.finish();
             } else {
@@ -783,7 +785,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 setResult(RESULT_CANCELED);
                 this.finish();
                 return false;
-            } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
+            } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE) &&
+                    !intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
                 currentState.reset();
                 // We should head back to the incomplete forms screen
                 goToFormArchive(true, current);
@@ -802,7 +805,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
         currentState.reset();
         if (wasExternal) {
-            setResult(RESULT_CANCELED);
+            if (shouldWarnUser) {
+                setResult(RESULT_CANCELED);
+            } else {
+                setResult(RESULT_OK);
+            }
             this.finish();
         }
         refreshUI();
@@ -1029,14 +1036,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         FormRecord record = state.getFormRecord();
         AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
         formEntry(platform.getFormContentUri(record.getFormNamespace()), record,
-                CommCareActivity.getTitle(this, null));
+                CommCareActivity.getTitle(this, null), false);
     }
 
     private void formEntry(Uri formUri, FormRecord r) {
-        formEntry(formUri, r, null);
+        formEntry(formUri, r, null, false);
     }
 
-    private void formEntry(Uri formUri, FormRecord r, String headerTitle) {
+    private void formEntry(Uri formUri, FormRecord r, String headerTitle,
+                           boolean isRestartAfterSessionExpiration) {
         Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
 
         //TODO: This is... just terrible. Specify where external instance data should come from
@@ -1063,6 +1071,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         i.putExtra(FormEntryActivity.KEY_FORM_CONTENT_URI, FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
         i.putExtra(FormEntryActivity.KEY_INSTANCE_CONTENT_URI, InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
         i.putExtra(FormEntrySessionWrapper.KEY_RECORD_FORM_ENTRY_SESSION, DeveloperPreferences.isSessionSavingEnabled());
+        i.putExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, isRestartAfterSessionExpiration);
         if (headerTitle != null) {
             i.putExtra(FormEntryActivity.KEY_HEADER_STRING, headerTitle);
         }

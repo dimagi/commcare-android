@@ -3,7 +3,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="org.commcare.dalvik"
           android:versionCode="106"
-          android:versionName="2.42">
+          android:versionName="2.43">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -143,7 +143,7 @@
         </activity>
         <activity android:name="org.commcare.activities.DotsEntryActivity">
             <intent-filter>
-                <action android:name="${applicationId}.action.DotsEntry"/>
+                <action android:name="org.commcare.dalvik.action.DotsEntry"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
@@ -310,7 +310,7 @@
             android:name="org.commcare.activities.KeyAccessRequestActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="${applicationId}.action.CommCareKeyAccessRequest"/>
+                <action android:name="org.commcare.dalvik.action.CommCareKeyAccessRequest"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -329,7 +329,7 @@
 
         <receiver android:name="org.commcare.provider.ExternalApiReceiver">
             <intent-filter>
-                <action android:name="${applicationId}.api.action.ExternalAction"/>
+                <action android:name="org.commcare.dalvik.api.action.ExternalAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
@@ -339,34 +339,34 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="${applicationId}.api.action.RefreshToLatestBuildAction"/>
+                <action android:name="org.commcare.dalvik.api.action.RefreshToLatestBuildAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
 
         <receiver android:name="org.commcare.provider.DebugControlsReceiver">
             <intent-filter>
-                <action android:name="${applicationId}.api.action.SessionCaptureAction"/>
+                <action android:name="org.commcare.dalvik.api.action.SessionCaptureAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="${applicationId}.api.action.UninstallApp"/>
+                <action android:name="org.commcare.dalvik.api.action.UninstallApp"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="${applicationId}.api.action.LoginWithCreds"/>
+                <action android:name="org.commcare.dalvik.api.action.LoginWithCreds"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="${applicationId}.api.action.TriggerSyncRecover"/>
+                <action android:name="org.commcare.dalvik.api.action.TriggerSyncRecover"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="${applicationId}.api.action.ClearCacheOnRestore"/>
+                <action android:name="org.commcare.dalvik.api.action.ClearCacheOnRestore"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="${applicationId}.api.action.ExpireUserKeyRecord"/>
+                <action android:name="org.commcare.dalvik.api.action.ExpireUserKeyRecord"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
@@ -395,7 +395,7 @@
             android:name="org.commcare.print.TemplatePrinterActivity"
             android:theme="@style/Theme.Dialog.NoTitle">
             <intent-filter>
-                <action android:name="${applicationId}.action.PRINT"/>
+                <action android:name="org.commcare.dalvik.action.PRINT"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>

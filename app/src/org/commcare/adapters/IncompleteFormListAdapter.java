@@ -23,7 +23,6 @@ import org.commcare.views.IncompleteFormRecordView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -166,23 +165,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
                     new Object[]{status, currentAppId}));
         }
 
-        // Sort FormRecords by modification time, most recent first.
-        Collections.sort(records, new Comparator<FormRecord>() {
-            @Override
-            public int compare(FormRecord left, FormRecord right) {
-                long leftModTime = left.lastModified().getTime();
-                long rightModTime = right.lastModified().getTime();
-
-                if (leftModTime > rightModTime) {
-                    return -1;
-                } else if (leftModTime == rightModTime) {
-                    return 0;
-                } else {
-                    return 1;
-                }
-            }
-        });
-
+        sortRecordsInReverseChronological();
         searchCache.clear();
         current.clear();
         notifyDataSetChanged();
@@ -191,6 +174,45 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         // record title, form name, modified date
         loader.init(searchCache, names);
         loader.executeParallel(records.toArray(new FormRecord[records.size()]));
+    }
+
+    private void sortRecordsInReverseChronological() {
+        if (filter.equals(FormRecordFilter.Submitted) || filter.equals(FormRecordFilter.Pending) ||
+                filter.equals(FormRecordFilter.SubmittedAndPending)) {
+            sortBySubmissionOrderingNumber();
+        } else {
+            sortByModificationTime();
+        }
+    }
+
+    private void sortBySubmissionOrderingNumber() {
+        Collections.sort(records, (left, right) -> {
+            int leftOrdering = left.getSubmissionOrderingNumber();
+            long rightOrdering = right.getSubmissionOrderingNumber();
+
+            if (leftOrdering > rightOrdering) {
+                return -1;
+            } else if (leftOrdering == rightOrdering) {
+                return 0;
+            } else {
+                return 1;
+            }
+        });
+    }
+
+    private void sortByModificationTime() {
+        Collections.sort(records, (left, right) -> {
+            long leftModTime = left.lastModified().getTime();
+            long rightModTime = right.lastModified().getTime();
+
+            if (leftModTime > rightModTime) {
+                return -1;
+            } else if (leftModTime == rightModTime) {
+                return 0;
+            } else {
+                return 1;
+            }
+        });
     }
 
     public int findRecordPosition(int formRecordId) {

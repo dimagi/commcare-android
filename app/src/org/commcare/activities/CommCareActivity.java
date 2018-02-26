@@ -238,7 +238,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                this.onBackPressed();
+                if(!isFinishing()) {
+                    this.onBackPressed();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
