@@ -66,14 +66,14 @@ public class HomeButtons {
                 HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.report"), R.color.white,
                         R.drawable.home_report, R.color.cc_attention_negative_color,
                         getReportButtonListener(activity)),
+                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("training.root.title"), R.color.white,
+                        R.drawable.home_training, R.color.cc_dark_cool_accent_color,
+                        getTrainingButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(logoutMessageKey), R.color.white,
                         R.color.white,
                         R.drawable.home_logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
                         getLogoutButtonListener(activity),
                         getLogoutButtonTextSetter(activity)),
-                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("training.root.title"), R.color.white,
-                        R.drawable.home_training, R.color.cc_dark_cool_accent_color,
-                        getTrainingButtonListener(activity)),
         };
 
         return getVisibleButtons(allButtons, buttonsToHide);
