@@ -63,20 +63,13 @@ public class ImageCaptureProcessing {
 
             try {
                 FileUtil.copyFile(originalImage, finalFile);
-                deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
-                return finalFile;
-            } catch (IOException e) {
+                originalImage.delete();
+            } catch (Exception e) {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + finalFile.getAbsolutePath());
             }
-
-//            if (!originalImage.renameTo(finalFile)) {
-//                throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
-//                        " to " + finalFile.getAbsolutePath());
-//            } else {
-//                deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
-//                return finalFile;
-//            }
+            deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
+            return finalFile;
         } else {
             // Otherwise, relocate the original image to a raw/ folder, so that we still have access
             // to the unmodified version
@@ -86,13 +79,15 @@ public class ImageCaptureProcessing {
                 rawDir.mkdir();
             }
             File rawImageFile = new File(rawDirPath + "/" + imageFilename);
-            if (!originalImage.renameTo(rawImageFile)) {
+            try {
+                FileUtil.copyFile(originalImage, rawImageFile);
+                originalImage.delete();
+            } catch (Exception e) {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + rawImageFile.getAbsolutePath());
-            } else {
-                deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
-                return rawImageFile;
             }
+            deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
+            return rawImageFile;
         }
     }
 
