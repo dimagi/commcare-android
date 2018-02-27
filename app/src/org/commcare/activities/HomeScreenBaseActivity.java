@@ -968,10 +968,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     void enterTrainingModule() {
-        Intent i = new Intent(this, MenuActivity.class);
-        addPendingDataExtra(i, CommCareApplication.instance().getCurrentSessionWrapper().getSession());
-        i.putExtra(SessionFrame.STATE_COMMAND_ID, org.commcare.suite.model.Menu.TRAINING_MENU_ROOT);
-        startActivityForResult(i, GET_COMMAND);
+        CommCareApplication.instance().getCurrentSession().setCommand(org.commcare.suite.model.Menu.TRAINING_MENU_ROOT);
+        startNextSessionStepSafe();
     }
 
     // Launch an intent to load the confirmation screen for the current selection
