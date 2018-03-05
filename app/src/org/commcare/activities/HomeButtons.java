@@ -24,7 +24,7 @@ import java.util.Vector;
  */
 public class HomeButtons {
     private final static String[] buttonNames =
-            new String[]{"start", "saved", "incomplete", "sync", "report", "logout", "training"};
+            new String[]{"start", "saved", "incomplete", "sync", "report", "training", "logout"};
 
     public static HomeCardDisplayData[] buildButtonData(StandardHomeActivity activity,
                                                         Vector<String> buttonsToHide,
