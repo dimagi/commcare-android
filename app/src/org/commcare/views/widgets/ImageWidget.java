@@ -133,8 +133,8 @@ public class ImageWidget extends QuestionWidget {
             @Override
             public void onClick(View v) {
                 if (ImageCaptureProcessing.getCustomImagePath() != null) {
-                    // This block is only for Calabash test purpose
-                    // Process the custom file path set from calabash broadcast
+                    // This block is only in use for a Calabash test and
+                    // processes the custom file path set from a broadcast triggered by calabash test
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                     ImageCaptureProcessing.processImageFromBroadcast((FormEntryActivity)getContext(), FormEntryInstanceState.getInstanceFolder());
                     ImageCaptureProcessing.setCustomImagePath(null);
