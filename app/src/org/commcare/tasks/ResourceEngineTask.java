@@ -221,11 +221,11 @@ public abstract class ResourceEngineTask<R>
         return invalidResourceException;
     }
 
-    public String getversionAvailable() {
+    public String getVersionAvailable() {
         return versionAvailable;
     }
 
-    public String getversionRequired() {
+    public String getVersionRequired() {
         return versionRequired;
     }
 
