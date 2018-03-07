@@ -4,7 +4,6 @@ import android.os.SystemClock;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.android.resource.installers.ProfileAndroidInstaller;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
@@ -17,7 +16,6 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
-import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
@@ -41,15 +39,14 @@ public abstract class ResourceEngineTask<R>
 
     private UnresolvedResourceException missingResourceException = null;
     private InvalidResourceException invalidResourceException = null;
-    private int badReqCode = -1;
     private int phase = -1;
     // This boolean is set from CommCareSetupActivity -- If we are in keep
     // trying mode for installation, we want to sleep in between attempts to
     // launch this task
     private final boolean shouldSleep;
 
-    private String vAvailable;
-    private String vRequired;
+    private String versionAvailable;
+    private String versionRequired;
     private boolean majorIsProblem;
 
     private final Object statusLock = new Object();
@@ -102,10 +99,9 @@ public abstract class ResourceEngineTask<R>
                             return AppInstallStatus.IncorrectTargetPackage;
                     }
                 } else {
-                    badReqCode = e.getRequirementCode();
-                    vAvailable = e.getAvailableVesionString();
-                    vRequired = e.getRequiredVersionString();
-                    majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
+                    versionAvailable = e.getAvailableVesionString();
+                    versionRequired = e.getRequiredVersionString();
+                    majorIsProblem = e.getRequirementType() == UnfullfilledRequirementsException.RequirementType.DUPLICATE_APP;
 
                     ResourceInstallUtils.logInstallError(e,
                             "App resources are incompatible with this device|");
@@ -225,16 +221,12 @@ public abstract class ResourceEngineTask<R>
         return invalidResourceException;
     }
 
-    public String getvAvailable() {
-        return vAvailable;
+    public String getversionAvailable() {
+        return versionAvailable;
     }
 
-    public String getvRequired() {
-        return vRequired;
-    }
-
-    public int getBadReqCode() {
-        return badReqCode;
+    public String getversionRequired() {
+        return versionRequired;
     }
 
     public boolean isMajorIsProblem() {

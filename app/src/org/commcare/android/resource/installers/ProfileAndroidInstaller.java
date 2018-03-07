@@ -86,9 +86,9 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             if (!upgrade) {
                 initProperties(p);
                 checkDuplicate(p);
+                checkAppTarget();
             }
 
-            checkAppTarget();
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
             return true;
         } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
@@ -107,8 +107,11 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             if (!StringUtils.isEmpty(targetPackage)) {
                 String myAppPackage = CommCareApplication.instance().getPackageName();
                 if (!myAppPackage.contentEquals(targetPackage)) {
+                    String error = "This app requires " +
+                            (targetPackage.contentEquals("org.commcare.lts") ? "Regular Commcare (Non LTS) " : " Commcare LTS") +
+                            " to be installed";
                     throw new UnfullfilledRequirementsException(
-                            "Your app doesn't match with this commcare flavour",
+                            error,
                             UnfullfilledRequirementsException.RequirementType.INCORRECT_TARGET_PACKAGE);
                 }
             }

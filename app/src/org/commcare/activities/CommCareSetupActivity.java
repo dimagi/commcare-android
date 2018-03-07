@@ -505,8 +505,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 receiver.failInvalidResource(resourceEngineTask.getInvalidResourceException(), result);
                 break;
             case IncompatibleReqs:
-                receiver.failBadReqs(resourceEngineTask.getBadReqCode(), resourceEngineTask.getvRequired(),
-                        resourceEngineTask.getvAvailable(), resourceEngineTask.isMajorIsProblem());
+                receiver.failBadReqs(resourceEngineTask.getversionRequired(),
+                        resourceEngineTask.getversionAvailable(), resourceEngineTask.isMajorIsProblem());
                 break;
             case NoLocalStorage:
                 receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
@@ -748,7 +748,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
+    public void failBadReqs(String vRequired, String vAvailable, boolean majorIsProblem) {
         String versionMismatch = Localization.get("install.version.mismatch", new String[]{vRequired, vAvailable});
 
         String error;
