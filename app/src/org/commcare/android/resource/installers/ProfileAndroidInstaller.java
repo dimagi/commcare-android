@@ -108,7 +108,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                 String myAppPackage = CommCareApplication.instance().getPackageName();
                 if (!myAppPackage.contentEquals(targetPackage)) {
                     String error = "This app requires " +
-                            (targetPackage.contentEquals("org.commcare.lts") ? "Regular Commcare (Non LTS) " : " Commcare LTS") +
+                            (targetPackage.contentEquals("org.commcare.lts") ? "Commcare LTS" : "Regular Commcare (Non LTS)") +
                             " to be installed";
                     throw new UnfullfilledRequirementsException(
                             error,
