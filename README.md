@@ -92,6 +92,23 @@ Create a new Android Studio JUnit Build configuration using the following steps.
 - Select the "commcare android test suite" under the configuration drop down to the left of the green play button.
 - Press the green play button to run the tests.
 
+### Code Style Settings
+
+In order to comply with code style guidelines we follow, please use [Commcare Coding Style file](https://github.com/dimagi/commcare-android/blob/master/.android_studio_settings/codestyles/CommCare%20Coding%20Style.xml) and [Commcare Inspection Profile](https://github.com/dimagi/commcare-android/blob/master/.android_studio_settings/inspection/CommCare%20Inpsection%20Profile.xml) as your respective code style and inpection profile in Android Studio. To do so follow these instructions 
+
+1. Copy the config files to your Android Studio installation as follows (Replace AndroidStudio3.0 with the respective directory for the AS version you are using) - 
+
+```
+cp .android_studio_settings/inspection/CommCare\ Inpsection\ Profile.xml ~/Library/Preferences/AndroidStudio3.0/inspection/.
+
+cp .android_studio_settings/codestyles/CommCare\ Coding\ Style.xml ~/Library/Preferences/AndroidStudio3.0/codestyles/.  
+
+```
+
+2.  Restart Android Studio
+
+3.  Go to AS preferences -> Editor -> Code Style  and select Scheme as 'Commcare Coding Style' and to AS preferences -> Editor -> Inspections and select Profile as 'Commcare Inspection Profile'
+
 ### Common Errors
 
 #### If you experience the following exception when running the tests:
