@@ -213,21 +213,22 @@ public class UpdateToPrompt implements Externalizable {
     }
 
     private static boolean useRegularFrequency(int numTimesSeen) {
-        int viewsThresholdForRegularFrequency =
+        int viewsThresholdForRegularFrequency = Integer.parseInt(
                 CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                        .getInt(KEY_NUM_VIEWS_BEFORE_REDUCING_FREQ,
-                                NUM_VIEWS_BEFORE_REDUCING_FREQ_DEFAULT_VALUE);
+                        .getString(KEY_NUM_VIEWS_BEFORE_REDUCING_FREQ,
+                                ""+NUM_VIEWS_BEFORE_REDUCING_FREQ_DEFAULT_VALUE)
+        );
         return numTimesSeen < viewsThresholdForRegularFrequency;
     }
 
     private static int getRegularShowFrequency() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getInt(KEY_REGULAR_SHOW_FREQ, REGULAR_SHOW_FREQ_DEFAULT_VALUE);
+        return Integer.parseInt(CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(KEY_REGULAR_SHOW_FREQ, ""+REGULAR_SHOW_FREQ_DEFAULT_VALUE));
     }
 
     static int getReducedShowFrequency() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getInt(KEY_REDUCED_SHOW_FREQ, REDUCED_SHOW_FREQ_DEFAULT_VALUE);
+        return Integer.parseInt(CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(KEY_REDUCED_SHOW_FREQ, ""+REDUCED_SHOW_FREQ_DEFAULT_VALUE));
     }
 
 }
