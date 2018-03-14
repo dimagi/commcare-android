@@ -28,6 +28,9 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTraceSerializer;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -62,6 +65,8 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     private final SecretKeySpec mSymetricKey;
     private final boolean mReadOnly;
     private final boolean recordEntrySession;
+
+    private final boolean profilingEnabled = true;
 
     private final R activity;
 
@@ -204,6 +209,12 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             importData(FormEntryInstanceState.mInstancePath, fec);
         }
 
+        ReducingTraceReporter reporter = null;
+        if (profilingEnabled) {
+            reporter = new ReducingTraceReporter();
+            formDef.getEvaluationContext().setDebugModeOn(reporter);
+        }
+
         try {
             formDef.initialize(isNewFormInstance, iif, getSystemLocale(), mReadOnly);
         } catch (XPathException e) {
@@ -213,9 +224,13 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             throw new UserCausedRuntimeException(e.getMessage(), e);
         }
 
+        InstrumentationUtils.printAndClearTraces(reporter, "itemset expansion",
+                EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
+
         if (mReadOnly) {
             formDef.getInstance().getRoot().setEnabled(false);
         }
+
         return fec;
     }
 
