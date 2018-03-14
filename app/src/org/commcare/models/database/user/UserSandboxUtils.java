@@ -4,9 +4,9 @@ import android.content.Context;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.DeviceReportRecord;
@@ -18,7 +18,8 @@ import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.NoSuchElementException;
+
+import static org.commcare.utils.FileUtil.deleteFileOrDir;
 
 /**
  * @author ctsims
@@ -106,29 +107,18 @@ public class UserSandboxUtils {
     }
 
     /**
-     * Form records are sadly a bit more complex. We need to both move all of the files,
-     * insert a new record, and then update the form record.
+     * Move all files and update the form record with the new file path.
      */
     private static void migrateFormRecords(SqlStorage<FormRecord> formRecords,
                                            UserKeyRecord newSandbox) throws IOException {
         for (FormRecord record : formRecords) {
-            int instanceId = record.getInstanceId();
-
-            //some records won't have a instanceId yet.
-            if (instanceId == -1) {
+            // Skip records with no files associated with them
+            if (StringUtils.isEmpty(record.getFilePath())) {
                 continue;
             }
 
-            //otherwise read and prepare the record
-            InstanceRecord oldInstanceRecord = null;
-            try {
-                oldInstanceRecord = InstanceRecord.getInstance(instanceId);
-            } catch (NoSuchElementException e) {
-                throw new IOException("No instance for Form Record with instance Id " + instanceId);
-            }
-
             //Copy over the other metadata
-            File oldForm = new File(oldInstanceRecord.getFilePath());
+            File oldForm = new File(record.getFilePath());
             File oldFolder = oldForm.getParentFile();
 
             //find a new spot for it and copy
@@ -142,11 +132,8 @@ public class UserSandboxUtils {
                 }
             }
 
-            //ok, new directory totally ready. Create a new instance entry
-            InstanceRecord newInstanceRecord = new InstanceRecord(oldInstanceRecord);
-            newInstanceRecord.setFilePath(newfileToWrite.getAbsolutePath());
-            newInstanceRecord.save(InstanceRecord.INSERTION_TYPE_SANDBOX_MIGRATED);
-            record = record.updateInstanceAndStatus(newInstanceRecord.getID(), record.getStatus());
+            //ok, new directory totally ready. Update the record filepath
+            record.setFilePath(newfileToWrite.getAbsolutePath());
             formRecords.write(record);
         }
     }
@@ -217,15 +204,13 @@ public class UserSandboxUtils {
 
             Logger.log(LogTypes.TYPE_MAINTENANCE, "Device Report files removed");
 
-            //Form records are sadly a bit more complex. We need to both move all of the files, 
-            //insert a new record in the content provider, and then update the form record.
+            // Delete Form Files
             SqlStorage<FormRecord> formRecords = new SqlStorage<>(FormRecord.STORAGE_KEY, FormRecord.class, dbh);
             for (FormRecord record : formRecords) {
-                int instanceId = record.getInstanceId();
-                if (instanceId == -1) {
-                    continue;
+                if (!StringUtils.isEmpty(record.getFilePath())) {
+                    String instanceDir = (new File(record.getFilePath())).getParent();
+                    deleteFileOrDir(instanceDir);
                 }
-                InstanceRecord.getInstance(instanceId).delete();
             }
 
         } finally {

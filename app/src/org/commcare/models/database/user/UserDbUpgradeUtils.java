@@ -1,11 +1,11 @@
 package org.commcare.models.database.user;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.ACase;
@@ -22,6 +22,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.modern.database.TableBuilder;
+import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
@@ -202,23 +203,24 @@ public class UserDbUpgradeUtils {
         // Transform old records to new add to newRecords
         Vector<FormRecord> newRecords = new Vector<>();
         for (FormRecordV4 oldRecord : oldStorage) {
-            String instanceUri = oldRecord.getInstanceURIString();
-            int instanceId;
-            if (StringUtils.isEmpty(instanceUri)) {
-                instanceId = -1;
-            } else {
-                instanceId = Integer.valueOf(Uri.parse(instanceUri).getLastPathSegment());
-            }
-
             FormRecord newRecord = new FormRecord(
-                    instanceId,
                     oldRecord.getStatus(),
                     oldRecord.getFormNamespace(),
                     oldRecord.getAesKey(),
                     oldRecord.getInstanceID(),
                     oldRecord.lastModified(),
                     oldRecord.getAppId());
-            newRecord.setID(oldRecord.getID());
+
+            // Merge Record's instance
+            String instanceUri = oldRecord.getInstanceURIString();
+            Cursor cursor = c.getContentResolver().query(Uri.parse(instanceUri), null, null, null, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                newRecord.setDisplayName(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.DISPLAY_NAME)));
+                newRecord.setFilePath(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH)));
+                newRecord.setCanEditWhenComplete(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.CAN_EDIT_WHEN_COMPLETE)));
+                cursor.close();
+            }
             newRecords.add(newRecord);
         }
 
@@ -232,6 +234,9 @@ public class UserDbUpgradeUtils {
         for (FormRecord newRecord : newRecords) {
             newStorage.write(newRecord);
         }
+
+        // delete all instance provider entries
+        c.getContentResolver().delete(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null);
     }
 
     private static SqlStorage getFormRecordStorage(Context c, SQLiteDatabase db, Class formRecordClass) {

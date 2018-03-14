@@ -5,7 +5,6 @@ import android.util.Log;
 import android.util.Pair;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -189,7 +188,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         Pair<FormRecord, String> recordUpdates = reparseRecord(context, oldRecord);
 
         FormRecord updated = recordUpdates.first;
-        updated = updated.updateInstanceAndStatus(updated.getInstanceId(), saveStatus);
+        updated = updated.updateStatus(saveStatus);
         String caseId = recordUpdates.second;
 
         if (caseId != null &&
@@ -251,7 +250,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             }
         };
 
-        String path = r.getPath();
+        String path = r.getFilePath();
         InputStream is = null;
         FileInputStream fis = new FileInputStream(path);
         try {
@@ -282,13 +281,11 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 
         // TODO: We should be committing all changes to form record models via the ASW objects,
         // not manually.
-        FormRecord parsed = new FormRecord(r.getInstanceId(),
-                r.getStatus(), r.getFormNamespace(), r.getAesKey(),
-                uuid[0], modified[0], r.getAppId());
-        parsed.setID(r.getID());
-
+        FormRecord parsed = new FormRecord(r);
+        parsed.setUuid(uuid[0]);
+        parsed.setLastModified(modified[0]);
         // Make sure that the instance is no longer editable
-        InstanceRecord.updateCanEditWhenComplete(r.getInstanceId(), Boolean.toString(false));
+        parsed.setCanEditWhenComplete( Boolean.toString(false));
         return new Pair<>(parsed, caseIDs[0]);
     }
 
@@ -348,7 +345,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         if (formRecordId != -1) {
             try {
                 FormRecord r = frStorage.read(formRecordId);
-                removeInstanceFile(r);
+                removeRecordFile(r);
 
                 // See if there is a hanging session ID for this
                 if (sessionId == -1) {
@@ -370,23 +367,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         }
     }
 
-    private static void removeInstanceFile(FormRecord record) {
-        String dataPath;
-        try {
-            dataPath = record.getPath();
-        } catch (FileNotFoundException e) {
-            // FormRecords won't have instance ids if the form was never started
-            return;
-        }
-
+    private static void removeRecordFile(FormRecord record) {
+        String dataPath = record.getFilePath();
         if (dataPath != null) {
-            InstanceRecord instanceRecord = InstanceRecord.getInstance(dataPath);
-            if (instanceRecord != null) {
-                instanceRecord.delete();
-            } else {
-                //No instance record for whatever reason, manually wipe files
-                FileUtil.deleteFileOrDir(dataPath);
-            }
+            FileUtil.deleteFileOrDir(dataPath);
         }
     }
 

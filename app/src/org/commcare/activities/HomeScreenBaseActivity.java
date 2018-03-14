@@ -13,11 +13,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
-import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -76,7 +76,6 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.NoSuchElementException;
 import java.util.Vector;
 
 /**
@@ -697,41 +696,17 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
 
         if (resultCode == RESULT_OK) {
-            // Determine if the form instance is complete
-            int resultInstanceId = -1;
-            if (intent != null) {
-                resultInstanceId = intent.getIntExtra(FormEntryActivity.KEY_INSTANCE_ID, -1);
-            }
-            if (resultInstanceId == -1) {
-                CommCareApplication.notificationManager().reportNotificationMessage(
-                        NotificationMessageFactory.message(
-                                NotificationMessageFactory.StockMessages.FormEntry_Unretrievable));
-                Toast.makeText(this,
-                        "Error while trying to read the form! See the notification",
-                        Toast.LENGTH_LONG).show();
-                Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
-                        "Form Entry did not return a form");
-                clearSessionAndExit(currentState, true);
-                return false;
-            }
-
-            String instanceStatus;
-            try {
-                instanceStatus = InstanceRecord.getInstance(resultInstanceId).getStatus();
-            } catch (NoSuchElementException e) {
-                throw new IllegalArgumentException("Empty query for instance record!");
-            }
-
-
+            String formRecordStatus = current.getStatus();
             // was the record marked complete?
-            boolean complete = InstanceRecord.STATUS_COMPLETE.equals(instanceStatus);
+            boolean complete = FormRecord.STATUS_COMPLETE.equals(formRecordStatus) || FormRecord.STATUS_UNSENT.equals(formRecordStatus);
 
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
                 // Now that we know this form is completed, we can give it the next available
                 // submission ordering number
                 current.setFormNumberForSubmissionOrdering(StorageUtils.getNextFormSubmissionNumber());
-                CommCareApplication.instance().getUserStorage(FormRecord.class).write(current);
+                SqlStorage<FormRecord> formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
+                formRecordStorage.write(current);
                 checkAndStartUnsentFormsTask(false, false);
                 refreshUI();
 
@@ -757,9 +732,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 // Otherwise, we want to keep proceeding in order
                 // to keep running the workflow
             } else {
-                // Form record is now stored.
-                // TODO: session state clearing might be something we want to do in InstanceProvider.bindToFormRecord.
-                clearSessionAndExit(currentState, false);
+                CommCareApplication.notificationManager().reportNotificationMessage(
+                        NotificationMessageFactory.message(
+                                NotificationMessageFactory.StockMessages.FormEntry_Unretrievable));
+                Toast.makeText(this,
+                        "Error while trying to read the form! See the notification",
+                        Toast.LENGTH_LONG).show();
+                Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
+                        "Form Entry did not return a form");
+                clearSessionAndExit(currentState, true);
                 return false;
             }
         } else if (resultCode == RESULT_CANCELED) {
@@ -1046,14 +1027,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         // Create our form entry activity callout
         Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
-        i.putExtra(FormEntryInstanceState.KEY_INSTANCEDESTINATION,
+        i.putExtra(FormEntryInstanceState.KEY_FORM_RECORD_DESTINATION,
                 CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
 
         // See if there's existing form data that we want to continue entering
-        // (note, this should be stored in the form record as a URI link to
-        // the instance provider in the future)
-        if (r.getInstanceId() != -1) {
-            i.putExtra(FormEntryActivity.KEY_INSTANCE_ID, r.getInstanceId());
+        if (!StringUtils.isEmpty(r.getFilePath())) {
+            i.putExtra(FormEntryActivity.KEY_FORM_RECORD_ID, r.getID());
         } else {
             i.putExtra(FormEntryActivity.KEY_FORM_DEF_ID, formDefId);
         }

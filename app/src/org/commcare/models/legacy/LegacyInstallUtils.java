@@ -10,10 +10,10 @@ import android.telephony.TelephonyManager;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.app.models.ResourceModelUpdater;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -41,7 +41,6 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -470,26 +469,16 @@ public class LegacyInstallUtils {
         Logger.log(LogTypes.TYPE_MAINTENANCE, "LegacyUser| Users copied. Copying form records");
 
         final Map<Integer, Integer> formRecordMapping = SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<>("FORMRECORDS", FormRecord.class, ldbh),
-                new SqlStorage<>("FORMRECORDS", FormRecord.class, newAndroidDbHelper), new CopyMapper<FormRecord>() {
-
-                    @Override
-                    public FormRecord transform(FormRecord t) {
-                        String formRecordPath;
-                        try {
-                            formRecordPath = t.getPath();
-                            String newPath = replaceOldRoot(formRecordPath, oldRoot, newFileSystemRoot);
-                            if (!newPath.equals(formRecordPath)) {
-                                InstanceRecord.updateFilePath(t.getInstanceId(), newPath);
-                            }
-                            return t;
-                        } catch (FileNotFoundException e) {
-                            //This means the form record doesn't
-                            //actually have a URI at all, so we
-                            //can skip this.
-                            return t;
+                new SqlStorage<>("FORMRECORDS", FormRecord.class, newAndroidDbHelper), t -> {
+                    String formRecordPath = t.getFilePath();
+                    if (!StringUtils.isEmpty(formRecordPath)) {
+                        formRecordPath = t.getFilePath();
+                        String newPath = replaceOldRoot(formRecordPath, oldRoot, newFileSystemRoot);
+                        if (!newPath.equals(formRecordPath)) {
+                            t.setFilePath(newPath);
                         }
                     }
-
+                    return t;
                 });
 
         Logger.log(LogTypes.TYPE_MAINTENANCE, "LegacyUser| Form records copied. Copying sessions.");

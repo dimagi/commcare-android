@@ -223,7 +223,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                     if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
                         File folder;
                         try {
-                            folder = new File(record.getPath()).getCanonicalFile().getParentFile();
+                            folder = new File(record.getFilePath()).getCanonicalFile().getParentFile();
                         } catch (IOException e) {
                             Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                                     "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));

@@ -9,7 +9,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.app.models.UserKeyRecordV1;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
@@ -23,7 +22,6 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.provider.FormsProviderAPI;
-import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -217,10 +215,9 @@ class AppDatabaseUpgrader {
         }
     }
 
-    // Migrate records form FormProvider and InstanceProvider to new FormDefRecord and InstanceRecord respectively
+    // Migrate records form FormProvider and InstanceProvider to new FormDefRecord and FormRecord respectively
     private boolean upgradeEightNine(SQLiteDatabase db) {
         db.beginTransaction();
-        android.database.Cursor cursor = null;
         try {
             upgradeXFormAndroidInstallerV1(db);
 
@@ -228,11 +225,6 @@ class AppDatabaseUpgrader {
             TableBuilder builder = new TableBuilder(FormDefRecord.class);
             db.execSQL(builder.getTableCreateString());
 
-            // Create Instance table
-            builder = new TableBuilder(InstanceRecord.class);
-            db.execSQL(builder.getTableCreateString());
-
-            migrateInstanceProvider(db);
             migrateFormProvier(db);
             db.setTransactionSuccessful();
             return true;
@@ -265,36 +257,11 @@ class AppDatabaseUpgrader {
         context.getContentResolver().delete(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null);
     }
 
-    // migrate InstanceProvider entries to db
-    private void migrateInstanceProvider(SQLiteDatabase db) {
-        Cursor cursor = null;
-        try {
-            cursor = context.getContentResolver().query(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null, null, null);
-            if (cursor != null && cursor.getCount() > 0) {
-                SqlStorage<InstanceRecord> instanceRecordStorage = new SqlStorage<>(
-                        InstanceRecord.STORAGE_KEY,
-                        InstanceRecord.class,
-                        new ConcreteAndroidDbHelper(context, db));
-                InstanceRecord.setinstanceRecordStorage(instanceRecordStorage);
-                while (cursor.moveToNext()) {
-                    InstanceRecord instanceRecord = new InstanceRecord(cursor);
-                    instanceRecord.save(InstanceRecord.INSERTION_TYPE_SANDBOX_MIGRATED);
-                }
-            }
-        } finally {
-            safeCloseCursor(cursor);
-        }
-
-        // Delete migrated entries
-        context.getContentResolver().delete(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null);
-    }
-
     private void safeCloseCursor(Cursor cursor) {
         if (cursor != null) {
             cursor.close();
         }
     }
-
 
     private void upgradeXFormAndroidInstallerV1(SQLiteDatabase db) {
         // Get Global Resource Storage using AndroidPrototypeFactoryV1

@@ -4,7 +4,6 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApp;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;

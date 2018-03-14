@@ -4,13 +4,12 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.XPathErrorLogger;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
@@ -46,10 +45,11 @@ public class SaveToDiskTask extends
     private FormSavedListener mSavedListener;
     private final Boolean exitAfterSave;
     private final Boolean mMarkCompleted;
-    private final int mInstanceId;
+    private final int mFormRecordId;
     private final int mFormDefId;
     // The name of the form we are saving
-    private final String mInstanceName;
+    private final String mRecordName;
+    private final String mFormRecordPath;
 
     private final SecretKeySpec symetricKey;
 
@@ -63,17 +63,18 @@ public class SaveToDiskTask extends
 
     public static final int SAVING_TASK_ID = 17;
 
-    public SaveToDiskTask(int instanceId, int formDefId, Boolean saveAndExit, Boolean markCompleted,
+    public SaveToDiskTask(int formRecordId, int formDefId, String formRecordPath, Boolean saveAndExit, Boolean markCompleted,
                           String updatedName,
                           SecretKeySpec symetricKey, boolean headless) {
         TAG = SaveToDiskTask.class.getSimpleName();
 
-        mInstanceId = instanceId;
+        mFormRecordId = formRecordId;
         mFormDefId = formDefId;
         exitAfterSave = saveAndExit;
         mMarkCompleted = markCompleted;
-        mInstanceName = updatedName;
+        mRecordName = updatedName;
         this.symetricKey = symetricKey;
+        mFormRecordPath = formRecordPath;
 
         if (headless) {
             this.taskId = -1;
@@ -106,7 +107,7 @@ public class SaveToDiskTask extends
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
-                    "Something is blocking acesss to the submission file in " + FormEntryInstanceState.mInstancePath);
+                    "Something is blocking acesss to the submission file in " + mFormRecordPath);
         } catch (XFormSerializer.UnsupportedUnicodeSurrogatesException e) {
             Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Form contains invalid data encoding\n\n" + ForceCloseLogger.getStackTrace(e));
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
@@ -114,7 +115,7 @@ public class SaveToDiskTask extends
         } catch (IOException e) {
             Logger.log(LogTypes.TYPE_ERROR_STORAGE, "I/O Error when serializing form\n\n" + ForceCloseLogger.getStackTrace(e));
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
-                    "Unable to write xml to " + FormEntryInstanceState.mInstancePath);
+                    "Unable to write xml to " + mFormRecordPath);
         } catch (FormInstanceTransactionException e) {
             e.printStackTrace();
             // Passing exceptions through content providers make error message strings messy.
@@ -138,60 +139,54 @@ public class SaveToDiskTask extends
     }
 
     /**
-     * Update or create a new entry in the form table for the
+     * Update form Record with necessary params
      */
-    private void updateInstanceDatabase(boolean incomplete, boolean canEditAfterCompleted)
+    private void updateFormRecord(SqlStorage<FormRecord> formRecordStorage, boolean incomplete, boolean canEditAfterCompleted)
             throws FormInstanceTransactionException {
 
-        String instanceStatus;
+        String status;
         if (incomplete || !mMarkCompleted) {
-            instanceStatus = InstanceRecord.STATUS_INCOMPLETE;
+            status = FormRecord.STATUS_INCOMPLETE;
         } else {
-            instanceStatus = InstanceRecord.STATUS_COMPLETE;
+            status = FormRecord.STATUS_COMPLETE;
         }
 
         // update this whether or not the status is complete.
         String canEditWhenComplete = Boolean.toString(canEditAfterCompleted);
 
         // Insert or update the form instance into the database.
-        if (mInstanceId != -1) {
+
+        if (mFormRecordId != -1) {
             // Started with a concrete instance (e.i. by editing an existing
             // form), so just update it.
             try {
-                InstanceRecord instanceRecord = InstanceRecord.getInstance(mInstanceId);
-                instanceRecord.updateStatus(instanceStatus, mInstanceName, canEditWhenComplete);
+                FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, mFormRecordId);
+                formRecord.updateStatus(formRecordStorage, status, mRecordName, canEditWhenComplete);
             } catch (IllegalStateException e) {
                 throw new FormInstanceTransactionException(e);
             }
         } else if (mFormDefId != -1) {
             // Started with an empty form or possibly a manually saved form.
             // Try updating, and create a new instance if that fails.
-            InstanceRecord instanceRecord = InstanceRecord.getInstance(FormEntryInstanceState.mInstancePath);
-            if (instanceRecord != null) {
-                instanceRecord.updateStatus(instanceStatus, mInstanceName, canEditWhenComplete);
-                Log.i(TAG, "Instance already exists, updating");
-            } else {
-                // Form instance didn't exist in the table, so create it.
-                Log.e(TAG, "No instance found, creating");
 
-                // grab the first entry in the form table for the instance
-                FormDefRecord formDefRecord = FormDefRecord.getFormDef(mFormDefId);
-
-                String instanceName = mInstanceName;
-                if (instanceName == null) {
-                    instanceName = formDefRecord.getDisplayname();
-                }
-
-                instanceRecord = new InstanceRecord(instanceName, FormEntryInstanceState.mInstancePath, instanceStatus, canEditWhenComplete,
-                        formDefRecord.getJrFormId(), formDefRecord.getSubmissionUri());
-                instanceRecord.save(InstanceRecord.INSERTION_TYPE_SESSION_LINKED);
+            FormDefRecord formDefRecord = FormDefRecord.getFormDef(mFormDefId);
+            String recordName = mRecordName;
+            if (recordName == null) {
+                recordName = formDefRecord.getDisplayname();
             }
+
+            FormRecord formRecord = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
+            formRecord.setFilePath(mFormRecordPath);
+            formRecord.setDisplayName(recordName);
+            formRecord.setCanEditWhenComplete(canEditWhenComplete);
+            formRecord.setStatus(status);
+            formRecord.update(formRecordStorage);
         }
     }
 
     /**
-     * Write's the data to the sdcard, and updates the instances content
-     * provider. In theory we don't have to write to disk, and this is where
+     * Write's the data to the sdcard,
+     * In theory we don't have to write to disk, and this is where
      * you'd add other methods.
      *
      * @throws IOException                      Issue serializing form and
@@ -210,10 +205,10 @@ public class SaveToDiskTask extends
         payload = (ByteArrayPayload)serializer.createSerializedPayload(datamodel);
 
         writeXmlToStream(payload,
-                EncryptionIO.createFileOutputStream(FormEntryInstanceState.mInstancePath, symetricKey));
+                EncryptionIO.createFileOutputStream(mFormRecordPath, symetricKey));
 
-        // update the mUri. We've saved the reloadable instance, so update status...
-        updateInstanceDatabase(true, true);
+        SqlStorage<FormRecord> formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
+        updateFormRecord(formRecordStorage, true, true);
 
         if (markCompleted) {
             // now see if it is to be finalized and perhaps update everything...
@@ -226,14 +221,14 @@ public class SaveToDiskTask extends
             // pay attention to the ref attribute of the submission profile...
             payload = FormEntryActivity.mFormController.getSubmissionXml();
 
-            File instanceXml = new File(FormEntryInstanceState.mInstancePath);
+            File instanceXml = new File(mFormRecordPath);
             File submissionXml = new File(instanceXml.getParentFile(), "submission.xml");
             // write out submission.xml -- the data to actually submit to aggregate
             writeXmlToStream(payload,
                     EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
 
             // see if the form is encrypted and we can encrypt it...
-            EncryptedFormInformation formInfo = EncryptionUtils.getEncryptedFormInformation(mInstanceId, mFormDefId, FormEntryActivity.mFormController.getSubmissionMetadata());
+            EncryptedFormInformation formInfo = EncryptionUtils.getEncryptedFormInformation(formRecordStorage, mFormRecordId, mFormDefId, FormEntryActivity.mFormController.getSubmissionMetadata());
             if (formInfo != null) {
                 // if we are encrypting, the form cannot be reopened afterward
                 canEditAfterCompleted = false;
@@ -251,10 +246,10 @@ public class SaveToDiskTask extends
             // 3. all the encrypted attachments if encrypting (isEncrypted = true).
             //
             // NEXT:
-            // 1. Update the instance database (with status complete).
+            // 1. Update the form record database (with status complete).
             // 2. Overwrite the instanceXml with the submission.xml 
             //    and remove the plaintext attachments if encrypting
-            updateInstanceDatabase(false, canEditAfterCompleted);
+            updateFormRecord(formRecordStorage, false, canEditAfterCompleted);
 
             if (!canEditAfterCompleted) {
                 // AT THIS POINT, there is no going back.  We are committed

@@ -61,18 +61,20 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
     private final boolean recordEntrySession;
 
     private final R activity;
+    private final String formRecordPath;
 
     private FECWrapper data;
 
     public static final int FORM_LOADER_TASK_ID = 16;
 
     public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly,
-                          boolean recordEntrySession, R activity) {
+                          boolean recordEntrySession, String formRecordPath, R activity) {
         this.mSymetricKey = symetricKey;
         this.mReadOnly = readOnly;
         this.activity = activity;
         this.taskId = FORM_LOADER_TASK_ID;
         this.recordEntrySession = recordEntrySession;
+        this.formRecordPath = formRecordPath;
         TAG = FormLoaderTask.class.getSimpleName();
     }
 
@@ -173,10 +175,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
 
         //TODO: Get a reasonable IIF object
 
-        boolean isNewFormInstance = FormEntryInstanceState.mInstancePath == null;
+        boolean isNewFormInstance = formRecordPath == null;
 
         if (!isNewFormInstance) {
-            importData(FormEntryInstanceState.mInstancePath, fec);
+            importData(formRecordPath, fec);
         }
 
         try {

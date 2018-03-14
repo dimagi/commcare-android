@@ -310,9 +310,7 @@ public class FormStorageTest {
             // Added in 2.42
             , "org.commcare.android.database.user.models.FormRecordV4"
             , "org.commcare.android.database.app.models.FormDefRecord"
-            , "org.commcare.android.database.app.models.InstanceRecord"
             , "org.commcare.android.resource.installers.XFormAndroidInstallerV1"
-
     );
 
 
@@ -417,7 +415,7 @@ public class FormStorageTest {
     }
 
     private static void serializeFormRecord() throws IOException, DeserializationException {
-        FormRecord r = new FormRecord(-1, FormRecord.STATUS_UNSTARTED, "some form",
+        FormRecord r = new FormRecord(FormRecord.STATUS_UNSTARTED, "some form",
                 new byte[]{1, 2, 3}, null, new Date(0), "some app id");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();

@@ -301,7 +301,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     //Time to Send!
                     try {
                         try {
-                            folder = new File(record.getPath()).getCanonicalFile().getParentFile();
+                            folder = new File(record.getFilePath()).getCanonicalFile().getParentFile();
                         } catch (FileNotFoundException e) {
                             //This will put us in the same "Missing Form" handling path as below
                             throw e;

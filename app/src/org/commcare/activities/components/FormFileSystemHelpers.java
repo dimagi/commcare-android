@@ -7,33 +7,34 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.app.models.InstanceRecord;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.models.database.SqlStorage;
 
 import java.io.File;
 
 public class FormFileSystemHelpers {
     private static final String TAG = FormFileSystemHelpers.class.getSimpleName();
 
-    public static String getFormPath(int formId) {
+    public static String getFormDefPath(int formId) {
         FormDefRecord formDefRecord = FormDefRecord.getFormDef(formId);
         return formDefRecord.getFilePath();
     }
 
-    public static void removeMediaAttachedToUnsavedForm(Context context, String instancePath) {
-        InstanceRecord instanceRecord = InstanceRecord.getInstance(instancePath);
+    public static void removeMediaAttachedToUnsavedForm(Context context, String formRecordPath, SqlStorage<FormRecord> formRecordStorage) {
+        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, formRecordPath);
         // if it's not already saved, erase everything
-        if (instanceRecord == null) {
+        if (formRecord == null) {
             int images = 0;
             int audio = 0;
             int video = 0;
             // delete media first
-            String instanceFolder =
-                    instancePath.substring(0,
-                            instancePath.lastIndexOf("/") + 1);
-            Log.i(TAG, "attempting to delete: " + instanceFolder);
+            String formRecordFolder =
+                    formRecordPath.substring(0,
+                            formRecordPath.lastIndexOf("/") + 1);
+            Log.i(TAG, "attempting to delete: " + formRecordFolder);
 
             String where =
-                    MediaStore.Images.Media.DATA + " like '" + instanceFolder + "%'";
+                    MediaStore.Images.Media.DATA + " like '" + formRecordFolder + "%'";
 
 
             // images
@@ -139,7 +140,7 @@ public class FormFileSystemHelpers {
             Log.i(TAG, "removed from content providers: " + images
                     + " image files, " + audio + " audio files,"
                     + " and " + video + " video files.");
-            File f = new File(instanceFolder);
+            File f = new File(formRecordFolder);
             if (f.exists() && f.isDirectory()) {
                 for (File del : f.listFiles()) {
                     Log.i(TAG, "deleting file: " + del.getAbsolutePath());

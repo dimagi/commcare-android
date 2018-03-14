@@ -21,7 +21,7 @@ import android.provider.BaseColumns;
 
 import org.commcare.dalvik.BuildConfig;
 
-// Replaced by FormDefRecord in 2.42, only used for DB Migration now
+// Replaced by FormDefRecord in 2.43, only used for DB Migration now
 public final class FormsProviderAPI {
     public static final String AUTHORITY = BuildConfig.ODK_AUTHORITY + ".forms";
 

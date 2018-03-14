@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Pair;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
@@ -22,7 +23,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -60,7 +60,7 @@ public class FormRecordProcessor {
     public FormRecord process(FormRecord record)
             throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
-        String form = record.getPath();
+        String form = record.getFilePath();
 
         final File f = new File(form);
 
@@ -104,7 +104,7 @@ public class FormRecordProcessor {
     }
 
     public FormRecord updateRecordStatus(FormRecord record, String newStatus) {
-        record = record.updateInstanceAndStatus(record.getInstanceId(), newStatus);
+        record = record.updateStatus(newStatus);
         storage.write(record);
         return record;
     }
@@ -158,13 +158,9 @@ public class FormRecordProcessor {
         StringBuilder reporter = new StringBuilder();
         try {
             reporter.append("\n").append(r.toString()).append("\n");
-            String formPath;
-            try {
-                //make sure we can retrieve a record. 
-                formPath = r.getPath();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                reporter.append("ERROR - No file path found for form record. ").append(e.getMessage()).append("\n");
+            String formPath = r.getFilePath();
+            if(StringUtils.isEmpty(formPath)){
+                reporter.append("ERROR - No file path found for form record. ").append("\n");
                 return new Pair<>(false, reporter.toString());
             }
 

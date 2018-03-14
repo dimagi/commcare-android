@@ -10,7 +10,6 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.android.tests.queries.CaseDbQueryTest;
 import org.commcare.android.util.TestAppInstaller;
@@ -98,9 +97,6 @@ public class FormRecordProcessingTest {
     }
 
     private void fillOutFormWithCaseUpdate() {
-        // Reset Instance Record Storage as we don't want to operate on an already closed DB
-        InstanceRecord.setinstanceRecordStorage(null);
-
         StandardHomeActivity homeActivity = buildHomeActivityForFormEntryLaunch();
 
         ShadowActivity shadowActivity = Shadows.shadowOf(homeActivity);

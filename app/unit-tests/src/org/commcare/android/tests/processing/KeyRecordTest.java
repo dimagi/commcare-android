@@ -1,7 +1,5 @@
 package org.commcare.android.tests.processing;
 
-import android.database.Cursor;
-
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
@@ -9,7 +7,6 @@ import org.commcare.ManageKeyRecordTaskFake;
 import org.commcare.activities.DataPullControllerMock;
 import org.commcare.activities.LoginMode;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tests.activities.FormRecordListActivityTest;
@@ -17,7 +14,6 @@ import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -101,7 +97,6 @@ public class KeyRecordTest {
         SqlStorage<FormRecord> formRecordStorage =
                 CommCareApplication.instance().getUserStorage(FormRecord.class);
         assertEquals(2, formRecordStorage.getNumRecords());
-        assertFormInstanceCount(2);
         CommCareApplication.instance().closeUserSession();
 
         markOutOfDate(recordStorage);
@@ -116,13 +111,7 @@ public class KeyRecordTest {
         TestAppInstaller.login("test", "old_pass");
         formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         assertEquals(2, formRecordStorage.getNumRecords());
-        assertFormInstanceCount(2);
-
         testOpeningMigratedForm();
-    }
-
-    private static void assertFormInstanceCount(int expectedCount) {
-        assertEquals(expectedCount, InstanceRecord.getCount());
     }
 
     private static void testOpeningMigratedForm() {

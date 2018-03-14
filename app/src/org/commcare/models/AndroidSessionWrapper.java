@@ -191,7 +191,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
 
         //TODO: this has two components which can fail. be able to roll them back
 
-        FormRecord r = new FormRecord(-1, FormRecord.STATUS_UNSTARTED, getSession().getForm(),
+        FormRecord r = new FormRecord(FormRecord.STATUS_UNSTARTED, getSession().getForm(),
                 key.getEncoded(), null, new Date(0),
                 CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId());
         storage.write(r);

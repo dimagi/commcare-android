@@ -7,7 +7,6 @@ import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
@@ -82,9 +81,6 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(FormDefRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(InstanceRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             database.execSQL(indexOnTableWithPGUIDCommand("global_index_id", "GLOBAL_RESOURCE_TABLE"));

@@ -3,7 +3,8 @@ package org.commcare.utils;
 import android.util.Log;
 
 import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.app.models.InstanceRecord;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.util.Base64;
 import org.javarosa.form.api.FormController.InstanceMetadata;
 import org.kxml2.io.KXmlSerializer;
@@ -227,18 +228,12 @@ public class EncryptionUtils {
     /**
      * Retrieve the encryption information for the given instanceId/formDefId.
      */
-    public static EncryptedFormInformation getEncryptedFormInformation(int instanceId, int formDefId, InstanceMetadata instanceMetadata) {
+    public static EncryptedFormInformation getEncryptedFormInformation(SqlStorage<FormRecord> formRecordStorage, int formRecordId, int formDefId, InstanceMetadata instanceMetadata) {
         // fetch the form information
         FormDefRecord formDefRecord = null;
-        if (instanceId != -1) {
-            // chain back to the Form record...
-            InstanceRecord instanceRecord = InstanceRecord.getInstance(instanceId);
-            if (instanceRecord == null) {
-                Log.e(t, "No record found for this instance id " + instanceId);
-                return null; // save unencrypted.
-            }
-
-            Vector<FormDefRecord> formDefRecords = FormDefRecord.getFormDefsByJrFormId(instanceRecord.getJrFormId());
+        if (formRecordId != -1) {
+            FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, formRecordId);
+            Vector<FormDefRecord> formDefRecords = FormDefRecord.getFormDefsByJrFormId(formRecord.getXmlns());
             if (formDefRecords.size() != 1) {
                 Log.e(t, "Not exactly one record for this instance!");
                 return null; // save unencrypted.

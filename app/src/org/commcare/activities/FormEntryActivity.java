@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryDialogs;
@@ -36,7 +37,7 @@ import org.commcare.activities.components.FormFileSystemHelpers;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.app.models.InstanceRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
@@ -52,6 +53,7 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.models.ODKStorage;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.util.LogTypes;
@@ -97,7 +99,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         WithUIController, AdvanceToNextListener, WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
 
-    public static final String KEY_INSTANCE_ID = "key_instance_id";
+    public static final String KEY_FORM_RECORD_ID = "key_form_record_id";
     public static final String KEY_FORM_DEF_ID = "key_form_def_id";
     public static final String KEY_AES_STORAGE_KEY = "key_aes_storage";
     public static final String KEY_HEADER_STRING = "form_header";
@@ -151,12 +153,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // broadcast a form saving intent.
     private boolean savingFormOnKeySessionExpiration = false;
     private FormEntryActivityUIController uiController;
+    private SqlStorage<FormRecord> formRecordStorage;
 
     @Override
     @SuppressLint("NewApi")
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        instanceState = new FormEntryInstanceState();
+        formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
+        instanceState = new FormEntryInstanceState(formRecordStorage);
 
         // must be at the beginning of any activity that can be called from an external intent
         try {
@@ -297,17 +301,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
                 break;
             case FormEntryConstants.IMAGE_CAPTURE:
-                ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), true);
+                ImageCaptureProcessing.processCaptureResponse(this, instanceState.getInstanceFolder(), true);
                 break;
             case FormEntryConstants.SIGNATURE_CAPTURE:
-                boolean saved = ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), false);
+                boolean saved = ImageCaptureProcessing.processCaptureResponse(this, instanceState.getInstanceFolder(), false);
                 if (saved && !uiController.questionsView.isQuestionList()) {
                     // attempt to auto-advance if a signature was captured
                     advance();
                 }
                 break;
             case FormEntryConstants.IMAGE_CHOOSER:
-                ImageCaptureProcessing.processImageChooserResponse(this, FormEntryInstanceState.getInstanceFolder(), intent);
+                ImageCaptureProcessing.processImageChooserResponse(this, instanceState.getInstanceFolder(), intent);
                 break;
             case FormEntryConstants.AUDIO_VIDEO_FETCH:
                 processChooserResponse(intent);
@@ -403,7 +407,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 } else {
                     // Set our instance destination for binary data if needed
-                    String destination = FormEntryInstanceState.getInstanceFolder();
+                    String destination = instanceState.getInstanceFolder();
                     wasAnswerSet = pendingIntentWidget.getIntentCallout()
                             .processResponse(response, contextRef, new File(destination));
                 }
@@ -661,7 +665,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public void saveFormToDisk(boolean exit) {
         if (formHasLoaded()) {
-            boolean isFormComplete = FormEntryInstanceState.isInstanceComplete();
+            boolean isFormComplete = instanceState.isFormRecordComplete();
             saveDataToDisk(exit, isFormComplete, null, false);
         } else if (exit) {
             showSaveErrorAndExit();
@@ -713,8 +717,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return;
         }
 
-        mSaveToDiskTask = new SaveToDiskTask(getIntent().getIntExtra(KEY_INSTANCE_ID, -1),
+        mSaveToDiskTask = new SaveToDiskTask(getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1),
                 getIntent().getIntExtra(KEY_FORM_DEF_ID, -1),
+                FormEntryInstanceState.mFormRecordPath,
                 exit, complete, updatedSaveName, symetricKey, headless);
         if (!headless) {
             mSaveToDiskTask.connect(this);
@@ -724,7 +729,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     public void discardChangesAndExit() {
-        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this, FormEntryInstanceState.mInstancePath);
+        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this, FormEntryInstanceState.mFormRecordPath, formRecordStorage);
         finishReturnInstance(false);
     }
 
@@ -850,7 +855,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void loadForm() {
         mFormController = null;
-        FormEntryInstanceState.mInstancePath = null;
+        instanceState.setFormRecordPath(null);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -858,15 +863,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             setTitleToLoading();
             int formId = -1;
             try {
-                if (intent.hasExtra(KEY_INSTANCE_ID)) {
-                    Pair<Integer, Boolean> instanceAndStatus = FormEntryInstanceState.getFormDefIdForInstance(
-                            intent.getIntExtra(KEY_INSTANCE_ID, -1),
+                if (intent.hasExtra(KEY_FORM_RECORD_ID)) {
+                    Pair<Integer, Boolean> instanceAndStatus = instanceState.getFormDefIdForRecord(
+                            intent.getIntExtra(KEY_FORM_RECORD_ID, -1),
                             instanceState);
                     formId = instanceAndStatus.first;
                     instanceIsReadOnly = instanceAndStatus.second;
                 } else if (intent.hasExtra(KEY_FORM_DEF_ID)) {
                     formId = intent.getIntExtra(KEY_FORM_DEF_ID, -1);
-                    instanceState.setFormPath(FormFileSystemHelpers.getFormPath(formId));
+                    instanceState.setFormDefPath(FormFileSystemHelpers.getFormDefPath(formId));
                 } else {
                     UserfacingErrorHandling.createErrorDialog(this,
                             "Intent to start FormEntryActivity must contain either instance id or form def id",
@@ -878,7 +883,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return;
             }
 
-            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, instanceIsReadOnly, formEntryRestoreSession.isRecording(), this) {
+            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, instanceIsReadOnly, formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
@@ -924,8 +929,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         boolean isRestartAfterSessionExpiration =
                 getIntent().getBooleanExtra(KEY_IS_RESTART_AFTER_EXPIRATION, false);
         // Set saved answer path
-        if (FormEntryInstanceState.mInstancePath == null || isRestartAfterSessionExpiration) {
-            instanceState.initInstancePath();
+        if (FormEntryInstanceState.mFormRecordPath == null || isRestartAfterSessionExpiration) {
+            instanceState.initFormRecordPath();
         } else {
             // we've just loaded a saved form, so start in the hierarchy view
             Intent i = new Intent(this, FormHierarchyActivity.class);
@@ -974,8 +979,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (mFormController.isFormReadOnly()) {
             finishReturnInstance(false);
         } else {
-            int instanceId = getIntent().getIntExtra(KEY_INSTANCE_ID, -1);
-            saveCompletedFormToDisk(FormEntryInstanceState.getDefaultFormTitle(instanceId));
+            int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
+            saveCompletedFormToDisk(instanceState.getDefaultFormTitle(formRecordId));
         }
     }
 
@@ -1130,11 +1135,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void finishReturnInstance(boolean reportSaved) {
         String action = getIntent().getAction();
         if (Intent.ACTION_PICK.equals(action) || Intent.ACTION_EDIT.equals(action)) {
-            InstanceRecord instanceRecord = InstanceRecord.getInstance(FormEntryInstanceState.mInstancePath);
+            FormRecord formRecord = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
             Intent formReturnIntent = new Intent();
-            formReturnIntent.putExtra(KEY_INSTANCE_ID, instanceRecord.getID());
-            formReturnIntent.putExtra(FormEntryConstants.IS_ARCHIVED_FORM,
-                    mFormController.isFormReadOnly());
+            formReturnIntent.putExtra(KEY_FORM_RECORD_ID, formRecord.getID());
+            formReturnIntent.putExtra(FormEntryConstants.IS_ARCHIVED_FORM, mFormController.isFormReadOnly());
             formReturnIntent.putExtra(KEY_IS_RESTART_AFTER_EXPIRATION,
                     getIntent().getBooleanExtra(KEY_IS_RESTART_AFTER_EXPIRATION, false));
             if (reportSaved || hasSaved) {

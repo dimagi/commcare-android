@@ -13,11 +13,11 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.app.models.InstanceRecord;
+import org.commcare.android.database.user.models.FormRecord;
 
 import java.util.HashMap;
 
-// Replaced by InstanceRecord in 2.42, only used for DB Migration now
+// Merged in FormRecord in 2.43, only used for DB Migration now
 public class InstanceProvider extends ContentProvider {
     private static final String t = "InstancesProvider";
 
@@ -145,7 +145,7 @@ public class InstanceProvider extends ContentProvider {
     @Override
     @Deprecated
     public Uri insert(@NonNull Uri uri, ContentValues initialValues) {
-        throw new IllegalArgumentException("insert not implemented for " + uri + ". Consider using " + InstanceRecord.class.getName() + " instead");
+        throw new IllegalArgumentException("insert not implemented for " + uri + ". Consider using " + FormRecord.class.getName() + " instead");
     }
 
     /**
@@ -163,7 +163,7 @@ public class InstanceProvider extends ContentProvider {
                 count = db.delete(INSTANCES_TABLE_NAME, where, whereArgs);
                 break;
             case INSTANCE_ID:
-                throw new IllegalArgumentException("delete not implemented for " + uri + ". Consider using " + InstanceRecord.class.getName() + " instead");
+                throw new IllegalArgumentException("delete not implemented for " + uri + ". Consider using " + FormRecord.class.getName() + " instead");
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -183,7 +183,7 @@ public class InstanceProvider extends ContentProvider {
     @Override
     @Deprecated
     public int update(@NonNull Uri uri, ContentValues values, String where, String[] whereArgs) {
-        throw new IllegalArgumentException("update not implemented for " + uri + ". Consider using " + InstanceRecord.class.getName() + " instead");
+        throw new IllegalArgumentException("update not implemented for " + uri + ". Consider using " + FormRecord.class.getName() + " instead");
     }
 
     static {

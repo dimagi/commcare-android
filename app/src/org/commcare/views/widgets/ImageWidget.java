@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
-import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -25,7 +23,6 @@ import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.models.ODKStorage;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
@@ -72,8 +69,8 @@ public class ImageWidget extends QuestionWidget {
 
         mMaxDimen = -1;
         mInstanceFolder =
-                FormEntryInstanceState.mInstancePath.substring(0,
-                        FormEntryInstanceState.mInstancePath.lastIndexOf("/") + 1);
+                FormEntryInstanceState.mFormRecordPath.substring(0,
+                        FormEntryInstanceState.mFormRecordPath.lastIndexOf("/") + 1);
 
         setOrientation(LinearLayout.VERTICAL);
 

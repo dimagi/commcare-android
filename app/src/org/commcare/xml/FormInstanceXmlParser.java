@@ -3,11 +3,10 @@ package org.commcare.xml;
 import android.content.Context;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.data.xml.TransactionParser;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.utils.FileUtil;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
@@ -38,7 +37,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
     private final Context c;
-    private IStorageUtilityIndexed<FormRecord> storage;
+    private SqlStorage<FormRecord> storage;
 
     /**
      * An unmodifiable mapping from an installed form's namespace its install
@@ -82,23 +81,17 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
 
         String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
-        InstanceRecord instanceRecord = new InstanceRecord("Historical Form", filePath,
-                InstanceRecord.STATUS_COMPLETE, Boolean.toString(false), xmlns, "");
 
-
-        //Register this instance for inspection
-        // Unindexed flag tells save to link this instance to a
-        // new, unindexed form record that isn't attached to the
-        // AndroidSessionWrapper
-        instanceRecord.save(InstanceRecord.INSERTION_TYPE_UNINDEXED_IMPORT);
-
-        // Find the form record attached to the form instance during insertion
-        IStorageUtilityIndexed<FormRecord> storage = cachedStorage();
-        FormRecord attachedRecord = storage.getRecordForValue(FormRecord.META_INSTANCE_ID, instanceRecord.getID());
-
-        if (attachedRecord == null) {
-            throw new RuntimeException("No FormRecord was attached to the inserted form instance");
+        SqlStorage<FormRecord> formRecordStorage = cachedStorage();
+        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, filePath);
+        if (formRecord == null) {
+            throw new RuntimeException("No FormRecord found for file path " + filePath);
         }
+
+        formRecord.setDisplayName("Historical Form");
+        formRecord.setStatus(FormRecord.STATUS_COMPLETE);
+        formRecord.setCanEditWhenComplete(Boolean.toString(false));
+        formRecordStorage.update(formRecord.getID(), formRecord);
 
         OutputStream o = new FileOutputStream(filePath);
         BufferedOutputStream bos = null;
@@ -106,7 +99,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         try {
             Cipher encrypter = Cipher.getInstance("AES");
 
-            SecretKeySpec key = new SecretKeySpec(attachedRecord.getAesKey(), "AES");
+            SecretKeySpec key = new SecretKeySpec(formRecord.getAesKey(), "AES");
             encrypter.init(Cipher.ENCRYPT_MODE, key);
             CipherOutputStream cos = new CipherOutputStream(o, encrypter);
             bos = new BufferedOutputStream(cos, 1024 * 256);
@@ -116,7 +109,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             document.write(serializer);
         } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException e) {
             // writing the form instance to xml failed, so remove the record
-            storage.remove(attachedRecord);
+            storage.remove(formRecord);
             throw new RuntimeException(e.getMessage());
         } finally {
             //since bos might not have even been created.
@@ -126,10 +119,10 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
                 o.close();
             }
         }
-        return attachedRecord;
+        return formRecord;
     }
 
-    private IStorageUtilityIndexed<FormRecord> cachedStorage() {
+    private SqlStorage<FormRecord> cachedStorage() {
         if (storage == null) {
             storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         }

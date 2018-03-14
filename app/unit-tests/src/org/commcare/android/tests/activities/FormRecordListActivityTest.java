@@ -10,7 +10,6 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.FormRecordListActivity;
 import org.commcare.adapters.IncompleteFormListAdapter;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.app.models.InstanceRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
