@@ -83,8 +83,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             throw new UnresolvedResourceException(r, "Invalid XForm, no namespace defined", true);
         }
 
-        FormDefRecord.setFormDefStorage(platform.getFormDefStorage());
-        Vector<Integer> existingforms = FormDefRecord.getFormDefIdsByJrFormId(formDef.getMainInstance().schema);
+        Vector<Integer> existingforms = FormDefRecord.getFormDefIdsByJrFormId(platform.getFormDefStorage(), formDef.getMainInstance().schema);
         if (existingforms != null && existingforms.size() > 0) {
             //we already have one form. Hopefully this is during an upgrade...
             if (!upgrade) {
@@ -100,8 +99,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                 Logger.log(LogTypes.SOFT_ASSERT, "More than one Form with schema " + formDef.getMainInstance().schema + "present during the install");
             }
         } else {
-            FormDefRecord formDefRecord = new FormDefRecord("NAME", "NAME", formDef.getMainInstance().schema, local.getLocalURI(), GlobalConstants.MEDIA_REF);
-            formDefId = formDefRecord.save();
+            FormDefRecord formDefRecord = new FormDefRecord("NAME", formDef.getMainInstance().schema, local.getLocalURI(), GlobalConstants.MEDIA_REF);
+            formDefId = formDefRecord.save(platform.getFormDefStorage());
         }
 
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
@@ -116,14 +115,14 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean upgrade(Resource r, AndroidCommCarePlatform platform) {
         boolean fileUpgrade = super.upgrade(r, platform);
-        return fileUpgrade && updateFilePath();
+        return fileUpgrade && updateFilePath(platform);
     }
 
     /**
      * At some point hopefully soon we're not going to be shuffling our xforms around like crazy, so updates will mostly involve
      * just changing where the provider points.
      */
-    private boolean updateFilePath() {
+    private boolean updateFilePath(CommCarePlatform platform) {
         String localRawUri;
         try {
             localRawUri = ReferenceManager.instance().DeriveReference(this.localLocation).getLocalURI();
@@ -133,20 +132,20 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         }
 
         //Update the form file path
-        FormDefRecord.updateFilePath(formDefId, new File(localRawUri).getAbsolutePath());
+        FormDefRecord.updateFilePath(((AndroidCommCarePlatform)platform).getFormDefStorage(), formDefId, new File(localRawUri).getAbsolutePath());
         return true;
     }
 
     @Override
     public boolean revert(Resource r, ResourceTable table, CommCarePlatform platform) {
-        return super.revert(r, table, platform) && updateFilePath();
+        return super.revert(r, table, platform) && updateFilePath(platform);
     }
 
     @Override
     public int rollback(Resource r, CommCarePlatform platform) {
         int newStatus = super.rollback(r, platform);
         if (newStatus == Resource.RESOURCE_STATUS_INSTALLED) {
-            if (updateFilePath()) {
+            if (updateFilePath(platform)) {
                 return newStatus;
             } else {
                 //BOOO!

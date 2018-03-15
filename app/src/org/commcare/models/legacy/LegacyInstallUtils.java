@@ -226,11 +226,12 @@ public class LegacyInstallUtils {
 
         //We also need to tell the XForm Provider that any/all of its forms have been moved
         int updateCount = 0;
-        for (FormDefRecord formDefRecord : FormDefRecord.getFormDefStorage()) {
+        SqlStorage<FormDefRecord> formDefStorage = app.getStorage(FormDefRecord.class);
+        for (FormDefRecord formDefRecord : formDefStorage) {
             String filePath = formDefRecord.getFilePath();
             String newFilePath = replaceOldRoot(filePath, getOldFileSystemRoot(), newRoot);
             if (!newFilePath.equals(filePath)) {
-                formDefRecord.updateFilePath(newFilePath);
+                formDefRecord.updateFilePath(formDefStorage, newFilePath);
                 updateCount++;
             }
         }

@@ -734,9 +734,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     public void setFormLanguage(String[] languages, int index) {
-        int updated = FormDefRecord.updateLanguage(instanceState.getFormPath(), languages[index]);
-        Log.i(TAG, "Updated language to: " + languages[index] + " in "
-                + updated + " rows");
         mFormController.setLanguage(languages[index]);
         dismissAlertDialog();
         if (currentPromptIsQuestion()) {
@@ -863,15 +860,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             setTitleToLoading();
             int formId = -1;
             try {
+                SqlStorage<FormDefRecord> formDefStorage = CommCareApplication.instance().getAppStorage(FormDefRecord.class);
                 if (intent.hasExtra(KEY_FORM_RECORD_ID)) {
                     Pair<Integer, Boolean> instanceAndStatus = instanceState.getFormDefIdForRecord(
+                            formDefStorage,
                             intent.getIntExtra(KEY_FORM_RECORD_ID, -1),
                             instanceState);
                     formId = instanceAndStatus.first;
                     instanceIsReadOnly = instanceAndStatus.second;
                 } else if (intent.hasExtra(KEY_FORM_DEF_ID)) {
                     formId = intent.getIntExtra(KEY_FORM_DEF_ID, -1);
-                    instanceState.setFormDefPath(FormFileSystemHelpers.getFormDefPath(formId));
+                    instanceState.setFormDefPath(FormFileSystemHelpers.getFormDefPath(formDefStorage, formId));
                 } else {
                     UserfacingErrorHandling.createErrorDialog(this,
                             "Intent to start FormEntryActivity must contain either instance id or form def id",

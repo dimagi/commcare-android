@@ -169,7 +169,7 @@ public class SaveToDiskTask extends
             // Started with an empty form or possibly a manually saved form.
             // Try updating, and create a new instance if that fails.
 
-            FormDefRecord formDefRecord = FormDefRecord.getFormDef(mFormDefId);
+            FormDefRecord formDefRecord = FormDefRecord.getFormDef(CommCareApplication.instance().getAppStorage(FormDefRecord.class), mFormDefId);
             String recordName = mRecordName;
             if (recordName == null) {
                 recordName = formDefRecord.getDisplayname();
@@ -228,7 +228,10 @@ public class SaveToDiskTask extends
                     EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
 
             // see if the form is encrypted and we can encrypt it...
-            EncryptedFormInformation formInfo = EncryptionUtils.getEncryptedFormInformation(formRecordStorage, mFormRecordId, mFormDefId, FormEntryActivity.mFormController.getSubmissionMetadata());
+            EncryptedFormInformation formInfo = EncryptionUtils.getEncryptedFormInformation(
+                    CommCareApplication.instance().getAppStorage(FormDefRecord.class),
+                    formRecordStorage, mFormRecordId, mFormDefId,
+                    FormEntryActivity.mFormController.getSubmissionMetadata());
             if (formInfo != null) {
                 // if we are encrypting, the form cannot be reopened afterward
                 canEditAfterCompleted = false;

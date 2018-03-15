@@ -243,10 +243,9 @@ class AppDatabaseUpgrader {
                         FormDefRecord.STORAGE_KEY,
                         FormDefRecord.class,
                         new ConcreteAndroidDbHelper(context, db));
-                FormDefRecord.setFormDefStorage(formDefRecordStorage);
                 while (cursor.moveToNext()) {
                     FormDefRecord formDefRecord = new FormDefRecord(cursor);
-                    formDefRecord.save();
+                    formDefRecord.save(formDefRecordStorage);
                 }
             }
         } finally {

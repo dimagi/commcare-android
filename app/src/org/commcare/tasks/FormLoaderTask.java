@@ -5,7 +5,6 @@ import android.os.Environment;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.javarosa.AndroidXFormHttpRequester;
 import org.commcare.android.logging.ForceCloseLogger;
@@ -86,7 +85,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
     protected FECWrapper doTaskBackground(Integer... formDefId) {
         FormDef fd = null;
 
-        FormDefRecord formDefRecord = FormDefRecord.getFormDef(formDefId[0]);
+        FormDefRecord formDefRecord = FormDefRecord.getFormDef(
+                CommCareApplication.instance().getAppStorage(FormDefRecord.class),
+                formDefId[0]);
 
         File formXml = new File(formDefRecord.getFilePath());
         String formHash = FileUtil.getMd5Hash(formXml);

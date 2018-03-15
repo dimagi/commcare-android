@@ -5,7 +5,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.logging.ReportingUtils;
+import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
@@ -87,7 +87,7 @@ public class TestUtils {
     private static TransactionParserFactory getFactory(final SQLiteDatabase db, final boolean bulkProcessingEnabled) {
         final Hashtable<String, String> formInstanceNamespaces;
         if (CommCareApplication.instance().getCurrentApp() != null) {
-            formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance());
+            formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance().getAppStorage(FormDefRecord.class));
         } else {
             formInstanceNamespaces = null;
         }
@@ -178,7 +178,7 @@ public class TestUtils {
 
         if (CommCareApplication.instance().getCurrentApp() != null) {
             Hashtable<String, String> formInstanceNamespaces =
-                    FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance());
+                    FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance().getAppStorage(FormDefRecord.class));
             androidTransactionFactory.initFormInstanceParser(formInstanceNamespaces);
         }
 

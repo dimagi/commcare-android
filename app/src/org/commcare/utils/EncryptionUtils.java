@@ -228,12 +228,12 @@ public class EncryptionUtils {
     /**
      * Retrieve the encryption information for the given instanceId/formDefId.
      */
-    public static EncryptedFormInformation getEncryptedFormInformation(SqlStorage<FormRecord> formRecordStorage, int formRecordId, int formDefId, InstanceMetadata instanceMetadata) {
+    public static EncryptedFormInformation getEncryptedFormInformation(SqlStorage<FormDefRecord> formDefRecordStorage, SqlStorage<FormRecord> formRecordStorage, int formRecordId, int formDefId, InstanceMetadata instanceMetadata) {
         // fetch the form information
         FormDefRecord formDefRecord = null;
         if (formRecordId != -1) {
             FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, formRecordId);
-            Vector<FormDefRecord> formDefRecords = FormDefRecord.getFormDefsByJrFormId(formRecord.getXmlns());
+            Vector<FormDefRecord> formDefRecords = FormDefRecord.getFormDefsByJrFormId(formDefRecordStorage, formRecord.getXmlns());
             if (formDefRecords.size() != 1) {
                 Log.e(t, "Not exactly one record for this instance!");
                 return null; // save unencrypted.
@@ -241,7 +241,7 @@ public class EncryptionUtils {
             formDefRecord = formDefRecords.get(0);
         } else if (formDefId != -1) {
             try {
-                formDefRecord = FormDefRecord.getFormDef(formDefId);
+                formDefRecord = FormDefRecord.getFormDef(formDefRecordStorage, formDefId);
             } catch (NoSuchElementException e) {
                 Log.e(t, "No blank form for id " + formDefId);
                 return null; // save unencrypted.

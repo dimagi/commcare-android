@@ -15,8 +15,8 @@ import java.io.File;
 public class FormFileSystemHelpers {
     private static final String TAG = FormFileSystemHelpers.class.getSimpleName();
 
-    public static String getFormDefPath(int formId) {
-        FormDefRecord formDefRecord = FormDefRecord.getFormDef(formId);
+    public static String getFormDefPath(SqlStorage<FormDefRecord> formDefStorage, int formId) {
+        FormDefRecord formDefRecord = FormDefRecord.getFormDef(formDefStorage, formId);
         return formDefRecord.getFilePath();
     }
 

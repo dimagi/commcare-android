@@ -29,6 +29,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.activities.LoginActivity;
+import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -196,7 +197,7 @@ public class CommCareApplication extends MultiDexApplication {
         // them in order, so we aren't going to dump our logs from the Pre-init logger until
         // after this transition occurs.
         try {
-            LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
+            LegacyInstallUtils.checkForLegacyInstall(this, getGlobalStorage(ApplicationRecord.class));
         } finally {
             // No matter what happens, set up our new logger, we want those logs!
             setupLoggerStorage(false);

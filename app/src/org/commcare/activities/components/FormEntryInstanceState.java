@@ -49,7 +49,7 @@ public class FormEntryInstanceState {
         return FormRecord.isComplete(formRecordStorage, mFormRecordPath);
     }
 
-    public Pair<Integer, Boolean> getFormDefIdForRecord(int formRecordId, FormEntryInstanceState instanceState)
+    public Pair<Integer, Boolean> getFormDefIdForRecord(SqlStorage<FormDefRecord> formDefRecordStorage, int formRecordId, FormEntryInstanceState instanceState)
             throws FormEntryActivity.FormQueryException {
         Boolean isInstanceReadOnly = false;
         FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, formRecordId);
@@ -62,7 +62,7 @@ public class FormEntryInstanceState {
             }
         }
 
-        Vector<FormDefRecord> formDefRecords = FormDefRecord.getFormDefsByJrFormId(formRecord.getXmlns());
+        Vector<FormDefRecord> formDefRecords = FormDefRecord.getFormDefsByJrFormId(formDefRecordStorage, formRecord.getXmlns());
 
         if (formDefRecords.size() == 1) {
             FormDefRecord formDefRecord = formDefRecords.get(0);
