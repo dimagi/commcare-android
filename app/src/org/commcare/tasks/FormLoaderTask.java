@@ -66,7 +66,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     private final boolean mReadOnly;
     private final boolean recordEntrySession;
 
-    private final boolean profilingEnabled = true;
+    private final boolean profilingEnabled = false;
 
     private final R activity;
 
