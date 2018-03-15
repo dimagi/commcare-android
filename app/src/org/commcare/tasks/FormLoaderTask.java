@@ -211,7 +211,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
         ReducingTraceReporter reporter = null;
         if (profilingEnabled) {
-            reporter = new ReducingTraceReporter();
+            reporter = new ReducingTraceReporter(true);
             formDef.getEvaluationContext().setDebugModeOn(reporter);
         }
 
@@ -224,7 +224,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             throw new UserCausedRuntimeException(e.getMessage(), e);
         }
 
-        InstrumentationUtils.printAndClearTraces(reporter, "itemset expansion",
+        InstrumentationUtils.printAndClearTraces(reporter, "Form Load Trace",
                 EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
 
         if (mReadOnly) {
