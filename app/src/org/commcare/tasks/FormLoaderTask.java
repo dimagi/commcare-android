@@ -224,8 +224,8 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             throw new UserCausedRuntimeException(e.getMessage(), e);
         }
 
-        InstrumentationUtils.printAndClearTraces(reporter, "Form Load Trace",
-                EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
+        InstrumentationUtils.printAndClearTraces(reporter, "FORM LOAD TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
+        InstrumentationUtils.printExpressionsThatUsedCaching(reporter, "FORM LOAD CACHE USAGE:");
 
         if (mReadOnly) {
             formDef.getInstance().getRoot().setEnabled(false);
