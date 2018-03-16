@@ -24,6 +24,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
 import javax.crypto.Cipher;
@@ -78,20 +79,22 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         document.addChild(Node.ELEMENT, element);
 
         KXmlSerializer serializer = new KXmlSerializer();
-
-
-        String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
-
         SqlStorage<FormRecord> formRecordStorage = cachedStorage();
-        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, filePath);
-        if (formRecord == null) {
-            throw new RuntimeException("No FormRecord found for file path " + filePath);
-        }
+
+        FormRecord formRecord = new FormRecord(FormRecord.STATUS_UNINDEXED,
+                xmlns,
+                CommCareApplication.instance().createNewSymmetricKey().getEncoded(),
+                null,
+                new Date(0),
+                CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId());
+
 
         formRecord.setDisplayName("Historical Form");
-        formRecord.setStatus(FormRecord.STATUS_COMPLETE);
         formRecord.setCanEditWhenComplete(Boolean.toString(false));
-        formRecordStorage.update(formRecord.getID(), formRecord);
+
+        String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
+        formRecord.setFilePath(filePath);
+        formRecordStorage.write(formRecord);
 
         OutputStream o = new FileOutputStream(filePath);
         BufferedOutputStream bos = null;
