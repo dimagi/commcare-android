@@ -352,5 +352,4 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="sign_button" cc:translatable="true">Gather Signature</string>
     <string name="markup_image" cc:translatable="true">Markup Image</string>
     <string name="draw_image" cc:translatable="true">Sketch Image</string>
-
 </resources>

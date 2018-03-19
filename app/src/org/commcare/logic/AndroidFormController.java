@@ -2,6 +2,7 @@ package org.commcare.logic;
 
 import android.support.annotation.NonNull;
 
+import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.form.api.FormController;
@@ -11,11 +12,12 @@ import org.javarosa.form.api.FormEntryController;
  * Wrapper around FormController to handle Android-specific form entry actions
  */
 
-public class AndroidFormController extends FormController implements PendingCalloutInterface{
+public class AndroidFormController extends FormController implements PendingCalloutInterface {
 
     private FormIndex mPendingCalloutFormIndex = null;
     private boolean wasPendingCalloutCancelled;
     private FormIndex formIndexToReturnTo = null;
+    private WidgetFactory mWidgetFactory;
 
     public AndroidFormController(FormEntryController fec, boolean readOnly) {
         super(fec, readOnly);
@@ -45,7 +47,8 @@ public class AndroidFormController extends FormController implements PendingCall
     //CTS: Added this to protect the JR internal classes, although it's not awesome that
     //this ended up in the "logic" division.
     public WidgetFactory getWidgetFactory() {
-        return new WidgetFactory(mFormEntryController.getModel().getForm(), this);
+        mWidgetFactory = new WidgetFactory(mFormEntryController.getModel().getForm(), this);
+        return mWidgetFactory;
     }
 
     /**
@@ -63,4 +66,9 @@ public class AndroidFormController extends FormController implements PendingCall
         this.formIndexToReturnTo = null;
     }
 
+    public void notifyPermission(String permission, boolean permissionGranted) {
+        if (mWidgetFactory != null) {
+            mWidgetFactory.notifyPermission(permission, permissionGranted);
+        }
+    }
 }

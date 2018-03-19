@@ -746,6 +746,9 @@ permission.sms.install.message=CommCare would like to scan your recent messages 
 permission.form.gps.title=Permission to capture location during form entry
 permission.form.gps.message=CommCare would like to capture your location and provide it to forms you complete.
 permission.acquire.required=Acquire Required Permissions
+permission.camera.title=Permission for Camera
+permission.camera.message=In order to capture a image, Commcare needs permission to use your device camera.
+permission.camera.denial.message=Permission denied for camera. Please enable via 'Settings -> Apps -> CommCare -> Permissions -> Camera'
 
 custom.acknowledgement=
 case.error.self.index=Case '${0}' cannot index itself. In order to login you must change the case on the server.
