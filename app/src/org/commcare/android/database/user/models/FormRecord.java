@@ -95,7 +95,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
 
     @StringDef({STATUS_UNSTARTED, STATUS_INCOMPLETE, STATUS_COMPLETE, STATUS_UNSENT, STATUS_SAVED, STATUS_QUARANTINED, STATUS_UNINDEXED, STATUS_JUST_DELETED})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface FormRecordStatus {
+    private @interface FormRecordStatus {
     }
 
     public static final String QuarantineReason_LOCAL_PROCESSING_ERROR = "local-processing-error";
@@ -321,10 +321,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
 
     public static boolean isComplete(SqlStorage<FormRecord> formRecordStorage, String formRecordPath) {
         FormRecord formRecord = getFormRecord(formRecordStorage, formRecordPath);
-        if (formRecord == null) {
-            return false;
-        }
-        return formRecord.status.contentEquals(STATUS_COMPLETE);
+        return formRecord != null && formRecord.status.contentEquals(STATUS_COMPLETE);
     }
 
     public void updateStatus(SqlStorage<FormRecord> formRecordStorage, @FormRecordStatus String status, String displayName, String canEditWhenComplete) {

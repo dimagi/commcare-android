@@ -108,10 +108,6 @@ public class FormEntryInstanceState {
         }
     }
 
-    public String getFormPath() {
-        return mFormDefPath;
-    }
-
     public void initFormRecordPath() {
         // Create new answer folder.
         String time =
@@ -129,11 +125,11 @@ public class FormEntryInstanceState {
         mFormDefPath = formDefPath;
     }
 
-    public String getInstanceFolder() {
+    public static String getInstanceFolder() {
         return mFormRecordPath.substring(0, mFormRecordPath.lastIndexOf(File.separator) + 1);
     }
 
-    public void setFormRecordPath(@Nullable String formRecordPath) {
+    public static void setFormRecordPath(@Nullable String formRecordPath) {
         mFormRecordPath = formRecordPath;
     }
 }

@@ -124,8 +124,7 @@ public class FormDefRecord extends Persisted {
     }
 
     public static void updateFilePath(SqlStorage<FormDefRecord> formDefRecordStorage, int recordId, String formFilePath) {
-        SqlStorage<FormDefRecord> formDefStorage = formDefRecordStorage;
-        FormDefRecord existingRecord = formDefStorage.read(recordId);
+        FormDefRecord existingRecord = formDefRecordStorage.read(recordId);
         existingRecord.updateFilePath(formDefRecordStorage, formFilePath);
     }
 
