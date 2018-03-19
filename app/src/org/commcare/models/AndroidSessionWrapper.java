@@ -251,7 +251,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         AndroidSessionWrapper wrapper = null;
         int curPredicates = -1;
 
-        Hashtable<String, Entry> menuMap = platform.getMenuMap();
+        Hashtable<String, Entry> menuMap = platform.getCommandToEntryMap();
         for (String key : menuMap.keySet()) {
             Entry e = menuMap.get(key);
             if (!(e.isView() || e.isRemoteRequest()) && formNamespace.equals(((FormEntry)e).getXFormNamespace())) {

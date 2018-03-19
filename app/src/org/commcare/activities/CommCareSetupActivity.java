@@ -339,7 +339,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 return;
         }
 
-        if(!fragment.isAdded() && !isFinishing()) {
+        if (!fragment.isAdded() && !isFinishing()) {
             ft.replace(R.id.setup_fragment_container, fragment);
             ft.commit();
             fm.executePendingTransactions();
@@ -465,37 +465,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         @Override
                         protected void deliverResult(CommCareSetupActivity receiver,
                                                      AppInstallStatus result) {
-                            switch (result) {
-                                case Installed:
-                                    receiver.reportSuccess(true);
-                                    break;
-                                case UpToDate:
-                                    receiver.reportSuccess(false);
-                                    break;
-                                case MissingResourcesWithMessage:
-                                    // fall through to more general case:
-                                case MissingResources:
-                                    receiver.failMissingResource(this.missingResourceException, result);
-                                    break;
-                                case InvalidResource:
-                                    receiver.failInvalidResource(this.invalidResourceException, result);
-                                    break;
-                                case IncompatibleReqs:
-                                    receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
-                                    break;
-                                case NoLocalStorage:
-                                    receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
-                                    break;
-                                case BadCertificate:
-                                    receiver.failWithNotification(AppInstallStatus.BadCertificate);
-                                    break;
-                                case DuplicateApp:
-                                    receiver.failWithNotification(AppInstallStatus.DuplicateApp);
-                                    break;
-                                default:
-                                    receiver.failUnknown(AppInstallStatus.UnknownFailure);
-                                    break;
-                            }
+                            handleAppInstallResult(this, receiver, result);
                         }
 
                         @Override
@@ -515,6 +485,50 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             task.executeParallel(incomingRef);
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
+        }
+    }
+
+    public static void handleAppInstallResult(ResourceEngineTask<CommCareSetupActivity> resourceEngineTask, CommCareSetupActivity receiver, AppInstallStatus result) {
+        switch (result) {
+            case Installed:
+                receiver.reportSuccess(true);
+                break;
+            case UpToDate:
+                receiver.reportSuccess(false);
+                break;
+            case MissingResourcesWithMessage:
+                // fall through to more general case:
+            case MissingResources:
+                receiver.failMissingResource(resourceEngineTask.getMissingResourceException(), result);
+                break;
+            case InvalidResource:
+                receiver.failInvalidResource(resourceEngineTask.getInvalidResourceException(), result);
+                break;
+            case IncompatibleReqs:
+                receiver.failBadReqs(resourceEngineTask.getVersionRequired(),
+                        resourceEngineTask.getVersionAvailable(), resourceEngineTask.isMajorIsProblem());
+                break;
+            case NoLocalStorage:
+                receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
+                break;
+            case NoConnection:
+                receiver.failWithNotification(AppInstallStatus.NoConnection);
+                break;
+            case BadCertificate:
+                receiver.failWithNotification(AppInstallStatus.BadCertificate);
+                break;
+            case DuplicateApp:
+                receiver.failWithNotification(AppInstallStatus.DuplicateApp);
+                break;
+            case IncorrectTargetPackage:
+                receiver.failWithNotification(AppInstallStatus.IncorrectTargetPackage);
+                break;
+            case IncorrectTargetPackageLTS:
+                receiver.failWithNotification(AppInstallStatus.IncorrectTargetPackageLTS);
+                break;
+            default:
+                receiver.failUnknown(AppInstallStatus.UnknownFailure);
+                break;
         }
     }
 
@@ -734,8 +748,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
-        String versionMismatch = Localization.get("install.version.mismatch", new String[]{vRequired, vAvailable});
+    public void failBadReqs(String versionRequired, String versionAvailable, boolean majorIsProblem) {
+        String versionMismatch = Localization.get("install.version.mismatch", new String[]{versionRequired, versionAvailable});
 
         String error;
         if (majorIsProblem) {
@@ -949,7 +963,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             // Check for managed configuration
             RestrictionsManager restrictionsManager =
-                    (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
+                    (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
             if (appRestrictions != null && appRestrictions.containsKey("profileUrl")) {
                 Log.d(TAG, "Found managed configuration install URL "

@@ -440,8 +440,7 @@ public class FormUploadUtil {
                     return parser.nextText();
                 } else {
                     throw new UnfullfilledRequirementsException(
-                            "<message> for 422 response did not contain expected content",
-                            CommCareElementParser.SEVERITY_UNKOWN);
+                            "<message> for 422 response did not contain expected content");
                 }
             }
         };

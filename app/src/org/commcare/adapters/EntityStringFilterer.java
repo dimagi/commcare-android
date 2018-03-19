@@ -72,7 +72,6 @@ public class EntityStringFilterer extends EntityFiltererBase {
         }
         Entity<TreeReference> e = fullEntityList.get(index);
         if (isCancelled()) {
-            db.setTransactionSuccessful();
             return null;
         }
         return e;

@@ -23,6 +23,9 @@ import java.io.InputStream;
 
 public class ImageCaptureProcessing {
 
+    // for selecting image from calabash tests
+    private static String sCustomImagePath;
+
     /**
      * Performs any necessary relocating and scaling of an image coming from either a
      * SignatureWidget or ImageWidget (capture or choose)
@@ -50,19 +53,20 @@ public class ImageCaptureProcessing {
                 }
             }
         }
-
         if (!savedScaledImage) {
             // If we didn't create a scaled image and save it to the final path, then relocate the
             // original image from the temp filepath to our final path
             File finalFile = new File(finalFilePath);
 
-            if (!originalImage.renameTo(finalFile)) {
+            try {
+                FileUtil.copyFile(originalImage, finalFile);
+                originalImage.delete();
+            } catch (Exception e) {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + finalFile.getAbsolutePath());
-            } else {
-                deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
-                return finalFile;
             }
+            deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
+            return finalFile;
         } else {
             // Otherwise, relocate the original image to a raw/ folder, so that we still have access
             // to the unmodified version
@@ -72,13 +76,15 @@ public class ImageCaptureProcessing {
                 rawDir.mkdir();
             }
             File rawImageFile = new File(rawDirPath + "/" + imageFilename);
-            if (!originalImage.renameTo(rawImageFile)) {
+            try {
+                FileUtil.copyFile(originalImage, rawImageFile);
+                originalImage.delete();
+            } catch (Exception e) {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + rawImageFile.getAbsolutePath());
-            } else {
-                deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
-                return rawImageFile;
             }
+            deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
+            return rawImageFile;
         }
     }
 
@@ -222,5 +228,17 @@ public class ImageCaptureProcessing {
         values.put(Media.MIME_TYPE, "image/jpeg");
         values.put(Media.DATA, unscaledFinalImage.getAbsolutePath());
         return values;
+    }
+
+    public static void processImageFromBroadcast(FormEntryActivity activity, String instanceFolder) {
+        processImageGivenFilePath(activity, instanceFolder, sCustomImagePath);
+    }
+
+    public static void setCustomImagePath(String filePath) {
+        sCustomImagePath = filePath;
+    }
+
+    public static String getCustomImagePath() {
+        return sCustomImagePath;
     }
 }
