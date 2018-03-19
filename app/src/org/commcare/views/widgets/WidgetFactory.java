@@ -6,7 +6,6 @@ import android.util.Log;
 
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
-import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.AndroidArrayDataSource;
 import org.javarosa.core.model.ComboboxFilterRule;
