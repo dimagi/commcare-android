@@ -37,7 +37,6 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
-    private final Context c;
     private SqlStorage<FormRecord> storage;
 
     /**
@@ -53,11 +52,10 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
      */
     private final String rootInstanceDir;
 
-    public FormInstanceXmlParser(KXmlParser parser, Context c,
+    public FormInstanceXmlParser(KXmlParser parser,
                                  Map<String, String> namespaceToInstallPath,
                                  String destination) {
         super(parser);
-        this.c = c;
         this.namespaceToInstallPath = namespaceToInstallPath;
         this.rootInstanceDir = destination;
     }

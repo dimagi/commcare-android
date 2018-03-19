@@ -96,7 +96,7 @@ public class TestUtils {
             public TransactionParser getParser(KXmlParser parser) {
                 String namespace = parser.getNamespace();
                 if (namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
-                    return new FormInstanceXmlParser(parser, CommCareApplication.instance(),
+                    return new FormInstanceXmlParser(parser,
                             Collections.unmodifiableMap(formInstanceNamespaces),
                             CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
                 } else if (CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
