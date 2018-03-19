@@ -564,11 +564,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      *                                 install automatically if reference is found
      */
     private void performSMSInstall(boolean installTriggeredManually) {
+        manualSMSInstall = installTriggeredManually;
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
-
-            manualSMSInstall = installTriggeredManually;
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_SMS)) {
