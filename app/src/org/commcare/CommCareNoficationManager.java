@@ -1,5 +1,6 @@
 package org.commcare;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 
+import org.commcare.activities.LoginActivity;
 import org.commcare.activities.MessageActivity;
 import org.commcare.dalvik.R;
 import org.commcare.utils.PopupHandler;
@@ -74,24 +76,24 @@ public class CommCareNoficationManager {
     }
 
     public void clearNotifications(String category) {
-        synchronized (pendingMessages) {
-            NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
-            Vector<NotificationMessage> toRemove = new Vector<>();
-            for (NotificationMessage message : pendingMessages) {
-                if (category == null || category.equals(message.getCategory())) {
-                    toRemove.add(message);
+            synchronized (pendingMessages) {
+                NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
+                Vector<NotificationMessage> toRemove = new Vector<>();
+                for (NotificationMessage message : pendingMessages) {
+                    if (category == null || category.equals(message.getCategory())) {
+                        toRemove.add(message);
+                    }
+                }
+
+                for (NotificationMessage message : toRemove) {
+                    pendingMessages.remove(message);
+                }
+                if (pendingMessages.size() == 0) {
+                    mNM.cancel(MESSAGE_NOTIFICATION);
+                } else {
+                    updateMessageNotification();
                 }
             }
-
-            for (NotificationMessage message : toRemove) {
-                pendingMessages.remove(message);
-            }
-            if (pendingMessages.size() == 0) {
-                mNM.cancel(MESSAGE_NOTIFICATION);
-            } else {
-                updateMessageNotification();
-            }
-        }
     }
 
     public ArrayList<NotificationMessage> purgeNotifications() {
@@ -127,6 +129,24 @@ public class CommCareNoficationManager {
             // Otherwise, add it to the queue, and update the notification
             pendingMessages.add(message);
             updateMessageNotification();
+        }
+    }
+
+    /**
+     * From the current activity context, perform a (non-return coded) intent callout to
+     * view the notifications screen.
+     */
+    public static void performIntentCalloutToNotificationsView(Activity activity) {
+        Intent i = new Intent(activity, MessageActivity.class);
+        activity.startActivity(i);
+    }
+
+    /**
+     * @return true if there are pending notifications for CommCare. False otherwise.
+     */
+    public boolean messagesForCommCareArePending() {
+        synchronized (pendingMessages) {
+            return pendingMessages.size() > 0;
         }
     }
 }

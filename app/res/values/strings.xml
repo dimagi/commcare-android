@@ -58,7 +58,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>42</item>
+        <item>43</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -85,7 +85,9 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
 * “Notebook” symbol by Carlo \n
 * “Antenna” symbol by Dima \n
 * “Map Marker” symbol by P.J. Onori \n
+* "List" by Landan Lloyd \n
 * broken screen by Sam Martin from the Noun Project \n\n
+
 </string>
     <string name="notification_message_title">CommCare Notification</string>
 

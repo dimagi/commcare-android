@@ -6,6 +6,8 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.resources.model.Resource;
 import org.commcare.tasks.ResourceEngineTask;
 
+import static org.commcare.activities.CommCareSetupActivity.handleAppInstallResult;
+
 /**
  * Install CC app from the APK's asset directory
  *
@@ -28,48 +30,7 @@ public class SingleAppInstallation {
                     @Override
                     protected void deliverResult(CommCareSetupActivity receiver,
                                                  AppInstallStatus result) {
-                        switch (result) {
-                            case Installed:
-                                receiver.reportSuccess(true);
-                                break;
-                            case DuplicateApp:
-                                receiver.failWithNotification(AppInstallStatus.DuplicateApp);
-                                break;
-                            case UpdateStaged:
-                                // this should never occur
-                                receiver.reportSuccess(false);
-                                break;
-                            case UpToDate:
-                                // this should never occur
-                                receiver.reportSuccess(false);
-                                break;
-                            case MissingResourcesWithMessage:
-                                // fall through to more general case:
-                            case MissingResources:
-                                receiver.failMissingResource(this.missingResourceException, result);
-                                break;
-                            case InvalidResource:
-                                receiver.failInvalidResource(this.invalidResourceException, result);
-                                break;
-                            case IncompatibleReqs:
-                                receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
-                                break;
-                            case UnknownFailure:
-                                receiver.failWithNotification(AppInstallStatus.UnknownFailure);
-                                break;
-                            case NoLocalStorage:
-                                receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
-                                break;
-                            case NoConnection:
-                                receiver.failWithNotification(AppInstallStatus.NoConnection);
-                                break;
-                            case BadCertificate:
-                                receiver.failWithNotification(AppInstallStatus.BadCertificate);
-                                break;
-                            default:
-                                receiver.failUnknown(AppInstallStatus.UnknownFailure);
-                                break;
-                        }
+                        handleAppInstallResult(this,receiver,result);
                     }
 
                     @Override
