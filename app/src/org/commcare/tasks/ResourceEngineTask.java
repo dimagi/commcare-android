@@ -3,6 +3,7 @@ package org.commcare.tasks;
 import android.os.SystemClock;
 
 import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
@@ -15,7 +16,6 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
-import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
@@ -37,18 +37,17 @@ public abstract class ResourceEngineTask<R>
     private int installedResourceCount = 0;
     private int totalResourceCount = -1;
 
-    protected UnresolvedResourceException missingResourceException = null;
-    protected InvalidResourceException invalidResourceException = null;
-    protected int badReqCode = -1;
+    private UnresolvedResourceException missingResourceException = null;
+    private InvalidResourceException invalidResourceException = null;
     private int phase = -1;
     // This boolean is set from CommCareSetupActivity -- If we are in keep
     // trying mode for installation, we want to sleep in between attempts to
     // launch this task
     private final boolean shouldSleep;
 
-    protected String vAvailable;
-    protected String vRequired;
-    protected boolean majorIsProblem;
+    private String versionAvailable;
+    private String versionRequired;
+    private boolean majorIsProblem;
 
     private final Object statusLock = new Object();
     private boolean statusCheckRunning = false;
@@ -92,11 +91,17 @@ public abstract class ResourceEngineTask<R>
             } catch (UnfullfilledRequirementsException e) {
                 if (e.isDuplicateException()) {
                     return AppInstallStatus.DuplicateApp;
+                } else if (e.isIncorrectTargetException()) {
+                    switch (CommCareApplication.instance().getPackageName()) {
+                        case "org.commcare.lts":
+                            return AppInstallStatus.IncorrectTargetPackageLTS;
+                        default:
+                            return AppInstallStatus.IncorrectTargetPackage;
+                    }
                 } else {
-                    badReqCode = e.getRequirementCode();
-                    vAvailable = e.getAvailableVesionString();
-                    vRequired = e.getRequiredVersionString();
-                    majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
+                    versionAvailable = e.getAvailableVesionString();
+                    versionRequired = e.getRequiredVersionString();
+                    majorIsProblem = e.getRequirementType() == UnfullfilledRequirementsException.RequirementType.DUPLICATE_APP;
 
                     ResourceInstallUtils.logInstallError(e,
                             "App resources are incompatible with this device|");
@@ -142,7 +147,7 @@ public abstract class ResourceEngineTask<R>
                     Vector<Resource> resources;
                     try {
                         resources = ResourceManager.getResourceListFromProfile(table);
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         // Since we're on a seperate thread, the db can close during the process
                         // before we can catch the cancel when the install finishes. If so, 
                         // we can skip the status check entirely.
@@ -178,7 +183,7 @@ public abstract class ResourceEngineTask<R>
                     }
                     signalStatusCheckComplete();
                 }
-                
+
                 private void signalStatusCheckComplete() {
                     synchronized (statusLock) {
                         statusCheckRunning = false;
@@ -206,5 +211,25 @@ public abstract class ResourceEngineTask<R>
     @Override
     public void incrementProgress(int complete, int total) {
         this.publishProgress(new int[]{complete, total, phase});
+    }
+
+    public UnresolvedResourceException getMissingResourceException() {
+        return missingResourceException;
+    }
+
+    public InvalidResourceException getInvalidResourceException() {
+        return invalidResourceException;
+    }
+
+    public String getVersionAvailable() {
+        return versionAvailable;
+    }
+
+    public String getVersionRequired() {
+        return versionRequired;
+    }
+
+    public boolean isMajorIsProblem() {
+        return majorIsProblem;
     }
 }

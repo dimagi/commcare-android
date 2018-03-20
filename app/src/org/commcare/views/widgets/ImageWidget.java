@@ -21,8 +21,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
+import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.ODKStorage;
@@ -130,19 +132,27 @@ public class ImageWidget extends QuestionWidget {
         mChooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mErrorTextView.setVisibility(View.GONE);
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.setType("image/*");
-
-                try {
-                    ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryConstants.IMAGE_CHOOSER);
+                if (ImageCaptureProcessing.getCustomImagePath() != null) {
+                    // This block is only in use for a Calabash test and
+                    // processes the custom file path set from a broadcast triggered by calabash test
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found, "choose image"),
-                            Toast.LENGTH_SHORT).show();
+                    ImageCaptureProcessing.processImageFromBroadcast((FormEntryActivity)getContext(), FormEntryInstanceState.getInstanceFolder());
+                    ImageCaptureProcessing.setCustomImagePath(null);
+                } else {
+                    mErrorTextView.setVisibility(View.GONE);
+                    Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                    i.setType("image/*");
+
+                    try {
+                        ((Activity)getContext()).startActivityForResult(i,
+                                FormEntryConstants.IMAGE_CHOOSER);
+                        pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(getContext(),
+                                StringUtils.getStringSpannableRobust(getContext(),
+                                        R.string.activity_not_found, "choose image"),
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
