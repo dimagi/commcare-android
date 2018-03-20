@@ -1,19 +1,19 @@
 package org.commcare.activities.components;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.provider.MediaStore.Images.Media;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.UriToFilePath;
 import org.commcare.views.widgets.ImageWidget;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class ImageCaptureProcessing {
+
+    // for selecting image from calabash tests
+    private static String sCustomImagePath;
 
     /**
      * Performs any necessary relocating and scaling of an image coming from either a
@@ -50,17 +53,20 @@ public class ImageCaptureProcessing {
                 }
             }
         }
-
         if (!savedScaledImage) {
             // If we didn't create a scaled image and save it to the final path, then relocate the
             // original image from the temp filepath to our final path
             File finalFile = new File(finalFilePath);
-            if (!originalImage.renameTo(finalFile)) {
+
+            try {
+                FileUtil.copyFile(originalImage, finalFile);
+                originalImage.delete();
+            } catch (Exception e) {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + finalFile.getAbsolutePath());
-            } else {
-                return finalFile;
             }
+            deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
+            return finalFile;
         } else {
             // Otherwise, relocate the original image to a raw/ folder, so that we still have access
             // to the unmodified version
@@ -70,13 +76,38 @@ public class ImageCaptureProcessing {
                 rawDir.mkdir();
             }
             File rawImageFile = new File(rawDirPath + "/" + imageFilename);
-            if (!originalImage.renameTo(rawImageFile)) {
+            try {
+                FileUtil.copyFile(originalImage, rawImageFile);
+                originalImage.delete();
+            } catch (Exception e) {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + rawImageFile.getAbsolutePath());
-            } else {
-                return rawImageFile;
             }
+            deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
+            return rawImageFile;
         }
+    }
+
+    public static void deleteFileFromMediaStore(final ContentResolver contentResolver, final File file) {
+        // Set up the projection (we only need the ID)
+        String[] projection = {MediaStore.Images.Media._ID};
+
+        // Match on the file path
+        String selection = MediaStore.Images.Media.DATA + " = ?";
+        String[] selectionArgs = new String[]{file.getAbsolutePath()};
+
+        // Query for the ID of the media matching the file path
+        Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
+        if (c.moveToFirst()) {
+            // We found the ID. Deleting the item via the content provider will also remove the file
+            long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+            Uri deleteUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+            contentResolver.delete(deleteUri, null, null);
+        } else {
+            // File not found in media store DB
+        }
+        c.close();
     }
 
     /**
@@ -197,5 +228,17 @@ public class ImageCaptureProcessing {
         values.put(Media.MIME_TYPE, "image/jpeg");
         values.put(Media.DATA, unscaledFinalImage.getAbsolutePath());
         return values;
+    }
+
+    public static void processImageFromBroadcast(FormEntryActivity activity, String instanceFolder) {
+        processImageGivenFilePath(activity, instanceFolder, sCustomImagePath);
+    }
+
+    public static void setCustomImagePath(String filePath) {
+        sCustomImagePath = filePath;
+    }
+
+    public static String getCustomImagePath() {
+        return sCustomImagePath;
     }
 }

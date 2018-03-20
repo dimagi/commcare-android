@@ -418,6 +418,7 @@ public class CommCareApplication extends MultiDexApplication {
             Log.i("FAILURE", "E: " + e.getMessage());
             e.printStackTrace();
             ForceCloseLogger.reportExceptionInBg(e);
+            CrashUtil.reportException(e);
             resourceState = STATE_CORRUPTED;
         }
         app.setAppResourceState(resourceState);

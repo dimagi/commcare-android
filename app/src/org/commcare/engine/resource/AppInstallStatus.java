@@ -10,6 +10,17 @@ public enum AppInstallStatus implements MessageTag {
      */
     DuplicateApp("notification.install.duplicate"),
 
+    /**
+     * installing an app targetting LTS on normal Commcare flavour
+     */
+    IncorrectTargetPackage("notification.install.incorrect.target.package"),
+
+    /**
+     * installing an app on LTS that is targetting normal Commcare flavour
+     */
+    IncorrectTargetPackageLTS("notification.install.incorrect.target.package.lts"),
+
+
     // Statuses unique to app updating
     /**
      * Update has been downloaded into update table

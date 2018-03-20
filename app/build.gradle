@@ -23,6 +23,8 @@ repositories {
     }
     maven { url 'https://maven.fabric.io/public' }
     google()
+    maven { url "https://jitpack.io" }
+
 }
 
 configurations {
@@ -80,6 +82,7 @@ dependencies {
     implementation('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }
+    compile 'com.github.budsmile:bypass-android:1.0.5'
 }
 
 ext {

@@ -121,4 +121,9 @@
     <!--Question Widget-->
     <dimen name="edit_text_question_widget_compact_width">80dp</dimen>
     <dimen name="edit_text_question_widget_padding_horizontal">8dp</dimen>
+
+    <!--Big Layout Button Dimensions-->
+    <!-- Should be font medium SP x 4, roughly -->
+    <dimen name="rectangle_button_height">60sp</dimen>
+
 </resources>
