@@ -73,6 +73,10 @@ import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.EvaluationTraceSerializer;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
@@ -155,6 +159,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // broadcast a form saving intent.
     private boolean savingFormOnKeySessionExpiration = false;
     private FormEntryActivityUIController uiController;
+
+    private boolean fullFormProfilingEnabled = true;
+    private EvaluationTraceReporter traceReporter;
 
     @Override
     @SuppressLint("NewApi")
@@ -933,6 +940,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 }
             };
+            if (fullFormProfilingEnabled) {
+                traceReporter = new ReducingTraceReporter(true);
+                mFormLoaderTask.setProfilingOnFullForm(traceReporter);
+            }
             mFormLoaderTask.connect(this);
             mFormLoaderTask.executeParallel(formUri);
             hasFormLoadBeenTriggered = true;
@@ -1204,6 +1215,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // looks like the session expired, swallow exception because we
             // might be auto-saving a form due to user session expiring
         }
+
+        InstrumentationUtils.printAndClearTraces(this.traceReporter, "FULL FORM ENTRY TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
+        InstrumentationUtils.printExpressionsThatUsedCaching(this.traceReporter, "FULL FORM ENTRY CACHE USAGE:");
 
         dismissProgressDialog();
         reportFormExitTime();

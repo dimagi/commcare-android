@@ -28,6 +28,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.EvaluationTraceSerializer;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
@@ -66,7 +67,8 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     private final boolean mReadOnly;
     private final boolean recordEntrySession;
 
-    private final boolean profilingEnabled = false;
+    private EvaluationTraceReporter traceReporterForFullForm;
+    private final boolean profilingEnabledForFormLoad = false;
 
     private final R activity;
 
@@ -209,9 +211,13 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             importData(FormEntryInstanceState.mInstancePath, fec);
         }
 
-        ReducingTraceReporter reporter = null;
-        if (profilingEnabled) {
+        EvaluationTraceReporter reporter = null;
+        if (profilingOnFullForm()) {
+            reporter = this.traceReporterForFullForm;
+        } else if (profilingEnabledForFormLoad) {
             reporter = new ReducingTraceReporter(true);
+        }
+        if (reporter != null) {
             formDef.getEvaluationContext().setDebugModeOn(reporter);
         }
 
@@ -224,8 +230,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             throw new UserCausedRuntimeException(e.getMessage(), e);
         }
 
-        InstrumentationUtils.printAndClearTraces(reporter, "FORM LOAD TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
-        InstrumentationUtils.printExpressionsThatUsedCaching(reporter, "FORM LOAD CACHE USAGE:");
+        if (!profilingOnFullForm()) {
+            InstrumentationUtils.printAndClearTraces(reporter, "FORM LOAD TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
+            InstrumentationUtils.printExpressionsThatUsedCaching(reporter, "FORM LOAD CACHE USAGE:");
+        }
 
         if (mReadOnly) {
             formDef.getInstance().getRoot().setEnabled(false);
@@ -372,7 +380,14 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
      */
     public void setupAndroidPlatformImplementations(FormDef formDef) {
         formDef.setSendCalloutHandler(new AndroidXFormHttpRequester());
+    }
 
+    public void setProfilingOnFullForm(EvaluationTraceReporter reporter) {
+        this.traceReporterForFullForm = reporter;
+    }
+
+    private boolean profilingOnFullForm() {
+        return traceReporterForFullForm != null;
     }
 
     protected static class FECWrapper {
