@@ -16,6 +16,7 @@ import org.javarosa.core.model.MultiWordFilterRule;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.StandardFilterRule;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.util.CalendarUtils;
 
@@ -28,7 +29,6 @@ public class WidgetFactory {
 
     private final FormDef formDef;
     private final PendingCalloutInterface pendingCalloutInterface;
-    private QuestionWidget questionWidget;
 
     public WidgetFactory(FormDef formDef, PendingCalloutInterface pendingCalloutInterface) {
         this.formDef = formDef;
@@ -41,6 +41,7 @@ public class WidgetFactory {
      * @param context Android context
      */
     public QuestionWidget createWidgetFromPrompt(FormEntryPrompt fep, Context context, boolean inCompactGroup) {
+        QuestionWidget questionWidget;
         String appearance = fep.getAppearanceHint();
         switch (fep.getControlType()) {
             case Constants.CONTROL_INPUT:
@@ -218,9 +219,5 @@ public class WidgetFactory {
         } else {
             return new SelectMultiWidget(context, fep);
         }
-    }
-
-    public void notifyPermission(String permission, boolean permissionGranted) {
-        questionWidget.notifyPermission(permission, permissionGranted);
     }
 }

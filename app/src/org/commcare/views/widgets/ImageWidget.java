@@ -99,6 +99,7 @@ public class ImageWidget extends QuestionWidget {
         mCaptureButton.setOnClickListener(v -> {
             mErrorTextView.setVisibility(View.GONE);
             if (Permissions.missingAppPermission((Activity)getContext(), Manifest.permission.CAMERA)) {
+                pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 if (Permissions.shouldShowPermissionRationale((Activity)getContext(), Manifest.permission.CAMERA)) {
                     CommCareAlertDialog dialog =
                             DialogCreationHelpers.buildPermissionRequestDialog((Activity)getContext(), (RuntimePermissionRequester)getContext(),

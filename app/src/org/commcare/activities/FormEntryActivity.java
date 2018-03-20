@@ -338,8 +338,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     break;
             }
         }
+        resetPendingCalloutIndex();
+    }
 
-        // reset callout index
+    private void resetPendingCalloutIndex() {
         if (mFormController != null) {
             mFormController.setPendingCalloutFormIndex(null);
         }
@@ -1403,16 +1405,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
             case ImageWidget.REQUEST_CAMERA_PERMISSION: {
+
+                QuestionWidget pendingWidget = getPendingWidget();
+                resetPendingCalloutIndex();
+
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mFormController.notifyPermission(permissions[0], true);
+                    pendingWidget.notifyPermission(permissions[0], true);
                 } else {
-                    mFormController.notifyPermission(permissions[0], false);
+                    pendingWidget.notifyPermission(permissions[0], false);
                 }
                 return;
             }
         }
+
     }
 
 
