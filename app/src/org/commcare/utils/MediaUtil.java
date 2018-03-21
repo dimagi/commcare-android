@@ -296,8 +296,7 @@ public class MediaUtil {
      * down proportionally with the width)
      */
     public static Bitmap getBitmapScaledToContainer(String imageFilepath, int containerHeight,
-                                                     int containerWidth,
-                                                    boolean respectBoundsExactly) {
+                                                    int containerWidth, boolean respectBoundsExactly) {
 
         Pair<File, Bitmap> cacheKey = getCacheFileLocationAndBitmap(imageFilepath,
                 String.format("container_%d_%d_%b",containerHeight, containerWidth,
@@ -306,7 +305,6 @@ public class MediaUtil {
         if (cacheKey != null && cacheKey.second != null) {
             return cacheKey.second;
         }
-
 
         // Determine dimensions of original image
         BitmapFactory.Options o = new BitmapFactory.Options();
@@ -475,12 +473,29 @@ public class MediaUtil {
      *
      * @return the bitmap, plus a boolean value representing whether the image had to be downsized
      */
-    public static Pair<Bitmap, Boolean> inflateImageSafe(String imageFilepath, int scaleDownFactor) {
+    static Pair<Bitmap, Boolean> inflateImageSafe(String imageFilepath, int scaleDownFactor) {
         return performSafeScaleDown(imageFilepath, scaleDownFactor, 0);
     }
 
-    public static Pair<Bitmap, Boolean> inflateImageSafe(String imageFilepath) {
+    static Pair<Bitmap, Boolean> inflateImageSafe(String imageFilepath) {
         return inflateImageSafe(imageFilepath, 1);
+    }
+
+    public static Bitmap createBlankBitmap(int width, int height, Bitmap.Config config) {
+        return createBlankBitmapSafe(width, height, config, 0);
+    }
+
+    private static Bitmap createBlankBitmapSafe(int width, int height, Bitmap.Config config, int depth) {
+        if (depth == 5) {
+            // Limit the number of recursive calls
+            return null;
+        }
+        try {
+            width *= .75; height *= .75; // try making it 25% smaller each time
+            return Bitmap.createBitmap(width, height, config);
+        } catch (OutOfMemoryError e) {
+            return createBlankBitmapSafe(width, height, config, depth+1);
+        }
     }
 
     /**

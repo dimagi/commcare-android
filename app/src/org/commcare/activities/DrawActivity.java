@@ -24,6 +24,7 @@ import android.widget.RelativeLayout;
 
 import org.commcare.dalvik.R;
 import org.commcare.models.ODKStorage;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
@@ -31,6 +32,7 @@ import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.widgets.ImageWidget;
 import org.commcare.views.widgets.SignatureWidget;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -236,8 +238,14 @@ public class DrawActivity extends Activity {
         } else {
             FileOutputStream fos;
             fos = new FileOutputStream(f);
-            Bitmap bitmap = Bitmap.createBitmap(drawView.getWidth(),
-                    drawView.getHeight(), Bitmap.Config.ARGB_8888);
+            Bitmap bitmap =
+                    MediaUtil.createBlankBitmap(drawView.getWidth(), drawView.getHeight(),
+                            Bitmap.Config.ARGB_8888);
+            if (bitmap == null) {
+                Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
+                        "Could not create blank bitmap needed for DrawView, due to OutOfMemoryError");
+                cancelAndClose();
+            }
             Canvas canvas = new Canvas(bitmap);
             drawView.draw(canvas);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 70, fos);
@@ -341,10 +349,11 @@ public class DrawActivity extends Activity {
         private final Paint paint;
         private final Paint pointPaint;
         private float mX, mY;
+        private DrawActivity activityContext;
 
         public DrawView(final Context c, Paint paint, Paint pointPaint) {
             super(c);
-
+            this.activityContext = (DrawActivity)c;
             this.paint = paint;
             this.pointPaint = pointPaint;
             isSignature = false;
@@ -356,7 +365,6 @@ public class DrawActivity extends Activity {
 
         public DrawView(Context c, boolean isSignature, File f, Paint paint, Paint pointPaint) {
             this(c, paint, pointPaint);
-
             this.isSignature = isSignature;
             mBackgroundBitmapFile = f;
         }
@@ -374,12 +382,14 @@ public class DrawActivity extends Activity {
                 mBitmap = MediaUtil.getBitmapScaledToContainer(
                         mBackgroundBitmapFile, w, h).copy(
                         Bitmap.Config.ARGB_8888, true);
-                // mBitmap =
-                // Bitmap.createScaledBitmap(BitmapFactory.decodeFile(mBackgroundBitmapFile.getPath()),
-                // w, h, true);
                 mCanvas = new Canvas(mBitmap);
             } else {
-                mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+                mBitmap = MediaUtil.createBlankBitmap(w, h, Bitmap.Config.ARGB_8888);
+                if (mBitmap == null) {
+                    Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
+                            "Could not create blank bitmap needed for DrawView, due to OutOfMemoryError");
+                    activityContext.cancelAndClose();
+                }
                 mCanvas = new Canvas(mBitmap);
                 mCanvas.drawColor(0xFFFFFFFF);
                 if (isSignature) {
