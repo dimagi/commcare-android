@@ -1,6 +1,5 @@
 package org.commcare.preferences;
 
-import android.app.Activity;
 import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.Preference;
 
 import org.commcare.AppUtils;
@@ -169,7 +169,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             public boolean onPreferenceClick(Preference preference) {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(
                         AnalyticsParamValue.CLEAR_USER_DATA);
-                clearUserData(getActivity());
+                clearUserData((AppCompatActivity)getActivity());
                 return true;
             }
         });
@@ -250,7 +250,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         startActivity(i);
     }
 
-    public static void clearUserData(final Activity activity) {
+    public static void clearUserData(final AppCompatActivity activity) {
         StandardAlertDialog d =
                 new StandardAlertDialog(activity,
                         Localization.get("clear.user.data.warning.title"),

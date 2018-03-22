@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.Preference;
 
 import org.commcare.CommCareApplication;
@@ -68,7 +69,7 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
             public boolean onPreferenceClick(Preference preference) {
                 FirebaseAnalyticsUtil.reportAdvancedActionSelected(
                         AnalyticsParamValue.CLEAR_USER_DATA);
-                AdvancedActionsPreferences.clearUserData(getActivity());
+                AdvancedActionsPreferences.clearUserData((AppCompatActivity)getActivity());
                 return true;
             }
         });

@@ -1,12 +1,11 @@
 package org.commcare.utils;
 
 import android.Manifest;
-import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.views.dialogs.CommCareAlertDialog;
@@ -32,7 +31,7 @@ public class Permissions {
      * @param permRequestCode make the permission request using this request code
      * @return Was the user asked for permissions?
      */
-    public static boolean acquireAllAppPermissions(Activity activity,
+    public static boolean acquireAllAppPermissions(AppCompatActivity activity,
                                                    RuntimePermissionRequester permRequester,
                                                    int permRequestCode) {
         String[] permissions = getAppPermissions();
@@ -54,7 +53,7 @@ public class Permissions {
         }
     }
 
-    private static boolean missingAppPermission(Activity activity,
+    private static boolean missingAppPermission(AppCompatActivity activity,
                                                 String[] permissions) {
         for (String perm : permissions) {
             if (ContextCompat.checkSelfPermission(activity, perm) == PackageManager.PERMISSION_DENIED) {
@@ -64,7 +63,7 @@ public class Permissions {
         return false;
     }
 
-    private static boolean shouldShowPermissionRationale(Activity activity,
+    private static boolean shouldShowPermissionRationale(AppCompatActivity activity,
                                                          String[] permissions) {
         for (String perm : permissions) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(activity, perm)) {

@@ -1,6 +1,5 @@
 package org.commcare.fragments;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +22,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
-import org.commcare.activities.MessageActivity;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
@@ -81,7 +80,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             @Override
             public void onClick(View v) {
                 try {
-                    Activity currentActivity = getActivity();
+                    AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
                     if (currentActivity instanceof CommCareSetupActivity) {
                         ((CommCareSetupActivity)currentActivity).clearErrorMessage();
                     }
@@ -101,7 +100,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             @Override
             public void onClick(View v) {
                 SetupEnterURLFragment enterUrl = new SetupEnterURLFragment();
-                Activity currentActivity = getActivity();
+                AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
                 if (currentActivity instanceof CommCareSetupActivity) {
                     ((CommCareSetupActivity)currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
                     ((CommCareSetupActivity)currentActivity).clearErrorMessage();
@@ -120,7 +119,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         installFromLocal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Activity currentActivity = getActivity();
+                AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
                 if (currentActivity instanceof CommCareSetupActivity) {
                     showLocalAppDialog();
                 }
@@ -138,7 +137,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         mViewErrorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CommCareNoficationManager.performIntentCalloutToNotificationsView(getActivity());
+                CommCareNoficationManager.performIntentCalloutToNotificationsView((AppCompatActivity)getActivity());
             }
         });
         showOrHideErrorMessage();
@@ -162,7 +161,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             DialogChoiceItem item = new DialogChoiceItem(app.getName(), -1, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Activity currentActivity = getActivity();
+                    AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
                     if (currentActivity instanceof CommCareSetupActivity) {
                         ((CommCareSetupActivity)currentActivity).onURLChosen(app.getLocalUrl());
                     }
@@ -186,7 +185,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 appsAvailable = true;
             }
         }
-        Activity activity = getActivity();
+        AppCompatActivity activity = (AppCompatActivity)getActivity();
         if (appsAvailable && activity != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -198,7 +197,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     }
 
     public void showOrHideErrorMessage() {
-        Activity currentActivity = getActivity();
+        AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
         if (currentActivity instanceof CommCareSetupActivity) {
             String msg = ((CommCareSetupActivity)currentActivity).getErrorMessageToDisplay();
             if (msg != null && !"".equals(msg)) {

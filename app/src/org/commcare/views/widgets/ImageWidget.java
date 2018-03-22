@@ -1,15 +1,12 @@
 package org.commcare.views.widgets;
 
-import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
-import android.support.v4.content.FileProvider;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -28,7 +25,6 @@ import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.models.ODKStorage;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
@@ -110,7 +106,7 @@ public class ImageWidget extends QuestionWidget {
                 i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 i.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 try {
-                    ((Activity)getContext()).startActivityForResult(i,
+                    ((AppCompatActivity)getContext()).startActivityForResult(i,
                             FormEntryConstants.IMAGE_CAPTURE);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
@@ -145,7 +141,7 @@ public class ImageWidget extends QuestionWidget {
                     i.setType("image/*");
 
                     try {
-                        ((Activity)getContext()).startActivityForResult(i,
+                        ((AppCompatActivity)getContext()).startActivityForResult(i,
                                 FormEntryConstants.IMAGE_CHOOSER);
                         pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                     } catch (ActivityNotFoundException e) {

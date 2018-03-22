@@ -1,24 +1,22 @@
 package org.commcare.activities;
 
 import android.app.ActionBar;
-import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.preferences.AdvancedActionsPreferences;
-import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 
 
-public class CommCarePreferenceActivity extends FragmentActivity {
+public class CommCarePreferenceActivity extends AppCompatActivity {
 
     public static final String EXTRA_PREF_TYPE = "extra_pref_type";
 
@@ -70,7 +68,7 @@ public class CommCarePreferenceActivity extends FragmentActivity {
         }
     }
 
-    public static void addBackButtonToActionBar(@NonNull Activity activity) {
+    public static void addBackButtonToActionBar(@NonNull AppCompatActivity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ActionBar actionBar = activity.getActionBar();
             if (actionBar != null) {

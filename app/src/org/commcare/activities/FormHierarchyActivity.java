@@ -42,7 +42,6 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
                     "Resuming form hierarchy view after process was killed. Form state is unrecoverable.");
         }
 
-        setContentView(R.layout.hierarchy_layout);
         FormEntryActivity.mFormController.storeFormIndexToReturnTo();
 
         addActionBarBackArrow();
@@ -104,6 +103,11 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
         });
 
         refreshView();
+    }
+
+    @Override
+    public int getLayoutResource() {
+        return R.layout.hierarchy_layout;
     }
 
     private void addActionBarBackArrow() {

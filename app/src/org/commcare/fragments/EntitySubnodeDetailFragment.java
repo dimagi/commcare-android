@@ -1,8 +1,7 @@
 package org.commcare.fragments;
 
-import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +45,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         TreeReference referenceToDisplay = getReferenceToDisplay();
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
-        final Activity thisActivity = getActivity();
+        final AppCompatActivity thisActivity = (AppCompatActivity)getActivity();
         this.listView = ((ListView)rootView.findViewById(R.id.screen_entity_detail_list));
         if (this.adapter == null && this.loader == null && !EntityLoaderTask.attachToActivity(this)) {
             // Set up task to fetch entity data

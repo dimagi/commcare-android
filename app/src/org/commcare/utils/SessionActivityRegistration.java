@@ -1,11 +1,10 @@
 package org.commcare.utils;
 
-import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import org.commcare.activities.DispatchActivity;
@@ -41,7 +40,7 @@ public class SessionActivityRegistration {
      * listen for session expiration broadcasts. Call this method in onResume
      * methods of activities that are session sensitive.
      */
-    public static boolean handleOrListenForSessionExpiration(Activity activity) {
+    public static boolean handleOrListenForSessionExpiration(AppCompatActivity activity) {
         activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
 
         synchronized (registrationLock) {
@@ -58,7 +57,7 @@ public class SessionActivityRegistration {
      * Stop activity from listening for session expiration broadcasts.  Call
      * this method in onPause methods of activities that are session sensitive.
      */
-    public static void unregisterSessionExpirationReceiver(Activity activity) {
+    public static void unregisterSessionExpirationReceiver(AppCompatActivity activity) {
         try {
             activity.unregisterReceiver(userSessionExpiredReceiver);
         } catch (IllegalArgumentException e) {

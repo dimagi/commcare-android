@@ -1,6 +1,5 @@
 package org.commcare.utils;
 
-import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -146,7 +145,7 @@ public abstract class TemplatePrinterUtils {
      * Shows a pop-up dialog from the given activity that can optionally finish the activity when
      * it is dismissed by the user
      */
-    public static void showAlertDialog(final Activity activity, String title, String msg,
+    public static void showAlertDialog(final AppCompatActivity activity, String title, String msg,
                                        final boolean finishActivity) {
         StandardAlertDialog.getBasicAlertDialog(activity, title, msg, new DialogInterface.OnClickListener() {
             @Override

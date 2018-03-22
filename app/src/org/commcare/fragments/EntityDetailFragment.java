@@ -1,10 +1,9 @@
 package org.commcare.fragments;
 
-import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,21 +15,18 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.adapters.EntityDetailAdapter;
 import org.commcare.adapters.ListItemViewModifier;
-import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.EntityUtil;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ModifiableEntityDetailAdapter;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.suite.model.Detail;
-import org.commcare.cases.entity.EntityUtil;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
 /**
@@ -86,7 +82,7 @@ public class EntityDetailFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         try {
-            final Activity thisActivity = getActivity();
+            final AppCompatActivity thisActivity = (AppCompatActivity)getActivity();
             final Entity entity = factory.getEntity(referenceToDisplay);
             final DetailCalloutListener detailCalloutListener =
                     thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener)thisActivity) : null;

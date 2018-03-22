@@ -1,9 +1,8 @@
 package org.commcare.views.widgets;
 
-import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -97,7 +96,7 @@ public class GeoPointWidget extends QuestionWidget {
                 } else {
                     i = new Intent(getContext(), GeoPointActivity.class);
                 }
-                ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.LOCATION_CAPTURE);
+                ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.LOCATION_CAPTURE);
                 pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
             }
         });

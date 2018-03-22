@@ -73,7 +73,7 @@ the License.
     </LinearLayout>
 
     <ListView
-        android:id="@android:id/list"
+        android:id="@+id/list_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:listSelector="@drawable/selector"
@@ -81,7 +81,7 @@ the License.
         android:layout_below="@id/buttonholder"/>
 
     <TextView
-        android:id="@android:id/empty"
+        android:id="@+id/empty"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:text="@string/no_items_display"

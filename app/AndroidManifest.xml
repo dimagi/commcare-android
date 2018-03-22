@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest package="org.commcare.dalvik"
+          xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="org.commcare.dalvik"
           android:versionCode="106"
           android:versionName="2.43">
+
+    <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints"/>
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -26,8 +28,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false"/>
@@ -44,26 +47,24 @@
         android:name="android.hardware.camera"
         android:required="false"/>
 
-    <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints"/>
-
     <permission
-        android:name="${applicationId}.provider.cases.read"
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
+        android:name="${applicationId}.provider.cases.read"
         android:protectionLevel="dangerous">
     </permission>
 
     <application
         android:allowBackup="false"
-        tools:replace="android:label,android:icon, android:allowBackup"
-        android:name="org.commcare.CommCareApplication"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
-        android:hardwareAccelerated="true"
-        android:theme="@style/AppBaseTheme">
+        android:name="org.commcare.CommCareApplication"
+        android:theme="@style/AppBaseTheme"
+        tools:replace="android:label,android:icon, android:allowBackup">
         <activity
-            android:name="org.commcare.activities.DispatchActivity"
-            android:label="@string/application_name">
+            android:label="@string/application_name"
+            android:name="org.commcare.activities.DispatchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -75,68 +76,64 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-
         <activity
-            android:name="org.commcare.activities.AppManagerActivity"
             android:label="@string/manager_activity_name"
+            android:name="org.commcare.activities.AppManagerActivity"
             android:taskAffinity="org.commcare.Manage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
-
         <activity
-            android:name="org.commcare.activities.LoginActivity"
             android:label="@string/application_name"
+            android:name="org.commcare.activities.LoginActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
-
         <activity
-            android:name="org.commcare.activities.CrashWarningActivity"
-            android:label="CommCare Forced Closure">
+            android:label="CommCare Forced Closure"
+            android:name="org.commcare.activities.CrashWarningActivity">
         </activity>
-
         <activity android:name="org.commcare.activities.StandardHomeActivity"/>
         <activity android:name="org.commcare.activities.RootMenuHomeActivity"/>
         <activity android:name="org.commcare.activities.MenuActivity"/>
 
         <provider
-            android:name="org.commcare.provider.FormsProvider"
+            android:authorities="${odkProvider}.forms"
             android:exported="true"
-            android:authorities="${odkProvider}.forms"/>
+            android:name="org.commcare.provider.FormsProvider"/>
         <provider
-            android:name="org.commcare.provider.InstanceProvider"
+            android:authorities="${odkProvider}.instances"
             android:exported="true"
-            android:authorities="${odkProvider}.instances"/>
+            android:name="org.commcare.provider.InstanceProvider"/>
         <provider
-            android:name="org.commcare.provider.CaseDataContentProvider"
             android:authorities="${applicationId}.case"
             android:enabled="true"
             android:exported="true"
+            android:name="org.commcare.provider.CaseDataContentProvider"
             android:readPermission="${applicationId}.provider.cases.read"/>
         <provider
-            android:name="org.commcare.provider.FixtureDataContentProvider"
             android:authorities="${applicationId}.fixture"
             android:enabled="true"
             android:exported="true"
+            android:name="org.commcare.provider.FixtureDataContentProvider"
             android:readPermission="${applicationId}.provider.cases.read"/>
-
         <provider
-            android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.external.files.provider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true"
+            android:name="android.support.v4.content.FileProvider">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
         </provider>
 
-
-        <activity android:name="org.commcare.activities.CommCarePreferenceActivity"
+        <activity
+            android:name="org.commcare.activities.CommCarePreferenceActivity"
             android:theme="@style/PreferenceTheme">
         </activity>
-        <activity android:name="org.commcare.activities.SessionAwarePreferenceActivity"
-                  android:theme="@style/PreferenceTheme">
+        <activity
+            android:name="org.commcare.activities.SessionAwarePreferenceActivity"
+            android:theme="@style/PreferenceTheme">
         </activity>
         <activity android:name="org.commcare.activities.DotsEntryActivity">
             <intent-filter>
@@ -216,7 +213,6 @@
             android:name="org.commcare.activities.UpdateActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
-
         <activity
             android:name="org.commcare.activities.SingleAppManagerActivity"
             android:windowSoftInputMode="adjustResize">
@@ -225,8 +221,7 @@
             android:name="org.commcare.activities.EntitySelectActivity"
             android:windowSoftInputMode="stateUnchanged|adjustResize">
         </activity>
-        <activity
-            android:name="org.commcare.activities.CommCareGraphActivity">
+        <activity android:name="org.commcare.activities.CommCareGraphActivity">
         </activity>
         <activity
             android:name="org.commcare.activities.EntityDetailActivity"
@@ -238,13 +233,13 @@
         </activity>
 
         <service
-            android:name="org.commcare.services.CommCareSessionService"
-            android:enabled="true">
+            android:enabled="true"
+            android:name="org.commcare.services.CommCareSessionService">
         </service>
 
         <activity
-            android:name="org.commcare.activities.FormEntryActivity"
             android:launchMode="singleTop"
+            android:name="org.commcare.activities.FormEntryActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
@@ -267,7 +262,6 @@
             android:name="org.commcare.activities.InstallArchiveActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
-
         <activity android:name="org.commcare.activities.EntityMapActivity">
         </activity>
         <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity">
@@ -278,7 +272,7 @@
         </activity>
         <activity android:name="org.commcare.activities.InstallFromListActivity">
         </activity>
-        
+
         <uses-library
             android:name="com.google.android.maps"
             android:required="false"/>
@@ -290,8 +284,8 @@
         </receiver>
 
         <activity
-            android:name="org.commcare.activities.ReportProblemActivity"
-            android:label="@string/title_activity_report_problem">
+            android:label="@string/title_activity_report_problem"
+            android:name="org.commcare.activities.ReportProblemActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.commcare.activities.CommCareSetupActivity"/>
@@ -300,26 +294,28 @@
             android:name="org.commcare.activities.CommCareVerificationActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
-        <activity
-            android:name="org.commcare.activities.UnrecoverableErrorActivity">
+        <activity android:name="org.commcare.activities.UnrecoverableErrorActivity">
         </activity>
         <activity
-            android:name="org.commcare.activities.KeyAccessRequestActivity"
-            android:exported="true">
+            android:exported="true"
+            android:name="org.commcare.activities.KeyAccessRequestActivity">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.CommCareKeyAccessRequest"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
         <activity android:name="org.commcare.android.nfc.NfcWriteActivity">
             <intent-filter>
                 <action android:name="org.commcare.nfc.WRITE"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
         <activity android:name="org.commcare.android.nfc.NfcReadActivity">
             <intent-filter>
                 <action android:name="org.commcare.nfc.READ"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -327,46 +323,54 @@
         <receiver android:name="org.commcare.provider.ExternalApiReceiver">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.ExternalAction"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
-
-        <receiver android:name="org.commcare.provider.RefreshToLatestBuildReceiver"
+        <receiver
             android:enabled="true"
-            android:exported="true" >
+            android:exported="true"
+            android:name="org.commcare.provider.RefreshToLatestBuildReceiver">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.RefreshToLatestBuildAction"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
-
         <receiver android:name="org.commcare.provider.DebugControlsReceiver">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.SessionCaptureAction"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.UninstallApp"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.LoginWithCreds"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.TriggerSyncRecover"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.ClearCacheOnRestore"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.ExpireUserKeyRecord"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="${applicationId}.api.action.SetImageWidgetPath"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
@@ -392,11 +396,11 @@
             android:theme="@style/Theme.Dialog.NoTitle">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.PRINT"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity
-            android:name="org.commcare.activities.SeatAppActivity">
+        <activity android:name="org.commcare.activities.SeatAppActivity">
         </activity>
         <activity android:name="org.commcare.activities.PostRequestActivity"/>
         <activity android:name="org.commcare.activities.QueryRequestActivity"/>
@@ -433,8 +437,12 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>
+        <meta-data
+            android:name="android.content.APP_RESTRICTIONS"
+            android:resource="@xml/app_restrictions"/>
 
-        <meta-data android:name="android.content.APP_RESTRICTIONS"
-            android:resource="@xml/app_restrictions" />
+        <activity android:name="org.commcare.activities.CommcareListActivity">
+        </activity>
     </application>
+
 </manifest>

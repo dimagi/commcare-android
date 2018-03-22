@@ -1,6 +1,5 @@
 package org.commcare.views.widgets;
 
-import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -45,7 +44,7 @@ public class VideoWidget extends MediaWidget {
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                         Video.Media.EXTERNAL_CONTENT_URI.toString());
                 try {
-                    ((Activity)getContext()).startActivityForResult(i,
+                    ((AppCompatActivity)getContext()).startActivityForResult(i,
                             FormEntryConstants.AUDIO_VIDEO_FETCH);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
@@ -71,7 +70,7 @@ public class VideoWidget extends MediaWidget {
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("video/*");
                 try {
-                    ((Activity)getContext()).startActivityForResult(i,
+                    ((AppCompatActivity)getContext()).startActivityForResult(i,
                             FormEntryConstants.AUDIO_VIDEO_FETCH);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {

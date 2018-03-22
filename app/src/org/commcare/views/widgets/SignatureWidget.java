@@ -15,7 +15,6 @@ package org.commcare.views.widgets;
  */
 
 
-import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -165,7 +164,7 @@ public class SignatureWidget extends QuestionWidget {
                 Uri.fromFile(ImageWidget.getTempFileForImageCapture()));
 
         try {
-            ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.SIGNATURE_CAPTURE);
+            ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.SIGNATURE_CAPTURE);
             pendingCalloutInterface.setPendingCalloutFormIndex(questionIndex);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),

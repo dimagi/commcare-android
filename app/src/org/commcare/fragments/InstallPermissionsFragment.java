@@ -2,6 +2,7 @@ package org.commcare.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,7 @@ public class InstallPermissionsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 RuntimePermissionRequester permissionRequester = (RuntimePermissionRequester)getActivity();
-                Permissions.acquireAllAppPermissions(getActivity(), permissionRequester,
+                Permissions.acquireAllAppPermissions((AppCompatActivity)getActivity(), permissionRequester,
                         Permissions.ALL_PERMISSIONS_REQUEST);
             }
         });

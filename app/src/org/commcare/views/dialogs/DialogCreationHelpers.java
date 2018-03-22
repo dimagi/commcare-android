@@ -1,6 +1,5 @@
 package org.commcare.views.dialogs;
 
-import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -61,7 +60,7 @@ public class DialogCreationHelpers {
      * @param permRequester interface for launching system permission request
      *                      dialog
      */
-    public static CommCareAlertDialog buildPermissionRequestDialog(Activity activity,
+    public static CommCareAlertDialog buildPermissionRequestDialog(AppCompatActivity activity,
                                                            final RuntimePermissionRequester permRequester,
                                                            final int requestCode,
                                                            String title,

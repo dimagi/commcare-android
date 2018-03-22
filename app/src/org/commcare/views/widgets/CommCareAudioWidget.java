@@ -1,14 +1,12 @@
 package org.commcare.views.widgets;
 
-import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
@@ -18,7 +16,6 @@ import android.widget.Toast;
 
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.IAnswerData;
@@ -45,7 +42,7 @@ public class CommCareAudioWidget extends AudioWidget
     public CommCareAudioWidget(Context context, FormEntryPrompt prompt,
                                PendingCalloutInterface pic) {
         super(context, prompt, pic);
-        fm = ((FragmentActivity)getContext()).getSupportFragmentManager();
+        fm = ((AppCompatActivity)getContext()).getSupportFragmentManager();
         recorder = new RecordingFragment();
         recorder.setListener(this);
         questionIndexText = prompt.getIndex().toString();
@@ -74,7 +71,7 @@ public class CommCareAudioWidget extends AudioWidget
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("audio/*");
                 try {
-                    ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
+                    ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
                     recordingNameText.setTextColor(getResources().getColor(R.color.black));
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
