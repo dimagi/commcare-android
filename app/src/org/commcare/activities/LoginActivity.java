@@ -443,10 +443,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         String toastText = message.getTitle();
         if (showTop) {
             CommCareApplication.notificationManager().reportNotificationMessage(message);
-            toastText = Localization.get("notification.for.details.wrapper",
-                    new String[]{toastText});
         }
-        uiController.setErrorMessageUI(toastText);
+        uiController.setErrorMessageUI(toastText, showTop);
     }
 
     /**

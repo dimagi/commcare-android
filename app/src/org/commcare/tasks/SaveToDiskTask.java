@@ -6,8 +6,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryInstanceState;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.XPathErrorLogger;
@@ -133,6 +135,9 @@ public class SaveToDiskTask extends
         }
 
         if (exitAfterSave) {
+            FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
+            Logger.log(LogTypes.TYPE_FORM_ENTRY,
+                    String.format("Form Entry Completed for record with id %s", saved.getInstanceID()));
             return new ResultAndError<>(SaveStatus.SAVED_AND_EXIT);
         } else if (mMarkCompleted) {
             return new ResultAndError<>(SaveStatus.SAVED_COMPLETE);

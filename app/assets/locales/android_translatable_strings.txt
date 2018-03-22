@@ -6,7 +6,7 @@ dialog.ok=OK
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
 updates.success=App is up to date
 updates.check.begin=Checking for updates...
-updates.check.failed=Failed to download updates. See notification for details.
+updates.check.failed=Failed to download updates due to an error
 updates.check.start=Recheck
 updates.check.cancel=Stop checking
 updates.check.cancelling=Cancelling check for updates
@@ -92,6 +92,8 @@ menu.print.detail=Print Case Detail
 menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 
+install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact technical support.
+
 sync.success.sent.none=No forms sent to server!
 sync.success.sent.singular=1 form sent to server!
 sync.success.sent=${0} forms sent to server!
@@ -135,6 +137,7 @@ form.entry.incomplete.save.success=Form saved as incomplete
 form.entry.save.error=Sorry, form save failed. Please contact technical support to look into the issue.
 form.entry.save.invalid.unicode=Could not save '${0}' text in form.
 form.entry.finish.button=FINISH
+form.entry.restart.after.expiration=You were logged out due to session expiration. The form you were in the middle of has been saved and resumed.
 
 login.attempt.badcred=Username or password are incorrect. Please try again.
 
@@ -214,7 +217,7 @@ app.storage.missing.button=Shutdown CommCare
 cchq.case=Case
 select.placeholder.message=Please select a ${0}
 notification.for.details.wrapper=${0} (See notification for details)
-notification.for.details.setup.wrapper=${0} (Press "See More" or see notification for details)
+error.button.text=See Error Details
 
 session.refresh.error.title=Session Refresh Required
 session.refresh.error.message=Something happened that required us to refresh your session of CommCare. You should now be able to return to your prior place in the app as normal. If this happens again, contact a supervisor for assistance.
@@ -238,6 +241,7 @@ key.manage.migrate=The server has provided new encryption keys. Migrating your d
 
 key.manage.purge=Purging expired data from your local device
 
+file.invalid.path=The file path selected is not a valid file. Please select a valid file.
 
 mult.install.title=Unzipping your Multimedia Resources
 mult.install.progress=Unzipped ${0} files...
@@ -257,6 +261,7 @@ mult.install.button=Install Multimedia
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}
 mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
 
+zip.install.bad=Could not find target file for unzipping.
 
 bulk.form.prompt=From here you can dump forms to and submit forms from your external SD card. You have ${0} unsynced forms on your phone and ${1} unsynced forms on your SD card
 bulk.form.submit=Submit Forms
@@ -308,9 +313,11 @@ home.start.demo=Explore CommCare Practice Mode
 home.sync.demo=Submit Practice Data to Server
 home.logout.demo=Log out of Practice Mode
 home.sync.message.last.demo=You are using CommCare in practice mode
-demo.mode.warning.title=Starting Practice Mode
-demo.mode.warning=You are logging into CommCare in Practice mode. Practice mode is for testing and practice only!
 demo.mode.feature.unavailable=Sorry, this app uses a feature that is not available in Practice mode. Please log in as a named user.
+
+demo.mode.warning.title=Starting Practice Mode
+demo.mode.warning.main=You have logged into CommCare in Practice mode. Practice mode is for testing and practice only.
+demo.mode.warning.emphasized=Forms submitted in practice mode will be ignored by CommCare HQ!
 
 select.search.label=Search:
 select.search.status=${0} of ${1} results for your search: "${2}"
@@ -388,6 +395,8 @@ no.file.browser.title=No File Browser Available
 no.file.browser=Your device does not have a file browser installed. Please download one from the playstore and then try again.
 template.error=Your template is not correctly formatted
 
+file.selection.failed=Unable to resolve the chosen file. If the issue persists, you may need to delete the file you are targeting and then re-add it to the file system.
+file.copy.failed=A problem occurred while copying file
 file.not.exist=File does not exist
 file.not.selected=No file selected
 file.wrong.type=Wrong file type. Please select file of type ${0}
@@ -546,6 +555,12 @@ notification.install.duplicate.action=Navigate to the drop-down menu on your log
 
 notification.install.uptodate.title=The App is Up to Date
 notification.install.uptodate.detail=A newer version of the app is not available
+
+notification.install.incorrect.target.package.title=App Requires Commcare LTS
+notification.install.incorrect.target.package.detail=In order to install this CommCare app, please uninstall CommCare and then go to the Play Store and download CommCare LTS (not CommCare). Then try installing your app again.
+
+notification.install.incorrect.target.package.lts.title=App Requires Commcare (Non LTS)
+notification.install.incorrect.target.package.lts.detail=In order to install this CommCare app, please uninstall CommCare and then go to the Play Store and download CommCare (not CommCare LTS). Then try installing your app again.
 
 notification.install.updatestaged.title=App update ready to install
 notification.install.updatestaged.detail=A newer version of the app is ready to install on next login
@@ -713,6 +728,9 @@ wifi.direct.status.submit.message=This mode will allow you to submit forms to th
 form.transfer.no.forms=No forms to send.
 
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
+form.attachment.notfound=Unable to find the choosen file. Please try again.
+form.attachment.copy.fail=Unable to copy the choosen file.
+form.attachment.success=Successfully added file.
 
 form.hierarchy=Form Hierarchy
 

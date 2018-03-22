@@ -5,6 +5,7 @@ import android.support.v4.util.Pair;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.reference.Reference;
@@ -35,8 +36,8 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean uninstall(Resource r) throws UnresolvedResourceException {
-        boolean success = super.uninstall(r);
+    public boolean uninstall(Resource r, AndroidCommCarePlatform platform) throws UnresolvedResourceException {
+        boolean success = super.uninstall(r, platform);
         if (!success) {
             return false;
         }
@@ -55,7 +56,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
+    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
         return false;
     }
 

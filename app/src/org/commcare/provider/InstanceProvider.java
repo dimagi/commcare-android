@@ -23,6 +23,7 @@ import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.CrashUtil;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
@@ -524,14 +525,12 @@ public class InstanceProvider extends ContentProvider {
 
             // Notify the server of this problem (since we aren't going to crash)
             ForceCloseLogger.reportExceptionInBg(e);
+            CrashUtil.reportException(e);
 
             raiseFormEntryError("An error occurred: " + e.getMessage() +
                     " and your data could not be saved.", currentState);
             return;
         }
-
-        Logger.log(LogTypes.TYPE_FORM_ENTRY,
-                String.format("Form Entry Completed for record with id %s", current.getInstanceID()));
 
         // The form is either ready for processing, or not, depending on how it was saved
         if (complete) {

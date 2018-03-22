@@ -34,9 +34,15 @@ public abstract class PromptUpdateActivity extends SessionAwareCommCareActivity 
     private TextView helpText;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        refreshUpdateToPromptObject();
+        if (updateToPrompt == null) {
+            refreshUpdateToPromptObject();
+        }
+        if (savedInstanceState == null) {
+            // on initial activity load only
+            updateToPrompt.incrementTimesSeen();
+        }
         setupUI();
     }
 
@@ -73,7 +79,7 @@ public abstract class PromptUpdateActivity extends SessionAwareCommCareActivity 
     abstract void setUpTypeSpecificUIComponents();
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (requestCode == DO_AN_UPDATE) {
             refreshUpdateToPromptObject();
             if (updateToPrompt == null) {
@@ -97,6 +103,9 @@ public abstract class PromptUpdateActivity extends SessionAwareCommCareActivity 
     }
 
     protected boolean inForceMode() {
+        if (updateToPrompt == null) {
+            refreshUpdateToPromptObject();
+        }
         return updateToPrompt.isForced();
     }
 

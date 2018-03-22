@@ -11,6 +11,7 @@ import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
@@ -97,12 +98,23 @@ public class IndexedFixtureLoadingTest {
                 "count(instance('commtrack:products')/products/product)",
                 3.0));
 
-        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
                 "instance('commtrack:products')/products/product[@id = 'has-id']/name",
                 "Normal ID"));
-        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
                 "instance('commtrack:products')/products/product[@id = '']/name",
                 "Empty ID"));
+
+
+        CaseTestUtils.xpathEvalAndAssert(evalContext,
+                "join('|',instance('commtrack:products')/products/product[unit = '']/name)",
+                "No ID|Empty ID");
+
+
+        CaseTestUtils.xpathEvalAndAssert(evalContext,
+                "instance('commtrack:products')/products/product[unit = 'pill']/name",
+                "Normal ID");
+
     }
 
     @Test

@@ -274,6 +274,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         if (notificationMessage != null) {
             CommCareApplication.notificationManager()
                     .reportNotificationMessage(notificationMessage, true);
+            uiController.setNotificationsVisible();
         }
     }
 

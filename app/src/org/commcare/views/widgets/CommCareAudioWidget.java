@@ -71,7 +71,6 @@ public class CommCareAudioWidget extends AudioWidget
         chooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportAudioFileSelected();
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("audio/*");
                 try {
@@ -92,7 +91,6 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportAudioPlayed();
                 playAudio();
             }
         });
@@ -165,7 +163,6 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportAudioPaused();
                 pauseAudioPlayer();
             }
         });
@@ -177,7 +174,6 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportAudioPlayed();
                 resumeAudioPlayer();
             }
         });
@@ -189,7 +185,6 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportAudioPaused();
                 pauseAudioPlayer();
             }
         });
@@ -201,7 +196,6 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportAudioPlayed();
                 playAudio();
             }
         });

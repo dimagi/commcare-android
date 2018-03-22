@@ -50,11 +50,11 @@ public class LabelWidget extends QuestionWidget {
     public LabelWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
 
-        Vector<SelectChoice> mItems = mPrompt.getSelectChoices();
+        Vector<SelectChoice> mItems = getSelectChoices();
 
         LinearLayout buttonLayout = new LinearLayout(context);
 
-        if (mPrompt.getSelectChoices() != null) {
+        if (mItems != null) {
             for (int i = 0; i < mItems.size(); i++) {
 
                 String imageURI =

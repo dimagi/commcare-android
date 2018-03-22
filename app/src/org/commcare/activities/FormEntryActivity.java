@@ -36,7 +36,6 @@ import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.activities.components.FormFileSystemHelpers;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.ImageCaptureProcessing;
-import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
@@ -51,7 +50,6 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
-import org.commcare.logic.AndroidPropertyManager;
 import org.commcare.models.ODKStorage;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
@@ -60,11 +58,10 @@ import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.Base64Wrapper;
 import org.commcare.utils.CompoundIntentList;
-import org.commcare.utils.FormUploadUtil;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
-import org.commcare.utils.UriToFilePath;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.ResizingImageView;
 import org.commcare.views.UserfacingErrorHandling;
@@ -77,7 +74,6 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathException;
@@ -108,6 +104,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_HEADER_STRING = "form_header";
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
+    public static final String KEY_IS_RESTART_AFTER_EXPIRATION = "is-restart-after-session-expiration";
+
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
     private static final String KEY_WIDGET_WITH_VIDEO_PLAYING = "index-of-widget-with-video-playing-on-pause";
     private static final String KEY_POSITION_OF_VIDEO_PLAYING = "position-of-video-playing-on-pause";
@@ -160,8 +158,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     @SuppressLint("NewApi")
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
         instanceState = new FormEntryInstanceState();
 
         // must be at the beginning of any activity that can be called from an external intent
@@ -176,12 +174,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         uiController.setupUI();
         mGestureDetector = new GestureDetector(this, this);
 
-        // needed to override rms property manager
-        PropertyManager.setPropertyManager(new AndroidPropertyManager(getApplicationContext()));
-
-        if (savedInstanceState == null) {
-            FirebaseAnalyticsUtil.reportFormEntry(Localization.getCurrentLocale());
-        } else {
+        if (savedInstanceState != null) {
             loadStateFromBundle(savedInstanceState);
         }
 
@@ -194,6 +187,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             mSaveToDiskTask.setFormSavedListener(this);
         } else if (hasFormLoadBeenTriggered && !hasFormLoadFailed) {
             // Screen orientation change
+            if (mFormController == null) {
+                throw new SessionUnavailableException(
+                        "Resuming form entry after process was killed. Form state is unrecoverable.");
+            }
             uiController.refreshView();
         }
     }
@@ -218,8 +215,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void formSaveCallback() {
         // note that we have started saving the form
         savingFormOnKeySessionExpiration = true;
-        // start saving form, which will call the key session logout completion
-        // function when it finishes.
+
+        // Set flag that will allow us to restore this form when we log back in
+        CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted();
+
+        // Start saving form; will trigger expireUserSession() on completion
         saveIncompleteFormToDisk();
     }
 
@@ -278,9 +278,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (requestCode == FormEntryConstants.FORM_PREFERENCES_KEY) {
             uiController.refreshCurrentView(false);
             return;
@@ -352,8 +350,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // For audio/video capture/chooser, we get the URI from the content provider
         // then the widget copies the file and makes a new entry in the content provider.
         Uri media = intent.getData();
-        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), media);
-        if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
+        if (!FileUtil.isSupportedMultiMediaFile(media)) {
             // don't let the user select a file that won't be included in the
             // upload to the server
             uiController.questionsView.clearAnswer();
@@ -399,25 +396,23 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
         if (pendingIntentWidget != null) {
-            // get the original intent callout
-            IntentCallout ic = pendingIntentWidget.getIntentCallout();
-
             if (!wasIntentCancelled) {
-                isQuick = "quick".equals(ic.getAppearance());
-                TreeReference context = null;
+                isQuick = "quick".equals(pendingIntentWidget.getAppearance());
+                TreeReference contextRef = null;
                 if (mFormController.getPendingCalloutFormIndex() != null) {
-                    context = mFormController.getPendingCalloutFormIndex().getReference();
+                    contextRef = mFormController.getPendingCalloutFormIndex().getReference();
                 }
                 if (pendingIntentWidget instanceof BarcodeWidget) {
                     String scanResult = response.getStringExtra("SCAN_RESULT");
                     if (scanResult != null) {
-                        ic.processBarcodeResponse(context, scanResult);
+                        ((BarcodeWidget)pendingIntentWidget).processBarcodeResponse(contextRef, scanResult);
                         wasAnswerSet = true;
                     }
                 } else {
                     // Set our instance destination for binary data if needed
                     String destination = FormEntryInstanceState.getInstanceFolder();
-                    wasAnswerSet = ic.processResponse(response, context, new File(destination));
+                    wasAnswerSet = pendingIntentWidget.getIntentCallout()
+                            .processResponse(response, contextRef, new File(destination));
                 }
             }
 
@@ -443,8 +438,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // Do not show options menu at all if this is a consumer app
             return super.onPrepareOptionsMenu(menu);
         }
-
-        FirebaseAnalyticsUtil.reportOptionsMenuEntry(this.getClass());
 
         menu.removeItem(FormEntryConstants.MENU_LANGUAGES);
         menu.removeItem(FormEntryConstants.MENU_HIERARCHY_VIEW);
@@ -493,7 +486,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return true;
             case FormEntryConstants.MENU_PREFERENCES:
                 Intent pref = new Intent(this, SessionAwarePreferenceActivity.class);
-                pref.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE,CommCarePreferenceActivity.PREF_TYPE_FORM_ENTRY);
+                pref.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_FORM_ENTRY);
                 startActivityForResult(pref, FormEntryConstants.FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
@@ -634,7 +627,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return mSaveToDiskTask;
 
         // mFormEntryController is static so we don't need to pass it.
-        if (mFormController != null && currentPromptIsQuestion()) {
+        if (mFormController != null && currentPromptIsQuestion() && uiController.questionsView != null) {
             saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         }
         return null;
@@ -852,7 +845,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    protected void onResumeSessionSafe() {
+    public void onResumeSessionSafe() {
         if (!hasFormLoadBeenTriggered) {
             loadForm();
         }
@@ -961,8 +954,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         registerSessionFormSaveCallback();
 
+        boolean isRestartAfterSessionExpiration =
+                getIntent().getBooleanExtra(KEY_IS_RESTART_AFTER_EXPIRATION, false);
         // Set saved answer path
-        if (FormEntryInstanceState.mInstancePath == null) {
+        if (FormEntryInstanceState.mInstancePath == null || isRestartAfterSessionExpiration) {
             instanceState.initInstancePath();
         } else {
             // we've just loaded a saved form, so start in the hierarchy view
@@ -977,6 +972,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         uiController.refreshView();
         FormNavigationUI.updateNavigationCues(this, mFormController, uiController.questionsView);
+        if (isRestartAfterSessionExpiration) {
+            Toast.makeText(this, Localization.get("form.entry.restart.after.expiration"), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void handleXpathErrorBroadcast() {
@@ -1170,6 +1168,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     FormEntryInstanceState.mInstancePath
             };
 
+
+            Intent formReturnIntent = new Intent();
             Cursor c = null;
             try {
                 c = getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
@@ -1178,20 +1178,22 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     c.moveToFirst();
                     String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
                     Uri instance = Uri.withAppendedPath(instanceProviderContentURI, id);
-
-                    Intent formReturnIntent = new Intent();
-                    formReturnIntent.putExtra(FormEntryConstants.IS_ARCHIVED_FORM, mFormController.isFormReadOnly());
-
-                    if (reportSaved || hasSaved) {
-                        setResult(RESULT_OK, formReturnIntent.setData(instance));
-                    } else {
-                        setResult(RESULT_CANCELED, formReturnIntent.setData(instance));
-                    }
+                    formReturnIntent.setData(instance);
                 }
             } finally {
                 if (c != null) {
                     c.close();
                 }
+            }
+
+            formReturnIntent.putExtra(FormEntryConstants.IS_ARCHIVED_FORM,
+                    mFormController.isFormReadOnly());
+            formReturnIntent.putExtra(KEY_IS_RESTART_AFTER_EXPIRATION,
+                    getIntent().getBooleanExtra(KEY_IS_RESTART_AFTER_EXPIRATION, false));
+            if (reportSaved || hasSaved) {
+                setResult(RESULT_OK, formReturnIntent);
+            } else {
+                setResult(RESULT_CANCELED, formReturnIntent);
             }
         }
 

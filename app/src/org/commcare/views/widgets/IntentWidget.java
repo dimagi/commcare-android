@@ -21,9 +21,12 @@ import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.CompoundIntentList;
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
+
+import javax.annotation.Nullable;
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
@@ -33,36 +36,55 @@ import org.javarosa.form.api.FormEntryPrompt;
 public class IntentWidget extends QuestionWidget {
 
     protected final TextView mStringAnswer;
-    private final Intent intent;
+    protected Intent intent;
     private final String getButtonLocalizationKey;
     private final String updateButtonLocalizationKey;
 
     protected final Button launchIntentButton;
     protected final PendingCalloutInterface pendingCalloutInterface;
+
+    @Nullable
+    // This will be null for a BarcodeWidget because it uses a different callout mechanism
     protected final IntentCallout ic;
+
     protected final String missingCalloutKey;
     protected final boolean isEditable;
+    private final String appearance;
+    protected final FormDef formDef;
 
     public IntentWidget(Context context, FormEntryPrompt prompt,
                         Intent in, IntentCallout ic, PendingCalloutInterface pendingCalloutInterface) {
         this(context, prompt, in, ic, pendingCalloutInterface,
                 "intent.callout.get", "intent.callout.update", "intent.callout.activity.missing",
-                false);
+                false, ic.getAppearance(), ic.getFormDef());
+    }
+
+    // Constructor for IntentWidgets not using an IntentCallout
+    public IntentWidget(Context context, FormEntryPrompt prompt, Intent intent,
+                        PendingCalloutInterface pendingCalloutInterface,
+                        String getButtonLocalizationKey, String updateButtonLocalizationKey,
+                        String missingCalloutKey, boolean isEditable, String appearance,
+                        FormDef formDef) {
+        this(context, prompt, intent ,null, pendingCalloutInterface, getButtonLocalizationKey,
+                updateButtonLocalizationKey, missingCalloutKey, isEditable, appearance, formDef);
     }
 
     protected IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
-                         PendingCalloutInterface pendingCalloutInterface,
-                         String getButtonLocalizationKey, String updateButtonLocalizationKey,
-                         String missingCalloutKey, boolean isEditable) {
+                           PendingCalloutInterface pendingCalloutInterface,
+                           String getButtonLocalizationKey, String updateButtonLocalizationKey,
+                           String missingCalloutKey, boolean isEditable, String appearance,
+                           FormDef formDef) {
         super(context, prompt);
 
         this.missingCalloutKey = missingCalloutKey;
         this.intent = in;
         this.ic = ic;
+        this.appearance = appearance;
         this.pendingCalloutInterface = pendingCalloutInterface;
         this.getButtonLocalizationKey = getButtonLocalizationKey;
         this.updateButtonLocalizationKey = updateButtonLocalizationKey;
         this.isEditable = isEditable;
+        this.formDef = formDef;
 
         if (isEditable) {
             mStringAnswer = new EditText(getContext());
@@ -87,7 +109,7 @@ public class IntentWidget extends QuestionWidget {
 
         //only auto advance if 1) we have no data 2) its quick 3) we weren't just cancelled
         if (s == null
-                && "quick".equals(ic.getAppearance())
+                && "quick".equals(appearance)
                 && !pendingCalloutInterface.wasCalloutPendingAndCancelled(mPrompt.getIndex())) {
             performCallout();
         }
@@ -113,13 +135,13 @@ public class IntentWidget extends QuestionWidget {
 
     protected Spannable getButtonLabel() {
         if (mStringAnswer.getText() == null || "".equals(mStringAnswer.getText().toString())) {
-            if (ic.getButtonLabel() != null) {
+            if (ic != null && ic.getButtonLabel() != null) {
                 return new SpannableString(ic.getButtonLabel());
             } else {
                 return new SpannableString(Localization.get(getButtonLocalizationKey));
             }
         } else {
-            if (ic.getUpdateButtonLabel() != null) {
+            if (ic != null && ic.getUpdateButtonLabel() != null) {
                 return new SpannableString(ic.getUpdateButtonLabel());
             } else {
                 return new SpannableString(Localization.get(updateButtonLocalizationKey));
@@ -127,8 +149,11 @@ public class IntentWidget extends QuestionWidget {
         }
     }
 
-    private void performCallout() {
-        if (calloutIsSupportedOnDevice()) {
+    protected void performCallout() {
+        if (calloutUnsupportedOnDevice()) {
+            Toast.makeText(getContext(),
+                    Localization.get("intent.callout.not.supported"), Toast.LENGTH_SHORT).show();
+        } else {
             try {
                 loadCurrentAnswerToIntent();
                 ((AppCompatActivity) getContext()).startActivityForResult(intent, FormEntryConstants.INTENT_CALLOUT);
@@ -137,14 +162,12 @@ public class IntentWidget extends QuestionWidget {
                 Toast.makeText(getContext(),
                         Localization.get(missingCalloutKey), Toast.LENGTH_SHORT).show();
             }
-        } else {
-            Toast.makeText(getContext(),
-                    Localization.get("intent.callout.not.supported"), Toast.LENGTH_SHORT).show();
         }
     }
 
-    public boolean calloutIsSupportedOnDevice() {
-        return !(ic.isSimprintsCallout() && Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH);
+    public boolean calloutUnsupportedOnDevice() {
+        return ic != null && ic.isSimprintsCallout() &&
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH;
     }
 
     protected void loadCurrentAnswerToIntent() {
@@ -160,7 +183,7 @@ public class IntentWidget extends QuestionWidget {
 
     @Override
     public void clearAnswer() {
-        ic.processBarcodeResponse(mPrompt.getIndex().getReference(), null);
+        IntentCallout.setNodeValue(formDef, mPrompt.getIndex().getReference(), null);
         mStringAnswer.setText(null);
         setButtonLabel();
     }
@@ -204,6 +227,10 @@ public class IntentWidget extends QuestionWidget {
         //is doubling up all of this code in the ODKView, which
         //is silly. It's not generalizable
         return ic;
+    }
+
+    public String getAppearance() {
+        return appearance;
     }
 
     public CompoundIntentList addToCompoundIntent(CompoundIntentList compoundedCallout) {

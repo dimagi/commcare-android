@@ -4,9 +4,11 @@ import android.Manifest;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 
 import org.commcare.activities.CommCareActivity;
@@ -71,7 +73,7 @@ public class GeoUtils {
      * Gets the same list of providers returned by evaluateProviders, but filtered out
      * to include only providers with the appropriate permissions granted.
      */
-    public static Set<String> evaluateProvidersWithPermissions(LocationManager manager, Context context) {
+    protected static Set<String> evaluateProvidersWithPermissions(LocationManager manager, Context context) {
         HashSet<String> set = new HashSet<>();
 
         List<String> providers = manager.getProviders(true);
@@ -129,6 +131,36 @@ public class GeoUtils {
             factory.setOnCancelListener(onCancel);
         }
         return factory;
+    }
+
+    public static void goToProperLocationSettingsScreen(Context context) {
+        Intent intent;
+        LocationManager lm = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+        if (locationServicesEnabledGlobally(lm)) {
+            intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.fromParts("package", context.getPackageName(), null));
+        } else {
+            intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        }
+        context.startActivity(intent);
+    }
+
+    private static boolean locationServicesEnabledGlobally(LocationManager lm) {
+        boolean gpsEnabled = false, networkEnabled = false;
+        try {
+            gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex) {
+            // Prior to API level 21, this will throw a SecurityException if the location
+            // permissions are not sufficient to use the specified provider
+        }
+
+        try {
+            networkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (Exception ex) {
+            // Prior to API level 21, this will throw a SecurityException if the location
+            // permissions are not sufficient to use the specified provider
+        }
+        return gpsEnabled || networkEnabled;
     }
 
     /**

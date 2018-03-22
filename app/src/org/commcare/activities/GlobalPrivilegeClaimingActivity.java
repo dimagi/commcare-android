@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+
 import org.commcare.dalvik.R;
 import org.commcare.modern.util.Pair;
 import org.commcare.preferences.GlobalPrivilegesManager;
@@ -88,9 +90,10 @@ public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
     }
 
     private void callOutToBarcodeScanner() {
-        Intent i = new Intent("com.google.zxing.client.android.SCAN");
-        i.putExtra("SCAN_FORMATS", "QR_CODE");
-        startActivityForResult(i, BARCODE_CAPTURE);
+        Intent intent = new IntentIntegrator(this)
+                .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
+                .createScanIntent();
+        startActivityForResult(intent, BARCODE_CAPTURE);
     }
 
     @Override

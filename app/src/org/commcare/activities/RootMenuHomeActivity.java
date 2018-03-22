@@ -22,7 +22,7 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     private MenuList menuView;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         String menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
         if (menuId == null) {
@@ -36,8 +36,8 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onResumeSessionSafe() {
+        super.onResumeSessionSafe();
         navDrawerController.reopenDrawerIfNeeded();
         menuView.refreshItems(); // Otherwise adapter will show obsolete data
     }

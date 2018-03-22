@@ -30,8 +30,8 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
-        instance.registerDemoUserRestore(initDemoUserRestore());
+    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
+        platform.registerDemoUserRestore(initDemoUserRestore());
         return true;
     }
 

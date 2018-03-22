@@ -182,9 +182,7 @@ public class FormUploadUtil {
                     "Encountered PlainTextPasswordException while submission: Sending password over HTTP");
             return FormUploadResult.AUTH_OVER_HTTP;
         } catch (IOException | IllegalStateException e) {
-            e.printStackTrace();
-            Logger.log(LogTypes.TYPE_ERROR_STORAGE,
-                    "Error reading form during submission: " + e.getMessage());
+            Logger.exception("Error reading form during submission: " + e.getMessage(), e);
             return FormUploadResult.TRANSPORT_FAILURE;
         }
 
@@ -442,8 +440,7 @@ public class FormUploadUtil {
                     return parser.nextText();
                 } else {
                     throw new UnfullfilledRequirementsException(
-                            "<message> for 422 response did not contain expected content",
-                            CommCareElementParser.SEVERITY_UNKOWN);
+                            "<message> for 422 response did not contain expected content");
                 }
             }
         };

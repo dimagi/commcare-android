@@ -19,6 +19,7 @@ import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.GlobalConstants;
@@ -63,8 +64,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) {
-        instance.registerXmlns(namespace, contentUri);
+    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
+        platform.registerXmlns(namespace, contentUri);
         return true;
     }
 
@@ -150,8 +151,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean upgrade(Resource r) {
-        boolean fileUpgrade = super.upgrade(r);
+    public boolean upgrade(Resource r, AndroidCommCarePlatform platform) {
+        boolean fileUpgrade = super.upgrade(r, platform);
         return fileUpgrade && updateFilePath();
     }
 
@@ -183,13 +184,13 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean revert(Resource r, ResourceTable table) {
-        return super.revert(r, table) && updateFilePath();
+    public boolean revert(Resource r, ResourceTable table, CommCarePlatform platform) {
+        return super.revert(r, table, platform) && updateFilePath();
     }
 
     @Override
-    public int rollback(Resource r) {
-        int newStatus = super.rollback(r);
+    public int rollback(Resource r, CommCarePlatform platform) {
+        int newStatus = super.rollback(r, platform);
         if (newStatus == Resource.RESOURCE_STATUS_INSTALLED) {
             if (updateFilePath()) {
                 return newStatus;
@@ -223,7 +224,9 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
+    public boolean verifyInstallation(Resource r,
+                                      Vector<MissingMediaException> problems,
+                                      CommCarePlatform platform) {
         //Check to see whether the formDef exists and reads correctly
         FormDef formDef;
         try {

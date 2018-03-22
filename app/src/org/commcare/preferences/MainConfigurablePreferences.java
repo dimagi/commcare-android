@@ -1,15 +1,12 @@
 package org.commcare.preferences;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceScreen;
-import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -17,9 +14,6 @@ import org.commcare.activities.CommCarePreferenceActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
-import org.commcare.utils.FileUtil;
-import org.commcare.utils.TemplatePrinterUtils;
-import org.commcare.utils.UriToFilePath;
 import org.commcare.views.PasswordShow;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
@@ -45,8 +39,6 @@ public class MainConfigurablePreferences
     private final static String DEVELOPER_SETTINGS = "developer-settings-button";
     private final static String DISABLE_ANALYTICS = "disable-analytics-button";
 
-    // Activity request codes
-    private static final int REQUEST_TEMPLATE = 0;
     private static final int REQUEST_DEVELOPER_PREFERENCES = 1;
 
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
@@ -101,25 +93,13 @@ public class MainConfigurablePreferences
 
         Preference analyticsButton = findPreference(DISABLE_ANALYTICS);
         if (MainConfigurablePreferences.isAnalyticsEnabled()) {
-            analyticsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    showAnalyticsOptOutDialog();
-                    return true;
-                }
+            analyticsButton.setOnPreferenceClickListener(preference -> {
+                showAnalyticsOptOutDialog();
+                return true;
             });
         } else {
             getPreferenceScreen().removePreference(analyticsButton);
         }
-
-        Preference printTemplateSetting = findPreference(PREFS_PRINT_DOC_LOCATION);
-        printTemplateSetting.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                startFileBrowser(MainConfigurablePreferences.this, REQUEST_TEMPLATE, "cannot.set.template");
-                return true;
-            }
-        });
     }
 
     private void configureDevPreferencesButton() {
@@ -172,14 +152,7 @@ public class MainConfigurablePreferences
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_TEMPLATE) {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                tryToSetPrintTemplateLocation(data);
-            } else {
-                // No file selected
-                Toast.makeText(getActivity(), Localization.get("template.not.set"), Toast.LENGTH_SHORT).show();
-            }
-        }else if (requestCode == REQUEST_DEVELOPER_PREFERENCES) {
+        if (requestCode == REQUEST_DEVELOPER_PREFERENCES) {
             if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
                 getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM);
                 getActivity().finish();
@@ -187,22 +160,6 @@ public class MainConfigurablePreferences
             else if (resultCode == DeveloperPreferences.RESULT_DEV_OPTIONS_DISABLED) {
                 configureDevPreferencesButton();
             }
-        }
-    }
-
-    private void tryToSetPrintTemplateLocation(Intent data) {
-        Uri uri = data.getData();
-        String filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uri);
-        String extension = FileUtil.getExtension(filePath);
-        if (extension.equalsIgnoreCase("html")) {
-            SharedPreferences.Editor editor = CommCareApplication.instance().getCurrentApp().
-                    getAppPreferences().edit();
-            editor.putString(PREFS_PRINT_DOC_LOCATION, filePath);
-            editor.apply();
-            Toast.makeText(getActivity(), Localization.get("template.success"), Toast.LENGTH_SHORT).show();
-        } else {
-            TemplatePrinterUtils.showAlertDialog(getActivity(), Localization.get("template.not.set"),
-                    Localization.get("template.warning"), false);
         }
     }
 

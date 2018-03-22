@@ -2,7 +2,9 @@ package org.commcare.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -86,7 +88,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         btnInstallArchive.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
+                createArchive(editFileLocation.getText().toString());
             }
         });
 
@@ -149,21 +151,13 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_FILE_LOCATION && resultCode == AppCompatActivity.RESULT_OK) {
-            // Android versions 4.4 and up sometimes don't return absolute
-            // filepaths from the file chooser. So resolve the URI into a
-            // valid file path.
-            String filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(),
-                    intent.getData());
-            if (filePath != null) {
-                editFileLocation.setText(filePath);
-            }
+            FileUtil.updateFileLocationFromIntent(this, intent, editFileLocation);
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         evalState();
     }
 
@@ -176,7 +170,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             return;
         }
 
-        if (!(new File(location)).exists()) {
+        if (!location.startsWith("content://") && !(new File(location)).exists()) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.invalid.path"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallArchive.setEnabled(false);

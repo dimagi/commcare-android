@@ -16,12 +16,18 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+
+import org.commcare.CommCareApplication;
+import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
+import org.commcare.activities.MessageActivity;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
 import org.commcare.dalvik.R;
+import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.SquareButtonWithText;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
@@ -38,6 +44,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
     private View mFetchHubContainer;
     private TextView mErrorMessageView;
+    private RectangleButtonWithText mViewErrorButton;
+    private View mViewErrorContainer;
     private ArrayList<MicroNode.AppManifest> mLocalApps = new ArrayList<>();
 
     @Override
@@ -45,6 +53,10 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         super.onResume();
 
         NSDDiscoveryTools.registerForNsdServices(this.getContext(), this);
+        if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+            mViewErrorContainer.setVisibility(View.GONE);
+        }
+
     }
 
     @Override
@@ -73,9 +85,10 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                     if (currentActivity instanceof CommCareSetupActivity) {
                         ((CommCareSetupActivity)currentActivity).clearErrorMessage();
                     }
-                    Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                    i.putExtra("SCAN_FORMATS", "QR_CODE");
-                    getActivity().startActivityForResult(i, CommCareSetupActivity.BARCODE_CAPTURE);
+                    Intent intent = new IntentIntegrator(getActivity())
+                            .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
+                            .createScanIntent();
+                    currentActivity.startActivityForResult(intent, CommCareSetupActivity.BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getActivity(), "No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
                     barcodeButtonContainer.setVisibility(View.GONE);
@@ -97,8 +110,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 // if we use getChildFragmentManager, we're going to have a crash
                 FragmentManager fm = getActivity().getSupportFragmentManager();
                 FragmentTransaction ft = fm.beginTransaction();
+                ft.remove(SelectInstallModeFragment.this);
                 ft.replace(SelectInstallModeFragment.this.getId(), enterUrl);
-                ft.addToBackStack(null);
                 ft.commit();
             }
         });
@@ -115,6 +128,19 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         });
 
         mErrorMessageView = (TextView)view.findViewById(R.id.install_error_text);
+
+        mViewErrorContainer = view.findViewById(R.id.btn_view_errors_container);
+
+        mViewErrorButton = view.findViewById(R.id.btn_view_errors);
+
+        mViewErrorButton.setText(Localization.get("error.button.text"));
+
+        mViewErrorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CommCareNoficationManager.performIntentCalloutToNotificationsView(getActivity());
+            }
+        });
         showOrHideErrorMessage();
 
         mFetchHubContainer = view.findViewById(R.id.btn_fetch_hub_container);
@@ -174,12 +200,17 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     public void showOrHideErrorMessage() {
         Activity currentActivity = getActivity();
         if (currentActivity instanceof CommCareSetupActivity) {
-            String msg = ((CommCareSetupActivity) currentActivity).getErrorMessageToDisplay();
+            String msg = ((CommCareSetupActivity)currentActivity).getErrorMessageToDisplay();
             if (msg != null && !"".equals(msg)) {
                 mErrorMessageView.setText(msg);
                 mErrorMessageView.setVisibility(View.VISIBLE);
+                if (((CommCareSetupActivity)this.getActivity()).shouldShowNotificationErrorButton()
+                        && CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+                    mViewErrorContainer.setVisibility(View.VISIBLE);
+                }
             } else {
                 mErrorMessageView.setVisibility(View.GONE);
+                mViewErrorContainer.setVisibility(View.GONE);
             }
         }
     }

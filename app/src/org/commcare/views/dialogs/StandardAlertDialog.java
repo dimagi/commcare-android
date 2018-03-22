@@ -121,4 +121,10 @@ public class StandardAlertDialog extends CommCareAlertDialog {
         neutralButton.setVisibility(View.VISIBLE);
     }
 
+    public void addEmphasizedMessage(String text) {
+        TextView tv = this.view.findViewById(R.id.emphasized_message);
+        tv.setVisibility(View.VISIBLE);
+        tv.setText(text);
+    }
+
 }

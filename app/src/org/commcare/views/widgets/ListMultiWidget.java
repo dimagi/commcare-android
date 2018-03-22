@@ -67,7 +67,7 @@ public class ListMultiWidget extends QuestionWidget {
     public ListMultiWidget(Context context, FormEntryPrompt prompt, boolean displayLabel) {
         super(context, prompt);
 
-        mItems = mPrompt.getSelectChoices();
+        mItems = getSelectChoices();
         mCheckboxes = new Vector<>();
 
         // Layout holds the horizontal list of buttons
@@ -81,7 +81,7 @@ public class ListMultiWidget extends QuestionWidget {
         //Is this safe enough from collisions?
         buttonIdBase = Math.abs(mPrompt.getIndex().hashCode());
 
-        if (mPrompt.getSelectChoices() != null) {
+        if (mItems != null) {
             for (int i = 0; i < mItems.size(); i++) {
                 CheckBox c = new CheckBox(getContext());
 

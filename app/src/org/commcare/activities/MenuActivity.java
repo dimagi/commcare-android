@@ -17,7 +17,7 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
     private MenuList menuView;
     
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) {
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         String menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
         if (menuId == null) {
@@ -55,7 +55,9 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
 
     @Override
     protected boolean onBackwardSwipe() {
-        onBackPressed();
+        if(!isFinishing()) {
+            onBackPressed();
+        }
         return true;
     }
 }

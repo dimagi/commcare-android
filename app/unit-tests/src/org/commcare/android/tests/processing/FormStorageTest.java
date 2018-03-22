@@ -305,6 +305,7 @@ public class FormStorageTest {
 
             // Added in 2.41
             , "org.javarosa.xpath.expr.XPathDistinctValuesFunc"
+            , "org.javarosa.xpath.expr.XPathSleepFunc"
 
             );
 

@@ -25,10 +25,12 @@ import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.models.ODKStorage;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BlockingActionsManager;
@@ -48,10 +50,12 @@ import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
+import java.util.Vector;
 
 public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
     private final static String TAG = QuestionWidget.class.getSimpleName();
@@ -421,7 +425,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             // Create the layout for audio, image, text
             String imageURI = mPrompt.getImageText();
             String audioURI = mPrompt.getAudioText();
-            String expandedAudioURI = mPrompt.getSpecialFormQuestionText("expanded-audio");
             String videoURI = mPrompt.getSpecialFormQuestionText("video");
             String inlineVideoUri = mPrompt.getSpecialFormQuestionText("video-inline");
             String qrCodeContent = mPrompt.getSpecialFormQuestionText("qrcode");
@@ -712,6 +715,20 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         return false;
     }
 
+
+    protected Vector<SelectChoice> getSelectChoices() {
+        Vector<SelectChoice> selectChoices = mPrompt.getSelectChoices();
+        if (!DeveloperPreferences.isSpaceAllowedInSelectChoices() && selectChoices != null) {
+            for (int i = 0; i < selectChoices.size(); i++) {
+                if (selectChoices.get(i).getValue().contains(" ")) {
+                    throw new IllegalArgumentException("Select answer option cannot contain spaces in question '" +
+                            mPrompt.getLongText() + "' with option '" + mPrompt.getSelectChoiceText(selectChoices.get(i)) + "'");
+                }
+            }
+        }
+        return selectChoices;
+    }
+
     /*
      * Method to make localization and styling easier for devs
      * copied from CommCareActivity
@@ -732,6 +749,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         String instanceClass = this.getClass().getSimpleName();
         Logger.log(LogTypes.SOFT_ASSERT,
                 "Calling empty implementation of " + instanceClass + ".setBinaryData");
+    }
+
+    protected void showToast(String stringkey) {
+        Toast.makeText(getContext(),
+                Localization.get(stringkey),
+                Toast.LENGTH_LONG).show();
     }
 
     public boolean forcesPortrait() {

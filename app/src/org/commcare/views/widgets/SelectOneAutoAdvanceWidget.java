@@ -48,7 +48,7 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
 
-        mItems = prompt.getSelectChoices();
+        mItems = getSelectChoices();
         buttons = new Vector<>();
         listener = (AdvanceToNextListener)context;
 
@@ -60,7 +60,7 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
         //Is this safe enough from collisions?
         buttonIdBase = Math.abs(prompt.getIndex().hashCode());
 
-        if (prompt.getSelectChoices() != null) {
+        if (mItems != null) {
             for (int i = 0; i < mItems.size(); i++) {
 
                 RelativeLayout thisParentLayout =

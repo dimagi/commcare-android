@@ -30,6 +30,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.IncompleteFormListAdapter;
 import org.commcare.android.database.user.models.FormRecord;
@@ -139,8 +141,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreateSessionSafe(Bundle savedInstanceState) {
+        super.onCreateSessionSafe(savedInstanceState);
 
         platform = CommCareApplication.instance().getCommCarePlatform();
         setContentView(R.layout.entity_select_layout);
@@ -230,9 +232,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     private static void callBarcodeScanIntent(AppCompatActivity act) {
-        Intent i = new Intent("com.google.zxing.client.android.SCAN");
+        Intent intent = new IntentIntegrator(act).createScanIntent();
         try {
-            act.startActivityForResult(i, BARCODE_FETCH);
+            act.startActivityForResult(intent, BARCODE_FETCH);
         } catch (ActivityNotFoundException anfe) {
             Toast.makeText(act,
                     "No barcode reader available! You can install one " +
@@ -269,26 +271,21 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         saveLastQueryString();
     }
 
-    private void onBarcodeFetch(int resultCode, Intent intent) {
-        if (resultCode == AppCompatActivity.RESULT_OK) {
-            String result = intent.getStringExtra("SCAN_RESULT");
-            if (result != null) {
-                result = result.trim();
-            }
-            setSearchText(result);
+    @Override
+    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+        if (resultCode == AppCompatActivity.RESULT_OK && requestCode == BARCODE_FETCH) {
+            onBarcodeFetch(intent);
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        switch (requestCode) {
-            case BARCODE_FETCH:
-                onBarcodeFetch(resultCode, intent);
-                break;
-            default:
-                super.onActivityResult(requestCode, resultCode, intent);
+    private void onBarcodeFetch(Intent intent) {
+        String result = intent.getStringExtra("SCAN_RESULT");
+        if (result != null) {
+            result = result.trim();
         }
+        setSearchText(result);
     }
+
 
     @Override
     public String getActivityTitle() {
@@ -312,7 +309,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     @Override
-    protected void onResumeSessionSafe() {
+    public void onResumeSessionSafe() {
         attachToPurgeTask();
 
         if (adapter != null && initialSelection != -1) {

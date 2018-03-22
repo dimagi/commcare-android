@@ -9,6 +9,8 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.cases.util.StringUtils;
 import org.commcare.modern.util.Pair;
+import org.commcare.util.EntityProvider;
+import org.commcare.util.EntitySortUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -64,6 +66,17 @@ public class EntityStringFilterer extends EntityFiltererBase {
         }
     }
 
+    private Entity<TreeReference> getEntityAtIndex(SQLiteDatabase db, int index) {
+        if (index % 500 == 0) {
+            db.yieldIfContendedSafely();
+        }
+        Entity<TreeReference> e = fullEntityList.get(index);
+        if (isCancelled()) {
+            return null;
+        }
+        return e;
+    }
+
     private void buildMatchList() {
         Locale currentLocale = Locale.getDefault();
         //It's a bit sketchy here, because this DB lock will prevent
@@ -77,62 +90,18 @@ public class EntityStringFilterer extends EntityFiltererBase {
         }
         db.beginTransaction();
         try {
-            for (int index = 0; index < fullEntityList.size(); ++index) {
-                //Every once and a while we should make sure we're not blocking anything with the database
-                if (index % 500 == 0) {
-                    db.yieldIfContendedSafely();
-                }
-                Entity<TreeReference> e = fullEntityList.get(index);
-                if (isCancelled()) {
-                    db.setTransactionSuccessful();
-                    return;
-                }
-
-                boolean add = false;
-                int score = 0;
-                filter:
-                for (String filter : searchTerms) {
-                    add = false;
-                    for (int i = 0; i < e.getNumFields(); ++i) {
-                        String field = e.getNormalizedField(i);
-                        if (!"".equals(field) && field.toLowerCase(currentLocale).contains(filter)) {
-                            add = true;
-                            continue filter;
-                        } else if (isFuzzySearchEnabled) {
-                            // We possibly now want to test for edit distance for
-                            // fuzzy matching
-                            for (String fieldChunk : e.getSortFieldPieces(i)) {
-                                Pair<Boolean, Integer> match = StringUtils.fuzzyMatch(filter, fieldChunk);
-                                if (match.first) {
-                                    add = true;
-                                    score += match.second;
-                                    continue filter;
-                                }
-                            }
+            EntitySortUtil.sortEntities(fullEntityList,
+                    searchTerms,
+                    currentLocale,
+                    isFuzzySearchEnabled,
+                    matchScores,
+                    matchList,
+                    new EntityProvider() {
+                        @Override
+                        public Entity<TreeReference> getEntity(int index) {
+                            return getEntityAtIndex(db, index);
                         }
-                    }
-                    if (!add) {
-                        break;
-                    }
-                }
-                if (add) {
-                    matchScores.add(Pair.create(index, score));
-                }
-            }
-            // If fuzzy search is enabled need to re-sort based on edit distance
-            if (isFuzzySearchEnabled) {
-                Collections.sort(matchScores, new Comparator<Pair<Integer, Integer>>() {
-                    @Override
-                    public int compare(Pair<Integer, Integer> lhs, Pair<Integer, Integer> rhs) {
-                        return lhs.second - rhs.second;
-                    }
-                });
-            }
-
-            for (Pair<Integer, Integer> match : matchScores) {
-                matchList.add(fullEntityList.get(match.first));
-            }
-
+                    });
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

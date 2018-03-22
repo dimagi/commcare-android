@@ -80,14 +80,14 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     @Override
-                    public boolean initialize(CommCarePlatform instance, boolean isUpgrade) {
+                    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
                         return true;
                     }
 
                     @Override
                     public boolean install(Resource r,
                                            ResourceLocation location, Reference ref,
-                                           ResourceTable table, CommCarePlatform instance,
+                                           ResourceTable table, CommCarePlatform platform,
                                            boolean upgrade)
                             throws UnresolvedResourceException,
                             UnfullfilledRequirementsException {
@@ -95,28 +95,28 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     @Override
-                    public int rollback(Resource r) {
+                    public int rollback(Resource r, CommCarePlatform platform) {
                         throw new RuntimeException("Basic Installer resources can't rolled back");
                     }
 
                     @Override
-                    public boolean uninstall(Resource r)
+                    public boolean uninstall(Resource r, CommCarePlatform platform)
                             throws UnresolvedResourceException {
                         return true;
                     }
 
                     @Override
-                    public boolean unstage(Resource r, int newStatus) {
+                    public boolean unstage(Resource r, int newStatus, CommCarePlatform platform) {
                         return true;
                     }
 
                     @Override
-                    public boolean revert(Resource r, ResourceTable table) {
+                    public boolean revert(Resource r, ResourceTable table, CommCarePlatform platform) {
                         return true;
                     }
 
                     @Override
-                    public boolean upgrade(Resource r)
+                    public boolean upgrade(Resource r, CommCarePlatform platform)
                             throws UnresolvedResourceException {
                         return true;
                     }
@@ -127,7 +127,7 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     @Override
-                    public boolean verifyInstallation(Resource r, Vector problems) {
+                    public boolean verifyInstallation(Resource r, Vector problems, CommCarePlatform platform) {
                         return false;
                     }
                 };
@@ -182,13 +182,13 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void prepareResources(ResourceTable master, CommCarePlatform instance)
+    public void prepareResources(ResourceTable master, CommCarePlatform platform)
             throws UnresolvedResourceException,
             UnfullfilledRequirementsException {
     }
 
     @Override
-    public void upgradeTable(ResourceTable incoming)
+    public void upgradeTable(ResourceTable incoming, CommCarePlatform instance)
             throws UnresolvedResourceException {
     }
 
@@ -202,11 +202,11 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void clear() {
+    public void clear(CommCarePlatform instance) {
     }
 
     @Override
-    public void initializeResources(CommCarePlatform instance, boolean isUpgrade) {
+    public void initializeResources(CommCarePlatform platform, boolean isUpgrade) {
     }
 
 }
