@@ -23,9 +23,14 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class HomeButtons {
-    private final static String[] buttonNames =
-            new String[]{"start", "saved", "incomplete", "sync", "report", "logout"};
 
+    private final static String[] buttonNames =
+            new String[]{"start", "training", "saved", "incomplete", "sync", "report", "logout"};
+
+    /**
+     * Note: The order in which home cards are returned by this method should be consistent with
+     * the buttonNames array above
+     */
     public static HomeCardDisplayData[] buildButtonData(StandardHomeActivity activity,
                                                         Vector<String> buttonsToHide,
                                                         boolean isDemoUser) {
@@ -46,6 +51,9 @@ public class HomeButtons {
                         R.drawable.home_start,
                         R.color.cc_attention_positive_color,
                         getStartButtonListener(activity)),
+                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("training.root.title"), R.color.white,
+                        R.drawable.home_training, R.color.cc_dark_cool_accent_color,
+                        getTrainingButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.forms.saved"),
                         R.color.white,
                         R.drawable.home_saved,
@@ -135,6 +143,15 @@ public class HomeButtons {
             @Override
             public void onClick(View v) {
                 activity.enterRootModule();
+            }
+        };
+    }
+
+    private static View.OnClickListener getTrainingButtonListener(final StandardHomeActivity activity) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                activity.enterTrainingModule();
             }
         };
     }
