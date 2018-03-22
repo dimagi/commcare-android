@@ -4,7 +4,6 @@ import android.support.annotation.NonNull;
 
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.form.api.FormController;
 import org.javarosa.form.api.FormEntryController;
 
@@ -17,7 +16,6 @@ public class AndroidFormController extends FormController implements PendingCall
     private FormIndex mPendingCalloutFormIndex = null;
     private boolean wasPendingCalloutCancelled;
     private FormIndex formIndexToReturnTo = null;
-    private ReducingTraceReporter formEntryTraceReporter = null;
 
     public AndroidFormController(FormEntryController fec, boolean readOnly) {
         super(fec, readOnly);
