@@ -56,21 +56,31 @@ public class Permissions {
     private static boolean missingAppPermission(Activity activity,
                                                 String[] permissions) {
         for (String perm : permissions) {
-            if (ContextCompat.checkSelfPermission(activity, perm) == PackageManager.PERMISSION_DENIED) {
+            if (missingAppPermission(activity, perm)) {
                 return true;
             }
         }
         return false;
     }
 
+    public static boolean missingAppPermission(Activity activity,
+                                               String permission) {
+        return ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_DENIED;
+    }
+
     private static boolean shouldShowPermissionRationale(Activity activity,
                                                          String[] permissions) {
         for (String perm : permissions) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, perm)) {
+            if (shouldShowPermissionRationale(activity, perm)) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static boolean shouldShowPermissionRationale(Activity activity,
+                                                        String permission) {
+        return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
     }
 
     /**
