@@ -102,14 +102,14 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
     @Override
     public void onDisplayPreferenceDialog(Preference preference) {
         // check if dialog is already showing
-        if (getFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_TAG) != null) {
+        if (getActivity().getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_TAG) != null) {
             return;
         }
 
         if (preference instanceof FilePreference) {
             DialogFragment f = FilePreferenceDialogFragmentCompat.newInstance(preference.getKey());
             f.setTargetFragment(this, 0);
-            f.show(getFragmentManager(), DIALOG_FRAGMENT_TAG);
+            f.show(getActivity().getSupportFragmentManager(), DIALOG_FRAGMENT_TAG);
         } else {
             super.onDisplayPreferenceDialog(preference);
         }

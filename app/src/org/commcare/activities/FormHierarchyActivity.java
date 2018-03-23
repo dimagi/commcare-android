@@ -1,7 +1,7 @@
 package org.commcare.activities;
 
-import android.app.ActionBar;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -112,7 +112,7 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
 
     private void addActionBarBackArrow() {
         if (android.os.Build.VERSION.SDK_INT >= 11) {
-            ActionBar bar = getActionBar();
+            ActionBar bar = getSupportActionBar();
             if (bar != null) {
                 bar.setDisplayShowHomeEnabled(true);
                 bar.setDisplayHomeAsUpEnabled(true);

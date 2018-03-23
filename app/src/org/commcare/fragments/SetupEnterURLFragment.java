@@ -51,7 +51,7 @@ public class SetupEnterURLFragment extends Fragment {
         installButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                getFragmentManager().popBackStack(); // equivalent to pressing the "back" button
+                getActivity().getSupportFragmentManager().popBackStack(); // equivalent to pressing the "back" button
                 // no need for a null check because onAttach is called before onCreateView
                 listener.onURLChosen(getURL()); // returns the chosen URL to the parent Activity
             }

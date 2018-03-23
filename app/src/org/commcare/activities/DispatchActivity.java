@@ -3,16 +3,16 @@ package org.commcare.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.LifecycleUtils;
@@ -27,7 +27,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class DispatchActivity extends FragmentActivity {
+public class DispatchActivity extends AppCompatActivity {
     private static final String TAG = DispatchActivity.class.getSimpleName();
     private static final String SESSION_REQUEST = "ccodk_session_request";
     public static final String WAS_EXTERNAL = "launch_from_external";

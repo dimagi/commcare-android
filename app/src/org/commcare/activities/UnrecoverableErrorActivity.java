@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 
 import org.commcare.utils.LifecycleUtils;

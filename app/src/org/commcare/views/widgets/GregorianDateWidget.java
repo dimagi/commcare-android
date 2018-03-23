@@ -1,8 +1,8 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,12 +14,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.javarosa.core.model.data.InvalidDateData;
-import org.javarosa.xform.util.UniversalDate;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.InvalidDateData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.xform.util.UniversalDate;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -74,7 +74,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
             clearAll.setVisibility(View.GONE);
         }
 
-        fm = ((FragmentActivity)getContext()).getSupportFragmentManager();
+        fm = ((AppCompatActivity)getContext()).getSupportFragmentManager();
 
         myCalendarFragment = new CalendarFragment();
         myCalendarFragment.setListener(this);

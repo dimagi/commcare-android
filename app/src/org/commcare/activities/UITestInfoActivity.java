@@ -3,16 +3,13 @@ package org.commcare.activities;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
-import org.commcare.CommCareApplication;
-import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.dalvik.R;
-import org.commcare.models.database.SqlStorage;
 
 // Used for ui testing components which don't have UI components
-public class UITestInfoActivity extends FragmentActivity {
+public class UITestInfoActivity extends AppCompatActivity {
 
     public static final String LOG_SUBMISSION_RESULT_PREF = "log_submission_result";
     private static final String EXTRA_INFO_TYPE = "info_type";
@@ -25,7 +22,7 @@ public class UITestInfoActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_uitest_info);
         setTitle("UI Test Info");
-        infoTv = findViewById(R.id.infoTv);
+        infoTv = (TextView)findViewById(R.id.infoTv);
         loadInfo();
     }
 

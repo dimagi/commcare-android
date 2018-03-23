@@ -3,8 +3,8 @@ package org.commcare.views;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +26,7 @@ import org.javarosa.core.model.instance.TreeReference;
  * @author jschweers
  */
 public class TabbedDetailView extends RelativeLayout {
-    private FragmentActivity mContext;
+    private AppCompatActivity mContext;
 
     private LinearLayout mMenu;
     private ViewPager mViewPager;
@@ -43,7 +43,7 @@ public class TabbedDetailView extends RelativeLayout {
     public TabbedDetailView(Context context, AttributeSet attrs) {
         super(context, attrs);
         if (isInEditMode()) return;
-        mContext = (FragmentActivity)context;
+        mContext = (AppCompatActivity)context;
 
         loadViewConfig(context, attrs);
     }
@@ -60,7 +60,7 @@ public class TabbedDetailView extends RelativeLayout {
     @SuppressLint("NewApi")
     public TabbedDetailView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        mContext = (FragmentActivity)context;
+        mContext = (AppCompatActivity)context;
     }
 
     /*
