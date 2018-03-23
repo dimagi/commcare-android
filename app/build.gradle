@@ -36,11 +36,10 @@ dependencies {
     testCompile 'org.robolectric:robolectric:3.2.2'
     testCompile 'org.robolectric:shadows-multidex:3.2.2'
     testCompile 'org.robolectric:shadows-core:3.2.2'
-
     testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
     debugCompile project(':commcare-core')
-    compile project(':commcare-core')
+    implementation project(':commcare-core')
     // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
     compile fileTree(include: '*.jar', dir: 'libs')
     compile(name: 'htmlspanner-custom', ext: 'aar')
