@@ -14,7 +14,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
-import android.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;

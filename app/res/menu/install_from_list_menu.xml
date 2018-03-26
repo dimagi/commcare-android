@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/refresh_app_list_item"
         android:title="Refresh Apps"
         android:icon="@drawable/ic_refresh_white"
-        android:showAsAction="always"/>
+        app:showAsAction="always"/>
 </menu>

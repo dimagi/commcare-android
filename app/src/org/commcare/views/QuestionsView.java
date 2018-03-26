@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Handler;
-import android.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.TypedValue;

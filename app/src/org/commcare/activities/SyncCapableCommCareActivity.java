@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.AnimRes;
 import android.support.annotation.LayoutRes;
+import android.support.v4.view.MenuItemCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -249,7 +250,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     private void computeSyncState(SyncIconTrigger trigger) {
         lastIconTrigger = trigger;
-        switch(trigger) {
+        switch (trigger) {
             case NO_ANIMATION:
                 if (SyncDetailCalculations.getNumUnsentForms() > 0) {
                     syncStateForIcon = SyncIconState.FORMS_PENDING;
@@ -325,14 +326,14 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         ImageView iv = (ImageView)inflater.inflate(layoutResource, null);
         Animation animation = AnimationUtils.loadAnimation(this, animationId);
         iv.startAnimation(animation);
-        menuItem.setActionView(iv);
+        MenuItemCompat.setActionView(menuItem, iv);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void clearCurrentAnimation(MenuItem item) {
-        if (item != null && item.getActionView() != null) {
-            item.getActionView().clearAnimation();
-            item.setActionView(null);
+        if (item != null && MenuItemCompat.getActionView(item) != null) {
+            MenuItemCompat.getActionView(item).clearAnimation();
+            MenuItemCompat.setActionView(item, null);
         }
     }
 

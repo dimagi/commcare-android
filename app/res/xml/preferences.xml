@@ -1,5 +1,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <ListPreference
+    <android.support.v7.preference.ListPreference
         android:id="@+id/font_size"
         android:defaultValue="21"
         android:dialogTitle="@string/change_font_size"

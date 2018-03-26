@@ -1,6 +1,8 @@
 package org.commcare.activities;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.widget.SearchView;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -21,7 +24,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
@@ -67,7 +69,7 @@ import io.reactivex.disposables.Disposable;
  * @author ctsims
  */
 public abstract class CommCareActivity<R> extends AppCompatActivity
-        implements CommCareTaskConnector<R>, DialogController, OnGestureListener, DetailCalloutListener{
+        implements CommCareTaskConnector<R>, DialogController, OnGestureListener, DetailCalloutListener {
 
     private static final String TAG = CommCareActivity.class.getSimpleName();
 
@@ -122,7 +124,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
         FragmentManager fm = this.getSupportFragmentManager();
 
-        stateHolder = (TaskConnectorFragment<R>) fm.findFragmentByTag("state");
+        stateHolder = (TaskConnectorFragment<R>)fm.findFragmentByTag("state");
 
         // stateHolder and its previous state aren't null if the activity is
         // being created due to an orientation change.
@@ -145,7 +147,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
             getSupportActionBar().setDisplayShowCustomEnabled(true);
 
             // Add breadcrumb bar
-            BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+            BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
 
             // If the state holder is null, create a new one for this activity
             if (bar == null) {
@@ -231,13 +233,13 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
      */
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
 
-   }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if(!isFinishing()) {
+                if (!isFinishing()) {
                     this.onBackPressed();
                 }
                 return true;
@@ -384,7 +386,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     @Override
     public R getReceiver() {
-        return (R) this;
+        return (R)this;
     }
 
     @Override
@@ -447,7 +449,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     protected void transplantStyle(TextView target, int resource) {
         //get styles from here
-        TextView tv = (TextView) View.inflate(this, resource, null);
+        TextView tv = (TextView)View.inflate(this, resource, null);
         int[] padding = {target.getPaddingLeft(), target.getPaddingTop(), target.getPaddingRight(), target.getPaddingBottom()};
 
         target.setTextColor(tv.getTextColors().getDefaultColor());
@@ -577,7 +579,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         String message = "Attempting to update a progress dialog whose taskId (" + taskId +
                 " does not match the task for which the update message was intended.";
 
-        if(invalidTaskIdMessageThrown != taskId) {
+        if (invalidTaskIdMessageThrown != taskId) {
             invalidTaskIdMessageThrown = taskId;
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION, message);
         } else {
@@ -597,7 +599,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     @Override
     public CustomProgressDialog getCurrentProgressDialog() {
-        return (CustomProgressDialog) getSupportFragmentManager().
+        return (CustomProgressDialog)getSupportFragmentManager().
                 findFragmentByTag(KEY_PROGRESS_DIALOG_FRAG);
     }
 
@@ -621,7 +623,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     @Override
     public AlertDialogFragment getCurrentAlertDialog() {
-        return (AlertDialogFragment) getSupportFragmentManager().
+        return (AlertDialogFragment)getSupportFragmentManager().
                 findFragmentByTag(KEY_ALERT_DIALOG_FRAG);
     }
 
@@ -676,7 +678,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
      * the alternative search widget is removed, and ActionBarInstantiator is run, if it exists.
      * Used in EntitySelectActivity and FormRecordListActivity.
      *
-     * @param activity          Current activity
+     * @param activity     Current activity
      * @param menu         Menu passed through onCreateOptionsMenu
      * @param instantiator Optional ActionBarInstantiator for additional setup code.
      */
@@ -687,18 +689,17 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
             inflater.inflate(org.commcare.dalvik.R.menu.action_bar_search_view, menu);
 
             MenuItem searchMenuItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
-            SearchView searchView =
-                    (SearchView) searchMenuItem.getActionView();
+            SearchView searchView = (SearchView)MenuItemCompat.getActionView(searchMenuItem);
             MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.barcode_scan_action_bar);
             if (searchView != null) {
-                int[] searchViewStyle =
-                        AndroidUtil.getThemeColorIDs(this,
-                                new int[]{org.commcare.dalvik.R.attr.searchbox_action_bar_color});
-                int id = searchView.getContext()
-                        .getResources()
-                        .getIdentifier("android:id/search_src_text", null, null);
-                TextView textView = (TextView) searchView.findViewById(id);
-                textView.setTextColor(searchViewStyle[0]);
+//                int[] searchViewStyle =
+//                        AndroidUtil.getThemeColorIDs(this,
+//                                new int[]{org.commcare.dalvik.R.attr.searchbox_action_bar_color});
+//                int id = searchView.getContext()
+//                        .getResources()
+//                        .getIdentifier("android:id/search_src_text", null, null);
+//                TextView textView = (TextView)searchView.findViewById(id);
+//                textView.setTextColor(searchViewStyle[0]);
                 if (instantiator != null) {
                     instantiator.onActionBarFound(searchMenuItem, searchView, barcodeItem);
                 }
@@ -767,7 +768,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         FragmentManager fm = this.getSupportFragmentManager();
         BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
         if (bar != null) {
-            if(bar.collapseTileIfExpanded(this)) {
+            if (bar.collapseTileIfExpanded(this)) {
                 return;
             }
         }
@@ -813,7 +814,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
         // for all screens a swipe is left/right of at least .25" and at an angle of no more than 30
         //degrees
-        int xPixelLimit = (int) (dm.xdpi * .25);
+        int xPixelLimit = (int)(dm.xdpi * .25);
 
         return xMov > xPixelLimit && angleOfMotion < 30;
     }
@@ -821,6 +822,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     /**
      * Rebuild the activity's menu options based on the current state of the activity.
      */
+    @SuppressLint("RestrictedApi")
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void rebuildOptionsMenu() {
         if (CommCareApplication.instance().getCurrentApp() != null) {
@@ -849,7 +851,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     public void refreshActionBar() {
         if (shouldShowBreadcrumbBar()) {
             FragmentManager fm = this.getSupportFragmentManager();
-            BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+            BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
             bar.refresh(this);
         }
     }

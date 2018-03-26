@@ -7,8 +7,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+import android.support.v7.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Pair;
 
