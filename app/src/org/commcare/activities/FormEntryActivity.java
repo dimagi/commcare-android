@@ -957,9 +957,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         boolean isRestartAfterSessionExpiration =
                 getIntent().getBooleanExtra(KEY_IS_RESTART_AFTER_EXPIRATION, false);
         // Set saved answer path
-        if (FormEntryInstanceState.mInstancePath == null || isRestartAfterSessionExpiration) {
+        if (FormEntryInstanceState.mInstancePath == null) {
             instanceState.initInstancePath();
-        } else {
+        } else if (!isRestartAfterSessionExpiration) {
             // we've just loaded a saved form, so start in the hierarchy view
             Intent i = new Intent(this, FormHierarchyActivity.class);
             startActivityForResult(i, FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START);
