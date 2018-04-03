@@ -47,6 +47,7 @@ import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorLogger;
@@ -167,6 +168,8 @@ public class CommCareApplication extends MultiDexApplication {
 
         CommCareApplication.app = this;
         CrashUtil.init(this);
+        DataChangeLogger.init(this);
+        DataChangeLogger.log("Howdy Boo");
         configureCommCareEngineConstantsAndStaticRegistrations();
         noficationManager = new CommCareNoficationManager(this);
 
