@@ -1223,7 +1223,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // might be auto-saving a form due to user session expiring
         }
 
-        InstrumentationUtils.printAndClearTraces(this.traceReporter, "FULL FORM ENTRY TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
+        //InstrumentationUtils.printAndClearTraces(this.traceReporter, "FULL FORM ENTRY TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
         InstrumentationUtils.printExpressionsThatUsedCaching(this.traceReporter, "FULL FORM ENTRY CACHE USAGE:");
 
         dismissProgressDialog();
