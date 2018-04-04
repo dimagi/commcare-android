@@ -1224,7 +1224,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         //InstrumentationUtils.printAndClearTraces(this.traceReporter, "FULL FORM ENTRY TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
-        InstrumentationUtils.printExpressionsThatUsedCaching(this.traceReporter, "FULL FORM ENTRY CACHE USAGE:");
+        //InstrumentationUtils.printExpressionsThatUsedCaching(this.traceReporter, "EXPRESSIONS THAT USED CACHING:");
+        InstrumentationUtils.printCachedAndNotCachedExpressions(this.traceReporter, "CACHED AND NOT CACHED EXPRESSIONS:");
 
         dismissProgressDialog();
         reportFormExitTime();
