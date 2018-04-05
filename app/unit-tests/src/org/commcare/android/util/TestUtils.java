@@ -273,6 +273,7 @@ public class TestUtils {
     public static EvaluationContext getEvaluationContextWithoutSession() {
         return getEvaluationContextWithoutSession(null);
     }
+
     public static EvaluationContext getEvaluationContextWithoutSession(DataInstance mainInstanceForEC) {
         final SQLiteDatabase db = getTestDb();
 

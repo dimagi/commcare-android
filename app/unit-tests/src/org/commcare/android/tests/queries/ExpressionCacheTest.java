@@ -27,10 +27,7 @@ public class ExpressionCacheTest {
 
     @Before
     public void setup() {
-        TreeElement root = new TreeElement("root");
-        TreeElement data = new TreeElement("data");
-        root.addChild(data);
-        mainFormInstance = new FormInstance(root);
+        mainFormInstance = new FormInstance(new TreeElement("data"));
 
         TestUtils.initializeStaticTestStorage();
         TestUtils.processResourceTransaction("/inputs/case_test_model_query_lookups.xml");
