@@ -1,10 +1,12 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.utils.GeoUtils;
 
 import java.util.concurrent.TimeUnit;
@@ -53,6 +55,9 @@ public class HiddenPreferences {
 
     private final static String LOGS_ENABLED = "logenabled";
     private final static String LOGS_ENABLED_YES = "Enabled";
+
+    // Boolean pref to determine first commcare run
+    public final static String FIRST_COMMCARE_RUN = "first-commcare-run";
 
     /**
      * @return How many seconds should a user session remain open before expiring?

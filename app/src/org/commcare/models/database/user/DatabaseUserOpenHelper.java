@@ -12,6 +12,7 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.cases.model.Case;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
@@ -177,6 +178,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        DataChangeLogger.log("Starting upgrade for User DB from " + oldVersion + " to " + newVersion);
         boolean inSenseMode = false;
         //TODO: Not a great way to get the current app! Pass this in to the constructor.
         //I am preeeeeety sure that we can't get here without _having_ an app/platform, but not 100%
@@ -191,6 +193,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
         }
         new UserDatabaseUpgrader(context, mUserId, inSenseMode, fileMigrationKeySeed).upgrade(db, oldVersion, newVersion);
+        DataChangeLogger.log("Completed upgrade for User DB from " + oldVersion + " to " + newVersion);
     }
 
     public static void buildTable(SQLiteDatabase database,

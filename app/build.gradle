@@ -12,6 +12,7 @@ import com.android.builder.core.DefaultManifestParser
 // these directories MUST be named like this, or it won't work
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 apply plugin: 'io.fabric'
 apply plugin: 'me.tatarka.retrolambda'
 
@@ -76,6 +77,7 @@ dependencies {
         transitive = true;
     }
     compile 'com.github.budsmile:bypass-android:1.0.5'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }
 
 ext {

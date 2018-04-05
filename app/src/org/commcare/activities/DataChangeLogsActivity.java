@@ -3,12 +3,13 @@ package org.commcare.activities;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.view.MenuItemCompat;
-import android.widget.ShareActionProvider;
+import android.support.annotation.RequiresApi;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
@@ -26,21 +27,26 @@ public class DataChangeLogsActivity extends Activity {
         setContentView(R.layout.activity_data_change_logs);
         mlogs = DataChangeLogger.getLogs();
         ((TextView)findViewById(R.id.logs_tv)).setText(mlogs);
-        setShareIntent();
     }
 
-    @SuppressLint("NewApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            setUpShareActionProvider(menu);
+        }
+        return true;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    private void setUpShareActionProvider(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_share, menu);
         MenuItem item = menu.findItem(R.id.menu_item_share);
         mShareActionProvider = (ShareActionProvider)item.getActionProvider();
         setShareIntent();
-        return true;
     }
 
     // Call to update the share intent
-    @SuppressLint("NewApi")
+    @RequiresApi(api = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void setShareIntent() {
         if (mShareActionProvider != null) {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);

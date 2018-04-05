@@ -114,6 +114,8 @@ import javax.crypto.SecretKey;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
+import static org.commcare.preferences.HiddenPreferences.FIRST_COMMCARE_RUN;
+
 public class CommCareApplication extends MultiDexApplication {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
@@ -168,8 +170,8 @@ public class CommCareApplication extends MultiDexApplication {
 
         CommCareApplication.app = this;
         CrashUtil.init(this);
-        DataChangeLogger.init(this);
-        DataChangeLogger.log("Howdy Boo");
+        new DataChangeLogger().init(this);
+        logFirstRun();
         configureCommCareEngineConstantsAndStaticRegistrations();
         noficationManager = new CommCareNoficationManager(this);
 
@@ -212,6 +214,42 @@ public class CommCareApplication extends MultiDexApplication {
             AppUtils.checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
         }
+    }
+
+    private void logFirstRun() {
+        if (isFirstRunAfterInstall()) {
+            DataChangeLogger.log("CommCare installed");
+        } else if (isFirstRunAfterUpdate()) {
+            DataChangeLogger.log("CommCare udpated");
+        }
+    }
+
+    // Whether user is running CommCare for the first time after installation
+    public static boolean isFirstRunAfterInstall() {
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+        if (preferences.getBoolean(FIRST_COMMCARE_RUN, true)) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(FIRST_COMMCARE_RUN, false);
+            editor.putBoolean(ReportingUtils.getCommCareVersionString() + "-first-run", false);
+            editor.apply();
+            return true;
+        }
+        return false;
+    }
+
+    // Whether user is running CommCare for the first time after a CommCare update
+    public static boolean isFirstRunAfterUpdate() {
+        String prefKey = ReportingUtils.getCommCareVersionString() + "-first-run";
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+        if (preferences.getBoolean(prefKey, true)) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(prefKey, false);
+            editor.apply();
+            return true;
+        }
+        return false;
     }
 
     /**

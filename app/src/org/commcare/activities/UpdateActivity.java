@@ -21,6 +21,7 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.preferences.PrefValues;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
@@ -434,7 +435,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             // Must be updating from the app manager, in which case we don't have a current user
         }
         Logger.log(LogTypes.TYPE_RESOURCES, updateLogMessage);
-
+        DataChangeLogger.log("App upgrade successful");
     }
 
     private void logoutOnSuccessfulUpdate() {

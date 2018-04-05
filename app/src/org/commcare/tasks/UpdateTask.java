@@ -10,6 +10,7 @@ import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
@@ -170,6 +171,10 @@ public class UpdateTask
     @Override
     protected void onPostExecute(ResultAndError<AppInstallStatus> resultAndError) {
         super.onPostExecute(resultAndError);
+
+        if (resultAndError.data.equals(AppInstallStatus.UpdateStaged)) {
+            DataChangeLogger.log("App upgrade staged and starting install");
+        }
 
         if (!resultAndError.data.isUpdateInCompletedState()) {
             resourceManager.processUpdateFailure(resultAndError.data, ctx, wasTriggeredByAutoUpdate);
