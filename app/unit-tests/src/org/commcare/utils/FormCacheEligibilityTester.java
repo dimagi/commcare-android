@@ -116,4 +116,10 @@ public class FormCacheEligibilityTester {
             e.printStackTrace();
         }
     }
+
+    // to avoid test file initialization error due to not having any runnable test methods
+    @Test
+    public void dummy() {
+
+    }
 }
