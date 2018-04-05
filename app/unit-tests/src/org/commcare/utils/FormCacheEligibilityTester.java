@@ -107,7 +107,7 @@ public class FormCacheEligibilityTester {
         }
     }
 
-    @Test
+    //@Test Keep this commented out for normal test runs because it will be slow and it's not a real test
     public void run() {
         try {
             categorizeAndPrintExpressions("/forms/sample_form.xml");
