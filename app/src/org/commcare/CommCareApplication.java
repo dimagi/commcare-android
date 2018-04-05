@@ -114,8 +114,6 @@ import javax.crypto.SecretKey;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-import static org.commcare.preferences.HiddenPreferences.FIRST_COMMCARE_RUN;
-
 public class CommCareApplication extends MultiDexApplication {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
@@ -171,7 +169,7 @@ public class CommCareApplication extends MultiDexApplication {
         CommCareApplication.app = this;
         CrashUtil.init(this);
         new DataChangeLogger().init(this);
-        logFirstRun();
+        logFirstCommCareRun();
         configureCommCareEngineConstantsAndStaticRegistrations();
         noficationManager = new CommCareNoficationManager(this);
 
@@ -216,7 +214,7 @@ public class CommCareApplication extends MultiDexApplication {
         }
     }
 
-    private void logFirstRun() {
+    private void logFirstCommCareRun() {
         if (isFirstRunAfterInstall()) {
             DataChangeLogger.log("CommCare installed");
         } else if (isFirstRunAfterUpdate()) {
@@ -228,9 +226,9 @@ public class CommCareApplication extends MultiDexApplication {
     public static boolean isFirstRunAfterInstall() {
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
-        if (preferences.getBoolean(FIRST_COMMCARE_RUN, true)) {
+        if (preferences.getBoolean(HiddenPreferences.FIRST_COMMCARE_RUN, true)) {
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putBoolean(FIRST_COMMCARE_RUN, false);
+            editor.putBoolean(HiddenPreferences.FIRST_COMMCARE_RUN, false);
             editor.putBoolean(ReportingUtils.getCommCareVersionString() + "-first-run", false);
             editor.apply();
             return true;

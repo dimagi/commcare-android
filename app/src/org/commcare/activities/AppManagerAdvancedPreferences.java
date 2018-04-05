@@ -77,8 +77,6 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
 
         Preference dataChangeLogs = findPreference(DATA_CHANGE_LOGS);
         dataChangeLogs.setOnPreferenceClickListener(preference -> {
-            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                    AnalyticsParamValue.CLEAR_USER_DATA);
             launchDataChangeLogsActivity();
             return true;
         });

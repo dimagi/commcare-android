@@ -94,7 +94,6 @@ public class AnalyticsParamValue {
     public static final String FORCE_LOG_SUBMISSION = "force_log_submission";
     public static final String RECOVERY_MODE = "recovery_mode";
     public static final String ENABLE_PRIVILEGES = "enable_mobile_privileges";
-    public static final String DATA_CHANGE_LOGS = "data_change_logs";
 
     // Param values for entity detail ui state
     static final String DETAIL_WITH_TABS = "detail_with_tabs";

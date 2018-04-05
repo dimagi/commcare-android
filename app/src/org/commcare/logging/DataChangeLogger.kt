@@ -3,19 +3,16 @@ package org.commcare.logging
 import android.content.Context
 import android.os.Environment
 import android.util.Log
-
 import org.apache.commons.lang3.StringUtils
 import org.commcare.android.logging.ReportingUtils
 import org.commcare.utils.FileUtil
 import org.javarosa.core.io.StreamsUtil
-
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.LinkedHashMap
+import java.util.*
 
 /**
  *  Used to log some crtitical platform events like DB migrations, Clear user data,
