@@ -6,6 +6,7 @@ import android.util.Log
 import com.crashlytics.android.Crashlytics
 import org.apache.commons.lang3.StringUtils
 import org.commcare.android.logging.ReportingUtils
+import org.commcare.utils.CrashUtil
 import org.commcare.utils.FileUtil
 import org.javarosa.core.io.StreamsUtil
 import java.io.File
@@ -77,7 +78,7 @@ class DataChangeLogger {
         @JvmStatic
         fun log(message: String) {
             // Include this info as part of any crash reports
-            Crashlytics.log(message)
+            CrashUtil.log(message)
 
             // Write to local storage
             if (primaryFile!= null && primaryFile!!.exists()) {
