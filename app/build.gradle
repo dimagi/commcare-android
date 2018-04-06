@@ -216,6 +216,7 @@ android {
     dexOptions {
         preDexLibraries = true
         jumboMode = true
+        javaMaxHeapSize "4g"
     }
 
     defaultConfig {
