@@ -37,7 +37,6 @@ dependencies {
     testCompile 'org.robolectric:robolectric:3.2.2'
     testCompile 'org.robolectric:shadows-multidex:3.2.2'
     testCompile 'org.robolectric:shadows-core:3.2.2'
-    testCompile 'org.json:json:20140107'
 
     testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
@@ -65,7 +64,6 @@ dependencies {
     compile('org.apache.httpcomponents:httpmime:4.3.6') {
         exclude module: 'httpclient'
     }
-    compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
     compile 'org.jsoup:jsoup:1.8.3'
     compile 'com.google.firebase:firebase-core:10.0.1'
@@ -216,7 +214,6 @@ android {
     dexOptions {
         preDexLibraries = true
         jumboMode = true
-        javaMaxHeapSize "2g"
     }
 
     defaultConfig {
