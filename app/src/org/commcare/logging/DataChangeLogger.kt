@@ -3,6 +3,7 @@ package org.commcare.logging
 import android.content.Context
 import android.os.Environment
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 import org.apache.commons.lang3.StringUtils
 import org.commcare.android.logging.ReportingUtils
 import org.commcare.utils.FileUtil
@@ -75,6 +76,10 @@ class DataChangeLogger {
          */
         @JvmStatic
         fun log(message: String) {
+            // Include this info as part of any crash reports
+            Crashlytics.log(message)
+
+            // Write to local storage
             if (primaryFile!= null && primaryFile!!.exists()) {
                 try {
                     val outputStream = FileOutputStream(primaryFile!!, true)
