@@ -75,7 +75,7 @@ class DataChangeLogger {
          */
         @JvmStatic
         fun log(message: String) {
-            if (primaryFile!!.exists()) {
+            if (primaryFile!= null && primaryFile!!.exists()) {
                 try {
                     val outputStream = FileOutputStream(primaryFile!!, true)
                     outputStream.write(appendMetaData(message).toByteArray())
@@ -93,7 +93,7 @@ class DataChangeLogger {
          */
         @JvmStatic
         fun getLogs(): String {
-            return getLogs(secondryFile) + getLogs(primaryFile!!)
+            return getLogs(secondryFile) + getLogs(primaryFile)
         }
 
         private fun appendMetaData(message: String): String {
