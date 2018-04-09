@@ -22,6 +22,8 @@ import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -37,6 +39,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.UnregisteredLocaleException;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * This (awkwardly named!) container is responsible for keeping track of a single
@@ -291,6 +294,16 @@ public class CommCareApp implements AppFilePathBuilder {
 
     public AndroidCommCarePlatform getCommCarePlatform() {
         return platform;
+    }
+
+    public boolean hasTrainingMenu() {
+        for (Suite s : platform.getInstalledSuites()) {
+            List<Menu> trainingMenus = s.getMenusWithId(Menu.TRAINING_MENU_ROOT);
+            if (trainingMenus != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public <T extends Persistable> SqlStorage<T> getStorage(Class<T> c) {

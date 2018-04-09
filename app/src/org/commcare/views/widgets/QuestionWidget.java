@@ -198,6 +198,11 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         // to ever receive an extension should override this method and implement it accordingly
     }
 
+    public void notifyPermission(String permission, boolean permissionGranted) {
+        // Intentionally empty method body -- subclasses of QuestionWidget requesting any permissions
+        // should override this method and implement it accordingly
+    }
+
     private class URLSpanNoUnderline extends URLSpan {
         public URLSpanNoUnderline(String url) {
             super(url);
