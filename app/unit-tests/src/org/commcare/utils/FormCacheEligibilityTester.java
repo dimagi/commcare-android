@@ -1,8 +1,10 @@
 package org.commcare.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -28,6 +30,8 @@ import org.robolectric.annotation.Config;
 @Config(application = CommCareApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class FormCacheEligibilityTester {
+
+    private static final String PATH_TO_CCZ_RESOURCES = "/commcare-apps/cache_eligibility_testing";
 
     private static void categorizeAndPrintExpressions(String resourcePath) throws IOException {
         List<XPathExpression> allExpressions = getXPathExpressions(resourcePath);
@@ -107,10 +111,18 @@ public class FormCacheEligibilityTester {
         }
     }
 
-    //@Test Keep this commented out for normal test runs because it will be slow and it's not a real test
+    private static List<String> getAllFormsToTest() {
+        URL path = System.class.getResource(PATH_TO_CCZ_RESOURCES);
+        File f = new File(path);
+    }
+
+    @Test //Keep this commented out for normal test runs because it will be slow and it's not a real test
     public void run() {
         try {
-            categorizeAndPrintExpressions("/forms/sample_form.xml");
+            List<String> formPaths = getAllFormsToTest();
+            for (String path : formPaths) {
+                categorizeAndPrintExpressions(path);
+            }
         } catch (IOException e) {
             System.out.println("IO error with file");
             e.printStackTrace();
