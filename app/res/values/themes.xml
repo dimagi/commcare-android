@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/cc_brand_color</item>
-        <item name="colorPrimaryDark">#283593</item>
-        <item name="colorAccent">#69F0AE</item>
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorAccent">@color/cc_light_cool_accent_color</item>
 
-        <!-- API 11 theme customizations can go here. -->
+
         <item name="android:colorBackground">@color/cc_neutral_bg</item>
-        <item name="android:progressBarStyleHorizontal">@drawable/progressbar_modern</item>
-        <!-- item name="android:radioButtonStyle">@style/radio_button_modern</item -->
+
+        <item name="buttonStyle">@style/commcare_button_style</item>
+
         <item name="detail_odd_row_color">@color/cc_neutral_bg</item>
         <item name="detail_even_row_color">@color/transparent</item>
         <item name="entity_view_header_background_color">@color/cc_brand_text</item>
@@ -69,5 +70,7 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
-
+    <style name="commcare_button_style" parent="Widget.AppCompat.Button">
+        <item name="android:textAllCaps">false</item>
+    </style>
 </resources>

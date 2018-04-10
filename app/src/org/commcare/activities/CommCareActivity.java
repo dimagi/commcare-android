@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
@@ -142,6 +143,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         }
 
         persistManagedUiState(fm);
+        getSupportActionBar().setLogo(org.commcare.dalvik.R.mipmap.ic_launcher);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && shouldShowBreadcrumbBar()) {
             getSupportActionBar().setDisplayShowCustomEnabled(true);
