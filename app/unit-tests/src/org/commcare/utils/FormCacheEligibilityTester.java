@@ -28,6 +28,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
+/**
+ * PURPOSE: This a utility for quickly computing and examining how many cacheable XPath expressions
+ * the forms within a given app contain. Given the files of an app's .ccz, running this test file
+ * will print out the exact distribution of cacheable, not-cacheable, and not-computable XPath
+ * expressions for each form in the app.
+ *
+ * TO USE:
+ *   1. Create a directory within /resources/commcare-apps called cache_eligibility_testing.
+ *   2. Download the .ccz for the app you are interested in examining, and unzip it. Copy the
+ *      contents directly into the directory you just created.
+ *   3. Run this test file, and observe the output to sys.out.
+ */
 @Config(application = CommCareApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class FormCacheEligibilityTester {
@@ -140,7 +152,8 @@ public class FormCacheEligibilityTester {
         return resourcePaths;
     }
 
-    //@Test //Keep this commented out for normal test runs because it will be slow and it's not a real test
+    //@Test //IMPORTANT: Keep this commented out in version control for normal test runs because
+    // it will be slow and it's not a real test
     public void run() {
         try {
             List<String> formPaths = getAllFormsToTest();
@@ -151,7 +164,7 @@ public class FormCacheEligibilityTester {
             System.out.println("IO error with file");
             e.printStackTrace();
         } catch (URISyntaxException e) {
-            System.out.println("Error converting to URI");
+            System.out.println("Error converting resource path to URI");
         }
     }
 
