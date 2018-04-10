@@ -12,7 +12,9 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.provider.FormsProviderAPI;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,6 +70,7 @@ public class FormDefRecord extends Persisted {
     }
 
     public FormDefRecord(String displayName, String jrFormId, String formFilePath, String formMediaPath) {
+        checkFilePath(formFilePath);
         mDisplayName = displayName;
         mJrFormId = jrFormId;
         mFormFilePath = formFilePath;
@@ -97,10 +100,10 @@ public class FormDefRecord extends Persisted {
         // if we don't have a path to the file, the rest are irrelevant.
         // it should fail anyway because you can't have a null file path.
         if (StringUtils.isEmpty(mFormFilePath)) {
-            throw new SQLException("Can't save a form def with an empty form file path");
+            Logger.log(LogTypes.SOFT_ASSERT, "Empty value for mFormFilePath while saving FormDefRecord");
         }
-        // Make sure that the necessary fields are all set
 
+        // Make sure that the necessary fields are all set
         File form = new File(mFormFilePath);
         if (StringUtils.isEmpty(mDisplayName)) {
             mDisplayName = form.getName();
@@ -130,8 +133,8 @@ public class FormDefRecord extends Persisted {
 
 
     public void updateFilePath(SqlStorage<FormDefRecord> formDefRecordStorage, String newFilePath) {
+        checkFilePath(newFilePath);
         File newFormFile = new File(newFilePath);
-
         try {
             if (new File(mFormFilePath).getCanonicalPath().equals(newFormFile.getCanonicalPath())) {
                 // Files are the same, so we may have just copied over something we had already
@@ -147,6 +150,12 @@ public class FormDefRecord extends Persisted {
         // Set new values now
         mFormMediaPath = getMediaPath(newFilePath);
         formDefRecordStorage.write(this);
+    }
+
+    private void checkFilePath(String formFilePath) {
+        if (StringUtils.isEmpty(formFilePath)) {
+            throw new IllegalArgumentException("formFilePath can't by null or empty");
+        }
     }
 
     public static FormDefRecord getFormDef(SqlStorage<FormDefRecord> formDefRecordStorage, int formId) {

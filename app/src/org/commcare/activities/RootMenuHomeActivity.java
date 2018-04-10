@@ -38,7 +38,6 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     @Override
     public void onResumeSessionSafe() {
         super.onResumeSessionSafe();
-        navDrawerController.reopenDrawerIfNeeded();
         menuView.refreshItems(); // Otherwise adapter will show obsolete data
     }
 

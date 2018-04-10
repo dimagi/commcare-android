@@ -157,7 +157,6 @@ public class InstanceProvider extends ContentProvider {
         init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
-
         switch (sUriMatcher.match(uri)) {
             case INSTANCES:
                 count = db.delete(INSTANCES_TABLE_NAME, where, whereArgs);
