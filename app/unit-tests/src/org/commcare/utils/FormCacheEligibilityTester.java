@@ -58,8 +58,8 @@ public class FormCacheEligibilityTester {
         FormInstance instance = new FormInstance(new TreeElement("data"));
         EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(instance);
         for (XPathExpression expr : allExpressions) {
-
-            boolean isCacheable = false;
+            
+            boolean isCacheable;
             try {
                 isCacheable = !InFormCacheableExpr.referencesMainFormInstance(expr, instance, ec) &&
                         !InFormCacheableExpr.containsUncacheableSubExpression(expr, ec);
