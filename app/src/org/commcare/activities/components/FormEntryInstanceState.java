@@ -9,7 +9,10 @@ import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.models.ODKStorage;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.StringUtils;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -69,9 +72,13 @@ public class FormEntryInstanceState {
             instanceState.setFormDefPath(formDefRecord.getFilePath());
             return new Pair<>(formDefRecord.getID(), isInstanceReadOnly);
         } else if (formDefRecords.size() < 1) {
-            throw new FormEntryActivity.FormQueryException("Parent form does not exist");
+            String error = "No XForm definition defined for this form with namespace " + formRecord.getXmlns();
+            Logger.log(LogTypes.SOFT_ASSERT, error);
+            throw new FormEntryActivity.FormQueryException(error);
         } else {
-            throw new FormEntryActivity.FormQueryException("More than one possible parent form");
+            String error = "More than one XForm definition present for this form with namespace " + formRecord.getXmlns();
+            Logger.log(LogTypes.SOFT_ASSERT, error);
+            throw new FormEntryActivity.FormQueryException(error);
         }
     }
 
