@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -34,9 +35,13 @@ public class FormCacheEligibilityTester {
     private static final String PATH_TO_CCZ_RESOURCES = "/commcare-apps/cache_eligibility_testing";
 
     private static void categorizeAndPrintExpressions(String resourcePath) throws IOException {
+        System.out.println();
+        System.out.println(String.format("NEXT FORM: Cacheability for form %s:", resourcePath));
+
         List<XPathExpression> allExpressions = getXPathExpressions(resourcePath);
         Map<XPathExpression, Integer> cacheable = new HashMap<>();
         Map<XPathExpression, Integer> notCacheable = new HashMap<>();
+        Map<XPathExpression, Integer> notComputable = new HashMap<>();
 
         FormInstance instance = new FormInstance(new TreeElement("data"));
         EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(instance);
@@ -47,7 +52,9 @@ public class FormCacheEligibilityTester {
                 isCacheable = !InFormCacheableExpr.referencesMainFormInstance(expr, instance, ec) &&
                         !InFormCacheableExpr.containsUncacheableSubExpression(expr, ec);
             } catch (Exception e) {
-                System.out.println("Error computing cacheability of expression: " + expr.toPrettyString());
+                int count = notComputable.containsKey(expr) ? notComputable.get(expr) : 0;
+                notComputable.put(expr, count+1);
+                continue;
             }
 
             if (isCacheable) {
@@ -57,6 +64,12 @@ public class FormCacheEligibilityTester {
                 int count = notCacheable.containsKey(expr) ? notCacheable.get(expr) : 0;
                 notCacheable.put(expr, count+1);
             }
+        }
+
+        System.out.println();
+        System.out.println("# of expressions w/ error computing cacheability: " + notComputable.size());
+        for (XPathExpression expr : notComputable.keySet()) {
+            System.out.println(notComputable.get(expr) + ": " + expr.toPrettyString());
         }
 
         System.out.println();
@@ -111,12 +124,23 @@ public class FormCacheEligibilityTester {
         }
     }
 
-    private static List<String> getAllFormsToTest() {
-        URL path = System.class.getResource(PATH_TO_CCZ_RESOURCES);
-        File f = new File(path);
+    private static List<String> getAllFormsToTest() throws URISyntaxException {
+        List<String> resourcePaths = new ArrayList<>();
+        URI uri = System.class.getResource(PATH_TO_CCZ_RESOURCES).toURI();
+        File directory = new File(uri);
+        for (File f : directory.listFiles()) {
+            if (f.getName().contains("modules-")) {
+                String moduleName = f.getName();
+                for (File form : f.listFiles()) {
+                    String formResourcePath = String.format("%s/%s/%s", PATH_TO_CCZ_RESOURCES, moduleName, form.getName());
+                    resourcePaths.add(formResourcePath);
+                }
+            }
+        }
+        return resourcePaths;
     }
 
-    @Test //Keep this commented out for normal test runs because it will be slow and it's not a real test
+    //@Test //Keep this commented out for normal test runs because it will be slow and it's not a real test
     public void run() {
         try {
             List<String> formPaths = getAllFormsToTest();
@@ -126,10 +150,13 @@ public class FormCacheEligibilityTester {
         } catch (IOException e) {
             System.out.println("IO error with file");
             e.printStackTrace();
+        } catch (URISyntaxException e) {
+            System.out.println("Error converting to URI");
         }
     }
 
-    // to avoid test file initialization error due to not having any runnable test methods
+    // DO NOT REMOVE -- Prevents test file initialization error due to not having any runnable test
+    // methods when the real test above is commented out
     @Test
     public void dummy() {
 
