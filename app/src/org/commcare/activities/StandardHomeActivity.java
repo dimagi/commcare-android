@@ -32,13 +32,13 @@ public class StandardHomeActivity
     private static final String TAG = StandardHomeActivity.class.getSimpleName();
 
     // NOTE: Menu.FIRST is reserved for MENU_SYNC in SyncCapableCommCareActivity
-    private static final int MENU_UPDATE = Menu.FIRST + 1;
-    private static final int MENU_SAVED_FORMS = Menu.FIRST + 2;
-    private static final int MENU_CHANGE_LANGUAGE = Menu.FIRST + 3;
-    private static final int MENU_PREFERENCES = Menu.FIRST + 4;
-    private static final int MENU_ADVANCED = Menu.FIRST + 5;
-    private static final int MENU_ABOUT = Menu.FIRST + 6;
-    private static final int MENU_PIN = Menu.FIRST + 7;
+    public static final int MENU_UPDATE = Menu.FIRST + 1;
+    public static final int MENU_SAVED_FORMS = Menu.FIRST + 2;
+    public static final int MENU_CHANGE_LANGUAGE = Menu.FIRST + 3;
+    public static final int MENU_PREFERENCES = Menu.FIRST + 4;
+    public static final int MENU_ADVANCED = Menu.FIRST + 5;
+    public static final int MENU_ABOUT = Menu.FIRST + 6;
+    public static final int MENU_PIN = Menu.FIRST + 7;
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
@@ -137,7 +137,7 @@ public class StandardHomeActivity
         boolean enableMenus = !isDemoUser();
         menu.findItem(MENU_UPDATE).setVisible(enableMenus);
         menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
-        menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(enableMenus);
+        menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(true);
         menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
         menu.findItem(MENU_ADVANCED).setVisible(enableMenus);
         menu.findItem(MENU_ABOUT).setVisible(enableMenus);
