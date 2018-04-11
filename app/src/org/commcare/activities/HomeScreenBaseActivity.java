@@ -689,7 +689,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // regardless of the exit code
             currentState.reset();
             if (wasExternal ||
-                    intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
+                    (intent != null && intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false))) {
                 setResult(RESULT_CANCELED);
                 this.finish();
             } else {
@@ -787,7 +787,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 this.finish();
                 return false;
             } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE) &&
-                    !intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
+                    intent != null && !intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
                 currentState.reset();
                 // We should head back to the incomplete forms screen
                 goToFormArchive(true, current);
