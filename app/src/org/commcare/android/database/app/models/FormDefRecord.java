@@ -30,7 +30,6 @@ public class FormDefRecord extends Persisted {
     public static final String META_DISPLAY_NAME = "displayName";
     public static final String META_JR_FORM_ID = "jrFormId";
     public static final String META_FORM_FILE_PATH = "formFilePath";
-    public static final String META_BASE64_RSA_PUBLIC_KEY = "base64RsaPublicKey";
     public static final String META_FORM_MEDIA_PATH = "formMediaPath";
 
     // these are null unless you enter something and aren't currently used
@@ -41,27 +40,23 @@ public class FormDefRecord extends Persisted {
     @MetaField(META_DISPLAY_NAME)
     private String mDisplayName;
 
-    @Persisting(3)
+    @Persisting(2)
     @MetaField(META_JR_FORM_ID)
     private String mJrFormId;
 
-    @Persisting(4)
+    @Persisting(3)
     @MetaField(META_FORM_FILE_PATH)
     private String mFormFilePath;
 
-    @Persisting(value = 6, nullable = true)
-    @MetaField(META_BASE64_RSA_PUBLIC_KEY)
-    private String mBase64RsaPublicKey;
-
-    @Persisting(11)
+    @Persisting(4)
     @MetaField(META_FORM_MEDIA_PATH)
     private String mFormMediaPath;
 
-    @Persisting(value = 12, nullable = true)
+    @Persisting(value = 5, nullable = true)
     @MetaField(META_MODEL_VERSION)
     private int mModelVersion = -1;
 
-    @Persisting(value = 13, nullable = true)
+    @Persisting(value = 6, nullable = true)
     @MetaField(META_UI_VERSION)
     private int mUiVersion = -1;
 
@@ -85,7 +80,6 @@ public class FormDefRecord extends Persisted {
         mUiVersion = cursor.getInt(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.UI_VERSION));
         mFormMediaPath = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH));
         mFormFilePath = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
-        mBase64RsaPublicKey = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY));
     }
 
     public static Vector<Integer> getFormDefIdsByJrFormId(SqlStorage<FormDefRecord> formDefRecordStorage, String jrFormId) {
@@ -184,9 +178,5 @@ public class FormDefRecord extends Persisted {
 
     public Integer getUiVersion() {
         return mUiVersion;
-    }
-
-    public String getBase64RsaPublicKey() {
-        return mBase64RsaPublicKey;
     }
 }

@@ -13,8 +13,6 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.EncryptionUtils;
-import org.commcare.utils.EncryptionUtils.EncryptedFormInformation;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
@@ -227,26 +225,12 @@ public class SaveToDiskTask extends
             writeXmlToStream(payload,
                     EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
 
-            // see if the form is encrypted and we can encrypt it...
-            EncryptedFormInformation formInfo = EncryptionUtils.getEncryptedFormInformation(
-                    CommCareApplication.instance().getAppStorage(FormDefRecord.class),
-                    formRecordStorage, mFormRecordId, mFormDefId,
-                    FormEntryActivity.mFormController.getSubmissionMetadata());
-            if (formInfo != null) {
-                // if we are encrypting, the form cannot be reopened afterward
-                canEditAfterCompleted = false;
-                // and encrypt the submission (this is a one-way operation)...
-                if (!EncryptionUtils.generateEncryptedSubmission(instanceXml, submissionXml, formInfo)) {
-                    throw new RuntimeException("Unable to encrypt form submission.");
-                }
-                isEncrypted = true;
-            }
 
             // At this point, we have:
             // 1. the saved original instanceXml, 
             // 2. all the plaintext attachments
-            // 2. the submission.xml that is the completed xml (whether encrypting or not)
-            // 3. all the encrypted attachments if encrypting (isEncrypted = true).
+            // 3. the submission.xml that is the completed xml (whether encrypting or not)
+
             //
             // NEXT:
             // 1. Update the form record database (with status complete).
@@ -275,14 +259,6 @@ public class SaveToDiskTask extends
                 if (!submissionXml.renameTo(instanceXml)) {
                     Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
                     return;
-                }
-
-                // if encrypted, delete all plaintext files
-                // (anything not named instanceXml or anything not ending in .enc)
-                if (isEncrypted) {
-                    if (!EncryptionUtils.deletePlaintextFiles(instanceXml)) {
-                        Log.e(TAG, "Error deleting plaintext files for " + instanceXml.getAbsolutePath());
-                    }
                 }
             }
         }
