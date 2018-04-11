@@ -689,7 +689,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // regardless of the exit code
             currentState.reset();
             if (wasExternal ||
-                    intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
+                    (intent != null && intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false))) {
                 setResult(RESULT_CANCELED);
                 this.finish();
             } else {
