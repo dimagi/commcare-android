@@ -57,6 +57,7 @@
             android:layout_marginBottom="@dimen/content_min_margin"
             android:layout_marginLeft="@dimen/content_min_margin"
             android:layout_marginRight="@dimen/content_min_margin"
+            android:progressDrawable="@drawable/progressbar_modern"
             android:gravity="center"/>
 
         <TextView

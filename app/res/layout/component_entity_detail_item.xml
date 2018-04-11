@@ -3,19 +3,16 @@
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               android:orientation="horizontal"
-              android:weightSum="10"
-    >
+              android:weightSum="10">
 
     <TextView
         android:id="@+id/detail_type_text"
         style="@style/EntityItemTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
         android:gravity="left|center_vertical"
         android:text="Text"
         android:textStyle="bold"
-        android:typeface="normal"
         android:layout_weight="4"
         android:visibility="visible"/>
 

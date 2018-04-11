@@ -35,7 +35,7 @@
     <dimen name="entity_padding">@dimen/content_min_margin</dimen>
     <dimen name="grid_entity_padding">3dp</dimen>
 
-    <style name="EntityItemTextView">
+    <style name="EntityItemTextView" parent="TextAppearance.AppCompat.Body1">
         <item name="android:paddingLeft">@dimen/entity_padding</item>
         <item name="android:paddingTop">@dimen/entity_padding</item>
         <item name="android:paddingBottom">@dimen/entity_padding</item>
@@ -56,7 +56,7 @@
         <item name="android:paddingRight">@dimen/grid_entity_padding</item>
     </style>
 
-    <style name="EntityItemText" parent="@android:style/TextAppearance.Large">
+    <style name="EntityItemText" parent="@style/TextAppearance.AppCompat.Subhead">
     </style>
 
     <style name="GridEntityItemText" parent="@android:style/TextAppearance.Medium">

@@ -7,9 +7,9 @@
         <item name="colorAccent">@color/cc_light_cool_accent_color</item>
 
 
-        <item name="android:colorBackground">@color/cc_neutral_bg</item>
+        <!--<item name="android:colorBackground">@color/cc_neutral_bg</item>-->
 
-        <item name="buttonStyle">@style/commcare_button_style</item>
+        <item name="android:buttonStyle">@style/commcare_button_style</item>
 
         <item name="detail_odd_row_color">@color/cc_neutral_bg</item>
         <item name="detail_even_row_color">@color/transparent</item>

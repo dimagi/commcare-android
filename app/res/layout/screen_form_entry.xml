@@ -87,6 +87,7 @@
             android:max="100"
             android:paddingBottom="@dimen/content_start"
             android:paddingTop="@dimen/content_start"
+            android:progressDrawable="@drawable/progressbar_modern"
             android:progress="0"/>
 
         <ImageButton
