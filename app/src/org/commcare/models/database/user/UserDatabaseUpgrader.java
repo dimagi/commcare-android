@@ -28,6 +28,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.provider.InstanceProviderAPI;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -588,14 +589,25 @@ class UserDatabaseUpgrader {
 
     private boolean upgradeTwentyTwoTwentyThree(SQLiteDatabase db) {
         //drop the existing table and recreate using current definition
+        boolean success;
         db.beginTransaction();
         try {
             UserDbUpgradeUtils.migrateV4FormRecords(c, db);
             db.setTransactionSuccessful();
-            return true;
+            success = true;
         } finally {
             db.endTransaction();
         }
+
+        // delete all instance provider entries if everything good until now
+        if (success) {
+            try {
+                c.getContentResolver().delete(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null);
+            } catch (Exception e) {
+                // Failure here won't cause any problems in app operations. So fail silently.
+            }
+        }
+        return success;
     }
 
     private void migrateV2FormRecordsForSingleApp(String appId,

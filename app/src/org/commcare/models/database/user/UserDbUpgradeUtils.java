@@ -213,13 +213,19 @@ public class UserDbUpgradeUtils {
 
             // Merge Record's instance
             String instanceUri = oldRecord.getInstanceURIString();
-            Cursor cursor = c.getContentResolver().query(Uri.parse(instanceUri), null, null, null, null);
-            if (cursor != null && cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                newRecord.setDisplayName(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.DISPLAY_NAME)));
-                newRecord.setFilePath(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH)));
-                newRecord.setCanEditWhenComplete(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.CAN_EDIT_WHEN_COMPLETE)));
-                cursor.close();
+            Cursor cursor = null;
+            try {
+                cursor = c.getContentResolver().query(Uri.parse(instanceUri), null, null, null, null);
+                if (cursor != null && cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                    newRecord.setDisplayName(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.DISPLAY_NAME)));
+                    newRecord.setFilePath(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH)));
+                    newRecord.setCanEditWhenComplete(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.CAN_EDIT_WHEN_COMPLETE)));
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
             }
             newRecords.add(newRecord);
         }
@@ -234,9 +240,6 @@ public class UserDbUpgradeUtils {
         for (FormRecord newRecord : newRecords) {
             newStorage.write(newRecord);
         }
-
-        // delete all instance provider entries
-        c.getContentResolver().delete(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null);
     }
 
     private static SqlStorage getFormRecordStorage(Context c, SQLiteDatabase db, Class formRecordClass) {

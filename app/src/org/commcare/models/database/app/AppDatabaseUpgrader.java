@@ -217,6 +217,7 @@ class AppDatabaseUpgrader {
 
     // Migrate records form FormProvider and InstanceProvider to new FormDefRecord and FormRecord respectively
     private boolean upgradeEightNine(SQLiteDatabase db) {
+        boolean success;
         db.beginTransaction();
         try {
             upgradeXFormAndroidInstallerV1(db);
@@ -227,10 +228,20 @@ class AppDatabaseUpgrader {
 
             migrateFormProvier(db);
             db.setTransactionSuccessful();
-            return true;
+            success = true;
         } finally {
             db.endTransaction();
         }
+
+        // Delete entries from FormsProvider if migration has been successful
+        if (success) {
+            try {
+                context.getContentResolver().delete(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null);
+            } catch (Exception e) {
+                // Failure here won't cause any problems in app operations. So fail silently.
+            }
+        }
+        return success;
     }
 
     // migrate formProvider entries to db
@@ -251,9 +262,6 @@ class AppDatabaseUpgrader {
         } finally {
             safeCloseCursor(cursor);
         }
-
-        // Delete migrated entries
-        context.getContentResolver().delete(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null);
     }
 
     private void safeCloseCursor(Cursor cursor) {
