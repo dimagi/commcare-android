@@ -3,7 +3,6 @@ package org.commcare.logging
 import android.content.Context
 import android.os.Environment
 import android.util.Log
-import com.crashlytics.android.Crashlytics
 import org.apache.commons.lang3.StringUtils
 import org.commcare.android.logging.ReportingUtils
 import org.commcare.utils.CrashUtil
@@ -35,11 +34,11 @@ class DataChangeLogger {
 
         primaryFile = initFile(context, PRIMARY_LOG_FILE_NAME)
         if (primaryFile!!.exists() && primaryFile!!.length() > MAX_FILE_SIZE) {
-            // When primary file gets full -> Delete secondry and move logs in primary to secondry
-            secondryFile = initFile(context, SECONDRY_LOG_FILE_NAME)
-            secondryFile!!.delete()
+            // When primary file gets full -> Delete secondary and move logs in primary to secondary
+            secondaryFile = initFile(context, SECONDARY_LOG_FILE_NAME)
+            secondaryFile!!.delete()
             try {
-                FileUtil.copyFile(primaryFile, secondryFile)
+                FileUtil.copyFile(primaryFile, secondaryFile)
                 primaryFile!!.delete()
                 primaryFile!!.createNewFile()
             } catch (e: IOException) {
@@ -63,14 +62,14 @@ class DataChangeLogger {
     companion object {
 
         private const val PRIMARY_LOG_FILE_NAME = "CommCare Data Change Logs.txt"
-        private const val SECONDRY_LOG_FILE_NAME = "CommCare Data Change Logs1.txt"
+        private const val SECONDARY_LOG_FILE_NAME = "CommCare Data Change Logs1.txt"
         private const val DATE_FORMAT = "d MMM yy HH:mm:ss z"
         private const val MAX_FILE_SIZE = (40 * 1000).toLong() // ~40KB
 
         private val TAG = DataChangeLogger::class.java.simpleName
 
         private var primaryFile: File? = null
-        private var secondryFile: File? = null
+        private var secondaryFile: File? = null
 
         /**
          * Logs a given message to the fileSystem
@@ -81,7 +80,7 @@ class DataChangeLogger {
             CrashUtil.log(message)
 
             // Write to local storage
-            if (primaryFile!= null && primaryFile!!.exists()) {
+            if (primaryFile != null && primaryFile!!.exists()) {
                 try {
                     val outputStream = FileOutputStream(primaryFile!!, true)
                     outputStream.write(appendMetaData(message).toByteArray())
@@ -99,7 +98,7 @@ class DataChangeLogger {
          */
         @JvmStatic
         fun getLogs(): String {
-            return getLogs(secondryFile) + getLogs(primaryFile)
+            return getLogs(secondaryFile) + getLogs(primaryFile)
         }
 
         private fun appendMetaData(message: String): String {

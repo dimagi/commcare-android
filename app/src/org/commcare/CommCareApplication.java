@@ -218,7 +218,7 @@ public class CommCareApplication extends MultiDexApplication {
         if (isFirstRunAfterInstall()) {
             DataChangeLogger.log("CommCare installed");
         } else if (isFirstRunAfterUpdate()) {
-            DataChangeLogger.log("CommCare udpated");
+            DataChangeLogger.log("CommCare updated");
         }
     }
 
