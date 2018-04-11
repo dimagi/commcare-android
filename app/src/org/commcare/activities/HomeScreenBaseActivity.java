@@ -248,7 +248,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             AndroidSessionWrapper state = CommCareApplication.instance().getCurrentSessionWrapper();
             state.loadFromStateDescription(existing);
             formEntry(CommCareApplication.instance().getCommCarePlatform()
-                    .getFormContentUri(state.getSession().getForm()), state.getFormRecord(),
+                            .getFormContentUri(state.getSession().getForm()), state.getFormRecord(),
                     null, true);
             return true;
         }
@@ -688,8 +688,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // Viewing an old form, so don't change the historical record
             // regardless of the exit code
             currentState.reset();
-            if (wasExternal ||
-                    intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
+            if (wasExternal || (intent != null &&
+                    intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false))) {
                 setResult(RESULT_CANCELED);
                 this.finish();
             } else {
@@ -1138,7 +1138,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     /**
-     *
      * @return true if we kicked off any processes
      */
     private boolean checkForPendingAppHealthActions() {
