@@ -31,6 +31,7 @@ import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.provider.InstanceProviderAPI;
 import org.javarosa.core.model.User;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.util.Set;
@@ -609,6 +610,8 @@ class UserDatabaseUpgrader {
                 }
             } catch (Exception e) {
                 // Failure here won't cause any problems in app operations. So fail silently.
+                e.printStackTrace();
+                Logger.exception(e);
             }
         }
         return success;

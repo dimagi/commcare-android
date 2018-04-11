@@ -23,6 +23,7 @@ import org.commcare.models.database.migration.FixtureSerializationMigration;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.resources.model.Resource;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.ArrayList;
@@ -239,6 +240,8 @@ class AppDatabaseUpgrader {
                 context.getContentResolver().delete(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null);
             } catch (Exception e) {
                 // Failure here won't cause any problems in app operations. So fail silently.
+                e.printStackTrace();
+                Logger.exception(e);
             }
         }
         return success;

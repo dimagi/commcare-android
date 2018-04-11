@@ -74,6 +74,8 @@ public class LegacyInstallUtils {
             globalPreferences.edit().putString(LEGACY_UPGRADE_PROGRESS, UPGRADE_COMPLETE).commit();
             Logger.log(LogTypes.TYPE_MAINTENANCE, "No legacy installs detected. Skipping transition");
             return;
+        } else {
+            // We no longer are supporting updating from legacy, so Show user warning that
         }
 
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Legacy| DB Detected");
@@ -135,7 +137,6 @@ public class LegacyInstallUtils {
         //see if the resource table is installed
         boolean hasProfile = false;
         boolean allInstalled = true;
-        int oldDbSize = 0;
         for (Resource r : legacyResources) {
             if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED) {
                 allInstalled = false;
@@ -143,7 +144,6 @@ public class LegacyInstallUtils {
             if (r.getResourceId().equals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
                 hasProfile = true;
             }
-            oldDbSize++;
         }
 
         if (hasProfile && allInstalled) {
