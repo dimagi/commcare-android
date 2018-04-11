@@ -226,7 +226,7 @@ class AppDatabaseUpgrader {
             TableBuilder builder = new TableBuilder(FormDefRecord.class);
             db.execSQL(builder.getTableCreateString());
 
-            migrateFormProvier(db);
+            migrateFormProvider(db);
             db.setTransactionSuccessful();
             success = true;
         } finally {
@@ -245,7 +245,7 @@ class AppDatabaseUpgrader {
     }
 
     // migrate formProvider entries to db
-    private void migrateFormProvier(SQLiteDatabase db) {
+    private void migrateFormProvider(SQLiteDatabase db) {
         Cursor cursor = null;
         try {
             cursor = context.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null, null, null);

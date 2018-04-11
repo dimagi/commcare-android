@@ -22,6 +22,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.modern.database.TableBuilder;
+import org.commcare.modern.util.Pair;
 import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
@@ -197,11 +198,18 @@ public class UserDbUpgradeUtils {
         }
     }
 
-    protected static void migrateV4FormRecords(Context c, SQLiteDatabase db) {
+    /**
+     * Migrated form records to include data from corresponding Instance from InstanceProvider
+     * @param c Context
+     * @param db User DB we are migrating
+     * @return a Vector containing Instance Uris corresponding to InstanceProvider entries that got migrated successfully
+     */
+    protected static Vector<Uri> migrateV4FormRecords(Context c, SQLiteDatabase db) {
         SqlStorage<FormRecordV4> oldStorage = getFormRecordStorage(c, db, FormRecordV4.class);
 
-        // Transform old records to new add to newRecords
-        Vector<FormRecord> newRecords = new Vector<>();
+        Vector<Uri> migratedInstances = new Vector<>();
+        Vector<Pair<FormRecord, Uri>> newRecords = new Vector<>();
+
         for (FormRecordV4 oldRecord : oldStorage) {
             FormRecord newRecord = new FormRecord(
                     oldRecord.getStatus(),
@@ -212,10 +220,10 @@ public class UserDbUpgradeUtils {
                     oldRecord.getAppId());
 
             // Merge Record's instance
-            String instanceUri = oldRecord.getInstanceURIString();
+            Uri instanceUri = Uri.withAppendedPath(Uri.parse(oldRecord.getInstanceURIString()), oldRecord.getAppId());
             Cursor cursor = null;
             try {
-                cursor = c.getContentResolver().query(Uri.parse(instanceUri), null, null, null, null);
+                cursor = c.getContentResolver().query(instanceUri, null, null, null, null);
                 if (cursor != null && cursor.getCount() > 0) {
                     cursor.moveToFirst();
                     newRecord.setDisplayName(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.DISPLAY_NAME)));
@@ -227,7 +235,7 @@ public class UserDbUpgradeUtils {
                     cursor.close();
                 }
             }
-            newRecords.add(newRecord);
+            newRecords.add(new Pair<>(newRecord, instanceUri));
         }
 
         // Drop old Table and create it again with new definition
@@ -237,9 +245,12 @@ public class UserDbUpgradeUtils {
 
         // Write to the new table
         SqlStorage<FormRecord> newStorage = getFormRecordStorage(c, db, FormRecord.class);
-        for (FormRecord newRecord : newRecords) {
-            newStorage.write(newRecord);
+        for (Pair entry : newRecords) {
+            newStorage.write(((FormRecord)entry.first));
+            migratedInstances.add(((Uri)entry.second));
         }
+
+        return migratedInstances;
     }
 
     private static SqlStorage getFormRecordStorage(Context c, SQLiteDatabase db, Class formRecordClass) {

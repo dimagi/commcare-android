@@ -14,6 +14,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.utils.StringUtils;
 
 import java.util.HashMap;
 
@@ -80,8 +81,7 @@ public class InstanceProvider extends ContentProvider {
         return true;
     }
 
-    private void init() {
-        String appId = ProviderUtils.getSandboxedAppId();
+    private void init(String appId) {
         if (mDbHelper == null || !appId.equals(mDbHelper.getAppId())) {
             String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.INSTANCES, appId);
             mDbHelper = new DatabaseHelper(CommCareApplication.instance(), dbName, appId);
@@ -91,22 +91,19 @@ public class InstanceProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
-        init();
-        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        qb.setTables(INSTANCES_TABLE_NAME);
+
+        SQLiteQueryBuilder qb;
 
         switch (sUriMatcher.match(uri)) {
-            case INSTANCES:
-                qb.setProjectionMap(sInstancesProjectionMap);
-                break;
-
             case INSTANCE_ID:
+                init(uri.getLastPathSegment());
+                qb = new SQLiteQueryBuilder();
+                qb.setTables(INSTANCES_TABLE_NAME);
                 qb.setProjectionMap(sInstancesProjectionMap);
                 qb.appendWhere(InstanceProviderAPI.InstanceColumns._ID + "=" + uri.getPathSegments().get(1));
                 break;
-
             default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
+                throw new IllegalArgumentException("Unknown URI for Querying " + uri);
         }
 
         // Get the database and run the query
@@ -154,20 +151,19 @@ public class InstanceProvider extends ContentProvider {
      */
     @Override
     public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
-        init();
+
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
         switch (sUriMatcher.match(uri)) {
-            case INSTANCES:
-                count = db.delete(INSTANCES_TABLE_NAME, where, whereArgs);
-                break;
             case INSTANCE_ID:
-                throw new IllegalArgumentException("delete not implemented for " + uri + ". Consider using " + FormRecord.class.getName() + " instead");
+                init(uri.getLastPathSegment());
+                count = db.delete(INSTANCES_TABLE_NAME, InstanceProviderAPI.InstanceColumns._ID + "=?", new String[]{uri.getPathSegments().get(1)});
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-        db.close();
 
+        db.close();
         notifyChangeSafe(getContext(), uri);
         return count;
 
@@ -187,8 +183,7 @@ public class InstanceProvider extends ContentProvider {
 
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        sUriMatcher.addURI(InstanceProviderAPI.AUTHORITY, "instances", INSTANCES);
-        sUriMatcher.addURI(InstanceProviderAPI.AUTHORITY, "instances/#", INSTANCE_ID);
+        sUriMatcher.addURI(InstanceProviderAPI.AUTHORITY, "instances/#/*", INSTANCE_ID); // # -> instance id, * -> appId
 
         sInstancesProjectionMap = new HashMap<>();
         sInstancesProjectionMap.put(InstanceProviderAPI.InstanceColumns._ID, InstanceProviderAPI.InstanceColumns._ID);

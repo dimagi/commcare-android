@@ -1,6 +1,7 @@
 package org.commcare.models.database.user;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -590,9 +591,10 @@ class UserDatabaseUpgrader {
     private boolean upgradeTwentyTwoTwentyThree(SQLiteDatabase db) {
         //drop the existing table and recreate using current definition
         boolean success;
+        Vector<Uri> migratedInstances;
         db.beginTransaction();
         try {
-            UserDbUpgradeUtils.migrateV4FormRecords(c, db);
+            migratedInstances = UserDbUpgradeUtils.migrateV4FormRecords(c, db);
             db.setTransactionSuccessful();
             success = true;
         } finally {
@@ -600,9 +602,11 @@ class UserDatabaseUpgrader {
         }
 
         // delete all instance provider entries if everything good until now
-        if (success) {
+        if (success && migratedInstances != null) {
             try {
-                c.getContentResolver().delete(InstanceProviderAPI.InstanceColumns.CONTENT_URI, null, null);
+                for (Uri instanceUri : migratedInstances) {
+                    c.getContentResolver().delete(instanceUri, null, null);
+                }
             } catch (Exception e) {
                 // Failure here won't cause any problems in app operations. So fail silently.
             }
