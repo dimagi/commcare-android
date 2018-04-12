@@ -198,4 +198,14 @@ public class UserDbUpgradeUtils {
             newStorage.write(newRecord);
         }
     }
+
+    public static String getCreateV6AndroidCaseIndexTableSqlDef() {
+        return "CREATE TABLE " + "case_index_storage" + "(" +
+                "commcare_sql_id" + " INTEGER PRIMARY KEY, " +
+                "case_rec_id" + ", " +
+                "name" + ", " +
+                "type" + ", " +
+                "target" +
+                ")";
+    }
 }
