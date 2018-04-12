@@ -6,9 +6,11 @@ import android.util.Log
 import com.crashlytics.android.Crashlytics
 import org.apache.commons.lang3.StringUtils
 import org.commcare.android.logging.ReportingUtils
+import org.commcare.util.LogTypes
 import org.commcare.utils.CrashUtil
 import org.commcare.utils.FileUtil
 import org.javarosa.core.io.StreamsUtil
+import org.javarosa.core.services.Logger
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -29,7 +31,7 @@ class DataChangeLogger {
 
     private fun initLogFiles(context: Context) {
         if (!isExternalStorageWritable()) {
-            Log.e(TAG, "External Storage unavialable to write logs")
+            Logger.log(LogTypes.TYPE_ERROR_STORAGE, "External Storage unavialable to write logs");
             return
         }
 
