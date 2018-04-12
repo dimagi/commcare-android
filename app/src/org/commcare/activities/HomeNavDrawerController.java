@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.components.NavDrawerItem;
 import org.commcare.adapters.NavDrawerAdapter;
 import org.commcare.dalvik.R;
@@ -35,6 +36,7 @@ public class HomeNavDrawerController {
     private static final String SYNC_DRAWER_ITEM_ID = "sync";
     private static final String SAVED_FORMS_ITEM_ID = "saved-forms";
     private static final String LOGOUT_DRAWER_ITEM_ID = "home-logout";
+    private static final String TRAINING_DRAWER_ITEM_ID = "training";
 
     protected static final String KEY_DRAWER_WAS_OPEN = "drawer-open-before-rotation";
 
@@ -106,23 +108,24 @@ public class HomeNavDrawerController {
         int numItemsToInclude = allDrawerItems.size()
                 - (hideChangeLanguageItem ? 1 : 0)
                 - (hideSavedFormsItem ? 1 : 0);
+        boolean hideTrainingItem = !CommCareApplication.instance().getCurrentApp().hasTrainingMenu();
 
         drawerItemsShowing = new NavDrawerItem[numItemsToInclude];
         int index = 0;
         for (String id : getAllItemIdsInOrder()) {
             NavDrawerItem item = allDrawerItems.get(id);
-            if (!excludeItem(id, hideChangeLanguageItem, hideSavedFormsItem)) {
+            if (!excludeItem(id, hideChangeLanguageItem, hideSavedFormsItem, hideTrainingItem)) {
                 drawerItemsShowing[index] = item;
                 index++;
             }
         }
     }
 
-    private boolean excludeItem(String itemId,
-                                boolean hideChangeLanguageItem,
-                                boolean hideSavedFormsItem) {
+    private boolean excludeItem(String itemId, boolean hideChangeLanguageItem,
+                                boolean hideSavedFormsItem, boolean hideTrainingItem) {
         return (itemId.equals(CHANGE_LANGUAGE_DRAWER_ITEM_ID) && hideChangeLanguageItem) ||
-                (itemId.equals(SAVED_FORMS_ITEM_ID) && hideSavedFormsItem);
+                (itemId.equals(SAVED_FORMS_ITEM_ID) && hideSavedFormsItem) ||
+                (itemId.equals(TRAINING_DRAWER_ITEM_ID) && hideTrainingItem);
     }
 
     private ListView.OnItemClickListener getNavDrawerClickListener() {
@@ -155,6 +158,9 @@ public class HomeNavDrawerController {
                     case LOGOUT_DRAWER_ITEM_ID:
                         activity.userTriggeredLogout();
                         break;
+                    case TRAINING_DRAWER_ITEM_ID:
+                        activity.enterTrainingModule();
+                        break;
                 }
             }
         };
@@ -162,9 +168,9 @@ public class HomeNavDrawerController {
 
     private static String[] getAllItemIdsInOrder() {
         return new String[] {
-                ABOUT_CC_DRAWER_ITEM_ID, SETTINGS_DRAWER_ITEM_ID, ADVANCED_DRAWER_ITEM_ID,
-                CHANGE_LANGUAGE_DRAWER_ITEM_ID, SAVED_FORMS_ITEM_ID, UPDATE_DRAWER_ITEM_ID,
-                SYNC_DRAWER_ITEM_ID, LOGOUT_DRAWER_ITEM_ID };
+                ABOUT_CC_DRAWER_ITEM_ID, TRAINING_DRAWER_ITEM_ID, SETTINGS_DRAWER_ITEM_ID,
+                ADVANCED_DRAWER_ITEM_ID, CHANGE_LANGUAGE_DRAWER_ITEM_ID, SAVED_FORMS_ITEM_ID,
+                UPDATE_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID, LOGOUT_DRAWER_ITEM_ID };
     }
 
     private static String getItemTitle(String id) {
@@ -185,6 +191,8 @@ public class HomeNavDrawerController {
                 return Localization.get("home.menu.saved.forms");
             case LOGOUT_DRAWER_ITEM_ID:
                 return Localization.get("home.logout");
+            case TRAINING_DRAWER_ITEM_ID:
+                return Localization.get("training.root.title");
         }
         return "";
     }
@@ -207,6 +215,8 @@ public class HomeNavDrawerController {
                 return R.drawable.ic_saved_forms_nav_drawer;
             case LOGOUT_DRAWER_ITEM_ID:
                 return R.drawable.ic_logout_nav_drawer;
+            case TRAINING_DRAWER_ITEM_ID:
+                return R.drawable.ic_training_nav_drawer;
         }
         return -1;
     }

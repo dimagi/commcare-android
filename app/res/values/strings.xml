@@ -73,7 +73,7 @@
 
     <string name="url_prompt">Choose a URL</string>
 
-    <string name="about_dialog" formatted="false">%s\n\n
+    <string name="about_dialog" formatted="false" cc:translatable="true">%s\n\n
 _Copyright 2016, Dimagi inc, All rights reserved_ \n\n
 
 ---------------- \n\n
@@ -85,7 +85,9 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
 * “Notebook” symbol by Carlo \n
 * “Antenna” symbol by Dima \n
 * “Map Marker” symbol by P.J. Onori \n
+* "List" by Landan Lloyd \n
 * broken screen by Sam Martin from the Noun Project \n\n
+
 </string>
     <string name="notification_message_title">CommCare Notification</string>
 
@@ -350,5 +352,4 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="sign_button" cc:translatable="true">Gather Signature</string>
     <string name="markup_image" cc:translatable="true">Markup Image</string>
     <string name="draw_image" cc:translatable="true">Sketch Image</string>
-
 </resources>

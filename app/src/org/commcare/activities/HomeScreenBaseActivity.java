@@ -46,6 +46,7 @@ import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
@@ -587,9 +588,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private boolean processCanceledGetCommandOrCase() {
         AndroidSessionWrapper currentState =
                 CommCareApplication.instance().getCurrentSessionWrapper();
-        if (currentState.getSession().getCommand() == null) {
-            // Needed a command, and didn't already have one. Stepping back from
-            // an empty state, Go home!
+        String currentCommand = currentState.getSession().getCommand();
+        if (currentCommand == null || currentCommand.equals(Menu.TRAINING_MENU_ROOT)) {
+            // We're stepping back from either the root module menu or the training root menu, so go home
             currentState.reset();
             refreshUI();
             return false;
@@ -688,7 +689,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // regardless of the exit code
             currentState.reset();
             if (wasExternal ||
-                    intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
+                    (intent != null && intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false))) {
                 setResult(RESULT_CANCELED);
                 this.finish();
             } else {
@@ -786,7 +787,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 this.finish();
                 return false;
             } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE) &&
-                    !intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
+                    intent != null && !intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
                 currentState.reset();
                 // We should head back to the incomplete forms screen
                 goToFormArchive(true, current);
@@ -805,7 +806,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
         currentState.reset();
         if (wasExternal) {
-            setResult(RESULT_CANCELED);
+            if (shouldWarnUser) {
+                setResult(RESULT_CANCELED);
+            } else {
+                setResult(RESULT_OK);
+            }
             this.finish();
         }
         refreshUI();
@@ -961,6 +966,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     public void launchUpdateActivity() {
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
         startActivity(i);
+    }
+
+    void enterTrainingModule() {
+        CommCareApplication.instance().getCurrentSession().setCommand(org.commcare.suite.model.Menu.TRAINING_MENU_ROOT);
+        startNextSessionStepSafe();
     }
 
     // Launch an intent to load the confirmation screen for the current selection
