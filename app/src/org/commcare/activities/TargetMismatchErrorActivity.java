@@ -22,6 +22,11 @@ public class TargetMismatchErrorActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_target_mismatch_error);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         setUpLayout();
     }
 

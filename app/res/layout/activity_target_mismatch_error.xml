@@ -20,6 +20,7 @@
         tools:text="App Requires CommCare LTS"/>
 
     <LinearLayout
+        android:id="@+id/error_info_container"
         android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
@@ -38,9 +39,10 @@
 
     <Button
         style="@style/PromptedUpdateButtonUpdateLater"
+        android:layout_marginTop="@dimen/standard_spacer_large"
+        android:layout_below="@+id/error_info_container"
         android:id="@+id/install_app_button"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         tools:text="Install CommCare LTS"/>
 
 </RelativeLayout>
