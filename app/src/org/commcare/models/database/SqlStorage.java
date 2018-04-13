@@ -7,7 +7,6 @@ import net.sqlcipher.database.SQLiteQueryBuilder;
 import net.sqlcipher.database.SQLiteStatement;
 
 import org.commcare.android.logging.ForceCloseLogger;
-import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.models.EncryptedModel;
@@ -32,11 +31,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
@@ -591,34 +588,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-        }
-    }
-
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) {
-        return cleanCopy(from, to, null);
-    }
-
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, LegacyInstallUtils.CopyMapper<T> mapper) {
-        to.removeAll();
-        SQLiteDatabase toDb = to.helper.getHandle();
-        toDb.beginTransaction();
-
-        try {
-            Hashtable<Integer, Integer> idMapping = new Hashtable<>();
-            for (T t : from) {
-                int key = t.getID();
-                //Clear the ID, we don't wanna guarantee it
-                t.setID(-1);
-                if (mapper != null) {
-                    t = mapper.transform(t);
-                }
-                to.write(t);
-                idMapping.put(key, t.getID());
-            }
-            toDb.setTransactionSuccessful();
-            return idMapping;
-        } finally {
-            toDb.endTransaction();
         }
     }
 

@@ -53,7 +53,8 @@
     <string name="privilege_instructions">If you have a superuser account on HQ, you can enable certain privileges on your device by going to the \'Enable Privileges on Mobile\' tab of your \'My Account Settings\' page, and then scanning the barcode that appears there.</string>
     <string name="see_available_apps">See Available Apps</string>
     <string name="install_from_list_prompt">Log in as a mobile or web user to see a list of apps you can install</string>
-
+    <string name="legacy_failure">CommCare does not support upgrading from the previous CommCare version you were using. To resolve this issue, please uninstall CommCare from your device and then reinstall it.</string>
+    <string name="legacy_failure_title">Incompatible CommCare Upgrade</string>
     <!-- endregion -->
 
     <integer-array name="commcare_version">

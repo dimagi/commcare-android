@@ -10,9 +10,9 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.LifecycleUtils;
@@ -98,7 +98,7 @@ public class DispatchActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        Log.d("shubham", "onResume Dispatch");
         if (shouldFinish) {
             finish();
         } else {
@@ -177,15 +177,21 @@ public class DispatchActivity extends FragmentActivity {
 
     private boolean isDbInBadState() {
         int dbState = CommCareApplication.instance().getDatabaseState();
-        if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
+        if (dbState == CommCareApplication.STATE_LEGACY_DETECTED) {
+            // Starting from 2.43, we don't supoort upgrading from Legacy DB
+            LifecycleUtils.triggerHandledAppExit(this,
+                    getString(R.string.legacy_failure),
+                    getString(R.string.legacy_failure_title), false, false);
+            return true;
+        } else if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
             LifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_definite_failure),
-                    getString(R.string.migration_failure_title), false);
+                    getString(R.string.migration_failure_title), false, false);
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
             LifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_possible_failure),
-                    getString(R.string.migration_failure_title), false);
+                    getString(R.string.migration_failure_title), false, true);
             return true;
         } else if (dbState == CommCareApplication.STATE_CORRUPTED) {
             handleDamagedApp();
