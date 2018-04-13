@@ -92,12 +92,7 @@ public abstract class ResourceEngineTask<R>
                 if (e.isDuplicateException()) {
                     return AppInstallStatus.DuplicateApp;
                 } else if (e.isIncorrectTargetException()) {
-                    switch (CommCareApplication.instance().getPackageName()) {
-                        case "org.commcare.lts":
-                            return AppInstallStatus.IncorrectTargetPackageLTS;
-                        default:
-                            return AppInstallStatus.IncorrectTargetPackage;
-                    }
+                    return AppInstallStatus.IncorrectTargetPackage;
                 } else {
                     versionAvailable = e.getAvailableVesionString();
                     versionRequired = e.getRequiredVersionString();

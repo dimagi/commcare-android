@@ -353,4 +353,13 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="markup_image" cc:translatable="true">Markup Image</string>
     <string name="draw_image" cc:translatable="true">Sketch Image</string>
 
+    <!--Incorrect Target Screen-->
+    <string name="target_mismatch_install_help" cc:translatable="true">If you have any issues installing, please contact your Helpdesk</string>
+    <string name="target_mismatch_lts_required" cc:translatable="true">App Requires CommCare LTS</string>
+    <string name="target_mismatch_lts_required_install" cc:translatable="true">Install CommCare LTS</string>
+    <string name="target_mismatch_lts_required_info" cc:translatable="true">In order to install CommCare LTS, Please click on install button below. Then try installing your app again.</string>
+    <string name="target_mismatch_commcare_required" cc:translatable="true">App Requires CommCare (Non LTS)</string>
+    <string name="target_mismatch_commcare_required_install" cc:translatable="true">Install CommCare</string>
+    <string name="target_mismatch_commcare_required_info" cc:translatable="true">In order to install CommCare, Please click on install button below. Then try installing your app again.</string>
+
 </resources>

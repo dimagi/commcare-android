@@ -556,12 +556,6 @@ notification.install.duplicate.action=Navigate to the drop-down menu on your log
 notification.install.uptodate.title=The App is Up to Date
 notification.install.uptodate.detail=A newer version of the app is not available
 
-notification.install.incorrect.target.package.title=App Requires Commcare LTS
-notification.install.incorrect.target.package.detail=In order to install this CommCare app, please uninstall CommCare and then go to the Play Store and download CommCare LTS (not CommCare). Then try installing your app again.
-
-notification.install.incorrect.target.package.lts.title=App Requires Commcare (Non LTS)
-notification.install.incorrect.target.package.lts.detail=In order to install this CommCare app, please uninstall CommCare and then go to the Play Store and download CommCare (not CommCare LTS). Then try installing your app again.
-
 notification.install.updatestaged.title=App update ready to install
 notification.install.updatestaged.detail=A newer version of the app is ready to install on next login
 
