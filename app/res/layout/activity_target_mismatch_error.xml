@@ -1,45 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:gravity="center_horizontal"
-              android:layout_height="match_parent"
-              android:layout_margin="@dimen/standard_spacer"
-              android:layout_width="match_parent"
-              android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:gravity="center_horizontal"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/standard_spacer"
+                android:layout_width="match_parent"
+                android:orientation="vertical">
 
     <TextView
         android:id="@+id/error_title"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_spacer_large"
         android:layout_width="wrap_content"
         android:textColor="@color/red"
+        android:textSize="@dimen/font_size_xlarger"
         android:textStyle="bold"
         tools:text="App Requires CommCare LTS"/>
 
-    <TextView
-        android:gravity="center_horizontal"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:id="@+id/error_info"
+    <LinearLayout
+        android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_spacer_double"
-        android:layout_width="wrap_content"
-        android:textStyle="bold"
-        tools:text="In order to install CommCare LTS, Please click on install button below. Then try installing your app again."/>
+        android:layout_width="match_parent"
+        android:layout_below="@+id/error_title"
+        android:layout_marginTop="@dimen/standard_spacer_large"
+        android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/error_info"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:textAlignment="center"
+            tools:text="In order to install CommCare LTS, Please click on install button below. Then try installing your app again."/>
+    </LinearLayout>
 
     <Button
         style="@style/PromptedUpdateButtonUpdateLater"
         android:id="@+id/install_app_button"
-        android:layout_marginTop="@dimen/standard_spacer_double"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         tools:text="Install CommCare LTS"/>
 
-    <TextView
-        android:gravity="center_horizontal|bottom"
-        android:id="@+id/update_help_text"
-        android:layout_gravity="bottom"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="@string/target_mismatch_install_help"
-        android:textSize="@dimen/font_size_medium"/>
-
-</LinearLayout>
+</RelativeLayout>
