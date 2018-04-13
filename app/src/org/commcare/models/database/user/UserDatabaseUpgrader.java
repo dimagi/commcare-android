@@ -238,7 +238,7 @@ class UserDatabaseUpgrader {
             db.execSQL(EntityStorageCache.getTableDefinition());
             EntityStorageCache.createIndexes(db);
 
-            db.execSQL(AndroidCaseIndexTable.getTableDefinition());
+            db.execSQL(UserDbUpgradeUtils.getCreateV6AndroidCaseIndexTableSqlDef());
             AndroidCaseIndexTable.createIndexes(db);
             AndroidCaseIndexTable cit = new AndroidCaseIndexTable(db);
 
