@@ -41,13 +41,13 @@ public class TargetMismatchErrorActivity extends Activity {
         ((TextView)findViewById(R.id.error_title)).setText(title);
 
         // Set Detail
-        String error_info;
+        String errorInfo;
         if (appInstalled) {
-            error_info = isLTS ? getStringByResource(R.string.target_mismatch_commcare_available_info) : getStringByResource(R.string.target_mismatch_lts_available_info);
+            errorInfo = isLTS ? getStringByResource(R.string.target_mismatch_commcare_available_info) : getStringByResource(R.string.target_mismatch_lts_available_info);
         } else {
-            error_info = isLTS ? getStringByResource(R.string.target_mismatch_commcare_required_info) : getStringByResource(R.string.target_mismatch_lts_required_info);
+            errorInfo = isLTS ? getStringByResource(R.string.target_mismatch_commcare_required_info) : getStringByResource(R.string.target_mismatch_lts_required_info);
         }
-        ((TextView)findViewById(R.id.error_info)).setText(error_info);
+        ((TextView)findViewById(R.id.error_info)).setText(errorInfo);
 
         // Set Action
         Button installButton = findViewById(R.id.install_app_button);

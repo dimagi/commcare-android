@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="org.commcare.dalvik"
-          xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
+          package="org.commcare.dalvik"
           android:versionCode="106"
           android:versionName="2.43">
 
@@ -26,9 +26,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
-
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false"/>
@@ -48,23 +47,23 @@
     <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints"/>
 
     <permission
+        android:name="${applicationId}.provider.cases.read"
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
-        android:name="${applicationId}.provider.cases.read"
         android:protectionLevel="dangerous">
     </permission>
 
     <application
         android:allowBackup="false"
-        android:hardwareAccelerated="true"
+        tools:replace="android:label,android:icon, android:allowBackup"
+        android:name="org.commcare.CommCareApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
-        android:name="org.commcare.CommCareApplication"
-        android:theme="@style/AppBaseTheme"
-        tools:replace="android:label,android:icon, android:allowBackup">
+        android:hardwareAccelerated="true"
+        android:theme="@style/AppBaseTheme">
         <activity
-            android:label="@string/application_name"
-            android:name="org.commcare.activities.DispatchActivity">
+            android:name="org.commcare.activities.DispatchActivity"
+            android:label="@string/application_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -78,8 +77,8 @@
         </activity>
 
         <activity
-            android:label="@string/manager_activity_name"
             android:name="org.commcare.activities.AppManagerActivity"
+            android:label="@string/manager_activity_name"
             android:taskAffinity="org.commcare.Manage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -87,14 +86,14 @@
         </activity>
 
         <activity
-            android:label="@string/application_name"
             android:name="org.commcare.activities.LoginActivity"
+            android:label="@string/application_name"
             android:windowSoftInputMode="adjustResize">
         </activity>
 
         <activity
-            android:label="CommCare Forced Closure"
-            android:name="org.commcare.activities.CrashWarningActivity">
+            android:name="org.commcare.activities.CrashWarningActivity"
+            android:label="CommCare Forced Closure">
         </activity>
 
         <activity android:name="org.commcare.activities.StandardHomeActivity"/>
@@ -102,44 +101,42 @@
         <activity android:name="org.commcare.activities.MenuActivity"/>
 
         <provider
-            android:authorities="${odkProvider}.forms"
+            android:name="org.commcare.provider.FormsProvider"
             android:exported="true"
-            android:name="org.commcare.provider.FormsProvider"/>
+            android:authorities="${odkProvider}.forms"/>
         <provider
-            android:authorities="${odkProvider}.instances"
+            android:name="org.commcare.provider.InstanceProvider"
             android:exported="true"
-            android:name="org.commcare.provider.InstanceProvider"/>
+            android:authorities="${odkProvider}.instances"/>
         <provider
+            android:name="org.commcare.provider.CaseDataContentProvider"
             android:authorities="${applicationId}.case"
             android:enabled="true"
             android:exported="true"
-            android:name="org.commcare.provider.CaseDataContentProvider"
             android:readPermission="${applicationId}.provider.cases.read"/>
         <provider
+            android:name="org.commcare.provider.FixtureDataContentProvider"
             android:authorities="${applicationId}.fixture"
             android:enabled="true"
             android:exported="true"
-            android:name="org.commcare.provider.FixtureDataContentProvider"
             android:readPermission="${applicationId}.provider.cases.read"/>
 
         <provider
+            android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.external.files.provider"
             android:exported="false"
-            android:grantUriPermissions="true"
-            android:name="android.support.v4.content.FileProvider">
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
         </provider>
 
 
-        <activity
-            android:name="org.commcare.activities.CommCarePreferenceActivity"
+        <activity android:name="org.commcare.activities.CommCarePreferenceActivity"
             android:theme="@style/PreferenceTheme">
         </activity>
-        <activity
-            android:name="org.commcare.activities.SessionAwarePreferenceActivity"
-            android:theme="@style/PreferenceTheme">
+        <activity android:name="org.commcare.activities.SessionAwarePreferenceActivity"
+                  android:theme="@style/PreferenceTheme">
         </activity>
         <activity android:name="org.commcare.activities.DotsEntryActivity">
             <intent-filter>
@@ -241,13 +238,13 @@
         </activity>
 
         <service
-            android:enabled="true"
-            android:name="org.commcare.services.CommCareSessionService">
+            android:name="org.commcare.services.CommCareSessionService"
+            android:enabled="true">
         </service>
 
         <activity
-            android:launchMode="singleTop"
             android:name="org.commcare.activities.FormEntryActivity"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
@@ -281,7 +278,7 @@
         </activity>
         <activity android:name="org.commcare.activities.InstallFromListActivity">
         </activity>
-
+        
         <uses-library
             android:name="com.google.android.maps"
             android:required="false"/>
@@ -293,8 +290,8 @@
         </receiver>
 
         <activity
-            android:label="@string/title_activity_report_problem"
-            android:name="org.commcare.activities.ReportProblemActivity">
+            android:name="org.commcare.activities.ReportProblemActivity"
+            android:label="@string/title_activity_report_problem">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.commcare.activities.CommCareSetupActivity"/>
@@ -307,8 +304,8 @@
             android:name="org.commcare.activities.UnrecoverableErrorActivity">
         </activity>
         <activity
-            android:exported="true"
-            android:name="org.commcare.activities.KeyAccessRequestActivity">
+            android:name="org.commcare.activities.KeyAccessRequestActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.CommCareKeyAccessRequest"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -334,10 +331,9 @@
             </intent-filter>
         </receiver>
 
-        <receiver
+        <receiver android:name="org.commcare.provider.RefreshToLatestBuildReceiver"
             android:enabled="true"
-            android:exported="true"
-            android:name="org.commcare.provider.RefreshToLatestBuildReceiver">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.RefreshToLatestBuildAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -439,8 +435,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>
 
-        <meta-data
-            android:name="android.content.APP_RESTRICTIONS"
-            android:resource="@xml/app_restrictions"/>
+        <meta-data android:name="android.content.APP_RESTRICTIONS"
+            android:resource="@xml/app_restrictions" />
     </application>
 </manifest>
