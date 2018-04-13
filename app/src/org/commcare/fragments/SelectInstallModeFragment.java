@@ -53,7 +53,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         super.onResume();
 
         NSDDiscoveryTools.registerForNsdServices(this.getContext(), this);
-        if(!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+        if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             mViewErrorContainer.setVisibility(View.GONE);
         }
 
@@ -200,15 +200,15 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     public void showOrHideErrorMessage() {
         Activity currentActivity = getActivity();
         if (currentActivity instanceof CommCareSetupActivity) {
-            String msg = ((CommCareSetupActivity) currentActivity).getErrorMessageToDisplay();
+            String msg = ((CommCareSetupActivity)currentActivity).getErrorMessageToDisplay();
             if (msg != null && !"".equals(msg)) {
                 mErrorMessageView.setText(msg);
                 mErrorMessageView.setVisibility(View.VISIBLE);
-                if(((CommCareSetupActivity) this.getActivity()).shouldShowNotificationErrorButton()) {
+                if (((CommCareSetupActivity)this.getActivity()).shouldShowNotificationErrorButton()
+                        && CommCareApplication.notificationManager().messagesForCommCareArePending()) {
                     mViewErrorContainer.setVisibility(View.VISIBLE);
                 }
-
-                } else {
+            } else {
                 mErrorMessageView.setVisibility(View.GONE);
                 mViewErrorContainer.setVisibility(View.GONE);
             }

@@ -21,22 +21,30 @@ import org.javarosa.core.services.Logger;
 public class UpdatePromptHelper {
 
     /**
+     * Check if we have an UpdateToPrompt to show, and launch the necessary activity if so.
+     * We check for an apk update first, which means that if there are updates to prompt for both,
+     * we'll show the apk one first.
+     *
      * @return - If the user was prompted to update
      */
     public static boolean promptForUpdateIfNeeded(Activity context) {
         try {
             CommCareSessionService currentSession = CommCareApplication.instance().getSession();
-            if (!currentSession.apkUpdatePromptWasShown() &&
-                    getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE) != null) {
-                // If there are updates to prompt for both, we'll show the apk one first
-                Intent i = new Intent(context, PromptApkUpdateActivity.class);
-                context.startActivity(i);
-                return true;
-            } else if (!currentSession.cczUpdatePromptWasShown() &&
-                    getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE) != null) {
-                Intent i = new Intent(context, PromptCczUpdateActivity.class);
-                context.startActivity(i);
-                return true;
+            if (!currentSession.apkUpdatePromptWasShown()) {
+                UpdateToPrompt apkUpdate = getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
+                if (apkUpdate != null && apkUpdate.shouldShowOnThisLogin()) {
+                    Intent i = new Intent(context, PromptApkUpdateActivity.class);
+                    context.startActivity(i);
+                    return true;
+                }
+            }
+            if (!currentSession.cczUpdatePromptWasShown()) {
+                UpdateToPrompt cczUpdate = getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
+                if (cczUpdate != null && cczUpdate.shouldShowOnThisLogin()) {
+                    Intent i = new Intent(context, PromptCczUpdateActivity.class);
+                    context.startActivity(i);
+                    return true;
+                }
             }
         } catch (SessionUnavailableException e) {
             // Means we just performed an update and have therefore expired the session
@@ -79,7 +87,7 @@ public class UpdatePromptHelper {
 
     protected static void wipeStoredUpdate(UpdateToPrompt.Type type) {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(type.getPrefsKey(), "").commit();
+                .putString(type.getPrefsKey(), "").apply();
     }
 
 }
