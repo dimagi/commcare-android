@@ -168,7 +168,7 @@ public class CommCareApplication extends MultiDexApplication {
 
         CommCareApplication.app = this;
         CrashUtil.init(this);
-        new DataChangeLogger().init(this);
+        DataChangeLogger.init(this);
         logFirstCommCareRun();
         configureCommCareEngineConstantsAndStaticRegistrations();
         noficationManager = new CommCareNoficationManager(this);

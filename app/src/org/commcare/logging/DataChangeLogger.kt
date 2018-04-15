@@ -23,8 +23,19 @@ import java.util.*
  *  app installations etc. All these logs are backed by file storage and are accessible
  *  from outside CommCare
  */
-class DataChangeLogger {
+object DataChangeLogger {
 
+    private const val PRIMARY_LOG_FILE_NAME = "CommCare Data Change Logs.txt"
+    private const val SECONDRY_LOG_FILE_NAME = "CommCare Data Change Logs1.txt"
+    private const val DATE_FORMAT = "d MMM yy HH:mm:ss z"
+    private const val MAX_FILE_SIZE = (100 * 1000).toLong() // ~100KB
+
+    private val TAG = DataChangeLogger::class.java.simpleName
+
+    private var primaryFile: File? = null
+    private var secondryFile: File? = null
+
+    @JvmStatic
     fun init(context: Context) {
         initLogFiles(context)
     }
@@ -62,97 +73,84 @@ class DataChangeLogger {
         return file
     }
 
-    companion object {
+    /**
+     * Logs a given message to the fileSystem
+     */
+    @JvmStatic
+    fun log(message: String) {
+        // Include this info as part of any crash reports
+        CrashUtil.log(message)
 
-        private const val PRIMARY_LOG_FILE_NAME = "CommCare Data Change Logs.txt"
-        private const val SECONDRY_LOG_FILE_NAME = "CommCare Data Change Logs1.txt"
-        private const val DATE_FORMAT = "d MMM yy HH:mm:ss z"
-        private const val MAX_FILE_SIZE = (40 * 1000).toLong() // ~40KB
+        // Write to local storage
+        if (primaryFile != null && primaryFile!!.exists()) {
+            try {
+                val outputStream = FileOutputStream(primaryFile!!, true)
+                outputStream.write(appendMetaData(message).toByteArray())
+                outputStream.flush()
+                outputStream.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
 
-        private val TAG = DataChangeLogger::class.java.simpleName
+    /**
+     * Return the complete set of logs logged till now for
+     * this installation
+     */
+    @JvmStatic
+    fun getLogs(): String {
+        return getLogs(secondryFile) + getLogs(primaryFile)
+    }
 
-        private var primaryFile: File? = null
-        private var secondryFile: File? = null
+    private fun appendMetaData(message: String): String {
+        val sb = StringBuilder()
 
-        /**
-         * Logs a given message to the fileSystem
-         */
-        @JvmStatic
-        fun log(message: String) {
-            // Include this info as part of any crash reports
-            CrashUtil.log(message)
+        sb.append(SimpleDateFormat(DATE_FORMAT).format(Date()))
+        sb.append(" - ")
+        sb.append(message)
 
-            // Write to local storage
-            if (primaryFile!= null && primaryFile!!.exists()) {
-                try {
-                    val outputStream = FileOutputStream(primaryFile!!, true)
-                    outputStream.write(appendMetaData(message).toByteArray())
-                    outputStream.flush()
-                    outputStream.close()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
+        val metaData = getMetaData()
+        for (key in metaData.keys) {
+            val value = metaData[key]
+            if (!StringUtils.isEmpty(value)) {
+                sb.append(" [")
+                sb.append(key)
+                sb.append(": ")
+                sb.append(value)
+                sb.append("]")
             }
         }
 
-        /**
-         * Return the complete set of logs logged till now for
-         * this installation
-         */
-        @JvmStatic
-        fun getLogs(): String {
-            return getLogs(secondryFile) + getLogs(primaryFile)
+        sb.append("\n\n")
+        return sb.toString()
+    }
+
+    private fun getMetaData(): Map<String, String> {
+        val metaData = LinkedHashMap<String, String>()
+        metaData.put("CommCare Version", ReportingUtils.getCommCareVersionString())
+        metaData.put("App Name", ReportingUtils.getAppName())
+        val appVersion = ReportingUtils.getAppVersion()
+        if (appVersion != -1) {
+            metaData.put("App Version", appVersion.toString())
         }
+        metaData.put("Username", ReportingUtils.getUser())
+        return metaData
+    }
 
-        private fun appendMetaData(message: String): String {
-            val sb = StringBuilder()
-
-            sb.append(SimpleDateFormat(DATE_FORMAT).format(Date()))
-            sb.append(" - ")
-            sb.append(message)
-
-            val metaData = getMetaData()
-            for (key in metaData.keys) {
-                val value = metaData[key]
-                if (!StringUtils.isEmpty(value)) {
-                    sb.append(" [")
-                    sb.append(key)
-                    sb.append(": ")
-                    sb.append(value)
-                    sb.append("]")
-                }
+    private fun getLogs(file: File?): String {
+        if (file != null && file.exists()) {
+            try {
+                val inputStream = FileInputStream(file)
+                return String(StreamsUtil.inputStreamToByteArray(inputStream))
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
-
-            sb.append("\n\n")
-            return sb.toString()
         }
+        return ""
+    }
 
-        private fun getMetaData(): Map<String, String> {
-            val metaData = LinkedHashMap<String, String>()
-            metaData.put("CommCare Version", ReportingUtils.getCommCareVersionString())
-            metaData.put("App Name", ReportingUtils.getAppName())
-            val appVersion = ReportingUtils.getAppVersion()
-            if (appVersion != -1) {
-                metaData.put("App Version", appVersion.toString())
-            }
-            metaData.put("Username", ReportingUtils.getUser())
-            return metaData
-        }
-
-        private fun getLogs(file: File?): String {
-            if (file != null && file.exists()) {
-                try {
-                    val inputStream = FileInputStream(file)
-                    return String(StreamsUtil.inputStreamToByteArray(inputStream))
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
-            }
-            return ""
-        }
-
-        private fun isExternalStorageWritable(): Boolean {
-            return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
-        }
+    private fun isExternalStorageWritable(): Boolean {
+        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
 }
