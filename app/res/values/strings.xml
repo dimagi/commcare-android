@@ -354,15 +354,14 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="draw_image" cc:translatable="true">Sketch Image</string>
 
     <!--Incorrect Target Screen-->
-    <string name="target_mismatch_install_help" cc:translatable="true">If you have any issues installing, please contact your Helpdesk</string>
     <string name="target_mismatch_lts_required" cc:translatable="true">App Requires CommCare LTS</string>
     <string name="target_mismatch_lts_required_install" cc:translatable="true">Install CommCare LTS</string>
     <string name="target_mismatch_lts_open" cc:translatable="true">Open CommCare LTS</string>
-    <string name="target_mismatch_lts_required_info" cc:translatable="true">In order to install CommCare LTS, Please click on install button below. Then try installing your app again.</string>
-    <string name="target_mismatch_lts_available_info" cc:translatable="true">You can only install your app in CommCare LTS, Please click on open button below and try installing your app again.</string>
-    <string name="target_mismatch_commcare_required" cc:translatable="true">App Requires CommCare (Non LTS)</string>
+    <string name="target_mismatch_lts_required_info" cc:translatable="true">Follow the link below to install CommCare LTS from the Play Store, and then try installing your app again.</string>
+    <string name="target_mismatch_lts_available_info" cc:translatable="true">This app requires CommCare LTS. Click the button below to open CommCare LTS, and then try installing your app again.</string>
+    <string name="target_mismatch_commcare_required" cc:translatable="true">App Requires CommCare(Non LTS)</string>
     <string name="target_mismatch_commcare_required_install" cc:translatable="true">Install CommCare</string>
     <string name="target_mismatch_commcare_open" cc:translatable="true">Open CommCare</string>
-    <string name="target_mismatch_commcare_required_info" cc:translatable="true">In order to install CommCare, Please click on install button below. Then try installing your app again.</string>
-    <string name="target_mismatch_commcare_available_info" cc:translatable="true">You can only install your app in normal CommCare, Please click on open button below and try installing your app again.</string>
+    <string name="target_mismatch_commcare_required_info" cc:translatable="true">Follow the link below to install CommCare(Non LTS) from the Play Store, and then try installing your app again.</string>
+    <string name="target_mismatch_commcare_available_info" cc:translatable="true">This app requires CommCare(Non LTS). Click the button below to open CommCare, and then try installing your app again.</string>
 </resources>
