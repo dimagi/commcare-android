@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Base64;
 import android.view.View;
 import android.widget.AdapterView;
@@ -21,6 +22,7 @@ import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -140,11 +142,19 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         loadInstanceState(savedInstanceState);
         CrashUtil.registerAppData();
         AdMobManager.initAdsForCurrentConsumerApp(getApplicationContext());
+        updateLastSuccessfulCommCareVersion();
         sessionNavigator = new SessionNavigator(this);
 
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
         processFromLoginLaunch();
+    }
+
+    private void updateLastSuccessfulCommCareVersion() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(HiddenPreferences.LAST_SUCCESSFUL_CC_VERSION, ReportingUtils.getCommCareVersionString());
+        editor.apply();
     }
 
     private void loadInstanceState(Bundle savedInstanceState) {

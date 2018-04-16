@@ -53,6 +53,7 @@ public class HiddenPreferences {
 
     private final static String LOGS_ENABLED = "logenabled";
     private final static String LOGS_ENABLED_YES = "Enabled";
+    public static final String LAST_SUCCESSFUL_CC_VERSION = "last_successful_commcare_version";
 
     /**
      * @return How many seconds should a user session remain open before expiring?
