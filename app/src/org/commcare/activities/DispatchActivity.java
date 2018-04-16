@@ -177,7 +177,7 @@ public class DispatchActivity extends FragmentActivity {
     private boolean isDbInBadState() {
         int dbState = CommCareApplication.instance().getDatabaseState();
         if (dbState == CommCareApplication.STATE_LEGACY_DETECTED) {
-            // Starting from 2.43, we don't supoort upgrading from Legacy DB
+            // Starting from CommCare 2.44, we don't supoort upgrading from Legacy DB
             LifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.legacy_failure),
                     getString(R.string.legacy_failure_title), false, false);

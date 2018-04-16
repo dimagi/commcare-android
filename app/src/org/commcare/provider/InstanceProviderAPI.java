@@ -5,7 +5,7 @@ import android.provider.BaseColumns;
 
 import org.commcare.dalvik.BuildConfig;
 
-// Merged in FormRecord in 2.43, only used for DB Migration now
+// Merged in FormRecord in CommCare 2.44, only used for DB Migration now
 public final class InstanceProviderAPI {
     public static final String AUTHORITY = BuildConfig.ODK_AUTHORITY + ".instances";
 

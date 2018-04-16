@@ -17,7 +17,7 @@ import org.commcare.android.database.app.models.FormDefRecord;
 
 import java.util.HashMap;
 
-// Replaced by FormDefRecord in 2.43, only used for DB Migration now
+// Replaced by FormDefRecord in CommCare 2.44, only used for DB Migration now
 public class FormsProvider extends ContentProvider {
 
     private static final String t = "FormsProvider";

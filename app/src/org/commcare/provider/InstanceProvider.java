@@ -18,7 +18,7 @@ import org.commcare.utils.StringUtils;
 
 import java.util.HashMap;
 
-// Merged in FormRecord in 2.43, only used for DB Migration now
+// Merged in FormRecord in CommCare 2.44, only used for DB Migration now
 public class InstanceProvider extends ContentProvider {
     private static final String t = "InstancesProvider";
 
