@@ -98,7 +98,6 @@ public class DispatchActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("shubham", "onResume Dispatch");
         if (shouldFinish) {
             finish();
         } else {
