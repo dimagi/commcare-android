@@ -18,4 +18,6 @@ public interface ResourceEngineListener {
     void updateResourceProgress(int done, int pending, int phase);
 
     void failWithNotification(AppInstallStatus statusfailstate);
+
+    void failTargetMismatch();
 }
