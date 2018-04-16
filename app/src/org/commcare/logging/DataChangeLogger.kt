@@ -6,6 +6,7 @@ import android.util.Log
 import com.crashlytics.android.Crashlytics
 import org.apache.commons.lang3.StringUtils
 import org.commcare.android.logging.ReportingUtils
+import org.commcare.dalvik.R.id.message
 import org.commcare.util.LogTypes
 import org.commcare.utils.CrashUtil
 import org.commcare.utils.FileUtil
@@ -29,8 +30,6 @@ object DataChangeLogger {
     private const val SECONDRY_LOG_FILE_NAME = "CommCare Data Change Logs1.txt"
     private const val DATE_FORMAT = "d MMM yy HH:mm:ss z"
     private const val MAX_FILE_SIZE = (100 * 1000).toLong() // ~100KB
-
-    private val TAG = DataChangeLogger::class.java.simpleName
 
     private var primaryFile: File? = null
     private var secondryFile: File? = null
@@ -77,15 +76,15 @@ object DataChangeLogger {
      * Logs a given message to the fileSystem
      */
     @JvmStatic
-    fun log(message: String) {
+    fun log(dataChangeLog: DataChangeLog) {
         // Include this info as part of any crash reports
-        CrashUtil.log(message)
+        CrashUtil.log(dataChangeLog.getLogMessage());
 
         // Write to local storage
         if (primaryFile != null && primaryFile!!.exists()) {
             try {
                 val outputStream = FileOutputStream(primaryFile!!, true)
-                outputStream.write(appendMetaData(message).toByteArray())
+                outputStream.write(dataChangeLog.buildMetaData().toByteArray())
                 outputStream.flush()
                 outputStream.close()
             } catch (e: IOException) {
