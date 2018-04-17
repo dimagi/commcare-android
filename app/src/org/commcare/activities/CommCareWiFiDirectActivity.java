@@ -158,8 +158,6 @@ public class CommCareWiFiDirectActivity
      */
     @Override
     public void onResumeSessionSafe() {
-        Logger.log(TAG, "resuming wi-fi direct activity");
-
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
 
@@ -177,7 +175,6 @@ public class CommCareWiFiDirectActivity
     @Override
     protected void onPause() {
         super.onPause();
-        Logger.log(TAG, "Pausing wi-fi direct activity");
         unregisterReceiver(mReceiver);
     }
 
@@ -266,8 +263,6 @@ public class CommCareWiFiDirectActivity
     }
 
     private void beReceiver() {
-
-        Logger.log(LogTypes.TYPE_FORM_DUMP, "Became receiver");
         myStatusText.setText(localize("wifi.direct.enter.receive.mode"));
 
         WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
@@ -302,8 +297,6 @@ public class CommCareWiFiDirectActivity
     }
 
     private void beSubmitter() {
-
-        Logger.log(LogTypes.TYPE_FORM_DUMP, "Became submitter");
         unzipFilesHelper();
         myStatusText.setText(localize("wifi.direct.enter.submit.mode"));
 
@@ -330,6 +323,7 @@ public class CommCareWiFiDirectActivity
         wifiFragment.setIsHost(false);
         wifiFragment.resetConnectionGroup();
 
+        Logger.log(LogTypes.TYPE_FORM_DUMP, "Device designated as submitter");
         mState = wdState.submit;
         changeState();
     }
