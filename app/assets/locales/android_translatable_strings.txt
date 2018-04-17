@@ -55,6 +55,8 @@ home.sync=Sync with Server
 home.unsent.forms.indicator=Unsent Forms: ${0}
 home.logout=Log out of CommCare
 home.report=Report an Issue
+# IMPORTANT: do NOT change the name of this key for any reason; HQ uses it for the training root menu
+training.root.title=Training
 
 home.sync.message.unsent.singular=You have 1 form which has not been submitted
 home.sync.message.unsent.plural=You have ${0} forms which have not been submitted
@@ -556,12 +558,6 @@ notification.install.duplicate.action=Navigate to the drop-down menu on your log
 notification.install.uptodate.title=The App is Up to Date
 notification.install.uptodate.detail=A newer version of the app is not available
 
-notification.install.incorrect.target.package.title=App Requires Commcare LTS
-notification.install.incorrect.target.package.detail=In order to install this CommCare app, please uninstall CommCare and then go to the Play Store and download CommCare LTS (not CommCare). Then try installing your app again.
-
-notification.install.incorrect.target.package.lts.title=App Requires Commcare (Non LTS)
-notification.install.incorrect.target.package.lts.detail=In order to install this CommCare app, please uninstall CommCare and then go to the Play Store and download CommCare (not CommCare LTS). Then try installing your app again.
-
 notification.install.updatestaged.title=App update ready to install
 notification.install.updatestaged.detail=A newer version of the app is ready to install on next login
 
@@ -743,7 +739,7 @@ odk_fuzzy_match_color=\#FFE88F
 
 permission.all.title=CommCare Permissions
 permission.all.message=CommCare needs permissions to read/write forms to memory, call/message from the case list, and provide location data during form entry.
-permission.all.denial.message=CommCare doesn't have the necessary permissions. Please enable via 'Settings -> Apps'
+permission.all.denial.message=CommCare doesn't have the necessary permissions. Please enable via Android's settings.
 permission.case.callout.title=Permissions for calling & messaging
 permission.case.callout.message=CommCare needs call & messaging permissions to enable communication with cases.
 permission.case.callout.denied=Permissions denied for calling & messaging from case detail screen.
@@ -752,6 +748,9 @@ permission.sms.install.message=CommCare would like to scan your recent messages 
 permission.form.gps.title=Permission to capture location during form entry
 permission.form.gps.message=CommCare would like to capture your location and provide it to forms you complete.
 permission.acquire.required=Acquire Required Permissions
+permission.camera.title=Permission for Camera
+permission.camera.message=In order to take a picture, CommCare needs permission to use your device camera.
+permission.camera.denial.message=CommCare doesn't have the permission to use camera. Please enable via Android's settings.
 
 custom.acknowledgement=
 case.error.self.index=Case '${0}' cannot index itself. In order to login you must change the case on the server.

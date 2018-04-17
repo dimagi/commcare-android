@@ -521,10 +521,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 receiver.failWithNotification(AppInstallStatus.DuplicateApp);
                 break;
             case IncorrectTargetPackage:
-                receiver.failWithNotification(AppInstallStatus.IncorrectTargetPackage);
-                break;
-            case IncorrectTargetPackageLTS:
-                receiver.failWithNotification(AppInstallStatus.IncorrectTargetPackageLTS);
+                receiver.failTargetMismatch();
                 break;
             default:
                 receiver.failUnknown(AppInstallStatus.UnknownFailure);
@@ -785,6 +782,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void failWithNotification(AppInstallStatus statusFailState) {
         fail(NotificationMessageFactory.message(statusFailState), true);
     }
+
+    @Override
+    public void failTargetMismatch() {
+        Intent intent = new Intent(this, TargetMismatchErrorActivity.class);
+        startActivity(intent);
+    }
+
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
