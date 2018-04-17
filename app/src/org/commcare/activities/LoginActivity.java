@@ -272,6 +272,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == SEAT_APP_ACTIVITY && resultCode == RESULT_OK) {
             uiController.refreshForNewApp();
+            usernameBeforeRotation = passwordOrPinBeforeRotation = null;
         }
 
         super.onActivityResult(requestCode, resultCode, intent);
@@ -443,10 +444,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         String toastText = message.getTitle();
         if (showTop) {
             CommCareApplication.notificationManager().reportNotificationMessage(message);
-            toastText = Localization.get("notification.for.details.wrapper",
-                    new String[]{toastText});
         }
-        uiController.setErrorMessageUI(toastText);
+        uiController.setErrorMessageUI(toastText, showTop);
     }
 
     /**

@@ -11,11 +11,13 @@ public interface ResourceEngineListener {
 
     void failInvalidResource(InvalidResourceException e, AppInstallStatus statusmissing);
 
-    void failBadReqs(int code, String vReq, String vAvail, boolean majorIsProblem);
+    void failBadReqs(String vReq, String vAvail, boolean majorIsProblem);
 
     void failUnknown(AppInstallStatus statusfailunknown);
 
     void updateResourceProgress(int done, int pending, int phase);
 
     void failWithNotification(AppInstallStatus statusfailstate);
+
+    void failTargetMismatch();
 }

@@ -89,7 +89,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final int SMS_PERMISSIONS_REQUEST = 2;
 
     private static final String FORCE_VALIDATE_KEY = "validate";
-
+    private static final String KEY_SHOW_NOTIFICATIONS_BUTTON = "show-notifications-button";
 
     /**
      * UI configuration states.
@@ -104,6 +104,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
     private String errorMessageToDisplay;
+    private boolean showNotificationsButton = false;
 
     public static final int MENU_ARCHIVE = Menu.FIRST;
     private static final int MENU_SMS = Menu.FIRST + 2;
@@ -222,6 +223,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         manualSMSInstall = savedInstanceState.getBoolean(KEY_MANUAL_SMS_INSTALL);
         lastInstallMode = savedInstanceState.getInt(KEY_LAST_INSTALL_MODE);
         errorMessageToDisplay = savedInstanceState.getString(KEY_ERROR_MESSAGE);
+        showNotificationsButton = savedInstanceState.getBoolean(KEY_SHOW_NOTIFICATIONS_BUTTON, false);
         // Uggggh, this might not be 100% legit depending on timing, what
         // if we've already reconnected and shut down the dialog?
         startAllowed = savedInstanceState.getBoolean("startAllowed");
@@ -266,6 +268,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 actionBar.setDisplayHomeAsUpEnabled(false);
             }
         }
+    }
+
+    public boolean shouldShowNotificationErrorButton() {
+        return showNotificationsButton;
     }
 
     @Override
@@ -333,7 +339,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 return;
         }
 
-        if(!fragment.isAdded() && !isFinishing()) {
+        if (!fragment.isAdded() && !isFinishing()) {
             ft.replace(R.id.setup_fragment_container, fragment);
             ft.commit();
             fm.executePendingTransactions();
@@ -371,6 +377,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean(KEY_FROM_MANAGER, fromManager);
         outState.putBoolean(KEY_MANUAL_SMS_INSTALL, manualSMSInstall);
         outState.putString(KEY_ERROR_MESSAGE, errorMessageToDisplay);
+        outState.putBoolean(KEY_SHOW_NOTIFICATIONS_BUTTON, showNotificationsButton);
         Log.v("UiState", "Saving instance state: " + outState);
     }
 
@@ -458,37 +465,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         @Override
                         protected void deliverResult(CommCareSetupActivity receiver,
                                                      AppInstallStatus result) {
-                            switch (result) {
-                                case Installed:
-                                    receiver.reportSuccess(true);
-                                    break;
-                                case UpToDate:
-                                    receiver.reportSuccess(false);
-                                    break;
-                                case MissingResourcesWithMessage:
-                                    // fall through to more general case:
-                                case MissingResources:
-                                    receiver.failMissingResource(this.missingResourceException, result);
-                                    break;
-                                case InvalidResource:
-                                    receiver.failInvalidResource(this.invalidResourceException, result);
-                                    break;
-                                case IncompatibleReqs:
-                                    receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
-                                    break;
-                                case NoLocalStorage:
-                                    receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
-                                    break;
-                                case BadCertificate:
-                                    receiver.failWithNotification(AppInstallStatus.BadCertificate);
-                                    break;
-                                case DuplicateApp:
-                                    receiver.failWithNotification(AppInstallStatus.DuplicateApp);
-                                    break;
-                                default:
-                                    receiver.failUnknown(AppInstallStatus.UnknownFailure);
-                                    break;
-                            }
+                            handleAppInstallResult(this, receiver, result);
                         }
 
                         @Override
@@ -508,6 +485,47 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             task.executeParallel(incomingRef);
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
+        }
+    }
+
+    public static void handleAppInstallResult(ResourceEngineTask<CommCareSetupActivity> resourceEngineTask, CommCareSetupActivity receiver, AppInstallStatus result) {
+        switch (result) {
+            case Installed:
+                receiver.reportSuccess(true);
+                break;
+            case UpToDate:
+                receiver.reportSuccess(false);
+                break;
+            case MissingResourcesWithMessage:
+                // fall through to more general case:
+            case MissingResources:
+                receiver.failMissingResource(resourceEngineTask.getMissingResourceException(), result);
+                break;
+            case InvalidResource:
+                receiver.failInvalidResource(resourceEngineTask.getInvalidResourceException(), result);
+                break;
+            case IncompatibleReqs:
+                receiver.failBadReqs(resourceEngineTask.getVersionRequired(),
+                        resourceEngineTask.getVersionAvailable(), resourceEngineTask.isMajorIsProblem());
+                break;
+            case NoLocalStorage:
+                receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
+                break;
+            case NoConnection:
+                receiver.failWithNotification(AppInstallStatus.NoConnection);
+                break;
+            case BadCertificate:
+                receiver.failWithNotification(AppInstallStatus.BadCertificate);
+                break;
+            case DuplicateApp:
+                receiver.failWithNotification(AppInstallStatus.DuplicateApp);
+                break;
+            case IncorrectTargetPackage:
+                receiver.failTargetMismatch();
+                break;
+            default:
+                receiver.failUnknown(AppInstallStatus.UnknownFailure);
+                break;
         }
     }
 
@@ -543,11 +561,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      *                                 install automatically if reference is found
      */
     private void performSMSInstall(boolean installTriggeredManually) {
+        manualSMSInstall = installTriggeredManually;
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
-
-            manualSMSInstall = installTriggeredManually;
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_SMS)) {
@@ -654,15 +671,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {
-        String message;
         if (showAsPinnedNotifcation) {
             CommCareApplication.notificationManager().reportNotificationMessage(notificationMessage);
-            message = Localization.get("notification.for.details.wrapper",
-                    new String[]{notificationMessage.getTitle()});
-        } else {
-            message = notificationMessage.getTitle();
+            showNotificationsButton = true;
         }
-        fail(message);
+        fail(notificationMessage.getTitle());
     }
 
     /**
@@ -684,6 +697,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     public void clearErrorMessage() {
         errorMessageToDisplay = null;
+        showNotificationsButton = false;
     }
 
     public String getErrorMessageToDisplay() {
@@ -730,8 +744,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
-        String versionMismatch = Localization.get("install.version.mismatch", new String[]{vRequired, vAvailable});
+    public void failBadReqs(String versionRequired, String versionAvailable, boolean majorIsProblem) {
+        String versionMismatch = Localization.get("install.version.mismatch", new String[]{versionRequired, versionAvailable});
 
         String error;
         if (majorIsProblem) {
@@ -768,6 +782,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void failWithNotification(AppInstallStatus statusFailState) {
         fail(NotificationMessageFactory.message(statusFailState), true);
     }
+
+    @Override
+    public void failTargetMismatch() {
+        Intent intent = new Intent(this, TargetMismatchErrorActivity.class);
+        startActivity(intent);
+    }
+
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
@@ -945,7 +966,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             // Check for managed configuration
             RestrictionsManager restrictionsManager =
-                    (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
+                    (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
             if (appRestrictions != null && appRestrictions.containsKey("profileUrl")) {
                 Log.d(TAG, "Found managed configuration install URL "

@@ -1,5 +1,6 @@
 package org.commcare.views.widgets;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -7,8 +8,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
-import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -21,20 +20,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
+import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.models.ODKStorage;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UrlUtils;
+import org.commcare.views.dialogs.CommCareAlertDialog;
+import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.UploadQuestionExtension;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -46,6 +51,9 @@ import java.io.File;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class ImageWidget extends QuestionWidget {
+
+    public static final int REQUEST_CAMERA_PERMISSION = 1001;
+
     private final static String t = "MediaWidget";
 
     private final Button mCaptureButton;
@@ -88,34 +96,22 @@ public class ImageWidget extends QuestionWidget {
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
-        mCaptureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mErrorTextView.setVisibility(View.GONE);
-                Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-
-                Uri uri = FileUtil.getUriForExternalFile(context, getTempFileForImageCapture());
-
-                // We give the camera an absolute filename/path where to put the
-                // picture because of bug:
-                // http://code.google.com/p/android/issues/detail?id=1480
-                // The bug appears to be fixed in Android 2.0+, but as of feb 2,
-                // 2010, G1 phones only run 1.6. Without specifying the path the
-                // images returned by the camera in 1.6 (and earlier) are ~1/4
-                // the size. boo.
-                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
-                i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                i.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                try {
-                    ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryConstants.IMAGE_CAPTURE);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found, "image capture"),
-                            Toast.LENGTH_SHORT).show();
+        mCaptureButton.setOnClickListener(v -> {
+            mErrorTextView.setVisibility(View.GONE);
+            if (Permissions.missingAppPermission((Activity)getContext(), Manifest.permission.CAMERA)) {
+                pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+                if (Permissions.shouldShowPermissionRationale((Activity)getContext(), Manifest.permission.CAMERA)) {
+                    CommCareAlertDialog dialog =
+                            DialogCreationHelpers.buildPermissionRequestDialog((Activity)getContext(), (RuntimePermissionRequester)getContext(),
+                                    REQUEST_CAMERA_PERMISSION,
+                                    Localization.get("permission.camera.title"),
+                                    Localization.get("permission.camera.message"));
+                    dialog.showNonPersistentDialog();
+                } else {
+                    ((RuntimePermissionRequester)getContext()).requestNeededPermissions(REQUEST_CAMERA_PERMISSION);
                 }
+            } else {
+                takePicture();
             }
         });
 
@@ -130,19 +126,27 @@ public class ImageWidget extends QuestionWidget {
         mChooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mErrorTextView.setVisibility(View.GONE);
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.setType("image/*");
-
-                try {
-                    ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryConstants.IMAGE_CHOOSER);
+                if (ImageCaptureProcessing.getCustomImagePath() != null) {
+                    // This block is only in use for a Calabash test and
+                    // processes the custom file path set from a broadcast triggered by calabash test
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found, "choose image"),
-                            Toast.LENGTH_SHORT).show();
+                    ImageCaptureProcessing.processImageFromBroadcast((FormEntryActivity)getContext(), FormEntryInstanceState.getInstanceFolder());
+                    ImageCaptureProcessing.setCustomImagePath(null);
+                } else {
+                    mErrorTextView.setVisibility(View.GONE);
+                    Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                    i.setType("image/*");
+
+                    try {
+                        ((Activity)getContext()).startActivityForResult(i,
+                                FormEntryConstants.IMAGE_CHOOSER);
+                        pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(getContext(),
+                                StringUtils.getStringSpannableRobust(getContext(),
+                                        R.string.activity_not_found, "choose image"),
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -239,6 +243,32 @@ public class ImageWidget extends QuestionWidget {
         }
     }
 
+    private void takePicture() {
+        Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        Uri uri = FileUtil.getUriForExternalFile(getContext(), getTempFileForImageCapture());
+
+        // We give the camera an absolute filename/path where to put the
+        // picture because of bug:
+        // http://code.google.com/p/android/issues/detail?id=1480
+        // The bug appears to be fixed in Android 2.0+, but as of feb 2,
+        // 2010, G1 phones only run 1.6. Without specifying the path the
+        // images returned by the camera in 1.6 (and earlier) are ~1/4
+        // the size. boo.
+        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
+        i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        i.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        try {
+            ((Activity)getContext()).startActivityForResult(i,
+                    FormEntryConstants.IMAGE_CAPTURE);
+            pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(getContext(),
+                    StringUtils.getStringSpannableRobust(getContext(),
+                            R.string.activity_not_found, "image capture"),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void deleteMedia() {
         // get the file path and delete the file
         File f = new File(mInstanceFolder + "/" + mBinaryName);
@@ -331,6 +361,19 @@ public class ImageWidget extends QuestionWidget {
     public void applyExtension(QuestionDataExtension extension) {
         if (extension instanceof UploadQuestionExtension) {
             this.mMaxDimen = ((UploadQuestionExtension)extension).getMaxDimen();
+        }
+    }
+
+    @Override
+    public void notifyPermission(String permission, boolean permissionGranted) {
+        if (permission.contentEquals(Manifest.permission.CAMERA)) {
+            if (permissionGranted) {
+                takePicture();
+            } else {
+                Toast.makeText(getContext(),
+                        Localization.get("permission.camera.denial.message"),
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

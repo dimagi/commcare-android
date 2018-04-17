@@ -10,6 +10,13 @@ public enum AppInstallStatus implements MessageTag {
      */
     DuplicateApp("notification.install.duplicate"),
 
+    /**
+     * installing an app targetting a different flavout than the one running
+     */
+    IncorrectTargetPackage(""),
+
+
+
     // Statuses unique to app updating
     /**
      * Update has been downloaded into update table

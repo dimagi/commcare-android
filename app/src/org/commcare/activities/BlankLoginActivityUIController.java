@@ -46,7 +46,7 @@ public class BlankLoginActivityUIController extends LoginActivityUIController {
     }
 
     @Override
-    protected void setErrorMessageUI(String message) {
+    protected void setErrorMessageUI(String message, boolean shownotification) {
 
     }
 

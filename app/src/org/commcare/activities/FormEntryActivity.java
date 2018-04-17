@@ -1,12 +1,15 @@
 package org.commcare.activities;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -14,6 +17,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore.Images;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -46,6 +50,7 @@ import org.commcare.interfaces.AdvanceToNextListener;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.interfaces.FormSavedListener;
+import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
@@ -68,6 +73,7 @@ import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.media.MediaLayout;
 import org.commcare.views.widgets.BarcodeWidget;
+import org.commcare.views.widgets.ImageWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.FormIndex;
@@ -95,7 +101,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActivity>
         implements FormSavedListener, FormSaveCallback,
-        WithUIController, AdvanceToNextListener, WidgetChangedListener {
+        WithUIController, AdvanceToNextListener, WidgetChangedListener, RuntimePermissionRequester {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
 
     public static final String KEY_FORM_CONTENT_URI = "form_content_uri";
@@ -293,46 +299,51 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 processIntentResponse(intent, true);
                 Toast.makeText(this, Localization.get("intent.callout.cancelled"), Toast.LENGTH_SHORT).show();
             }
-            // request was canceled, so do nothing
-            return;
+        } else {
+            switch (requestCode) {
+                case FormEntryConstants.INTENT_CALLOUT:
+                    if (!processIntentResponse(intent, false)) {
+                        Toast.makeText(this, Localization.get("intent.callout.unable.to.process"), Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case FormEntryConstants.IMAGE_CAPTURE:
+                    ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), true);
+                    break;
+                case FormEntryConstants.SIGNATURE_CAPTURE:
+                    boolean saved = ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), false);
+                    if (saved && !uiController.questionsView.isQuestionList()) {
+                        // attempt to auto-advance if a signature was captured
+                        advance();
+                    }
+                    break;
+                case FormEntryConstants.IMAGE_CHOOSER:
+                    ImageCaptureProcessing.processImageChooserResponse(this, FormEntryInstanceState.getInstanceFolder(), intent);
+                    break;
+                case FormEntryConstants.AUDIO_VIDEO_FETCH:
+                    processChooserResponse(intent);
+                    break;
+                case FormEntryConstants.LOCATION_CAPTURE:
+                    String sl = intent.getStringExtra(FormEntryConstants.LOCATION_RESULT);
+                    uiController.questionsView.setBinaryData(sl, mFormController);
+                    saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+                    break;
+                case FormEntryConstants.HIERARCHY_ACTIVITY:
+                case FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START:
+                    if (resultCode == FormHierarchyActivity.RESULT_XPATH_ERROR) {
+                        finish();
+                    } else {
+                        // We may have jumped to a new index in hierarchy activity, so refresh
+                        uiController.refreshCurrentView(false);
+                    }
+                    break;
+            }
         }
+        resetPendingCalloutIndex();
+    }
 
-        switch (requestCode) {
-            case FormEntryConstants.INTENT_CALLOUT:
-                if (!processIntentResponse(intent, false)) {
-                    Toast.makeText(this, Localization.get("intent.callout.unable.to.process"), Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case FormEntryConstants.IMAGE_CAPTURE:
-                ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), true);
-                break;
-            case FormEntryConstants.SIGNATURE_CAPTURE:
-                boolean saved = ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), false);
-                if (saved && !uiController.questionsView.isQuestionList()) {
-                    // attempt to auto-advance if a signature was captured
-                    advance();
-                }
-                break;
-            case FormEntryConstants.IMAGE_CHOOSER:
-                ImageCaptureProcessing.processImageChooserResponse(this, FormEntryInstanceState.getInstanceFolder(), intent);
-                break;
-            case FormEntryConstants.AUDIO_VIDEO_FETCH:
-                processChooserResponse(intent);
-                break;
-            case FormEntryConstants.LOCATION_CAPTURE:
-                String sl = intent.getStringExtra(FormEntryConstants.LOCATION_RESULT);
-                uiController.questionsView.setBinaryData(sl, mFormController);
-                saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
-                break;
-            case FormEntryConstants.HIERARCHY_ACTIVITY:
-            case FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START:
-                if (resultCode == FormHierarchyActivity.RESULT_XPATH_ERROR) {
-                    finish();
-                } else {
-                    // We may have jumped to a new index in hierarchy activity, so refresh
-                    uiController.refreshCurrentView(false);
-                }
-                break;
+    private void resetPendingCalloutIndex() {
+        if (mFormController != null) {
+            mFormController.setPendingCalloutFormIndex(null);
         }
     }
 
@@ -853,10 +864,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         registerFormEntryReceiver();
         restorePriorStates();
-
-        if (mFormController != null) {
-            mFormController.setPendingCalloutFormIndex(null);
-        }
     }
 
     private void restorePriorStates() {
@@ -958,9 +965,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         boolean isRestartAfterSessionExpiration =
                 getIntent().getBooleanExtra(KEY_IS_RESTART_AFTER_EXPIRATION, false);
         // Set saved answer path
-        if (FormEntryInstanceState.mInstancePath == null || isRestartAfterSessionExpiration) {
+        if (FormEntryInstanceState.mInstancePath == null) {
             instanceState.initInstancePath();
-        } else {
+        } else if (!isRestartAfterSessionExpiration) {
             // we've just loaded a saved form, so start in the hierarchy view
             Intent i = new Intent(this, FormHierarchyActivity.class);
             startActivityForResult(i, FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START);
@@ -1380,6 +1387,40 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } else {
             return StringUtils.getStringRobust(this, R.string.application_name) + " > " + FormEntryActivity.mFormController.getFormTitle();
         }
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.M)
+    public void requestNeededPermissions(int requestCode) {
+        switch (requestCode) {
+            case ImageWidget.REQUEST_CAMERA_PERMISSION:
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.CAMERA},
+                        requestCode);
+                return;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case ImageWidget.REQUEST_CAMERA_PERMISSION: {
+
+                QuestionWidget pendingWidget = getPendingWidget();
+                resetPendingCalloutIndex();
+
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    pendingWidget.notifyPermission(permissions[0], true);
+                } else {
+                    pendingWidget.notifyPermission(permissions[0], false);
+                }
+                return;
+            }
+        }
+
     }
 
 

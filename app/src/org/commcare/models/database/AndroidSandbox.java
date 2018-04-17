@@ -95,6 +95,11 @@ public class AndroidSandbox extends UserSandbox {
     }
 
     @Override
+    public User getLoggedInUserUnsafe() {
+        return app.getSession().getLoggedInUser();
+    }
+
+    @Override
     public void setLoggedInUser(User user) {
 
     }

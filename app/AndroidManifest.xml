@@ -365,6 +365,10 @@
                 <action android:name="org.commcare.dalvik.api.action.ExpireUserKeyRecord"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="${applicationId}.api.action.SetImageWidgetPath"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </receiver>
 
         <activity android:name="org.commcare.activities.MultimediaInflaterActivity">
@@ -411,6 +415,7 @@
                 <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
+        <activity android:name="org.commcare.activities.TargetMismatchErrorActivity"/>
 
         <!-- Start Collect Manifest -->
 
