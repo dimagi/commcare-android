@@ -23,6 +23,7 @@ import org.commcare.graph.view.GraphView;
 import org.commcare.models.AsyncEntity;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
@@ -493,7 +494,8 @@ public class EntityView extends LinearLayout {
             }
         } catch (Exception excp) {
             removeSpans(raw);
-            Logger.log("search-hl", excp.toString() + " " + ForceCloseLogger.getStackTrace(excp));
+            Logger.log(LogTypes.TYPE_ERROR_CAUGHT_EXCEPTION, "Error during highlight searches: " +
+                    excp.toString() + " " + ForceCloseLogger.getStackTrace(excp));
         }
 
         return raw;

@@ -380,7 +380,7 @@ public class QuestionsView extends ScrollView
     public void setBinaryData(Object answer, PendingCalloutInterface pendingCalloutInterface) {
         FormIndex questionFormIndex = pendingCalloutInterface.getPendingCalloutFormIndex();
         if (questionFormIndex == null) {
-            Logger.log(LogTypes.SOFT_ASSERT,
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                     "Unable to find question widget to attach pending data to.");
             return;
         }
@@ -391,7 +391,7 @@ public class QuestionsView extends ScrollView
                 return;
             }
         }
-        Logger.log(LogTypes.SOFT_ASSERT,
+        Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                 "Unable to find question widget to attach pending data to.");
     }
 
