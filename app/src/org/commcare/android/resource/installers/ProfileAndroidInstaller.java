@@ -63,6 +63,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                 | InvalidStructureException | IOException
                 | InvalidReferenceException e) {
             e.printStackTrace();
+            Logger.log(LogTypes.TYPE_RESOURCES, "Initialization failed for Profile resource with exception " + e.getMessage());
         }
 
         return false;
