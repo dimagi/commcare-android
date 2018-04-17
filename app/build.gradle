@@ -230,6 +230,8 @@ android {
                 googlePlayMapsApiKey: "${project.ext.GOOGLE_PLAY_MAPS_API_KEY}"
         ]
 
+        vectorDrawables.useSupportLibrary = true
+
         versionCode computeVersionCode()
 
         // when set, app won't show install screen and try to install
