@@ -75,7 +75,8 @@ public class EntityLoaderTask
         } catch (XPathException xe) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xe);
             xe.printStackTrace();
-            Logger.log(LogTypes.TYPE_ERROR_DESIGN, ForceCloseLogger.getStackTrace(xe));
+            Logger.log(LogTypes.TYPE_ERROR_CAUGHT_EXCEPTION,
+                    "Error during EntityLoaderTask: " + ForceCloseLogger.getStackTrace(xe));
             mException = xe;
             return null;
         }

@@ -462,7 +462,7 @@ public class LegacyInstallUtils {
         try {
             ourDb = new DatabaseUserOpenHelper(CommCareApplication.instance(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
         } catch (SQLiteException sle) {
-            //Our database got corrupted. Fortunately this represents a new record, so we can't actually need it.
+            // Our database got corrupted. Fortunately this represents a new record, so we can't actually need it.
             Logger.log(LogTypes.TYPE_MAINTENANCE, "Attempted migrated database got corrupted. Deleting it and starting over");
             c.getDatabasePath(DatabaseUserOpenHelper.getDbName(ukr.getUuid())).delete();
             ourDb = new DatabaseUserOpenHelper(CommCareApplication.instance(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
@@ -583,7 +583,7 @@ public class LegacyInstallUtils {
             return filePath;
         } catch (IOException ioe) {
             //This shouldn't happen and kind of sucks if it does. Should only occur if the file paths are invalid
-            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Couldn't cannonicalize " + oldRoot + " or " + filePath);
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Legacy| Couldn't cannonicalize " + oldRoot + " or " + filePath);
             return filePath;
         }
     }

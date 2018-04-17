@@ -285,7 +285,7 @@ public abstract class DataPullTask<R>
 
         int responseCode = pullResponse.responseCode;
         Logger.log(LogTypes.TYPE_USER,
-                "Request opened. Response code: " + responseCode);
+                "Data pull request opened. Response code: " + responseCode);
 
         if (responseCode == 401) {
             return handleAuthFailed();
@@ -444,7 +444,7 @@ public abstract class DataPullTask<R>
 
     private ResultAndError<PullTaskResult> handleServerError() {
         wipeLoginIfItOccurred();
-        Logger.log(LogTypes.TYPE_USER, "500 Server Error|" + username);
+        Logger.log(LogTypes.TYPE_USER, "500 Server Error during data pull|" + username);
         return new ResultAndError<>(PullTaskResult.SERVER_ERROR);
     }
 

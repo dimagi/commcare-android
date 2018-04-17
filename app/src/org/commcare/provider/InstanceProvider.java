@@ -550,7 +550,9 @@ public class InstanceProvider extends ContentProvider {
                     userDb.setTransactionSuccessful();
                 } catch (InvalidStructureException e) {
                     // Record will be wiped when form entry is exited
-                    Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, e.getMessage());
+                    Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
+                            String.format("InvalidStructureException encountered while processing form record %s: %s",
+                                    current.getInstanceID(), e.getMessage()));
                     throw new IllegalStateException(e.getMessage());
                 } catch (Exception e) {
                     NotificationMessage message =
@@ -634,7 +636,7 @@ public class InstanceProvider extends ContentProvider {
      * @param currentState session to be cleared
      */
     private void raiseFormEntryError(String loggerText, AndroidSessionWrapper currentState) {
-        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, loggerText);
+        Logger.log(LogTypes.TYPE_FORM_ENTRY, loggerText);
 
         currentState.reset();
         throw new RuntimeException(loggerText);

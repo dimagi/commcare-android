@@ -88,7 +88,7 @@ public class FixtureSerializationMigration {
             // restore, which ultimately has the same effect as running the
             // fixture serialization migration.
             db.setTransactionSuccessful();
-            Logger.log(LogTypes.SOFT_ASSERT, "fixture serialization db migration failed");
+            Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "fixture serialization db migration failed");
             Logger.exception(e);
             // allow subsequent migrations to be processed. Will potentially
             // lead to failure if those migrations make use of fixtures.
