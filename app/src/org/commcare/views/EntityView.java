@@ -494,8 +494,8 @@ public class EntityView extends LinearLayout {
             }
         } catch (Exception excp) {
             removeSpans(raw);
-            Logger.log(LogTypes.TYPE_ERROR_CAUGHT_EXCEPTION, "Error during highlight searches: " +
-                    excp.toString() + " " + ForceCloseLogger.getStackTrace(excp));
+            Logger.exception("Error during highlight searches: " + excp.toString() + " " +
+                    ForceCloseLogger.getStackTrace(excp), excp);
         }
 
         return raw;
