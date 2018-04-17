@@ -4,7 +4,7 @@ package org.commcare.logging
 sealed class DataChangeLogType(val message: String) {
 
     class CommCareInstall : DataChangeLogType("CommCare installed")
-    class CommCareUpdate : DataChangeLogType("CommCare udpated")
+    class CommCareUpdate : DataChangeLogType("CommCare updated")
     class CommCareAppInstall : DataChangeLogType("App installed")
     class CommCareAppUninstall(val appName : String,val appVersion : Int) : DataChangeLogType("Uninstalling App")
     class CommCareAppUpdateStaged : DataChangeLogType("App update staged and starting install")

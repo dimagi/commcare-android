@@ -24,12 +24,12 @@ import java.util.*
 object DataChangeLogger {
 
     private const val PRIMARY_LOG_FILE_NAME = "CommCare Data Change Logs.txt"
-    private const val SECONDRY_LOG_FILE_NAME = "CommCare Data Change Logs1.txt"
+    private const val SECONDARY_LOG_FILE_NAME = "CommCare Data Change Logs1.txt"
     private const val DATE_FORMAT = "d MMM yy HH:mm:ss z"
     private const val MAX_FILE_SIZE = (100 * 1000).toLong() // ~100KB
 
     private var primaryFile: File? = null
-    private var secondryFile: File? = null
+    private var secondaryFile: File? = null
 
     @JvmStatic
     fun init(context: Context) {
@@ -44,11 +44,11 @@ object DataChangeLogger {
 
         primaryFile = initFile(context, PRIMARY_LOG_FILE_NAME)
         if (primaryFile!!.exists() && primaryFile!!.length() > MAX_FILE_SIZE) {
-            // When primary file gets full -> Delete secondry and move logs in primary to secondry
-            secondryFile = initFile(context, SECONDRY_LOG_FILE_NAME)
-            secondryFile!!.delete()
+            // When primary file gets full -> Delete secondary and move logs in primary to secondary
+            secondaryFile = initFile(context, SECONDARY_LOG_FILE_NAME)
+            secondaryFile!!.delete()
             try {
-                FileUtil.copyFile(primaryFile, secondryFile)
+                FileUtil.copyFile(primaryFile, secondaryFile)
                 primaryFile!!.delete()
                 primaryFile!!.createNewFile()
             } catch (e: IOException) {
@@ -68,6 +68,7 @@ object DataChangeLogger {
         }
         return file
     }
+
 
     /**
      * Logs a given message to the fileSystem
@@ -96,7 +97,7 @@ object DataChangeLogger {
      */
     @JvmStatic
     fun getLogs(): String {
-        return getLogs(secondryFile) + getLogs(primaryFile)
+        return getLogs(secondaryFile) + getLogs(primaryFile)
     }
 
     private fun appendMetaData(dataChangeLogType: DataChangeLogType): String {
