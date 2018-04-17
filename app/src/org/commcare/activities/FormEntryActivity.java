@@ -172,7 +172,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             ODKStorage.createODKDirs();
         } catch (RuntimeException e) {
-            Logger.exception(e);
+            Logger.exception("Error creating storage directories", e);
             UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
             return;
         }

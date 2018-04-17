@@ -345,9 +345,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                             "Inconsistent formRecordId's in session storage");
                 }
             } catch (Exception e) {
-                Logger.exception(e);
-                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                        "Session ID exists, but with no record (or broken record)");
+                Logger.exception("Session ID exists, but with no record (or broken record)", e);
             }
         }
 
@@ -361,9 +359,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                     sessionId = loadSSDIDFromFormRecord(ssdStorage, formRecordId);
                 }
             } catch (Exception e) {
-                Logger.exception(e);
-                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                        "Session ID exists, but with no record (or broken record)");
+                Logger.exception("Session ID exists, but with no record (or broken record)", e);
             }
         }
 

@@ -220,7 +220,7 @@ public class FormUploadUtil {
             // If we can't parse out the failure reason then we won't quarantine this form, because
             // we won't have any clear info about what happened
             result = FormUploadResult.FAILURE;
-            Logger.exception(e);
+            Logger.exception("Form processing failed", e);
             e.printStackTrace();
         }
         return result;

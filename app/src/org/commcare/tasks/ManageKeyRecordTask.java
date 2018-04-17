@@ -593,12 +593,10 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                     ByteEncrypter.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
             publishProgress(Localization.get("key.manage.migrate"));
         } catch (IOException ioe) {
-            Logger.exception(ioe);
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
+            Logger.exception("IO Error while migrating database", ioe);
             return false;
         } catch (Exception e) {
-            Logger.exception(e);
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
+            Logger.exception("Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e), e);
             return false;
         }
         return true;
