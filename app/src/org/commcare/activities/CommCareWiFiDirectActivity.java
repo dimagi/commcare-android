@@ -73,7 +73,7 @@ public class CommCareWiFiDirectActivity
         extends SessionAwareCommCareActivity<CommCareWiFiDirectActivity>
         implements DeviceActionListener, FileServerListener, WifiDirectManagerListener, WithUIController {
 
-    private static final String TAG = CommCareWiFiDirectActivity.class.getSimpleName();
+    private static final String TAG = LogTypes.TYPE_WIFI_DIRECT;
 
     private WifiP2pManager mManager;
     private Channel mChannel;
@@ -323,7 +323,7 @@ public class CommCareWiFiDirectActivity
         wifiFragment.setIsHost(false);
         wifiFragment.resetConnectionGroup();
 
-        Logger.log(LogTypes.TYPE_FORM_DUMP, "Device designated as submitter");
+        Logger.log(TAG, "Device designated as submitter");
         mState = wdState.submit;
         changeState();
     }
