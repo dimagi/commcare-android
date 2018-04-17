@@ -2,11 +2,8 @@ package org.commcare.logging
 
 import android.content.Context
 import android.os.Environment
-import android.util.Log
-import com.crashlytics.android.Crashlytics
 import org.apache.commons.lang3.StringUtils
 import org.commcare.android.logging.ReportingUtils
-import org.commcare.dalvik.R.id.message
 import org.commcare.util.LogTypes
 import org.commcare.utils.CrashUtil
 import org.commcare.utils.FileUtil
@@ -76,15 +73,15 @@ object DataChangeLogger {
      * Logs a given message to the fileSystem
      */
     @JvmStatic
-    fun log(dataChangeLog: DataChangeLog) {
+    fun log(dataChangeLogType: DataChangeLogType) {
         // Include this info as part of any crash reports
-        CrashUtil.log(dataChangeLog.getLogMessage());
+        CrashUtil.log(dataChangeLogType.message);
 
         // Write to local storage
         if (primaryFile != null && primaryFile!!.exists()) {
             try {
                 val outputStream = FileOutputStream(primaryFile!!, true)
-                outputStream.write(dataChangeLog.buildMetaData().toByteArray())
+                outputStream.write(appendMetaData(dataChangeLogType).toByteArray())
                 outputStream.flush()
                 outputStream.close()
             } catch (e: IOException) {
@@ -102,14 +99,14 @@ object DataChangeLogger {
         return getLogs(secondryFile) + getLogs(primaryFile)
     }
 
-    private fun appendMetaData(message: String): String {
+    private fun appendMetaData(dataChangeLogType: DataChangeLogType): String {
         val sb = StringBuilder()
 
         sb.append(SimpleDateFormat(DATE_FORMAT).format(Date()))
         sb.append(" - ")
-        sb.append(message)
+        sb.append(dataChangeLogType.message)
 
-        val metaData = getMetaData()
+        val metaData = getMetaData(dataChangeLogType)
         for (key in metaData.keys) {
             val value = metaData[key]
             if (!StringUtils.isEmpty(value)) {
@@ -125,14 +122,26 @@ object DataChangeLogger {
         return sb.toString()
     }
 
-    private fun getMetaData(): Map<String, String> {
+    private fun getMetaData(dataChangeLogType: DataChangeLogType): Map<String, String> {
         val metaData = LinkedHashMap<String, String>()
         metaData.put("CommCare Version", ReportingUtils.getCommCareVersionString())
-        metaData.put("App Name", ReportingUtils.getAppName())
-        val appVersion = ReportingUtils.getAppVersion()
+
+        // Add App Name
+        val appName = when(dataChangeLogType) {
+            is DataChangeLogType.CommCareAppUninstall -> dataChangeLogType.appName
+            else -> ReportingUtils.getAppName()
+        }
+        metaData.put("App Name", appName)
+
+        // Add App Version
+        val appVersion = when(dataChangeLogType) {
+            is DataChangeLogType.CommCareAppUninstall -> dataChangeLogType.appVersion
+            else -> ReportingUtils.getAppVersion()
+        }
         if (appVersion != -1) {
             metaData.put("App Version", appVersion.toString())
         }
+
         metaData.put("Username", ReportingUtils.getUser())
         return metaData
     }

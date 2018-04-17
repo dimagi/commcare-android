@@ -7,6 +7,7 @@ import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.engine.resource.AndroidResourceManager;
+import org.commcare.logging.DataChangeLogType;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
@@ -109,8 +110,8 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        DataChangeLogger.log("Starting upgrade for App DB from " + oldVersion + " to " + newVersion);
+        DataChangeLogger.log(new DataChangeLogType.DbUpgradeStart("App", oldVersion, newVersion));
         new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
-        DataChangeLogger.log("Completed upgrade for App DB from " + oldVersion + " to " + newVersion);
+        DataChangeLogger.log(new DataChangeLogType.DbUpgradeComplete("App", oldVersion, newVersion));
     }
 }

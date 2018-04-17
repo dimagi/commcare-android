@@ -47,9 +47,8 @@ import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.logging.DataChangeLog;
+import org.commcare.logging.DataChangeLogType;
 import org.commcare.logging.DataChangeLogger;
-import org.commcare.logging.DataChangeLogs;
 import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorLogger;
@@ -218,9 +217,9 @@ public class CommCareApplication extends MultiDexApplication {
 
     private void logFirstCommCareRun() {
         if (isFirstRunAfterInstall()) {
-            DataChangeLogger.log();
+            DataChangeLogger.log(new DataChangeLogType.CommCareInstall());
         } else if (isFirstRunAfterUpdate()) {
-            DataChangeLogger.log("CommCare udpated");
+            DataChangeLogger.log(new DataChangeLogType.CommCareUpdate());
         }
     }
 
