@@ -13,7 +13,6 @@ import com.android.builder.core.DefaultManifestParser
 
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
-apply plugin: 'me.tatarka.retrolambda'
 
 repositories {
     mavenCentral()
@@ -24,6 +23,7 @@ repositories {
     }
     maven { url 'https://maven.fabric.io/public' }
     maven { url "https://jitpack.io" }
+    maven { url 'https://maven.google.com' }
 }
 
 configurations {
@@ -36,12 +36,10 @@ dependencies {
     testCompile 'org.robolectric:robolectric:3.2.2'
     testCompile 'org.robolectric:shadows-multidex:3.2.2'
     testCompile 'org.robolectric:shadows-core:3.2.2'
-    testCompile 'org.json:json:20140107'
-
     testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
     debugCompile project(':commcare-core')
-    compile project(':commcare-core')
+    implementation project(':commcare-core')
     // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
     compile fileTree(include: '*.jar', dir: 'libs')
     compile(name: 'htmlspanner-custom', ext: 'aar')
@@ -192,7 +190,14 @@ def getDate() {
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion "26.0.3"
+
+    flavorDimensions "versionCode"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     // This was deprecated so have to explicitly tell Android to use it until we move to the new lib
     useLibrary 'org.apache.http.legacy'
