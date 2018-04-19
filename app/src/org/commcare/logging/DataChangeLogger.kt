@@ -74,15 +74,15 @@ object DataChangeLogger {
      * Logs a given message to the fileSystem
      */
     @JvmStatic
-    fun log(dataChangeLogType: DataChangeLogType) {
+    fun log(dataChangeLog: DataChangeLog) {
         // Include this info as part of any crash reports
-        CrashUtil.log(dataChangeLogType.message);
+        CrashUtil.log(dataChangeLog.message);
 
         // Write to local storage
         if (primaryFile != null && primaryFile!!.exists()) {
             try {
                 val outputStream = FileOutputStream(primaryFile!!, true)
-                outputStream.write(appendMetaData(dataChangeLogType).toByteArray())
+                outputStream.write(appendMetaData(dataChangeLog).toByteArray())
                 outputStream.flush()
                 outputStream.close()
             } catch (e: IOException) {
@@ -100,14 +100,14 @@ object DataChangeLogger {
         return getLogs(secondaryFile) + getLogs(primaryFile)
     }
 
-    private fun appendMetaData(dataChangeLogType: DataChangeLogType): String {
+    private fun appendMetaData(dataChangeLog: DataChangeLog): String {
         val sb = StringBuilder()
 
         sb.append(SimpleDateFormat(DATE_FORMAT).format(Date()))
         sb.append(" - ")
-        sb.append(dataChangeLogType.message)
+        sb.append(dataChangeLog.message)
 
-        val metaData = getMetaData(dataChangeLogType)
+        val metaData = getMetaData(dataChangeLog)
         for (key in metaData.keys) {
             val value = metaData[key]
             if (!StringUtils.isEmpty(value)) {
@@ -123,20 +123,20 @@ object DataChangeLogger {
         return sb.toString()
     }
 
-    private fun getMetaData(dataChangeLogType: DataChangeLogType): Map<String, String> {
+    private fun getMetaData(dataChangeLog: DataChangeLog): Map<String, String> {
         val metaData = LinkedHashMap<String, String>()
         metaData.put("CommCare Version", ReportingUtils.getCommCareVersionString())
 
         // Add App Name
-        val appName = when(dataChangeLogType) {
-            is DataChangeLogType.CommCareAppUninstall -> dataChangeLogType.appName
+        val appName = when(dataChangeLog) {
+            is DataChangeLog.CommCareAppUninstall -> dataChangeLog.appName
             else -> ReportingUtils.getAppName()
         }
         metaData.put("App Name", appName)
 
         // Add App Version
-        val appVersion = when(dataChangeLogType) {
-            is DataChangeLogType.CommCareAppUninstall -> dataChangeLogType.appVersion
+        val appVersion = when(dataChangeLog) {
+            is DataChangeLog.CommCareAppUninstall -> dataChangeLog.appVersion
             else -> ReportingUtils.getAppVersion()
         }
         if (appVersion != -1) {

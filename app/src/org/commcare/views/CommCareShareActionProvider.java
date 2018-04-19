@@ -17,33 +17,12 @@ import java.lang.reflect.Method;
 @RequiresApi(api = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class CommCareShareActionProvider extends ShareActionProvider {
 
-    private final Context mContext;
-
     public CommCareShareActionProvider(Context context) {
         super(context);
-        mContext = context;
     }
 
     @Override
     public View onCreateActionView() {
-        View chooserView = super.onCreateActionView();
-
-        Drawable icon = mContext.getResources().getDrawable(R.drawable.ic_share_24dp);
-
-        Class clazz = chooserView.getClass();
-
-        //reflection
-        try {
-            Method method = clazz.getMethod("setExpandActivityOverflowButtonDrawable", Drawable.class);
-            method.invoke(chooserView, icon);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
-        return chooserView;
+        return null;
     }
 }

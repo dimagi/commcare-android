@@ -7,7 +7,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.logging.DataChangeLogType;
+import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
@@ -101,7 +101,7 @@ public class AppUtils {
      * it shouldn't be used lightly.
      */
     public static void clearUserData() {
-        DataChangeLogger.log(new DataChangeLogType.ClearUserData());
+        DataChangeLogger.log(new DataChangeLog.ClearUserData());
         wipeSandboxForUser(CommCareApplication.instance().getSession().getLoggedInUser().getUsername());
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putString(HiddenPreferences.LAST_LOGGED_IN_USER, null).commit();

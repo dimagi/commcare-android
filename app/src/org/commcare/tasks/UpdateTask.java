@@ -10,7 +10,7 @@ import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
-import org.commcare.logging.DataChangeLogType;
+import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InvalidResourceException;
@@ -174,7 +174,7 @@ public class UpdateTask
         super.onPostExecute(resultAndError);
 
         if (resultAndError.data.equals(AppInstallStatus.UpdateStaged)) {
-            DataChangeLogger.log(new DataChangeLogType.CommCareAppUpdateStaged());
+            DataChangeLogger.log(new DataChangeLog.CommCareAppUpdateStaged());
         }
 
         if (!resultAndError.data.isUpdateInCompletedState()) {

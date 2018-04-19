@@ -2,6 +2,7 @@
     <item
         android:id="@+id/menu_item_share"
         android:title="@string/share"
+        android:icon="@drawable/ic_share_24dp"
         android:actionProviderClass="org.commcare.views.CommCareShareActionProvider"
         android:showAsAction="ifRoom"/>
 </menu>
