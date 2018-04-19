@@ -18,6 +18,9 @@ import org.htmlcleaner.TagNode;
 import org.javarosa.core.services.locale.Localization;
 
 import in.uncod.android.bypass.Bypass;
+import ru.noties.markwon.Markwon;
+import ru.noties.markwon.SpannableBuilder;
+import ru.noties.markwon.renderer.SpannableRenderer;
 
 public class MarkupUtil {
 
@@ -65,16 +68,16 @@ public class MarkupUtil {
     }
 
     public static Spannable returnCSS(String message) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
-            return new SpannableString(Html.fromHtml(message));
-        } else {
-            return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
-        }
+        return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
     }
 
     private static CharSequence generateMarkdown(Context c, String message) {
-        Bypass bypass = new Bypass(c);
-        return trimTrailingWhitespace(bypass.markdownToSpannable(convertCharacterEncodings(message)));
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            return trimTrailingWhitespace(
+                    new Bypass(c).markdownToSpannable(convertCharacterEncodings(message)));
+        }
+        return trimTrailingWhitespace(
+                Markwon.markdown(c, convertCharacterEncodings(message)));
     }
 
     /**

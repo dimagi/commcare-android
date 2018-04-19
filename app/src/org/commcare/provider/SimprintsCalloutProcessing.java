@@ -110,7 +110,7 @@ public class SimprintsCalloutProcessing {
                 Localization.get("fingerprints.scanned", new String[]{"" + numOfFingersScanned});
         IntentCallout.setNodeValue(formDef, intentQuestionRef, resultMessage);
 
-        return (numOfFingersScanned > 0);
+        return guid != null || numOfFingersScanned > 0;
     }
 
     private static int countTemplateScanned(byte[] template) {
