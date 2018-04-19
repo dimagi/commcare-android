@@ -74,10 +74,10 @@ public class MarkupUtil {
     private static CharSequence generateMarkdown(Context c, String message) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             return trimTrailingWhitespace(
-                    Markwon.markdown(c, convertCharacterEncodings(message)));
+                    new Bypass(c).markdownToSpannable(convertCharacterEncodings(message)));
         }
         return trimTrailingWhitespace(
-                new Bypass(c).markdownToSpannable(convertCharacterEncodings(message)));
+                Markwon.markdown(c, convertCharacterEncodings(message)));
     }
 
     /**
