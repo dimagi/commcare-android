@@ -48,9 +48,11 @@ public class DataChangeLogsActivity extends Activity {
     @RequiresApi(api = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void setShareIntent() {
         if (mShareActionProvider != null) {
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, mlogs);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, DataChangeLogger.getLogFilesUri());
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.commcare_logs));
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             mShareActionProvider.setShareIntent(shareIntent);
         }
     }

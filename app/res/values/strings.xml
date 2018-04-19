@@ -355,6 +355,7 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
 
     <string name="share" cc:translatable="true">Share</string>
     <string name="title_data_change_logs_activity" cc:translatable="true">Data Change Logs</string>
+    <string name="commcare_logs" cc:translatable="true">CommCare Data Change Logs</string>
 
     <!--Incorrect Target Screen-->
     <string name="target_mismatch_lts_required" cc:translatable="true">App Requires CommCare LTS</string>

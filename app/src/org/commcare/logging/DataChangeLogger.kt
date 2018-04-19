@@ -1,8 +1,10 @@
 package org.commcare.logging
 
 import android.content.Context
+import android.net.Uri
 import android.os.Environment
 import org.apache.commons.lang3.StringUtils
+import org.commcare.CommCareApplication
 import org.commcare.android.logging.ReportingUtils
 import org.commcare.util.LogTypes
 import org.commcare.utils.CrashUtil
@@ -100,6 +102,14 @@ object DataChangeLogger {
         return getLogs(secondaryFile) + getLogs(primaryFile)
     }
 
+    @JvmStatic
+    fun getLogFilesUri(): ArrayList<Uri> {
+        val fileUris: ArrayList<Uri> = arrayListOf()
+        primaryFile?.let { fileUris.add(FileUtil.getUriForExternalFile(CommCareApplication.instance(), primaryFile)) }
+        secondaryFile?.let { fileUris.add(FileUtil.getUriForExternalFile(CommCareApplication.instance(), secondaryFile)) }
+        return fileUris;
+    }
+
     private fun appendMetaData(dataChangeLog: DataChangeLog): String {
         val sb = StringBuilder()
 
@@ -128,14 +138,14 @@ object DataChangeLogger {
         metaData.put("CommCare Version", ReportingUtils.getCommCareVersionString())
 
         // Add App Name
-        val appName = when(dataChangeLog) {
+        val appName = when (dataChangeLog) {
             is DataChangeLog.CommCareAppUninstall -> dataChangeLog.appName
             else -> ReportingUtils.getAppName()
         }
         metaData.put("App Name", appName)
 
         // Add App Version
-        val appVersion = when(dataChangeLog) {
+        val appVersion = when (dataChangeLog) {
             is DataChangeLog.CommCareAppUninstall -> dataChangeLog.appVersion
             else -> ReportingUtils.getAppVersion()
         }
