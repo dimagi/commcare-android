@@ -102,6 +102,9 @@ object DataChangeLogger {
         return getLogs(secondaryFile) + getLogs(primaryFile)
     }
 
+    /**
+     * Returns an arraylist with shareable uris for the log files.
+     */
     @JvmStatic
     fun getLogFilesUri(): ArrayList<Uri> {
         val fileUris: ArrayList<Uri> = arrayListOf()
