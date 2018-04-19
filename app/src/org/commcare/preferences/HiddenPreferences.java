@@ -54,6 +54,9 @@ public class HiddenPreferences {
     private final static String LOGS_ENABLED = "logenabled";
     private final static String LOGS_ENABLED_YES = "Enabled";
 
+    // Boolean pref to determine first commcare run
+    public final static String FIRST_COMMCARE_RUN = "first-commcare-run";
+
     /**
      * @return How many seconds should a user session remain open before expiring?
      */

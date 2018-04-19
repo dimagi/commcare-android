@@ -23,12 +23,14 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
 
     private final static String ENABLE_PRIVILEGE = "enable-mobile-privilege";
     private final static String CLEAR_USER_DATA = "clear-user-data";
+    private final static String DATA_CHANGE_LOGS = "data-change-logs";
 
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
 
     static {
         keyToTitleMap.put(ENABLE_PRIVILEGE, "menu.enable.privileges");
         keyToTitleMap.put(CLEAR_USER_DATA, "clear.user.data");
+        keyToTitleMap.put(DATA_CHANGE_LOGS, "menu.data.change.logs");
     }
 
     @NonNull
@@ -72,6 +74,17 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
                 return true;
             }
         });
+
+        Preference dataChangeLogs = findPreference(DATA_CHANGE_LOGS);
+        dataChangeLogs.setOnPreferenceClickListener(preference -> {
+            launchDataChangeLogsActivity();
+            return true;
+        });
+    }
+
+    private void launchDataChangeLogsActivity() {
+        Intent i = new Intent(getActivity(), DataChangeLogsActivity.class);
+        startActivity(i);
     }
 
     private void launchPrivilegeClaimActivity() {
