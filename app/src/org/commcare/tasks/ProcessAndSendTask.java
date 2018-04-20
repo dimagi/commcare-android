@@ -315,10 +315,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         int attemptsMade = 0;
                         logSubmissionAttempt(record);
                         while (attemptsMade < SUBMISSION_ATTEMPTS) {
-                            if (attemptsMade > 0) {
-                                Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Retrying submission. "
-                                        + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
-                            }
                             results[i] = FormUploadUtil.sendInstance(i, folder,
                                     new SecretKeySpec(record.getAesKey(), "AES"), url, this, user);
                             if (results[i] == FormUploadResult.FULL_SUCCESS) {
