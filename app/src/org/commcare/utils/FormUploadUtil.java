@@ -233,8 +233,11 @@ public class FormUploadUtil {
         if (!(responseCode >= 200 && responseCode < 300)) {
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, responseCodeMessage);
             Logger.log(LogTypes.TYPE_FORM_SUBMISSION, responseCodeMessage);
-            Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
-                    "Response string to failed form submission attempt was: " + responseString);
+            if (!responseString.startsWith("<html>")) {
+                // Only log this if it's going to be useful
+                Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
+                        "Response string to failed form submission attempt was: " + responseString);
+            }
         }
     }
 
