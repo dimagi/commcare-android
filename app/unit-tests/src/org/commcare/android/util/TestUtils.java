@@ -5,7 +5,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.logging.ReportingUtils;
+import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
@@ -87,7 +87,7 @@ public class TestUtils {
     private static TransactionParserFactory getFactory(final SQLiteDatabase db, final boolean bulkProcessingEnabled) {
         final Hashtable<String, String> formInstanceNamespaces;
         if (CommCareApplication.instance().getCurrentApp() != null) {
-            formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance());
+            formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance().getAppStorage(FormDefRecord.class));
         } else {
             formInstanceNamespaces = null;
         }
@@ -96,7 +96,7 @@ public class TestUtils {
             public TransactionParser getParser(KXmlParser parser) {
                 String namespace = parser.getNamespace();
                 if (namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
-                    return new FormInstanceXmlParser(parser, CommCareApplication.instance(),
+                    return new FormInstanceXmlParser(parser,
                             Collections.unmodifiableMap(formInstanceNamespaces),
                             CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
                 } else if (CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
@@ -178,7 +178,7 @@ public class TestUtils {
 
         if (CommCareApplication.instance().getCurrentApp() != null) {
             Hashtable<String, String> formInstanceNamespaces =
-                    FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance());
+                    FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance().getAppStorage(FormDefRecord.class));
             androidTransactionFactory.initFormInstanceParser(formInstanceNamespaces);
         }
 

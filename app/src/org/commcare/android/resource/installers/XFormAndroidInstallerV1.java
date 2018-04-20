@@ -4,58 +4,51 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
-/**
- * @author ctsims
- */
-public class LocaleAndroidInstaller extends FileSystemInstaller {
+// This class was used prior to Commcare v2.42 and should currently only be used for migration purposes
+public class XFormAndroidInstallerV1 extends FileSystemInstaller {
 
-    private String locale;
+    private String namespace;
+    private String contentUri;
 
     @SuppressWarnings("unused")
-    public LocaleAndroidInstaller() {
-        // For externalization
+    public XFormAndroidInstallerV1() {
+        // for externalization
     }
-
-    public LocaleAndroidInstaller(String destination, String upgradeDestination, String locale) {
-        super(destination, upgradeDestination);
-        this.locale = locale;
-    }
-
 
     @Override
     public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
-        Localization.registerLanguageReference(locale, localLocation);
-        return true;
+        return false;
     }
 
     @Override
     protected int customInstall(Resource r, Reference local, boolean upgrade, AndroidCommCarePlatform platform) throws IOException, UnresolvedResourceException {
-        return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
+        return 0;
     }
 
     @Override
     public boolean requiresRuntimeInitialization() {
-        return true;
+        return false;
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
-        this.locale = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        this.namespace = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        this.contentUri = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
-    @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
-        super.writeExternal(out);
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(locale));
+    public String getContentUri() {
+        return contentUri;
+    }
+
+    public String getNamespace() {
+        return namespace;
     }
 }

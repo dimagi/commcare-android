@@ -201,7 +201,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                 "Removing form record because file was missing|" + getExceptionText(e));
                         record.logPendingDeletion(TAG,
                                 "the xml submission file associated with the record could not be found");
-                        FormRecordCleanupTask.wipeRecord(c, record);
+                        FormRecordCleanupTask.wipeRecord(record);
                         records[i] = FormRecord.StandInForDeletedRecord();
                         wroteErrorToLogs = true;
                     } else {
@@ -301,7 +301,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     //Time to Send!
                     try {
                         try {
-                            folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
+                            folder = new File(record.getFilePath()).getCanonicalFile().getParentFile();
                         } catch (FileNotFoundException e) {
                             //This will put us in the same "Missing Form" handling path as below
                             throw e;
@@ -366,7 +366,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     if (results[i] == FormUploadResult.FULL_SUCCESS) {
                         // Only delete if this device isn't set up to review.
                         if (p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-                            FormRecordCleanupTask.wipeRecord(c, record);
+                            FormRecordCleanupTask.wipeRecord(record);
                         } else {
                             // Otherwise save and move appropriately
                             processor.updateRecordStatus(record, FormRecord.STATUS_SAVED);

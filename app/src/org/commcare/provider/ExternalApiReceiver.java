@@ -9,13 +9,12 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.LoginMode;
-import org.commcare.dalvik.R;
-import org.commcare.models.database.SqlStorage;
-import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.models.legacy.LegacyInstallUtils;
+import org.commcare.dalvik.R;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ExternalManageKeyRecordTask;
@@ -224,13 +223,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             if (matchingRecord == null) {
                 return false;
             }
-            //TODO: Extract this
-            byte[] key = ByteEncrypter.unwrapByteArrayWithString(matchingRecord.getEncryptedKey(), password);
-            if (matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-                LegacyInstallUtils.transitionLegacyUserStorage(context, CommCareApplication.instance().getCurrentApp(), key, matchingRecord);
-            }
-            //TODO: See if it worked first?
 
+            byte[] key = ByteEncrypter.unwrapByteArrayWithString(matchingRecord.getEncryptedKey(), password);
             CommCareApplication.instance().startUserSession(key, matchingRecord, false);
             ExternalManageKeyRecordTask mKeyRecordTask = new ExternalManageKeyRecordTask(context, 0,
                     matchingRecord.getUsername(), password, LoginMode.PASSWORD,

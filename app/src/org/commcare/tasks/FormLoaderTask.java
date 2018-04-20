@@ -1,14 +1,11 @@
 package org.commcare.tasks;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Environment;
-import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.components.FormEntryInstanceState;
+import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.javarosa.AndroidXFormHttpRequester;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
@@ -19,7 +16,6 @@ import org.commcare.logging.XPathErrorLogger;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.logic.FileReferenceFactory;
 import org.commcare.models.encryption.EncryptionIO;
-import org.commcare.provider.FormsProviderAPI;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
@@ -56,7 +52,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLoaderTask.FECWrapper, R> {
+public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, FormLoaderTask.FECWrapper, R> {
     public static InstanceInitializationFactory iif;
 
     private final SecretKeySpec mSymetricKey;
@@ -64,18 +60,20 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     private final boolean recordEntrySession;
 
     private final R activity;
+    private final String formRecordPath;
 
     private FECWrapper data;
 
     public static final int FORM_LOADER_TASK_ID = 16;
 
     public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly,
-                          boolean recordEntrySession, R activity) {
+                          boolean recordEntrySession, String formRecordPath, R activity) {
         this.mSymetricKey = symetricKey;
         this.mReadOnly = readOnly;
         this.activity = activity;
         this.taskId = FORM_LOADER_TASK_ID;
         this.recordEntrySession = recordEntrySession;
+        this.formRecordPath = formRecordPath;
         TAG = FormLoaderTask.class.getSimpleName();
     }
 
@@ -84,15 +82,14 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
      * an instance, it will be used to fill the {@link FormDef}.
      */
     @Override
-    protected FECWrapper doTaskBackground(Uri... form) {
+    protected FECWrapper doTaskBackground(Integer... formDefId) {
         FormDef fd = null;
 
-        Pair<String, String> formAndMediaPaths = getFormAndMediaPaths(form[0]);
+        FormDefRecord formDefRecord = FormDefRecord.getFormDef(
+                CommCareApplication.instance().getAppStorage(FormDefRecord.class),
+                formDefId[0]);
 
-        String formPath = formAndMediaPaths.first;
-        String formMediaPath = formAndMediaPaths.second;
-
-        File formXml = new File(formPath);
+        File formXml = new File(formDefRecord.getFilePath());
         String formHash = FileUtil.getMd5Hash(formXml);
         File formBin = getCachedForm(formHash);
 
@@ -116,7 +113,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
         // Try to write the form definition to a cached location
         try {
-            serializeFormDef(fd, formPath);
+            serializeFormDef(fd, formDefRecord.getFilePath());
         } catch (Exception e) {
             // The cache is a bonus, so if we can't write it, don't crash, but log 
             // it so we can clean up whatever is preventing the cached version from
@@ -129,31 +126,12 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         // Remove previous forms
         ReferenceManager.instance().clearSession();
 
-        setupFormMedia(formMediaPath, formXml);
+        setupFormMedia(formDefRecord.getMediaPath(), formXml);
 
         AndroidFormController formController = new AndroidFormController(fec, mReadOnly);
 
         data = new FECWrapper(formController);
         return data;
-    }
-
-    private Pair<String, String> getFormAndMediaPaths(Uri formUri) {
-        Cursor c = null;
-        try {
-            //TODO: Selection=? helper
-            c = ((Context)activity).getContentResolver().query(formUri, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
-
-            if (c == null || !c.moveToFirst()) {
-                throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + formUri.toString());
-            }
-
-            return new Pair<>(c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH)),
-                    c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH)));
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
     }
 
     private FormDef loadFormFromFile(File formXmlFile) {
@@ -176,9 +154,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     private String getSystemLocale() {
         Localizer mLocalizer = Localization.getGlobalLocalizerAdvanced();
 
-        if(mLocalizer != null) {
+        if (mLocalizer != null) {
             return mLocalizer.getLocale();
-        } else{
+        } else {
             Logger.log("formloader", "Could not get the localizer");
         }
         return null;
@@ -198,10 +176,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
         //TODO: Get a reasonable IIF object
 
-        boolean isNewFormInstance = FormEntryInstanceState.mInstancePath == null;
+        boolean isNewFormInstance = formRecordPath == null;
 
         if (!isNewFormInstance) {
-            importData(FormEntryInstanceState.mInstancePath, fec);
+            importData(formRecordPath, fec);
         }
 
         try {

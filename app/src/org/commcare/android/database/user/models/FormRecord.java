@@ -1,20 +1,35 @@
 package org.commcare.android.database.user.models;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
+import android.database.SQLException;
+import android.support.annotation.StringDef;
 
+import net.sqlcipher.database.SQLiteDatabase;
+
+import org.commcare.CommCareApplication;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.models.FormRecordProcessor;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
-import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.CrashUtil;
+import org.commcare.views.notifications.NotificationMessage;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Date;
+import java.util.NoSuchElementException;
 
 /**
  * @author ctsims
@@ -24,13 +39,16 @@ public class FormRecord extends Persisted implements EncryptedModel {
 
     public static final String STORAGE_KEY = "FORMRECORDS";
 
-    public static final String META_INSTANCE_URI = "INSTANCE_URI";
     public static final String META_STATUS = "STATUS";
     public static final String META_UUID = "UUID";
     public static final String META_XMLNS = "XMLNS";
     public static final String META_LAST_MODIFIED = "DATE_MODIFIED";
     public static final String META_APP_ID = "APP_ID";
     public static final String META_SUBMISSION_ORDERING_NUMBER = "SUBMISSION_ORDERING_NUMBER";
+    public static final String META_DISPLAY_NAME = "displayName";
+    public static final String META_FILE_PATH = "instanceFilePath";
+    public static final String META_CAN_EDIT_WHEN_COMPLETE = "canEditWhenComplete";
+
 
     /**
      * This form record is a stub that hasn't actually had data saved for it yet
@@ -73,6 +91,12 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * object representation of to reference in the short-term
      */
     public static final String STATUS_JUST_DELETED = "just-deleted";
+    private static final String TAG = FormRecord.class.getName();
+
+    @StringDef({STATUS_UNSTARTED, STATUS_INCOMPLETE, STATUS_COMPLETE, STATUS_UNSENT, STATUS_SAVED, STATUS_QUARANTINED, STATUS_UNINDEXED, STATUS_JUST_DELETED})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface FormRecordStatus {
+    }
 
     public static final String QuarantineReason_LOCAL_PROCESSING_ERROR = "local-processing-error";
     public static final String QuarantineReason_SERVER_PROCESSING_ERROR = "server-processing-error";
@@ -87,34 +111,44 @@ public class FormRecord extends Persisted implements EncryptedModel {
     private String xmlns;
 
     @Persisting(2)
-    @MetaField(META_INSTANCE_URI)
-    private String instanceURI;
-
-    @Persisting(3)
     @MetaField(META_STATUS)
     private String status;
 
-    @Persisting(4)
+    @Persisting(3)
     private byte[] aesKey;
 
-    @Persisting(value = 5, nullable = true)
+    @Persisting(value = 4, nullable = true)
     @MetaField(META_UUID)
     private String uuid;
 
-    @Persisting(6)
+    @Persisting(5)
     @MetaField(META_LAST_MODIFIED)
     private Date lastModified;
 
-    @Persisting(7)
+    @Persisting(6)
     @MetaField(META_APP_ID)
     private String appId;
 
-    @Persisting(value = 8, nullable = true)
+    @Persisting(value = 7, nullable = true)
     @MetaField(META_SUBMISSION_ORDERING_NUMBER)
     private String submissionOrderingNumber;
 
-    @Persisting(value = 9, nullable = true)
+    @Persisting(value = 8, nullable = true)
     private String quarantineReason;
+
+    // Fields added from the Instance Provider merge
+
+    @Persisting(value = 9, nullable = true)
+    @MetaField(META_DISPLAY_NAME)
+    private String displayName;
+
+    @Persisting(value = 10, nullable = true)
+    @MetaField(META_FILE_PATH)
+    private String filePath;
+
+    @Persisting(value = 11, nullable = true)
+    @MetaField(META_CAN_EDIT_WHEN_COMPLETE)
+    private String canEditWhenComplete;
 
     public FormRecord() {
     }
@@ -123,9 +157,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * Creates a record of a form entry with the provided data. Note that none
      * of the parameters can be null...
      */
-    public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid,
+    public FormRecord(@FormRecordStatus String status, String xmlns, byte[] aesKey, String uuid,
                       Date lastModified, String appId) {
-        this.instanceURI = instanceURI;
         this.status = status;
         this.xmlns = xmlns;
         this.aesKey = aesKey;
@@ -138,15 +171,27 @@ public class FormRecord extends Persisted implements EncryptedModel {
         this.appId = appId;
     }
 
+    public FormRecord(FormRecord oldRecord) {
+        status = oldRecord.status;
+        xmlns = oldRecord.xmlns;
+        aesKey = oldRecord.aesKey;
+        uuid = oldRecord.uuid;
+        lastModified = oldRecord.lastModified;
+        appId = oldRecord.appId;
+        submissionOrderingNumber = oldRecord.submissionOrderingNumber;
+        quarantineReason = oldRecord.quarantineReason;
+        displayName = oldRecord.displayName;
+        filePath = oldRecord.filePath;
+        canEditWhenComplete = oldRecord.canEditWhenComplete;
+        recordId = oldRecord.recordId;
+    }
+
     /**
-     * Create a copy of the current form record, with an updated instance uri
-     * and status.
+     * Create a copy of the current form record, with an updated status.
      */
-    public FormRecord updateInstanceAndStatus(String instanceURI, String newStatus) {
-        FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid,
-                lastModified, appId);
-        fr.recordId = this.recordId;
-        fr.submissionOrderingNumber = this.submissionOrderingNumber;
+    public FormRecord updateStatus(@FormRecordStatus String newStatus) {
+        FormRecord fr = new FormRecord(this);
+        fr.status = newStatus;
         return fr;
     }
 
@@ -154,13 +199,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
         FormRecord r = new FormRecord();
         r.status = STATUS_JUST_DELETED;
         return r;
-    }
-
-    public Uri getInstanceURI() {
-        if ("".equals(instanceURI)) {
-            return null;
-        }
-        return Uri.parse(instanceURI);
     }
 
     public byte[] getAesKey() {
@@ -232,29 +270,14 @@ public class FormRecord extends Persisted implements EncryptedModel {
     /**
      * Get the file system path to the encrypted XML submission file.
      *
-     * @param context Android context
      * @return A string containing the location of the encrypted XML instance for this form
-     * @throws FileNotFoundException If there isn't a record available defining a path for this form
      */
-    public String getPath(Context context) throws FileNotFoundException {
-        Uri uri = getInstanceURI();
-        if (uri == null) {
-            throw new FileNotFoundException("No form instance URI exists for formrecord " + recordId);
-        }
+    public String getFilePath() {
+        return filePath;
+    }
 
-        Cursor c = null;
-        try {
-            c = context.getContentResolver().query(uri, new String[]{InstanceColumns.INSTANCE_FILE_PATH}, null, null, null);
-            if (c == null || !c.moveToFirst()) {
-                throw new FileNotFoundException("No Instances were found at for formrecord " + recordId + " at isntance URI " + uri.toString());
-            }
-
-            return c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
     @Override
@@ -263,7 +286,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     }
 
     public void setFormNumberForSubmissionOrdering(int num) {
-        this.submissionOrderingNumber = ""+num;
+        this.submissionOrderingNumber = "" + num;
     }
 
     public void logPendingDeletion(String classTag, String reason) {
@@ -284,4 +307,173 @@ public class FormRecord extends Persisted implements EncryptedModel {
         Logger.log(LogTypes.TYPE_FORM_DELETION, logMessage);
     }
 
+    public static FormRecord getFormRecord(SqlStorage<FormRecord> formRecordStorage, int formRecordId) {
+        return formRecordStorage.read(formRecordId);
+    }
+
+    public static FormRecord getFormRecord(SqlStorage<FormRecord> formRecordStorage, String formRecordPath) {
+        try {
+            return formRecordStorage.getRecordForValue(META_FILE_PATH, formRecordPath);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
+    public static boolean isComplete(SqlStorage<FormRecord> formRecordStorage, String formRecordPath) {
+        FormRecord formRecord = getFormRecord(formRecordStorage, formRecordPath);
+        return formRecord != null && formRecord.status.contentEquals(STATUS_COMPLETE);
+    }
+
+    public void updateStatus(SqlStorage<FormRecord> formRecordStorage, @FormRecordStatus String status, String displayName, String canEditWhenComplete) {
+        this.displayName = displayName;
+        this.canEditWhenComplete = canEditWhenComplete;
+        this.status = status;
+        update(formRecordStorage);
+    }
+
+    private void finalizeRecord() {
+        try {
+            updateAndProcessRecord();
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            Logger.exception(e);
+            throw new SQLException("Failed to update Instance row " + getID());
+        }
+    }
+
+    /**
+     * Register an instance with the session's form record.
+     */
+    private void updateAndProcessRecord() {
+        FormRecord current;
+        try {
+            current = updateAndWriteRecord();
+        } catch (Exception e) {
+            // Something went wrong with all of the connections which should exist.
+            logPendingDeletion(TAG, "something went wrong trying to update the record for the current session");
+            AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
+            FormRecordCleanupTask.wipeRecord(currentState);
+
+            // Notify the server of this problem (since we aren't going to crash)
+            ForceCloseLogger.reportExceptionInBg(e);
+            CrashUtil.reportException(e);
+            raiseFormEntryError("An error occurred: " + e.getMessage() +
+                    " and your data could not be saved.", currentState);
+            return;
+        }
+
+        boolean complete = STATUS_COMPLETE.equals(status);
+
+        // The form is either ready for processing, or not, depending on how it was saved
+        if (complete) {
+            // Form record should now be up to date now and stored correctly.
+
+            // ctsims - App stack workflows require us to have processed _this_
+            // specific form before we can move on, and that needs to be
+            // synchronous. We'll go ahead and try to process just this form
+            // before moving on. We'll catch any errors here and just eat them
+            // (since the task will also try the process and fail if it does).
+            if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
+                SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
+                userDb.beginTransaction();
+                try {
+                    new FormRecordProcessor(CommCareApplication.instance()).process(current);
+                    userDb.setTransactionSuccessful();
+                } catch (InvalidStructureException e) {
+                    // Record will be wiped when form entry is exited
+                    Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, e.getMessage());
+                    throw new IllegalStateException(e.getMessage());
+                } catch (Exception e) {
+                    NotificationMessage message =
+                            NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Save_Error,
+                                    new String[]{null, null, e.getMessage()});
+                    CommCareApplication.notificationManager().reportNotificationMessage(message);
+                    Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
+                            "Error processing form. Should be recaptured during async processing: " + e.getMessage());
+                    throw new RuntimeException(e);
+                } finally {
+                    userDb.endTransaction();
+                }
+            }
+        }
+    }
+
+    /**
+     * Update the form record
+     *
+     * @return The updated form record, which has been written to storage.
+     */
+    private FormRecord updateAndWriteRecord()
+            throws InvalidStateException {
+        try {
+            return FormRecordCleanupTask.updateAndWriteRecord(CommCareApplication.instance(),
+                    this, CommCareApplication.instance().getUserStorage(FormRecord.class));
+        } catch (InvalidStructureException e1) {
+            e1.printStackTrace();
+            throw new InvalidStateException("Invalid data structure found while parsing form. There's something wrong with the application structure, please contact your supervisor.");
+        } catch (XmlPullParserException | IOException e) {
+            e.printStackTrace();
+            throw new InvalidStateException("There was a problem with the local storage and the form could not be read.");
+        } catch (UnfullfilledRequirementsException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Throw and Log FormEntry-related errors
+     *
+     * @param loggerText   String sent to javarosa logger
+     * @param currentState session to be cleared
+     */
+    private void raiseFormEntryError(String loggerText, AndroidSessionWrapper currentState) {
+        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, loggerText);
+        currentState.reset();
+        throw new RuntimeException(loggerText);
+    }
+
+    public void update(SqlStorage<FormRecord> formRecordStorage) {
+        lastModified = new Date();
+        formRecordStorage.update(getID(), this);
+        finalizeRecord();
+    }
+
+    private static class InvalidStateException extends Exception {
+        public InvalidStateException(String message) {
+            super(message);
+        }
+    }
+
+    public void setCanEditWhenComplete(String canEditWhenComplete) {
+        this.canEditWhenComplete = canEditWhenComplete;
+    }
+
+    public String getCanEditWhenComplete() {
+        return canEditWhenComplete;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setStatus(@FormRecordStatus String status) {
+        this.status = status;
+    }
+
+    public String getXmlns() {
+        return xmlns;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public void setLastModified(Date lastModified) {
+        this.lastModified = lastModified;
+    }
 }

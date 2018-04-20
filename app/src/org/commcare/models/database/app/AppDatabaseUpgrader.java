@@ -1,20 +1,30 @@
 package org.commcare.models.database.app;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.apache.commons.lang3.StringUtils;
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.app.models.UserKeyRecordV1;
+import org.commcare.android.resource.installers.XFormAndroidInstaller;
+import org.commcare.android.resource.installers.XFormAndroidInstallerV1;
+import org.commcare.android.storage.framework.Persisted;
 import org.commcare.engine.resource.AndroidResourceManager;
-import org.commcare.modern.database.TableBuilder;
+import org.commcare.models.AndroidPrototypeFactoryV1;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.app.models.UserKeyRecordV1;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
-import org.commcare.android.storage.framework.Persisted;
+import org.commcare.modern.database.TableBuilder;
+import org.commcare.provider.FormsProviderAPI;
 import org.commcare.resources.model.Resource;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,6 +83,12 @@ class AppDatabaseUpgrader {
         if (oldVersion == 7) {
             if (upgradeSevenEight(db)) {
                 oldVersion = 8;
+            }
+        }
+
+        if (oldVersion == 8) {
+            if (upgradeEightNine(db)) {
+                oldVersion = 9;
             }
         }
         //NOTE: If metadata changes are made to the Resource model, they need to be
@@ -174,7 +190,7 @@ class AppDatabaseUpgrader {
     private boolean upgradeSevenEight(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            SqlStorage<Persisted> storage = new SqlStorage<Persisted>(
+            SqlStorage<Persisted> storage = new SqlStorage<>(
                     UserKeyRecordV1.STORAGE_KEY,
                     UserKeyRecordV1.class,
                     new ConcreteAndroidDbHelper(context, db));
@@ -199,6 +215,109 @@ class AppDatabaseUpgrader {
             db.endTransaction();
         }
     }
+
+    // Migrate records form FormProvider and InstanceProvider to new FormDefRecord and FormRecord respectively
+    private boolean upgradeEightNine(SQLiteDatabase db) {
+        boolean success;
+        db.beginTransaction();
+        try {
+            upgradeXFormAndroidInstallerV1(db);
+
+            // Create FormDef table
+            TableBuilder builder = new TableBuilder(FormDefRecord.class);
+            db.execSQL(builder.getTableCreateString());
+
+            migrateFormProvider(db);
+            db.setTransactionSuccessful();
+            success = true;
+        } finally {
+            db.endTransaction();
+        }
+
+        // Delete entries from FormsProvider if migration has been successful
+        if (success) {
+            try {
+                context.getContentResolver().delete(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null);
+            } catch (Exception e) {
+                // Failure here won't cause any problems in app operations. So fail silently.
+                e.printStackTrace();
+                Logger.exception(e);
+            }
+        }
+        return success;
+    }
+
+    // migrate formProvider entries to db
+    private void migrateFormProvider(SQLiteDatabase db) {
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null, null, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                SqlStorage<FormDefRecord> formDefRecordStorage = new SqlStorage<>(
+                        FormDefRecord.STORAGE_KEY,
+                        FormDefRecord.class,
+                        new ConcreteAndroidDbHelper(context, db));
+                while (cursor.moveToNext()) {
+                    FormDefRecord formDefRecord = new FormDefRecord(cursor);
+                    formDefRecord.save(formDefRecordStorage);
+                }
+            }
+        } finally {
+            safeCloseCursor(cursor);
+        }
+    }
+
+    private void safeCloseCursor(Cursor cursor) {
+        if (cursor != null) {
+            cursor.close();
+        }
+    }
+
+    private void upgradeXFormAndroidInstallerV1(SQLiteDatabase db) {
+        // Get Global Resource Storage using AndroidPrototypeFactoryV1
+        SqlStorage<Resource> oldGlobalResourceStorage = new SqlStorage<>(
+                "GLOBAL_RESOURCE_TABLE",
+                Resource.class,
+                new ConcreteAndroidDbHelper(context, db) {
+                    @Override
+                    public PrototypeFactory getPrototypeFactory() {
+                        return AndroidPrototypeFactoryV1.getAndroidPrototypeFactoryV1(c);
+                    }
+                });
+
+        Vector<Resource> updateResourceList = new Vector<>();
+
+        // If Resource Installer is of Type XFormAndroidInstallerV1 , update it to XFormAndroidInstaller
+        // and add resource record to the updateResourceList
+        for (Resource resource : oldGlobalResourceStorage) {
+            if (resource.getInstaller() instanceof XFormAndroidInstallerV1) {
+                XFormAndroidInstallerV1 oldInstaller = (XFormAndroidInstallerV1)resource.getInstaller();
+                String contentUri = oldInstaller.getContentUri();
+                int formDefId = -1;
+                if (!StringUtils.isEmpty(contentUri)) {
+                    formDefId = Integer.valueOf(Uri.parse(contentUri).getLastPathSegment());
+                }
+                XFormAndroidInstaller newInstaller = new XFormAndroidInstaller(
+                        oldInstaller.getLocalLocation(),
+                        oldInstaller.getLocalDestination(),
+                        oldInstaller.getUpgradeDestination(),
+                        oldInstaller.getNamespace(),
+                        formDefId);
+                resource.setInstaller(newInstaller);
+                updateResourceList.add(resource);
+            }
+        }
+
+        // Rewrite the records in updateResourceList using the standard AndroidProtoTypeFactory
+        SqlStorage<Resource> newGlobalResourceStorage = new SqlStorage<>(
+                "GLOBAL_RESOURCE_TABLE",
+                Resource.class,
+                new ConcreteAndroidDbHelper(context, db));
+        for (Resource resource : updateResourceList) {
+            newGlobalResourceStorage.update(resource.getID(), resource);
+        }
+    }
+
 
     /**
      * UserKeyRecordV1 does not have the 'isActive' field (because it is being introduced with

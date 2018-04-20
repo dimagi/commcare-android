@@ -5,7 +5,6 @@ import android.support.v4.util.Pair;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.reference.Reference;
@@ -46,7 +45,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
+    protected int customInstall(Resource r, Reference local, boolean upgrade, AndroidCommCarePlatform platform) throws IOException, UnresolvedResourceException {
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
 

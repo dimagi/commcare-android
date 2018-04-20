@@ -102,7 +102,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
+    protected int customInstall(Resource r, Reference local, boolean upgrade, AndroidCommCarePlatform platform) throws IOException, UnresolvedResourceException {
         return Resource.RESOURCE_STATUS_LOCAL;
     }
 
