@@ -1,12 +1,19 @@
 package org.commcare.utils;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Browser;
+import android.support.annotation.NonNull;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.UnderlineSpan;
+import android.util.Log;
+import android.view.View;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.SpanStack;
@@ -17,9 +24,13 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.htmlcleaner.TagNode;
 import org.javarosa.core.services.locale.Localization;
 
+import java.io.File;
+
 import in.uncod.android.bypass.Bypass;
+import ru.noties.markwon.LinkResolverDef;
 import ru.noties.markwon.Markwon;
 import ru.noties.markwon.SpannableBuilder;
+import ru.noties.markwon.SpannableConfiguration;
 import ru.noties.markwon.renderer.SpannableRenderer;
 
 public class MarkupUtil {
@@ -71,13 +82,51 @@ public class MarkupUtil {
         return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
     }
 
-    private static CharSequence generateMarkdown(Context c, String message) {
+    private static CharSequence generateMarkdown(Context context, String message) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             return trimTrailingWhitespace(
-                    new Bypass(c).markdownToSpannable(convertCharacterEncodings(message)));
+                    new Bypass(context).markdownToSpannable(convertCharacterEncodings(message)));
         }
         return trimTrailingWhitespace(
-                Markwon.markdown(c, convertCharacterEncodings(message)));
+                Markwon.markdown(markwonConfiguration(context), convertCharacterEncodings(message)));
+    }
+
+    private static SpannableConfiguration markwonConfiguration;
+
+    private static SpannableConfiguration markwonConfiguration(Context context) {
+        if (markwonConfiguration == null) {
+            SpannableConfiguration.Builder builder = SpannableConfiguration.builder(context);
+            builder.linkResolver(new LinkResolver(context));
+            markwonConfiguration = builder.build();
+        }
+        return markwonConfiguration;
+    }
+
+    static class LinkResolver extends LinkResolverDef {
+
+        Context context;
+
+        LinkResolver(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void resolve(View view, @NonNull String link) {
+            if (!link.startsWith("/")) {
+                // If not an absolute path, assume in app data
+                link = CommCareApplication.instance().getAndroidFsRoot() + link;
+            }
+            final Uri uri = FileUtil.getUriForExternalFile(context, link);
+            final Context context = view.getContext();
+            final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            try {
+                context.startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Log.w("LinkResolverDef", "Actvity was not found for intent, " + intent.toString());
+            }
+        }
     }
 
     /**
