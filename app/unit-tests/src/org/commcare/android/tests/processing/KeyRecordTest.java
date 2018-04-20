@@ -1,7 +1,5 @@
 package org.commcare.android.tests.processing;
 
-import android.database.Cursor;
-
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
@@ -16,7 +14,6 @@ import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -100,7 +97,6 @@ public class KeyRecordTest {
         SqlStorage<FormRecord> formRecordStorage =
                 CommCareApplication.instance().getUserStorage(FormRecord.class);
         assertEquals(2, formRecordStorage.getNumRecords());
-        assertFormInstanceCount(2);
         CommCareApplication.instance().closeUserSession();
 
         markOutOfDate(recordStorage);
@@ -115,22 +111,7 @@ public class KeyRecordTest {
         TestAppInstaller.login("test", "old_pass");
         formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         assertEquals(2, formRecordStorage.getNumRecords());
-        assertFormInstanceCount(2);
-
         testOpeningMigratedForm();
-    }
-
-    private static void assertFormInstanceCount(int expectedCount) {
-        Cursor c =
-                RuntimeEnvironment.application.getContentResolver().query(InstanceProviderAPI.InstanceColumns.CONTENT_URI,
-                        null, null, null, null);
-        if (c == null) {
-            fail("Query returned 'null' when we expected to find " + expectedCount + " instances");
-        } else {
-            assertEquals(expectedCount, c.getCount());
-        }
-
-        c.close();
     }
 
     private static void testOpeningMigratedForm() {

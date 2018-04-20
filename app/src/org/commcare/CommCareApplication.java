@@ -47,6 +47,8 @@ import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.logging.DataChangeLog;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorLogger;
@@ -120,6 +122,7 @@ public class CommCareApplication extends MultiDexApplication {
     private static final int STATE_UNINSTALLED = 0;
     private static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
+    public static final int STATE_LEGACY_DETECTED = 8;
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
 
@@ -167,6 +170,8 @@ public class CommCareApplication extends MultiDexApplication {
 
         CommCareApplication.app = this;
         CrashUtil.init(this);
+        DataChangeLogger.init(this);
+        logFirstCommCareRun();
         configureCommCareEngineConstantsAndStaticRegistrations();
         noficationManager = new CommCareNoficationManager(this);
 
@@ -186,22 +191,15 @@ public class CommCareApplication extends MultiDexApplication {
 
         prepareTemporaryStorage();
 
-        // Init global storage (Just application records, logs, etc)
-        dbState = initGlobalDb();
-
-        // This is where we go through and check for updates between major transitions.
-        // Soon we should start doing this differently, and actually go to an activity
-        // first which tells the user what's going on.
-        // The rule about this transition is that if the user had logs pending, we still want
-        // them in order, so we aren't going to dump our logs from the Pre-init logger until
-        // after this transition occurs.
-        try {
-            LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
-        } finally {
-            // No matter what happens, set up our new logger, we want those logs!
-            setupLoggerStorage(false);
-            pil.dumpToNewLogger();
+        if (LegacyInstallUtils.checkForLegacyInstall(this)) {
+            dbState = STATE_LEGACY_DETECTED;
+        } else {
+            // Init global storage (Just application records, logs, etc)
+            dbState = initGlobalDb();
         }
+
+        setupLoggerStorage(false);
+        pil.dumpToNewLogger();
 
         initializeDefaultLocalizerData();
 
@@ -209,6 +207,42 @@ public class CommCareApplication extends MultiDexApplication {
             AppUtils.checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
         }
+    }
+
+    private void logFirstCommCareRun() {
+        if (isFirstRunAfterInstall()) {
+            DataChangeLogger.log(new DataChangeLog.CommCareInstall());
+        } else if (isFirstRunAfterUpdate()) {
+            DataChangeLogger.log(new DataChangeLog.CommCareUpdate());
+        }
+    }
+
+    // Whether user is running CommCare for the first time after installation
+    public static boolean isFirstRunAfterInstall() {
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+        if (preferences.getBoolean(HiddenPreferences.FIRST_COMMCARE_RUN, true)) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(HiddenPreferences.FIRST_COMMCARE_RUN, false);
+            editor.putBoolean(ReportingUtils.getCommCareVersionString() + "-first-run", false);
+            editor.apply();
+            return true;
+        }
+        return false;
+    }
+
+    // Whether user is running CommCare for the first time after a CommCare update
+    public static boolean isFirstRunAfterUpdate() {
+        String prefKey = ReportingUtils.getCommCareVersionString() + "-first-run";
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+        if (preferences.getBoolean(prefKey, true)) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(prefKey, false);
+            editor.apply();
+            return true;
+        }
+        return false;
     }
 
     /**

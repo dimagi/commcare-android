@@ -27,6 +27,7 @@ HELP_MSG = """'capture' saves the current session for restoring later.
                                The 'build' argument is optional
 'media_download domain app_id build' downloads an app with multimedia from HQ.
                                      The 'build' argument is optional
+'see_data_change_logs' opens up Data Change Logs screen                                 
 """
 BASE_RECEIVER_CMD = "adb shell am broadcast -a"
 BASE_ACTIVITY_CMD = "adb shell am start -n"
@@ -209,6 +210,12 @@ def get_extras_string(extras):
 def get_android_file(filename):
     return "file:///storage/emulated/0/{}".format(filename)
 
+def see_data_change_logs():
+     cmd = activity_command("org.commcare.dalvik.debug/" +
+                               "org.commcare.activities.DataChangeLogsActivity")
+     print(cmd)
+     subprocess.call(cmd, shell=True)
+
 
 def main():
     if len(sys.argv) > 5:
@@ -245,7 +252,10 @@ def main():
         'clear_restore_cache':
             lambda: clear_restore_cache(),
         'install':
-            lambda: install(sys.argv[2])}
+            lambda: install(sys.argv[2]),
+        'see_data_change_logs':
+            lambda: see_data_change_logs()
+    }
 
     dispatch[command]()
 

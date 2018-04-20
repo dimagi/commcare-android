@@ -12,6 +12,7 @@ import com.android.builder.core.DefaultManifestParser
 // these directories MUST be named like this, or it won't work
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 apply plugin: 'io.fabric'
 
 repositories {
@@ -83,11 +84,15 @@ dependencies {
     implementation('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+
     // Markdown
     compile 'com.github.budsmile:bypass-android:1.0.5' //Needed for Ice Cream Sandwich (14&15)
     compile 'ru.noties:markwon:1.0.4'
     compile 'ru.noties:markwon-image-loader:1.0.4'
     compile 'ru.noties:markwon-view:1.0.4'
+
 }
 
 ext {
@@ -240,6 +245,8 @@ android {
                 odkProvider         : odkProviderStr,
                 googlePlayMapsApiKey: "${project.ext.GOOGLE_PLAY_MAPS_API_KEY}"
         ]
+
+        vectorDrawables.useSupportLibrary = true
 
         versionCode computeVersionCode()
 

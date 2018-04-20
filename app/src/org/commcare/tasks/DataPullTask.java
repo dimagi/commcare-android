@@ -7,6 +7,7 @@ import android.support.v4.util.Pair;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
@@ -328,7 +329,6 @@ public abstract class DataPullTask<R>
     /**
      * @return the proper result, or null if we have not yet been able to determine the result to
      * return
-     * @throws IOException
      */
     private ResultAndError<PullTaskResult> handleSuccessResponseCode(
             RemoteDataPullResponse pullResponse, AndroidTransactionParserFactory factory)
@@ -552,7 +552,7 @@ public abstract class DataPullTask<R>
             cache.release();
         }
     }
-    
+
     private void wipeStorageForFourTwelveSync(SQLiteDatabase userDb) {
         SqlStorage.wipeTableWithoutCommit(userDb, ACase.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, Ledger.STORAGE_KEY);
@@ -580,7 +580,7 @@ public abstract class DataPullTask<R>
     private void initParsers(AndroidTransactionParserFactory factory) {
         factory.initCaseParser();
         factory.initStockParser();
-        Hashtable<String, String> formNamespaces = FormSaveUtil.getNamespaceToFilePathMap(context);
+        Hashtable<String, String> formNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance().getAppStorage(FormDefRecord.class));
         factory.initFormInstanceParser(formNamespaces);
     }
 

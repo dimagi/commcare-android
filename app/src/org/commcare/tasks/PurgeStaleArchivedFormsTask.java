@@ -84,7 +84,7 @@ public class PurgeStaleArchivedFormsTask
         Vector<Integer> toPurge = getSavedFormsToPurge(lastValidDate);
 
         for (int recordId : toPurge) {
-            FormRecordCleanupTask.wipeRecord(CommCareApplication.instance(), recordId);
+            FormRecordCleanupTask.wipeRecord(recordId);
         }
     }
 

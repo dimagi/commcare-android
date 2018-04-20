@@ -6,72 +6,35 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import org.commcare.activities.FormEntryActivity;
-import org.commcare.provider.FormsProviderAPI;
-import org.commcare.provider.InstanceProviderAPI;
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.models.database.SqlStorage;
 
 import java.io.File;
 
 public class FormFileSystemHelpers {
     private static final String TAG = FormFileSystemHelpers.class.getSimpleName();
 
-    public static String getFormPath(Context context, Uri uri) throws FormEntryActivity.FormQueryException {
-        Cursor c = null;
-        try {
-            c = context.getContentResolver().query(uri, null, null, null, null);
-            if (c == null) {
-                throw new FormEntryActivity.FormQueryException("Bad URI: resolved to null");
-            } else if (c.getCount() != 1) {
-                throw new FormEntryActivity.FormQueryException("Bad URI: " + uri);
-            } else {
-                c.moveToFirst();
-                return c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
+    public static String getFormDefPath(SqlStorage<FormDefRecord> formDefStorage, int formId) {
+        FormDefRecord formDefRecord = FormDefRecord.getFormDef(formDefStorage, formId);
+        return formDefRecord.getFilePath();
     }
 
-    private static int getFormInstanceCount(Context context,
-                                            String instancePath,
-                                            Uri instanceProviderContentURI) {
-        String selection =
-                InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH + " like '"
-                        + instancePath + "'";
-        Cursor c = null;
-        int instanceCount = 0;
-        try {
-            c = context.getContentResolver().query(instanceProviderContentURI, null, selection, null, null);
-            if (c != null) {
-                instanceCount = c.getCount();
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-        return instanceCount;
-    }
-
-    public static void removeMediaAttachedToUnsavedForm(Context context,
-                                                        String instancePath,
-                                                        Uri instanceProviderContentURI) {
-        int instanceCount = getFormInstanceCount(context, instancePath, instanceProviderContentURI);
+    public static void removeMediaAttachedToUnsavedForm(Context context, String formRecordPath, SqlStorage<FormRecord> formRecordStorage) {
+        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, formRecordPath);
         // if it's not already saved, erase everything
-        if (instanceCount < 1) {
+        if (formRecord == null) {
             int images = 0;
             int audio = 0;
             int video = 0;
             // delete media first
-            String instanceFolder =
-                    instancePath.substring(0,
-                            instancePath.lastIndexOf("/") + 1);
-            Log.i(TAG, "attempting to delete: " + instanceFolder);
+            String formRecordFolder =
+                    formRecordPath.substring(0,
+                            formRecordPath.lastIndexOf("/") + 1);
+            Log.i(TAG, "attempting to delete: " + formRecordFolder);
 
             String where =
-                    MediaStore.Images.Media.DATA + " like '" + instanceFolder + "%'";
+                    MediaStore.Images.Media.DATA + " like '" + formRecordFolder + "%'";
 
 
             // images
@@ -177,7 +140,7 @@ public class FormFileSystemHelpers {
             Log.i(TAG, "removed from content providers: " + images
                     + " image files, " + audio + " audio files,"
                     + " and " + video + " video files.");
-            File f = new File(instanceFolder);
+            File f = new File(formRecordFolder);
             if (f.exists() && f.isDirectory()) {
                 for (File del : f.listFiles()) {
                     Log.i(TAG, "deleting file: " + del.getAbsolutePath());
