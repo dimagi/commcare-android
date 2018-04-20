@@ -1,6 +1,7 @@
 package org.commcare.models.database.user;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -28,7 +29,9 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.provider.InstanceProviderAPI;
 import org.javarosa.core.model.User;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.util.Set;
@@ -172,6 +175,12 @@ class UserDatabaseUpgrader {
         if (oldVersion == 21) {
             if (upgradeTwentyOneTwentyTwo(db)) {
                 oldVersion = 22;
+            }
+        }
+
+        if (oldVersion == 22) {
+            if (upgradeTwentyTwoTwentyThree(db)) {
+                oldVersion = 23;
             }
         }
     }
@@ -580,6 +589,34 @@ class UserDatabaseUpgrader {
         }
     }
 
+    private boolean upgradeTwentyTwoTwentyThree(SQLiteDatabase db) {
+        //drop the existing table and recreate using current definition
+        boolean success;
+        Vector<Uri> migratedInstances;
+        db.beginTransaction();
+        try {
+            migratedInstances = UserDbUpgradeUtils.migrateV4FormRecords(c, db);
+            db.setTransactionSuccessful();
+            success = true;
+        } finally {
+            db.endTransaction();
+        }
+
+        // delete all instance provider entries if everything good until now
+        if (success && migratedInstances != null) {
+            try {
+                for (Uri instanceUri : migratedInstances) {
+                    c.getContentResolver().delete(instanceUri, null, null);
+                }
+            } catch (Exception e) {
+                // Failure here won't cause any problems in app operations. So fail silently.
+                e.printStackTrace();
+                Logger.exception("Error while deleting InstanceProvider entries during user db migration", e);
+            }
+        }
+        return success;
+    }
+
     private void migrateV2FormRecordsForSingleApp(String appId,
                                                   SqlStorage<FormRecordV2> oldStorage,
                                                   Vector<FormRecordV3> upgradedRecords) {
@@ -623,7 +660,7 @@ class UserDatabaseUpgrader {
                 //Update forms marked as incomplete with the appropriate status
                 if (FormRecord.STATUS_INCOMPLETE.equals(record.getStatus())) {
                     //update to complete to process/send.
-                    storage.write(record.updateInstanceAndStatus(record.getInstanceURI().toString(), FormRecord.STATUS_COMPLETE));
+                    storage.write(record.updateStatus(FormRecord.STATUS_COMPLETE));
                 }
             }
         }

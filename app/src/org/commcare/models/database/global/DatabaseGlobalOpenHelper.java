@@ -12,6 +12,8 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.logging.DataChangeLog;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
@@ -87,7 +89,9 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        DataChangeLogger.log(new DataChangeLog.DbUpgradeStart("Global", oldVersion, newVersion));
         new GlobalDatabaseUpgrader(mContext).upgrade(db, oldVersion, newVersion);
+        DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("Global", oldVersion, newVersion));
     }
 
 }

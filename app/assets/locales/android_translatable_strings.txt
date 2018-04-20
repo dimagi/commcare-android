@@ -93,6 +93,7 @@ menu.print.detail=Print Case Detail
 
 menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
+menu.data.change.logs=Data Change Logs
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact technical support.
 
@@ -215,6 +216,8 @@ form.archive.purge.message=Removing archived forms that are past their validatio
 app.storage.missing.title=SD Card Missing
 app.storage.missing.message=Your device's SD card has been removed, please return the SD card to continue using CommCare
 app.storage.missing.button=Shutdown CommCare
+
+commcare.restart=Restart CommCare
  
 cchq.case=Case
 select.placeholder.message=Please select a ${0}
@@ -238,7 +241,6 @@ key.manage.start=Logging in
 
 key.manage.callout=Contacting Server
 
-key.manage.legacy.begin=An old installation has been detected on your device! Updating database structure.
 key.manage.migrate=The server has provided new encryption keys. Migrating your data. Please do not turn off the phone!
 
 key.manage.purge=Purging expired data from your local device

@@ -37,6 +37,8 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.logging.DataChangeLog;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
@@ -710,6 +712,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         if (newAppInstalled) {
             FirebaseAnalyticsUtil.reportAppInstall(getAnalyticsParamForInstallMethod(lastInstallMode));
+            DataChangeLogger.log(new DataChangeLog.CommCareAppInstall());
         } else {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }

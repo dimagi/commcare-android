@@ -1,22 +1,25 @@
 package org.commcare.activities.components;
 
-import android.content.ContentUris;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
+
+import org.commcare.activities.FormEntryActivity;
+import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.models.ODKStorage;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.util.LogTypes;
+import org.commcare.utils.FileUtil;
+import org.commcare.utils.StringUtils;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Vector;
 
-import org.commcare.activities.FormEntryActivity;
-import org.commcare.models.ODKStorage;
-import org.commcare.provider.FormsProviderAPI;
-import org.commcare.provider.InstanceProviderAPI;
-import org.commcare.utils.FileUtil;
+import javax.annotation.Nullable;
 
 /**
  * Tracks the current form instance's xml file and auxilary files (multimedia)
@@ -24,13 +27,20 @@ import org.commcare.utils.FileUtil;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FormEntryInstanceState {
-    public static final String KEY_INSTANCEDESTINATION = "instancedestination";
+    public static final String KEY_FORM_RECORD_DESTINATION = "instancedestination";
     // Identifies the gp of the form used to launch form entry
     private static final String KEY_FORMPATH = "formpath";
     // Path to a particular form instance
-    public static String mInstancePath;
-    private String mInstanceDestination;
-    private String mFormPath;
+
+    @Nullable
+    public static String mFormRecordPath;
+    private String mFormRecordDestination;
+    private String mFormDefPath;
+    private final SqlStorage<FormRecord> formRecordStorage;
+
+    public FormEntryInstanceState(SqlStorage<FormRecord> formRecordStorage) {
+        this.formRecordStorage = formRecordStorage;
+    }
 
     /**
      * Checks the database to determine if the current instance being edited has already been
@@ -38,164 +48,95 @@ public class FormEntryInstanceState {
      *
      * @return true if form has been marked completed, false otherwise.
      */
-    public static boolean isInstanceComplete(Context context, Uri instanceProviderContentURI) {
-        // default to false if we're mid form
-        boolean complete = false;
-
-        // Then see if we've already marked this form as complete before
-        String selection = InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH + "=?";
-        String[] selectionArgs = {
-                mInstancePath
-        };
-
-        Cursor c = null;
-        try {
-            c = context.getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
-            if (c != null && c.getCount() > 0) {
-                c.moveToFirst();
-                String status = c.getString(c.getColumnIndex(InstanceProviderAPI.InstanceColumns.STATUS));
-                if (InstanceProviderAPI.STATUS_COMPLETE.compareTo(status) == 0) {
-                    complete = true;
-                }
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-        return complete;
+    public boolean isFormRecordComplete() {
+        return FormRecord.isComplete(formRecordStorage, mFormRecordPath);
     }
 
-    public static Pair<Uri, Boolean> getInstanceUri(Context context, Uri uri,
-                                                    Uri formProviderContentURI,
-                                                    FormEntryInstanceState instanceState)
+    public Pair<Integer, Boolean> getFormDefIdForRecord(SqlStorage<FormDefRecord> formDefRecordStorage, int formRecordId, FormEntryInstanceState instanceState)
             throws FormEntryActivity.FormQueryException {
-        Cursor instanceCursor = null;
-        Cursor formCursor = null;
         Boolean isInstanceReadOnly = false;
-        Uri formUri = null;
-        try {
-            instanceCursor = context.getContentResolver().query(uri, null, null, null, null);
-            if (instanceCursor == null) {
-                throw new FormEntryActivity.FormQueryException("Bad URI: resolved to null");
-            } else if (instanceCursor.getCount() != 1) {
-                throw new FormEntryActivity.FormQueryException("Bad URI: " + uri);
-            } else {
-                instanceCursor.moveToFirst();
-                mInstancePath =
-                        instanceCursor.getString(instanceCursor
-                                .getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH));
+        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, formRecordId);
+        mFormRecordPath = formRecord.getFilePath();
 
-                final String jrFormId =
-                        instanceCursor.getString(instanceCursor
-                                .getColumnIndex(InstanceProviderAPI.InstanceColumns.JR_FORM_ID));
-
-
-                //If this form is both already completed
-                if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.STATUS)))) {
-                    if (!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
-                        isInstanceReadOnly = true;
-                    }
-                }
-                final String[] selectionArgs = {
-                        jrFormId
-                };
-                final String selection = FormsProviderAPI.FormsColumns.JR_FORM_ID + " like ?";
-
-                formCursor = context.getContentResolver().query(formProviderContentURI, null, selection, selectionArgs, null);
-                if (formCursor == null || formCursor.getCount() < 1) {
-                    throw new FormEntryActivity.FormQueryException("Parent form does not exist");
-                } else if (formCursor.getCount() == 1) {
-                    formCursor.moveToFirst();
-                    instanceState.setFormPath(
-                            formCursor.getString(formCursor
-                                    .getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH)));
-                    formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsProviderAPI.FormsColumns._ID)));
-                } else if (formCursor.getCount() > 1) {
-                    throw new FormEntryActivity.FormQueryException("More than one possible parent form");
-                }
-            }
-        } finally {
-            if (instanceCursor != null) {
-                instanceCursor.close();
-            }
-            if (formCursor != null) {
-                formCursor.close();
+        //If this form is both already completed
+        if (FormRecord.STATUS_COMPLETE.equals(formRecord.getStatus())) {
+            if (!Boolean.parseBoolean(formRecord.getCanEditWhenComplete())) {
+                isInstanceReadOnly = true;
             }
         }
-        return new Pair<>(formUri, isInstanceReadOnly);
+
+        Vector<FormDefRecord> formDefRecords = FormDefRecord.getFormDefsByJrFormId(formDefRecordStorage, formRecord.getXmlns());
+
+        if (formDefRecords.size() == 1) {
+            FormDefRecord formDefRecord = formDefRecords.get(0);
+            instanceState.setFormDefPath(formDefRecord.getFilePath());
+            return new Pair<>(formDefRecord.getID(), isInstanceReadOnly);
+        } else if (formDefRecords.size() < 1) {
+            String error = "No XForm definition defined for this form with namespace " + formRecord.getXmlns();
+            Logger.log(LogTypes.SOFT_ASSERT, error);
+            throw new FormEntryActivity.FormQueryException(error);
+        } else {
+            String error = "More than one XForm definition present for this form with namespace " + formRecord.getXmlns();
+            Logger.log(LogTypes.SOFT_ASSERT, error);
+            throw new FormEntryActivity.FormQueryException(error);
+        }
     }
 
     /**
      * Get the default title for ODK's "Form title" field
      */
-    public static String getDefaultFormTitle(Context context, Intent intent) {
+    public String getDefaultFormTitle(int formRecordId) {
         String saveName = FormEntryActivity.mFormController.getFormTitle();
-        if (InstanceProviderAPI.InstanceColumns.CONTENT_ITEM_TYPE.equals(context.getContentResolver().getType(intent.getData()))) {
-            Uri instanceUri = intent.getData();
-
-            Cursor instance = null;
-            try {
-                instance = context.getContentResolver().query(instanceUri, null, null, null, null);
-                if (instance != null && instance.getCount() == 1) {
-                    instance.moveToFirst();
-                    saveName =
-                            instance.getString(instance
-                                    .getColumnIndex(InstanceProviderAPI.InstanceColumns.DISPLAY_NAME));
-                }
-            } finally {
-                if (instance != null) {
-                    instance.close();
-                }
-            }
+        if (formRecordId != -1) {
+            saveName = FormRecord.getFormRecord(formRecordStorage, formRecordId).getDisplayName();
         }
         return saveName;
     }
 
     public void saveState(Bundle outState) {
-        outState.putString(KEY_INSTANCEDESTINATION, mInstanceDestination);
-        outState.putString(KEY_FORMPATH, mFormPath);
+        outState.putString(KEY_FORM_RECORD_DESTINATION, mFormRecordDestination);
+        outState.putString(KEY_FORMPATH, mFormDefPath);
     }
 
     public void loadState(Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(KEY_INSTANCEDESTINATION)) {
-            mInstanceDestination = savedInstanceState.getString(KEY_INSTANCEDESTINATION);
+        if (savedInstanceState.containsKey(KEY_FORM_RECORD_DESTINATION)) {
+            mFormRecordDestination = savedInstanceState.getString(KEY_FORM_RECORD_DESTINATION);
         }
         if (savedInstanceState.containsKey(KEY_FORMPATH)) {
-            mFormPath = savedInstanceState.getString(KEY_FORMPATH);
+            mFormDefPath = savedInstanceState.getString(KEY_FORMPATH);
         }
     }
 
     public void loadFromIntent(Intent intent) {
-        if (intent.hasExtra(KEY_INSTANCEDESTINATION)) {
-            this.mInstanceDestination = intent.getStringExtra(KEY_INSTANCEDESTINATION);
+        if (intent.hasExtra(KEY_FORM_RECORD_DESTINATION)) {
+            this.mFormRecordDestination = intent.getStringExtra(KEY_FORM_RECORD_DESTINATION);
         } else {
-            mInstanceDestination = ODKStorage.INSTANCES_PATH;
+            mFormRecordDestination = ODKStorage.FORM_RECORD_PATH;
         }
     }
 
-    public String getFormPath() {
-        return mFormPath;
-    }
-
-    public void initInstancePath() {
+    public void initFormRecordPath() {
         // Create new answer folder.
         String time =
                 new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
                         .format(Calendar.getInstance().getTime());
         String file =
-                mFormPath.substring(mFormPath.lastIndexOf(File.separator) + 1, mFormPath.lastIndexOf('.'));
-        String path = mInstanceDestination + file + "_" + time;
+                mFormDefPath.substring(mFormDefPath.lastIndexOf(File.separator) + 1, mFormDefPath.lastIndexOf('.'));
+        String path = mFormRecordDestination + file + "_" + time;
         if (FileUtil.createFolder(path)) {
-            FormEntryInstanceState.mInstancePath = path + File.separator + file + "_" + time + ".xml";
+            mFormRecordPath = path + File.separator + file + "_" + time + ".xml";
         }
     }
 
-    public void setFormPath(String path) {
-        mFormPath = path;
+    public void setFormDefPath(String formDefPath) {
+        mFormDefPath = formDefPath;
     }
 
     public static String getInstanceFolder() {
-        return mInstancePath.substring(0, mInstancePath.lastIndexOf(File.separator) + 1);
+        return mFormRecordPath.substring(0, mFormRecordPath.lastIndexOf(File.separator) + 1);
+    }
+
+    public static void setFormRecordPath(@Nullable String formRecordPath) {
+        mFormRecordPath = formRecordPath;
     }
 }

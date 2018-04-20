@@ -9,45 +9,54 @@ import java.util.Date;
 
 /**
  * This class represents the version of a FormRecord that exists on any devices running versions
- * 2.34 through 2.38 of CommCare, which was deprecated in user db version 21. This class is used
+ * 2.39 through 2.41 of CommCare, which was deprecated in user db version 23. This class is used
  * to read a form record that exists in such a database, in order to run a db upgrade.
- *
- * @author Aliza Stone
  */
+
 @Table("FORMRECORDS")
-public class FormRecordV3 extends Persisted {
+public class FormRecordV4 extends Persisted {
+
+    public static final String META_INSTANCE_URI = "INSTANCE_URI";
 
     @Persisting(1)
     @MetaField(FormRecord.META_XMLNS)
     private String xmlns;
+
     @Persisting(2)
-    @MetaField(FormRecordV4.META_INSTANCE_URI)
+    @MetaField(META_INSTANCE_URI)
     private String instanceURI;
+
     @Persisting(3)
     @MetaField(FormRecord.META_STATUS)
     private String status;
+
     @Persisting(4)
     private byte[] aesKey;
+
     @Persisting(value = 5, nullable = true)
     @MetaField(FormRecord.META_UUID)
     private String uuid;
+
     @Persisting(6)
     @MetaField(FormRecord.META_LAST_MODIFIED)
     private Date lastModified;
+
     @Persisting(7)
     @MetaField(FormRecord.META_APP_ID)
     private String appId;
+
     @Persisting(value = 8, nullable = true)
     @MetaField(FormRecord.META_SUBMISSION_ORDERING_NUMBER)
     private String submissionOrderingNumber;
 
-    /*
-     * Deserialization only
-     */
-    public FormRecordV3() {
+    @Persisting(value = 9, nullable = true)
+    private String quarantineReason;
+
+    //   Deserialization only
+    public FormRecordV4() {
     }
 
-    public FormRecordV3(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid,
+    public FormRecordV4(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid,
                         Date lastModified, String appId) {
         this.instanceURI = instanceURI;
         this.status = status;
@@ -93,5 +102,4 @@ public class FormRecordV3 extends Persisted {
     public void setFormNumberForSubmissionOrdering(int num) {
         this.submissionOrderingNumber = "" + num;
     }
-
 }
