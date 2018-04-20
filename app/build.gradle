@@ -24,7 +24,6 @@ repositories {
     maven { url 'https://maven.fabric.io/public' }
     google()
     maven { url "https://jitpack.io" }
-
 }
 
 configurations {
@@ -33,6 +32,7 @@ configurations {
 }
 
 dependencies {
+
     testImplementation 'junit:junit:4.12'
     testImplementation ('org.robolectric:robolectric:3.2.2'){
         exclude module: 'xpp3'
@@ -41,6 +41,7 @@ dependencies {
     }
     testImplementation 'org.robolectric:shadows-multidex:3.2.2'
     testImplementation 'org.robolectric:shadows-core:3.2.2'
+    testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
     // release build type expects commcare jars to be in app/libs
@@ -82,7 +83,11 @@ dependencies {
     implementation('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }
-    compile 'com.github.budsmile:bypass-android:1.0.5'
+    // Markdown
+    compile 'com.github.budsmile:bypass-android:1.0.5' //Needed for Ice Cream Sandwich (14&15)
+    compile 'ru.noties:markwon:1.0.4'
+    compile 'ru.noties:markwon-image-loader:1.0.4'
+    compile 'ru.noties:markwon-view:1.0.4'
 }
 
 ext {
