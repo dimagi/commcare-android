@@ -580,6 +580,10 @@ public class FileUtil {
         }
     }
 
+    public static Uri getUriForExternalFile(Context context, String file) {
+        return getUriForExternalFile(context, new File(file));
+    }
+
     /**
      * Makes a copy of file represented by inputStream to dstFile
      * @param inputStream inputStream for File that needs to be copied
