@@ -46,7 +46,7 @@ dependencies {
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
     // release build type expects commcare jars to be in app/libs
-    debugImplementation(project(':commcare-core')) {
+    implementation(project(':commcare-core')) {
         exclude module: 'xpp3'
     }
 
