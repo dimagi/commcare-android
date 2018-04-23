@@ -828,7 +828,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 inlineVideo.seekTo(positionOfVideoProgress);
                 inlineVideo.start();
             } else {
-                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
+                Logger.log(LogTypes.SOFT_ASSERT,
                         "No inline video was found at the question widget index for which a " +
                                 "video had been playing before the activity was paused");
             }
