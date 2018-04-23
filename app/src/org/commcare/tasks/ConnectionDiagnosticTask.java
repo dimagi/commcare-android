@@ -132,6 +132,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
                 htmlLine = response.body().string();
             } else {
                 Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCNetworkFailureMessage + response.code());
+                return false;
             }
         } catch (IOException e) {
             Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ForceCloseLogger.getStackTrace(e));
