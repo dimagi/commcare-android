@@ -4,18 +4,17 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.core.network.CommCareNetworkService;
+import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.tasks.templates.CommCareTask;
 import org.javarosa.core.services.Logger;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.HashMap;
+
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * Runs various tasks that diagnose problems that a user may be facing in connecting to commcare services.
@@ -56,8 +55,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     private static final String logGoogleSuccessMessage = "Google ping test: Success.";
     private static final String logGoogleUnexpectedResultMessage = "Google ping test: Unexpected HTML Result.";
 
-    private static final String logCCIllegalStateMessage = "CCHQ ping test: Illegal state.";
-    private static final String logCCNetworkFailureMessge = "CCHQ ping test: Network failure.";
+    private static final String logCCNetworkFailureMessage = "CCHQ ping test: Network failure with error code ";
     private static final String logCCIOErrorMessage = "CCHQ ping test: Local error.";
     private static final String logCCUnexpectedResultMessage = "CCHQ ping test: Unexpected HTML result";
     private static final String logCCSuccessMessage = "CCHQ ping test: Success.";
@@ -112,7 +110,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
             Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logGoogleIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ForceCloseLogger.getStackTrace(e));
             return false;
         }
-        int pingReturn = Integer.MAX_VALUE;
+        int pingReturn;
         try {
             pingReturn = pingCommand.waitFor();
         } catch (InterruptedException e) {
@@ -126,58 +124,21 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     }
 
     private boolean pingCC(String url) {
-        //uses HttpClient and HttpGet to read the HTML from the specified url        
-        HttpClient client = new DefaultHttpClient();
-        HttpGet get = new HttpGet(url);
-        InputStream stream = null;
-        String htmlLine = null;
-        BufferedReader buffer = null;
-        InputStreamReader reader = null;
+        //uses HttpClient and HttpGet to read the HTML from the specified url
+        CommCareNetworkService commCareNetworkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
+        String htmlLine = "";
         try {
-            //read html using an input stream reader
-            stream = client.execute(get).getEntity().getContent();
-            reader = new InputStreamReader(stream);
-            buffer = new BufferedReader(reader);
-            //should read "success" if the server is up.
-            htmlLine = buffer.readLine();
-        } catch (IllegalStateException e) {
-            //if a stream to this web address has already been invoked on the same thread
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIllegalStateMessage + System.getProperty("line.separator") + "Stack trace: " + ForceCloseLogger.getStackTrace(e));
-            return false;
-        } catch (ClientProtocolException e) {
-            //general HTTP Exception
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCNetworkFailureMessge + System.getProperty("line.separator") + "Stack trace: " + ForceCloseLogger.getStackTrace(e));
-            return false;
+            Response<ResponseBody> response = commCareNetworkService.makeGetRequest(url, new HashMap<>(), new HashMap<>()).execute();
+            if (response.isSuccessful()) {
+                htmlLine = response.body().string();
+            } else {
+                Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCNetworkFailureMessage + response.code());
+            }
         } catch (IOException e) {
-            //error on client side
             Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ForceCloseLogger.getStackTrace(e));
             return false;
-        } finally {
-            if (buffer != null) {
-                try {
-                    buffer.close();
-                } catch (IOException e) {
-                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ForceCloseLogger.getStackTrace(e));
-                }
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ForceCloseLogger.getStackTrace(e));
-                }
-            }
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    String out = logCCIOErrorMessage + System.getProperty("line.separator") +
-                            "Stack trace: " +
-                            ForceCloseLogger.getStackTrace(e);
-                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out);
-                }
-            }
         }
+
         if (htmlLine.equals(commcareHTML)) {
             Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCSuccessMessage);
             return true;
