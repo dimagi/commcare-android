@@ -14,6 +14,8 @@ import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.logging.DataChangeLog;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.utils.LifecycleUtils;
@@ -174,6 +176,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * Uninstalls the selected app
      */
     private void uninstall() {
+        DataChangeLogger.log(new DataChangeLog.CommCareAppUninstall(appRecord.getDisplayName(), appRecord.getVersionNumber()));
         FirebaseAnalyticsUtil.reportAppManagerAction(AnalyticsParamValue.UNINSTALL_APP);
         CommCareApplication.instance().expireUserSession();
         CommCareApplication.instance().uninstall(appRecord);

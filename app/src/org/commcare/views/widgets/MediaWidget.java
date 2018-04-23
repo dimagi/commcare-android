@@ -13,7 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
@@ -31,7 +30,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -66,8 +64,8 @@ public abstract class MediaWidget extends QuestionWidget {
         this.pendingCalloutInterface = pendingCalloutInterface;
 
         mInstanceFolder =
-                FormEntryInstanceState.mInstancePath.substring(0,
-                        FormEntryInstanceState.mInstancePath.lastIndexOf("/") + 1);
+                FormEntryInstanceState.mFormRecordPath.substring(0,
+                        FormEntryInstanceState.mFormRecordPath.lastIndexOf("/") + 1);
 
         setOrientation(LinearLayout.VERTICAL);
         initializeButtons();

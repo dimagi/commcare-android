@@ -82,8 +82,8 @@ public class ImageWidget extends QuestionWidget {
 
         mMaxDimen = -1;
         mInstanceFolder =
-                FormEntryInstanceState.mInstancePath.substring(0,
-                        FormEntryInstanceState.mInstancePath.lastIndexOf("/") + 1);
+                FormEntryInstanceState.mFormRecordPath.substring(0,
+                        FormEntryInstanceState.mFormRecordPath.lastIndexOf("/") + 1);
 
         setOrientation(LinearLayout.VERTICAL);
 

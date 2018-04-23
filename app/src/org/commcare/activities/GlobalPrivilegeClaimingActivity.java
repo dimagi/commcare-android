@@ -32,7 +32,6 @@ import org.javarosa.core.services.locale.Localization;
 public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
 
     private static final String TAG = GlobalPrivilegeClaimingActivity.class.getSimpleName();
-    public static final String KEY_PRIVILEGE_NAME = "key-privilege-name";
 
     // activity request codes
     private static final int BARCODE_CAPTURE = 1;

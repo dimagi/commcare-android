@@ -424,7 +424,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     FormRecord toDelete =
                             CommCareApplication.instance().getUserStorage(FormRecord.class).read((int)info.id);
                     toDelete.logPendingDeletion(TAG, "the user manually selected 'DELETE' in FormRecordListActivity");
-                    FormRecordCleanupTask.wipeRecord(this, toDelete);
+                    FormRecordCleanupTask.wipeRecord(toDelete);
                     listView.post(new Runnable() {
                         @Override
                         public void run() {

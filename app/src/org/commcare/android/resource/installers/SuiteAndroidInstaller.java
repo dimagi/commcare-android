@@ -12,6 +12,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
 import org.commcare.utils.FileUtil;
@@ -70,6 +71,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
                 | IOException | XmlPullParserException
                 | UnfullfilledRequirementsException e) {
             e.printStackTrace();
+            Logger.log(LogTypes.TYPE_RESOURCES, "Initialization failed for Suite resource with exception " + e.getMessage());
         }
 
         return false;
@@ -92,7 +94,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         } catch (InvalidStructureException | XPathException e) {
             // push up suite config issues so user can act on them
             throw new InvalidResourceException(r.getDescriptor(), e.getMessage());
-        } catch (XmlPullParserException  | InvalidReferenceException | IOException e) {
+        } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
             e.printStackTrace();
         }
 
@@ -100,7 +102,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
+    protected int customInstall(Resource r, Reference local, boolean upgrade, AndroidCommCarePlatform platform) throws IOException, UnresolvedResourceException {
         return Resource.RESOURCE_STATUS_LOCAL;
     }
 

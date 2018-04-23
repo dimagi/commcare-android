@@ -9,6 +9,7 @@ import com.crashlytics.android.Crashlytics;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
+import org.jetbrains.annotations.NotNull;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -51,6 +52,12 @@ public class CrashUtil {
         if (crashlyticsEnabled) {
             Crashlytics.setUserName(ReportingUtils.getUser());
             Crashlytics.setUserIdentifier(CommCareApplication.instance().getCurrentUserId());
+        }
+    }
+
+    public static void log(String message) {
+        if (crashlyticsEnabled) {
+            Crashlytics.log(message);
         }
     }
 }

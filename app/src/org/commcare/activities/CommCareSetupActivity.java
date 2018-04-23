@@ -37,6 +37,8 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.logging.DataChangeLog;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
@@ -521,10 +523,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 receiver.failWithNotification(AppInstallStatus.DuplicateApp);
                 break;
             case IncorrectTargetPackage:
-                receiver.failWithNotification(AppInstallStatus.IncorrectTargetPackage);
-                break;
-            case IncorrectTargetPackageLTS:
-                receiver.failWithNotification(AppInstallStatus.IncorrectTargetPackageLTS);
+                receiver.failTargetMismatch();
                 break;
             default:
                 receiver.failUnknown(AppInstallStatus.UnknownFailure);
@@ -713,6 +712,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         if (newAppInstalled) {
             FirebaseAnalyticsUtil.reportAppInstall(getAnalyticsParamForInstallMethod(lastInstallMode));
+            DataChangeLogger.log(new DataChangeLog.CommCareAppInstall());
         } else {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
@@ -785,6 +785,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void failWithNotification(AppInstallStatus statusFailState) {
         fail(NotificationMessageFactory.message(statusFailState), true);
     }
+
+    @Override
+    public void failTargetMismatch() {
+        Intent intent = new Intent(this, TargetMismatchErrorActivity.class);
+        startActivity(intent);
+    }
+
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {

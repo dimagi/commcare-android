@@ -53,12 +53,13 @@
     <string name="privilege_instructions">If you have a superuser account on HQ, you can enable certain privileges on your device by going to the \'Enable Privileges on Mobile\' tab of your \'My Account Settings\' page, and then scanning the barcode that appears there.</string>
     <string name="see_available_apps">See Available Apps</string>
     <string name="install_from_list_prompt">Log in as a mobile or web user to see a list of apps you can install</string>
-
+    <string name="legacy_failure">CommCare does not support upgrading from the previous CommCare version you were using. To resolve this issue, please uninstall CommCare from your device and then reinstall it.</string>
+    <string name="legacy_failure_title">Incompatible CommCare Upgrade</string>
     <!-- endregion -->
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>43</item>
+        <item>44</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -352,4 +353,20 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="sign_button" cc:translatable="true">Gather Signature</string>
     <string name="markup_image" cc:translatable="true">Markup Image</string>
     <string name="draw_image" cc:translatable="true">Sketch Image</string>
+
+    <string name="share" cc:translatable="true">Share</string>
+    <string name="title_data_change_logs_activity" cc:translatable="true">Data Change Logs</string>
+    <string name="commcare_logs" cc:translatable="true">CommCare Data Change Logs</string>
+
+    <!--Incorrect Target Screen-->
+    <string name="target_mismatch_lts_required" cc:translatable="true">App Requires CommCare LTS</string>
+    <string name="target_mismatch_lts_required_install" cc:translatable="true">Install CommCare LTS</string>
+    <string name="target_mismatch_lts_open" cc:translatable="true">Open CommCare LTS</string>
+    <string name="target_mismatch_lts_required_info" cc:translatable="true">Follow the link below to install CommCare LTS from the Play Store, and then try installing your app again.</string>
+    <string name="target_mismatch_lts_available_info" cc:translatable="true">This app requires CommCare LTS. Click the button below to open CommCare LTS, and then try installing your app again.</string>
+    <string name="target_mismatch_commcare_required" cc:translatable="true">App Requires CommCare(Non LTS)</string>
+    <string name="target_mismatch_commcare_required_install" cc:translatable="true">Install CommCare</string>
+    <string name="target_mismatch_commcare_open" cc:translatable="true">Open CommCare</string>
+    <string name="target_mismatch_commcare_required_info" cc:translatable="true">Follow the link below to install CommCare(Non LTS) from the Play Store, and then try installing your app again.</string>
+    <string name="target_mismatch_commcare_available_info" cc:translatable="true">This app requires CommCare(Non LTS). Click the button below to open CommCare, and then try installing your app again.</string>
 </resources>

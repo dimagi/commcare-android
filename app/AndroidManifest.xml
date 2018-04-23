@@ -3,9 +3,7 @@
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.43">
-
-    <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints"/>
+          android:versionName="2.44">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -46,6 +44,9 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false"/>
+
+    <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints,
+    ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer"/>
 
     <permission
         android:description="@string/permission_content_provider_description"
@@ -419,7 +420,14 @@
                 <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
-
+        <activity
+            android:label="@string/title_data_change_logs_activity"
+            android:name="org.commcare.activities.DataChangeLogsActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="org.commcare.activities.TargetMismatchErrorActivity"/>
         <!-- Start Collect Manifest -->
 
         <intent-filter>

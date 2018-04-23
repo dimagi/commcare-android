@@ -98,7 +98,6 @@ public class DispatchActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
         if (shouldFinish) {
             finish();
         } else {
@@ -177,15 +176,21 @@ public class DispatchActivity extends AppCompatActivity {
 
     private boolean isDbInBadState() {
         int dbState = CommCareApplication.instance().getDatabaseState();
-        if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
+        if (dbState == CommCareApplication.STATE_LEGACY_DETECTED) {
+            // Starting from CommCare 2.44, we don't supoort upgrading from Legacy DB
+            LifecycleUtils.triggerHandledAppExit(this,
+                    getString(R.string.legacy_failure),
+                    getString(R.string.legacy_failure_title), false, false);
+            return true;
+        } else if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
             LifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_definite_failure),
-                    getString(R.string.migration_failure_title), false);
+                    getString(R.string.migration_failure_title), false, false);
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
             LifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_possible_failure),
-                    getString(R.string.migration_failure_title), false);
+                    getString(R.string.migration_failure_title), false, true);
             return true;
         } else if (dbState == CommCareApplication.STATE_CORRUPTED) {
             handleDamagedApp();

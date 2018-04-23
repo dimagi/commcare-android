@@ -282,7 +282,7 @@ public class FormStorageTest {
             , "org.commcare.heartbeat.UpdateToPrompt"
             , "org.commcare.android.database.global.models.AppAvailableToInstall"
             , "org.javarosa.xpath.expr.XPathChecksumFunc"
-            
+
             // Added in 2.37
             , "org.commcare.core.graph.suite.Graph"
             , "org.commcare.core.graph.suite.Annotation"
@@ -307,9 +307,11 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathDistinctValuesFunc"
             , "org.javarosa.xpath.expr.XPathSleepFunc"
 
-            );
-
-
+            // Added in 2.42
+            , "org.commcare.android.database.user.models.FormRecordV4"
+            , "org.commcare.android.database.app.models.FormDefRecord"
+            , "org.commcare.android.resource.installers.XFormAndroidInstallerV1"
+    );
 
 
     @Before
@@ -413,7 +415,7 @@ public class FormStorageTest {
     }
 
     private static void serializeFormRecord() throws IOException, DeserializationException {
-        FormRecord r = new FormRecord("", FormRecord.STATUS_UNSTARTED, "some form",
+        FormRecord r = new FormRecord(FormRecord.STATUS_UNSTARTED, "some form",
                 new byte[]{1, 2, 3}, null, new Date(0), "some app id");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();

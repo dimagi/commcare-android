@@ -482,7 +482,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     protected void onPause() {
         super.onPause();
 
-        refreshTimer.stop();
+        if (refreshTimer != null) {
+            refreshTimer.stop();
+        }
 
         if (adapter != null) {
             adapter.unregisterDataSetObserver(mListStateObserver);
@@ -495,7 +497,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     protected void onStop() {
         super.onStop();
-        refreshTimer.stop();
+        if (refreshTimer != null) {
+            refreshTimer.stop();
+        }
         saveLastQueryString();
     }
 

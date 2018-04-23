@@ -38,7 +38,6 @@ import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.models.ODKStorage;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
@@ -77,8 +76,8 @@ public class SignatureWidget extends QuestionWidget {
         this.pendingCalloutInterface = pic;
 
         mInstanceFolder =
-                FormEntryInstanceState.mInstancePath.substring(0,
-                        FormEntryInstanceState.mInstancePath.lastIndexOf("/") + 1);
+                FormEntryInstanceState.mFormRecordPath.substring(0,
+                        FormEntryInstanceState.mFormRecordPath.lastIndexOf("/") + 1);
 
         setOrientation(LinearLayout.VERTICAL);
 
