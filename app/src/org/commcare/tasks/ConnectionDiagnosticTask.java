@@ -95,7 +95,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
 
     //check if a ping to a specific ip address (used for google url) is successful.
     private boolean pingSuccess(String url) {
-        Process pingCommand = null;
+        Process pingCommand;
         try {
             //append the input url to the ping command
             String pingURL = pingPrefix + url;
@@ -124,7 +124,6 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     }
 
     private boolean pingCC(String url) {
-        //uses HttpClient and HttpGet to read the HTML from the specified url
         CommCareNetworkService commCareNetworkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
         String htmlLine = "";
         try {

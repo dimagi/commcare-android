@@ -205,9 +205,6 @@ android {
     compileSdkVersion 26
     buildToolsVersion "26.0.1"
 
-    // This was deprecated so have to explicitly tell Android to use it until we move to the new lib
-//    useLibrary 'org.apache.http.legacy'
-
     lintOptions {
         abortOnError false
         disable 'MissingTranslation'
