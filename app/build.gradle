@@ -35,11 +35,7 @@ configurations {
 dependencies {
 
     testImplementation 'junit:junit:4.12'
-    testImplementation ('org.robolectric:robolectric:3.2.2'){
-        exclude module: 'xpp3'
-        exclude group: 'org.xmlpull.v1'
-        exclude module: 'xmlpull'
-    }
+    testImplementation ('org.robolectric:robolectric:3.2.2')
     testImplementation 'org.robolectric:shadows-multidex:3.2.2'
     testImplementation 'org.robolectric:shadows-core:3.2.2'
     testImplementation 'org.json:json:20140107'
@@ -69,11 +65,7 @@ dependencies {
     implementation ('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
-    implementation('org.apache.httpcomponents:httpmime:4.3.6') {
-        exclude module: 'httpclient'
-        exclude module: 'commons-io'
-    }
-
+    implementation('org.apache.httpcomponents:httpmime:4.3.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
     implementation 'org.jsoup:jsoup:1.8.3'
     implementation 'com.google.firebase:firebase-core:10.0.1'
@@ -85,13 +77,13 @@ dependencies {
         transitive = true;
     }
 
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // Markdown
-    compile 'com.github.budsmile:bypass-android:1.0.5' //Needed for Ice Cream Sandwich (14&15)
-    compile 'ru.noties:markwon:1.0.4'
-    compile 'ru.noties:markwon-image-loader:1.0.4'
-    compile 'ru.noties:markwon-view:1.0.4'
+    implementation 'com.github.budsmile:bypass-android:1.0.5' //Needed for Ice Cream Sandwich (14&15)
+    implementation 'ru.noties:markwon:1.0.4'
+    implementation 'ru.noties:markwon-image-loader:1.0.4'
+    implementation 'ru.noties:markwon-view:1.0.4'
 
 }
 
