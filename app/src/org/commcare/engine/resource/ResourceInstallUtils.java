@@ -201,7 +201,7 @@ public class ResourceInstallUtils {
      * For instance, to point the reference to the latest app build instead of
      * the latest release.
      */
-    public static String addParamsToProfileReference(final String profileRef) {
+    public static String addParamsToProfileReference(String profileRef) {
         URL profileUrl;
         try {
             profileUrl = new URL(profileRef);
@@ -219,9 +219,9 @@ public class ResourceInstallUtils {
         if (!"".equals(targetParam)) {
             if (profileUrl.getQuery() != null) {
                 // url already has query strings, so add a new one to the end
-                return profileRef + "&target=" + targetParam;
+                profileRef += "&target=" + targetParam;
             } else {
-                return profileRef + "?target=" + targetParam;
+                profileRef += "?target=" + targetParam;
             }
         }
 
@@ -230,9 +230,9 @@ public class ResourceInstallUtils {
             username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
             if (username != null & !"".equals(username)) {
                 if (profileUrl.getQuery() != null) {
-                    return profileRef + "&username=" + username;
+                    profileRef += "&username=" + username;
                 } else {
-                    return profileRef + "?username=" + username;
+                    profileRef += "?username=" + username;
                 }
             }
         } catch (SessionUnavailableException e) {
