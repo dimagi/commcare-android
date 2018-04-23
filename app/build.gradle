@@ -209,7 +209,6 @@ def getDate() {
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.2"
 
     // This was deprecated so have to explicitly tell Android to use it until we move to the new lib
     useLibrary 'org.apache.http.legacy'
@@ -333,16 +332,15 @@ android {
         release.setRoot('build-types/release')
     }
 
+    // Our flavours doesn't differ on a particular dimension yet, so just speicfy a dummy
     flavorDimensions "dummy"
     productFlavors {
         commcare {
             // builds normal commcare
             // use the settings from defaultConfig
-            dimension "dummy"
         }
 
         lts {
-            dimension "dummy"
             // long term support build of CommCare
             applicationId "org.commcare.lts"
             project.ext.LTS_APP_ID = applicationId
@@ -358,7 +356,6 @@ android {
         }
 
         qabeta {
-            dimension "dummy"
             // app w/ id tied to commcare version, so you can install standalone,
             // next to play store version
 
@@ -382,7 +379,6 @@ android {
         }
 
         standalone {
-            dimension "dummy"
             // Builds commcare w/ ccz app packaged in the apk.
             // Must be invoked from command-line w/ args pointing to app domain &
             // id
