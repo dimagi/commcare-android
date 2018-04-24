@@ -14,7 +14,6 @@ import com.android.builder.core.DefaultManifestParser
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'io.fabric'
-apply plugin: 'me.tatarka.retrolambda'
 
 repositories {
     mavenCentral()
@@ -24,11 +23,8 @@ repositories {
         dirs 'libs'
     }
     maven { url 'https://maven.fabric.io/public' }
+    google()
     maven { url "https://jitpack.io" }
-    maven {
-        url 'https://maven.google.com/'
-        name 'Google'
-    }
 }
 
 configurations {
@@ -37,58 +33,57 @@ configurations {
 }
 
 dependencies {
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.robolectric:robolectric:3.2.2'
-    testCompile 'org.robolectric:shadows-multidex:3.2.2'
-    testCompile 'org.robolectric:shadows-core:3.2.2'
-    testCompile 'org.json:json:20140107'
-    testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
+    testImplementation 'junit:junit:4.12'
+    testImplementation ('org.robolectric:robolectric:3.2.2')
+    testImplementation 'org.robolectric:shadows-multidex:3.2.2'
+    testImplementation 'org.robolectric:shadows-core:3.2.2'
+    testImplementation 'org.json:json:20140107'
+    testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
+
     // release build type expects commcare jars to be in app/libs
-    debugCompile project(':commcare-core')
-    compile project(':commcare-core')
-    // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
-    compile fileTree(include: '*.jar', dir: 'libs')
-    compile(name: 'htmlspanner-custom', ext: 'aar')
-    compile(name: 'android-zebra-interface-1.1', ext: 'aar')
-    compile 'com.simprints:LibSimprints:1.0.10'
-    compile 'com.android.support:multidex:1.0.1'
-    compile 'com.android.support:appcompat-v7:25.0.1'
-    compile 'com.android.support:cardview-v7:25.0.1'
-    compile 'com.android.support:recyclerview-v7:25.0.1'
-    compile 'com.android.support:support-v4:25.0.1'
-    compile 'com.android.support:preference-v7:25.0.1'
-    compile 'com.android.support:gridlayout-v7:25.0.1'
-    compile 'com.madgag.spongycastle:core:1.54.0.0'
-    compile 'com.madgag.spongycastle:prov:1.54.0.0'
-    compile 'com.google.android.gms:play-services-maps:10.0.1'
-    compile 'com.google.android.gms:play-services-analytics:10.0.1'
-    compile 'joda-time:joda-time:2.9.4'
-    compile 'net.sf.kxml:kxml2:2.3.0'
-    compile 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
-    compile 'org.apache.james:apache-mime4j:0.7.2'
-    compile('org.apache.httpcomponents:httpmime:4.3.6') {
-        exclude module: 'httpclient'
+    implementation(project(':commcare-core')) {
+        exclude module: 'xpp3'
     }
-    compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
-    compile 'org.jsoup:jsoup:1.8.3'
-    compile 'com.google.firebase:firebase-core:10.0.1'
-    compile 'com.google.firebase:firebase-ads:10.0.1'
-    compile 'com.carrotsearch:hppc:0.7.2'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'com.journeyapps:zxing-android-embedded:3.5.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+
+    // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
+    implementation fileTree(include: '*.jar',exclude: 'regexp-me.jar', dir: 'libs')
+    implementation(name: 'htmlspanner-custom', ext: 'aar')
+    implementation(name: 'android-zebra-interface-1.1', ext: 'aar')
+    implementation 'com.simprints:LibSimprints:1.0.10'
+    implementation 'com.android.support:multidex:1.0.1'
+    implementation 'com.android.support:appcompat-v7:25.0.1'
+    implementation 'com.android.support:cardview-v7:25.2.0'
+    implementation 'com.android.support:recyclerview-v7:25.2.0'
+    implementation 'com.android.support:support-v4:25.2.0'
+    implementation 'com.android.support:preference-v7:25.2.0'
+    implementation 'com.android.support:gridlayout-v7:25.2.0'
+    implementation 'com.madgag.spongycastle:core:1.54.0.0'
+    implementation 'com.madgag.spongycastle:prov:1.54.0.0'
+    implementation 'com.google.android.gms:play-services-maps:10.0.1'
+    implementation 'joda-time:joda-time:2.9.4'
+    implementation 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
+    implementation ('org.apache.james:apache-mime4j:0.7.2') {
+        exclude module: 'commons-io'
+    }
+    implementation('org.apache.httpcomponents:httpmime:4.3.6')
+    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
+    implementation 'org.jsoup:jsoup:1.8.3'
+    implementation 'com.google.firebase:firebase-core:10.0.1'
+    implementation 'com.google.firebase:firebase-ads:10.0.1'
+    implementation 'com.carrotsearch:hppc:0.7.2'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'com.journeyapps:zxing-android-embedded:3.5.0'
+    implementation('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }
 
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // Markdown
-    compile 'com.github.budsmile:bypass-android:1.0.5' //Needed for Ice Cream Sandwich (14&15)
-    compile 'ru.noties:markwon:1.0.4'
-    compile 'ru.noties:markwon-image-loader:1.0.4'
-    compile 'ru.noties:markwon-view:1.0.4'
-
+    implementation 'com.github.budsmile:bypass-android:1.0.5' //Needed for Ice Cream Sandwich (14&15)
+    implementation 'ru.noties:markwon:1.0.4'
+    implementation 'ru.noties:markwon-image-loader:1.0.4'
+    implementation 'ru.noties:markwon-view:1.0.4'
 }
 
 ext {
@@ -205,10 +200,6 @@ def getDate() {
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
-
-    // This was deprecated so have to explicitly tell Android to use it until we move to the new lib
-    useLibrary 'org.apache.http.legacy'
 
     lintOptions {
         abortOnError false
@@ -328,6 +319,9 @@ android {
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
     }
+
+    // Our flavours doesn't differ on a particular dimension yet, so just speicfy a dummy
+    flavorDimensions "dummy"
     productFlavors {
         commcare {
             // builds normal commcare

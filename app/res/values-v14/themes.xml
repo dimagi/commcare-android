@@ -64,10 +64,10 @@
 
     <style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title"/>
 
-    <style name="TextAppearance.Custom.WindowTitle.Case" parent="style/TextAppearance.Custom.WindowTitle">
+    <style name="TextAppearance.Custom.WindowTitle.Case" parent="TextAppearance.Custom.WindowTitle">
     </style>
 
-    <style name="TextAppearance.Custom.WindowTitle.Menu" parent="style/TextAppearance.Custom.WindowTitle">
+    <style name="TextAppearance.Custom.WindowTitle.Menu" parent="TextAppearance.Custom.WindowTitle">
     </style>
 
     <style name="WindowTitle.Custom.Menu" parent="android:Widget.TextView">
