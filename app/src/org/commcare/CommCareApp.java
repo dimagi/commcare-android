@@ -300,8 +300,11 @@ public class CommCareApp implements AppFilePathBuilder {
     }
 
     public boolean hasVisibleTrainingMenu() {
+        // This is the same eval context that would be used to evaluate the relevancy conditions of
+        // these menus when they're actually loaded
         EvaluationContext ec =
-                CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
+                CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext(Menu.TRAINING_MENU_ROOT);
+
         for (Suite s : platform.getInstalledSuites()) {
             List<Menu> trainingMenus = s.getMenusWithRoot(Menu.TRAINING_MENU_ROOT);
             if (trainingMenus != null) {
