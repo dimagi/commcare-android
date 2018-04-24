@@ -35,7 +35,6 @@ public class CalendarLocaleTest {
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/calendar_tests/profile.ccpr",
                 "test", "123");
-        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
     /**

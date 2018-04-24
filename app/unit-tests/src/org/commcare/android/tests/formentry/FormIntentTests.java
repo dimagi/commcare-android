@@ -38,7 +38,6 @@ public class FormIntentTests {
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/form_entry_tests/profile.ccpr",
                 "test", "123");
-        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
     /**
