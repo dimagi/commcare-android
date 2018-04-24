@@ -31,12 +31,15 @@ import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.Stylizer;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.UnregisteredLocaleException;
+import org.javarosa.xpath.expr.FunctionUtils;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.File;
 import java.util.List;
@@ -296,11 +299,25 @@ public class CommCareApp implements AppFilePathBuilder {
         return platform;
     }
 
-    public boolean hasTrainingMenu() {
+    public boolean hasVisibleTrainingMenu() {
+        EvaluationContext ec =
+                CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
         for (Suite s : platform.getInstalledSuites()) {
-            List<Menu> trainingMenus = s.getMenusWithId(Menu.TRAINING_MENU_ROOT);
+            List<Menu> trainingMenus = s.getMenusWithRoot(Menu.TRAINING_MENU_ROOT);
             if (trainingMenus != null) {
-                return true;
+                for (Menu m : trainingMenus) {
+                    try {
+                        if (m.getMenuRelevance() == null ||
+                                FunctionUtils.toBoolean(m.getMenuRelevance().eval(ec))) {
+                            return true;
+                        }
+                    } catch (XPathSyntaxException e) {
+                        // Now is the wrong time to show the user an error about this since they
+                        // haven't actually navigated to the menu. To be safe, just assume that this
+                        // menu is visible, and then if they navigate to it they'll see the XPath error there
+                        return true;
+                    }
+                }
             }
         }
         return false;
