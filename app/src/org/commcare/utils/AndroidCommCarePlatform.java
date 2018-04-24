@@ -1,10 +1,10 @@
 package org.commcare.utils;
 
-import android.net.Uri;
-
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.engine.resource.AndroidResourceTable;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
@@ -22,7 +22,7 @@ import java.util.Vector;
  */
 public class AndroidCommCarePlatform extends CommCarePlatform {
 
-    private final Hashtable<String, String> xmlnstable;
+    private final Hashtable<String, Integer> xmlnstable;
     private ResourceTable global;
     private ResourceTable upgrade;
     private ResourceTable recovery;
@@ -38,21 +38,21 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
         this.app = app;
     }
 
-    public void registerXmlns(String xmlns, String filepath) {
-        xmlnstable.put(xmlns, filepath);
+    public void registerXmlns(String xmlns, Integer formDefId) {
+        xmlnstable.put(xmlns, formDefId);
     }
 
     public Set<String> getInstalledForms() {
         return xmlnstable.keySet();
     }
 
-    public Uri getFormContentUri(String xFormNamespace) {
+    public int getFormDefId(String xFormNamespace) {
         if (xmlnstable.containsKey(xFormNamespace)) {
-            return Uri.parse(xmlnstable.get(xFormNamespace));
+            return xmlnstable.get(xFormNamespace);
         }
 
         // Search through manually?
-        return null;
+        return -1;
     }
 
     public ResourceTable getGlobalResourceTable() {
@@ -109,5 +109,9 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 
     public IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
         return app.getFileBackedStorage("fixture", FormInstance.class);
+    }
+
+    public SqlStorage<FormDefRecord> getFormDefStorage() {
+        return app.getStorage(FormDefRecord.class);
     }
 }

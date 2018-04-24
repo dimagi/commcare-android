@@ -47,7 +47,7 @@ public class AndroidPrototypeFactorySetup {
     /**
      * Scans all classes accessible from the context class loader which belong to the given package and subpackages.
      */
-    private static List<String> getClasses(Context c)
+    public static List<String> getClasses(Context c)
             throws IOException {
         ArrayList<String> classNames = new ArrayList<>();
 

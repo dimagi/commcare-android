@@ -21,7 +21,7 @@ public class FormRecordV3 extends Persisted {
     @MetaField(FormRecord.META_XMLNS)
     private String xmlns;
     @Persisting(2)
-    @MetaField(FormRecord.META_INSTANCE_URI)
+    @MetaField(FormRecordV4.META_INSTANCE_URI)
     private String instanceURI;
     @Persisting(3)
     @MetaField(FormRecord.META_STATUS)
@@ -91,7 +91,7 @@ public class FormRecordV3 extends Persisted {
     }
 
     public void setFormNumberForSubmissionOrdering(int num) {
-        this.submissionOrderingNumber = ""+num;
+        this.submissionOrderingNumber = "" + num;
     }
 
 }

@@ -17,10 +17,12 @@ public class UnrecoverableErrorActivity extends FragmentActivity {
     public static final String EXTRA_ERROR_TITLE = "UnrecoverableErrorActivity_Title";
     public static final String EXTRA_ERROR_MESSAGE = "UnrecoverableErrorActivity_Message";
     public static final String EXTRA_USE_MESSAGE = "use_extra_message";
+    public static final String EXTRA_RESTART = "extra_restart";
 
     private String title;
     private String message;
     private boolean useExtraMessage;
+    private boolean restart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +30,7 @@ public class UnrecoverableErrorActivity extends FragmentActivity {
         title = this.getIntent().getStringExtra(EXTRA_ERROR_TITLE);
         message = this.getIntent().getStringExtra(EXTRA_ERROR_MESSAGE);
         useExtraMessage = this.getIntent().getBooleanExtra(EXTRA_USE_MESSAGE, true);
+        restart = this.getIntent().getBooleanExtra(EXTRA_RESTART, false);
         createAlertDialog().show(getSupportFragmentManager(), "error-dialog");
     }
 
@@ -39,10 +42,15 @@ public class UnrecoverableErrorActivity extends FragmentActivity {
         DialogInterface.OnClickListener buttonListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
-                LifecycleUtils.restartCommCare(UnrecoverableErrorActivity.this, true);
+                if (restart) {
+                    LifecycleUtils.restartCommCare(UnrecoverableErrorActivity.this, true);
+                } else {
+                    finish();
+                }
             }
         };
-        d.setPositiveButton(Localization.get("app.storage.missing.button"), buttonListener);
+
+        d.setPositiveButton(restart ? Localization.get("commcare.restart") : Localization.get("app.storage.missing.button"), buttonListener);
         return AlertDialogFragment.fromCommCareAlertDialog(d);
     }
 }

@@ -80,7 +80,7 @@ public class ReportingUtils {
         try {
             return CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
         } catch (Exception e) {
-            return "User not logged in.";
+            return "";
         }
     }
 
@@ -114,7 +114,7 @@ public class ReportingUtils {
         try {
             return CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName();
         } catch (Exception e) {
-            return "NA";
+            return "";
         }
     }
 

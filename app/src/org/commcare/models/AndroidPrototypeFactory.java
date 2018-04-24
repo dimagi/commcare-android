@@ -5,7 +5,6 @@ import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.core.graph.suite.Annotation;
 import org.commcare.core.graph.suite.BubbleSeries;
-import org.commcare.core.graph.suite.Configurable;
 import org.commcare.core.graph.suite.Graph;
 import org.commcare.core.graph.suite.XYSeries;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -92,7 +91,7 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
      *                     factory on earlier versions of CommCare. Hence
      *                     don't check for hash collisions.
      */
-    private void addMigratedClass(String oldClassName, Class newClass) {
+    protected void addMigratedClass(String oldClassName, Class newClass) {
         if (!initialized) {
             lazyInit();
         }

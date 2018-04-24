@@ -63,6 +63,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                 | InvalidStructureException | IOException
                 | InvalidReferenceException e) {
             e.printStackTrace();
+            Logger.log(LogTypes.TYPE_RESOURCES, "Initialization failed for Profile resource with exception " + e.getMessage());
         }
 
         return false;
@@ -180,7 +181,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
+    protected int customInstall(Resource r, Reference local, boolean upgrade, AndroidCommCarePlatform platform) throws IOException, UnresolvedResourceException {
         return Resource.RESOURCE_STATUS_LOCAL;
     }
 

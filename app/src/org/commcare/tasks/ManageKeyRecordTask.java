@@ -13,7 +13,6 @@ import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.HttpCalloutTask;
 import org.commcare.preferences.ServerUrls;
@@ -474,7 +473,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             if (current.getType() == UserKeyRecord.TYPE_NEW) {
                 return processNewUserKeyRecord(current);
             } else if (current.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-                return processLegacyUserKeyRecord(current);
+                return false;
             }
         }
         return true;
@@ -498,24 +497,6 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             // Otherwise we're now keyed up with the old DB and we should be fine to log in
         }
         return true;
-    }
-
-    private boolean processLegacyUserKeyRecord(UserKeyRecord current) {
-        // Transition the legacy storage to the new format. We don't have a new record,
-        // so don't worry
-        try {
-            this.publishProgress(Localization.get("key.manage.legacy.begin"));
-            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication.instance().getCurrentApp(), current.unWrapKey(password), current);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Ugh, high level trap catch
-            // Problem during migration! We should try again? Maybe?
-            // Or just leave the old one?
-            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
-            // For now, fail.
-            return false;
-        }
     }
 
     private void setupLoggedInUser() {
@@ -585,8 +566,6 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     private boolean migrate(UserKeyRecord oldSandboxToMigrate, UserKeyRecord newRecord) {
         byte[] oldKey = oldSandboxToMigrate.unWrapKey(password);
 
-        migrateLegacySandbox(oldSandboxToMigrate, oldKey);
-
         try {
             //Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
             UserSandboxUtils.migrateData(getContext(), app, oldSandboxToMigrate, oldKey, newRecord,
@@ -602,14 +581,6 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             return false;
         }
         return true;
-    }
-
-    private void migrateLegacySandbox(UserKeyRecord oldSandboxToMigrate, byte[] oldKey) {
-        if (oldSandboxToMigrate.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-            //transition the old storage into the new format before we copy the DB over.
-            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication.instance().getCurrentApp(), oldKey, oldSandboxToMigrate);
-            publishProgress(Localization.get("key.manage.legacy.begin"));
-        }
     }
 
     @Override

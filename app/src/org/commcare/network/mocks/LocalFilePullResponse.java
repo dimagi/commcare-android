@@ -1,9 +1,6 @@
 package org.commcare.network.mocks;
 
-import org.apache.http.HttpResponse;
 import org.commcare.network.RemoteDataPullResponse;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,7 +30,7 @@ public class LocalFilePullResponse extends RemoteDataPullResponse {
     }
 
     @Override
-    protected InputStream getInputStream() throws IOException {
+    protected InputStream getInputStream() {
         return debugStream;
     }
 }

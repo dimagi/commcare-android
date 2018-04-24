@@ -50,7 +50,7 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    protected int customInstall(Resource r, Reference local, boolean upgrade)
+    protected int customInstall(Resource r, Reference local, boolean upgrade, AndroidCommCarePlatform platform)
             throws IOException, UnresolvedResourceException {
 
         // To make sure that we won't fail on this later, after we have already committed to

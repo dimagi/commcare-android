@@ -12,6 +12,8 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.cases.model.Case;
+import org.commcare.logging.DataChangeLog;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
@@ -22,7 +24,6 @@ import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.modern.database.DatabaseIndexingUtils;
-import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.Persistable;
@@ -59,9 +60,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.20 - Migrate index names on indexed fixtures so that multiple fixtures are able to have an index on the same column name
      * V.21 - Reindex all cases to add relationship, and add reasonForQuarantine field to FormRecords
      * V.22 - Add column for appId in entity_cache table
+     * V.23 - Merges InstanceProvider to FormRecord (delete instanceUri, add displayName, filePath and canEditWhenComplete)
      */
 
-    private static final int USER_DB_VERSION = 22;
+    private static final int USER_DB_VERSION = 23;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
@@ -177,6 +179,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        DataChangeLogger.log(new DataChangeLog.DbUpgradeStart("User", oldVersion, newVersion));
         boolean inSenseMode = false;
         //TODO: Not a great way to get the current app! Pass this in to the constructor.
         //I am preeeeeety sure that we can't get here without _having_ an app/platform, but not 100%
@@ -191,6 +194,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
         }
         new UserDatabaseUpgrader(context, mUserId, inSenseMode, fileMigrationKeySeed).upgrade(db, oldVersion, newVersion);
+        DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("User", oldVersion, newVersion));
     }
 
     public static void buildTable(SQLiteDatabase database,
