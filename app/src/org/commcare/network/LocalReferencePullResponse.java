@@ -1,6 +1,5 @@
 package org.commcare.network;
 
-import org.apache.http.HttpResponse;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -15,22 +14,21 @@ import retrofit2.Response;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class LocalReferencePullResponse extends RemoteDataPullResponse {
-    private InputStream debugStream = null;
+    private InputStream debugStream;
 
     public LocalReferencePullResponse(String xmlPayloadReference,
                                       Response response) throws IOException {
         super(null, response);
 
         try {
-            debugStream =
-                    ReferenceManager.instance().DeriveReference(xmlPayloadReference).getStream();
+            debugStream = ReferenceManager.instance().DeriveReference(xmlPayloadReference).getStream();
         } catch (InvalidReferenceException ire) {
             throw new IOException("No payload available at " + xmlPayloadReference);
         }
     }
 
     @Override
-    protected InputStream getInputStream() throws IOException {
+    protected InputStream getInputStream() {
         return debugStream;
     }
 }

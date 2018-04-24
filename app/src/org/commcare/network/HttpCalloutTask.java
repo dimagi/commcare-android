@@ -2,7 +2,6 @@ package org.commcare.network;
 
 import android.content.Context;
 
-import org.apache.http.client.ClientProtocolException;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.core.network.bitcache.BitCache;
