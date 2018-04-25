@@ -35,7 +35,7 @@
     <dimen name="entity_padding">@dimen/content_min_margin</dimen>
     <dimen name="grid_entity_padding">3dp</dimen>
 
-    <style name="EntityItemTextView" parent="TextAppearance.AppCompat.Body1">
+    <style name="EntityItemTextView" parent="TextAppearance.AppCompat.Medium">
         <item name="android:paddingLeft">@dimen/entity_padding</item>
         <item name="android:paddingTop">@dimen/entity_padding</item>
         <item name="android:paddingBottom">@dimen/entity_padding</item>
@@ -56,12 +56,9 @@
         <item name="android:paddingRight">@dimen/grid_entity_padding</item>
     </style>
 
-    <style name="EntityItemText" parent="@style/TextAppearance.AppCompat.Subhead">
-    </style>
+    <style name="EntityItemText" parent="@android:style/TextAppearance.Medium"/>
 
-    <style name="GridEntityItemText" parent="@android:style/TextAppearance.Medium">
-
-    </style>
+    <style name="GridEntityItemText" parent="@android:style/TextAppearance.Medium"/>
 
     <style name="VersionIdText">
         <item name="android:textSize">@dimen/text_smaller</item>
@@ -151,7 +148,7 @@
         <item name="android:scrollbars">none</item>
     </style>
 
-    <style name="ListContentWithoutBadge">
+    <style name="ListContentWithoutBadge" parent="@style/TextAppearance.AppCompat.Medium">
         <item name="android:layout_margin">@dimen/content_min_margin</item>
         <item name="android:colorBackground">@color/cc_core_bg</item>
         <item name="android:gravity">center_vertical</item>
@@ -174,7 +171,7 @@
         <item name="android:colorBackground">@color/cc_core_bg</item>
     </style>
 
-    <style name="ListViewHeaderV2">
+    <style name="ListViewHeaderV2" parent="TextAppearance.AppCompat.Medium">
         <item name="android:padding">@dimen/content_start</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textStyle">bold</item>
@@ -261,6 +258,10 @@
         <item name="android:paddingLeft">@dimen/standard_spacer_large</item>
         <item name="android:paddingRight">@dimen/standard_spacer_large</item>
     </style>
+
+    <!--<style name="TextAppearance.Medium" parent="TextAppearance.AppCompat.Medium">-->
+        <!--<item name="android:textColor">@color/cc_neutral_text</item>-->
+    <!--</style>-->
 
 
     <color name="login_edit_text_color">@color/cc_core_text</color>

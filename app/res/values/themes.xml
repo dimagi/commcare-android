@@ -3,12 +3,13 @@
 
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/cc_brand_color</item>
-        <item name="colorPrimaryDark">@color/black</item>
-        <item name="colorAccent">@color/cc_light_cool_accent_color</item>
 
 
         <!--<item name="android:colorBackground">@color/cc_neutral_bg</item>-->
-
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorControlActivated">@color/colorAccent</item>
+        <item name="android:textColorSecondary">@color/cc_neutral_text</item>
         <item name="android:buttonStyle">@style/commcare_button_style</item>
 
         <item name="detail_odd_row_color">@color/cc_neutral_bg</item>
@@ -26,7 +27,7 @@
     </style>
 
     <style name="PreferenceTheme" parent="AppBaseTheme">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Light.Dialog.Alert</item>
     </style>
 

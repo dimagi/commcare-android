@@ -13,9 +13,7 @@ import org.commcare.utils.AndroidCommCarePlatform;
 public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
 
     private static final String MENU_STYLE_GRID = "grid";
-    @Nullable
-    private MenuList menuView;
-    
+
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
@@ -29,7 +27,7 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
             finish();
             return;
         }
-        menuView = MenuList.setupMenuViewInActivity(this, menuId, useGridMenu(menuId), false);
+        MenuList.setupMenuViewInActivity(this, menuId, useGridMenu(menuId), false);
     }
 
     private static boolean useGridMenu(String currentCommand) {
