@@ -353,7 +353,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                     sessionId = loadSSDIDFromFormRecord(ssdStorage, formRecordId);
                 }
             } catch (Exception e) {
-                Logger.exception("Session ID exists, but with no record (or broken record)", e);
+                String logMessage = "Session ID exists, but with no record (or broken record)";
+                // log this as both because it belongs in both places
+                Logger.exception(logMessage, e);
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, logMessage);
             }
         }
 
