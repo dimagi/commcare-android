@@ -14,6 +14,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.utils.StringUtils;
 
 import java.util.HashMap;
 
