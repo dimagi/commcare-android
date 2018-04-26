@@ -283,7 +283,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             isCalloutAutoLaunching = this.customCallout.isAutoLaunching();
             barcodeScanOnClickListener =
                     EntitySelectCalloutSetup.makeCalloutClickListener(this, this.customCallout,
-                            evalContext(), () -> entitySelectSearchUI.getSearchText().toString());
+                            evalContext(), () -> String.valueOf(entitySelectSearchUI.getSearchText()));
         }
     }
 

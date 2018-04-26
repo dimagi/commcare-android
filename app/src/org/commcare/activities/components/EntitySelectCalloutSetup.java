@@ -97,13 +97,12 @@ public class EntitySelectCalloutSetup {
                                                                 Callout callout,
                                                                 EvaluationContext ec,
                                                                 GetSearchText searchText) {
-        final Intent i = buildCalloutIntent(callout, ec, searchText);
         return v -> {
             try {
-                activity.startActivityForResult(i, EntitySelectActivity.CALLOUT);
+                activity.startActivityForResult(buildCalloutIntent(callout, ec, searchText), EntitySelectActivity.CALLOUT);
             } catch (ActivityNotFoundException anfe) {
                 Toast.makeText(activity,
-                        Localization.get("callout.missing", new String[]{i.getAction()}),
+                        Localization.get("callout.missing", new String[]{callout.getActionName()}),
                         Toast.LENGTH_LONG).show();
             }
         };

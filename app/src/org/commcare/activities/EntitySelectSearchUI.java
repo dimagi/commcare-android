@@ -111,9 +111,15 @@ class EntitySelectSearchUI implements TextWatcher {
     @SuppressWarnings("NewApi")
     protected CharSequence getSearchText() {
         if (isUsingActionBar()) {
-            return searchView.getQuery();
+            if (searchView != null) {
+                return searchView.getQuery();
+            }
+            return null;
         } else {
-            return preHoneycombSearchBox.getText();
+            if (preHoneycombSearchBox != null) {
+                return preHoneycombSearchBox.getText();
+            }
+            return null;
         }
     }
 
