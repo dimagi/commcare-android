@@ -18,8 +18,8 @@ public class AndroidResourceInstallerFactory extends InstallerFactory {
     }
 
     @Override
-    public ResourceInstaller getXFormInstaller() {
-        return new XFormAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
+    public ResourceInstaller getXFormInstaller(boolean isUpdateInfoForm) {
+        return new XFormAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF, isUpdateInfoForm);
     }
 
     @Override

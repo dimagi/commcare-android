@@ -45,15 +45,17 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = XFormAndroidInstaller.class.getSimpleName();
 
     private String namespace;
-    private int formDefId = -1;
+    protected int formDefId = -1;
+    private boolean isUpdateInfoForm = false;
 
     @SuppressWarnings("unused")
     public XFormAndroidInstaller() {
         // for externalization
     }
 
-    public XFormAndroidInstaller(String localDestination, String upgradeDestination) {
+    public XFormAndroidInstaller(String localDestination, String upgradeDestination, boolean isUpdateInfoForm) {
         super(localDestination, upgradeDestination);
+        this.isUpdateInfoForm = isUpdateInfoForm;
     }
 
     public XFormAndroidInstaller(String localLocation, String localDestination, String upgradeDestination, String namespace, int formDefId) {
@@ -64,6 +66,10 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
+        if (isUpdateInfoForm) {
+            platform.setUpdateInfoXFormId(formDefId);
+        }
+
         platform.registerXmlns(namespace, formDefId);
         return true;
     }
@@ -167,6 +173,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         super.readExternal(in, pf);
         this.namespace = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.formDefId = ExtUtil.readInt(in);
+        this.isUpdateInfoForm = ExtUtil.readBool(in);
     }
 
     @Override
@@ -174,6 +181,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         super.writeExternal(out);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(namespace));
         ExtUtil.writeNumeric(out, formDefId);
+        ExtUtil.writeBool(out, isUpdateInfoForm);
     }
 
     @Override
