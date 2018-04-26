@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.commcare.activities.EntitySelectActivity;
+import org.commcare.activities.GetSearchText;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
@@ -23,6 +24,8 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.Map;
+
+import static org.commcare.android.javarosa.IntentCallout.INTENT_SEARCH_TEXT;
 
 public class EntitySelectCalloutSetup {
     /**
@@ -91,23 +94,26 @@ public class EntitySelectCalloutSetup {
      * associated callout extras
      */
     public static View.OnClickListener makeCalloutClickListener(final Activity activity,
-                                                                Callout callout, EvaluationContext ec) {
-        final Intent i = buildCalloutIntent(callout, ec);
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    activity.startActivityForResult(i, EntitySelectActivity.CALLOUT);
-                } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(activity,
-                            Localization.get("callout.missing", new String[]{i.getAction()}),
-                            Toast.LENGTH_LONG).show();
-                }
+                                                                Callout callout,
+                                                                EvaluationContext ec,
+                                                                GetSearchText searchText) {
+        final Intent i = buildCalloutIntent(callout, ec, searchText);
+        return v -> {
+            try {
+                activity.startActivityForResult(i, EntitySelectActivity.CALLOUT);
+            } catch (ActivityNotFoundException anfe) {
+                Toast.makeText(activity,
+                        Localization.get("callout.missing", new String[]{i.getAction()}),
+                        Toast.LENGTH_LONG).show();
             }
         };
     }
 
     public static Intent buildCalloutIntent(Callout callout, EvaluationContext ec) {
+        return buildCalloutIntent(callout, ec, null);
+    }
+
+    public static Intent buildCalloutIntent(Callout callout, EvaluationContext ec, GetSearchText searchText) {
         final CalloutData calloutData = callout.evaluate(ec);
         Intent i = new Intent(calloutData.getActionName());
         for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
@@ -115,6 +121,9 @@ public class EntitySelectCalloutSetup {
         }
         if (calloutData.getType() != null && !"".equals(calloutData.getType())) {
             i.setType(calloutData.getType());
+        }
+        if (searchText != null) {
+            i.putExtra(INTENT_SEARCH_TEXT, searchText.getSearchText());
         }
         return i;
     }

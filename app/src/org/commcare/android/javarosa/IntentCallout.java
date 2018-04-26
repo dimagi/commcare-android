@@ -68,6 +68,8 @@ public class IntentCallout implements Externalizable {
     // Bundle of extra values
     public static final String INTENT_RESULT_EXTRAS_BUNDLE = "odk_intent_bundle";
 
+    public static final String INTENT_SEARCH_TEXT = "intent_search_text";
+
     /**
      * Intent flag to identify whether this callout should be included in attempts to compound
      * similar intents
