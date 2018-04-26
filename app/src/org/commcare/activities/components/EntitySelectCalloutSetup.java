@@ -91,23 +91,21 @@ public class EntitySelectCalloutSetup {
      * associated callout extras
      */
     public static View.OnClickListener makeCalloutClickListener(final Activity activity,
-                                                                Callout callout, EvaluationContext ec) {
-        final Intent i = buildCalloutIntent(callout, ec);
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    activity.startActivityForResult(i, EntitySelectActivity.CALLOUT);
-                } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(activity,
-                            Localization.get("callout.missing", new String[]{i.getAction()}),
-                            Toast.LENGTH_LONG).show();
-                }
+                                                                Callout callout,
+                                                                EvaluationContext ec,
+                                                                GetSearchText searchText) {
+        return v -> {
+            try {
+                activity.startActivityForResult(buildCalloutIntent(callout, ec, searchText), EntitySelectActivity.CALLOUT);
+            } catch (ActivityNotFoundException anfe) {
+                Toast.makeText(activity,
+                        Localization.get("callout.missing", new String[]{callout.getActionName()}),
+                        Toast.LENGTH_LONG).show();
             }
         };
     }
 
-    public static Intent buildCalloutIntent(Callout callout, EvaluationContext ec) {
+    public static Intent buildCalloutIntent(Callout callout, EvaluationContext ec, GetSearch) {
         final CalloutData calloutData = callout.evaluate(ec);
         Intent i = new Intent(calloutData.getActionName());
         for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
