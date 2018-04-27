@@ -45,6 +45,7 @@ import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.RemoteRequestEntry;
@@ -214,6 +215,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return false;
         }
 
+        if (showUpdateInfoForm()) {
+            return true;
+        }
+
         if (tryRestoringFormFromSessionExpiration()) {
             return true;
         }
@@ -236,6 +241,20 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         checkForPinLaunchConditions();
 
+        return false;
+    }
+
+    private boolean showUpdateInfoForm() {
+        String updateInfoFormXmlns = CommCareApplication.instance().getCommCarePlatform().getUpdateInfoFormXmlns();
+        if (!StringUtils.isEmpty(updateInfoFormXmlns)) {
+            CommCareSession session = CommCareApplication.instance().getCurrentSession();
+            FormEntry formEntry = session.getEntryForNameSpace(updateInfoFormXmlns);
+            if (formEntry != null) {
+                session.setCommand(formEntry.getCommandID());
+                startNextSessionStepSafe();
+                return true;
+            }
+        }
         return false;
     }
 
@@ -719,6 +738,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 SqlStorage<FormRecord> formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
                 formRecordStorage.write(current);
                 checkAndStartUnsentFormsTask(false, false);
+                CommCareApplication.instance().getCommCarePlatform().setUpdateInfoFormXmlns(null);
                 refreshUI();
 
                 if (wasExternal) {

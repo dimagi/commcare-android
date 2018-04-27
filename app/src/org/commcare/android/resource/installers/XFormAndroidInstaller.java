@@ -67,7 +67,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
         if (isUpdateInfoForm) {
-            platform.setUpdateInfoXFormId(formDefId);
+            platform.setUpdateInfoFormXmlns(namespace);
         }
 
         platform.registerXmlns(namespace, formDefId);
