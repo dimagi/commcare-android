@@ -36,7 +36,7 @@ public class DummyResourceTable extends ResourceTable {
             }
 
             @Override
-            public ResourceInstaller getXFormInstaller(boolean isUpdateInfoForm) {
+            public ResourceInstaller getXFormInstaller() {
                 return getDummyInstaller();
             }
 
