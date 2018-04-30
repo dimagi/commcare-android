@@ -63,7 +63,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!DeveloperPreferences.isHomeReportEnabled()) {
             hiddenButtons.add("report");
         }
-        if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingMenu()) {
+        if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
 
