@@ -1,0 +1,13 @@
+app.display.name=Update Info Form 
+cchq.case=Case
+cchq.referral=Referral
+forms.m0f0=Lesson
+forms.m1f0=Survey
+homescreen.title=Update Info Form 
+lang.current=en
+m0.case_long.case_name_1.header=Name
+m0.case_short.case_name_1.header=Name
+m1.case_long.case_name_1.header=Name
+m1.case_short.case_name_1.header=Name
+modules.m0=Training
+modules.m1=Surveys

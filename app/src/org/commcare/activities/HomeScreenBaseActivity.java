@@ -244,6 +244,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return false;
     }
 
+    // Open the update info form if available
     private boolean showUpdateInfoForm() {
         String updateInfoFormXmlns = CommCareApplication.instance().getCommCarePlatform().getUpdateInfoFormXmlns();
         if (!StringUtils.isEmpty(updateInfoFormXmlns)) {
