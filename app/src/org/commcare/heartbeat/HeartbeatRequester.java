@@ -17,6 +17,7 @@ import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,6 +40,10 @@ public class HeartbeatRequester {
 
     private static final String TAG = HeartbeatRequester.class.getSimpleName();
 
+    private static final String TARGET = "target";
+    private static final String TARGET_HEARTBEAT = "standard_heartbeat";
+    private static final String TARGET_RECOVERY_MEASURES = "recovery_measures";
+
     private static final String APP_ID = "app_id";
     private static final String DEVICE_ID = "device_id";
     private static final String APP_VERSION = "app_version";
@@ -47,6 +52,12 @@ public class HeartbeatRequester {
     private static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
     private static final String LAST_SYNC_TIME_PARAM = "last_sync_time";
 
+    private boolean forRecoveryMeasures;
+
+    public HeartbeatRequester(boolean forRecoveryMeasures) {
+        this.forRecoveryMeasures = forRecoveryMeasures;
+    }
+
     private final HttpResponseProcessor responseProcessor = new HttpResponseProcessor() {
 
         @Override
@@ -54,7 +65,7 @@ public class HeartbeatRequester {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                 JSONObject jsonResponse = new JSONObject(responseAsString);
-                passResponseToUiThread(jsonResponse);
+                parseResponseOnUiThread(jsonResponse, forRecoveryMeasures);
             } catch (JSONException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "Heartbeat response was not properly-formed JSON: " + e.getMessage());
@@ -83,7 +94,7 @@ public class HeartbeatRequester {
         public void handleIOException(IOException exception) {
             if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
                 Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException while sending heartbeat request: Sending password over HTTP");
-            } else if (exception instanceof IOException) {
+            } else {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "Encountered IOException while getting response stream for heartbeat response: "
                                 + exception.getMessage());
@@ -99,19 +110,21 @@ public class HeartbeatRequester {
     protected void requestHeartbeat() {
         String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getString(ServerUrls.PREFS_HEARTBEAT_URL_KEY, null);
-        Log.i(TAG, "Requesting heartbeat from " + urlString);
+        Log.i(TAG, String.format("Requesting %s from %s",
+                forRecoveryMeasures ? "recovery measures" : "standard heartbeat", urlString));
         ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 urlString,
-                getParamsForHeartbeatRequest(),
+                getParamsForHeartbeatRequest(forRecoveryMeasures),
                 new HashMap(),
                 null,
                 responseProcessor);
         requester.makeRequestAndProcess();
     }
 
-    private static HashMap<String, String> getParamsForHeartbeatRequest() {
+    private static HashMap<String, String> getParamsForHeartbeatRequest(boolean forRecoveryMeasures) {
         HashMap<String, String> params = new HashMap<>();
+        params.put(TARGET, forRecoveryMeasures ? TARGET_RECOVERY_MEASURES : TARGET_HEARTBEAT);
         params.put(APP_ID, CommCareApplication.instance().getCurrentApp().getUniqueId());
         params.put(DEVICE_ID, CommCareApplication.instance().getPhoneId());
         params.put(APP_VERSION, "" + ReportingUtils.getAppBuildNumber());
@@ -133,17 +146,41 @@ public class HeartbeatRequester {
         }
     }
 
-    protected static void passResponseToUiThread(final JSONObject responseAsJson) {
+    private static void parseResponseOnUiThread(final JSONObject responseAsJson, final boolean forRecoveryMeasures) {
         // will run on UI thread
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                parseHeartbeatResponse(responseAsJson);
+                if (forRecoveryMeasures) {
+                    parseRecoveryMeasures(responseAsJson);
+                } else {
+                    parseStandardHeartbeatResponse(responseAsJson);
+                }
             }
         });
     }
 
-    protected static void parseHeartbeatResponse(JSONObject responseAsJson) {
+    private static void parseRecoveryMeasures(JSONObject responseAsJson) {
+        if (checkForAppIdMatch(responseAsJson)) {
+            try {
+                if (responseAsJson.has("recovery_measures")) {
+                    JSONArray recoveryMeasures = responseAsJson.getJSONArray("recovery_measures");
+                    for (int i = 0; i < recoveryMeasures.length(); i++) {
+                        JSONObject recoveryMeasure = recoveryMeasures.getJSONObject(i);
+                        parseRecoveryMeasure(recoveryMeasure);
+                    }
+                }
+            } catch (JSONException e) {
+
+            }
+        }
+    }
+
+    private static void parseRecoveryMeasure(JSONObject recoveryMeasureObject) {
+
+    }
+
+    static void parseStandardHeartbeatResponse(JSONObject responseAsJson) {
         if (checkForAppIdMatch(responseAsJson)) {
             // We only want to register this response if the current app is still the
             // same as the one that sent the request originally

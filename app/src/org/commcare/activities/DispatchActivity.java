@@ -63,7 +63,7 @@ public class DispatchActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        System.out.println("in DispatchActivity");
         if (finishIfNotRoot()) {
             return;
         }

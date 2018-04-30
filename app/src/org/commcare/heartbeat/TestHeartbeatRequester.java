@@ -18,7 +18,7 @@ public class TestHeartbeatRequester extends HeartbeatRequester {
     @Override
     protected void requestHeartbeat() {
         try {
-            parseHeartbeatResponse(new JSONObject(nextResponseStrings.remove(0)));
+            parseStandardHeartbeatResponse(new JSONObject(nextResponseStrings.remove(0)));
             responseWasParsed = true;
         } catch (JSONException e) {
             System.out.println("Test response was not properly formed JSON");
