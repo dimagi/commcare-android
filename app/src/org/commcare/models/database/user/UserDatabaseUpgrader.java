@@ -611,7 +611,7 @@ class UserDatabaseUpgrader {
             } catch (Exception e) {
                 // Failure here won't cause any problems in app operations. So fail silently.
                 e.printStackTrace();
-                Logger.exception(e);
+                Logger.exception("Error while deleting InstanceProvider entries during user db migration", e);
             }
         }
         return success;

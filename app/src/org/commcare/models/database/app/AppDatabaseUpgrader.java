@@ -241,7 +241,7 @@ class AppDatabaseUpgrader {
             } catch (Exception e) {
                 // Failure here won't cause any problems in app operations. So fail silently.
                 e.printStackTrace();
-                Logger.exception(e);
+                Logger.exception("Error while deleting FormsProvider entries during app db migration", e);
             }
         }
         return success;

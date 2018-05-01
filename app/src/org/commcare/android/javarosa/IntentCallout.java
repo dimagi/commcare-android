@@ -158,7 +158,7 @@ public class IntentCallout implements Externalizable {
                 }
             }
         }
-        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Generated Intent: " + i.toString());
+        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Generated intent for callout: " + i.toString());
         return i;
     }
 

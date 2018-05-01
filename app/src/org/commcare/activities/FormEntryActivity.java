@@ -171,7 +171,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             ODKStorage.createODKDirs();
         } catch (RuntimeException e) {
-            Logger.exception(e);
+            Logger.exception("Error creating storage directories", e);
             UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
             return;
         }
@@ -792,7 +792,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             } catch (IllegalArgumentException e) {
                 // Thrown when given receiver isn't registered.
                 // This shouldn't ever happen, but seems to come up in production
-                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, e.getMessage());
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
+                        "Tried to unregister a BroadcastReceiver that wasn't registered: " + e.getMessage());
             }
         }
 
