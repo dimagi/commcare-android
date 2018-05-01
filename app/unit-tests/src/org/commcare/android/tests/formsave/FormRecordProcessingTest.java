@@ -61,7 +61,6 @@ public class FormRecordProcessingTest {
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/form_save_regressions/profile.ccpr",
                 "test", "123");
-        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
     @Test
