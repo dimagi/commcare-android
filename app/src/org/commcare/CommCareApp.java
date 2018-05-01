@@ -39,6 +39,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.xpath.expr.FunctionUtils;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.File;
@@ -299,28 +300,61 @@ public class CommCareApp implements AppFilePathBuilder {
         return platform;
     }
 
-    public boolean hasVisibleTrainingMenu() {
+    public boolean hasVisibleTrainingContent() {
         // This is the same eval context that would be used to evaluate the relevancy conditions of
         // these menus when they're actually loaded
         EvaluationContext ec =
                 CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext(Menu.TRAINING_MENU_ROOT);
-
         for (Suite s : platform.getInstalledSuites()) {
-            List<Menu> trainingMenus = s.getMenusWithRoot(Menu.TRAINING_MENU_ROOT);
-            if (trainingMenus != null) {
-                for (Menu m : trainingMenus) {
-                    try {
-                        if (m.getMenuRelevance() == null ||
-                                FunctionUtils.toBoolean(m.getMenuRelevance().eval(ec))) {
-                            return true;
-                        }
-                    } catch (XPathSyntaxException e) {
-                        // Now is the wrong time to show the user an error about this since they
-                        // haven't actually navigated to the menu. To be safe, just assume that this
-                        // menu is visible, and then if they navigate to it they'll see the XPath error there
+            if (visibleMenusInTrainingRoot(s, ec) || visibleEntriesInTrainingRoot(s, ec)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean visibleMenusInTrainingRoot(Suite s, EvaluationContext ec) {
+        List<Menu> trainingMenus = s.getMenusWithRoot(Menu.TRAINING_MENU_ROOT);
+        if (trainingMenus != null) {
+            for (Menu m : trainingMenus) {
+                try {
+                    if (m.getMenuRelevance() == null ||
+                            FunctionUtils.toBoolean(m.getMenuRelevance().eval(ec))) {
                         return true;
                     }
+                } catch (XPathSyntaxException e) {
+                    // Now is the wrong time to show the user an error about this since they
+                    // haven't actually navigated to the menu. To be safe, just assume that this
+                    // menu is visible, and then if they navigate to it they'll see the XPath error there
+                    return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    private static boolean visibleEntriesInTrainingRoot(Suite s, EvaluationContext ec) {
+        List<Menu> trainingRoots = s.getMenusWithId(Menu.TRAINING_MENU_ROOT);
+        if (trainingRoots == null || trainingRoots.isEmpty()) {
+            return false;
+        } else if (trainingRoots.size() > 1) {
+            throw new RuntimeException("An app is allowed to contain at most 1 menu with ID " +
+                    "'training-root', but this app has more than one.");
+        }
+
+        Menu trainingRoot = trainingRoots.get(0);
+        for (String command : trainingRoot.getCommandIds()) {
+            try {
+                XPathExpression relevancyCondition =
+                        trainingRoot.getCommandRelevance(trainingRoot.indexOfCommand(command));
+                if (relevancyCondition == null || FunctionUtils.toBoolean(relevancyCondition.eval(ec))) {
+                    return true;
+                }
+            } catch (XPathSyntaxException e) {
+                // Now is the wrong time to show the user an error about this since they
+                // haven't actually navigated to the menu. To be safe, just assume that this
+                // entry is visible, and then if they navigate to it they'll see the XPath error there
+                return true;
             }
         }
         return false;
