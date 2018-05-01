@@ -313,7 +313,7 @@ public class CommCareApp implements AppFilePathBuilder {
         return false;
     }
 
-    private boolean visibleMenusInTrainingRoot(Suite s, EvaluationContext ec) {
+    private static boolean visibleMenusInTrainingRoot(Suite s, EvaluationContext ec) {
         List<Menu> trainingMenus = s.getMenusWithRoot(Menu.TRAINING_MENU_ROOT);
         if (trainingMenus != null) {
             for (Menu m : trainingMenus) {
@@ -333,7 +333,7 @@ public class CommCareApp implements AppFilePathBuilder {
         return false;
     }
 
-    private boolean visibleEntriesInTrainingRoot(Suite s, EvaluationContext ec) {
+    private static boolean visibleEntriesInTrainingRoot(Suite s, EvaluationContext ec) {
         List<Menu> trainingRoots = s.getMenusWithId(Menu.TRAINING_MENU_ROOT);
         if (trainingRoots == null || trainingRoots.isEmpty()) {
             return false;
