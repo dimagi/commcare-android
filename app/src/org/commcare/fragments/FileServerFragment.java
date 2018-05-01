@@ -107,7 +107,7 @@ public class FileServerFragment extends Fragment {
         @Override
         protected String doInBackground(Void... params) {
 
-            Logger.log(TAG, "doing in background");
+            Logger.log(TAG, "Executing FileServerAsyncTask");
             socketOccupied = false;
 
             try {

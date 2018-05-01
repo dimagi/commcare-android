@@ -248,7 +248,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             localLocation = finalLocation;
             return true;
         } catch (InvalidReferenceException e) {
-            Logger.log(LogTypes.TYPE_RESOURCES, "Very Bad! Couldn't restore a resource to destination" + finalLocation + " somehow");
+            Logger.log(LogTypes.TYPE_RESOURCES, "Very Bad! Couldn't restore a resource to destination " + finalLocation);
             return false;
         }
     }

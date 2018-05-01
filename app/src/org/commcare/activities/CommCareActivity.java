@@ -578,7 +578,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         String message = "Attempting to update a progress dialog whose taskId (" + taskId +
                 " does not match the task for which the update message was intended.";
 
-        if(invalidTaskIdMessageThrown != taskId) {
+        if (invalidTaskIdMessageThrown != taskId) {
             invalidTaskIdMessageThrown = taskId;
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION, message);
         } else {

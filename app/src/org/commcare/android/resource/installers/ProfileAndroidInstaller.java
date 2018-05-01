@@ -159,20 +159,9 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             Profile p = parser.parse();
 
             initProperties(p);
-        } catch (InvalidReferenceException e) {
+        } catch (InvalidReferenceException | IOException | InvalidStructureException |
+                UnfullfilledRequirementsException | XmlPullParserException e) {
             e.printStackTrace();
-            Logger.log(LogTypes.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
-            return false;
-        } catch (IOException e) {
-            Logger.log(LogTypes.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
-            return false;
-        } catch (InvalidStructureException e) {
-            Logger.log(LogTypes.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
-            return false;
-        } catch (UnfullfilledRequirementsException e) {
-            Logger.log(LogTypes.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
-            return false;
-        } catch (XmlPullParserException e) {
             Logger.log(LogTypes.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
             return false;
         }

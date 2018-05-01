@@ -100,7 +100,6 @@ public class FormRecordListActivityTest {
     private static void launchFormEntryForSavedForm(ShadowActivity homeActivityShadow,
                                                     Intent savedFormsIntent,
                                                     FormRecordListActivity savedFormsActivity) {
-        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
 
         ShadowActivity formRecordShadow = Shadows.shadowOf(savedFormsActivity);
         homeActivityShadow.receiveResult(savedFormsIntent,
