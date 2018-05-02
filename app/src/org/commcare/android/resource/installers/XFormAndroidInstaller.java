@@ -45,7 +45,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = XFormAndroidInstaller.class.getSimpleName();
 
     protected String namespace;
-    protected int formDefId = -1;
+    private int formDefId = -1;
 
     @SuppressWarnings("unused")
     public XFormAndroidInstaller() {
