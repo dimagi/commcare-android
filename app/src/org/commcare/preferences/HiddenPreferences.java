@@ -29,6 +29,7 @@ public class HiddenPreferences {
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
     public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
     public final static String ID_OF_INTERRUPTED_SSD = "interrupted-ssd-id";
+    private final static String LATEST_RECOVERY_MEASURE = "latest-recovery-measure-exectued";
 
     // Preferences that are only ever set by being sent down from HQ via the profile file
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
@@ -228,5 +229,16 @@ public class HiddenPreferences {
         String currentUserId = CommCareApplication.instance().getCurrentUserId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putInt(ID_OF_INTERRUPTED_SSD + currentUserId, -1).apply();
+    }
+
+    public static int getLatestRecoveryMeasureExecuted() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getInt(LATEST_RECOVERY_MEASURE, -1);
+    }
+
+    public static void setLatestRecoveryMeasureExecuted(int latestSequenceNumber) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit().putInt(LATEST_RECOVERY_MEASURE, latestSequenceNumber)
+                .apply();
     }
 }

@@ -22,6 +22,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.provider.FormsProviderAPI;
+import org.commcare.recovery.measures.RecoveryMeasure;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -51,11 +52,13 @@ class AppDatabaseUpgrader {
                 oldVersion = 2;
             }
         }
+
         if (oldVersion == 2) {
             if (upgradeTwoThree(db)) {
                 oldVersion = 3;
             }
         }
+
         if (oldVersion == 3) {
             if (upgradeThreeFour(db)) {
                 oldVersion = 4;
@@ -89,6 +92,12 @@ class AppDatabaseUpgrader {
         if (oldVersion == 8) {
             if (upgradeEightNine(db)) {
                 oldVersion = 9;
+            }
+        }
+
+        if (oldVersion == 9) {
+            if (upgradeNineTen(db)) {
+                oldVersion = 10;
             }
         }
         //NOTE: If metadata changes are made to the Resource model, they need to be
@@ -245,6 +254,17 @@ class AppDatabaseUpgrader {
             }
         }
         return success;
+    }
+
+    private boolean upgradeNineTen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(new TableBuilder(RecoveryMeasure.class).getTableCreateString());
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
     }
 
     // migrate formProvider entries to db

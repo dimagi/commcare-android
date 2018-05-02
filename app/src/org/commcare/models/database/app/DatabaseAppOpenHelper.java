@@ -14,6 +14,7 @@ import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.recovery.measures.RecoveryMeasure;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
 
@@ -34,8 +35,9 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.7 - Update serialized fixtures in db to use new schema
      * V.8 - Add fields to UserKeyRecord to support PIN auth
      * V.9 - Adds FormRecord and Instance Record tables, XFormAndroidInstaller: contentUri -> formDefId
+     * V.10 - Add RecoveryMeasure table
      */
-    private static final int DB_VERSION_APP = 9;
+    private static final int DB_VERSION_APP = 10;
 
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
 
@@ -91,6 +93,8 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             database.execSQL(indexOnTableWithPGUIDCommand("temp_upgrade_index_id", AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY));
 
             DbUtil.createNumbersTable(database);
+
+            database.execSQL(new TableBuilder(RecoveryMeasure.class).getTableCreateString());
 
             database.setTransactionSuccessful();
         } finally {

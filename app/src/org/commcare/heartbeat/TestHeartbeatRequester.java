@@ -14,9 +14,12 @@ public class TestHeartbeatRequester extends HeartbeatRequester {
     private static List<String> nextResponseStrings = new ArrayList<>();
     public static boolean responseWasParsed;
 
+    public TestHeartbeatRequester(boolean forRecoveryMeasures) {
+        super(forRecoveryMeasures);
+    }
 
     @Override
-    protected void requestHeartbeat() {
+    public void requestHeartbeat() {
         try {
             parseStandardHeartbeatResponse(new JSONObject(nextResponseStrings.remove(0)));
             responseWasParsed = true;

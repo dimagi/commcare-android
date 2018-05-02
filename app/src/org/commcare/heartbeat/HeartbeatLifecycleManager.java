@@ -29,7 +29,7 @@ public class HeartbeatLifecycleManager {
 
     public HeartbeatLifecycleManager(CommCareSessionService sessionService) {
         this.enclosingSessionService = sessionService;
-        this.requester = CommCareApplication.instance().getHeartbeatRequester();
+        this.requester = CommCareApplication.instance().getStandardHeartbeatRequester();
     }
 
     public void startHeartbeatCommunications() {

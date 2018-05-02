@@ -1048,8 +1048,8 @@ public class CommCareApplication extends MultiDexApplication {
         return DataPullResponseFactory.INSTANCE;
     }
 
-    public HeartbeatRequester getHeartbeatRequester() {
-        return new HeartbeatRequester();
+    public HeartbeatRequester getStandardHeartbeatRequester() {
+        return new HeartbeatRequester(false);
     }
 
     /**
