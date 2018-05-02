@@ -12,6 +12,7 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowEnvironment;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 @Config(application = CommCareTestApplication.class)
@@ -50,6 +52,7 @@ public class XFormUpdateInfoTest {
         String updateInfoFormXmlns = platform.getUpdateInfoFormXmlns();
         assertEquals(updateInfoFormXmlns, UPDATE_FORM_INFO_XMLNS);
 
+        HiddenPreferences.setShowXformUpdateInfo(true);
         // Start HomeActivity from Login
         Intent i = new Intent();
         i.putExtra(DispatchActivity.START_FROM_LOGIN, true);
@@ -71,8 +74,8 @@ public class XFormUpdateInfoTest {
                 shadowFormEntryActivity.getResultCode(),
                 shadowFormEntryActivity.getResultIntent());
 
-        // Verify that Update Info Form has been reset to null
-        assertTrue(CommCareApplication.instance().getCommCarePlatform().getUpdateInfoFormXmlns() == null);
+        // Check if our preference has been reset
+        assertFalse(HiddenPreferences.shouldShowXformUpdateInfo());
     }
 
     private ShadowActivity navigateFormEntry(Intent formEntryIntent) {
