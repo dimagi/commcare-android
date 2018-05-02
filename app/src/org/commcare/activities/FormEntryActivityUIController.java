@@ -364,7 +364,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                             blockingActionsManager);
             Log.i(TAG, "created view for group");
         } catch (RuntimeException e) {
-            Logger.exception(e);
+            Logger.exception("Error instantiating QuestionsView", e);
             UserfacingErrorHandling.createErrorDialog(activity, e.getMessage(), FormEntryConstants.EXIT);
             // this is badness to avoid a crash.
             // really a next view should increment the formcontroller, create the view
@@ -540,7 +540,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 try {
                     FormEntryActivity.mFormController.newRepeat();
                 } catch (XPathUnhandledException | XPathTypeMismatchException e) {
-                    Logger.exception(e);
+                    Logger.exception("Error creating new repeat", e);
                     UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
                     return;
                 }

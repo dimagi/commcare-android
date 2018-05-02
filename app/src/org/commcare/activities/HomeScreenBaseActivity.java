@@ -751,7 +751,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                         Toast.LENGTH_LONG).show();
                 Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                         "Form Entry did not return a form");
-                clearSessionAndExit(currentState, true);
+                clearSessionAndExit(currentState, false);
                 return false;
             }
         } else if (resultCode == RESULT_CANCELED) {

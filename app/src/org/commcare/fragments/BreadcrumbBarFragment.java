@@ -85,7 +85,7 @@ public class BreadcrumbBarFragment extends Fragment {
         if (context instanceof AppCompatActivity) {
             refresh((AppCompatActivity)context);
         } else {
-            Logger.log(LogTypes.SOFT_ASSERT, "Unable to attach breadcrumb bar fragment");
+            Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Unable to attach breadcrumb bar fragment");
         }
     }
 

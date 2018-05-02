@@ -132,7 +132,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
                 FileUtil.checkReferenceURI(r, menu.getImageURI(), problems);
             }
         } catch (Exception e) {
-            Logger.log("e", "suite validation failed with: " + e.getMessage());
+            Logger.log(LogTypes.TYPE_RESOURCES, "Suite validation failed with: " + e.getMessage());
             Log.d(TAG, "Suite validation failed");
             e.printStackTrace();
         }

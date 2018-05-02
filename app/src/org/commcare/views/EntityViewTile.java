@@ -26,6 +26,7 @@ import org.commcare.models.AsyncEntity;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.CachingAsyncImageLoader;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MediaUtil;
@@ -327,7 +328,7 @@ public class EntityViewTile extends GridLayout {
     private boolean coordinatesInvalid(GridCoordinate coordinate) {
         if (coordinate.getX() + coordinate.getWidth() > NUMBER_COLUMNS_PER_GRID ||
                 coordinate.getY() + coordinate.getHeight() > numRowsPerTile) {
-            Logger.log("e", "Grid entry dimensions exceed allotted sizes");
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Grid entry dimensions exceed allotted sizes");
             throw new XPathUnhandledException("grid coordinates out of bounds: " +
                     coordinate.getX() + " " + coordinate.getWidth() + ", " +
                     coordinate.getY() + " " + coordinate.getHeight());
