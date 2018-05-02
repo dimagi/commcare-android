@@ -59,11 +59,4 @@
         <location authority="remote">https://www.commcarehq.org/a/shubhamgoyaltest/apps/download/f4a191c1675b43c3b64e80494f536335/suite.xml</location>
     </resource></suite>
     
-    <suite><resource id="media-suite" version="7">
-        
-            <location authority="local">./media_suite.xml</location>
-        
-        <location authority="remote">https://www.commcarehq.org/a/shubhamgoyaltest/apps/download/f4a191c1675b43c3b64e80494f536335/media_suite.xml</location>
-    </resource></suite>
-    
 </profile>
