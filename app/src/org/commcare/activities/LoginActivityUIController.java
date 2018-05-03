@@ -1,19 +1,19 @@
 package org.commcare.activities;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
-import android.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.StateSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -25,13 +25,13 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
@@ -148,6 +148,14 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             }
         });
 
+        passwordOrPin.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                activity.initiateLoginAttempt(isRestoreSessionChecked());
+                return true;
+            }
+            return false;
+        });
+
         notificationButton.setText(Localization.get("error.button.text"));
         notificationButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -241,7 +249,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             checkEnteredUsernameForMatch();
         }
 
-        if(!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+        if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
     }
