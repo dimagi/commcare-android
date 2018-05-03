@@ -108,7 +108,7 @@ public class HomeNavDrawerController {
         int numItemsToInclude = allDrawerItems.size()
                 - (hideChangeLanguageItem ? 1 : 0)
                 - (hideSavedFormsItem ? 1 : 0);
-        boolean hideTrainingItem = !CommCareApplication.instance().getCurrentApp().hasTrainingMenu();
+        boolean hideTrainingItem = !CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent();
 
         drawerItemsShowing = new NavDrawerItem[numItemsToInclude];
         int index = 0;
