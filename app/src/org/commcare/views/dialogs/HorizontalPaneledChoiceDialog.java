@@ -1,6 +1,7 @@
 package org.commcare.views.dialogs;
 
 import android.content.Context;
+import android.view.Window;
 import android.widget.Button;
 
 import org.commcare.dalvik.R;
@@ -15,6 +16,7 @@ public class HorizontalPaneledChoiceDialog extends PaneledChoiceDialog {
 
     public HorizontalPaneledChoiceDialog(Context context, String title) {
         super(context, title);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
 
     @Override
