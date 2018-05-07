@@ -259,10 +259,10 @@
         <item name="android:paddingRight">@dimen/standard_spacer_large</item>
     </style>
 
-    <!--<style name="TextAppearance.Medium" parent="TextAppearance.AppCompat.Medium">-->
-        <!--<item name="android:textColor">@color/cc_neutral_text</item>-->
-    <!--</style>-->
-
+    <style name="NumberPickerStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorControlNormal">@color/colorAccent</item>
+        <item name="android:textSize">@dimen/abc_text_size_medium_material</item>
+    </style>
 
     <color name="login_edit_text_color">@color/cc_core_text</color>
     <color name="login_edit_text_color_error">@color/cc_attention_negative_color</color>
