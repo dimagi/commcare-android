@@ -338,7 +338,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
             throw e;
         } catch (Exception e) {
             e.printStackTrace();
-            Logger.exception(e);
+            Logger.exception("Failed to update Instance row " + getID(), e);
             throw new SQLException("Failed to update Instance row " + getID());
         }
     }
@@ -428,7 +428,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * @param currentState session to be cleared
      */
     private void raiseFormEntryError(String loggerText, AndroidSessionWrapper currentState) {
-        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, loggerText);
+        Logger.log(LogTypes.TYPE_FORM_ENTRY, loggerText);
         currentState.reset();
         throw new RuntimeException(loggerText);
     }

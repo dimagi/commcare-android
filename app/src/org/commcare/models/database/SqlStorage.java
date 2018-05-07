@@ -251,7 +251,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     private RuntimeException logAndWrap(Exception e, String message) {
         RuntimeException re = new RuntimeException(message + " while inflating type " + ctype.getName());
         re.initCause(e);
-        Logger.log(LogTypes.TYPE_ERROR_STORAGE, ForceCloseLogger.getStackTraceWithContext(re));
+        Logger.log(LogTypes.TYPE_ERROR_STORAGE,
+                "Error while inflating type " + ctype.getName() + ": " +
+                        ForceCloseLogger.getStackTraceWithContext(re));
         return re;
     }
 

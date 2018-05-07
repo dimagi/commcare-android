@@ -71,14 +71,14 @@ public class MenuAdapter extends BaseAdapter {
             } else if (cause instanceof XPathException) {
                 errorMessage = Localization.get("app.menu.display.cond.xpath.err", new String[]{message, cause.getMessage()});
                 XPathErrorLogger.INSTANCE.logErrorToCurrentApp(((XPathException)cause).getSource(), message);
-                Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, message);
+                Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered XPathException in MenuAdapter: " + message);
             }
         }
 
         @Override
         public void logError(String message) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(message);
-            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, message);
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered XPathException in MenuAdapter: " + message);
         }
     }
 
