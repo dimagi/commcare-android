@@ -11,6 +11,7 @@
         <item name="colorControlActivated">@color/colorAccent</item>
         <item name="android:textColorSecondary">@color/cc_neutral_text</item>
         <item name="android:buttonStyle">@style/commcare_button_style</item>
+        <item name="android:textAppearanceButton">@style/TextAppearance.AppCompat.Medium</item>
 
         <item name="detail_odd_row_color">@color/cc_neutral_bg</item>
         <item name="detail_even_row_color">@color/transparent</item>

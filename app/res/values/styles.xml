@@ -259,7 +259,7 @@
         <item name="android:paddingRight">@dimen/standard_spacer_large</item>
     </style>
 
-    <style name="NumberPickerStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="NumberPickerStyle">
         <item name="colorControlNormal">@color/colorAccent</item>
         <item name="android:textSize">@dimen/abc_text_size_medium_material</item>
     </style>
