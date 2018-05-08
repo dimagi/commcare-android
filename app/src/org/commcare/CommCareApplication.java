@@ -1077,6 +1077,12 @@ public class CommCareApplication extends MultiDexApplication {
         return app.noficationManager;
     }
 
+    public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
+                                                  HashMap headers, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
+                                                  @Nullable HttpResponseProcessor responseProcessor) {
+        return buildHttpRequester(context, url, params, headers, null, null, HTTPMethod.GET, usernameAndPasswordToAuthWith, responseProcessor);
+    }
+
     public ModernHttpRequester buildHttpRequester(Context context, String url, Map<String, String> params,
                                                   HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
                                                   HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
@@ -1094,9 +1100,18 @@ public class CommCareApplication extends MultiDexApplication {
                 responseProcessor);
     }
 
-    public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
-                                                  HashMap headers, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
-                                                  @Nullable HttpResponseProcessor responseProcessor) {
-        return buildHttpRequester(context, url, params, headers, null, null, HTTPMethod.GET, usernameAndPasswordToAuthWith, responseProcessor);
+    public ModernHttpRequester buildNoAuthHttpRequester(Context context, String url, Map<String, String> params, HashMap headers,
+                                                        RequestBody requestBody, List<MultipartBody.Part> parts,
+                                                        HTTPMethod method, @Nullable HttpResponseProcessor responseProcessor) {
+        return new ModernHttpRequester(new AndroidCacheDirSetup(context),
+                url,
+                params,
+                headers,
+                requestBody,
+                parts,
+                CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService(),
+                method,
+                responseProcessor);
     }
+
 }

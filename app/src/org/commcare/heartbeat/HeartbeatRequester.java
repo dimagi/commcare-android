@@ -9,6 +9,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.recovery.measures.RecoveryMeasure;
@@ -113,12 +114,14 @@ public class HeartbeatRequester {
                 .getString(ServerUrls.PREFS_HEARTBEAT_URL_KEY, null);
         Log.i(TAG, String.format("Requesting %s from %s",
                 forRecoveryMeasures ? "recovery measures" : "standard heartbeat", urlString));
-        ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
+        ModernHttpRequester requester = CommCareApplication.instance().buildNoAuthHttpRequester(
                 CommCareApplication.instance(),
                 urlString,
                 getParamsForHeartbeatRequest(forRecoveryMeasures),
                 new HashMap(),
                 null,
+                null,
+                HTTPMethod.GET,
                 responseProcessor);
         requester.makeRequestAndProcess();
     }
