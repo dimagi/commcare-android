@@ -220,7 +220,7 @@ public class FormUploadUtil {
             // If we can't parse out the failure reason then we won't quarantine this form, because
             // we won't have any clear info about what happened
             result = FormUploadResult.FAILURE;
-            Logger.exception(e);
+            Logger.exception("Form processing failed", e);
             e.printStackTrace();
         }
         return result;
@@ -233,8 +233,11 @@ public class FormUploadUtil {
         if (!(responseCode >= 200 && responseCode < 300)) {
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, responseCodeMessage);
             Logger.log(LogTypes.TYPE_FORM_SUBMISSION, responseCodeMessage);
-            Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
-                    "Response string to failed form submission attempt was: " + responseString);
+            if (!responseString.startsWith("<html>")) {
+                // Only log this if it's going to be useful
+                Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
+                        "Response string to failed form submission attempt was: " + responseString);
+            }
         }
     }
 

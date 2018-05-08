@@ -5,32 +5,13 @@ import android.provider.BaseColumns;
 
 import org.commcare.dalvik.BuildConfig;
 
+// Merged in FormRecord in CommCare 2.44, only used for DB Migration now
 public final class InstanceProviderAPI {
     public static final String AUTHORITY = BuildConfig.ODK_AUTHORITY + ".instances";
 
     // This class cannot be instantiated
     private InstanceProviderAPI() {
     }
-
-    // status for instances
-    public static final String STATUS_INCOMPLETE = "incomplete";
-    public static final String STATUS_COMPLETE = "complete";
-    public static final String STATUS_SUBMITTED = "submitted";
-    public static final String STATUS_SUBMISSION_FAILED = "submissionFailed";
-
-    /**
-     * Used to signal an instance insertion shouldn't be attached to the
-     * session's form record, but rather create a new record to register with.
-     */
-    public static final String UNINDEXED_SUBMISSION = "unindexedSubmission";
-
-    /**
-     * If a user sandbox needs to be migrated, instances will be moved by
-     * inserting them into the new sandbox and updating existing form records
-     * to point to the newly inserted data.
-     */
-    public static final String SANDBOX_MIGRATION_SUBMISSION =
-            "sandboxMigrationSubmission";
 
     public static final class InstanceColumns implements BaseColumns {
         // This class cannot be instantiated

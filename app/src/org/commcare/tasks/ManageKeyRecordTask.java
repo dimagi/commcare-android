@@ -13,7 +13,6 @@ import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.HttpCalloutTask;
 import org.commcare.preferences.ServerUrls;
@@ -145,7 +144,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     @Override
     protected void deliverError(R receiver, Exception e) {
-        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Error executing task in background: " + e.getMessage());
+        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Error executing ManageKeyRecordTask: " + e.getMessage());
         keysDoneOther(receiver, HttpCalloutOutcomes.UnknownError);
     }
 
@@ -156,7 +155,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     protected void keysLoginComplete(R receiver) {
         if (triggerMultipleUserWarning) {
-            Logger.log(LogTypes.SOFT_ASSERT,
+            Logger.log(LogTypes.TYPE_USER,
                     "Warning a user upon login that they already have another " +
                             "sandbox whose data will not transition over");
             // We've successfully pulled down new user data. Should see if the user
@@ -172,35 +171,35 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     protected void keysDoneOther(R receiver, HttpCalloutOutcomes outcome) {
         switch (outcome) {
             case AuthFailed:
-                Logger.log(LogTypes.TYPE_USER, "auth failed");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|auth failed");
                 receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                 break;
             case BadResponse:
-                Logger.log(LogTypes.TYPE_USER, "bad response");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|bad response");
                 receiver.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
                 break;
             case NetworkFailure:
-                Logger.log(LogTypes.TYPE_USER, "bad network");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|bad network");
                 receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, false);
                 break;
             case NetworkFailureBadPassword:
-                Logger.log(LogTypes.TYPE_USER, "bad network");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|bad network");
                 receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork_BadPass, true);
                 break;
             case BadCertificate:
-                Logger.log(LogTypes.TYPE_USER, "bad certificate");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|bad certificate");
                 receiver.raiseLoginMessage(StockMessages.BadSSLCertificate, false);
                 break;
             case UnknownError:
-                Logger.log(LogTypes.TYPE_USER, "unknown");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|unknown error");
                 receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                 break;
             case IncorrectPin:
-                Logger.log(LogTypes.TYPE_USER, "incorrect pin");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|incorrect pin");
                 receiver.raiseLoginMessage(StockMessages.Auth_InvalidPin, true);
                 break;
             case AuthOverHttp:
-                Logger.log(LogTypes.TYPE_USER, "auth over http");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|auth over http");
                 receiver.raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
                 break;
             default:
@@ -474,7 +473,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             if (current.getType() == UserKeyRecord.TYPE_NEW) {
                 return processNewUserKeyRecord(current);
             } else if (current.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-                return processLegacyUserKeyRecord(current);
+                return false;
             }
         }
         return true;
@@ -491,31 +490,13 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             // Make sure we didn't somehow not get a new sandbox
             if (current == null) {
                 Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                        "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
+                        "Somehow we both failed to migrate an old DB and also didn't have an old db");
                 return false;
             }
 
             // Otherwise we're now keyed up with the old DB and we should be fine to log in
         }
         return true;
-    }
-
-    private boolean processLegacyUserKeyRecord(UserKeyRecord current) {
-        // Transition the legacy storage to the new format. We don't have a new record,
-        // so don't worry
-        try {
-            this.publishProgress(Localization.get("key.manage.legacy.begin"));
-            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication.instance().getCurrentApp(), current.unWrapKey(password), current);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Ugh, high level trap catch
-            // Problem during migration! We should try again? Maybe?
-            // Or just leave the old one?
-            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
-            // For now, fail.
-            return false;
-        }
     }
 
     private void setupLoggedInUser() {
@@ -585,31 +566,19 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     private boolean migrate(UserKeyRecord oldSandboxToMigrate, UserKeyRecord newRecord) {
         byte[] oldKey = oldSandboxToMigrate.unWrapKey(password);
 
-        migrateLegacySandbox(oldSandboxToMigrate, oldKey);
-
         try {
             //Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
             UserSandboxUtils.migrateData(getContext(), app, oldSandboxToMigrate, oldKey, newRecord,
                     ByteEncrypter.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
             publishProgress(Localization.get("key.manage.migrate"));
         } catch (IOException ioe) {
-            Logger.exception(ioe);
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
+            Logger.exception("IO Error while migrating database", ioe);
             return false;
         } catch (Exception e) {
-            Logger.exception(e);
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
+            Logger.exception("Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e), e);
             return false;
         }
         return true;
-    }
-
-    private void migrateLegacySandbox(UserKeyRecord oldSandboxToMigrate, byte[] oldKey) {
-        if (oldSandboxToMigrate.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-            //transition the old storage into the new format before we copy the DB over.
-            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication.instance().getCurrentApp(), oldKey, oldSandboxToMigrate);
-            publishProgress(Localization.get("key.manage.legacy.begin"));
-        }
     }
 
     @Override

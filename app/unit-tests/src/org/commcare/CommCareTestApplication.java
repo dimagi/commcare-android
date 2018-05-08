@@ -40,7 +40,6 @@ import org.robolectric.util.ServiceController;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -129,7 +128,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     private static void initFactoryClassList() {
         if (factoryClassNames.isEmpty()) {
             String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
-            String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/main/";
+            String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/java/main/";
             addExternalizableClassesFromDir(baseODK.replace("/", File.separator), factoryClassNames);
             addExternalizableClassesFromDir(baseCC.replace("/", File.separator), factoryClassNames);
         }

@@ -413,15 +413,13 @@ public class CommCareSessionService extends Service {
                 return;
             }
 
-            key = null;
-            String msg = "Logging out service login";
-
             // Let anyone who is listening know!
             Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
             this.sendBroadcast(i);
 
-            Logger.log(LogTypes.TYPE_MAINTENANCE, msg);
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Logging out service login");
 
+            key = null;
             user = null;
 
             if (userDatabase != null) {

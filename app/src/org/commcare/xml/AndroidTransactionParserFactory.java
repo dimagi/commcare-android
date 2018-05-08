@@ -101,7 +101,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
             public TransactionParser getParser(KXmlParser parser) {
                 if (created == null) {
                     //TODO: We really don't wanna keep using fsPath eventually
-                    created = new FormInstanceXmlParser(parser, context,
+                    created = new FormInstanceXmlParser(parser,
                             Collections.unmodifiableMap(formInstanceNamespaces),
                             CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
                 }

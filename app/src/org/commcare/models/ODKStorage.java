@@ -8,7 +8,7 @@ public class ODKStorage {
     // Storage paths
     public static final String ODK_ROOT = Environment.getExternalStorageDirectory() + "/odk";
     public static final String FORMS_PATH = ODK_ROOT + "/forms";
-    public static final String INSTANCES_PATH = ODK_ROOT + "/instances";
+    public static final String FORM_RECORD_PATH = ODK_ROOT + "/instances";
     public static final String CACHE_PATH = ODK_ROOT + "/.cache";
     public static final String METADATA_PATH = ODK_ROOT + "/metadata";
 
@@ -31,7 +31,7 @@ public class ODKStorage {
         }
 
         String[] dirs = {
-                ODK_ROOT, FORMS_PATH, INSTANCES_PATH, CACHE_PATH, METADATA_PATH
+                ODK_ROOT, FORMS_PATH, FORM_RECORD_PATH, CACHE_PATH, METADATA_PATH
         };
 
         for (String dirName : dirs) {

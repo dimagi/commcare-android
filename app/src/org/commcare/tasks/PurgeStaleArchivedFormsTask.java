@@ -84,7 +84,7 @@ public class PurgeStaleArchivedFormsTask
         Vector<Integer> toPurge = getSavedFormsToPurge(lastValidDate);
 
         for (int recordId : toPurge) {
-            FormRecordCleanupTask.wipeRecord(CommCareApplication.instance(), recordId);
+            FormRecordCleanupTask.wipeRecord(recordId);
         }
     }
 
@@ -102,7 +102,7 @@ public class PurgeStaleArchivedFormsTask
             daysForReview = Integer.parseInt(daysToPurge);
         } catch (NumberFormatException nfe) {
             Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
-                    "Invalid days to purge: " + daysToPurge);
+                    "Invalid value obtained for days to purge: " + daysToPurge);
         }
         return daysForReview;
     }

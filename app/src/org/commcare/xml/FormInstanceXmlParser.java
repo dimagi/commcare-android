@@ -1,16 +1,12 @@
 package org.commcare.xml;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
 
 import org.commcare.CommCareApplication;
-import org.commcare.data.xml.TransactionParser;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.provider.InstanceProviderAPI;
-import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.data.xml.TransactionParser;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.utils.FileUtil;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
@@ -28,6 +24,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
 import javax.crypto.Cipher;
@@ -40,8 +37,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
-    private final Context c;
-    private IStorageUtilityIndexed<FormRecord> storage;
+    private SqlStorage<FormRecord> storage;
 
     /**
      * An unmodifiable mapping from an installed form's namespace its install
@@ -56,11 +52,10 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
      */
     private final String rootInstanceDir;
 
-    public FormInstanceXmlParser(KXmlParser parser, Context c,
+    public FormInstanceXmlParser(KXmlParser parser,
                                  Map<String, String> namespaceToInstallPath,
                                  String destination) {
         super(parser);
-        this.c = c;
         this.namespaceToInstallPath = namespaceToInstallPath;
         this.rootInstanceDir = destination;
     }
@@ -82,35 +77,22 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         document.addChild(Node.ELEMENT, element);
 
         KXmlSerializer serializer = new KXmlSerializer();
+        SqlStorage<FormRecord> formRecordStorage = cachedStorage();
+
+        FormRecord formRecord = new FormRecord(FormRecord.STATUS_UNINDEXED,
+                xmlns,
+                CommCareApplication.instance().createNewSymmetricKey().getEncoded(),
+                null,
+                new Date(0),
+                CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId());
+
+
+        formRecord.setDisplayName("Historical Form");
+        formRecord.setCanEditWhenComplete(Boolean.toString(false));
 
         String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
-
-        //Register this instance for inspection
-        ContentValues values = new ContentValues();
-        values.put(InstanceColumns.DISPLAY_NAME, "Historical Form");
-        values.put(InstanceColumns.SUBMISSION_URI, "");
-        values.put(InstanceColumns.INSTANCE_FILE_PATH, filePath);
-        values.put(InstanceColumns.JR_FORM_ID, xmlns);
-        values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_COMPLETE);
-        values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, false);
-
-        // Unindexed flag tells content provider to link this instance to a
-        // new, unindexed form record that isn't attached to the
-        // AndroidSessionWrapper
-        values.put(InstanceProviderAPI.UNINDEXED_SUBMISSION, true);
-
-        Uri instanceRecord =
-                c.getContentResolver().insert(InstanceColumns.CONTENT_URI, values);
-
-        // Find the form record attached to the form instance during insertion
-        IStorageUtilityIndexed<FormRecord> storage = cachedStorage();
-        FormRecord attachedRecord =
-                storage.getRecordForValue(FormRecord.META_INSTANCE_URI,
-                        instanceRecord.toString());
-
-        if (attachedRecord == null) {
-            throw new RuntimeException("No FormRecord was attached to the inserted form instance");
-        }
+        formRecord.setFilePath(filePath);
+        formRecordStorage.write(formRecord);
 
         OutputStream o = new FileOutputStream(filePath);
         BufferedOutputStream bos = null;
@@ -118,7 +100,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         try {
             Cipher encrypter = Cipher.getInstance("AES");
 
-            SecretKeySpec key = new SecretKeySpec(attachedRecord.getAesKey(), "AES");
+            SecretKeySpec key = new SecretKeySpec(formRecord.getAesKey(), "AES");
             encrypter.init(Cipher.ENCRYPT_MODE, key);
             CipherOutputStream cos = new CipherOutputStream(o, encrypter);
             bos = new BufferedOutputStream(cos, 1024 * 256);
@@ -128,7 +110,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             document.write(serializer);
         } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException e) {
             // writing the form instance to xml failed, so remove the record
-            storage.remove(attachedRecord);
+            storage.remove(formRecord);
             throw new RuntimeException(e.getMessage());
         } finally {
             //since bos might not have even been created.
@@ -138,10 +120,10 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
                 o.close();
             }
         }
-        return attachedRecord;
+        return formRecord;
     }
 
-    private IStorageUtilityIndexed<FormRecord> cachedStorage() {
+    private SqlStorage<FormRecord> cachedStorage() {
         if (storage == null) {
             storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         }

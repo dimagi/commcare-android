@@ -6,6 +6,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
@@ -32,8 +33,9 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.6 - Added temporary upgrade table for ease of checking for new updates
      * V.7 - Update serialized fixtures in db to use new schema
      * V.8 - Add fields to UserKeyRecord to support PIN auth
+     * V.9 - Adds FormRecord and Instance Record tables, XFormAndroidInstaller: contentUri -> formDefId
      */
-    private static final int DB_VERSION_APP = 8;
+    private static final int DB_VERSION_APP = 9;
 
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
 
@@ -78,6 +80,9 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             DbUtil.createOrphanedFileTable(database);
 
             builder = new TableBuilder(UserKeyRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(FormDefRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             database.execSQL(indexOnTableWithPGUIDCommand("global_index_id", "GLOBAL_RESOURCE_TABLE"));

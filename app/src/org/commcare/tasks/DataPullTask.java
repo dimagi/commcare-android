@@ -7,6 +7,7 @@ import android.support.v4.util.Pair;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
@@ -285,7 +286,7 @@ public abstract class DataPullTask<R>
 
         int responseCode = pullResponse.responseCode;
         Logger.log(LogTypes.TYPE_USER,
-                "Request opened. Response code: " + responseCode);
+                "Data pull request opened. Response code: " + responseCode);
 
         if (responseCode == 401) {
             return handleAuthFailed();
@@ -328,7 +329,6 @@ public abstract class DataPullTask<R>
     /**
      * @return the proper result, or null if we have not yet been able to determine the result to
      * return
-     * @throws IOException
      */
     private ResultAndError<PullTaskResult> handleSuccessResponseCode(
             RemoteDataPullResponse pullResponse, AndroidTransactionParserFactory factory)
@@ -380,7 +380,7 @@ public abstract class DataPullTask<R>
         } catch (IllegalStateException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                    "User sync failed oddly, ISE |" + e.getMessage());
+                    "User sync failed oddly, IllegalStateException |" + e.getMessage());
             throw new UnknownSyncError();
         } catch (RecordTooLargeException e) {
             wipeLoginIfItOccurred();
@@ -444,7 +444,7 @@ public abstract class DataPullTask<R>
 
     private ResultAndError<PullTaskResult> handleServerError() {
         wipeLoginIfItOccurred();
-        Logger.log(LogTypes.TYPE_USER, "500 Server Error|" + username);
+        Logger.log(LogTypes.TYPE_USER, "500 Server Error during data pull|" + username);
         return new ResultAndError<>(PullTaskResult.SERVER_ERROR);
     }
 
@@ -552,7 +552,7 @@ public abstract class DataPullTask<R>
             cache.release();
         }
     }
-    
+
     private void wipeStorageForFourTwelveSync(SQLiteDatabase userDb) {
         SqlStorage.wipeTableWithoutCommit(userDb, ACase.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, Ledger.STORAGE_KEY);
@@ -580,7 +580,7 @@ public abstract class DataPullTask<R>
     private void initParsers(AndroidTransactionParserFactory factory) {
         factory.initCaseParser();
         factory.initStockParser();
-        Hashtable<String, String> formNamespaces = FormSaveUtil.getNamespaceToFilePathMap(context);
+        Hashtable<String, String> formNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance().getAppStorage(FormDefRecord.class));
         factory.initFormInstanceParser(formNamespaces);
     }
 

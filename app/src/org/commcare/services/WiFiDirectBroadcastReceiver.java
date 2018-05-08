@@ -11,6 +11,7 @@ import android.os.Build;
 import android.util.Log;
 
 import org.commcare.fragments.WiFiDirectManagementFragment;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -41,7 +42,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         Log.d(TAG, "in on receive ");
         String action = intent.getAction();
 
-        Logger.log(TAG, "onReceive of BroadCastReceiver with action: " + action);
+        Logger.log(LogTypes.TYPE_WIFI_DIRECT, "onReceive of WifiDirectBroadCastReceiver with action: " + action);
 
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
 
