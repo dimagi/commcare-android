@@ -36,6 +36,8 @@ import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.AuthInfo;
+import org.commcare.core.network.CommCareNetworkService;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
@@ -1049,7 +1051,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     public HeartbeatRequester getStandardHeartbeatRequester() {
-        return new HeartbeatRequester(false);
+        return new HeartbeatRequester();
     }
 
     /**
@@ -1078,38 +1080,37 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
-                                                  HashMap headers, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
+                                                  HashMap headers, AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor) {
-        return buildHttpRequester(context, url, params, headers, null, null, HTTPMethod.GET, usernameAndPasswordToAuthWith, responseProcessor);
+        return buildHttpRequester(
+                context, url, params, headers, null, null, HTTPMethod.GET,
+                authInfo, responseProcessor);
     }
 
-    public ModernHttpRequester buildHttpRequester(Context context, String url, Map<String, String> params,
-                                                  HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
-                                                  HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
+    public ModernHttpRequester buildHttpRequester(Context context, String url,
+                                                  Map<String, String> params,
+                                                  HashMap headers, RequestBody requestBody,
+                                                  List<MultipartBody.Part> parts,
+                                                  HTTPMethod method,
+                                                  AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor) {
+
+        CommCareNetworkService networkService;
+        if (authInfo instanceof AuthInfo.NoAuth) {
+            networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
+        } else {
+            networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
+                    HttpUtils.getCredential(authInfo),
+                    DeveloperPreferences.isEnforceSecureEndpointEnabled());
+        }
+
         return new ModernHttpRequester(new AndroidCacheDirSetup(context),
                 url,
                 params,
                 headers,
                 requestBody,
                 parts,
-                CommCareNetworkServiceGenerator.createCommCareNetworkService(
-                        HttpUtils.getCredential(usernameAndPasswordToAuthWith),
-                        DeveloperPreferences.isEnforceSecureEndpointEnabled()),
-                method,
-                responseProcessor);
-    }
-
-    public ModernHttpRequester buildNoAuthHttpRequester(Context context, String url, Map<String, String> params, HashMap headers,
-                                                        RequestBody requestBody, List<MultipartBody.Part> parts,
-                                                        HTTPMethod method, @Nullable HttpResponseProcessor responseProcessor) {
-        return new ModernHttpRequester(new AndroidCacheDirSetup(context),
-                url,
-                params,
-                headers,
-                requestBody,
-                parts,
-                CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService(),
+                networkService,
                 method,
                 responseProcessor);
     }

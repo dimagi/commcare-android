@@ -22,7 +22,7 @@ public class RecoveryMeasuresManager {
             // make limited request for those recovery measures that are possible to get with no seated app
         }
 
-        (new HeartbeatRequester(true)).requestHeartbeat();
+        (new RecoveryMeasuresRequester()).makeRequest();
     }
 
     public static void sendBroadcast() {

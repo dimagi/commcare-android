@@ -9,6 +9,7 @@ import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
@@ -224,7 +225,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     public HeartbeatRequester getStandardHeartbeatRequester() {
-        return new TestHeartbeatRequester(false);
+        return new TestHeartbeatRequester();
     }
 
     @Override
@@ -252,16 +253,14 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     @Override
     public ModernHttpRequester buildHttpRequester(Context context, String url, Map<String, String> params,
                                                   HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
-                                                  HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith, HttpResponseProcessor responseProcessor) {
+                                                  HTTPMethod method, AuthInfo authInfo, HttpResponseProcessor responseProcessor) {
         return new ModernHttpRequesterMock(new AndroidCacheDirSetup(context),
                 url,
                 params,
                 headers,
                 requestBody,
                 parts,
-                CommCareNetworkServiceGenerator.createCommCareNetworkService(
-                        HttpUtils.getCredential(usernameAndPasswordToAuthWith),
-                        DeveloperPreferences.isEnforceSecureEndpointEnabled()),
+                null,
                 method,
                 responseProcessor);
     }

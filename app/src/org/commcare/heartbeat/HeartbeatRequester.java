@@ -8,9 +8,11 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.network.RequestAndParseActor;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.recovery.measures.RecoveryMeasure;
 import org.commcare.recovery.measures.RecoveryMeasuresManager;
@@ -39,13 +41,10 @@ import java.util.TimeZone;
  *
  * Created by amstone326 on 5/5/17.
  */
-public class HeartbeatRequester {
+public class HeartbeatRequester extends RequestAndParseActor {
 
+    private static final String NAME = "heartbeat";
     private static final String TAG = HeartbeatRequester.class.getSimpleName();
-
-    private static final String TARGET = "target";
-    private static final String TARGET_HEARTBEAT = "standard_heartbeat";
-    private static final String TARGET_RECOVERY_MEASURES = "recovery_measures";
 
     private static final String APP_ID = "app_id";
     private static final String DEVICE_ID = "device_id";
@@ -55,81 +54,19 @@ public class HeartbeatRequester {
     private static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
     private static final String LAST_SYNC_TIME_PARAM = "last_sync_time";
 
-    private boolean forRecoveryMeasures;
-
-    public HeartbeatRequester(boolean forRecoveryMeasures) {
-        this.forRecoveryMeasures = forRecoveryMeasures;
+    public HeartbeatRequester() {
+        super(NAME, TAG);
     }
 
-    private final HttpResponseProcessor responseProcessor = new HttpResponseProcessor() {
-
-        @Override
-        public void processSuccess(int responseCode, InputStream responseData) {
-            try {
-                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                JSONObject jsonResponse = new JSONObject(responseAsString);
-                parseResponseOnUiThread(jsonResponse, forRecoveryMeasures);
-            } catch (JSONException e) {
-                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        "Heartbeat response was not properly-formed JSON: " + e.getMessage());
-            } catch (IOException e) {
-                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        "IO error while processing heartbeat response: " + e.getMessage());
-            }
-        }
-
-        @Override
-        public void processClientError(int responseCode) {
-            processErrorResponse(responseCode);
-        }
-
-        @Override
-        public void processServerError(int responseCode) {
-            processErrorResponse(responseCode);
-        }
-
-        @Override
-        public void processOther(int responseCode) {
-            processErrorResponse(responseCode);
-        }
-
-        @Override
-        public void handleIOException(IOException exception) {
-            if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
-                Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException while sending heartbeat request: Sending password over HTTP");
-            } else {
-                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        "Encountered IOException while getting response stream for heartbeat response: "
-                                + exception.getMessage());
-            }
-        }
-
-        private void processErrorResponse(int responseCode) {
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Received error response from heartbeat request: " + responseCode);
-        }
-    };
-
-    public void requestHeartbeat() {
-        String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
+    @Override
+    public String getUrl() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getString(ServerUrls.PREFS_HEARTBEAT_URL_KEY, null);
-        Log.i(TAG, String.format("Requesting %s from %s",
-                forRecoveryMeasures ? "recovery measures" : "standard heartbeat", urlString));
-        ModernHttpRequester requester = CommCareApplication.instance().buildNoAuthHttpRequester(
-                CommCareApplication.instance(),
-                urlString,
-                getParamsForHeartbeatRequest(forRecoveryMeasures),
-                new HashMap(),
-                null,
-                null,
-                HTTPMethod.GET,
-                responseProcessor);
-        requester.makeRequestAndProcess();
     }
 
-    private static HashMap<String, String> getParamsForHeartbeatRequest(boolean forRecoveryMeasures) {
+    @Override
+    public HashMap<String, String> getRequestParams() {
         HashMap<String, String> params = new HashMap<>();
-        params.put(TARGET, forRecoveryMeasures ? TARGET_RECOVERY_MEASURES : TARGET_HEARTBEAT);
         params.put(APP_ID, CommCareApplication.instance().getCurrentApp().getUniqueId());
         params.put(DEVICE_ID, CommCareApplication.instance().getPhoneId());
         params.put(APP_VERSION, "" + ReportingUtils.getAppBuildNumber());
@@ -138,6 +75,11 @@ public class HeartbeatRequester {
         params.put(UNSENT_FORMS_PARAM, "" + StorageUtils.getNumUnsentForms());
         params.put(LAST_SYNC_TIME_PARAM, getISO8601FormattedLastSyncTime());
         return params;
+    }
+
+    @Override
+    public AuthInfo getAuth() {
+        return new AuthInfo.CurrentAuth();
     }
 
     private static String getISO8601FormattedLastSyncTime() {
@@ -151,68 +93,8 @@ public class HeartbeatRequester {
         }
     }
 
-    private static void parseResponseOnUiThread(final JSONObject responseAsJson, final boolean forRecoveryMeasures) {
-        // will run on UI thread
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if (forRecoveryMeasures) {
-                    parseRecoveryMeasures(responseAsJson);
-                } else {
-                    parseStandardHeartbeatResponse(responseAsJson);
-                }
-            }
-        });
-    }
-
-    private static void parseRecoveryMeasures(JSONObject responseAsJson) {
-        if (checkForAppIdMatch(responseAsJson)) {
-            try {
-                if (responseAsJson.has("recovery_measures")) {
-                    boolean recoveryMeasuresStored = false;
-                    JSONArray recoveryMeasures = responseAsJson.getJSONArray("recovery_measures");
-                    for (int i = 0; i < recoveryMeasures.length(); i++) {
-                        JSONObject recoveryMeasure = recoveryMeasures.getJSONObject(i);
-                        recoveryMeasuresStored = parseRecoveryMeasure(recoveryMeasure) || recoveryMeasuresStored;
-                    }
-                    if (recoveryMeasuresStored) {
-                        RecoveryMeasuresManager.sendBroadcast();
-                    }
-                }
-            } catch (JSONException e) {
-                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        "recovery_measures array in heartbeat response not properly formatted: " + e.getMessage());
-            }
-        }
-    }
-
-    private static boolean parseRecoveryMeasure(JSONObject recoveryMeasureObject) {
-        try {
-            int sequenceNumber = Integer.parseInt(recoveryMeasureObject.getString("sequence_number"));
-            String type = recoveryMeasureObject.getString("type");
-            String ccVersionMin = recoveryMeasureObject.getString("cc_version_min");
-            String ccVersionMax = recoveryMeasureObject.getString("cc_version_max");
-            int appVersionMin = Integer.parseInt(recoveryMeasureObject.getString("app_version_min"));
-            int appVersionMax = Integer.parseInt(recoveryMeasureObject.getString("app_version_max"));
-            RecoveryMeasure measure = new RecoveryMeasure(type, sequenceNumber, ccVersionMin,
-                    ccVersionMax, appVersionMin, appVersionMax);
-            if (measure.applicableToCurrentInstallation()) {
-                measure.registerWithSystem();
-                return true;
-            }
-        } catch (JSONException e) {
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Recovery measure object in heartbeat response not properly formatted: " +
-                            e.getMessage());
-        } catch (NumberFormatException e) {
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Sequence number or app version in recovery measure response was " +
-                            "not a valid number: " + e.getMessage());
-        }
-        return false;
-    }
-
-    static void parseStandardHeartbeatResponse(JSONObject responseAsJson) {
+    @Override
+    public void parseResponse(JSONObject responseAsJson) {
         if (checkForAppIdMatch(responseAsJson)) {
             // We only want to register this response if the current app is still the
             // same as the one that sent the request originally
