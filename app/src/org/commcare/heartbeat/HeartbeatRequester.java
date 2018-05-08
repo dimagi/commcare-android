@@ -13,6 +13,7 @@ import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.recovery.measures.RecoveryMeasure;
+import org.commcare.recovery.measures.RecoveryMeasuresManager;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
@@ -168,36 +169,47 @@ public class HeartbeatRequester {
         if (checkForAppIdMatch(responseAsJson)) {
             try {
                 if (responseAsJson.has("recovery_measures")) {
+                    boolean recoveryMeasuresStored = false;
                     JSONArray recoveryMeasures = responseAsJson.getJSONArray("recovery_measures");
                     for (int i = 0; i < recoveryMeasures.length(); i++) {
                         JSONObject recoveryMeasure = recoveryMeasures.getJSONObject(i);
-                        parseRecoveryMeasure(recoveryMeasure);
+                        recoveryMeasuresStored = parseRecoveryMeasure(recoveryMeasure) || recoveryMeasuresStored;
+                    }
+                    if (recoveryMeasuresStored) {
+                        RecoveryMeasuresManager.sendBroadcast();
                     }
                 }
             } catch (JSONException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        "Recovery measures in heartbeat response not properly formatted: " + e.getMessage());
-            } catch (NumberFormatException e) {
-                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        "Sequence number or app version in recovery measure response was " +
-                                "not a valid number: " + e.getMessage());
+                        "recovery_measures array in heartbeat response not properly formatted: " + e.getMessage());
             }
         }
     }
 
-    private static void parseRecoveryMeasure(JSONObject recoveryMeasureObject)
-            throws JSONException, NumberFormatException {
-        int sequenceNumber = Integer.parseInt(recoveryMeasureObject.getString("sequence_number"));
-        String type = recoveryMeasureObject.getString("type");
-        String ccVersionMin = recoveryMeasureObject.getString("cc_version_min");
-        String ccVersionMax = recoveryMeasureObject.getString("cc_version_max");
-        int appVersionMin = Integer.parseInt(recoveryMeasureObject.getString("app_version_min"));
-        int appVersionMax = Integer.parseInt(recoveryMeasureObject.getString("app_version_max"));
-        RecoveryMeasure measure = new RecoveryMeasure(type, sequenceNumber, ccVersionMin,
-                ccVersionMax, appVersionMin, appVersionMax);
-        if (measure.applicableToCurrentInstallation()) {
-            measure.registerWithSystem();
+    private static boolean parseRecoveryMeasure(JSONObject recoveryMeasureObject) {
+        try {
+            int sequenceNumber = Integer.parseInt(recoveryMeasureObject.getString("sequence_number"));
+            String type = recoveryMeasureObject.getString("type");
+            String ccVersionMin = recoveryMeasureObject.getString("cc_version_min");
+            String ccVersionMax = recoveryMeasureObject.getString("cc_version_max");
+            int appVersionMin = Integer.parseInt(recoveryMeasureObject.getString("app_version_min"));
+            int appVersionMax = Integer.parseInt(recoveryMeasureObject.getString("app_version_max"));
+            RecoveryMeasure measure = new RecoveryMeasure(type, sequenceNumber, ccVersionMin,
+                    ccVersionMax, appVersionMin, appVersionMax);
+            if (measure.applicableToCurrentInstallation()) {
+                measure.registerWithSystem();
+                return true;
+            }
+        } catch (JSONException e) {
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
+                    "Recovery measure object in heartbeat response not properly formatted: " +
+                            e.getMessage());
+        } catch (NumberFormatException e) {
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
+                    "Sequence number or app version in recovery measure response was " +
+                            "not a valid number: " + e.getMessage());
         }
+        return false;
     }
 
     static void parseStandardHeartbeatResponse(JSONObject responseAsJson) {

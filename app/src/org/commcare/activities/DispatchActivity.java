@@ -14,6 +14,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.recovery.measures.RecoveryMeasuresManager;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.LifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
@@ -124,6 +125,9 @@ public class DispatchActivity extends FragmentActivity {
             // appropriate error dialog has been triggered, don't continue w/ dispatch
             return;
         }
+
+        // There may or may not be a seated app when this is called, we have to handle both
+        RecoveryMeasuresManager.requestRecoveryMeasures();
 
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
 

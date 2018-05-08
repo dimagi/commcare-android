@@ -341,6 +341,13 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="org.commcare.recovery.measures.RecoveryMeasuresFoundReceiver">
+            <intent-filter>
+                <action android:name="org.commcare.dalvik.api.action.RecoveryMeasuresFound"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
+
         <receiver android:name="org.commcare.provider.DebugControlsReceiver">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.SessionCaptureAction"/>
