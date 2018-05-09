@@ -833,3 +833,5 @@ quarantine.reason.record.error=There was an issue with the form record that prev
 quarantine.reason.manual=The form was manually quarantined by a user
 quarantine.reason.fnf=The file backing the form submission could not be found
 quarantine.reason.unknown=Reason for quarantine unknown
+
+markdown.file.inaccessible=File at ${0} inaccessible to CommCare, please move into CommCare's app data folder

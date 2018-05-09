@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -581,6 +582,9 @@ public class FileUtil {
     }
 
     public static Uri getUriForExternalFile(Context context, String file) {
+        if (file.startsWith("file://")) {
+            file = file.substring("file://".length());
+        }
         return getUriForExternalFile(context, new File(file));
     }
 

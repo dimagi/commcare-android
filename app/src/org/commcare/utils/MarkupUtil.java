@@ -14,6 +14,8 @@ import android.text.SpannableStringBuilder;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.SpanStack;
@@ -24,14 +26,10 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.htmlcleaner.TagNode;
 import org.javarosa.core.services.locale.Localization;
 
-import java.io.File;
-
 import in.uncod.android.bypass.Bypass;
 import ru.noties.markwon.LinkResolverDef;
 import ru.noties.markwon.Markwon;
-import ru.noties.markwon.SpannableBuilder;
 import ru.noties.markwon.SpannableConfiguration;
-import ru.noties.markwon.renderer.SpannableRenderer;
 
 public class MarkupUtil {
 
@@ -112,15 +110,26 @@ public class MarkupUtil {
 
         @Override
         public void resolve(View view, @NonNull String link) {
-            if (!link.startsWith("/")) {
+            if (!link.startsWith("file://")) {
                 // If not an absolute path, assume in app data
                 link = CommCareApplication.instance().getAndroidFsRoot() + link;
             }
-            final Uri uri = FileUtil.getUriForExternalFile(context, link);
+            final Uri uri;
             final Context context = view.getContext();
-            final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            try {
+                uri = FileUtil.getUriForExternalFile(context, link);
+            } catch (IllegalArgumentException e) {
+                Log.e("MarkupUtil", "Could not create URI for external file " + link, e);
+                String toastMessage = Localization.get("markdown.file.inaccessible", link);
+                Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show();
+                return;
+            }
+            final Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            MimeTypeMap mim = MimeTypeMap.getSingleton();
+            String type = mim.getMimeTypeFromExtension(link.substring(link.lastIndexOf(".") + 1));
+            intent.setDataAndType(uri, type);
             try {
                 context.startActivity(intent);
             } catch (ActivityNotFoundException e) {
