@@ -425,12 +425,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                             CommCareApplication.instance().getUserStorage(FormRecord.class).read((int)info.id);
                     toDelete.logPendingDeletion(TAG, "the user manually selected 'DELETE' in FormRecordListActivity");
                     FormRecordCleanupTask.wipeRecord(toDelete);
-                    listView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.notifyDataSetInvalidated();
-                        }
-                    });
+                    listView.post(adapter::notifyDataSetInvalidated);
                     return true;
                 case RESTORE_RECORD:
                     new FormRecordProcessor(this).updateRecordStatus(selectedRecord, FormRecord.STATUS_UNSENT);
@@ -481,12 +476,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     private void manuallyQuarantineRecord(FormRecord record) {
         this.formRecordProcessor.quarantineRecord(record, FormRecord.QuarantineReason_MANUAL);
-        listView.post(new Runnable() {
-            @Override
-            public void run() {
-                adapter.notifyDataSetInvalidated();
-            }
-        });
+        listView.post(adapter::notifyDataSetInvalidated);
         record.logManualQuarantine();
     }
 

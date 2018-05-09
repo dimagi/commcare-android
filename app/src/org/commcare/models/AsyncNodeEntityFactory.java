@@ -202,14 +202,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             // thread while caching any uncached data later on UI thread during Adapter's getView
             synchronized (mAsyncLock) {
                 if (mAsyncPrimingThread == null) {
-                    mAsyncPrimingThread = new Thread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            primeCache();
-                        }
-
-                    });
+                    mAsyncPrimingThread = new Thread(this::primeCache);
                     mAsyncPrimingThread.start();
                 }
             }

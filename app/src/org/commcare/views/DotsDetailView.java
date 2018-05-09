@@ -146,22 +146,19 @@ public class DotsDetailView {
             final int[] ids = new int[] {R.id.radio_all, R.id.radio_some, R.id.radio_unchecked, R.id.radio_none};
             for(int id : ids) {
                 ToggleButton toggle = (ToggleButton)details.findViewById(id);
-                toggle.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        for(int id : ids) {
-                            if(v.getId() == id) {
-                                ((ToggleButton)v).setChecked(true);
-                            } else {
-                                ToggleButton toggle = (ToggleButton)details.findViewById(id);
-                                toggle.setChecked(false);
-                            }
-                            
-                            if(v.getId() == R.id.radio_some) {
-                                missingDetails.setVisibility(View.VISIBLE);
-                            } else {
-                                missingDetails.setVisibility(View.GONE);
-                            }
+                toggle.setOnClickListener(v -> {
+                    for(int id1 : ids) {
+                        if(v.getId() == id1) {
+                            ((ToggleButton)v).setChecked(true);
+                        } else {
+                            ToggleButton toggle1 = (ToggleButton)details.findViewById(id1);
+                            toggle1.setChecked(false);
+                        }
+
+                        if(v.getId() == R.id.radio_some) {
+                            missingDetails.setVisibility(View.VISIBLE);
+                        } else {
+                            missingDetails.setVisibility(View.GONE);
                         }
                     }
                 });
@@ -171,16 +168,13 @@ public class DotsDetailView {
             final int[] typeids = new int[] {R.id.tbt_direct, R.id.tbt_pillbox, R.id.tbt_self};
             for(int id : typeids) {
                 ToggleButton toggle = (ToggleButton)details.findViewById(id);
-                toggle.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        for(int id : typeids) {
-                            if(v.getId() == id) {
-                                ((ToggleButton)v).setChecked(true);
-                            } else {
-                                ToggleButton toggle = (ToggleButton)details.findViewById(id);
-                                toggle.setChecked(false);
-                            }
+                toggle.setOnClickListener(v -> {
+                    for(int id12 : typeids) {
+                        if(v.getId() == id12) {
+                            ((ToggleButton)v).setChecked(true);
+                        } else {
+                            ToggleButton toggle12 = (ToggleButton)details.findViewById(id12);
+                            toggle12.setChecked(false);
                         }
                     }
                 });
