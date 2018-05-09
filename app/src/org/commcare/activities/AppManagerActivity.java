@@ -138,14 +138,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                     String msg = getString(R.string.skipped_verification_warning);
                     showAlertDialog(
                             StandardAlertDialog.getBasicAlertDialog(
-                                    this, title, msg, new DialogInterface.OnClickListener() {
-
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dismissAlertDialog();
-                                        }
-
-                                    }));
+                                    this, title, msg, (dialog, which) -> dismissAlertDialog()));
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
@@ -176,16 +169,12 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
         String title = getString(R.string.logging_out);
         String message = getString(R.string.logout_warning);
         StandardAlertDialog d = new StandardAlertDialog(this, title, message);
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dismissAlertDialog();
-                if (which == AlertDialog.BUTTON_POSITIVE) {
-                    CommCareApplication.instance().expireUserSession();
-                    installApp();
-                }
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            dismissAlertDialog();
+            if (which == AlertDialog.BUTTON_POSITIVE) {
+                CommCareApplication.instance().expireUserSession();
+                installApp();
             }
-
         };
         d.setPositiveButton(getString(R.string.ok), listener);
         d.setNegativeButton(getString(R.string.cancel), listener);

@@ -142,12 +142,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             final LatLngBounds bounds = builder.build();
 
             // Move camera to be include all markers
-            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                @Override
-                public void onMapLoaded() {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING));
-                }
-            });
+            mMap.setOnMapLoadedCallback(() -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING)));
         }
 
         mMap.setOnInfoWindowClickListener(this);

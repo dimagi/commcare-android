@@ -36,12 +36,7 @@ public class PromptApkUpdateActivity extends PromptUpdateActivity {
                         getCurrentClientName()));
 
         updateButton.setText(Localization.get("apk.update.action", getCurrentClientName()));
-        updateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                launchCurrentAppOnPlayStore();
-            }
-        });
+        updateButton.setOnClickListener(v -> launchCurrentAppOnPlayStore());
 
         if (BuildConfig.APPLICATION_ID.equals("org.commcare.lts")) {
             imageCue.setImageResource(R.drawable.apk_update_cue_lts);

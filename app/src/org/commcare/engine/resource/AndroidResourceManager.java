@@ -234,12 +234,7 @@ public class AndroidResourceManager extends ResourceManager {
 
     private void scheduleUpdateTaskRetry(final Context ctx, int numberOfRestarts) {
         final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                launchRetryTask(ctx);
-            }
-        }, exponentionalRetryDelay(numberOfRestarts));
+        handler.postDelayed(() -> launchRetryTask(ctx), exponentionalRetryDelay(numberOfRestarts));
     }
 
     private void launchRetryTask(Context ctx) {

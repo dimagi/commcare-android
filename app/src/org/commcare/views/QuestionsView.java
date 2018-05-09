@@ -351,12 +351,7 @@ public class QuestionsView extends ScrollView
     }
 
     private void scrollToWidget(final QuestionWidget widget) {
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                QuestionsView.this.scrollTo(0, widget.getTop());
-            }
-        });
+        new Handler().post(() -> QuestionsView.this.scrollTo(0, widget.getTop()));
     }
 
     /**

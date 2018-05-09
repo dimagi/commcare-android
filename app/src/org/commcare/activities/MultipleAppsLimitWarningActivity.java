@@ -34,12 +34,7 @@ public class MultipleAppsLimitWarningActivity extends CommCareActivity {
             toManagerButton.setText(R.string.go_to_manager);
         }
 
-        toManagerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               onManagerButtonClicked(installAttemptCameFromManager);
-            }
-        });
+        toManagerButton.setOnClickListener(v -> onManagerButtonClicked(installAttemptCameFromManager));
     }
 
     private void onManagerButtonClicked(boolean installAttemptCameFromManager) {

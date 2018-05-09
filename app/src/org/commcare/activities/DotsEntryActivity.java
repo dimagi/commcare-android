@@ -404,23 +404,18 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
                 continue;
             }
             
-            doseView.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    Rect hitRect = new Rect();
-                    if(v.getParent() instanceof View) {
-                        v.getHitRect(hitRect);
-                        View parent = (View)v.getParent();
-                        dayView.offsetDescendantRectToMyCoords(parent, hitRect);
-                        DotsEntryActivity.this.editDose(curday, regIndex, dotsData.days()[curday], hitRect);
-                    } else{
-                        hitRect = new Rect(0,0,v.getWidth(), v.getHeight());
-                        dayView.offsetDescendantRectToMyCoords(v, hitRect);
-                        DotsEntryActivity.this.editDose(curday, regIndex, dotsData.days()[curday], hitRect);
-                    }
+            doseView.setOnClickListener(v -> {
+                Rect hitRect = new Rect();
+                if(v.getParent() instanceof View) {
+                    v.getHitRect(hitRect);
+                    View parent = (View)v.getParent();
+                    dayView.offsetDescendantRectToMyCoords(parent, hitRect);
+                    DotsEntryActivity.this.editDose(curday, regIndex, dotsData.days()[curday], hitRect);
+                } else{
+                    hitRect = new Rect(0,0,v.getWidth(), v.getHeight());
+                    dayView.offsetDescendantRectToMyCoords(v, hitRect);
+                    DotsEntryActivity.this.editDose(curday, regIndex, dotsData.days()[curday], hitRect);
                 }
-                
             });
         }
         
@@ -428,38 +423,17 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         if(curday == dotsData.days().length - 1) {
             next.setVisibility(View.INVISIBLE);
         } else{
-            next.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    tryMove(1);
-                }
-                
-            });
+            next.setOnClickListener(v -> tryMove(1));
         }
         View prev = dayView.findViewById(R.id.btn_doses_prev);
         if(curday == 0) {
             prev.setVisibility(View.INVISIBLE);
         } else{
-            prev.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    tryMove(-1);
-                }
-                
-            });
+            prev.setOnClickListener(v -> tryMove(-1));
         }
         
         Button done = (Button)dayView.findViewById(R.id.btn_dots_doses_done);
-        done.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                DotsEntryActivity.this.cancelDayEdit(curday);
-            }
-            
-        });
+        done.setOnClickListener(v -> DotsEntryActivity.this.cancelDayEdit(curday));
         return dayView;
     }
     

@@ -105,12 +105,9 @@ public class MainConfigurablePreferences
     private void configureDevPreferencesButton() {
         Preference developerSettingsButton = findPreference(DEVELOPER_SETTINGS);
         if (DeveloperPreferences.isSuperuserEnabled()) {
-            developerSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    startDeveloperOptions();
-                    return true;
-                }
+            developerSettingsButton.setOnPreferenceClickListener(preference -> {
+                startDeveloperOptions();
+                return true;
             });
         } else {
             getPreferenceScreen().removePreference(developerSettingsButton);
@@ -129,23 +126,13 @@ public class MainConfigurablePreferences
                 Localization.get("analytics.opt.out.message"));
 
         f.setPositiveButton(Localization.get("analytics.disable.button"),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        MainConfigurablePreferences.disableAnalytics();
-                    }
+                (dialog, which) -> {
+                    dialog.dismiss();
+                    MainConfigurablePreferences.disableAnalytics();
                 });
 
         f.setNegativeButton(Localization.get("option.cancel"),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                (dialog, which) -> dialog.dismiss());
 
         f.showNonPersistentDialog();
     }

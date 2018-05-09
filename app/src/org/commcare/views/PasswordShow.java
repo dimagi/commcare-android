@@ -41,12 +41,7 @@ public class PasswordShow {
                 passwordShownState();
                 break;
         }
-        showPasswordButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                togglePasswordVisibility();
-            }
-        });
+        showPasswordButton.setOnClickListener(v -> togglePasswordVisibility());
     }
 
     private void passwordAlwaysHiddenState() {

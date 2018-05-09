@@ -53,19 +53,16 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
     }
 
     private void showProgressBarInActivity(final int progressToSet) {
-        this.containingActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                submissionProgressBar =
-                        (ProgressBar)containingActivity.findViewById(R.id.submission_progress_bar);
-                if (submissionProgressBar == null) {
-                    // Means that the activity has not finished loading its UI yet, so we have to wait
-                    containingActivity.setUiLoadedListener(FormSubmissionProgressBarListener.this);
-                } else {
-                    submissionProgressBar.setVisibility(View.VISIBLE);
-                    submissionProgressBar.setMax(maxProgress);
-                    submissionProgressBar.setProgress(progressToSet);
-                }
+        this.containingActivity.runOnUiThread(() -> {
+            submissionProgressBar =
+                    (ProgressBar)containingActivity.findViewById(R.id.submission_progress_bar);
+            if (submissionProgressBar == null) {
+                // Means that the activity has not finished loading its UI yet, so we have to wait
+                containingActivity.setUiLoadedListener(FormSubmissionProgressBarListener.this);
+            } else {
+                submissionProgressBar.setVisibility(View.VISIBLE);
+                submissionProgressBar.setMax(maxProgress);
+                submissionProgressBar.setProgress(progressToSet);
             }
         });
     }
@@ -77,14 +74,11 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
 
     @Override
     public void notifyProgress(final int itemNumber, final long progress) {
-        containingActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                int nextProgress = getProgressToReport(itemNumber, progress);
-                if (nextProgress > FormSubmissionProgressBarListener.this.currentProgress) {
-                    submissionProgressBar.setProgress(nextProgress);
-                    FormSubmissionProgressBarListener.this.currentProgress = nextProgress;
-                }
+        containingActivity.runOnUiThread(() -> {
+            int nextProgress = getProgressToReport(itemNumber, progress);
+            if (nextProgress > FormSubmissionProgressBarListener.this.currentProgress) {
+                submissionProgressBar.setProgress(nextProgress);
+                FormSubmissionProgressBarListener.this.currentProgress = nextProgress;
             }
         });
     }
@@ -104,14 +98,11 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
 
     @Override
     public void endSubmissionProcess(final boolean success) {
-        containingActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (success && submissionProgressBar.getProgress() < maxProgress) {
-                    finishAnimatingProgressBar();
-                } else {
-                    submissionProgressBar.setVisibility(View.GONE);
-                }
+        containingActivity.runOnUiThread(() -> {
+            if (success && submissionProgressBar.getProgress() < maxProgress) {
+                finishAnimatingProgressBar();
+            } else {
+                submissionProgressBar.setVisibility(View.GONE);
             }
         });
     }
@@ -129,12 +120,7 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    containingActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            submissionProgressBar.setVisibility(View.GONE);
-                        }
-                    });
+                    containingActivity.runOnUiThread(() -> submissionProgressBar.setVisibility(View.GONE));
                 }
 
                 @Override

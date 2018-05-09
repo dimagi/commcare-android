@@ -137,39 +137,36 @@ public class MediaLayout extends RelativeLayout {
         if (videoURI != null) {
             videoButton = new ImageButton(getContext());
             videoButton.setImageResource(android.R.drawable.ic_media_play);
-            videoButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String videoFilename = "";
-                    try {
-                        videoFilename =
-                                ReferenceManager.instance().DeriveReference(videoURI).getLocalURI();
-                    } catch (InvalidReferenceException e) {
-                        Log.e(TAG, "Invalid reference exception");
-                        e.printStackTrace();
-                    }
+            videoButton.setOnClickListener(v -> {
+                String videoFilename = "";
+                try {
+                    videoFilename =
+                            ReferenceManager.instance().DeriveReference(videoURI).getLocalURI();
+                } catch (InvalidReferenceException e) {
+                    Log.e(TAG, "Invalid reference exception");
+                    e.printStackTrace();
+                }
 
-                    File videoFile = new File(videoFilename);
-                    if (!videoFile.exists()) {
-                        // We should have a video clip, but the file doesn't exist.
-                        String errorMsg =
-                                getContext().getString(R.string.file_missing, videoFilename);
-                        Log.e(TAG, errorMsg);
-                        Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
-                        return;
-                    }
+                File videoFile = new File(videoFilename);
+                if (!videoFile.exists()) {
+                    // We should have a video clip, but the file doesn't exist.
+                    String errorMsg =
+                            getContext().getString(R.string.file_missing, videoFilename);
+                    Log.e(TAG, errorMsg);
+                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+                    return;
+                }
 
-                    Intent i = new Intent("android.intent.action.VIEW");
-                    Uri videoFileUri = FileUtil.getUriForExternalFile(getContext(), videoFile);
-                    i.setDataAndType(videoFileUri, "video/*");
-                    i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    try {
-                        getContext().startActivity(i);
-                    } catch (ActivityNotFoundException e) {
-                        Toast.makeText(getContext(),
-                                getContext().getString(R.string.activity_not_found, "view video"),
-                                Toast.LENGTH_SHORT).show();
-                    }
+                Intent i = new Intent("android.intent.action.VIEW");
+                Uri videoFileUri = FileUtil.getUriForExternalFile(getContext(), videoFile);
+                i.setDataAndType(videoFileUri, "video/*");
+                i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                try {
+                    getContext().startActivity(i);
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(getContext(),
+                            getContext().getString(R.string.activity_not_found, "view video"),
+                            Toast.LENGTH_SHORT).show();
                 }
             });
             videoButton.setId(VIDEO_BUTTON_ID);
@@ -373,12 +370,7 @@ public class MediaLayout extends RelativeLayout {
                 final MediaController ctrl = new MediaController(this.getContext());
 
                 VideoView videoView = new VideoView(this.getContext());
-                videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mediaPlayer) {
-                        ctrl.show();
-                    }
-                });
+                videoView.setOnPreparedListener(mediaPlayer -> ctrl.show());
                 videoView.setVideoPath(videoFilename);
                 videoView.setMediaController(ctrl);
                 ctrl.setAnchorView(videoView);

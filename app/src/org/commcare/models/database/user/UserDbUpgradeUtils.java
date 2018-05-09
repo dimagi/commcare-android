@@ -127,19 +127,16 @@ public class UserDbUpgradeUtils {
         final HashMap<Integer, Long> idToDateIndex =
                 getIdToDateMap(ids, storage);
 
-        Collections.sort(ids, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer lhs, Integer rhs) {
-                Long lhd = idToDateIndex.get(lhs);
-                Long rhd = idToDateIndex.get(rhs);
-                if (lhd < rhd) {
-                    return -1;
-                }
-                if (lhd > rhd) {
-                    return 1;
-                }
-                return 0;
+        Collections.sort(ids, (lhs, rhs) -> {
+            Long lhd = idToDateIndex.get(lhs);
+            Long rhd = idToDateIndex.get(rhs);
+            if (lhd < rhd) {
+                return -1;
             }
+            if (lhd > rhd) {
+                return 1;
+            }
+            return 0;
         });
     }
 
