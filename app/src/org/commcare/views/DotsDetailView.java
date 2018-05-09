@@ -201,23 +201,9 @@ public class DotsDetailView {
         Button ok = (Button)view.findViewById(R.id.btn_dots_detail_ok);
         Button cancel = (Button)view.findViewById(R.id.btn_dots_detail_cancel);
         
-        ok.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                listener.dayEdited(DotsDetailView.this.index, DotsDetailView.this.getDay());
-            }
-            
-        });
+        ok.setOnClickListener(v -> listener.dayEdited(DotsDetailView.this.index, DotsDetailView.this.getDay()));
         
-        cancel.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                listener.cancelDoseEdit();
-            }
-            
-        });
+        cancel.setOnClickListener(v -> listener.cancelDoseEdit());
         
         return view;
     }
