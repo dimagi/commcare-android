@@ -33,11 +33,6 @@ public abstract class RequestAndParseActor {
         this.logTag = logTag;
     }
 
-    public abstract void parseResponse(JSONObject responseAsJson);
-    public abstract String getUrl();
-    public abstract HashMap<String, String> getRequestParams();
-    public abstract AuthInfo getAuth();
-
     public void makeRequest() {
         Log.i(logTag, String.format("Requesting %s from %s", requestName, getUrl()));
         ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
@@ -49,6 +44,11 @@ public abstract class RequestAndParseActor {
                 responseProcessor);
         requester.makeRequestAndProcess();
     }
+
+    public abstract String getUrl();
+    public abstract HashMap<String, String> getRequestParams();
+    public abstract AuthInfo getAuth();
+    public abstract void parseResponse(JSONObject responseAsJson);
 
     protected final HttpResponseProcessor responseProcessor = new HttpResponseProcessor() {
 
