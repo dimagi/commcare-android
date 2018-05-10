@@ -43,13 +43,7 @@ public class HeartbeatRequester extends GetAndParseActor {
     private static final String LAST_SYNC_TIME_PARAM = "last_sync_time";
 
     public HeartbeatRequester() {
-        super(NAME, TAG);
-    }
-
-    @Override
-    public String getUrl() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getString(ServerUrls.PREFS_HEARTBEAT_URL_KEY, null);
+        super(NAME, TAG, ServerUrls.PREFS_HEARTBEAT_URL_KEY);
     }
 
     @Override

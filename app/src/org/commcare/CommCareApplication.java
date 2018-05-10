@@ -1050,7 +1050,7 @@ public class CommCareApplication extends MultiDexApplication {
         return DataPullResponseFactory.INSTANCE;
     }
 
-    public HeartbeatRequester getStandardHeartbeatRequester() {
+    public HeartbeatRequester getHeartbeatRequester() {
         return new HeartbeatRequester();
     }
 
@@ -1082,9 +1082,8 @@ public class CommCareApplication extends MultiDexApplication {
     public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
                                                   HashMap headers, AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor) {
-        return buildHttpRequester(
-                context, url, params, headers, null, null, HTTPMethod.GET,
-                authInfo, responseProcessor);
+        return buildHttpRequester(context, url, params, headers, null, null,
+                HTTPMethod.GET, authInfo, responseProcessor);
     }
 
     public ModernHttpRequester buildHttpRequester(Context context, String url,

@@ -27,17 +27,19 @@ public abstract class GetAndParseActor {
 
     private final String requestName;
     private final String logTag;
+    private final String url;
 
-    public GetAndParseActor(String requestName, String logTag) {
+    public GetAndParseActor(String requestName, String logTag, String urlPrefKey) {
         this.requestName = requestName;
         this.logTag = logTag;
+        this.url = CommCareApplication.instance().getCurrentApp().getAppPreferences().getString(urlPrefKey, null);
     }
 
     public void makeRequest() {
-        Log.i(logTag, String.format("Requesting %s from %s", requestName, getUrl()));
+        Log.i(logTag, String.format("Requesting %s from %s", requestName, url));
         ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
-                getUrl(),
+                url,
                 getRequestParams(),
                 new HashMap(),
                 getAuth(),
@@ -45,7 +47,6 @@ public abstract class GetAndParseActor {
         requester.makeRequestAndProcess();
     }
 
-    public abstract String getUrl();
     public abstract HashMap<String, String> getRequestParams();
     public abstract AuthInfo getAuth();
     public abstract void parseResponse(JSONObject responseAsJson);

@@ -224,7 +224,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
-    public HeartbeatRequester getStandardHeartbeatRequester() {
+    public HeartbeatRequester getHeartbeatRequester() {
         return new TestHeartbeatRequester();
     }
 

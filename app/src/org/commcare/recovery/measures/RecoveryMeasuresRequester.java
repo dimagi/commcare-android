@@ -2,6 +2,7 @@ package org.commcare.recovery.measures;
 
 import org.commcare.core.network.AuthInfo;
 import org.commcare.network.GetAndParseActor;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
@@ -21,12 +22,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
 
 
     public RecoveryMeasuresRequester() {
-        super(NAME, TAG);
-    }
-
-    @Override
-    public String getUrl() {
-        return null;
+        super(NAME, TAG, ServerUrls.PREFS_RECOVERY_MEASURES_URL_KEY);
     }
 
     @Override
