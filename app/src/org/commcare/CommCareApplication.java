@@ -168,16 +168,6 @@ public class CommCareApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        if (BuildConfig.DEBUG) {
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectLeakedSqlLiteObjects()
-                    .detectLeakedClosableObjects()
-                    .penaltyLog()
-                    .penaltyDeath()
-                    .build());
-        }
-
         CommCareApplication.app = this;
         CrashUtil.init(this);
         DataChangeLogger.init(this);
