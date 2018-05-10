@@ -27,8 +27,7 @@ public class RecoveryMeasuresManager {
 
     // Execute any recovery measures that we've received and stored
     protected static void executePendingMeasures() {
-        RecoveryMeasure[] measuresToExecute = StorageUtils.getPendingRecoveryMeasuresInOrder();
-        for (RecoveryMeasure measure : measuresToExecute) {
+        for (RecoveryMeasure measure : StorageUtils.getPendingRecoveryMeasuresInOrder()) {
             boolean success = measure.execute();
             if (success) {
                 HiddenPreferences.setLatestRecoveryMeasureExecuted(measure.getSequenceNumber());

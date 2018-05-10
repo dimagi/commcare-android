@@ -5,10 +5,13 @@ import android.support.annotation.NonNull;
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasure;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -129,11 +132,28 @@ public class StorageUtils {
         return maxSubmissionNumber + 1;
     }
 
-    public static RecoveryMeasure[] getPendingRecoveryMeasuresInOrder() {
+    public static List<RecoveryMeasure> getPendingRecoveryMeasuresInOrder() {
+        List<RecoveryMeasure> toExecute = new ArrayList<>();
+        List<RecoveryMeasure> toDelete = new ArrayList<>();
+
         SqlStorage<RecoveryMeasure> storage =
                 CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
-        // TODO: implement
-        return null;
+        int latestMeasureExecuted = HiddenPreferences.getLatestRecoveryMeasureExecuted();
+        for (RecoveryMeasure measure : storage) {
+            if (measure.getSequenceNumber() <= latestMeasureExecuted) {
+                toDelete.add(measure);
+            } else {
+                toExecute.add(measure);
+            }
+        }
+
+        for (RecoveryMeasure measure : toDelete) {
+            storage.remove(measure.getID());
+        }
+
+        Collections.sort(toExecute,
+                (measure1, measure2) -> measure1.getSequenceNumber() - measure2.getSequenceNumber());
+        return toExecute;
     }
 
 }
