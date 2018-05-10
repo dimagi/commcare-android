@@ -16,7 +16,7 @@ import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresManager;
 import org.commcare.utils.AndroidShortcuts;
-import org.commcare.utils.LifecycleUtils;
+import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFragment;
@@ -125,12 +125,9 @@ public class DispatchActivity extends FragmentActivity {
             // appropriate error dialog has been triggered, don't continue w/ dispatch
             return;
         }
-
-        // There may or may not be a seated app when this is called, we have to handle both
         RecoveryMeasuresManager.requestRecoveryMeasures();
 
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-
         if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
                 AppUtils.initFirstUsableAppRecord();
@@ -182,17 +179,17 @@ public class DispatchActivity extends FragmentActivity {
         int dbState = CommCareApplication.instance().getDatabaseState();
         if (dbState == CommCareApplication.STATE_LEGACY_DETECTED) {
             // Starting from CommCare 2.44, we don't supoort upgrading from Legacy DB
-            LifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.legacy_failure),
                     getString(R.string.legacy_failure_title), false, false);
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
-            LifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_definite_failure),
                     getString(R.string.migration_failure_title), false, false);
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
-            LifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_possible_failure),
                     getString(R.string.migration_failure_title), false, true);
             return true;
@@ -220,7 +217,7 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void createNoStorageDialog() {
-        LifecycleUtils.triggerHandledAppExit(this,
+        CommCareLifecycleUtils.triggerHandledAppExit(this,
                 Localization.get("app.storage.missing.message"),
                 Localization.get("app.storage.missing.title"));
     }
@@ -297,7 +294,7 @@ public class DispatchActivity extends FragmentActivity {
         } else {
             // Means that there are no usable apps, but there are multiple apps who all don't have
             // MM verified -- show an error message and shut down
-            LifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(this,
                     Localization.get("multiple.apps.unverified.message"),
                     Localization.get("multiple.apps.unverified.title"));
         }

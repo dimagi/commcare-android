@@ -36,6 +36,17 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
     }
 
     @Override
+    public void makeRequest() {
+        // mock waiting for request response
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+
+        }
+        // Parse mock response
+    }
+
+    @Override
     public void parseResponse(JSONObject responseAsJson) {
         //if (checkForAppIdMatch(responseAsJson)) {
             try {
@@ -47,7 +58,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
                         recoveryMeasuresStored = parseRecoveryMeasure(recoveryMeasure) || recoveryMeasuresStored;
                     }
                     if (recoveryMeasuresStored) {
-                        RecoveryMeasuresManager.sendBroadcast();
+                        RecoveryMeasuresManager.executePendingMeasures();
                     }
                 }
             } catch (JSONException e) {

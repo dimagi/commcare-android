@@ -4,15 +4,18 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
+import org.commcare.AppUtils;
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.heartbeat.ApkVersion;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.AppLifecycleUtils;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -26,6 +29,7 @@ public class RecoveryMeasure extends Persisted {
     private static final String META_SEQ_NUM = "SEQUENCE_NUMBER";
 
     public static final String APP_REINSTALL = "app_reinstall";
+    public static final String APP_REINSTALL_LOCAL_ONLY = "app_reinstall_local_only";
     public static final String APP_UPDATE = "app_update";
     public static final String CLEAR_USER_DATA = "clear_data";
     public static final String CC_REINSTALL_NEEDED = "cc_reinstall";
@@ -95,9 +99,43 @@ public class RecoveryMeasure extends Persisted {
     }
 
     public boolean execute() {
+        // All recovery measures assume there is a seated app to execute upon, so check that first
+        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+        if (currentApp == null) {
+            return false;
+        }
+
         switch(type) {
+            case APP_REINSTALL:
+                AppLifecycleUtils.reinstall(currentApp);
+                return true;
+            case APP_REINSTALL_LOCAL_ONLY:
+                AppLifecycleUtils.reinstallIfLocalCczPresent(currentApp);
+                return true;
+            case APP_UPDATE:
+                return true;
+            case CLEAR_USER_DATA:
+                clearDataForCurrentOrLastUser();
+                return true;
+            case CC_REINSTALL_NEEDED:
+                return true;
+            case CC_UPDATE_NEEDED:
+                return true;
 
         }
         return false;
+    }
+
+    private static void clearDataForCurrentOrLastUser() {
+        try {
+            CommCareApplication.instance().getSession();
+            AppUtils.clearUserData();
+        } catch (SessionUnavailableException e) {
+            String lastUser = CommCareApplication.instance().getCurrentApp().getAppPreferences().
+                    getString(HiddenPreferences.LAST_LOGGED_IN_USER, null);
+            if (lastUser != null) {
+                AppUtils.wipeSandboxForUser(lastUser);
+            }
+        }
     }
 }

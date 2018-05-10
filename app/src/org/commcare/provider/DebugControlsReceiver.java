@@ -14,6 +14,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.utils.AppLifecycleUtils;
 import org.joda.time.DateTime;
 
 import java.util.Date;
@@ -62,7 +63,7 @@ public class DebugControlsReceiver extends BroadcastReceiver {
         ApplicationRecord appRecord = AppUtils.getAppById(appId);
         if (appRecord != null) {
             CommCareApplication.instance().expireUserSession();
-            CommCareApplication.instance().uninstall(appRecord);
+            AppLifecycleUtils.uninstall(appRecord);
         }
     }
 

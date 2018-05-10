@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.utils.CommCareExceptionHandler;
-import org.commcare.utils.LifecycleUtils;
+import org.commcare.utils.CommCareLifecycleUtils;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -55,7 +55,7 @@ public class CrashWarningActivity extends Activity {
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LifecycleUtils.restartCommCare(CrashWarningActivity.this, true);
+                CommCareLifecycleUtils.restartCommCare(CrashWarningActivity.this, true);
             }
         });
 

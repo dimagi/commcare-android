@@ -28,14 +28,21 @@ public abstract class GetAndParseActor {
     private final String requestName;
     private final String logTag;
     private final String url;
+    private final String urlPrefKey;
 
     public GetAndParseActor(String requestName, String logTag, String urlPrefKey) {
         this.requestName = requestName;
         this.logTag = logTag;
+        this.urlPrefKey = urlPrefKey;
         this.url = CommCareApplication.instance().getCurrentApp().getAppPreferences().getString(urlPrefKey, null);
     }
 
     public void makeRequest() {
+        if (url == null) {
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
+                    String.format("App had no value for %s when attempting request", urlPrefKey));
+            return;
+        }
         Log.i(logTag, String.format("Requesting %s from %s", requestName, url));
         ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
@@ -61,10 +68,10 @@ public abstract class GetAndParseActor {
                 parseResponseOnUiThread(jsonResponse);
             } catch (JSONException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        String.format("%s response was not properly-formed JSON: " + e.getMessage(), requestName));
+                        String.format("%s response was not properly-formed JSON: %s", requestName, e.getMessage()));
             } catch (IOException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        String.format("IO error while processing %s response: " + e.getMessage(), requestName));
+                        String.format("IO error while processing %s response: %s", requestName, e.getMessage()));
             }
         }
 

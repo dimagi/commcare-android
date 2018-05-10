@@ -12,6 +12,6 @@ public class RecoveryMeasuresFoundReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        RecoveryMeasuresManager.executePendingMeasures(context);
+        RecoveryMeasuresManager.executePendingMeasures();
     }
 }

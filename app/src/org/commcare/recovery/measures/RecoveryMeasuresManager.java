@@ -1,11 +1,8 @@
 package org.commcare.recovery.measures;
 
-import android.content.Context;
 import android.content.Intent;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.StorageUtils;
 
@@ -16,12 +13,10 @@ import org.commcare.utils.StorageUtils;
 public class RecoveryMeasuresManager {
 
     public static void requestRecoveryMeasures() {
-        CommCareApp seatedApp = CommCareApplication.instance().getCurrentApp();
-
-        if (seatedApp == null) {
-            // make limited request for those recovery measures that are possible to get with no seated app
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            // There's nothing we can do if we don't know what app to request recovery measures from
+            return;
         }
-
         (new RecoveryMeasuresRequester()).makeRequest();
     }
 
@@ -31,7 +26,7 @@ public class RecoveryMeasuresManager {
     }
 
     // Execute any recovery measures that we've received and stored
-    protected static void executePendingMeasures(Context c) {
+    protected static void executePendingMeasures() {
         RecoveryMeasure[] measuresToExecute = StorageUtils.getPendingRecoveryMeasuresInOrder();
         for (RecoveryMeasure measure : measuresToExecute) {
             boolean success = measure.execute();

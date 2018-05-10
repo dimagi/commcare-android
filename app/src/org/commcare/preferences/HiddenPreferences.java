@@ -30,8 +30,10 @@ public class HiddenPreferences {
     public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
     public final static String ID_OF_INTERRUPTED_SSD = "interrupted-ssd-id";
     private final static String LATEST_RECOVERY_MEASURE = "latest-recovery-measure-exectued";
+    public static final String LAST_SUCCESSFUL_CC_VERSION = "last_successful_commcare_version";
+    public final static String FIRST_COMMCARE_RUN = "first-commcare-run";
 
-    // Preferences that are only ever set by being sent down from HQ via the profile file
+    // Preferences whose values are only ever set by being sent down from HQ via the profile file
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
     private final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     private final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
@@ -51,13 +53,9 @@ public class HiddenPreferences {
     // Used to make it so that CommCare will not conduct a multimedia validation check
     public final static String MM_VALIDATED_FROM_HQ = "cc-content-valid";
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
-
     private final static String LOGS_ENABLED = "logenabled";
     private final static String LOGS_ENABLED_YES = "Enabled";
-    public static final String LAST_SUCCESSFUL_CC_VERSION = "last_successful_commcare_version";
-
-    // Boolean pref to determine first commcare run
-    public final static String FIRST_COMMCARE_RUN = "first-commcare-run";
+    private final static String ON_DEVICE_BACKUP_CCZ_LOCATION = "on-device-backup-ccz-location";
 
     /**
      * @return How many seconds should a user session remain open before expiring?
@@ -240,5 +238,10 @@ public class HiddenPreferences {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit().putInt(LATEST_RECOVERY_MEASURE, latestSequenceNumber)
                 .apply();
+    }
+
+    public static String getBackupCczLocation() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(ON_DEVICE_BACKUP_CCZ_LOCATION, null);
     }
 }

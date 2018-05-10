@@ -14,6 +14,7 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.AppLifecycleUtils;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.javarosa.core.services.Logger;
@@ -83,7 +84,7 @@ public class AppUtils {
         for (ApplicationRecord record : CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class)) {
             if (record.getStatus() == ApplicationRecord.STATUS_DELETE_REQUESTED) {
                 try {
-                    CommCareApplication.instance().uninstall(record);
+                    AppLifecycleUtils.uninstall(record);
                 } catch (RuntimeException e) {
                     Logger.log(LogTypes.TYPE_ERROR_STORAGE, "Unable to uninstall an app " +
                             "during startup that was previously left partially-deleted");
@@ -101,14 +102,18 @@ public class AppUtils {
      * it shouldn't be used lightly.
      */
     public static void clearUserData() {
-        DataChangeLogger.log(new DataChangeLog.ClearUserData());
         wipeSandboxForUser(CommCareApplication.instance().getSession().getLoggedInUser().getUsername());
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(HiddenPreferences.LAST_LOGGED_IN_USER, null).commit();
+                .putString(HiddenPreferences.LAST_LOGGED_IN_USER, null).apply();
         CommCareApplication.instance().closeUserSession();
     }
 
+    /**
+     * Deletes the db sandbox for the given user; this IS safe to execute even if the user in
+     * question is not currently logged in
+     */
     public static void wipeSandboxForUser(final String username) {
+        DataChangeLogger.log(new DataChangeLog.WipeUserSandbox());
         // Get the uuids that match this username
         final Set<String> dbIdsToRemove = new HashSet<>();
         CommCareApplication.instance().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
