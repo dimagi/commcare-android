@@ -260,7 +260,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 "text/xml",
                 new SecretKeySpec(slr.getKey(), "AES")));
 
-        Response<ResponseBody> response;
+        Response<ResponseBody> response = null;
         try {
             response = generator.postMultipart(submissionUrl, parts);
         } catch (IOException e) {
@@ -269,6 +269,10 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         } catch (IllegalStateException e) {
             e.printStackTrace();
             return false;
+        } finally {
+            if (response != null && response.body() != null) {
+                response.body().close();
+            }
         }
 
         int responseCode = response.code();
