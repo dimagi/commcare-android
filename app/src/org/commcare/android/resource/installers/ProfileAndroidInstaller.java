@@ -27,6 +27,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
@@ -48,11 +49,13 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
+        InputStream inputStream = null;
         try {
 
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
+            inputStream = local.getStream();
 
-            ProfileParser parser = new ProfileParser(local.getStream(), platform, platform.getGlobalResourceTable(), null,
+            ProfileParser parser = new ProfileParser(inputStream, platform, platform.getGlobalResourceTable(), null,
                     Resource.RESOURCE_STATUS_INSTALLED, false);
 
             Profile p = parser.parse();
@@ -64,6 +67,14 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                 | InvalidReferenceException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_RESOURCES, "Initialization failed for Profile resource with exception " + e.getMessage());
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         return false;
@@ -75,11 +86,11 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, platform, upgrade);
+        InputStream inputStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
-
-
-            ProfileParser parser = new ProfileParser(local.getStream(), platform, table, r.getRecordGuid(),
+            inputStream = local.getStream();
+            ProfileParser parser = new ProfileParser(inputStream, platform, table, r.getRecordGuid(),
                     Resource.RESOURCE_STATUS_UNINITIALIZED, false);
 
             Profile p = parser.parse();
@@ -96,6 +107,14 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             e.printStackTrace();
         } catch (InvalidStructureException e) {
             throw new UnresolvedResourceException(r, "Invalid content in the Profile Definition: " + e.getMessage(), true);
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return false;

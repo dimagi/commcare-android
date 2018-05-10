@@ -59,8 +59,8 @@ dependencies {
     compile 'com.android.support:gridlayout-v7:25.0.1'
     compile 'com.madgag.spongycastle:core:1.54.0.0'
     compile 'com.madgag.spongycastle:prov:1.54.0.0'
-    compile 'com.google.android.gms:play-services-maps:10.0.1'
-    compile 'com.google.android.gms:play-services-analytics:10.0.1'
+    compile 'com.google.android.gms:play-services-maps:15.0.1'
+    compile 'com.google.android.gms:play-services-analytics:15.0.1'
     compile 'joda-time:joda-time:2.9.4'
     compile 'net.sf.kxml:kxml2:2.3.0'
     compile 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
@@ -70,8 +70,8 @@ dependencies {
     }
     compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
     compile 'org.jsoup:jsoup:1.8.3'
-    compile 'com.google.firebase:firebase-core:10.0.1'
-    compile 'com.google.firebase:firebase-ads:10.0.1'
+    compile 'com.google.firebase:firebase-core:15.0.2'
+    compile 'com.google.firebase:firebase-ads:15.0.1'
     compile 'com.carrotsearch:hppc:0.7.2'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'com.journeyapps:zxing-android-embedded:3.5.0'
@@ -228,7 +228,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 14
         targetSdkVersion 25
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
