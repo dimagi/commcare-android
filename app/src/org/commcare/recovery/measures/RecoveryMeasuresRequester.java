@@ -20,6 +20,11 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
     private static final String NAME = "recovery measures";
     private static final String TAG = RecoveryMeasuresRequester.class.getSimpleName();
 
+    private static final String MOCK_RESPONSE = "{\"app_id\":\"\",\"recovery_measures\": " +
+            "[{\"sequence_number\":\"1\", \"type\":\"clear_data\", \"cc_version_min\":\"2.36.2\", " +
+            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":\"200\", \"app_version_max\":\"1000\"}," +
+            "{\"sequence_number\":\"2\", \"type\":\"app_reinstall\", \"cc_version_min\":\"2.36.2\", " +
+            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":\"200\", \"app_version_max\":\"1000\"} ]}";
 
     public RecoveryMeasuresRequester() {
         super(NAME, TAG, ServerUrls.PREFS_RECOVERY_MEASURES_URL_KEY);
@@ -40,10 +45,13 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
         // mock waiting for request response
         try {
             Thread.sleep(5000);
+            parseResponse(new JSONObject(MOCK_RESPONSE));
         } catch (InterruptedException e) {
-
+            // nothing to do
+        } catch (JSONException e) {
+            System.out.println("JSONException while parsing mock response: " + e.getMessage());
+            e.printStackTrace();
         }
-        // Parse mock response
     }
 
     @Override
@@ -63,7 +71,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
                 }
             } catch (JSONException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        "recovery_measures array in heartbeat response not properly formatted: " + e.getMessage());
+                        "recovery_measures array not properly formatted: " + e.getMessage());
             }
         //}
     }
@@ -84,12 +92,11 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
             }
         } catch (JSONException e) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Recovery measure object in heartbeat response not properly formatted: " +
-                            e.getMessage());
+                    String.format("Recovery measure object not properly formatted: %s", e.getMessage()));
         } catch (NumberFormatException e) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Sequence number or app version in recovery measure response was " +
-                            "not a valid number: " + e.getMessage());
+                    String.format("Sequence number or app version in recovery measure response was " +
+                            "not a valid number: %s", e.getMessage()));
         }
         return false;
     }
