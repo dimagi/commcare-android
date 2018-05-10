@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
@@ -167,6 +168,15 @@ public class CommCareApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if (BuildConfig.DEBUG) {
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    .penaltyDeath()
+                    .build());
+        }
 
         CommCareApplication.app = this;
         CrashUtil.init(this);
