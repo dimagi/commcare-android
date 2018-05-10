@@ -1,7 +1,7 @@
 package org.commcare.recovery.measures;
 
 import org.commcare.core.network.AuthInfo;
-import org.commcare.network.RequestAndParseActor;
+import org.commcare.network.GetAndParseActor;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
@@ -14,7 +14,7 @@ import java.util.HashMap;
  * Created by amstone326 on 5/8/18.
  */
 
-public class RecoveryMeasuresRequester extends RequestAndParseActor {
+public class RecoveryMeasuresRequester extends GetAndParseActor {
 
     private static final String NAME = "recovery measures";
     private static final String TAG = RecoveryMeasuresRequester.class.getSimpleName();

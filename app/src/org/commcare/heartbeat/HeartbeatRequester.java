@@ -1,33 +1,21 @@
 package org.commcare.heartbeat;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
-import org.commcare.core.network.AuthenticationInterceptor;
-import org.commcare.core.network.HTTPMethod;
-import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.network.RequestAndParseActor;
+import org.commcare.network.GetAndParseActor;
 import org.commcare.preferences.ServerUrls;
-import org.commcare.recovery.measures.RecoveryMeasure;
-import org.commcare.recovery.measures.RecoveryMeasuresManager;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -41,7 +29,7 @@ import java.util.TimeZone;
  *
  * Created by amstone326 on 5/5/17.
  */
-public class HeartbeatRequester extends RequestAndParseActor {
+public class HeartbeatRequester extends GetAndParseActor {
 
     private static final String NAME = "heartbeat";
     private static final String TAG = HeartbeatRequester.class.getSimpleName();

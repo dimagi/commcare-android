@@ -23,12 +23,12 @@ import java.util.HashMap;
  * Created by amstone326 on 5/8/18.
  */
 
-public abstract class RequestAndParseActor {
+public abstract class GetAndParseActor {
 
     private final String requestName;
     private final String logTag;
 
-    public RequestAndParseActor(String requestName, String logTag) {
+    public GetAndParseActor(String requestName, String logTag) {
         this.requestName = requestName;
         this.logTag = logTag;
     }
