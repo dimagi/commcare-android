@@ -369,4 +369,10 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="target_mismatch_commcare_open" cc:translatable="true">Open CommCare</string>
     <string name="target_mismatch_commcare_required_info" cc:translatable="true">Follow the link below to install CommCare(Non LTS) from the Play Store, and then try installing your app again.</string>
     <string name="target_mismatch_commcare_available_info" cc:translatable="true">This app requires CommCare(Non LTS). Click the button below to open CommCare, and then try installing your app again.</string>
+
+    <!--Incorrect Time Dialog-->
+    <string name="incorrect_time_dialog_title" cc:translatable="true">Incorrect Time</string>
+    <string name="incorrect_time_dialog_message" cc:translatable="true">Your device time is incorrectly set. Please click the Correct Time button below to change your time settings.</string>
+    <string name="incorrect_time_dialog_correct_time" cc:translatable="true">Correct Time</string>
+    <string name="incorrect_time_dialog_cancel" cc:translatable="true">Cancel</string>
 </resources>
