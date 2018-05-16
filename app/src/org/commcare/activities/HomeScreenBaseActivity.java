@@ -61,7 +61,6 @@ import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.utils.StorageUtils;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
@@ -713,11 +712,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
-                // Now that we know this form is completed, we can give it the next available
-                // submission ordering number
-                current.setFormNumberForSubmissionOrdering(StorageUtils.getNextFormSubmissionNumber());
-                SqlStorage<FormRecord> formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-                formRecordStorage.write(current);
                 checkAndStartUnsentFormsTask(false, false);
                 refreshUI();
 

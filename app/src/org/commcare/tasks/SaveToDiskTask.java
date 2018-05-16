@@ -13,6 +13,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.StorageUtils;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
@@ -155,10 +156,12 @@ public class SaveToDiskTask extends
         // Insert or update the form instance into the database.
 
         if (mFormRecordId != -1) {
-            // Started with a concrete instance (e.i. by editing an existing
-            // form), so just update it.
+            // Started with a concrete instance (i.e. by editing an existing form), so just update it.
             try {
                 FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, mFormRecordId);
+                if (status.equals(FormRecord.STATUS_COMPLETE)) {
+                    formRecord.setFormNumberForSubmissionOrdering(StorageUtils.getNextFormSubmissionNumber());
+                }
                 formRecord.updateStatus(formRecordStorage, status, mRecordName, canEditWhenComplete);
             } catch (IllegalStateException e) {
                 throw new FormInstanceTransactionException(e);
@@ -178,6 +181,9 @@ public class SaveToDiskTask extends
             formRecord.setDisplayName(recordName);
             formRecord.setCanEditWhenComplete(canEditWhenComplete);
             formRecord.setStatus(status);
+            if (status.equals(FormRecord.STATUS_COMPLETE)) {
+                formRecord.setFormNumberForSubmissionOrdering(StorageUtils.getNextFormSubmissionNumber());
+            }
             formRecord.update(formRecordStorage);
         }
     }
@@ -211,7 +217,6 @@ public class SaveToDiskTask extends
         if (markCompleted) {
             // now see if it is to be finalized and perhaps update everything...
             boolean canEditAfterCompleted = FormEntryActivity.mFormController.isSubmissionEntireForm();
-            boolean isEncrypted = false;
 
             // build a submission.xml to hold the data being submitted 
             // and (if appropriate) encrypt the files on the side
