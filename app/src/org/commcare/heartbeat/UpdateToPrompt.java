@@ -119,7 +119,7 @@ public class UpdateToPrompt implements Externalizable {
             try {
                 Context c = CommCareApplication.instance();
                 PackageInfo pi = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
-                ApkVersion currentVersion = new ApkVersion(pi.versionName);
+                ApkVersion currentVersion = new ApkVersion("2.42.0");
                 return currentVersion.compareTo(this.apkVersion) < 0;
             } catch (PackageManager.NameNotFoundException e) {
                 // This shouldn't happen, but it if it does, there's no way for us to know if the
