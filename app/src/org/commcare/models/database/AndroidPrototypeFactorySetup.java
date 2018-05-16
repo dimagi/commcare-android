@@ -63,6 +63,7 @@ public class AndroidPrototypeFactorySetup {
             String cn = en.nextElement();
             loadClass(cn, classNames);
         }
+        df.close();
 
         return classNames;
     }
