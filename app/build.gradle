@@ -60,7 +60,6 @@ dependencies {
     compile 'com.madgag.spongycastle:core:1.54.0.0'
     compile 'com.madgag.spongycastle:prov:1.54.0.0'
     compile 'com.google.android.gms:play-services-maps:15.0.1'
-    compile 'com.google.android.gms:play-services-analytics:15.0.1'
     compile 'joda-time:joda-time:2.9.4'
     compile 'net.sf.kxml:kxml2:2.3.0'
     compile 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
