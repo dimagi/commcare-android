@@ -99,7 +99,7 @@ public class ImageCaptureProcessing {
         // Query for the ID of the media matching the file path
         Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
-        if (c.moveToFirst()) {
+        if (c != null && c.moveToFirst()) {
             // We found the ID. Deleting the item via the content provider will also remove the file
             long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
             Uri deleteUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
