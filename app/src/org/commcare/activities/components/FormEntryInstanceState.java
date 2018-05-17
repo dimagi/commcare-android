@@ -54,19 +54,16 @@ public class FormEntryInstanceState {
 
     public Pair<Integer, Boolean> getFormDefIdForRecord(SqlStorage<FormDefRecord> formDefRecordStorage, int formRecordId, FormEntryInstanceState instanceState)
             throws FormEntryActivity.FormQueryException {
-        Boolean isInstanceReadOnly = false;
         FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, formRecordId);
         mFormRecordPath = formRecord.getFilePath();
 
-        //If this form is both already completed
-        if (FormRecord.STATUS_COMPLETE.equals(formRecord.getStatus())) {
-            if (!Boolean.parseBoolean(formRecord.getCanEditWhenComplete())) {
-                isInstanceReadOnly = true;
-            }
-        }
+        String formStatus = formRecord.getStatus();
+        boolean isInstanceReadOnly =
+                !FormRecord.STATUS_UNSTARTED.equals(formStatus) &&
+                !FormRecord.STATUS_INCOMPLETE.equals(formStatus);
 
-        Vector<FormDefRecord> formDefRecords = FormDefRecord.getFormDefsByJrFormId(formDefRecordStorage, formRecord.getXmlns());
-
+        Vector<FormDefRecord> formDefRecords =
+                FormDefRecord.getFormDefsByJrFormId(formDefRecordStorage, formRecord.getXmlns());
         if (formDefRecords.size() == 1) {
             FormDefRecord formDefRecord = formDefRecords.get(0);
             instanceState.setFormDefPath(formDefRecord.getFilePath());

@@ -29,7 +29,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.modern.database.DatabaseIndexingUtils;
-import org.commcare.provider.InstanceProviderAPI;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
@@ -590,7 +589,7 @@ class UserDatabaseUpgrader {
     }
 
     private boolean upgradeTwentyTwoTwentyThree(SQLiteDatabase db) {
-        //drop the existing table and recreate using current definition
+        // drop the existing table and recreate using current definition
         boolean success;
         Vector<Uri> migratedInstances;
         db.beginTransaction();
