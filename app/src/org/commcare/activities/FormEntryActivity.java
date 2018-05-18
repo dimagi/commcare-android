@@ -865,7 +865,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (intent != null) {
             loadIntentFormData(intent);
             setTitleToLoading();
-            int formId = -1;
+            int formId;
             try {
                 SqlStorage<FormDefRecord> formDefStorage = CommCareApplication.instance().getAppStorage(FormDefRecord.class);
                 if (intent.hasExtra(KEY_FORM_RECORD_ID)) {

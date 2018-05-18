@@ -47,7 +47,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String META_SUBMISSION_ORDERING_NUMBER = "SUBMISSION_ORDERING_NUMBER";
     public static final String META_DISPLAY_NAME = "displayName";
     public static final String META_FILE_PATH = "instanceFilePath";
-    public static final String META_CAN_EDIT_WHEN_COMPLETE = "canEditWhenComplete";
 
 
     /**
@@ -146,10 +145,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @MetaField(META_FILE_PATH)
     private String filePath;
 
-    @Persisting(value = 11, nullable = true)
-    @MetaField(META_CAN_EDIT_WHEN_COMPLETE)
-    private String canEditWhenComplete;
-
     public FormRecord() {
     }
 
@@ -182,7 +177,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
         quarantineReason = oldRecord.quarantineReason;
         displayName = oldRecord.displayName;
         filePath = oldRecord.filePath;
-        canEditWhenComplete = oldRecord.canEditWhenComplete;
         recordId = oldRecord.recordId;
     }
 
@@ -324,9 +318,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return formRecord != null && formRecord.status.contentEquals(STATUS_COMPLETE);
     }
 
-    public void updateStatus(SqlStorage<FormRecord> formRecordStorage, @FormRecordStatus String status, String displayName, String canEditWhenComplete) {
+    public void updateStatus(SqlStorage<FormRecord> formRecordStorage, @FormRecordStatus String status, String displayName) {
         this.displayName = displayName;
-        this.canEditWhenComplete = canEditWhenComplete;
         this.status = status;
         update(formRecordStorage);
     }
@@ -443,14 +436,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
         public InvalidStateException(String message) {
             super(message);
         }
-    }
-
-    public void setCanEditWhenComplete(String canEditWhenComplete) {
-        this.canEditWhenComplete = canEditWhenComplete;
-    }
-
-    public String getCanEditWhenComplete() {
-        return canEditWhenComplete;
     }
 
     public void setDisplayName(String displayName) {

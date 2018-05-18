@@ -168,7 +168,6 @@ public class CommCareApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-
         CommCareApplication.app = this;
         CrashUtil.init(this);
         DataChangeLogger.init(this);
