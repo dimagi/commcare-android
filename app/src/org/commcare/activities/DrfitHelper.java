@@ -15,6 +15,7 @@ import org.commcare.views.dialogs.StandardAlertDialog;
 import java.util.Date;
 
 import static org.commcare.core.network.CommCareNetworkServiceGenerator.CURRENT_DRIFT;
+import static org.commcare.core.network.CommCareNetworkServiceGenerator.MAX_DRIFT_SINCE_LAST_HEARTBEAT;
 import static org.javarosa.core.model.utils.DateUtils.DAY_IN_MS;
 
 public class DrfitHelper {
@@ -24,7 +25,7 @@ public class DrfitHelper {
 
     static boolean shouldShowDriftWarning() {
         if (isWarningEnabled()) {
-            long lastIncorrrectTimeWarningAt = getPreferences().getLong(LAST_INCORRECT_TIME_WARNING_AT, -1);
+            long lastIncorrrectTimeWarningAt = getAppPreferences().getLong(LAST_INCORRECT_TIME_WARNING_AT, -1);
             if (new Date().getTime() - lastIncorrrectTimeWarningAt > DAY_IN_MS) {
                 return true;
             }
@@ -33,10 +34,10 @@ public class DrfitHelper {
     }
 
     static void updateLastDriftWarningTime() {
-        getPreferences().edit().putLong(LAST_INCORRECT_TIME_WARNING_AT, new Date().getTime()).apply();
+        getAppPreferences().edit().putLong(LAST_INCORRECT_TIME_WARNING_AT, new Date().getTime()).apply();
     }
 
-    static long getCurrentDrift() {
+    public static long getCurrentDrift() {
         return CommCarePreferenceManagerFactory.getCommCarePreferenceManager().getLong(CURRENT_DRIFT, 0);
     }
 
@@ -58,7 +59,15 @@ public class DrfitHelper {
         return DeveloperPreferences.doesPropertyMatch(INCORRECT_TIME_WARNING_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
-    private static SharedPreferences getPreferences() {
+    private static SharedPreferences getAppPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+    }
+
+    public static long getMaxDrfitSinceLastHeartbeat() {
+        return CommCarePreferenceManagerFactory.getCommCarePreferenceManager().getLong(MAX_DRIFT_SINCE_LAST_HEARTBEAT, 0);
+    }
+
+    public static void clearMaxDriftSinceLastHeartbeat() {
+        CommCarePreferenceManagerFactory.getCommCarePreferenceManager().putLong(MAX_DRIFT_SINCE_LAST_HEARTBEAT, 0);
     }
 }

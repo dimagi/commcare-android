@@ -6,6 +6,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.DrfitHelper;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthenticationInterceptor;
@@ -46,6 +47,8 @@ public class HeartbeatRequester {
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
     private static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
     private static final String LAST_SYNC_TIME_PARAM = "last_sync_time";
+    private static final String CURRENT_DRIFT = "current_drfit";
+    private static final String MAX_DRFIT_SINCE_LAST_HEARTBEAT = "max_drfit_since_last_heartbeat";
 
     private final HttpResponseProcessor responseProcessor = new HttpResponseProcessor() {
 
@@ -55,6 +58,7 @@ public class HeartbeatRequester {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                 JSONObject jsonResponse = new JSONObject(responseAsString);
                 passResponseToUiThread(jsonResponse);
+                DrfitHelper.clearMaxDriftSinceLastHeartbeat();
             } catch (JSONException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "Heartbeat response was not properly-formed JSON: " + e.getMessage());
@@ -114,11 +118,13 @@ public class HeartbeatRequester {
         HashMap<String, String> params = new HashMap<>();
         params.put(APP_ID, CommCareApplication.instance().getCurrentApp().getUniqueId());
         params.put(DEVICE_ID, CommCareApplication.instance().getPhoneId());
-        params.put(APP_VERSION, "" + ReportingUtils.getAppBuildNumber());
+        params.put(APP_VERSION, String.valueOf(ReportingUtils.getAppBuildNumber()));
         params.put(CC_VERSION, ReportingUtils.getCommCareVersionString());
-        params.put(QUARANTINED_FORMS_PARAM, "" + StorageUtils.getNumQuarantinedForms());
-        params.put(UNSENT_FORMS_PARAM, "" + StorageUtils.getNumUnsentForms());
+        params.put(QUARANTINED_FORMS_PARAM, String.valueOf(StorageUtils.getNumQuarantinedForms()));
+        params.put(UNSENT_FORMS_PARAM, String.valueOf(StorageUtils.getNumUnsentForms()));
         params.put(LAST_SYNC_TIME_PARAM, getISO8601FormattedLastSyncTime());
+        params.put(CURRENT_DRIFT, String.valueOf(DrfitHelper.getCurrentDrift()));
+        params.put(MAX_DRFIT_SINCE_LAST_HEARTBEAT, String.valueOf(DrfitHelper.getMaxDrfitSinceLastHeartbeat()));
         return params;
     }
 
