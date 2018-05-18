@@ -33,6 +33,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -72,8 +73,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     protected int customInstall(Resource r, Reference local, boolean upgrade, AndroidCommCarePlatform platform) throws IOException, UnresolvedResourceException {
         registerAndroidLevelFormParsers();
         FormDef formDef;
-        try {
-            formDef = XFormExtensionUtils.getFormFromInputStream(local.getStream());
+        try (InputStream inputStream = local.getStream()) {
+            formDef = XFormExtensionUtils.getFormFromInputStream(inputStream);
         } catch (XFormParseException xfpe) {
             throw new UnresolvedResourceException(r, xfpe.getMessage(), true);
         }

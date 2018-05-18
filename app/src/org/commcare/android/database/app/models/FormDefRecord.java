@@ -2,10 +2,8 @@ package org.commcare.android.database.app.models;
 
 import android.database.Cursor;
 import android.database.SQLException;
-import android.os.Environment;
 
 import org.apache.commons.lang3.StringUtils;
-import org.commcare.CommCareApplication;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
@@ -18,8 +16,6 @@ import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Vector;
 
 @Table(FormDefRecord.STORAGE_KEY)

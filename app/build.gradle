@@ -59,7 +59,7 @@ dependencies {
     implementation 'com.android.support:gridlayout-v7:25.2.0'
     implementation 'com.madgag.spongycastle:core:1.54.0.0'
     implementation 'com.madgag.spongycastle:prov:1.54.0.0'
-    implementation 'com.google.android.gms:play-services-maps:10.0.1'
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
     implementation ('org.apache.james:apache-mime4j:0.7.2') {
@@ -68,8 +68,8 @@ dependencies {
     implementation('org.apache.httpcomponents:httpmime:4.3.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
     implementation 'org.jsoup:jsoup:1.8.3'
-    implementation 'com.google.firebase:firebase-core:10.0.1'
-    implementation 'com.google.firebase:firebase-ads:10.0.1'
+    implementation 'com.google.firebase:firebase-core:15.0.2'
+    implementation 'com.google.firebase:firebase-ads:15.0.1'
     implementation 'com.carrotsearch:hppc:0.7.2'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'com.journeyapps:zxing-android-embedded:3.5.0'
@@ -222,7 +222,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 14
         targetSdkVersion 25
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
@@ -233,8 +233,6 @@ android {
                 odkProvider         : odkProviderStr,
                 googlePlayMapsApiKey: "${project.ext.GOOGLE_PLAY_MAPS_API_KEY}"
         ]
-
-        vectorDrawables.useSupportLibrary = true
 
         versionCode computeVersionCode()
 
