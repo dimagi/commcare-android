@@ -27,7 +27,7 @@ public class RecoveryMeasure extends Persisted {
     public static final String STORAGE_KEY = "RecoveryMeasures";
 
     private static final String APP_REINSTALL = "app_reinstall";
-    private static final String APP_REINSTALL_LOCAL_ONLY = "app_reinstall_local_only";
+    private static final String APP_REINSTALL_LOCAL = "app_reinstall_local";
     private static final String APP_UPDATE = "app_update";
     private static final String CLEAR_USER_DATA = "clear_data";
     private static final String CC_REINSTALL_NEEDED = "cc_reinstall";
@@ -110,7 +110,7 @@ public class RecoveryMeasure extends Persisted {
             case APP_REINSTALL:
                 AppLifecycleUtils.reinstall(currentApp);
                 return true;
-            case APP_REINSTALL_LOCAL_ONLY:
+            case APP_REINSTALL_LOCAL:
                 AppLifecycleUtils.reinstallIfLocalCczPresent(currentApp);
                 return true;
             case APP_UPDATE:

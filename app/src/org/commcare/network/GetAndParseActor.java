@@ -36,19 +36,15 @@ public abstract class GetAndParseActor {
     private final String requestName;
     private final String logTag;
     private final String url;
-    private final String urlPrefKey;
 
     public GetAndParseActor(String requestName, String logTag, String urlPrefKey) {
         this.requestName = requestName;
         this.logTag = logTag;
-        this.urlPrefKey = urlPrefKey;
         this.url = CommCareApplication.instance().getCurrentApp().getAppPreferences().getString(urlPrefKey, null);
     }
 
     public void makeRequest() {
         if (url == null) {
-            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
-                    String.format("App had no value for %s when attempting request", urlPrefKey));
             return;
         }
         Log.i(logTag, String.format("Requesting %s from %s", requestName, url));

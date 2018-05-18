@@ -226,7 +226,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             // on first startup
             ApplicationRecord r = readyApps.get(0);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-            prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).commit();
+            prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
 
             setSingleAppUIState();
         } else {
