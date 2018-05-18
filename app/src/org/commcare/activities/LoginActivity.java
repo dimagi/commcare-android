@@ -33,6 +33,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.recovery.measures.RecoveryMeasuresManager;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
@@ -225,8 +226,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
-        // Otherwise, refresh the activity for current conditions
-        uiController.refreshView();
+        if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
+            RecoveryMeasuresManager.executePendingMeasures();
+        } else {
+            // Otherwise, refresh the activity for current conditions
+            uiController.refreshView();
+        }
     }
 
     protected boolean checkForSeatedAppChange() {

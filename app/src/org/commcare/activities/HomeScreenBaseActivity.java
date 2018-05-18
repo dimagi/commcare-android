@@ -39,6 +39,7 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.PrefValues;
+import org.commcare.recovery.measures.RecoveryMeasuresManager;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
@@ -1115,6 +1116,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      */
     private boolean checkForPendingAppHealthActions() {
         boolean result = false;
+
+        if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
+            RecoveryMeasuresManager.executePendingMeasures();
+        }
         if (CommCareApplication.instance().isSyncPending(false)) {
             triggerSync(true);
             result = true;

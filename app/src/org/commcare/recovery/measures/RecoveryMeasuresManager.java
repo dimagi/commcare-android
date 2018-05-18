@@ -20,13 +20,11 @@ public class RecoveryMeasuresManager {
         (new RecoveryMeasuresRequester()).makeRequest();
     }
 
-    public static void sendBroadcast() {
-        Intent i = new Intent("org.commcare.dalvik.api.action.RecoveryMeasuresFound");
-        CommCareApplication.instance().sendBroadcast(i);
+    public static boolean recoveryMeasuresPending() {
+        return CommCareApplication.instance().getAppStorage(RecoveryMeasure.class).getNumRecords() > 0;
     }
 
-    // Execute any recovery measures that we've received and stored
-    protected static void executePendingMeasures() {
+    public static void executePendingMeasures() {
         for (RecoveryMeasure measure : StorageUtils.getPendingRecoveryMeasuresInOrder()) {
             boolean success = measure.execute();
             if (success) {
