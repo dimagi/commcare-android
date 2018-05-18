@@ -45,7 +45,7 @@ import java.util.Vector;
 public class XFormAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = XFormAndroidInstaller.class.getSimpleName();
 
-    private String namespace;
+    protected String namespace;
     private int formDefId = -1;
 
     @SuppressWarnings("unused")

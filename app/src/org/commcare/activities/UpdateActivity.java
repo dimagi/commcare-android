@@ -443,6 +443,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         final String upgradeFinishedText =
                 Localization.get("updates.install.finished");
         HiddenPreferences.setPostUpdateSyncNeeded(!isLocalUpdate && !BuildConfig.DEBUG);
+        HiddenPreferences.setShowXformUpdateInfo(true);
         CommCareApplication.instance().expireUserSession();
         if (proceedAutomatically) {
             finishWithResult(RefreshToLatestBuildActivity.UPDATE_SUCCESS);
