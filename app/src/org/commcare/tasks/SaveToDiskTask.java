@@ -139,7 +139,7 @@ public class SaveToDiskTask extends
     /**
      * Update form Record with necessary params
      */
-    private void updateFormRecord(SqlStorage<FormRecord> formRecordStorage, boolean incomplete, boolean canEditAfterCompleted)
+    private void updateFormRecord(SqlStorage<FormRecord> formRecordStorage, boolean incomplete)
             throws FormInstanceTransactionException {
 
         String status;
@@ -149,17 +149,13 @@ public class SaveToDiskTask extends
             status = FormRecord.STATUS_COMPLETE;
         }
 
-        // update this whether or not the status is complete.
-        String canEditWhenComplete = Boolean.toString(canEditAfterCompleted);
-
         // Insert or update the form instance into the database.
-
         if (mFormRecordId != -1) {
             // Started with a concrete instance (e.i. by editing an existing
             // form), so just update it.
             try {
                 FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, mFormRecordId);
-                formRecord.updateStatus(formRecordStorage, status, mRecordName, canEditWhenComplete);
+                formRecord.updateStatus(formRecordStorage, status, mRecordName);
             } catch (IllegalStateException e) {
                 throw new FormInstanceTransactionException(e);
             }
@@ -176,7 +172,6 @@ public class SaveToDiskTask extends
             FormRecord formRecord = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
             formRecord.setFilePath(mFormRecordPath);
             formRecord.setDisplayName(recordName);
-            formRecord.setCanEditWhenComplete(canEditWhenComplete);
             formRecord.setStatus(status);
             formRecord.update(formRecordStorage);
         }
@@ -196,70 +191,39 @@ public class SaveToDiskTask extends
      */
     private void exportData(boolean markCompleted)
             throws IOException, FormInstanceTransactionException {
-        ByteArrayPayload payload;
-        // assume no binary data inside the model.
-        FormInstance datamodel = FormEntryActivity.mFormController.getInstance();
+
+        FormInstance dataModel = FormEntryActivity.mFormController.getInstance();
         XFormSerializingVisitor serializer = new XFormSerializingVisitor(markCompleted);
-        payload = (ByteArrayPayload)serializer.createSerializedPayload(datamodel);
+        ByteArrayPayload payload = (ByteArrayPayload)serializer.createSerializedPayload(dataModel);
 
         writeXmlToStream(payload,
                 EncryptionIO.createFileOutputStream(mFormRecordPath, symetricKey));
 
         SqlStorage<FormRecord> formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        updateFormRecord(formRecordStorage, true, true);
+        updateFormRecord(formRecordStorage, true);
 
         if (markCompleted) {
-            // now see if it is to be finalized and perhaps update everything...
-            boolean canEditAfterCompleted = FormEntryActivity.mFormController.isSubmissionEntireForm();
-            boolean isEncrypted = false;
-
-            // build a submission.xml to hold the data being submitted 
-            // and (if appropriate) encrypt the files on the side
-
-            // pay attention to the ref attribute of the submission profile...
             payload = FormEntryActivity.mFormController.getSubmissionXml();
-
             File instanceXml = new File(mFormRecordPath);
             File submissionXml = new File(instanceXml.getParentFile(), "submission.xml");
             // write out submission.xml -- the data to actually submit to aggregate
             writeXmlToStream(payload,
                     EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
 
+            // Set this record's status to COMPLETE
+            updateFormRecord(formRecordStorage, false);
 
-            // At this point, we have:
-            // 1. the saved original instanceXml, 
-            // 2. all the plaintext attachments
-            // 3. the submission.xml that is the completed xml (whether encrypting or not)
+            // delete the restore Xml file.
+            if (!instanceXml.delete()) {
+                Log.e(TAG,
+                        "Error deleting " + instanceXml.getAbsolutePath()
+                        + " prior to renaming submission.xml");
+                return;
+            }
 
-            //
-            // NEXT:
-            // 1. Update the form record database (with status complete).
-            // 2. Overwrite the instanceXml with the submission.xml 
-            //    and remove the plaintext attachments if encrypting
-            updateFormRecord(formRecordStorage, false, canEditAfterCompleted);
-
-            if (!canEditAfterCompleted) {
-                // AT THIS POINT, there is no going back.  We are committed
-                // to returning "success" (true) whether or not we can 
-                // rename "submission.xml" to instanceXml and whether or 
-                // not we can delete the plaintext media files.
-                //
-                // Handle the fall-out for a failed "submission.xml" rename
-                // in the InstanceUploader task.  Leftover plaintext media
-                // files are handled during form deletion.
-
-                // delete the restore Xml file.
-                if (!instanceXml.delete()) {
-                    Log.e(TAG, "Error deleting " + instanceXml.getAbsolutePath()
-                            + " prior to renaming submission.xml");
-                    return;
-                }
-
-                // rename the submission.xml to be the instanceXml
-                if (!submissionXml.renameTo(instanceXml)) {
-                    Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
-                    return;
-                }
+            // rename the submission.xml to be the instanceXml
+            if (!submissionXml.renameTo(instanceXml)) {
+                Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
             }
         }
     }
