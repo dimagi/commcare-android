@@ -1,5 +1,6 @@
 package org.commcare.recovery.measures;
 
+import org.commcare.CommCareApplication;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.network.GetAndParseActor;
 import org.commcare.preferences.ServerUrls;
@@ -32,7 +33,10 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
 
     @Override
     public HashMap<String, String> getRequestParams() {
-        return new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
+        params.put(APP_ID, CommCareApplication.instance().getCurrentApp().getUniqueId());
+        params.put(DEVICE_ID, CommCareApplication.instance().getPhoneId());
+        return params;
     }
 
     @Override

@@ -34,14 +34,6 @@ public class HeartbeatRequester extends GetAndParseActor {
     private static final String NAME = "heartbeat";
     private static final String TAG = HeartbeatRequester.class.getSimpleName();
 
-    private static final String APP_ID = "app_id";
-    private static final String DEVICE_ID = "device_id";
-    private static final String APP_VERSION = "app_version";
-    private static final String CC_VERSION = "cc_version";
-    private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
-    private static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
-    private static final String LAST_SYNC_TIME_PARAM = "last_sync_time";
-
     public HeartbeatRequester() {
         super(NAME, TAG, ServerUrls.PREFS_HEARTBEAT_URL_KEY);
     }

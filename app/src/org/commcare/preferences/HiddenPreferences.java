@@ -57,6 +57,9 @@ public class HiddenPreferences {
     private final static String LOGS_ENABLED_YES = "Enabled";
     private final static String ON_DEVICE_BACKUP_CCZ_LOCATION = "on-device-backup-ccz-location";
 
+    // Boolean pref to determine whether user has already been through the update information form
+    public final static String SHOW_XFORM_UPDATE_INFO = "show-xform-update-info";
+
     /**
      * @return How many seconds should a user session remain open before expiring?
      */
@@ -246,5 +249,15 @@ public class HiddenPreferences {
     public static String getBackupCczLocation() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getString(ON_DEVICE_BACKUP_CCZ_LOCATION, null);
+    }
+
+    public static void setShowXformUpdateInfo(boolean showXformUpdateInfo) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putBoolean(SHOW_XFORM_UPDATE_INFO, showXformUpdateInfo).apply();
+    }
+
+    public static Boolean shouldShowXformUpdateInfo() {
+        return CommCareApplication.instance().getCurrentApp()
+                .getAppPreferences().getBoolean(SHOW_XFORM_UPDATE_INFO, false);
     }
 }
