@@ -284,8 +284,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         FormRecord parsed = new FormRecord(r);
         parsed.setUuid(uuid[0]);
         parsed.setLastModified(modified[0]);
-        // Make sure that the instance is no longer editable
-        parsed.setCanEditWhenComplete( Boolean.toString(false));
         return new Pair<>(parsed, caseIDs[0]);
     }
 

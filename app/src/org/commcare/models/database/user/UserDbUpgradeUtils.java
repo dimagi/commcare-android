@@ -228,7 +228,6 @@ public class UserDbUpgradeUtils {
                     cursor.moveToFirst();
                     newRecord.setDisplayName(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.DISPLAY_NAME)));
                     newRecord.setFilePath(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH)));
-                    newRecord.setCanEditWhenComplete(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.CAN_EDIT_WHEN_COMPLETE)));
                 }
             } finally {
                 if (cursor != null) {
