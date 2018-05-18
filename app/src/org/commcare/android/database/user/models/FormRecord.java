@@ -319,13 +319,15 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return formRecord != null && formRecord.status.contentEquals(STATUS_COMPLETE);
     }
 
-    public void updateStatus(SqlStorage<FormRecord> formRecordStorage, @FormRecordStatus String status, String displayName) {
-        this.displayName = displayName;
+    public void updateStatus(SqlStorage<FormRecord> formRecordStorage,
+                             @FormRecordStatus String status) {
         if (!this.status.equals(FormRecord.STATUS_COMPLETE) && status.equals(FormRecord.STATUS_COMPLETE)) {
             setFormNumberForSubmissionOrdering(StorageUtils.getNextFormSubmissionNumber());
         }
         this.status = status;
-        update(formRecordStorage);
+        lastModified = new Date();
+        formRecordStorage.update(getID(), this);
+        finalizeRecord();
     }
 
     private void finalizeRecord() {
@@ -428,12 +430,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
         Logger.log(LogTypes.TYPE_FORM_ENTRY, loggerText);
         currentState.reset();
         throw new RuntimeException(loggerText);
-    }
-
-    public void update(SqlStorage<FormRecord> formRecordStorage) {
-        lastModified = new Date();
-        formRecordStorage.update(getID(), this);
-        finalizeRecord();
     }
 
     private static class InvalidStateException extends Exception {

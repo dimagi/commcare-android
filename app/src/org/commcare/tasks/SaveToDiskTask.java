@@ -168,7 +168,8 @@ public class SaveToDiskTask extends
 
         if (formRecord != null) {
             try {
-                formRecord.updateStatus(formRecordStorage, status, recordName);
+                formRecord.setDisplayName(recordName);
+                formRecord.updateStatus(formRecordStorage, status);
             } catch (IllegalStateException e) {
                 throw new FormInstanceTransactionException(e);
             }
