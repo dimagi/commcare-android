@@ -36,17 +36,21 @@ public class RecoveryMeasure extends Persisted {
     @Persisting(1)
     private String type;
     @Persisting(2)
-    private final int sequenceNumber;
+    private int sequenceNumber;
     @Persisting(3)
-    private final String ccVersionMin;
+    private String ccVersionMin;
     @Persisting(4)
-    private final String ccVersionMax;
+    private String ccVersionMax;
     @Persisting(5)
-    private final int appVersionMin;
+    private int appVersionMin;
     @Persisting(6)
-    private final int appVersionMax;
+    private int appVersionMax;
 
-    public RecoveryMeasure(String type, int sequenceNumber, String ccVersionMin,
+    public RecoveryMeasure() {
+
+    }
+
+    protected RecoveryMeasure(String type, int sequenceNumber, String ccVersionMin,
                               String ccVersionMax, int appVersionMin, int appVersionMax) {
         this.type = type;
         this.sequenceNumber = sequenceNumber;
@@ -56,7 +60,7 @@ public class RecoveryMeasure extends Persisted {
         this.appVersionMax = appVersionMax;
     }
 
-    public boolean applicableToCurrentInstallation() {
+    protected boolean applicableToCurrentInstallation() {
         return sequenceNumberIsNewer() && applicableToAppVersion() & applicableToCommCareVersion();
     }
 
@@ -91,7 +95,7 @@ public class RecoveryMeasure extends Persisted {
         return sequenceNumber;
     }
 
-    public void registerWithSystem() {
+    protected void registerWithSystem() {
         CommCareApplication.instance().getAppStorage(RecoveryMeasure.class).write(this);
     }
 

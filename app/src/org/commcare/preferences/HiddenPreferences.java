@@ -235,9 +235,12 @@ public class HiddenPreferences {
     }
 
     public static void setLatestRecoveryMeasureExecuted(int latestSequenceNumber) {
-        CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .edit().putInt(LATEST_RECOVERY_MEASURE, latestSequenceNumber)
-                .apply();
+        // The measure we executed may have been an app uninstall, so it's possible this will be null
+        if (CommCareApplication.instance().getCurrentApp() != null) {
+            CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                    .edit().putInt(LATEST_RECOVERY_MEASURE, latestSequenceNumber)
+                    .apply();
+        }
     }
 
     public static String getBackupCczLocation() {

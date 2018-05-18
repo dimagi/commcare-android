@@ -59,14 +59,10 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
         //if (checkForAppIdMatch(responseAsJson)) {
             try {
                 if (responseAsJson.has("recovery_measures")) {
-                    boolean recoveryMeasuresStored = false;
                     JSONArray recoveryMeasures = responseAsJson.getJSONArray("recovery_measures");
                     for (int i = 0; i < recoveryMeasures.length(); i++) {
                         JSONObject recoveryMeasure = recoveryMeasures.getJSONObject(i);
-                        recoveryMeasuresStored = parseRecoveryMeasure(recoveryMeasure) || recoveryMeasuresStored;
-                    }
-                    if (recoveryMeasuresStored) {
-                        RecoveryMeasuresManager.executePendingMeasures();
+                        parseAndStoreRecoveryMeasure(recoveryMeasure);
                     }
                 }
             } catch (JSONException e) {
@@ -76,7 +72,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
         //}
     }
 
-    private static boolean parseRecoveryMeasure(JSONObject recoveryMeasureObject) {
+    private static void parseAndStoreRecoveryMeasure(JSONObject recoveryMeasureObject) {
         try {
             int sequenceNumber = Integer.parseInt(recoveryMeasureObject.getString("sequence_number"));
             String type = recoveryMeasureObject.getString("type");
@@ -88,7 +84,6 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
                     ccVersionMax, appVersionMin, appVersionMax);
             if (measure.applicableToCurrentInstallation()) {
                 measure.registerWithSystem();
-                return true;
             }
         } catch (JSONException e) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
@@ -98,7 +93,6 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
                     String.format("Sequence number or app version in recovery measure response was " +
                             "not a valid number: %s", e.getMessage()));
         }
-        return false;
     }
 
 }

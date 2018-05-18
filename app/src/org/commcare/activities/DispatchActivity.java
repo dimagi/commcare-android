@@ -125,7 +125,6 @@ public class DispatchActivity extends FragmentActivity {
             // appropriate error dialog has been triggered, don't continue w/ dispatch
             return;
         }
-        RecoveryMeasuresManager.requestRecoveryMeasures();
 
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         if (currentApp == null) {
@@ -138,6 +137,9 @@ public class DispatchActivity extends FragmentActivity {
                 this.startActivityForResult(i, INIT_APP);
             }
         } else {
+            // send this off, results will be stored and queried for later
+            RecoveryMeasuresManager.requestRecoveryMeasures();
+
             // Note that the order in which these conditions are checked matters!!
             if (CommCareApplication.instance().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
                 checkForChangedCCZ();
