@@ -227,7 +227,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
-            RecoveryMeasuresManager.executePendingMeasures();
+            RecoveryMeasuresManager.startExecutionTask(this);
         } else {
             // Otherwise, refresh the activity for current conditions
             uiController.refreshView();

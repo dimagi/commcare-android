@@ -1138,20 +1138,20 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      * @return true if we kicked off any processes
      */
     private boolean checkForPendingAppHealthActions() {
-        boolean result = false;
+        boolean kickedOff = false;
 
         if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
-            RecoveryMeasuresManager.executePendingMeasures();
-        }
-        if (CommCareApplication.instance().isSyncPending(false)) {
+            RecoveryMeasuresManager.startExecutionTask(this);
+            kickedOff = true;
+        } else if (CommCareApplication.instance().isSyncPending(false)) {
             triggerSync(true);
-            result = true;
+            kickedOff = true;
         } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
-            result = true;
+            kickedOff = true;
         }
 
         CommCareApplication.instance().getSession().setAppHealthChecksCompleted();
-        return result;
+        return kickedOff;
     }
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {

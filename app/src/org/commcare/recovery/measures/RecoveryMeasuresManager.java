@@ -1,8 +1,7 @@
 package org.commcare.recovery.measures;
 
-import android.content.Intent;
-
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareActivity;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.StorageUtils;
 
@@ -24,7 +23,13 @@ public class RecoveryMeasuresManager {
         return CommCareApplication.instance().getAppStorage(RecoveryMeasure.class).getNumRecords() > 0;
     }
 
-    public static void executePendingMeasures() {
+    public static void startExecutionTask(CommCareActivity activity) {
+        ExecuteRecoveryMeasuresTask task = new ExecuteRecoveryMeasuresTask();
+        task.connect(activity);
+        task.executeParallel();
+    }
+
+    protected static void executePendingMeasures() {
         for (RecoveryMeasure measure : StorageUtils.getPendingRecoveryMeasuresInOrder()) {
             boolean success = measure.execute();
             if (success) {
