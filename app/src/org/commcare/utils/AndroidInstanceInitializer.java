@@ -2,6 +2,7 @@ package org.commcare.utils;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.DrfitHelper;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.engine.cases.AndroidCaseInstanceTreeElement;
@@ -67,5 +68,10 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
             return super.getDeviceId();
         }
         return phoneId;
+    }
+
+    @Override
+    protected long getCurrentDrift() {
+        return DrfitHelper.getCurrentDrift();
     }
 }
