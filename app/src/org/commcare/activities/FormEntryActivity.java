@@ -555,12 +555,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // bring focus to the first one
             List<FormIndex> indexKeys = new ArrayList<>();
             indexKeys.addAll(answers.keySet());
-            Collections.sort(indexKeys, new Comparator<FormIndex>() {
-                @Override
-                public int compare(FormIndex arg0, FormIndex arg1) {
-                    return arg0.compareTo(arg1);
-                }
-            });
+            Collections.sort(indexKeys, FormIndex::compareTo);
 
             for (FormIndex index : indexKeys) {
                 // Within a group, you can only save for question events

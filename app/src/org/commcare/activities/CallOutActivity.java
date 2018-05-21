@@ -96,34 +96,25 @@ public class CallOutActivity extends FragmentActivity
     private void showChoiceDialog() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.detail.callout.title"));
 
-        View.OnClickListener callListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                calloutAction = Intent.ACTION_CALL;
-                dispatchActionWithPermissions();
-                dialog.dismiss();
-            }
+        View.OnClickListener callListener = v -> {
+            calloutAction = Intent.ACTION_CALL;
+            dispatchActionWithPermissions();
+            dialog.dismiss();
         };
         DialogChoiceItem item1 = new DialogChoiceItem(Localization.get("select.detail.callout.call"), -1, callListener);
 
-        View.OnClickListener smsListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                calloutAction = Intent.ACTION_SENDTO;
-                dispatchActionWithPermissions();
-                dialog.dismiss();
-            }
+        View.OnClickListener smsListener = v -> {
+            calloutAction = Intent.ACTION_SENDTO;
+            dispatchActionWithPermissions();
+            dialog.dismiss();
         };
         DialogChoiceItem item2 = new DialogChoiceItem(Localization.get("select.detail.callout.sms"), -1, smsListener);
 
         dialog.setChoiceItems(new DialogChoiceItem[]{item1, item2});
-        dialog.setOnCancelListener(new OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                Intent i = new Intent(getIntent());
-                setResult(RESULT_CANCELED, i);
-                finish();
-            }
+        dialog.setOnCancelListener(dialog1 -> {
+            Intent i = new Intent(getIntent());
+            setResult(RESULT_CANCELED, i);
+            finish();
         });
         dialog.showNonPersistentDialog();
     }

@@ -102,12 +102,7 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
 
         final ImageButton extraInfoButton = (ImageButton)view.findViewById(R.id.extra_info_button);
         extraInfoButton.setVisibility(View.VISIBLE);
-        extraInfoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleExtraInfoVisibility();
-            }
-        });
+        extraInfoButton.setOnClickListener(v -> toggleExtraInfoVisibility());
     }
 
     private void toggleExtraInfoVisibility() {

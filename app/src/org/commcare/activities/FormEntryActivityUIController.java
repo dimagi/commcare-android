@@ -102,47 +102,33 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         TextView finishText = (TextView)finishButton.findViewById(R.id.nav_btn_finish_text);
         finishText.setText(Localization.get("form.entry.finish.button").toUpperCase());
 
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        nextButton.setOnClickListener(v -> {
+            FirebaseAnalyticsUtil.reportFormNav(
+                    AnalyticsParamValue.DIRECTION_FORWARD,
+                    AnalyticsParamValue.NAV_BUTTON_PRESS);
+            showNextView();
+        });
+
+        prevButton.setOnClickListener(v -> {
+            if (!FormEntryConstants.NAV_STATE_QUIT.equals(v.getTag())) {
                 FirebaseAnalyticsUtil.reportFormNav(
-                        AnalyticsParamValue.DIRECTION_FORWARD,
+                        AnalyticsParamValue.DIRECTION_BACKWARD,
                         AnalyticsParamValue.NAV_BUTTON_PRESS);
-                showNextView();
+                showPreviousView(true);
+            } else {
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS);
+                activity.triggerUserQuitInput();
             }
         });
 
-        prevButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!FormEntryConstants.NAV_STATE_QUIT.equals(v.getTag())) {
-                    FirebaseAnalyticsUtil.reportFormNav(
-                            AnalyticsParamValue.DIRECTION_BACKWARD,
-                            AnalyticsParamValue.NAV_BUTTON_PRESS);
-                    showPreviousView(true);
-                } else {
-                    FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS);
-                    activity.triggerUserQuitInput();
-                }
-            }
+        finishButton.setOnClickListener(v -> {
+            FirebaseAnalyticsUtil.reportFormNav(
+                    AnalyticsParamValue.DIRECTION_FORWARD,
+                    AnalyticsParamValue.NAV_BUTTON_PRESS);
+            activity.triggerUserFormComplete();
         });
 
-        finishButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportFormNav(
-                        AnalyticsParamValue.DIRECTION_FORWARD,
-                        AnalyticsParamValue.NAV_BUTTON_PRESS);
-                activity.triggerUserFormComplete();
-            }
-        });
-
-        multiIntentDispatchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.fireCompoundIntentDispatch();
-            }
-        });
+        multiIntentDispatchButton.setOnClickListener(v -> activity.fireCompoundIntentDispatch());
 
 
         mViewPane = (ViewGroup)activity.findViewById(R.id.form_entry_pane);
@@ -513,15 +499,12 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         final PaneledChoiceDialog dialog = new HorizontalPaneledChoiceDialog(wrapper, title);
 
         // Panel 1: Back option
-        View.OnClickListener backListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (backExitsForm) {
-                    activity.triggerUserQuitInput();
-                } else {
-                    dialog.dismiss();
-                    refreshCurrentView(false);
-                }
+        View.OnClickListener backListener = v -> {
+            if (backExitsForm) {
+                activity.triggerUserQuitInput();
+            } else {
+                dialog.dismiss();
+                refreshCurrentView(false);
             }
         };
         int backIconId;
@@ -533,32 +516,26 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         DialogChoiceItem backItem = new DialogChoiceItem(backText, backIconId, backListener);
 
         // Panel 2: Add another option
-        View.OnClickListener addAnotherListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                try {
-                    FormEntryActivity.mFormController.newRepeat();
-                } catch (XPathUnhandledException | XPathTypeMismatchException e) {
-                    Logger.exception("Error creating new repeat", e);
-                    UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
-                    return;
-                }
-                showNextView();
+        View.OnClickListener addAnotherListener = v -> {
+            dialog.dismiss();
+            try {
+                FormEntryActivity.mFormController.newRepeat();
+            } catch (XPathUnhandledException | XPathTypeMismatchException e) {
+                Logger.exception("Error creating new repeat", e);
+                UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
+                return;
             }
+            showNextView();
         };
         DialogChoiceItem addAnotherItem = new DialogChoiceItem(addAnotherText, R.drawable.icon_new, addAnotherListener);
 
         // Panel 3: Skip option
-        View.OnClickListener skipListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                if (!nextExitsForm) {
-                    showNextView();
-                } else {
-                    activity.triggerUserFormComplete();
-                }
+        View.OnClickListener skipListener = v -> {
+            dialog.dismiss();
+            if (!nextExitsForm) {
+                showNextView();
+            } else {
+                activity.triggerUserFormComplete();
             }
         };
         int skipIconId;
@@ -572,12 +549,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         dialog.setChoiceItems(new DialogChoiceItem[]{backItem, addAnotherItem, skipItem});
         dialog.makeNotCancelable();
         dialog.setOnDismissListener(
-                new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface d) {
-                        isDialogShowing = false;
-                    }
-                }
+                d -> isDialogShowing = false
         );
         // Purposefully don't persist this dialog across rotation! Rotation
         // refreshes the view, which steps the form index back from the repeat

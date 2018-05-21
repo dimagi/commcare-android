@@ -168,12 +168,8 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
             progressDialog.dismiss();
         }
         progressDialog = ProgressDialog.show(getActivity(), "Press back to cancel", "finding peers", true,
-                true, new DialogInterface.OnCancelListener() {
+                true, dialog -> {
 
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-
-                    }
                 });
     }
 

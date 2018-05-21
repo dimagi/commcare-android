@@ -124,13 +124,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             }
         });
 
-        btnRecoverApp.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                displayMessage("App recovery is not yet enabled. Please clear user data (After sending all of your forms!) and re-install.");
-            }
-        });
+        btnRecoverApp.setOnClickListener(v -> displayMessage("App recovery is not yet enabled. Please clear user data (After sending all of your forms!) and re-install."));
     }
 
     private void displayMessage(String text) {

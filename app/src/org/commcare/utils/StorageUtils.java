@@ -102,19 +102,16 @@ public class StorageUtils {
     }
 
     private static void sortRecordsBySubmissionOrderingNumber(Vector<FormRecord> records) {
-        Collections.sort(records, new Comparator<FormRecord>() {
-            @Override
-            public int compare(FormRecord form1, FormRecord form2) {
-                int form1OrderingNum = form1.getSubmissionOrderingNumber();
-                int form2OrderingNum = form2.getSubmissionOrderingNumber();
-                if (form1OrderingNum < form2OrderingNum) {
-                    return -1;
-                }
-                if (form1OrderingNum > form2OrderingNum) {
-                    return 1;
-                }
-                return 0;
+        Collections.sort(records, (form1, form2) -> {
+            int form1OrderingNum = form1.getSubmissionOrderingNumber();
+            int form2OrderingNum = form2.getSubmissionOrderingNumber();
+            if (form1OrderingNum < form2OrderingNum) {
+                return -1;
             }
+            if (form1OrderingNum > form2OrderingNum) {
+                return 1;
+            }
+            return 0;
         });
     }
 

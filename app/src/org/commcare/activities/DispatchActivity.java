@@ -387,18 +387,15 @@ public class DispatchActivity extends FragmentActivity {
         String message = "Sorry, something really bad has happened, and the app can't start up. " +
                 "With your permission CommCare can try to repair itself if you have network access.";
         StandardAlertDialog d = new StandardAlertDialog(this, title, message);
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE: // attempt repair
-                        Intent intent = new Intent(DispatchActivity.this, RecoveryActivity.class);
-                        startActivity(intent);
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE: // Shut down
-                        DispatchActivity.this.finish();
-                        break;
-                }
+        DialogInterface.OnClickListener listener = (dialog, i) -> {
+            switch (i) {
+                case DialogInterface.BUTTON_POSITIVE: // attempt repair
+                    Intent intent = new Intent(DispatchActivity.this, RecoveryActivity.class);
+                    startActivity(intent);
+                    break;
+                case DialogInterface.BUTTON_NEGATIVE: // Shut down
+                    DispatchActivity.this.finish();
+                    break;
             }
         };
         d.setPositiveButton("Enter Recovery Mode", listener);

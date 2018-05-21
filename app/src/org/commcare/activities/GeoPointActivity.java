@@ -102,28 +102,22 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     }
 
     private void handleNoLocationProviders() {
-        DialogInterface.OnCancelListener onCancelListener = new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                location = null;
-                GeoPointActivity.this.finish();
-            }
+        DialogInterface.OnCancelListener onCancelListener = dialog -> {
+            location = null;
+            GeoPointActivity.this.finish();
         };
 
-        DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        GeoUtils.goToProperLocationSettingsScreen(GeoPointActivity.this);
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        location = null;
-                        GeoPointActivity.this.finish();
-                        break;
-                }
-                dialog.dismiss();
+        DialogInterface.OnClickListener onChangeListener = (dialog, i) -> {
+            switch (i) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    GeoUtils.goToProperLocationSettingsScreen(GeoPointActivity.this);
+                    break;
+                case DialogInterface.BUTTON_NEGATIVE:
+                    location = null;
+                    GeoPointActivity.this.finish();
+                    break;
             }
+            dialog.dismiss();
         };
 
         GeoUtils.showNoGpsDialog(this, onChangeListener, onCancelListener);
@@ -135,20 +129,12 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     private void setupLocationDialog() {
         // dialog displayed while fetching gps location
 
-        OnClickListener cancelButtonListener = new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                location = null;
-                finish();
-            }
+        OnClickListener cancelButtonListener = v -> {
+            location = null;
+            finish();
         };
 
-        OnClickListener okButtonListener = new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                returnLocation();
-            }
-        };
+        OnClickListener okButtonListener = v -> returnLocation();
 
         locationDialog = new GeoProgressDialog(this, StringUtils.getStringRobust(this, R.string.found_location),
                 StringUtils.getStringRobust(this, R.string.finding_location));

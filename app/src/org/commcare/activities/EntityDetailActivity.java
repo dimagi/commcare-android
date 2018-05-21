@@ -132,13 +132,10 @@ public class EntityDetailActivity
             }
         }
 
-        next.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportEntityDetailContinue(
-                        AnalyticsParamValue.NAV_BUTTON_PRESS, mDetailView.getTabCount());
-                select();
-            }
+        next.setOnClickListener(v -> {
+            FirebaseAnalyticsUtil.reportEntityDetailContinue(
+                    AnalyticsParamValue.NAV_BUTTON_PRESS, mDetailView.getTabCount());
+            select();
         });
 
         if (viewMode) {

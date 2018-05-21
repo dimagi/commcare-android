@@ -47,13 +47,10 @@ public class SetupEnterURLFragment extends Fragment {
         TextView appProfile = (TextView)view.findViewById(R.id.app_profile_txt_view);
         appProfile.setText(Localization.get("install.appprofile"));
 
-        installButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                getFragmentManager().popBackStack(); // equivalent to pressing the "back" button
-                // no need for a null check because onAttach is called before onCreateView
-                listener.onURLChosen(getURL()); // returns the chosen URL to the parent Activity
-            }
+        installButton.setOnClickListener(v -> {
+            getFragmentManager().popBackStack(); // equivalent to pressing the "back" button
+            // no need for a null check because onAttach is called before onCreateView
+            listener.onURLChosen(getURL()); // returns the chosen URL to the parent Activity
         });
 
         return view;

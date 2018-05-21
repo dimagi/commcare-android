@@ -28,12 +28,9 @@ public class EntitySelectRefreshTimer {
                 myTimer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!cancelled) {
-                                    activity.loadEntities();
-                                }
+                        activity.runOnUiThread(() -> {
+                            if (!cancelled) {
+                                activity.loadEntities();
                             }
                         });
                     }

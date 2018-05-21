@@ -123,30 +123,27 @@ public class ImageWidget extends QuestionWidget {
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
-        mChooseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ImageCaptureProcessing.getCustomImagePath() != null) {
-                    // This block is only in use for a Calabash test and
-                    // processes the custom file path set from a broadcast triggered by calabash test
-                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                    ImageCaptureProcessing.processImageFromBroadcast((FormEntryActivity)getContext(), FormEntryInstanceState.getInstanceFolder());
-                    ImageCaptureProcessing.setCustomImagePath(null);
-                } else {
-                    mErrorTextView.setVisibility(View.GONE);
-                    Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                    i.setType("image/*");
+        mChooseButton.setOnClickListener(v -> {
+            if (ImageCaptureProcessing.getCustomImagePath() != null) {
+                // This block is only in use for a Calabash test and
+                // processes the custom file path set from a broadcast triggered by calabash test
+                pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+                ImageCaptureProcessing.processImageFromBroadcast((FormEntryActivity)getContext(), FormEntryInstanceState.getInstanceFolder());
+                ImageCaptureProcessing.setCustomImagePath(null);
+            } else {
+                mErrorTextView.setVisibility(View.GONE);
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                i.setType("image/*");
 
-                    try {
-                        ((Activity)getContext()).startActivityForResult(i,
-                                FormEntryConstants.IMAGE_CHOOSER);
-                        pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                    } catch (ActivityNotFoundException e) {
-                        Toast.makeText(getContext(),
-                                StringUtils.getStringSpannableRobust(getContext(),
-                                        R.string.activity_not_found, "choose image"),
-                                Toast.LENGTH_SHORT).show();
-                    }
+                try {
+                    ((Activity)getContext()).startActivityForResult(i,
+                            FormEntryConstants.IMAGE_CHOOSER);
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(getContext(),
+                            StringUtils.getStringSpannableRobust(getContext(),
+                                    R.string.activity_not_found, "choose image"),
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -199,42 +196,39 @@ public class ImageWidget extends QuestionWidget {
 
             mImageView.setPadding(10, 10, 10, 10);
             mImageView.setAdjustViewBounds(true);
-            mImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent i = new Intent("android.intent.action.VIEW");
-                    String[] projection = {
-                            "_id"
-                    };
-                    Cursor c = null;
-                    try {
-                        c = getContext().getContentResolver().query(
-                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                projection, "_data='" + mInstanceFolder + mBinaryName + "'",
-                                null, null);
-                        if (c != null && c.getCount() > 0) {
-                            c.moveToFirst();
-                            String id = c.getString(c.getColumnIndex("_id"));
+            mImageView.setOnClickListener(v -> {
+                Intent i = new Intent("android.intent.action.VIEW");
+                String[] projection = {
+                        "_id"
+                };
+                Cursor c = null;
+                try {
+                    c = getContext().getContentResolver().query(
+                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                            projection, "_data='" + mInstanceFolder + mBinaryName + "'",
+                            null, null);
+                    if (c != null && c.getCount() > 0) {
+                        c.moveToFirst();
+                        String id = c.getString(c.getColumnIndex("_id"));
 
-                            Log.i(t, "setting view path to: " +
-                                    Uri.withAppendedPath(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
+                        Log.i(t, "setting view path to: " +
+                                Uri.withAppendedPath(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
 
-                            i.setDataAndType(Uri.withAppendedPath(
-                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id),
-                                    "image/*");
-                            try {
-                                getContext().startActivity(i);
-                            } catch (ActivityNotFoundException e) {
-                                Toast.makeText(getContext(),
-                                        StringUtils.getStringSpannableRobust(getContext(),
-                                                R.string.activity_not_found, "view image"),
-                                        Toast.LENGTH_SHORT).show();
-                            }
+                        i.setDataAndType(Uri.withAppendedPath(
+                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id),
+                                "image/*");
+                        try {
+                            getContext().startActivity(i);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(getContext(),
+                                    StringUtils.getStringSpannableRobust(getContext(),
+                                            R.string.activity_not_found, "view image"),
+                                    Toast.LENGTH_SHORT).show();
                         }
-                    } finally {
-                        if (c != null) {
-                            c.close();
-                        }
+                    }
+                } finally {
+                    if (c != null) {
+                        c.close();
                     }
                 }
             });

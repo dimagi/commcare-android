@@ -94,13 +94,10 @@ public class QueryRequestActivity
     private void setupUI() {
         buildPromptUI();
 
-        queryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ViewUtil.hideVirtualKeyboard(QueryRequestActivity.this);
-                answerPrompts();
-                makeQueryRequest();
-            }
+        queryButton.setOnClickListener(v -> {
+            ViewUtil.hideVirtualKeyboard(QueryRequestActivity.this);
+            answerPrompts();
+            makeQueryRequest();
         });
 
         if (inErrorState) {

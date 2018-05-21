@@ -111,24 +111,21 @@ public class GridWidget extends QuestionWidget {
         // Use the custom image adapter and initialize the grid view
         ImageAdapter ia = new ImageAdapter(getContext(), choices, imageViews);
         gridview.setAdapter(ia);
-        gridview.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                // Imitate the behavior of a radio button. Clear all buttons
-                // and then check the one clicked by the user. Update the
-                // background color accordingly
-                for (int i = 0; i < selected.length; i++) {
-                    selected[i] = false;
-                    if (imageViews[i] != null) {
-                        imageViews[i].setBackgroundColor(Color.WHITE);
-                    }
+        gridview.setOnItemClickListener((parent, v, position, id) -> {
+            // Imitate the behavior of a radio button. Clear all buttons
+            // and then check the one clicked by the user. Update the
+            // background color accordingly
+            for (int i = 0; i < selected.length; i++) {
+                selected[i] = false;
+                if (imageViews[i] != null) {
+                    imageViews[i].setBackgroundColor(Color.WHITE);
                 }
-                selected[position] = true;
-                imageViews[position].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
-                        orangeBlueVal));
-                if (quickAdvance) {
-                    listener.advance();
-                }
+            }
+            selected[position] = true;
+            imageViews[position].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
+                    orangeBlueVal));
+            if (quickAdvance) {
+                listener.advance();
             }
         });
 

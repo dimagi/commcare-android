@@ -84,12 +84,9 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
 
                 Drawable image = getResources().getDrawable(R.drawable.icon_auto_advance_arrow);
                 rightArrow.setImageDrawable(image);
-                rightArrow.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        r.onTouchEvent(event);
-                        return false;
-                    }
+                rightArrow.setOnTouchListener((v, event) -> {
+                    r.onTouchEvent(event);
+                    return false;
                 });
 
                 buttons.add(r);

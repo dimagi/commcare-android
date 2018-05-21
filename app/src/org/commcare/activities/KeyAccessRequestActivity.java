@@ -33,27 +33,18 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        grantButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Intent response = new Intent(getIntent());
-                AndroidSharedKeyRecord record = AndroidSharedKeyRecord.generateNewSharingKey();
-                CommCareApplication.instance().getGlobalStorage(AndroidSharedKeyRecord.class).write(record);
-                record.writeResponseToIntent(response);
-                setResult(Activity.RESULT_OK, response);
-                finish();
-            }
+        grantButton.setOnClickListener(v -> {
+            Intent response = new Intent(getIntent());
+            AndroidSharedKeyRecord record = AndroidSharedKeyRecord.generateNewSharingKey();
+            CommCareApplication.instance().getGlobalStorage(AndroidSharedKeyRecord.class).write(record);
+            record.writeResponseToIntent(response);
+            setResult(Activity.RESULT_OK, response);
+            finish();
         });
 
-        denyButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                setResult(Activity.RESULT_CANCELED);
-                finish();
-            }
-
+        denyButton.setOnClickListener(v -> {
+            setResult(Activity.RESULT_CANCELED);
+            finish();
         });
     }
 }

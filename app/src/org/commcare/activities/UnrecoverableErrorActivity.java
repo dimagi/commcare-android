@@ -39,14 +39,11 @@ public class UnrecoverableErrorActivity extends FragmentActivity {
             message = message + "\n\n" + Localization.get("app.handled.error.explanation");
         }
         StandardAlertDialog d = new StandardAlertDialog(this, title, message);
-        DialogInterface.OnClickListener buttonListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                if (restart) {
-                    CommCareLifecycleUtils.restartCommCare(UnrecoverableErrorActivity.this, true);
-                } else {
-                    finish();
-                }
+        DialogInterface.OnClickListener buttonListener = (dialog, i) -> {
+            if (restart) {
+                CommCareLifecycleUtils.restartCommCare(UnrecoverableErrorActivity.this, true);
+            } else {
+                finish();
             }
         };
 

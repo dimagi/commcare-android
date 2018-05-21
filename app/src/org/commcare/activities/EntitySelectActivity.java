@@ -798,13 +798,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         DialogChoiceItem[] choiceItems = new DialogChoiceItem[namesList.size()];
         for (int i = 0; i < namesList.size(); i++) {
             final int index = i;
-            View.OnClickListener listener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    adapter.sortEntities(new int[]{keyArray[index]});
-                    adapter.filterByString(entitySelectSearchUI.getSearchText().toString());
-                    dismissAlertDialog();
-                }
+            View.OnClickListener listener = v -> {
+                adapter.sortEntities(new int[]{keyArray[index]});
+                adapter.filterByString(entitySelectSearchUI.getSearchText().toString());
+                dismissAlertDialog();
             };
             DialogChoiceItem item = new DialogChoiceItem(namesList.get(i), -1, listener);
             choiceItems[i] = item;
@@ -908,12 +905,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             Button next = (Button)findViewById(R.id.entity_select_button);
             //use the old method here because some Android versions don't like Spannables for titles
             next.setText(Localization.get("select.detail.confirm"));
-            next.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    performEntitySelect();
-                }
-            });
+            next.setOnClickListener(v -> performEntitySelect());
 
             if (mViewMode) {
                 next.setVisibility(View.GONE);

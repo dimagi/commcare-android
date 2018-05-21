@@ -87,14 +87,7 @@ public class DotsHomeView extends RelativeLayout {
         Button done = new Button(this.getContext());
         done.setId(666);
         done.setText("Finished");
-        done.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                listener.doneWithDOTS();
-            }
-
-        });
+        done.setOnClickListener(v -> listener.doneWithDOTS());
 
 
         RelativeLayout topPane = new RelativeLayout(this.getContext());
@@ -133,23 +126,18 @@ public class DotsHomeView extends RelativeLayout {
             icon.setVisibility(View.INVISIBLE);
         }
 
-        dayView.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Rect hitRect = new Rect();
-                if (v.getParent() instanceof View) {
-                    v.getHitRect(hitRect);
-                    View parent = (View)v.getParent();
-                    DotsHomeView.this.offsetDescendantRectToMyCoords(parent, hitRect);
-                    listener.editDotsDay(dayIndex, hitRect);
-                } else {
-                    hitRect = new Rect(0, 0, v.getWidth(), v.getHeight());
-                    DotsHomeView.this.offsetDescendantRectToMyCoords(v, hitRect);
-                    listener.editDotsDay(dayIndex, hitRect);
-                }
+        dayView.setOnClickListener(v -> {
+            Rect hitRect = new Rect();
+            if (v.getParent() instanceof View) {
+                v.getHitRect(hitRect);
+                View parent = (View)v.getParent();
+                DotsHomeView.this.offsetDescendantRectToMyCoords(parent, hitRect);
+                listener.editDotsDay(dayIndex, hitRect);
+            } else {
+                hitRect = new Rect(0, 0, v.getWidth(), v.getHeight());
+                DotsHomeView.this.offsetDescendantRectToMyCoords(v, hitRect);
+                listener.editDotsDay(dayIndex, hitRect);
             }
-
         });
 
         return dayView;

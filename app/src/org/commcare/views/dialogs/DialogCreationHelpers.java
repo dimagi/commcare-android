@@ -36,12 +36,7 @@ public class DialogCreationHelpers {
         }
 
         CustomViewAlertDialog dialog = new CustomViewAlertDialog(activity, view);
-        dialog.setPositiveButton(Localization.get("dialog.ok"), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> dialog1.dismiss());
 
         return dialog;
     }
@@ -74,12 +69,9 @@ public class DialogCreationHelpers {
         titleText.setText(title);
 
         CustomViewAlertDialog dialog = new CustomViewAlertDialog(activity, view);
-        dialog.setPositiveButton(Localization.get("dialog.ok"), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                permRequester.requestNeededPermissions(requestCode);
-                dialog.dismiss();
-            }
+        dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
+            permRequester.requestNeededPermissions(requestCode);
+            dialog1.dismiss();
         });
 
         return dialog;

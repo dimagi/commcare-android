@@ -93,12 +93,7 @@ public class SignatureWidget extends QuestionWidget {
 
         // launch capture intent on click
         final FormIndex questionIndex = prompt.getIndex();
-        mSignButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                launchSignatureActivity(questionIndex);
-            }
-        });
+        mSignButton.setOnClickListener(v -> launchSignatureActivity(questionIndex));
 
 
         // finish complex layout
@@ -137,12 +132,7 @@ public class SignatureWidget extends QuestionWidget {
 
             mImageView.setPadding(10, 10, 10, 10);
             mImageView.setAdjustViewBounds(true);
-            mImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    launchSignatureActivity(questionIndex);
-                }
-            });
+            mImageView.setOnClickListener(v -> launchSignatureActivity(questionIndex));
 
             addView(mImageView);
         }
