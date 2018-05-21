@@ -150,30 +150,29 @@ public class SaveToDiskTask extends
         }
 
         // Insert or update the form instance into the database.
+        FormRecord formRecord = null;
+        String recordName = mRecordName;
         if (mFormRecordId != -1) {
-            // Started with a concrete instance (e.i. by editing an existing
-            // form), so just update it.
+            // We started with a concrete instance (i.e. by editing an existing form)
+            formRecord = FormRecord.getFormRecord(formRecordStorage, mFormRecordId);
+        } else if (mFormDefId != -1) {
+            // We started with an empty form or possibly a manually saved form
+            formRecord = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
+            formRecord.setFilePath(mFormRecordPath);
+            if (recordName == null) {
+                FormDefRecord formDefRecord = FormDefRecord.getFormDef(
+                        CommCareApplication.instance().getAppStorage(FormDefRecord.class), mFormDefId);
+                recordName = formDefRecord.getDisplayname();
+            }
+        }
+
+        if (formRecord != null) {
             try {
-                FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, mFormRecordId);
-                formRecord.updateStatus(formRecordStorage, status, mRecordName);
+                formRecord.setDisplayName(recordName);
+                formRecord.updateStatus(formRecordStorage, status);
             } catch (IllegalStateException e) {
                 throw new FormInstanceTransactionException(e);
             }
-        } else if (mFormDefId != -1) {
-            // Started with an empty form or possibly a manually saved form.
-            // Try updating, and create a new instance if that fails.
-
-            FormDefRecord formDefRecord = FormDefRecord.getFormDef(CommCareApplication.instance().getAppStorage(FormDefRecord.class), mFormDefId);
-            String recordName = mRecordName;
-            if (recordName == null) {
-                recordName = formDefRecord.getDisplayname();
-            }
-
-            FormRecord formRecord = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
-            formRecord.setFilePath(mFormRecordPath);
-            formRecord.setDisplayName(recordName);
-            formRecord.setStatus(status);
-            formRecord.update(formRecordStorage);
         }
     }
 

@@ -45,6 +45,7 @@ import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.RemoteRequestEntry;
@@ -61,7 +62,6 @@ import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.utils.StorageUtils;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
@@ -219,6 +219,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return false;
         }
 
+        if (showUpdateInfoForm()) {
+            return true;
+        }
+
         if (tryRestoringFormFromSessionExpiration()) {
             return true;
         }
@@ -244,6 +248,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return false;
     }
 
+
     private void checkForDrfit() {
         if (shouldShowDriftWarning()) {
             if (getCurrentDrift() > 0) {
@@ -251,6 +256,24 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 updateLastDriftWarningTime();
             }
         }
+    }
+
+    // Open the update info form if available
+    private boolean showUpdateInfoForm() {
+        if (HiddenPreferences.shouldShowXformUpdateInfo()) {
+            HiddenPreferences.setShowXformUpdateInfo(false);
+            String updateInfoFormXmlns = CommCareApplication.instance().getCommCarePlatform().getUpdateInfoFormXmlns();
+            if (!StringUtils.isEmpty(updateInfoFormXmlns)) {
+                CommCareSession session = CommCareApplication.instance().getCurrentSession();
+                FormEntry formEntry = session.getEntryForNameSpace(updateInfoFormXmlns);
+                if (formEntry != null) {
+                    session.setCommand(formEntry.getCommandID());
+                    startNextSessionStepSafe();
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -727,11 +750,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
-                // Now that we know this form is completed, we can give it the next available
-                // submission ordering number
-                current.setFormNumberForSubmissionOrdering(StorageUtils.getNextFormSubmissionNumber());
-                SqlStorage<FormRecord> formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-                formRecordStorage.write(current);
                 checkAndStartUnsentFormsTask(false, false);
                 refreshUI();
 

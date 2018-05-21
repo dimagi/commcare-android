@@ -307,10 +307,11 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathDistinctValuesFunc"
             , "org.javarosa.xpath.expr.XPathSleepFunc"
 
-            // Added in 2.42
+            // Added in 2.44
             , "org.commcare.android.database.user.models.FormRecordV4"
             , "org.commcare.android.database.app.models.FormDefRecord"
             , "org.commcare.android.resource.installers.XFormAndroidInstallerV1"
+            , "org.commcare.android.resource.installers.XFormUpdateInfoInstaller"
     );
 
 

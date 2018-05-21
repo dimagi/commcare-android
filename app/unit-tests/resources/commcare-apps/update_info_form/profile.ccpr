@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<profile version="7"
+         update="https://www.commcarehq.org/a/shubhamgoyaltest/apps/download/f4a191c1675b43c3b64e80494f536335/media_profile.ccpr?latest=true&amp;profile=None"
+         requiredMajor="2"
+         requiredMinor="42"
+         uniqueid="e6a01bc1bf422a37901ea5d4c649df1d"
+         name="Update Info Form "
+         descriptor="Profile File">
+    <property key="BackupMode" value="file_mode" force="true"/>
+    <property key="backup-url" value="file:///E:/CommCare.Backup" force="true"/>
+    <property key="restore-url" value="file:///E:/CommCare.Backup" force="true"/>
+    <property key="ota-restore-url" value="https://www.commcarehq.org/a/shubhamgoyaltest/phone/restore/f4a191c1675b43c3b64e80494f536335/" force="true"/>
+    <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/shubhamgoyaltest/phone/restore/f4a191c1675b43c3b64e80494f536335/" force="true"/>
+    <property key="PostURL" value="https://www.commcarehq.org/a/shubhamgoyaltest/receiver/secure/f4a191c1675b43c3b64e80494f536335/" force="true"/>
+    <property key="PostTestURL" value="https://www.commcarehq.org/a/shubhamgoyaltest/receiver/secure/f4a191c1675b43c3b64e80494f536335/" force="true"/>
+    <property key="key_server" value="https://www.commcarehq.org/a/shubhamgoyaltest/phone/keys/" force="true"/>
+    <property key="cur_locale" value="en" force="false"/>
+    <property key="cc_user_domain" value="shubhamgoyaltest.commcarehq.org" force="true"/>
+    <property key="jr_openrosa_api" value="1.0" force="true"/>
+    
+    <property key="heartbeat-url" value="https://www.commcarehq.org/a/shubhamgoyaltest/phone/heartbeat/f4a191c1675b43c3b64e80494f536335/" force="true"/>
+    
+    
+
+    <!-- Properties configured on CommCare HQ 1.0 -->
+    
+        <property key="log_prop_weekly" value="log_short" force="true"/>
+    
+        <property key="cc-show-saved" value="no" force="true"/>
+    
+        <property key="cc-send-unsent" value="cc-su-auto" force="true"/>
+    
+        <property key="cc-show-incomplete" value="no" force="true"/>
+    
+        <property key="cc-user-mode" value="cc-u-normal" force="true"/>
+    
+        <property key="extra_key_action" value="audio" force="true"/>
+    
+
+    <!-- end -->
+
+    
+
+    <features>
+        <checkoff active="true"/>
+        <reminders active="false">
+            <time>0</time>
+        </reminders>
+        <package active="false"/>
+        
+        <users active="true">
+        </users>
+    </features>
+
+    <suite><resource id="suite" version="7">
+        
+            <location authority="local">./suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/shubhamgoyaltest/apps/download/f4a191c1675b43c3b64e80494f536335/suite.xml</location>
+    </resource></suite>
+    
+</profile>
