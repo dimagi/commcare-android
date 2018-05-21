@@ -52,12 +52,7 @@ public abstract class TimeBoundOperation {
         }
         hasExecuted = true;
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                TimeBoundOperation.this.run();
-            }
-        });
+        Thread thread = new Thread(TimeBoundOperation.this::run);
 
         thread.start();
         try {

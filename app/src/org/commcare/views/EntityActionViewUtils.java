@@ -64,11 +64,6 @@ public class EntityActionViewUtils {
                                                  final Action action,
                                                  final CommCareActivity commCareActivity) {
         CardView cardView = (CardView)actionCardView.findViewById(R.id.card_body);
-        cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EntitySelectActivity.triggerDetailAction(action, commCareActivity);
-            }
-        });
+        cardView.setOnClickListener(v -> EntitySelectActivity.triggerDetailAction(action, commCareActivity));
     }
 }

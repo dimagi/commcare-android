@@ -235,12 +235,7 @@ public class EntityDetailView extends FrameLayout {
     private void setupPhoneNumber(String textField) {
         callout.setText(textField);
         if (current != PHONE) {
-            callout.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.callRequested(callout.getText().toString());
-                }
-            });
+            callout.setOnClickListener(v -> listener.callRequested(callout.getText().toString()));
             this.removeView(currentView);
             updateCurrentView(PHONE, callout);
         }
@@ -272,12 +267,7 @@ public class EntityDetailView extends FrameLayout {
                 calloutImageButton.setId(CALLOUT_BUTTON_ID);
             }
 
-            calloutImageButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.performCallout(callout, CALLOUT);
-                }
-            });
+            calloutImageButton.setOnClickListener(v -> listener.performCallout(callout, CALLOUT));
         } else {
             calloutImageButton.setVisibility(View.GONE);
             calloutText.setVisibility(View.GONE);
@@ -291,12 +281,7 @@ public class EntityDetailView extends FrameLayout {
                 calloutButton.setText(actionName);
             }
 
-            calloutButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.performCallout(callout, CALLOUT);
-                }
-            });
+            calloutButton.setOnClickListener(v -> listener.performCallout(callout, CALLOUT));
         }
 
         updateCurrentView(CALLOUT, calloutView);
@@ -307,12 +292,7 @@ public class EntityDetailView extends FrameLayout {
         addressText.setText(address);
         if (current != ADDRESS) {
             addressButton.setText(Localization.get("select.address.show"));
-            addressButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.addressRequested(GeoUtils.getGeoIntentURI(address));
-                }
-            });
+            addressButton.setOnClickListener(v -> listener.addressRequested(GeoUtils.getGeoIntentURI(address)));
             updateCurrentView(ADDRESS, addressView);
         }
     }
@@ -388,14 +368,7 @@ public class EntityDetailView extends FrameLayout {
 
         final String location = localLocation;
 
-        videoButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                listener.playVideo(location);
-            }
-
-        });
+        videoButton.setOnClickListener(v -> listener.playVideo(location));
 
         if (location == null) {
             videoButton.setEnabled(false);
@@ -517,11 +490,6 @@ public class EntityDetailView extends FrameLayout {
                 return true;
             }
         });
-        graphView.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                return detector.onTouchEvent(event);
-            }
-        });
+        graphView.setOnTouchListener((view, event) -> detector.onTouchEvent(event));
     }
 }

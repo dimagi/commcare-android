@@ -98,12 +98,7 @@ public class PostRequestActivity
             retryButton.setVisibility(View.GONE);
         }
 
-        retryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                retryPost();
-            }
-        });
+        retryButton.setOnClickListener(v -> retryPost());
     }
 
     private void performSync() {

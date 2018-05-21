@@ -56,12 +56,7 @@ public enum AudioController {
     }
 
     private void registerPlaybackFinishedCallback() {
-        currentEntity.getPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                releaseCurrentMediaEntity();
-            }
-        });
+        currentEntity.getPlayer().setOnCompletionListener(mediaPlayer -> releaseCurrentMediaEntity());
     }
 
     /**

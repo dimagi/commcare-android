@@ -39,14 +39,7 @@ public class AppUtils {
         for (ApplicationRecord r : CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class)) {
             records.add(r);
         }
-        Collections.sort(records, new Comparator<ApplicationRecord>() {
-
-            @Override
-            public int compare(ApplicationRecord lhs, ApplicationRecord rhs) {
-                return lhs.getDisplayName().compareTo(rhs.getDisplayName());
-            }
-
-        });
+        Collections.sort(records, (lhs, rhs) -> lhs.getDisplayName().compareTo(rhs.getDisplayName()));
         return records;
     }
 

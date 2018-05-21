@@ -34,13 +34,10 @@ public class InstallPermissionsFragment extends Fragment {
         neededPermDetails.setText(Localization.get("install.perms.rationale.message"));
 
         Button requestPermsButton = (Button)view.findViewById(R.id.get_perms_button);
-        requestPermsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RuntimePermissionRequester permissionRequester = (RuntimePermissionRequester)getActivity();
-                Permissions.acquireAllAppPermissions(getActivity(), permissionRequester,
-                        Permissions.ALL_PERMISSIONS_REQUEST);
-            }
+        requestPermsButton.setOnClickListener(v -> {
+            RuntimePermissionRequester permissionRequester = (RuntimePermissionRequester)getActivity();
+            Permissions.acquireAllAppPermissions(getActivity(), permissionRequester,
+                    Permissions.ALL_PERMISSIONS_REQUEST);
         });
         requestPermsButton.setText(Localization.get("permission.acquire.required"));
 

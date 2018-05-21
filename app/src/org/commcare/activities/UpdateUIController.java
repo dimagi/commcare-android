@@ -87,42 +87,22 @@ class UpdateUIController implements CommCareActivityUIController {
     private void setupButtonListeners() {
         checkUpdateButton =
                 (SquareButtonWithText)activity.findViewById(R.id.check_for_update_button);
-        checkUpdateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.startUpdateCheck();
-            }
-        });
+        checkUpdateButton.setOnClickListener(v -> activity.startUpdateCheck());
         checkUpdateButton.setText(Localization.getWithDefault("updates.check.start", ""));
 
         stopUpdateButton =
                 (SquareButtonWithText)activity.findViewById(R.id.stop_update_download_button);
-        stopUpdateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.stopUpdateCheck();
-            }
-        });
+        stopUpdateButton.setOnClickListener(v -> activity.stopUpdateCheck());
         stopUpdateButton.setText(Localization.getWithDefault("updates.check.cancel", ""));
 
         installUpdateButton =
                 (SquareButtonWithText)activity.findViewById(R.id.install_update_button);
-        installUpdateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.launchUpdateInstallTask();
-            }
-        });
+        installUpdateButton.setOnClickListener(v -> activity.launchUpdateInstallTask());
         String updateVersionPlaceholderMsg =
                 Localization.getWithDefault(applyUpdateButtonTextKey, new String[]{"-1"}, "");
         installUpdateButton.setText(updateVersionPlaceholderMsg);
 
-        notificationsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CommCareNoficationManager.performIntentCalloutToNotificationsView(activity);
-            }
-        });
+        notificationsButton.setOnClickListener(v -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
     }
 
     protected void upToDateUiState() {

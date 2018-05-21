@@ -82,28 +82,13 @@ public class GeoPointMapActivity extends Activity
 
     private void setupUI() {
         Button cancelButton = (Button)findViewById(R.id.cancel_location);
-        cancelButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        cancelButton.setOnClickListener(v -> finish());
 
         Button acceptButton = (Button)findViewById(R.id.accept_location);
-        acceptButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                returnLocation();
-            }
-        });
+        acceptButton.setOnClickListener(v -> returnLocation());
 
         Button showLocationButton = ((Button)findViewById(R.id.show_location));
-        showLocationButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateToPoint(location.getLatitude(), location.getLongitude(), location.getAccuracy());
-            }
-        });
+        showLocationButton.setOnClickListener(v -> animateToPoint(location.getLatitude(), location.getLongitude(), location.getAccuracy()));
 
         locationText = (TextView)findViewById(R.id.location_status);
 
@@ -177,15 +162,12 @@ public class GeoPointMapActivity extends Activity
     private void setupMapListeners() {
         if (!inViewMode) {
             map.setOnMapClickListener(
-                    new GoogleMap.OnMapClickListener() {
-                        @Override
-                        public void onMapClick(LatLng point) {
-                            isManualSelectedLocation = true;
-                            location.setLongitude(point.longitude);
-                            location.setLatitude(point.latitude);
-                            location.setAccuracy(10);
-                            drawMarker();
-                        }
+                    point -> {
+                        isManualSelectedLocation = true;
+                        location.setLongitude(point.longitude);
+                        location.setLatitude(point.latitude);
+                        location.setAccuracy(10);
+                        drawMarker();
                     }
             );
         }

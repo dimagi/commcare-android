@@ -80,18 +80,15 @@ public class SelectMultiWidget extends QuestionWidget {
                 //be added after everything about the checkbox is set up
 
                 // when clicked, check for readonly before toggling
-                c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (!mCheckboxInit && mPrompt.isReadOnly()) {
-                            if (buttonView.isChecked()) {
-                                buttonView.setChecked(false);
-                            } else {
-                                buttonView.setChecked(true);
-                            }
+                c.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if (!mCheckboxInit && mPrompt.isReadOnly()) {
+                        if (buttonView.isChecked()) {
+                            buttonView.setChecked(false);
+                        } else {
+                            buttonView.setChecked(true);
                         }
-                        widgetEntryChanged();
                     }
+                    widgetEntryChanged();
                 });
 
                 mCheckboxes.add(c);
@@ -113,12 +110,7 @@ public class SelectMultiWidget extends QuestionWidget {
 
                 mediaLayout.setPadding(0, padding, 0, padding);
 
-                mediaLayout.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        c.performClick();
-                    }
-                });
+                mediaLayout.setOnClickListener(v -> c.performClick());
 
                 // Last, add the dividing line between elements (except for the last element)
                 ImageView divider = new ImageView(getContext());
