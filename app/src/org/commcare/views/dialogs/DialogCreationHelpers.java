@@ -13,6 +13,7 @@ import org.commcare.AppUtils;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.utils.MarkupUtil;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -35,12 +36,7 @@ public class DialogCreationHelpers {
         }
 
         CustomViewAlertDialog dialog = new CustomViewAlertDialog(activity, view);
-        dialog.setPositiveButton(Localization.get("dialog.ok"), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> dialog1.dismiss());
 
         return dialog;
     }
@@ -48,7 +44,7 @@ public class DialogCreationHelpers {
     private static Spannable buildAboutMessage(Context context) {
         String commcareVersion = AppUtils.getCurrentVersionString();
         String customAcknowledgment = Localization.getWithDefault("custom.acknowledgement", "");
-        String message = context.getString(R.string.about_dialog, commcareVersion, customAcknowledgment);
+        String message = StringUtils.getStringRobust(context, R.string.about_dialog, new String[]{commcareVersion, customAcknowledgment});
         return MarkupUtil.returnMarkdown(context, message);
     }
 
@@ -73,12 +69,9 @@ public class DialogCreationHelpers {
         titleText.setText(title);
 
         CustomViewAlertDialog dialog = new CustomViewAlertDialog(activity, view);
-        dialog.setPositiveButton(Localization.get("dialog.ok"), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                permRequester.requestNeededPermissions(requestCode);
-                dialog.dismiss();
-            }
+        dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
+            permRequester.requestNeededPermissions(requestCode);
+            dialog1.dismiss();
         });
 
         return dialog;

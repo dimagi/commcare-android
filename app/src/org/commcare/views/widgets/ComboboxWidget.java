@@ -75,25 +75,17 @@ public class ComboboxWidget extends QuestionWidget {
     }
 
     private void addListeners() {
-        comboBox.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                widgetEntryChanged();
-            }
-        });
+        comboBox.setOnItemClickListener((parent, view, position, id) -> widgetEntryChanged());
 
         // Note that Combobox has an OnFocusChangeListener defined in its own class, so when
         // re-setting it here we have to make sure to do all of the same things that the original
         // implementation does, in addition to the new behavior
-        comboBox.setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    comboBox.showDropDown();
-                } else {
-                    comboBox.autoCorrectCapitalization();
-                    widgetEntryChanged();
-                }
+        comboBox.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                comboBox.showDropDown();
+            } else {
+                comboBox.autoCorrectCapitalization();
+                widgetEntryChanged();
             }
         });
 

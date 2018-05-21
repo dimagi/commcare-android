@@ -351,12 +351,7 @@ public class QuestionsView extends ScrollView
     }
 
     private void scrollToWidget(final QuestionWidget widget) {
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                QuestionsView.this.scrollTo(0, widget.getTop());
-            }
-        });
+        new Handler().post(() -> QuestionsView.this.scrollTo(0, widget.getTop()));
     }
 
     /**
@@ -381,7 +376,7 @@ public class QuestionsView extends ScrollView
         FormIndex questionFormIndex = pendingCalloutInterface.getPendingCalloutFormIndex();
         if (questionFormIndex == null) {
             Logger.log(LogTypes.SOFT_ASSERT,
-                    "Unable to find question widget to attach pending data to.");
+                    "No pending callout index was set when trying to attach pending data.");
             return;
         }
 

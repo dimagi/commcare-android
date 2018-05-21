@@ -37,7 +37,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         try {
             return doTaskBackground(params);
         } catch (Exception e) {
-            Logger.log(TAG, e.getMessage());
+            Logger.log(TAG, "Error during task execution: " + e.getMessage());
             e.printStackTrace();
 
             if (!(e instanceof UserCausedRuntimeException)) {

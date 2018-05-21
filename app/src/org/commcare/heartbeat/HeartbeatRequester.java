@@ -83,7 +83,7 @@ public class HeartbeatRequester {
         public void handleIOException(IOException exception) {
             if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
                 Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException while sending heartbeat request: Sending password over HTTP");
-            } else if (exception instanceof IOException) {
+            } else {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "Encountered IOException while getting response stream for heartbeat response: "
                                 + exception.getMessage());
@@ -135,12 +135,7 @@ public class HeartbeatRequester {
 
     protected static void passResponseToUiThread(final JSONObject responseAsJson) {
         // will run on UI thread
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                parseHeartbeatResponse(responseAsJson);
-            }
-        });
+        new Handler(Looper.getMainLooper()).post(() -> parseHeartbeatResponse(responseAsJson));
     }
 
     protected static void parseHeartbeatResponse(JSONObject responseAsJson) {

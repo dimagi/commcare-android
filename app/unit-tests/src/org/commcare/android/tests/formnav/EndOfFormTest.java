@@ -43,7 +43,6 @@ public class EndOfFormTest {
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/form_nav_tests/profile.ccpr",
                 "test", "123");
-        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
     /**
@@ -71,7 +70,7 @@ public class EndOfFormTest {
         assertStoredForms();
     }
 
-    public static ShadowActivity navigateFormEntry(Intent formEntryIntent) {
+    private static ShadowActivity navigateFormEntry(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
                 Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)

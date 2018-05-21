@@ -307,13 +307,10 @@ public class SingleAppManagerActivity extends CommCareActivity {
     public void rebootAlertDialog(View v) {
         StandardAlertDialog d = new StandardAlertDialog(this, getString(R.string.uninstalling),
                 getString(R.string.uninstall_reboot_warning));
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dismissAlertDialog();
-                if (which == AlertDialog.BUTTON_POSITIVE) {
-                    uninstall();
-                }
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            dismissAlertDialog();
+            if (which == AlertDialog.BUTTON_POSITIVE) {
+                uninstall();
             }
         };
         d.setPositiveButton(getString(R.string.ok), listener);
@@ -328,27 +325,21 @@ public class SingleAppManagerActivity extends CommCareActivity {
     private void triggerLogoutWarning(final int actionKey) {
         StandardAlertDialog d = new StandardAlertDialog(this, getString(R.string.logging_out),
                 getString(R.string.logout_warning));
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog,
-                                int which) {
-                dismissAlertDialog();
-                if (which == AlertDialog.BUTTON_POSITIVE) {
-                    CommCareApplication.instance().expireUserSession();
-                    switch (actionKey) {
-                        case LOGOUT_FOR_UPDATE:
-                            update();
-                            break;
-                        case LOGOUT_FOR_VERIFY_MM:
-                            verifyResources();
-                            break;
-                        case LOGOUT_FOR_ARCHIVE:
-                            toggleArchived();
-                    }
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            dismissAlertDialog();
+            if (which == AlertDialog.BUTTON_POSITIVE) {
+                CommCareApplication.instance().expireUserSession();
+                switch (actionKey) {
+                    case LOGOUT_FOR_UPDATE:
+                        update();
+                        break;
+                    case LOGOUT_FOR_VERIFY_MM:
+                        verifyResources();
+                        break;
+                    case LOGOUT_FOR_ARCHIVE:
+                        toggleArchived();
                 }
             }
-
         };
         d.setPositiveButton(getString(R.string.ok), listener);
         d.setNegativeButton(getString(R.string.cancel), listener);

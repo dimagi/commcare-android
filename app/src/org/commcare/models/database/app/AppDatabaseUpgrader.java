@@ -241,7 +241,7 @@ class AppDatabaseUpgrader {
             } catch (Exception e) {
                 // Failure here won't cause any problems in app operations. So fail silently.
                 e.printStackTrace();
-                Logger.exception(e);
+                Logger.exception("Error while deleting FormsProvider entries during app db migration", e);
             }
         }
         return success;
@@ -351,12 +351,7 @@ class AppDatabaseUpgrader {
             } else {
                 // Otherwise, sort the records in decreasing order of validTo date, and then mark
                 // the first one in the list as active
-                Collections.sort(records, new Comparator<UserKeyRecord>() {
-                    @Override
-                    public int compare(UserKeyRecord lhs, UserKeyRecord rhs) {
-                        return lhs.getValidTo().compareTo(rhs.getValidTo());
-                    }
-                });
+                Collections.sort(records, (lhs, rhs) -> lhs.getValidTo().compareTo(rhs.getValidTo()));
                 activeRecord = records.get(0);
             }
             activeRecord.setActive();

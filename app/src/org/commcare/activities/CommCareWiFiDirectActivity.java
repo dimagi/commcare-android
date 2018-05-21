@@ -73,7 +73,7 @@ public class CommCareWiFiDirectActivity
         extends SessionAwareCommCareActivity<CommCareWiFiDirectActivity>
         implements DeviceActionListener, FileServerListener, WifiDirectManagerListener, WithUIController {
 
-    private static final String TAG = CommCareWiFiDirectActivity.class.getSimpleName();
+    private static final String TAG = LogTypes.TYPE_WIFI_DIRECT;
 
     private WifiP2pManager mManager;
     private Channel mChannel;
@@ -158,8 +158,6 @@ public class CommCareWiFiDirectActivity
      */
     @Override
     public void onResumeSessionSafe() {
-        Logger.log(TAG, "resuming wi-fi direct activity");
-
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
 
@@ -177,7 +175,6 @@ public class CommCareWiFiDirectActivity
     @Override
     protected void onPause() {
         super.onPause();
-        Logger.log(TAG, "Pausing wi-fi direct activity");
         unregisterReceiver(mReceiver);
     }
 
@@ -208,22 +205,19 @@ public class CommCareWiFiDirectActivity
 
     private void showDialog(Activity activity, String title, String message) {
         StandardAlertDialog d = new StandardAlertDialog(activity, title, message);
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case AlertDialog.BUTTON_POSITIVE:
-                        beSubmitter();
-                        break;
-                    case AlertDialog.BUTTON_NEUTRAL:
-                        beReceiver();
-                        break;
-                    case AlertDialog.BUTTON_NEGATIVE:
-                        beSender();
-                        break;
-                }
-                dismissAlertDialog();
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            switch (which) {
+                case AlertDialog.BUTTON_POSITIVE:
+                    beSubmitter();
+                    break;
+                case AlertDialog.BUTTON_NEUTRAL:
+                    beReceiver();
+                    break;
+                case AlertDialog.BUTTON_NEGATIVE:
+                    beSender();
+                    break;
             }
+            dismissAlertDialog();
         };
         d.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
         d.setNegativeButton(localize("wifi.direct.transfer.forms"), listener);
@@ -266,8 +260,6 @@ public class CommCareWiFiDirectActivity
     }
 
     private void beReceiver() {
-
-        Logger.log(LogTypes.TYPE_FORM_DUMP, "Became receiver");
         myStatusText.setText(localize("wifi.direct.enter.receive.mode"));
 
         WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
@@ -302,8 +294,6 @@ public class CommCareWiFiDirectActivity
     }
 
     private void beSubmitter() {
-
-        Logger.log(LogTypes.TYPE_FORM_DUMP, "Became submitter");
         unzipFilesHelper();
         myStatusText.setText(localize("wifi.direct.enter.submit.mode"));
 
@@ -330,6 +320,7 @@ public class CommCareWiFiDirectActivity
         wifiFragment.setIsHost(false);
         wifiFragment.resetConnectionGroup();
 
+        Logger.log(TAG, "Device designated as submitter");
         mState = wdState.submit;
         changeState();
     }

@@ -90,7 +90,7 @@ public class AndroidSharedKeyRecord extends Persisted {
             byte[] aesKey = CryptUtil.decrypt(incomingKey, CryptUtil.getPrivateKeyCipher(this.privateKey));
             decoded = CryptUtil.decrypt(incomingCallout, CryptUtil.getAesKeyCipher(aesKey));
         } catch (GeneralSecurityException gse) {
-            Logger.exception(gse);
+            Logger.exception("Error getting incoming callout", gse);
             return null;
         }
 

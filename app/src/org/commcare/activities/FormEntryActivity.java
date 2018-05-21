@@ -178,7 +178,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             ODKStorage.createODKDirs();
         } catch (RuntimeException e) {
-            Logger.exception(e);
+            Logger.exception("Error creating storage directories", e);
             UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
             return;
         }
@@ -562,12 +562,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // bring focus to the first one
             List<FormIndex> indexKeys = new ArrayList<>();
             indexKeys.addAll(answers.keySet());
-            Collections.sort(indexKeys, new Comparator<FormIndex>() {
-                @Override
-                public int compare(FormIndex arg0, FormIndex arg1) {
-                    return arg0.compareTo(arg1);
-                }
-            });
+            Collections.sort(indexKeys, FormIndex::compareTo);
 
             for (FormIndex index : indexKeys) {
                 // Within a group, you can only save for question events
@@ -799,7 +794,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             } catch (IllegalArgumentException e) {
                 // Thrown when given receiver isn't registered.
                 // This shouldn't ever happen, but seems to come up in production
-                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, e.getMessage());
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
+                        "Tried to unregister a BroadcastReceiver that wasn't registered: " + e.getMessage());
             }
         }
 
@@ -871,7 +867,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (intent != null) {
             loadIntentFormData(intent);
             setTitleToLoading();
-            int formId = -1;
+            int formId;
             try {
                 SqlStorage<FormDefRecord> formDefStorage = CommCareApplication.instance().getAppStorage(FormDefRecord.class);
                 if (intent.hasExtra(KEY_FORM_RECORD_ID)) {

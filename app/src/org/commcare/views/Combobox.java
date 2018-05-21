@@ -53,21 +53,13 @@ public class Combobox extends AutoCompleteTextView {
             addTextChangedListener(getWhileTypingValidator());
         }
 
-        setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDropDown();
-            }
-        });
+        setOnClickListener(v -> showDropDown());
 
-        setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    showDropDown();
-                } else {
-                    autoCorrectCapitalization();
-                }
+        setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                showDropDown();
+            } else {
+                autoCorrectCapitalization();
             }
         });
     }

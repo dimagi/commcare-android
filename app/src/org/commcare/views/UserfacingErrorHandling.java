@@ -43,30 +43,24 @@ public class UserfacingErrorHandling {
         factory.setIcon(android.R.drawable.ic_dialog_info);
 
         DialogInterface.OnCancelListener cancelListener =
-                new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        if (shouldExit) {
-                            activity.setResult(Activity.RESULT_CANCELED);
-                            activity.finish();
-                        }
-                        activity.dismissAlertDialog();
+                dialog -> {
+                    if (shouldExit) {
+                        activity.setResult(Activity.RESULT_CANCELED);
+                        activity.finish();
                     }
+                    activity.dismissAlertDialog();
                 };
         factory.setOnCancelListener(cancelListener);
 
         CharSequence buttonDisplayText =
                 StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok);
         DialogInterface.OnClickListener buttonListener =
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        if (shouldExit) {
-                            activity.setResult(Activity.RESULT_CANCELED);
-                            activity.finish();
-                        }
-                        activity.dismissAlertDialog();
+                (dialog, i) -> {
+                    if (shouldExit) {
+                        activity.setResult(Activity.RESULT_CANCELED);
+                        activity.finish();
                     }
+                    activity.dismissAlertDialog();
                 };
         factory.setPositiveButton(buttonDisplayText, buttonListener);
 

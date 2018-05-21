@@ -127,19 +127,16 @@ public class UserDbUpgradeUtils {
         final HashMap<Integer, Long> idToDateIndex =
                 getIdToDateMap(ids, storage);
 
-        Collections.sort(ids, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer lhs, Integer rhs) {
-                Long lhd = idToDateIndex.get(lhs);
-                Long rhd = idToDateIndex.get(rhs);
-                if (lhd < rhd) {
-                    return -1;
-                }
-                if (lhd > rhd) {
-                    return 1;
-                }
-                return 0;
+        Collections.sort(ids, (lhs, rhs) -> {
+            Long lhd = idToDateIndex.get(lhs);
+            Long rhd = idToDateIndex.get(rhs);
+            if (lhd < rhd) {
+                return -1;
             }
+            if (lhd > rhd) {
+                return 1;
+            }
+            return 0;
         });
     }
 
@@ -228,7 +225,6 @@ public class UserDbUpgradeUtils {
                     cursor.moveToFirst();
                     newRecord.setDisplayName(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.DISPLAY_NAME)));
                     newRecord.setFilePath(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH)));
-                    newRecord.setCanEditWhenComplete(cursor.getString(cursor.getColumnIndex(InstanceProviderAPI.InstanceColumns.CAN_EDIT_WHEN_COMPLETE)));
                 }
             } finally {
                 if (cursor != null) {

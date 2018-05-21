@@ -80,16 +80,13 @@ public class TriggerWidget extends QuestionWidget {
                 mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
-        mTriggerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mTriggerButton.isChecked()) {
-                    mStringAnswer.setText(mOK);
-                } else {
-                    mStringAnswer.setText(null);
-                }
-                TriggerWidget.this.widgetEntryChanged();
+        mTriggerButton.setOnClickListener(v -> {
+            if (mTriggerButton.isChecked()) {
+                mStringAnswer.setText(mOK);
+            } else {
+                mStringAnswer.setText(null);
             }
+            TriggerWidget.this.widgetEntryChanged();
         });
 
         // TODO PLM: This is never shown, but rather used to store the value of

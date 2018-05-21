@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -14,6 +13,7 @@ import android.text.TextWatcher;
 import android.util.StateSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -25,13 +25,13 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
@@ -141,20 +141,18 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setTextChangeListeners();
         setBannerLayoutLogic();
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
+        loginButton.setOnClickListener(arg0 -> activity.initiateLoginAttempt(isRestoreSessionChecked()));
+
+        passwordOrPin.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 activity.initiateLoginAttempt(isRestoreSessionChecked());
+                return true;
             }
+            return false;
         });
 
         notificationButton.setText(Localization.get("error.button.text"));
-        notificationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                CommCareNoficationManager.performIntentCalloutToNotificationsView(activity);
-            }
-        });
+        notificationButton.setOnClickListener(view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
     }
 
     private void setTextChangeListeners() {
@@ -172,34 +170,30 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         final View activityRootView = activity.findViewById(R.id.screen_login_main);
         final SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
+                () -> {
+                    int hideAll = getResources().getInteger(
+                            R.integer.login_screen_hide_all_cuttoff);
+                    int hideBanner = getResources().getInteger(
+                            R.integer.login_screen_hide_banner_cuttoff);
+                    int height = activityRootView.getHeight();
 
-                    @Override
-                    public void onGlobalLayout() {
-                        int hideAll = getResources().getInteger(
-                                R.integer.login_screen_hide_all_cuttoff);
-                        int hideBanner = getResources().getInteger(
-                                R.integer.login_screen_hide_banner_cuttoff);
-                        int height = activityRootView.getHeight();
-
-                        if (height < hideAll) {
-                            banner.setVisibility(View.GONE);
-                        } else if (height < hideBanner) {
-                            banner.setVisibility(View.GONE);
-                        } else {
-                            // Override default CommCare banner if requested
-                            String customBannerURI = prefs.getString(
-                                    HiddenPreferences.BRAND_BANNER_LOGIN, "");
-                            if (!"".equals(customBannerURI)) {
-                                Bitmap bitmap = MediaUtil.inflateDisplayImage(activity, customBannerURI);
-                                if (bitmap != null) {
-                                    ImageView bannerView =
-                                            (ImageView)banner.findViewById(R.id.main_top_banner);
-                                    bannerView.setImageBitmap(bitmap);
-                                }
+                    if (height < hideAll) {
+                        banner.setVisibility(View.GONE);
+                    } else if (height < hideBanner) {
+                        banner.setVisibility(View.GONE);
+                    } else {
+                        // Override default CommCare banner if requested
+                        String customBannerURI = prefs.getString(
+                                HiddenPreferences.BRAND_BANNER_LOGIN, "");
+                        if (!"".equals(customBannerURI)) {
+                            Bitmap bitmap = MediaUtil.inflateDisplayImage(activity, customBannerURI);
+                            if (bitmap != null) {
+                                ImageView bannerView =
+                                        (ImageView)banner.findViewById(R.id.main_top_banner);
+                                bannerView.setImageBitmap(bitmap);
                             }
-                            banner.setVisibility(View.VISIBLE);
                         }
+                        banner.setVisibility(View.VISIBLE);
                     }
                 });
     }
@@ -241,7 +235,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             checkEnteredUsernameForMatch();
         }
 
-        if(!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+        if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
     }

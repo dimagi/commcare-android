@@ -108,7 +108,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                             @Override
                             protected void deliverError(RecoveryActivity receiver, Exception e) {
-                                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Error in recovery form send: " + ForceCloseLogger.getStackTrace(e));
+                                Logger.exception("Error in recovery form send: " + ForceCloseLogger.getStackTrace(e), e);
                                 receiver.displayMessage("Error while sending : " + e.getMessage());
                             }
 
@@ -124,13 +124,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             }
         });
 
-        btnRecoverApp.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                displayMessage("App recovery is not yet enabled. Please clear user data (After sending all of your forms!) and re-install.");
-            }
-        });
+        btnRecoverApp.setOnClickListener(v -> displayMessage("App recovery is not yet enabled. Please clear user data (After sending all of your forms!) and re-install."));
     }
 
     private void displayMessage(String text) {
@@ -195,7 +189,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             }
             txtUnsentAndQuarantineForms.setText(sb.toString());
         } catch (Exception e) {
-            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, e.getMessage());
+            Logger.exception("Encountered exception during recovery attempt " + e.getMessage(), e);
             txtUnsentAndQuarantineForms.setText("Couldn't read forms. Error : " + e.getMessage());
         }
     }

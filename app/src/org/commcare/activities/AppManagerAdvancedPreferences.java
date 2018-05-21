@@ -53,26 +53,20 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
     @Override
     protected void setupPrefClickListeners() {
         Preference enablePrivilegesButton = findPreference(ENABLE_PRIVILEGE);
-        enablePrivilegesButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.ENABLE_PRIVILEGES);
-                launchPrivilegeClaimActivity();
-                return true;
-            }
+        enablePrivilegesButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.ENABLE_PRIVILEGES);
+            launchPrivilegeClaimActivity();
+            return true;
         });
 
         Preference clearUserDataButton = findPreference(CLEAR_USER_DATA);
         clearUserDataButton.setEnabled(!"".equals(CommCareApplication.instance().getCurrentUserId()));
-        clearUserDataButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.CLEAR_USER_DATA);
-                AdvancedActionsPreferences.clearUserData(getActivity());
-                return true;
-            }
+        clearUserDataButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.CLEAR_USER_DATA);
+            AdvancedActionsPreferences.clearUserData(getActivity());
+            return true;
         });
 
         Preference dataChangeLogs = findPreference(DATA_CHANGE_LOGS);

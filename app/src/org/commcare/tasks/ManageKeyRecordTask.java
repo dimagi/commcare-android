@@ -144,7 +144,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     @Override
     protected void deliverError(R receiver, Exception e) {
-        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Error executing task in background: " + e.getMessage());
+        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Error executing ManageKeyRecordTask: " + e.getMessage());
         keysDoneOther(receiver, HttpCalloutOutcomes.UnknownError);
     }
 
@@ -155,7 +155,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     protected void keysLoginComplete(R receiver) {
         if (triggerMultipleUserWarning) {
-            Logger.log(LogTypes.SOFT_ASSERT,
+            Logger.log(LogTypes.TYPE_USER,
                     "Warning a user upon login that they already have another " +
                             "sandbox whose data will not transition over");
             // We've successfully pulled down new user data. Should see if the user
@@ -171,35 +171,35 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     protected void keysDoneOther(R receiver, HttpCalloutOutcomes outcome) {
         switch (outcome) {
             case AuthFailed:
-                Logger.log(LogTypes.TYPE_USER, "auth failed");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|auth failed");
                 receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                 break;
             case BadResponse:
-                Logger.log(LogTypes.TYPE_USER, "bad response");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|bad response");
                 receiver.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
                 break;
             case NetworkFailure:
-                Logger.log(LogTypes.TYPE_USER, "bad network");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|bad network");
                 receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, false);
                 break;
             case NetworkFailureBadPassword:
-                Logger.log(LogTypes.TYPE_USER, "bad network");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|bad network");
                 receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork_BadPass, true);
                 break;
             case BadCertificate:
-                Logger.log(LogTypes.TYPE_USER, "bad certificate");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|bad certificate");
                 receiver.raiseLoginMessage(StockMessages.BadSSLCertificate, false);
                 break;
             case UnknownError:
-                Logger.log(LogTypes.TYPE_USER, "unknown");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|unknown error");
                 receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                 break;
             case IncorrectPin:
-                Logger.log(LogTypes.TYPE_USER, "incorrect pin");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|incorrect pin");
                 receiver.raiseLoginMessage(StockMessages.Auth_InvalidPin, true);
                 break;
             case AuthOverHttp:
-                Logger.log(LogTypes.TYPE_USER, "auth over http");
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|auth over http");
                 receiver.raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
                 break;
             default:
@@ -335,23 +335,19 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     @Override
     protected TransactionParserFactory getTransactionParserFactory() {
-        return new TransactionParserFactory() {
+        return parser -> {
+            String name = parser.getName();
+            if ("auth_keys".equals(name)) {
+                return new KeyRecordParser(parser, username, password) {
 
-            @Override
-            public TransactionParser getParser(KXmlParser parser) {
-                String name = parser.getName();
-                if ("auth_keys".equals(name)) {
-                    return new KeyRecordParser(parser, username, password) {
+                    @Override
+                    public void commit(ArrayList<UserKeyRecord> parsed) throws IOException {
+                        ManageKeyRecordTask.this.keyRecords = parsed;
+                    }
 
-                        @Override
-                        public void commit(ArrayList<UserKeyRecord> parsed) throws IOException {
-                            ManageKeyRecordTask.this.keyRecords = parsed;
-                        }
-
-                    };
-                } else {
-                    return null;
-                }
+                };
+            } else {
+                return null;
             }
         };
     }
@@ -490,7 +486,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             // Make sure we didn't somehow not get a new sandbox
             if (current == null) {
                 Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                        "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
+                        "Somehow we both failed to migrate an old DB and also didn't have an old db");
                 return false;
             }
 
@@ -572,12 +568,10 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                     ByteEncrypter.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
             publishProgress(Localization.get("key.manage.migrate"));
         } catch (IOException ioe) {
-            Logger.exception(ioe);
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
+            Logger.exception("IO Error while migrating database", ioe);
             return false;
         } catch (Exception e) {
-            Logger.exception(e);
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
+            Logger.exception("Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e), e);
             return false;
         }
         return true;

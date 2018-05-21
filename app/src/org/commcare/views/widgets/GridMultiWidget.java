@@ -116,20 +116,17 @@ public class GridMultiWidget extends QuestionWidget {
         // Use the custom image adapter and initialize the grid view
         ImageAdapter ia = new ImageAdapter(getContext(), choices, imageViews);
         gridview.setAdapter(ia);
-        gridview.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                if (selected[position]) {
-                    selected[position] = false;
-                    imageViews[position].setBackgroundColor(Color.WHITE);
-                } else {
-                    selected[position] = true;
-                    imageViews[position].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
-                            orangeBlueVal));
-                }
-
-                widgetEntryChanged();
+        gridview.setOnItemClickListener((parent, v, position, id) -> {
+            if (selected[position]) {
+                selected[position] = false;
+                imageViews[position].setBackgroundColor(Color.WHITE);
+            } else {
+                selected[position] = true;
+                imageViews[position].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
+                        orangeBlueVal));
             }
+
+            widgetEntryChanged();
         });
 
         // Read the screen dimensions and fit the grid view to them. It is important that the grid

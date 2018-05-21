@@ -102,7 +102,7 @@ public class PurgeStaleArchivedFormsTask
             daysForReview = Integer.parseInt(daysToPurge);
         } catch (NumberFormatException nfe) {
             Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
-                    "Invalid days to purge: " + daysToPurge);
+                    "Invalid value obtained for days to purge: " + daysToPurge);
         }
         return daysForReview;
     }

@@ -106,7 +106,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
                     " from cached file: " + formBin.getAbsolutePath());
             fd = deserializeFormDef((Context)activity, formBin);
             if (fd == null) {
-                Logger.log(LogTypes.SOFT_ASSERT,
+                Logger.log(LogTypes.TYPE_RESOURCES,
                         "Deserialization of " + formXml.getName() + " form failed.");
                 // Remove the file, and make a new .formdef from xml
                 formBin.delete();
@@ -164,7 +164,8 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         if (mLocalizer != null) {
             return mLocalizer.getLocale();
         } else {
-            Logger.log("formloader", "Could not get the localizer");
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
+                    "Could not get the localizer during form init");
         }
         return null;
     }

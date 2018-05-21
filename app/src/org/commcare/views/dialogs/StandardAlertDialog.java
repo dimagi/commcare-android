@@ -43,12 +43,7 @@ public class StandardAlertDialog extends CommCareAlertDialog {
                                                           DialogInterface.OnClickListener positiveButtonListener) {
         StandardAlertDialog d = new StandardAlertDialog(context, title, msg);
         if (positiveButtonListener == null) {
-            positiveButtonListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            };
+            positiveButtonListener = (dialog, which) -> dialog.dismiss();
         }
         d.setPositiveButton(Localization.get("dialog.ok"), positiveButtonListener);
         return d;
@@ -67,12 +62,7 @@ public class StandardAlertDialog extends CommCareAlertDialog {
                                                                   DialogInterface.OnClickListener positiveButtonListener) {
         StandardAlertDialog d = new StandardAlertDialog(context, title, msg);
         if (positiveButtonListener == null) {
-            positiveButtonListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            };
+            positiveButtonListener = (dialog, which) -> dialog.dismiss();
         }
         d.setPositiveButton(Localization.get("dialog.ok"), positiveButtonListener);
         d.setIcon(iconResId);
@@ -88,36 +78,21 @@ public class StandardAlertDialog extends CommCareAlertDialog {
     public void setPositiveButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
         Button positiveButton = (Button)this.view.findViewById(R.id.positive_button);
         positiveButton.setText(displayText);
-        positiveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                buttonListener.onClick(dialog, AlertDialog.BUTTON_POSITIVE);
-            }
-        });
+        positiveButton.setOnClickListener(v -> buttonListener.onClick(dialog, AlertDialog.BUTTON_POSITIVE));
         positiveButton.setVisibility(View.VISIBLE);
     }
 
     public void setNegativeButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
         Button negativeButton = (Button)this.view.findViewById(R.id.negative_button);
         negativeButton.setText(displayText);
-        negativeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                buttonListener.onClick(dialog, AlertDialog.BUTTON_NEGATIVE);
-            }
-        });
+        negativeButton.setOnClickListener(v -> buttonListener.onClick(dialog, AlertDialog.BUTTON_NEGATIVE));
         negativeButton.setVisibility(View.VISIBLE);
     }
 
     public void setNeutralButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
         Button neutralButton = (Button)this.view.findViewById(R.id.neutral_button);
         neutralButton.setText(displayText);
-        neutralButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                buttonListener.onClick(dialog, AlertDialog.BUTTON_NEUTRAL);
-            }
-        });
+        neutralButton.setOnClickListener(v -> buttonListener.onClick(dialog, AlertDialog.BUTTON_NEUTRAL));
         neutralButton.setVisibility(View.VISIBLE);
     }
 

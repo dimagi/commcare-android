@@ -407,14 +407,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Display exception details as a pop-up to the user.
      */
     private void displayException(String title, String message) {
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        finish();
-                        break;
-                }
+        DialogInterface.OnClickListener listener = (dialog, i) -> {
+            switch (i) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    finish();
+                    break;
             }
         };
         showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
@@ -578,7 +575,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         String message = "Attempting to update a progress dialog whose taskId (" + taskId +
                 " does not match the task for which the update message was intended.";
 
-        if(invalidTaskIdMessageThrown != taskId) {
+        if (invalidTaskIdMessageThrown != taskId) {
             invalidTaskIdMessageThrown = taskId;
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION, message);
         } else {

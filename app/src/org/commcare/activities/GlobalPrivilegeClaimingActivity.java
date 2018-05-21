@@ -46,12 +46,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
 
         setContentView(R.layout.privilege_claiming_view);
 
-        findViewById(R.id.claim_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callOutToBarcodeScanner();
-            }
-        });
+        findViewById(R.id.claim_button).setOnClickListener(v -> callOutToBarcodeScanner());
 
         CommCarePreferenceActivity.addBackButtonToActionBar(this);
     }

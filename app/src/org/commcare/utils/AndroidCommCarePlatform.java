@@ -30,6 +30,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     private Profile profile;
     private final Vector<Suite> installedSuites;
     private final CommCareApp app;
+    private String mUpdateInfoFormXmlns;
 
     public AndroidCommCarePlatform(int majorVersion, int minorVersion, CommCareApp app) {
         super(majorVersion, minorVersion);
@@ -113,5 +114,13 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 
     public SqlStorage<FormDefRecord> getFormDefStorage() {
         return app.getStorage(FormDefRecord.class);
+    }
+
+    public void setUpdateInfoFormXmlns(String updateInfoFormXmlns) {
+        mUpdateInfoFormXmlns = updateInfoFormXmlns;
+    }
+
+    public String getUpdateInfoFormXmlns() {
+        return mUpdateInfoFormXmlns;
     }
 }

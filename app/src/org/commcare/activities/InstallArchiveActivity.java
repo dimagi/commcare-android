@@ -70,27 +70,19 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             btnInstallArchive.setText(Localization.get("archive.update.button"));
         }
 
-        btnFetchFiles.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Go fetch us a file path!
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("*/*");
-                try {
-                    startActivityForResult(intent, REQUEST_FILE_LOCATION);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(InstallArchiveActivity.this, Localization.get("archive.install.no.browser"), Toast.LENGTH_LONG).show();
-                    txtDisplayPrompt.setText(Localization.get("archive.install.no.browser"));
-                }
+        btnFetchFiles.setOnClickListener(v -> {
+            //Go fetch us a file path!
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");
+            try {
+                startActivityForResult(intent, REQUEST_FILE_LOCATION);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(InstallArchiveActivity.this, Localization.get("archive.install.no.browser"), Toast.LENGTH_LONG).show();
+                txtDisplayPrompt.setText(Localization.get("archive.install.no.browser"));
             }
         });
 
-        btnInstallArchive.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createArchive(editFileLocation.getText().toString());
-            }
-        });
+        btnInstallArchive.setOnClickListener(v -> createArchive(editFileLocation.getText().toString()));
 
         // avoid keyboard pop-up
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);

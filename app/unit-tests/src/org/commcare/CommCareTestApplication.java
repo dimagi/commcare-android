@@ -40,7 +40,6 @@ import org.robolectric.util.ServiceController;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,12 +72,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         // allow "jr://resource" references
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
 
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable ex) {
-                asyncExceptions.add(ex);
-                Assert.fail(ex.getMessage());
-            }
+        Thread.setDefaultUncaughtExceptionHandler((thread, ex) -> {
+            asyncExceptions.add(ex);
+            Assert.fail(ex.getMessage());
         });
     }
 

@@ -41,7 +41,6 @@ public class IntentCalloutTests {
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/phone_call/profile.ccpr",
                 "test", "123");
-        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
     /**

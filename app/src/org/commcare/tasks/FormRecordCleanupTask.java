@@ -237,17 +237,14 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 
         // NOTE: This does _not_ parse and process the case data. It's only for
         // getting meta information about the entry session.
-        TransactionParserFactory factory = new TransactionParserFactory() {
-            @Override
-            public TransactionParser getParser(KXmlParser parser) {
-                String name = parser.getName();
-                if ("case".equals(name)) {
-                    return buildCaseParser(parser.getNamespace(), parser, caseIDs);
-                } else if ("meta".equalsIgnoreCase(name)) {
-                    return buildMetaParser(uuid, modified, parser);
-                }
-                return null;
+        TransactionParserFactory factory = parser -> {
+            String name = parser.getName();
+            if ("case".equals(name)) {
+                return buildCaseParser(parser.getNamespace(), parser, caseIDs);
+            } else if ("meta".equalsIgnoreCase(name)) {
+                return buildMetaParser(uuid, modified, parser);
             }
+            return null;
         };
 
         String path = r.getFilePath();
@@ -284,8 +281,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         FormRecord parsed = new FormRecord(r);
         parsed.setUuid(uuid[0]);
         parsed.setLastModified(modified[0]);
-        // Make sure that the instance is no longer editable
-        parsed.setCanEditWhenComplete( Boolean.toString(false));
         return new Pair<>(parsed, caseIDs[0]);
     }
 
@@ -336,9 +331,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                             "Inconsistent formRecordId's in session storage");
                 }
             } catch (Exception e) {
-                Logger.exception(e);
-                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                        "Session ID exists, but with no record (or broken record)");
+                String logMessage = "Session ID exists, but with no record (or broken record)";
+                // log this as both because it belongs in both places
+                Logger.exception(logMessage, e);
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, logMessage);
             }
         }
 
@@ -352,9 +348,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                     sessionId = loadSSDIDFromFormRecord(ssdStorage, formRecordId);
                 }
             } catch (Exception e) {
-                Logger.exception(e);
-                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                        "Session ID exists, but with no record (or broken record)");
+                String logMessage = "Session ID exists, but with no record (or broken record)";
+                // log this as both because it belongs in both places
+                Logger.exception(logMessage, e);
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION, logMessage);
             }
         }
 

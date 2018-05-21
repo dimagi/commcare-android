@@ -105,85 +105,64 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     @Override
     protected void setupPrefClickListeners() {
         Preference reportProblemButton = findPreference(REPORT_PROBLEM);
-        reportProblemButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.REPORT_PROBLEM);
-                startReportActivity();
-                return true;
-            }
+        reportProblemButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.REPORT_PROBLEM);
+            startReportActivity();
+            return true;
         });
 
         Preference validateMediaButton = findPreference(VALIDATE_MEDIA);
-        validateMediaButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.VALIDATE_MEDIA);
-                startValidationActivity();
-                return true;
-            }
+        validateMediaButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.VALIDATE_MEDIA);
+            startValidationActivity();
+            return true;
         });
 
         Preference wifiDirectButton = findPreference(WIFI_DIRECT);
         if (hasP2p()) {
-            wifiDirectButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                            AnalyticsParamValue.WIFI_DIRECT);
-                    startWifiDirect();
-                    return true;
-                }
+            wifiDirectButton.setOnPreferenceClickListener(preference -> {
+                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                        AnalyticsParamValue.WIFI_DIRECT);
+                startWifiDirect();
+                return true;
             });
         } else {
             getPreferenceScreen().removePreference(wifiDirectButton);
         }
 
         Preference dumpFormsButton = findPreference(DUMP_FORMS);
-        dumpFormsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.MANAGE_SD);
-                startFormDump();
-                return true;
-            }
+        dumpFormsButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.MANAGE_SD);
+            startFormDump();
+            return true;
         });
 
         Preference connectionTestButton = findPreference(CONNECTION_TEST);
-        connectionTestButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.CONNECTION_TEST);
-                startConnectionTest();
-                return true;
-            }
+        connectionTestButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.CONNECTION_TEST);
+            startConnectionTest();
+            return true;
         });
 
         Preference clearDataButton = findPreference(CLEAR_USER_DATA);
-        clearDataButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.CLEAR_USER_DATA);
-                clearUserData(getActivity());
-                return true;
-            }
+        clearDataButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.CLEAR_USER_DATA);
+            clearUserData(getActivity());
+            return true;
         });
 
         Preference clearSavedSessionButton = findPreference(CLEAR_SAVED_SESSION);
         if (DevSessionRestorer.savedSessionPresent()) {
-            clearSavedSessionButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                            AnalyticsParamValue.CLEAR_SAVED_SESSION);
-                    DevSessionRestorer.clearSession();
-                    return true;
-                }
+            clearSavedSessionButton.setOnPreferenceClickListener(preference -> {
+                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                        AnalyticsParamValue.CLEAR_SAVED_SESSION);
+                DevSessionRestorer.clearSession();
+                return true;
             });
         } else {
             getPreferenceScreen().removePreference(clearSavedSessionButton);
@@ -191,25 +170,19 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
 
 
         Preference forceSubmitButton = findPreference(FORCE_LOG_SUBMIT);
-        forceSubmitButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.FORCE_LOG_SUBMISSION);
-                CommCareUtil.triggerLogSubmission(getActivity());
-                return true;
-            }
+        forceSubmitButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.FORCE_LOG_SUBMISSION);
+            CommCareUtil.triggerLogSubmission(getActivity());
+            return true;
         });
 
         Preference recoveryModeButton = findPreference(RECOVERY_MODE);
-        recoveryModeButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.RECOVERY_MODE);
-                startRecoveryMode();
-                return true;
-            }
+        recoveryModeButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.RECOVERY_MODE);
+            startRecoveryMode();
+            return true;
         });
     }
 
@@ -255,17 +228,13 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
                 new StandardAlertDialog(activity,
                         Localization.get("clear.user.data.warning.title"),
                         Localization.get("clear.user.data.warning.message"));
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog,
-                                int which) {
-                if (which == AlertDialog.BUTTON_POSITIVE) {
-                    AppUtils.clearUserData();
-                    activity.setResult(RESULT_DATA_RESET);
-                    activity.finish();
-                }
-                dialog.dismiss();
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            if (which == AlertDialog.BUTTON_POSITIVE) {
+                AppUtils.clearUserData();
+                activity.setResult(RESULT_DATA_RESET);
+                activity.finish();
             }
+            dialog.dismiss();
         };
         d.setPositiveButton(StringUtils.getStringRobust(activity, R.string.ok), listener);
         d.setNegativeButton(StringUtils.getStringRobust(activity, R.string.cancel), listener);

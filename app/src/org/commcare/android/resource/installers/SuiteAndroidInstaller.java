@@ -28,6 +28,7 @@ import org.javarosa.xpath.XPathException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -49,17 +50,18 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean initialize(final AndroidCommCarePlatform platform, boolean isUpgrade) {
+        InputStream inputStream = null;
         try {
             if (localLocation == null) {
                 throw new RuntimeException("Error initializing the suite, its file location is null!");
             }
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
-
+            inputStream = local.getStream();
             SuiteParser parser;
             if (isUpgrade) {
-                parser = AndroidSuiteParser.buildUpgradeParser(local.getStream(), platform.getGlobalResourceTable(), platform.getFixtureStorage());
+                parser = AndroidSuiteParser.buildUpgradeParser(inputStream, platform.getGlobalResourceTable(), platform.getFixtureStorage());
             } else {
-                parser = AndroidSuiteParser.buildInitParser(local.getStream(), platform.getGlobalResourceTable(), platform.getFixtureStorage());
+                parser = AndroidSuiteParser.buildInitParser(inputStream, platform.getGlobalResourceTable(), platform.getFixtureStorage());
             }
 
             Suite s = parser.parse();
@@ -72,6 +74,14 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
                 | UnfullfilledRequirementsException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_RESOURCES, "Initialization failed for Suite resource with exception " + e.getMessage());
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return false;
@@ -83,11 +93,11 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
                            boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, platform, upgrade);
-
+        InputStream inputStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
-
-            AndroidSuiteParser.buildInstallParser(local.getStream(), table, r.getRecordGuid(), platform.getFixtureStorage()).parse();
+            inputStream = local.getStream();
+            AndroidSuiteParser.buildInstallParser(inputStream, table, r.getRecordGuid(), platform.getFixtureStorage()).parse();
 
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
@@ -96,6 +106,14 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             throw new InvalidResourceException(r.getDescriptor(), e.getMessage());
         } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return false;
@@ -132,7 +150,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
                 FileUtil.checkReferenceURI(r, menu.getImageURI(), problems);
             }
         } catch (Exception e) {
-            Logger.log("e", "suite validation failed with: " + e.getMessage());
+            Logger.log(LogTypes.TYPE_RESOURCES, "Suite validation failed with: " + e.getMessage());
             Log.d(TAG, "Suite validation failed");
             e.printStackTrace();
         }

@@ -58,31 +58,28 @@ public class DateWidget extends QuestionWidget {
     }
 
     private DatePicker.OnDateChangedListener buildDateListener() {
-        return new DatePicker.OnDateChangedListener() {
-            @Override
-            public void onDateChanged(DatePicker view, int year, int month, int day) {
-                if (mPrompt.isReadOnly()) {
-                    setAnswer();
+        return (view, year, month, day) -> {
+            if (mPrompt.isReadOnly()) {
+                setAnswer();
+            } else {
+                // TODO support dates <1900 >2100
+                // handle leap years and number of days in month
+                // http://code.google.com/p/android/issues/detail?id=2081
+                Calendar c = Calendar.getInstance();
+                c.set(year, month, 1);
+                int max = c.getActualMaximum(Calendar.DAY_OF_MONTH);
+                if (day > max) {
+                    //If the day has fallen out of spec, set it to the correct max
+                    mDatePicker.updateDate(year, month, max);
                 } else {
-                    // TODO support dates <1900 >2100
-                    // handle leap years and number of days in month
-                    // http://code.google.com/p/android/issues/detail?id=2081
-                    Calendar c = Calendar.getInstance();
-                    c.set(year, month, 1);
-                    int max = c.getActualMaximum(Calendar.DAY_OF_MONTH);
-                    if (day > max) {
-                        //If the day has fallen out of spec, set it to the correct max
-                        mDatePicker.updateDate(year, month, max);
-                    } else {
-                        if (!(mDatePicker.getDayOfMonth() == day && mDatePicker.getMonth() == month && mDatePicker.getYear() == year)) {
-                            //CTS: No reason to change the day if it's already correct
-                            mDatePicker.updateDate(year, month, day);
-                        }
+                    if (!(mDatePicker.getDayOfMonth() == day && mDatePicker.getMonth() == month && mDatePicker.getYear() == year)) {
+                        //CTS: No reason to change the day if it's already correct
+                        mDatePicker.updateDate(year, month, day);
                     }
                 }
-
-                widgetEntryChangedDelayed();
             }
+
+            widgetEntryChangedDelayed();
         };
     }
 

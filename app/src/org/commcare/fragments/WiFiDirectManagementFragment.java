@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.dalvik.R;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -30,7 +31,7 @@ import org.javarosa.core.services.Logger;
 @SuppressLint("NewApi")
 public class WiFiDirectManagementFragment extends Fragment
         implements ConnectionInfoListener, ActionListener, ChannelListener {
-    private static final String TAG = WiFiDirectManagementFragment.class.getSimpleName();
+    private static final String TAG = LogTypes.TYPE_WIFI_DIRECT;
     private static CommCareWiFiDirectActivity mActivity;
 
     private TextView mStatusText;

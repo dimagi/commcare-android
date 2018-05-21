@@ -196,14 +196,7 @@ public class CustomProgressDialog extends DialogFragment {
             CheckBox cb = (CheckBox)view.findViewById(R.id.progress_dialog_checkbox);
             cb.setVisibility(View.VISIBLE);
             cb.setText(checkboxText);
-            cb.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    isChecked = ((CheckBox)v).isChecked();
-                }
-
-            });
+            cb.setOnClickListener(v -> isChecked = ((CheckBox)v).isChecked());
             if (isChecked) {
                 cb.toggle();
             }
@@ -212,14 +205,9 @@ public class CustomProgressDialog extends DialogFragment {
 
     private Button setupCancelButton(View v) {
         Button b = (Button)v.findViewById(R.id.dialog_cancel_button);
-        b.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                ((CommCareActivity)getActivity()).cancelCurrentTask();
-                showCancelledState();
-            }
-
+        b.setOnClickListener(v1 -> {
+            ((CommCareActivity)getActivity()).cancelCurrentTask();
+            showCancelledState();
         });
         b.setVisibility(View.VISIBLE);
         return b;

@@ -148,63 +148,45 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         btnYearDown = (Button)findViewById(R.id.yeardownbtn);
 
         // button click listeners
-        btnDayUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mUpdater == null) {
-                    incrementDay();
-                    setFocus(getContext());
-                }
+        btnDayUp.setOnClickListener(v -> {
+            if (mUpdater == null) {
+                incrementDay();
+                setFocus(getContext());
             }
         });
 
-        btnMonthUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mUpdater == null) {
-                    incrementMonth();
-                    setFocus(getContext());
-                }
+        btnMonthUp.setOnClickListener(v -> {
+            if (mUpdater == null) {
+                incrementMonth();
+                setFocus(getContext());
             }
         });
 
-        btnYearUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mUpdater == null) {
-                    setFocus(getContext());
-                    incrementYear();
-                }
+        btnYearUp.setOnClickListener(v -> {
+            if (mUpdater == null) {
+                setFocus(getContext());
+                incrementYear();
             }
         });
 
-        btnDayDown.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mUpdater == null) {
-                    decrementDay();
-                    setFocus(getContext());
-                }
+        btnDayDown.setOnClickListener(v -> {
+            if (mUpdater == null) {
+                decrementDay();
+                setFocus(getContext());
             }
         });
 
-        btnMonthDown.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mUpdater == null) {
-                    decrementMonth();
-                    setFocus(getContext());
-                }
+        btnMonthDown.setOnClickListener(v -> {
+            if (mUpdater == null) {
+                decrementMonth();
+                setFocus(getContext());
             }
         });
 
-        btnYearDown.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mUpdater == null) {
-                    decrementYear();
-                    setFocus(getContext());
-                }
+        btnYearDown.setOnClickListener(v -> {
+            if (mUpdater == null) {
+                decrementYear();
+                setFocus(getContext());
             }
         });
 

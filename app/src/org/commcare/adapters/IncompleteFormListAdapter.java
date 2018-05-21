@@ -167,19 +167,16 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         }
 
         // Sort FormRecords by modification time, most recent first.
-        Collections.sort(records, new Comparator<FormRecord>() {
-            @Override
-            public int compare(FormRecord left, FormRecord right) {
-                long leftModTime = left.lastModified().getTime();
-                long rightModTime = right.lastModified().getTime();
+        Collections.sort(records, (left, right) -> {
+            long leftModTime = left.lastModified().getTime();
+            long rightModTime = right.lastModified().getTime();
 
-                if (leftModTime > rightModTime) {
-                    return -1;
-                } else if (leftModTime == rightModTime) {
-                    return 0;
-                } else {
-                    return 1;
-                }
+            if (leftModTime > rightModTime) {
+                return -1;
+            } else if (leftModTime == rightModTime) {
+                return 0;
+            } else {
+                return 1;
             }
         });
 

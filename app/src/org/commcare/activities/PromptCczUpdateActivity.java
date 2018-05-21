@@ -32,12 +32,7 @@ public class PromptCczUpdateActivity extends PromptUpdateActivity {
                 Localization.get(inForceMode() ? "ccz.update.required.title" : "ccz.update.available.title"));
 
         updateButton.setText(Localization.get("ccz.update.action"));
-        updateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                launchUpdateActivity();
-            }
-        });
+        updateButton.setOnClickListener(v -> launchUpdateActivity());
 
         imageCue.setVisibility(View.GONE);
     }

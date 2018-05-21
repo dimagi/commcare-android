@@ -59,40 +59,27 @@ public class CommCareAudioWidget extends AudioWidget
         ImageButton captureButton = (ImageButton)layout.findViewById(R.id.capture_button);
         ImageButton chooseButton = (ImageButton)layout.findViewById(R.id.choose_file);
 
-        captureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                captureAudio(mPrompt);
-            }
-        });
+        captureButton.setOnClickListener(v -> captureAudio(mPrompt));
 
         // launch audio filechooser intent on click
-        chooseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.setType("audio/*");
-                try {
-                    ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
-                    recordingNameText.setTextColor(getResources().getColor(R.color.black));
-                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found,
-                                    "choose audio"),
-                            Toast.LENGTH_SHORT).show();
-                }
+        chooseButton.setOnClickListener(v -> {
+            Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+            i.setType("audio/*");
+            try {
+                ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
+                recordingNameText.setTextColor(getResources().getColor(R.color.black));
+                pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(getContext(),
+                        StringUtils.getStringSpannableRobust(getContext(),
+                                R.string.activity_not_found,
+                                "choose audio"),
+                        Toast.LENGTH_SHORT).show();
             }
         });
 
 
-        mPlayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playAudio();
-            }
-        });
+        mPlayButton.setOnClickListener(v -> playAudio());
     }
 
     @Override
@@ -151,53 +138,28 @@ public class CommCareAudioWidget extends AudioWidget
     protected void playAudio() {
         Uri filePath = Uri.parse(mInstanceFolder + mBinaryName);
         player = MediaPlayer.create(getContext(), filePath);
-        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                resetAudioPlayer();
-            }
-        });
+        player.setOnCompletionListener(mp -> resetAudioPlayer());
         player.start();
         mPlayButton.setBackgroundResource(R.drawable.pause);
-        mPlayButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pauseAudioPlayer();
-            }
-        });
+        mPlayButton.setOnClickListener(v -> pauseAudioPlayer());
     }
 
     private void pauseAudioPlayer() {
         player.pause();
         mPlayButton.setBackgroundResource(R.drawable.play);
-        mPlayButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resumeAudioPlayer();
-            }
-        });
+        mPlayButton.setOnClickListener(v -> resumeAudioPlayer());
     }
 
     private void resumeAudioPlayer() {
         player.start();
         mPlayButton.setBackgroundResource(R.drawable.pause);
-        mPlayButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pauseAudioPlayer();
-            }
-        });
+        mPlayButton.setOnClickListener(v -> pauseAudioPlayer());
     }
 
     private void resetAudioPlayer() {
         player.release();
         mPlayButton.setBackgroundResource(R.drawable.play);
-        mPlayButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playAudio();
-            }
-        });
+        mPlayButton.setOnClickListener(v -> playAudio());
     }
 
     @Override

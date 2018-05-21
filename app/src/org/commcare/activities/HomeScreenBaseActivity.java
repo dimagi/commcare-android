@@ -45,6 +45,7 @@ import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.RemoteRequestEntry;
@@ -61,7 +62,6 @@ import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.utils.StorageUtils;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
@@ -214,6 +214,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return false;
         }
 
+        if (showUpdateInfoForm()) {
+            return true;
+        }
+
         if (tryRestoringFormFromSessionExpiration()) {
             return true;
         }
@@ -236,6 +240,24 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         checkForPinLaunchConditions();
 
+        return false;
+    }
+
+    // Open the update info form if available
+    private boolean showUpdateInfoForm() {
+        if (HiddenPreferences.shouldShowXformUpdateInfo()) {
+            HiddenPreferences.setShowXformUpdateInfo(false);
+            String updateInfoFormXmlns = CommCareApplication.instance().getCommCarePlatform().getUpdateInfoFormXmlns();
+            if (!StringUtils.isEmpty(updateInfoFormXmlns)) {
+                CommCareSession session = CommCareApplication.instance().getCurrentSession();
+                FormEntry formEntry = session.getEntryForNameSpace(updateInfoFormXmlns);
+                if (formEntry != null) {
+                    session.setCommand(formEntry.getCommandID());
+                    startNextSessionStepSafe();
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -305,34 +327,23 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, promptMessage);
 
         DialogChoiceItem createPinChoice = new DialogChoiceItem(
-                Localization.get("pin.dialog.yes"), -1, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismissAlertDialog();
-                launchPinCreateScreen(loginMode);
-            }
-        });
+                Localization.get("pin.dialog.yes"), -1, v -> {
+                    dismissAlertDialog();
+                    launchPinCreateScreen(loginMode);
+                });
 
         DialogChoiceItem nextTimeChoice = new DialogChoiceItem(
-                Localization.get("pin.dialog.not.now"), -1, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismissAlertDialog();
-            }
-        });
+                Localization.get("pin.dialog.not.now"), -1, v -> dismissAlertDialog());
 
         DialogChoiceItem notAgainChoice = new DialogChoiceItem(
-                Localization.get("pin.dialog.never"), -1, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismissAlertDialog();
-                CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                        .edit()
-                        .putBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, true)
-                        .apply();
-                showPinFutureAccessDialog();
-            }
-        });
+                Localization.get("pin.dialog.never"), -1, v -> {
+                    dismissAlertDialog();
+                    CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                            .edit()
+                            .putBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, true)
+                            .apply();
+                    showPinFutureAccessDialog();
+                });
 
 
         dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
@@ -361,24 +372,21 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         final PaneledChoiceDialog dialog =
                 new PaneledChoiceDialog(this, Localization.get("home.menu.locale.select"));
 
-        AdapterView.OnItemClickListener listClickListener = new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String[] localeCodes = ChangeLocaleUtil.getLocaleCodes();
-                if (position >= localeCodes.length) {
-                    Localization.setLocale("default");
-                } else {
-                    String selectedLocale = localeCodes[position];
-                    MainConfigurablePreferences.setCurrentLocale(selectedLocale);
-                    Localization.setLocale(selectedLocale);
-                }
-                // rebuild home buttons in case language changed;
-                if (uiController != null) {
-                    uiController.setupUI();
-                }
-                rebuildOptionsMenu();
-                dismissAlertDialog();
+        AdapterView.OnItemClickListener listClickListener = (parent, view, position, id) -> {
+            String[] localeCodes = ChangeLocaleUtil.getLocaleCodes();
+            if (position >= localeCodes.length) {
+                Localization.setLocale("default");
+            } else {
+                String selectedLocale = localeCodes[position];
+                MainConfigurablePreferences.setCurrentLocale(selectedLocale);
+                Localization.setLocale(selectedLocale);
             }
+            // rebuild home buttons in case language changed;
+            if (uiController != null) {
+                uiController.setupUI();
+            }
+            rebuildOptionsMenu();
+            dismissAlertDialog();
         };
 
         dialog.setChoiceItems(buildLocaleChoices(), listClickListener);
@@ -713,11 +721,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
-                // Now that we know this form is completed, we can give it the next available
-                // submission ordering number
-                current.setFormNumberForSubmissionOrdering(StorageUtils.getNextFormSubmissionNumber());
-                SqlStorage<FormRecord> formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-                formRecordStorage.write(current);
                 checkAndStartUnsentFormsTask(false, false);
                 refreshUI();
 
@@ -751,7 +754,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                         Toast.LENGTH_LONG).show();
                 Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
                         "Form Entry did not return a form");
-                clearSessionAndExit(currentState, true);
+                clearSessionAndExit(currentState, false);
                 return false;
             }
         } else if (resultCode == RESULT_CANCELED) {
@@ -876,13 +879,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void handleAssertionFailureFromSessionNav(final AndroidSessionWrapper asw) {
         EvaluationContext ec = asw.getEvaluationContext();
         Text text = asw.getSession().getCurrentEntry().getAssertions().getAssertionFailure(ec);
-        createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                dismissAlertDialog();
-                asw.getSession().stepBack(asw.getEvaluationContext());
-                HomeScreenBaseActivity.this.sessionNavigator.startNextSessionStep();
-            }
+        createErrorDialog(text.evaluate(ec), (dialog, i) -> {
+            dismissAlertDialog();
+            asw.getSession().stepBack(asw.getEvaluationContext());
+            HomeScreenBaseActivity.this.sessionNavigator.startNextSessionStep();
         });
     }
 
@@ -1137,26 +1137,23 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         String title = Localization.get("app.workflow.incomplete.continue.title");
         String msg = Localization.get("app.workflow.incomplete.continue");
         StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        // use the old form instance and load the it's state from the descriptor
-                        state.loadFromStateDescription(existing);
-                        formEntry(platform.getFormDefId(state.getSession().getForm()), state.getFormRecord());
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        // delete the old incomplete form
-                        FormRecordCleanupTask.wipeRecord(existing);
-                        // fallthrough to new now that old record is gone
-                    case DialogInterface.BUTTON_NEUTRAL:
-                        // create a new form record and begin form entry
-                        state.commitStub();
-                        formEntry(platform.getFormDefId(state.getSession().getForm()), state.getFormRecord());
-                }
-                dismissAlertDialog();
+        DialogInterface.OnClickListener listener = (dialog, i) -> {
+            switch (i) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    // use the old form instance and load the it's state from the descriptor
+                    state.loadFromStateDescription(existing);
+                    formEntry(platform.getFormDefId(state.getSession().getForm()), state.getFormRecord());
+                    break;
+                case DialogInterface.BUTTON_NEGATIVE:
+                    // delete the old incomplete form
+                    FormRecordCleanupTask.wipeRecord(existing);
+                    // fallthrough to new now that old record is gone
+                case DialogInterface.BUTTON_NEUTRAL:
+                    // create a new form record and begin form entry
+                    state.commitStub();
+                    formEntry(platform.getFormDefId(state.getSession().getForm()), state.getFormRecord());
             }
+            dismissAlertDialog();
         };
         d.setPositiveButton(Localization.get("option.yes"), listener);
         d.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
@@ -1190,12 +1187,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected void showAboutCommCareDialog() {
         CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
         dialog.makeCancelable();
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                handleDeveloperModeClicks();
-            }
-        });
+        dialog.setOnDismissListener(dialog1 -> handleDeveloperModeClicks());
         showAlertDialog(dialog);
     }
 
