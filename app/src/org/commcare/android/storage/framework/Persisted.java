@@ -33,13 +33,10 @@ public class Persisted implements Persistable, IMetaData {
 
     protected int recordId = -1;
     private static final Hashtable<Class, ArrayList<Field>> fieldOrderings = new Hashtable<>();
-    private static final Comparator<Field> orderedComparator = new Comparator<Field>() {
-        @Override
-        public int compare(Field f1, Field f2) {
-            int i1 = f1.getAnnotation(Persisting.class).value();
-            int i2 = f2.getAnnotation(Persisting.class).value();
-            return (i1 < i2 ? -1 : (i1 == i2 ? 0 : 1));
-        }
+    private static final Comparator<Field> orderedComparator = (f1, f2) -> {
+        int i1 = f1.getAnnotation(Persisting.class).value();
+        int i2 = f2.getAnnotation(Persisting.class).value();
+        return (i1 < i2 ? -1 : (i1 == i2 ? 0 : 1));
     };
 
     @Override

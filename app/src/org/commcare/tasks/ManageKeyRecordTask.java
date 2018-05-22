@@ -335,23 +335,19 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     @Override
     protected TransactionParserFactory getTransactionParserFactory() {
-        return new TransactionParserFactory() {
+        return parser -> {
+            String name = parser.getName();
+            if ("auth_keys".equals(name)) {
+                return new KeyRecordParser(parser, username, password) {
 
-            @Override
-            public TransactionParser getParser(KXmlParser parser) {
-                String name = parser.getName();
-                if ("auth_keys".equals(name)) {
-                    return new KeyRecordParser(parser, username, password) {
+                    @Override
+                    public void commit(ArrayList<UserKeyRecord> parsed) throws IOException {
+                        ManageKeyRecordTask.this.keyRecords = parsed;
+                    }
 
-                        @Override
-                        public void commit(ArrayList<UserKeyRecord> parsed) throws IOException {
-                            ManageKeyRecordTask.this.keyRecords = parsed;
-                        }
-
-                    };
-                } else {
-                    return null;
-                }
+                };
+            } else {
+                return null;
             }
         };
     }

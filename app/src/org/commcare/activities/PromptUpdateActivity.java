@@ -60,12 +60,7 @@ public abstract class PromptUpdateActivity extends SessionAwareCommCareActivity 
         helpText.setText(Localization.get("prompted.update.help.text"));
 
         updateLaterButton.setText(Localization.get("update.later.button.text"));
-        updateLaterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PromptUpdateActivity.this.finish();
-            }
-        });
+        updateLaterButton.setOnClickListener(v -> PromptUpdateActivity.this.finish());
 
         if (inForceMode()) {
             updatesAvailableTitle.setTextColor(getResources().getColor(R.color.cc_attention_negative_color));

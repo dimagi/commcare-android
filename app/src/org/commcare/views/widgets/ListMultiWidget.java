@@ -86,19 +86,16 @@ public class ListMultiWidget extends QuestionWidget {
                 CheckBox c = new CheckBox(getContext());
 
                 // when clicked, check for readonly before toggling
-                c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        // TODO PLM: hmmm, the conditional below is always false...
-                        if (!mCheckboxInit && mPrompt.isReadOnly()) {
-                            if (buttonView.isChecked()) {
-                                buttonView.setChecked(false);
-                            } else {
-                                buttonView.setChecked(true);
-                            }
+                c.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    // TODO PLM: hmmm, the conditional below is always false...
+                    if (!mCheckboxInit && mPrompt.isReadOnly()) {
+                        if (buttonView.isChecked()) {
+                            buttonView.setChecked(false);
+                        } else {
+                            buttonView.setChecked(true);
                         }
-                        widgetEntryChanged();
                     }
+                    widgetEntryChanged();
                 });
 
                 c.setId(CHECKBOX_ID + i);

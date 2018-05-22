@@ -205,22 +205,19 @@ public class CommCareWiFiDirectActivity
 
     private void showDialog(Activity activity, String title, String message) {
         StandardAlertDialog d = new StandardAlertDialog(activity, title, message);
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case AlertDialog.BUTTON_POSITIVE:
-                        beSubmitter();
-                        break;
-                    case AlertDialog.BUTTON_NEUTRAL:
-                        beReceiver();
-                        break;
-                    case AlertDialog.BUTTON_NEGATIVE:
-                        beSender();
-                        break;
-                }
-                dismissAlertDialog();
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            switch (which) {
+                case AlertDialog.BUTTON_POSITIVE:
+                    beSubmitter();
+                    break;
+                case AlertDialog.BUTTON_NEUTRAL:
+                    beReceiver();
+                    break;
+                case AlertDialog.BUTTON_NEGATIVE:
+                    beSender();
+                    break;
             }
+            dismissAlertDialog();
         };
         d.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
         d.setNegativeButton(localize("wifi.direct.transfer.forms"), listener);

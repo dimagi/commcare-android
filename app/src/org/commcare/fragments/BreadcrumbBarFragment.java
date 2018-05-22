@@ -233,15 +233,12 @@ public class BreadcrumbBarFragment extends Fragment {
 
         holder.setTag(INLINE_TILE_COLLAPSED);
 
-        infoButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean isCollapsed = INLINE_TILE_COLLAPSED.equals(holder.getTag());
-                if (isCollapsed) {
-                    expandInlineTile(activity, holder, tileData, inlineDetail);
-                } else {
-                    collapseTileIfExpanded(activity);
-                }
+        infoButton.setOnClickListener(v -> {
+            boolean isCollapsed = INLINE_TILE_COLLAPSED.equals(holder.getTag());
+            if (isCollapsed) {
+                expandInlineTile(activity, holder, tileData, inlineDetail);
+            } else {
+                collapseTileIfExpanded(activity);
             }
         });
         return holder;

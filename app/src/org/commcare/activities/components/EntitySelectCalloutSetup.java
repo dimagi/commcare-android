@@ -67,17 +67,14 @@ public class EntitySelectCalloutSetup {
      * @return A click listener that launches QR code scanner
      */
     public static View.OnClickListener makeBarcodeClickListener(final Activity activity) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new IntentIntegrator(activity).createScanIntent();
-                try {
-                    activity.startActivityForResult(intent, EntitySelectActivity.BARCODE_FETCH);
-                } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(activity,
-                            Localization.get("barcode.reader.missing"),
-                            Toast.LENGTH_LONG).show();
-                }
+        return v -> {
+            Intent intent = new IntentIntegrator(activity).createScanIntent();
+            try {
+                activity.startActivityForResult(intent, EntitySelectActivity.BARCODE_FETCH);
+            } catch (ActivityNotFoundException anfe) {
+                Toast.makeText(activity,
+                        Localization.get("barcode.reader.missing"),
+                        Toast.LENGTH_LONG).show();
             }
         };
     }
@@ -93,16 +90,13 @@ public class EntitySelectCalloutSetup {
     public static View.OnClickListener makeCalloutClickListener(final Activity activity,
                                                                 Callout callout, EvaluationContext ec) {
         final Intent i = buildCalloutIntent(callout, ec);
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    activity.startActivityForResult(i, EntitySelectActivity.CALLOUT);
-                } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(activity,
-                            Localization.get("callout.missing", new String[]{i.getAction()}),
-                            Toast.LENGTH_LONG).show();
-                }
+        return v -> {
+            try {
+                activity.startActivityForResult(i, EntitySelectActivity.CALLOUT);
+            } catch (ActivityNotFoundException anfe) {
+                Toast.makeText(activity,
+                        Localization.get("callout.missing", new String[]{i.getAction()}),
+                        Toast.LENGTH_LONG).show();
             }
         };
     }

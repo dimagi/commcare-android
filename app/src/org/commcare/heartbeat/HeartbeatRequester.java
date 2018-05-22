@@ -141,12 +141,7 @@ public class HeartbeatRequester {
 
     protected static void passResponseToUiThread(final JSONObject responseAsJson) {
         // will run on UI thread
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                parseHeartbeatResponse(responseAsJson);
-            }
-        });
+        new Handler(Looper.getMainLooper()).post(() -> parseHeartbeatResponse(responseAsJson));
     }
 
     protected static void parseHeartbeatResponse(JSONObject responseAsJson) {

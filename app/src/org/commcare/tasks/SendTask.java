@@ -151,12 +151,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
     protected void tryLoadPropertiesFile(File formFolder) throws IOException {
 
         // see if we have a form.properties file to load the PostURL from
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String filename) {
-                return filename.equals(ZipTask.FORM_PROPERTIES_FILE);
-            }
-        };
+        FilenameFilter filter = (dir, filename) -> filename.equals(ZipTask.FORM_PROPERTIES_FILE);
         // there should only be one of these
         File[] formPropertiesFile = formFolder.listFiles(filter);
         if (formPropertiesFile != null && formPropertiesFile.length > 0) {
