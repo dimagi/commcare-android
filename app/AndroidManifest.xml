@@ -403,9 +403,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity
-            android:name="org.commcare.activities.SeatAppActivity">
-        </activity>
+        <activity android:name="org.commcare.activities.SeatAppActivity"/>
         <activity android:name="org.commcare.activities.PostRequestActivity"/>
         <activity android:name="org.commcare.activities.QueryRequestActivity"/>
         <activity
@@ -431,6 +429,7 @@
             </intent-filter>
         </activity>
         <activity android:name="org.commcare.activities.TargetMismatchErrorActivity"/>
+        <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
         <!-- Start Collect Manifest -->
 
         <meta-data

@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Base64;
-import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
@@ -528,6 +527,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     break;
                 case GET_REMOTE_DATA:
                     stepBackIfCancelled(resultCode);
+                    break;
+                case RecoveryMeasuresManager.RECOVERY_MEASURES_ACTIVITY:
+                    // TODO: figure out what to do here
                     break;
             }
             sessionNavigationProceedingAfterOnResume = true;
@@ -1124,7 +1126,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         boolean kickedOff = false;
 
         if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
-            RecoveryMeasuresManager.startExecutionTask(this);
+            RecoveryMeasuresManager.startExecutionActivity(this);
             kickedOff = true;
         } else if (CommCareApplication.instance().isSyncPending(false)) {
             triggerSync(true);

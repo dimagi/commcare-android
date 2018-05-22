@@ -1,106 +1,36 @@
 package org.commcare.activities;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.widget.TextView;
-
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.utils.MultipleAppsUtil;
-import org.javarosa.core.services.locale.Localization;
 
 /**
  * Activity to perform asynchronous initialization of an application
  *
- * @author amstone
+ * @author Aliza Stone (astone@dimagi.com)
  */
-public class SeatAppActivity extends Activity {
+public class SeatAppActivity extends BlockingProcessActivity {
 
-    private static final String KEY_IN_PROGRESS = "initialization_in_progress";
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
 
-    private boolean inProgress;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_seat_app);
-        TextView tv = (TextView)findViewById(R.id.text);
-        tv.setText(Localization.get("seating.app"));
-
-        inProgress = savedInstanceState != null &&
-                savedInstanceState.getBoolean(KEY_IN_PROGRESS, false);
-
-        if (!inProgress) {
-
-            String idOfAppToSeat = getIntent().getStringExtra(KEY_APP_TO_SEAT);
-            ApplicationRecord record = MultipleAppsUtil.getAppById(idOfAppToSeat);
-
-            if (record == null) {
-                // No record was found for the given id
-                Intent i = new Intent(getIntent());
-                setResult(RESULT_CANCELED, i);
-                finish();
-            }
-
-            ThreadHandler handler = new ThreadHandler(this);
-            Thread t = new Thread(new SeatAppProcess(record, handler));
-            setInProgress(true);
-            t.start();
-        }
+    protected String getDisplayTextKey() {
+        return "seating.app";
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(KEY_IN_PROGRESS, inProgress);
-    }
-
-    @Override
-    public void onBackPressed() {
-        // Make it impossible to quit in the middle of this activity
-    }
-
-    private void setInProgress(boolean b) {
-        this.inProgress = b;
-    }
-
-    private static class ThreadHandler extends Handler {
-
-        private final SeatAppActivity activity;
-
-        public ThreadHandler(SeatAppActivity a) {
-            this.activity = a;
+    protected Runnable buildProcessToRun(ThreadHandler handler) {
+        final ApplicationRecord record =
+                MultipleAppsUtil.getAppById(getIntent().getStringExtra(KEY_APP_TO_SEAT));
+        if (record == null) {
+            return null;
         }
 
-        @Override
-        public void handleMessage(Message msg) {
-            activity.setInProgress(false);
-            Intent i = new Intent(activity.getIntent());
-            activity.setResult(RESULT_OK, i);
-            activity.finish();
-        }
-    }
-
-    private static class SeatAppProcess implements Runnable {
-
-        private final ApplicationRecord record;
-        private final ThreadHandler handler;
-
-        public SeatAppProcess(ApplicationRecord record, ThreadHandler handler) {
-            this.record = record;
-            this.handler = handler;
-        }
-
-        @Override
-        public void run() {
-            CommCareApplication.instance().initializeAppResources(new CommCareApp(this.record));
+        return () -> {
+            CommCareApplication.instance().initializeAppResources(new CommCareApp(record));
             handler.sendEmptyMessage(0);
-        }
+        };
     }
+
 }
