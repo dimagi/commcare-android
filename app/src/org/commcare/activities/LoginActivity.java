@@ -278,10 +278,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (requestCode == SEAT_APP_ACTIVITY && resultCode == RESULT_OK) {
             uiController.refreshForNewApp();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
-        } else if (requestCode == RecoveryMeasuresManager.RECOVERY_MEASURES_ACTIVITY) {
-            // TODO: decide what to do here
         }
-
         super.onActivityResult(requestCode, resultCode, intent);
     }
 

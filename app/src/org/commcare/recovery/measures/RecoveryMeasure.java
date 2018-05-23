@@ -45,6 +45,8 @@ public class RecoveryMeasure extends Persisted {
     private int appVersionMin;
     @Persisting(6)
     private int appVersionMax;
+    @Persisting(7)
+    private int attemptsMade;
 
     public RecoveryMeasure() {
 
@@ -58,6 +60,7 @@ public class RecoveryMeasure extends Persisted {
         this.ccVersionMax = ccVersionMax;
         this.appVersionMin = appVersionMin;
         this.appVersionMax = appVersionMax;
+        this.attemptsMade = 0;
     }
 
     protected boolean applicableToCurrentInstallation() {
@@ -97,6 +100,14 @@ public class RecoveryMeasure extends Persisted {
 
     protected void registerWithSystem() {
         CommCareApplication.instance().getAppStorage(RecoveryMeasure.class).write(this);
+    }
+
+    public void incrementAttempts() {
+        attemptsMade++;
+    }
+
+    public int getAttempts() {
+        return attemptsMade;
     }
 
     public boolean execute() {

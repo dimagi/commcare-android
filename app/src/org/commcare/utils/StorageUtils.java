@@ -129,12 +129,10 @@ public class StorageUtils {
         return maxSubmissionNumber + 1;
     }
 
-    public static List<RecoveryMeasure> getPendingRecoveryMeasuresInOrder() {
+    public static List<RecoveryMeasure> getPendingRecoveryMeasuresInOrder(SqlStorage<RecoveryMeasure> storage) {
         List<RecoveryMeasure> toExecute = new ArrayList<>();
         List<RecoveryMeasure> toDelete = new ArrayList<>();
 
-        SqlStorage<RecoveryMeasure> storage =
-                CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
         int latestMeasureExecuted = HiddenPreferences.getLatestRecoveryMeasureExecuted();
         for (RecoveryMeasure measure : storage) {
             if (measure.getSequenceNumber() <= latestMeasureExecuted) {

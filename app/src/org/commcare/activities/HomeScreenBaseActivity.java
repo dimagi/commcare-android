@@ -528,9 +528,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case GET_REMOTE_DATA:
                     stepBackIfCancelled(resultCode);
                     break;
-                case RecoveryMeasuresManager.RECOVERY_MEASURES_ACTIVITY:
-                    // TODO: figure out what to do here
-                    break;
             }
             sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();
