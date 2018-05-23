@@ -6,7 +6,9 @@ import android.content.Intent;
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.StorageUtils;
+import org.javarosa.core.services.Logger;
 
 /**
  * Created by amstone326 on 4/27/18.
@@ -21,7 +23,19 @@ public class RecoveryMeasuresManager {
             // There's nothing we can do if we don't know what app to request recovery measures from
             return;
         }
-        (new RecoveryMeasuresRequester()).makeRequest();
+
+        Thread requestThread = new Thread(() -> {
+            try {
+                new RecoveryMeasuresRequester().makeRequest();
+            } catch (Exception e) {
+                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, String.format(
+                        "Encountered unexpected exception during recovery measures request: %s",
+                        e.getMessage()
+                ));
+            }
+        });
+
+        requestThread.run();
     }
 
     public static boolean recoveryMeasuresPending() {
