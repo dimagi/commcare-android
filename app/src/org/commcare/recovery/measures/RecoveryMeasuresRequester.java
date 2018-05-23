@@ -38,7 +38,6 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
     public HashMap<String, String> getRequestParams() {
         HashMap<String, String> params = new HashMap<>();
         params.put(APP_ID, CommCareApplication.instance().getCurrentApp().getUniqueId());
-        params.put(DEVICE_ID, CommCareApplication.instance().getPhoneId());
         return params;
     }
 
@@ -63,7 +62,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
 
     @Override
     public void parseResponse(JSONObject responseAsJson) {
-        //if (checkForAppIdMatch(responseAsJson)) {
+        if (checkForAppIdMatch(responseAsJson)) {
             try {
                 if (responseAsJson.has("recovery_measures")) {
                     JSONArray recoveryMeasures = responseAsJson.getJSONArray("recovery_measures");
@@ -76,7 +75,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "recovery_measures array not properly formatted: " + e.getMessage());
             }
-        //}
+        }
     }
 
     private static void parseAndStoreRecoveryMeasure(JSONObject recoveryMeasureObject) {

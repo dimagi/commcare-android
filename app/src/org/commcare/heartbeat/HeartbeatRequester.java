@@ -2,7 +2,6 @@ package org.commcare.heartbeat;
 
 import android.util.Log;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.network.AuthInfo;
@@ -82,25 +81,6 @@ public class HeartbeatRequester extends GetAndParseActor {
             attemptApkUpdateParse(responseAsJson);
             attemptCczUpdateParse(responseAsJson);
         }
-    }
-
-    private static boolean checkForAppIdMatch(JSONObject responseAsJson) {
-        try {
-            if (responseAsJson.has("app_id")) {
-                CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-                if (currentApp != null) {
-                    String appIdOfResponse = responseAsJson.getString("app_id");
-                    String currentAppId = currentApp.getAppRecord().getUniqueId();
-                    return appIdOfResponse.equals(currentAppId);
-                }
-            }
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Heartbeat response did not have required app_id param");
-        } catch (JSONException e) {
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "App id in heartbeat response was not properly formatted: " + e.getMessage());
-        }
-        return false;
     }
 
     private static void attemptApkUpdateParse(JSONObject responseAsJson) {

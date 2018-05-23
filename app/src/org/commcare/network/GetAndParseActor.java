@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
@@ -116,5 +117,25 @@ public abstract class GetAndParseActor {
     private void parseResponseOnUiThread(final JSONObject responseAsJson) {
         new Handler(Looper.getMainLooper()).post(() -> parseResponse(responseAsJson));
     }
+
+    protected boolean checkForAppIdMatch(JSONObject responseAsJson) {
+        try {
+            if (responseAsJson.has("app_id")) {
+                CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+                if (currentApp != null) {
+                    String appIdOfResponse = responseAsJson.getString("app_id");
+                    String currentAppId = currentApp.getAppRecord().getUniqueId();
+                    return appIdOfResponse.equals(currentAppId);
+                }
+            }
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
+                    String.format("%s response did not have required app_id param", this.requestName));
+        } catch (JSONException e) {
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
+                    String.format("App id in %s response was not properly formatted: %s", this.requestName, e.getMessage()));
+        }
+        return false;
+    }
+
 
 }
