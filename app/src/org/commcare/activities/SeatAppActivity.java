@@ -26,7 +26,6 @@ public class SeatAppActivity extends BlockingProcessActivity {
         if (record == null) {
             return null;
         }
-
         return () -> {
             CommCareApplication.instance().initializeAppResources(new CommCareApp(record));
             handler.sendEmptyMessage(0);

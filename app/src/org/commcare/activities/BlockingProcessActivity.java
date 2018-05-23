@@ -38,8 +38,7 @@ public abstract class BlockingProcessActivity extends Activity {
     }
 
     private void startProcess() {
-        ProcessFinishedHandler handler = new ProcessFinishedHandler(this);
-        Runnable process = buildProcessToRun(handler);
+        Runnable process = buildProcessToRun(new ProcessFinishedHandler(this));
         if (process == null) {
             Intent i = new Intent(getIntent());
             setResult(RESULT_CANCELED, i);
