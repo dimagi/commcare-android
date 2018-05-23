@@ -81,12 +81,28 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
 
     private static void parseAndStoreRecoveryMeasure(JSONObject recoveryMeasureObject) {
         try {
+            String ccVersionMin = null, ccVersionMax = null;
+            int appVersionMin = -1, appVersionMax = -1;
+            if (recoveryMeasureObject.has("cc_version_min")) {
+                ccVersionMin = recoveryMeasureObject.getString("cc_version_min");
+                ccVersionMax = recoveryMeasureObject.getString("cc_version_max");
+            }
+            if (recoveryMeasureObject.has("app_version_min")) {
+                appVersionMin = Integer.parseInt(recoveryMeasureObject.getString("app_version_min"));
+                appVersionMax = Integer.parseInt(recoveryMeasureObject.getString("app_version_max"));
+            }
+
+            if (ccVersionMin == null && appVersionMin == -1) {
+                // neither was included, which is invalid
+                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
+                        "Recovery measure object is invalid. " +
+                                "No app version range or CommCare version range was included");
+                return;
+            }
+
             int sequenceNumber = Integer.parseInt(recoveryMeasureObject.getString("sequence_number"));
             String type = recoveryMeasureObject.getString("type");
-            String ccVersionMin = recoveryMeasureObject.getString("cc_version_min");
-            String ccVersionMax = recoveryMeasureObject.getString("cc_version_max");
-            int appVersionMin = Integer.parseInt(recoveryMeasureObject.getString("app_version_min"));
-            int appVersionMax = Integer.parseInt(recoveryMeasureObject.getString("app_version_max"));
+
             RecoveryMeasure measure = new RecoveryMeasure(type, sequenceNumber, ccVersionMin,
                     ccVersionMax, appVersionMin, appVersionMax);
             if (measure.applicableToCurrentInstallation()) {
