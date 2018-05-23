@@ -1,7 +1,9 @@
 package org.commcare.android.resource.installers;
 
+import org.commcare.util.LogTypes;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
 
@@ -52,6 +54,16 @@ public class FileSystemUtils {
             }
         }
 
-        return oldFile.renameTo(newFile);
+        boolean suceess = oldFile.renameTo(newFile);
+
+        if (suceess && oldFile.exists()) {
+            Logger.log(LogTypes.SOFT_ASSERT, "Old File exists after rename");
+        }
+
+        if (suceess && newFile.exists()) {
+            Logger.log(LogTypes.SOFT_ASSERT, "New File doesn't exist after rename");
+        }
+
+        return suceess;
     }
 }
