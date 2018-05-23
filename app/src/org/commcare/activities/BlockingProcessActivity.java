@@ -14,17 +14,13 @@ import org.javarosa.core.services.locale.Localization;
 /**
  * Created by amstone326 on 5/22/18.
  *
- * Abstract activity that can be extended to easily create an activity that blocks the UI with
- * a simple message and progress dialog, while a process is executed on another thread
+ * Abstract activity that can be extended to serve as an activity that blocks the UI with
+ * a simple message and progress dialog, while a process is executed on a background thread
  */
 public abstract class BlockingProcessActivity extends Activity {
 
-    protected boolean inProgress;
-
-    protected abstract String getDisplayTextKey();
-    protected abstract Runnable buildProcessToRun(ThreadHandler handler);
-
     private static final String KEY_IN_PROGRESS = "initialization_in_progress";
+    protected boolean inProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +38,7 @@ public abstract class BlockingProcessActivity extends Activity {
     }
 
     private void startProcess() {
-        ThreadHandler handler = new ThreadHandler(this);
+        ProcessFinishedHandler handler = new ProcessFinishedHandler(this);
         Runnable process = buildProcessToRun(handler);
         if (process == null) {
             Intent i = new Intent(getIntent());
@@ -54,6 +50,9 @@ public abstract class BlockingProcessActivity extends Activity {
             t.start();
         }
     }
+
+    protected abstract String getDisplayTextKey();
+    protected abstract Runnable buildProcessToRun(ProcessFinishedHandler handler);
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -70,11 +69,11 @@ public abstract class BlockingProcessActivity extends Activity {
         this.inProgress = b;
     }
 
-    protected static class ThreadHandler extends Handler {
+    protected static class ProcessFinishedHandler extends Handler {
 
         private final BlockingProcessActivity activity;
 
-        ThreadHandler(BlockingProcessActivity a) {
+        ProcessFinishedHandler(BlockingProcessActivity a) {
             this.activity = a;
         }
 

@@ -20,7 +20,7 @@ public class SeatAppActivity extends BlockingProcessActivity {
     }
 
     @Override
-    protected Runnable buildProcessToRun(ThreadHandler handler) {
+    protected Runnable buildProcessToRun(ProcessFinishedHandler handler) {
         final ApplicationRecord record =
                 MultipleAppsUtil.getAppById(getIntent().getStringExtra(KEY_APP_TO_SEAT));
         if (record == null) {

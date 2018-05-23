@@ -14,7 +14,7 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity {
     }
 
     @Override
-    protected Runnable buildProcessToRun(ThreadHandler handler) {
+    protected Runnable buildProcessToRun(ProcessFinishedHandler handler) {
         return () -> {
             RecoveryMeasuresManager.executePendingMeasures();
             handler.sendEmptyMessage(0);
