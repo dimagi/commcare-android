@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -17,7 +16,7 @@ import org.javarosa.core.services.locale.Localization;
  * Abstract activity that can be extended to serve as an activity that blocks the UI with
  * a simple message and progress dialog, while a process is executed on a background thread
  */
-public abstract class BlockingProcessActivity extends Activity {
+public abstract class BlockingProcessActivity extends CommCareActivity<BlockingProcessActivity> {
 
     private static final String KEY_IN_PROGRESS = "initialization_in_progress";
     protected boolean inProgress;

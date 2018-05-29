@@ -238,6 +238,7 @@ public class HiddenPreferences {
     }
 
     public static void setLatestRecoveryMeasureExecuted(int latestSequenceNumber) {
+        System.out.println("Executed recovery measure # " + latestSequenceNumber);
         // The measure we executed may have been an app uninstall, so it's possible this will be null
         if (CommCareApplication.instance().getCurrentApp() != null) {
             CommCareApplication.instance().getCurrentApp().getAppPreferences()

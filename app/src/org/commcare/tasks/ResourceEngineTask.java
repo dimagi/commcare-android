@@ -31,7 +31,7 @@ public abstract class ResourceEngineTask<R>
     private final CommCareApp app;
 
     private static final int PHASE_CHECKING = 0;
-    public static final int PHASE_DOWNLOAD = 1;
+    private static final int PHASE_DOWNLOAD = 1;
 
     private int installedResourceCountWhileUpdating = 0;
     private int installedResourceCount = 0;
@@ -54,7 +54,7 @@ public abstract class ResourceEngineTask<R>
 
     private int authorityForInstall;
 
-    public ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep, int authority) {
+    protected ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep, int authority) {
         this.app = app;
         this.taskId = taskId;
         this.shouldSleep = shouldSleep;

@@ -8,6 +8,7 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.heartbeat.ApkVersion;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -33,6 +34,10 @@ public class RecoveryMeasure extends Persisted {
     private static final String CC_REINSTALL_NEEDED = "cc_reinstall";
     private static final String CC_UPDATE_NEEDED = "cc_update";
 
+    public static final int STATUS_EXECUTED = 0;
+    public static final int STATUS_FAILED = 1;
+    public static final int STATUS_WAITING = 2;
+
     @Persisting(1)
     private String type;
     @Persisting(2)
@@ -45,8 +50,6 @@ public class RecoveryMeasure extends Persisted {
     private int appVersionMin;
     @Persisting(6)
     private int appVersionMax;
-    @Persisting(7)
-    private int attemptsMade;
 
     public RecoveryMeasure() {
 
@@ -60,7 +63,6 @@ public class RecoveryMeasure extends Persisted {
         this.ccVersionMax = ccVersionMax;
         this.appVersionMin = appVersionMin;
         this.appVersionMax = appVersionMax;
-        this.attemptsMade = 0;
     }
 
     protected boolean applicableToCurrentInstallation() {
@@ -98,44 +100,38 @@ public class RecoveryMeasure extends Persisted {
         return sequenceNumber;
     }
 
-    protected void registerWithSystem() {
+    void registerWithSystem() {
         CommCareApplication.instance().getAppStorage(RecoveryMeasure.class).write(this);
     }
 
-    public void incrementAttempts() {
-        attemptsMade++;
-    }
-
-    public int getAttempts() {
-        return attemptsMade;
-    }
-
-    public boolean execute() {
+    public int execute(ExecuteRecoveryMeasuresActivity activity) {
         // All recovery measures assume there is a seated app to execute upon, so check that first
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         if (currentApp == null) {
-            return false;
+            return STATUS_FAILED;
         }
 
         switch(type) {
             case APP_REINSTALL:
-                AppLifecycleUtils.reinstall(currentApp);
-                return true;
+                String profileRef = currentApp.getCommCarePlatform().getCurrentProfile().getAuthReference();
+                SingleAppInstallation.installSingleApp(activity, profileRef);
+                //AppLifecycleUtils.reinstall(currentApp);
+                return STATUS_WAITING;
             case APP_REINSTALL_LOCAL:
                 AppLifecycleUtils.reinstallIfLocalCczPresent(currentApp);
-                return true;
+                return STATUS_WAITING;
             case APP_UPDATE:
-                return true;
+                return STATUS_WAITING;
             case CLEAR_USER_DATA:
                 clearDataForCurrentOrLastUser();
-                return true;
+                return STATUS_EXECUTED;
             case CC_REINSTALL_NEEDED:
-                return true;
+                return STATUS_EXECUTED;
             case CC_UPDATE_NEEDED:
-                return true;
+                return STATUS_EXECUTED;
 
         }
-        return false;
+        return STATUS_FAILED;
     }
 
     private static void clearDataForCurrentOrLastUser() {

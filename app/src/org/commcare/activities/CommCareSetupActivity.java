@@ -119,7 +119,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final int GET_APPS_FROM_HQ = 5;
 
     // dialog ID
-    private static final int DIALOG_INSTALL_PROGRESS = 4;
+    public static final int DIALOG_INSTALL_PROGRESS = 4;
 
     private boolean startAllowed = true;
     private String incomingRef;
@@ -177,7 +177,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         Permissions.ALL_PERMISSIONS_REQUEST);
         if (!askingForPerms) {
             if (isSingleAppBuild()) {
-                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
+                SingleAppInstallation.installSingleApp(this);
             } else if (uiState == UiState.CHOOSE_INSTALL_ENTRY_METHOD) {
                 // Don't perform SMS install if we aren't on base setup state
                 // (i.e. in the middle of an install)
@@ -451,7 +451,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private void startResourceInstall() {
         if (startAllowed) {
-            ccApp = getCommCareApp();
+            ccApp = getShellCommCareApp();
             containerFragment.setData(ccApp);
 
             CustomProgressDialog lastDialog = getCurrentProgressDialog();
@@ -490,7 +490,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
-    public static void handleAppInstallResult(ResourceEngineTask<CommCareSetupActivity> resourceEngineTask, CommCareSetupActivity receiver, AppInstallStatus result) {
+    public static <T extends ResourceEngineListener> void handleAppInstallResult(
+            ResourceEngineTask<T> resourceEngineTask, ResourceEngineListener receiver, AppInstallStatus result) {
         switch (result) {
             case Installed:
                 receiver.reportSuccess(true);
@@ -539,7 +540,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 Resource.RESOURCE_AUTHORITY_LOCAL : Resource.RESOURCE_AUTHORITY_REMOTE;
     }
 
-    public static CommCareApp getCommCareApp() {
+    public static CommCareApp getShellCommCareApp() {
         ApplicationRecord newRecord =
                 new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
                         ApplicationRecord.STATUS_UNINITIALIZED);
@@ -926,7 +927,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
 
             if (isSingleAppBuild()) {
-                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
+                SingleAppInstallation.installSingleApp(this);
             } else {
                 // Since SMS asks for more permissions, call was delayed until here
                 performSMSInstall(false);

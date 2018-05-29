@@ -21,9 +21,10 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
     private static final String NAME = "recovery measures";
     private static final String TAG = RecoveryMeasuresRequester.class.getSimpleName();
 
+    private static final String EMPTY_RESPONSE = "{\"app_id\":\"\"}";
     private static final String MOCK_RESPONSE_1 = "{\"app_id\":\"\",\"recovery_measures\": " +
-            "[{\"sequence_number\":\"3\", \"type\":\"clear_data\", \"cc_version_min\":\"2.36.2\", " +
-            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":\"200\", \"app_version_max\":\"1000\"} ]}";
+            "[{\"sequence_number\":\"5\", \"type\":\"app_reinstall\", \"cc_version_min\":\"2.36.2\", " +
+            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":\"50\", \"app_version_max\":\"100\"} ]}";
     private static final String MOCK_RESPONSE_2 = "{\"app_id\":\"\",\"recovery_measures\": " +
             "[{\"sequence_number\":\"1\", \"type\":\"clear_data\", \"cc_version_min\":\"2.36.2\", " +
             "\"cc_version_max\":\"2.45.0\", \"app_version_min\":\"200\", \"app_version_max\":\"1000\"}," +
@@ -62,7 +63,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
 
     @Override
     public void parseResponse(JSONObject responseAsJson) {
-        if (checkForAppIdMatch(responseAsJson)) {
+        //if (checkForAppIdMatch(responseAsJson)) {
             try {
                 if (responseAsJson.has("recovery_measures")) {
                     JSONArray recoveryMeasures = responseAsJson.getJSONArray("recovery_measures");
@@ -75,7 +76,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "recovery_measures array not properly formatted: " + e.getMessage());
             }
-        }
+        //}
     }
 
     private static void parseAndStoreRecoveryMeasure(JSONObject recoveryMeasureObject) {
@@ -107,6 +108,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
             if (measure.applicableToCurrentInstallation()) {
                 measure.registerWithSystem();
             }
+            System.out.println("Recovery measure " + sequenceNumber + " was not registered to system");
         } catch (JSONException e) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     String.format("Recovery measure object not properly formatted: %s", e.getMessage()));
