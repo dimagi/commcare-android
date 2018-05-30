@@ -21,6 +21,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
@@ -222,12 +223,17 @@ public class CommCareApp implements AppFilePathBuilder {
 
         Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         if (profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
-            platform.initialize(global, false);
             try {
+                platform.initialize(global, false);
                 Localization.setLocale(
                         getAppPreferences().getString(MainConfigurablePreferences.PREFS_LOCALE_KEY, "default"));
             } catch (UnregisteredLocaleException urle) {
                 Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
+            } catch (ResourceInitializationException e) {
+                Logger.exception("Initialization of platform failed due to resource initialization failure", e);
+                Logger.log(LogTypes.TYPE_RESOURCES,
+                        "Initialization of platform failed due to resource initialization failure");
+                return false;
             }
 
             initializeStylizer();

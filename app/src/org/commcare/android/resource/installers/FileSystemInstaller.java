@@ -23,7 +23,9 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -64,7 +66,9 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     }
 
     @Override
-    public abstract boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade);
+    public abstract boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException,
+            XmlPullParserException, UnfullfilledRequirementsException;
 
     @Override
     public boolean install(Resource r, ResourceLocation location,
@@ -389,4 +393,5 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     public String getUpgradeDestination() {
         return upgradeDestination;
     }
+
 }
