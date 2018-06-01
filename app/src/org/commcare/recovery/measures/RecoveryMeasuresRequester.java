@@ -88,8 +88,8 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
                 ccVersionMax = recoveryMeasureObject.getString("cc_version_max");
             }
             if (recoveryMeasureObject.has("app_version_min")) {
-                appVersionMin = Integer.parseInt(recoveryMeasureObject.getString("app_version_min"));
-                appVersionMax = Integer.parseInt(recoveryMeasureObject.getString("app_version_max"));
+                appVersionMin = recoveryMeasureObject.getInt("app_version_min");
+                appVersionMax = recoveryMeasureObject.getInt("app_version_max");
             }
 
             if (ccVersionMin == null && appVersionMin == -1) {
@@ -100,7 +100,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
                 return;
             }
 
-            int sequenceNumber = Integer.parseInt(recoveryMeasureObject.getString("sequence_number"));
+            int sequenceNumber = recoveryMeasureObject.getInt("sequence_number");
             String type = recoveryMeasureObject.getString("type");
 
             RecoveryMeasure measure = new RecoveryMeasure(type, sequenceNumber, ccVersionMin,
@@ -112,10 +112,6 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
         } catch (JSONException e) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     String.format("Recovery measure object not properly formatted: %s", e.getMessage()));
-        } catch (NumberFormatException e) {
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    String.format("Sequence number or app version in recovery measure response was " +
-                            "not a valid number: %s", e.getMessage()));
         }
     }
 
