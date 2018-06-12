@@ -23,7 +23,7 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity imp
     private static final String MEASURE_CURRENTLY_EXECUTING = "measure-currently-executing";
 
     private int idOfMeasureCurrentlyExecuting;
-    private int sequenceNumOfMeasureCurrentlyExecuting;
+    private long sequenceNumOfMeasureCurrentlyExecuting;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

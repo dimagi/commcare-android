@@ -232,17 +232,17 @@ public class HiddenPreferences {
                 .putInt(ID_OF_INTERRUPTED_SSD + currentUserId, -1).apply();
     }
 
-    public static int getLatestRecoveryMeasureExecuted() {
+    public static long getLatestRecoveryMeasureExecuted() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getInt(LATEST_RECOVERY_MEASURE, -1);
+                .getLong(LATEST_RECOVERY_MEASURE, -1);
     }
 
-    public static void setLatestRecoveryMeasureExecuted(int latestSequenceNumber) {
+    public static void setLatestRecoveryMeasureExecuted(long latestSequenceNumber) {
         System.out.println("Executed recovery measure # " + latestSequenceNumber);
         // The measure we executed may have been an app uninstall, so it's possible this will be null
         if (CommCareApplication.instance().getCurrentApp() != null) {
             CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                    .edit().putInt(LATEST_RECOVERY_MEASURE, latestSequenceNumber)
+                    .edit().putLong(LATEST_RECOVERY_MEASURE, latestSequenceNumber)
                     .apply();
         }
     }

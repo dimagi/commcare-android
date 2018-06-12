@@ -27,7 +27,7 @@ public class RecoveryMeasure extends Persisted {
 
     public static final String STORAGE_KEY = "RecoveryMeasures";
 
-    private static final String APP_REINSTALL = "app_reinstall";
+    private static final String APP_REINSTALL_OTA = "app_reinstall_ota";
     private static final String APP_REINSTALL_LOCAL = "app_reinstall_local";
     private static final String APP_UPDATE = "app_update";
     private static final String CLEAR_USER_DATA = "clear_data";
@@ -41,7 +41,7 @@ public class RecoveryMeasure extends Persisted {
     @Persisting(1)
     private String type;
     @Persisting(2)
-    private int sequenceNumber;
+    private long sequenceNumber;
     @Persisting(3)
     private String ccVersionMin;
     @Persisting(4)
@@ -96,7 +96,7 @@ public class RecoveryMeasure extends Persisted {
         }
     }
 
-    public int getSequenceNumber() {
+    public long getSequenceNumber() {
         return sequenceNumber;
     }
 
@@ -112,7 +112,7 @@ public class RecoveryMeasure extends Persisted {
         }
 
         switch(type) {
-            case APP_REINSTALL:
+            case APP_REINSTALL_OTA:
                 String profileRef = currentApp.getCommCarePlatform().getCurrentProfile().getAuthReference();
                 SingleAppInstallation.installSingleApp(activity, profileRef);
                 //AppLifecycleUtils.reinstall(currentApp);

@@ -133,7 +133,7 @@ public class StorageUtils {
         List<RecoveryMeasure> toExecute = new ArrayList<>();
         List<RecoveryMeasure> toDelete = new ArrayList<>();
 
-        int latestMeasureExecuted = HiddenPreferences.getLatestRecoveryMeasureExecuted();
+        long latestMeasureExecuted = HiddenPreferences.getLatestRecoveryMeasureExecuted();
         for (RecoveryMeasure measure : storage) {
             if (measure.getSequenceNumber() <= latestMeasureExecuted) {
                 toDelete.add(measure);
@@ -146,8 +146,16 @@ public class StorageUtils {
             storage.remove(measure.getID());
         }
 
-        Collections.sort(toExecute,
-                (measure1, measure2) -> measure1.getSequenceNumber() - measure2.getSequenceNumber());
+        Collections.sort(toExecute, (measure1, measure2) -> {
+            long diff = measure1.getSequenceNumber() - measure2.getSequenceNumber();
+            if (diff < 0) {
+                return -1;
+            } else if (diff == 0) {
+                return 0;
+            } else {
+                return 1;
+            }
+        });
         return toExecute;
     }
 
