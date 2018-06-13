@@ -23,13 +23,13 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
 
     private static final String EMPTY_RESPONSE = "{\"app_id\":\"\"}";
     private static final String MOCK_RESPONSE_1 = "{\"app_id\":\"\",\"recovery_measures\": " +
-            "[{\"sequence_number\":\"5\", \"type\":\"app_reinstall\", \"cc_version_min\":\"2.36.2\", " +
-            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":\"50\", \"app_version_max\":\"100\"} ]}";
+            "[{\"sequence_number\":9, \"type\":\"clear_data\", \"cc_version_min\":\"2.36.2\", " +
+            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":50, \"app_version_max\":100} ]}";
     private static final String MOCK_RESPONSE_2 = "{\"app_id\":\"\",\"recovery_measures\": " +
-            "[{\"sequence_number\":\"1\", \"type\":\"clear_data\", \"cc_version_min\":\"2.36.2\", " +
-            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":\"200\", \"app_version_max\":\"1000\"}," +
-            "{\"sequence_number\":\"2\", \"type\":\"app_reinstall\", \"cc_version_min\":\"2.36.2\", " +
-            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":\"200\", \"app_version_max\":\"1000\"} ]}";
+            "[{\"sequence_number\":1, \"type\":\"clear_data\", \"cc_version_min\":\"2.36.2\", " +
+            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":200, \"app_version_max\":1000}," +
+            "{\"sequence_number\":2, \"type\":\"app_reinstall\", \"cc_version_min\":\"2.36.2\", " +
+            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":200, \"app_version_max\":1000} ]}";
 
     public RecoveryMeasuresRequester() {
         super(NAME, TAG, ServerUrls.PREFS_RECOVERY_MEASURES_URL_KEY);
@@ -107,8 +107,8 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
                     ccVersionMax, appVersionMin, appVersionMax);
             if (measure.newToCurrentInstallation() && measure.applicableToCurrentInstallation()) {
                 measure.registerWithSystem();
+                System.out.println("Recovery measure " + sequenceNumber + " registered to system");
             }
-            System.out.println("Recovery measure " + sequenceNumber + " was not registered to system");
         } catch (JSONException e) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     String.format("Recovery measure object not properly formatted: %s", e.getMessage()));
