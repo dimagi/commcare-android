@@ -105,7 +105,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
 
             RecoveryMeasure measure = new RecoveryMeasure(type, sequenceNumber, ccVersionMin,
                     ccVersionMax, appVersionMin, appVersionMax);
-            if (measure.applicableToCurrentInstallation()) {
+            if (measure.newToCurrentInstallation() && measure.applicableToCurrentInstallation()) {
                 measure.registerWithSystem();
             }
             System.out.println("Recovery measure " + sequenceNumber + " was not registered to system");

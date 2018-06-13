@@ -16,7 +16,10 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AppLifecycleUtils;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StorageUtils;
 import org.javarosa.core.services.Logger;
+
+import java.util.List;
 
 /**
  * Created by amstone326 on 4/27/18.
@@ -67,6 +70,12 @@ public class RecoveryMeasure extends Persisted {
         this.appVersionMin = appVersionMin;
         this.appVersionMax = appVersionMax;
         this.lastAttemptTime = -1;
+    }
+
+    protected boolean newToCurrentInstallation() {
+        List<RecoveryMeasure> pendingInStorage = StorageUtils.getPendingRecoveryMeasuresInOrder(
+                CommCareApplication.instance().getAppStorage(RecoveryMeasure.class));
+        return this.sequenceNumber > pendingInStorage.get(pendingInStorage.size()-1).sequenceNumber;
     }
 
     protected boolean applicableToCurrentInstallation() {
