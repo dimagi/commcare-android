@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 
 import org.commcare.CommCareApplication;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.StorageUtils;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -34,7 +36,9 @@ public class RecoveryMeasuresManager {
     }
 
     public static boolean recoveryMeasuresPending() {
-        return CommCareApplication.instance().getAppStorage(RecoveryMeasure.class).getNumRecords() > 0;
+        SqlStorage<RecoveryMeasure> storage = CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
+        return storage.getNumRecords() > 0 &&
+                !StorageUtils.getPendingRecoveryMeasuresInOrder(storage).get(0).triedTooRecently();
     }
 
     public static void startExecutionActivity(Activity origin) {

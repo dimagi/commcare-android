@@ -26,6 +26,7 @@ import org.javarosa.core.services.Logger;
 public class RecoveryMeasure extends Persisted {
 
     public static final String STORAGE_KEY = "RecoveryMeasures";
+    private static final int ONE_HOUR_IN_MILLIS = 60 * 60 * 1000;
 
     private static final String APP_REINSTALL_OTA = "app_reinstall_ota";
     private static final String APP_REINSTALL_LOCAL = "app_reinstall_local";
@@ -50,6 +51,8 @@ public class RecoveryMeasure extends Persisted {
     private int appVersionMin;
     @Persisting(6)
     private int appVersionMax;
+    @Persisting(7)
+    private long lastAttemptTime;
 
     public RecoveryMeasure() {
 
@@ -63,6 +66,7 @@ public class RecoveryMeasure extends Persisted {
         this.ccVersionMax = ccVersionMax;
         this.appVersionMin = appVersionMin;
         this.appVersionMax = appVersionMax;
+        this.lastAttemptTime = -1;
     }
 
     protected boolean applicableToCurrentInstallation() {
@@ -102,6 +106,17 @@ public class RecoveryMeasure extends Persisted {
 
     void registerWithSystem() {
         CommCareApplication.instance().getAppStorage(RecoveryMeasure.class).write(this);
+    }
+
+    void setLastAttemptTime() {
+        this.lastAttemptTime = System.currentTimeMillis();
+    }
+
+    boolean triedTooRecently() {
+        if (lastAttemptTime == -1) {
+            return false;
+        }
+        return System.currentTimeMillis() - this.lastAttemptTime < ONE_HOUR_IN_MILLIS;
     }
 
     public int execute(ExecuteRecoveryMeasuresActivity activity) {

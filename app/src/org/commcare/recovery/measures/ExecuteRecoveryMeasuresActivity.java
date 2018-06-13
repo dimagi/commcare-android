@@ -64,6 +64,7 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity imp
                 executed.add(measure.getID());
             } else {
                 // Either the execution failed or we're waiting for some update from an async process
+                measure.setLastAttemptTime();
                 break;
             }
         }
