@@ -75,7 +75,8 @@ public class RecoveryMeasure extends Persisted {
     protected boolean newToCurrentInstallation() {
         List<RecoveryMeasure> pendingInStorage = StorageUtils.getPendingRecoveryMeasuresInOrder(
                 CommCareApplication.instance().getAppStorage(RecoveryMeasure.class));
-        return this.sequenceNumber > pendingInStorage.get(pendingInStorage.size()-1).sequenceNumber;
+        return pendingInStorage.size() == 0 ||
+                this.sequenceNumber > pendingInStorage.get(pendingInStorage.size()-1).sequenceNumber;
     }
 
     protected boolean applicableToCurrentInstallation() {
