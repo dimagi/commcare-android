@@ -34,10 +34,13 @@ public class DispatchActivity extends FragmentActivity {
     public static final String WAS_EXTERNAL = "launch_from_external";
     public static final String WAS_SHORTCUT_LAUNCH = "launch_from_shortcut";
     public static final String START_FROM_LOGIN = "process_successful_login";
+    public static final String EXECUTE_RECOVERY_MEASURES = "execute_recovery_measures";
 
     private static final int LOGIN_USER = 0;
     private static final int HOME_SCREEN = 1;
     public static final int INIT_APP = 2;
+    public static final int RECOVERY_MEASURES = 3;
+
 
     /**
      * Request code for automatically validating media.
@@ -52,6 +55,7 @@ public class DispatchActivity extends FragmentActivity {
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
     private boolean shortcutExtraWasConsumed;
+    private boolean needToExecuteRecoveryMeasures;
 
     private static final String EXTRA_CONSUMED_KEY = "shortcut_extra_was_consumed";
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
@@ -137,6 +141,12 @@ public class DispatchActivity extends FragmentActivity {
                 this.startActivityForResult(i, INIT_APP);
             }
         } else {
+            if (needToExecuteRecoveryMeasures) {
+                needToExecuteRecoveryMeasures = false;
+                RecoveryMeasuresManager.startExecutionActivity(this);
+                return;
+            }
+
             // send this off, results will be stored and queried for later
             RecoveryMeasuresManager.requestRecoveryMeasures();
 
@@ -341,6 +351,10 @@ public class DispatchActivity extends FragmentActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (intent != null && intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false)) {
+            this.needToExecuteRecoveryMeasures = true;
+        }
+
         // if handling new return code (want to return to home screen) but a return at the end of your statement
         switch (requestCode) {
             case INIT_APP:
@@ -376,6 +390,9 @@ public class DispatchActivity extends FragmentActivity {
                 } else {
                     userTriggeredLogout = true;
                 }
+                return;
+            case RECOVERY_MEASURES:
+                RecoveryMeasuresManager.handleExecutionActivityResult(this, intent);
                 return;
         }
         super.onActivityResult(requestCode, resultCode, intent);

@@ -377,6 +377,7 @@ multiple.apps.unverified.message=All of your available apps are missing their as
 
 seating.app=CommCare is loading your app
 executing.recovery.measures=CommCare is executing recovery measures
+recovery.measure.execution.failed=An error occurred when CommCare tried to execute a recovery measure. The system will try again later.
 
 no.print.data=No data has been provided for your print activity. Please see a supervisor to fix this.
 print.error=There was an error while printing. Please try again.

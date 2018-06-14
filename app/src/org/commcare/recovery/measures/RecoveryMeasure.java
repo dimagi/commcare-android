@@ -7,12 +7,15 @@ import android.content.pm.PackageManager;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.heartbeat.ApkVersion;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AppLifecycleUtils;
 import org.commcare.utils.SessionUnavailableException;
@@ -41,6 +44,7 @@ public class RecoveryMeasure extends Persisted {
     public static final int STATUS_EXECUTED = 0;
     public static final int STATUS_FAILED = 1;
     public static final int STATUS_WAITING = 2;
+    public static final int STATUS_TOO_SOON = 3;
 
     @Persisting(1)
     private String type;
@@ -118,18 +122,22 @@ public class RecoveryMeasure extends Persisted {
         CommCareApplication.instance().getAppStorage(RecoveryMeasure.class).write(this);
     }
 
-    void setLastAttemptTime() {
+    void setLastAttemptTime(SqlStorage<RecoveryMeasure> storage) {
         this.lastAttemptTime = System.currentTimeMillis();
+        storage.write(this);
     }
 
     boolean triedTooRecently() {
         if (lastAttemptTime == -1) {
             return false;
         }
-        return System.currentTimeMillis() - this.lastAttemptTime < ONE_HOUR_IN_MILLIS;
+        return System.currentTimeMillis() - this.lastAttemptTime < 10000; //TODO: change threshold back
     }
 
     public int execute(ExecuteRecoveryMeasuresActivity activity) {
+        if (triedTooRecently()) {
+            return STATUS_TOO_SOON;
+        }
         // All recovery measures assume there is a seated app to execute upon, so check that first
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         if (currentApp == null) {
@@ -139,9 +147,14 @@ public class RecoveryMeasure extends Persisted {
         switch(type) {
             case APP_REINSTALL_OTA:
                 String profileRef = currentApp.getCommCarePlatform().getCurrentProfile().getAuthReference();
-                SingleAppInstallation.installSingleApp(activity, profileRef);
-                //AppLifecycleUtils.reinstall(currentApp);
-                return STATUS_WAITING;
+                CommCareApp newAppInstall = CommCareSetupActivity.getShellCommCareApp();
+                if (SingleAppInstallation.prepareResourcesForSingleApp(newAppInstall, profileRef,
+                        Resource.RESOURCE_AUTHORITY_REMOTE)) {
+                    AppLifecycleUtils.uninstall(currentApp.getAppRecord());
+                    SingleAppInstallation.installSingleApp(activity, profileRef, true, currentApp);
+                    return STATUS_WAITING;
+                }
+                return STATUS_FAILED;
             case APP_REINSTALL_LOCAL:
                 AppLifecycleUtils.reinstallIfLocalCczPresent(currentApp);
                 return STATUS_WAITING;

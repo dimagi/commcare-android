@@ -1,5 +1,6 @@
 package org.commcare.recovery.measures;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import org.commcare.CommCareApplication;
@@ -20,23 +21,30 @@ import java.util.List;
  */
 public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity implements ResourceEngineListener {
 
-    private static final String MEASURE_CURRENTLY_EXECUTING = "measure-currently-executing";
+    private static final String CURRENTLY_EXECUTING_ID = "currently-executing-id";
+    private static final String CURRENTLY_EXECUTING_SEQUENCE_NUM = "currently-executing-sequence-num";
+    private static final String LAST_EXECUTION_STATUS = "last-execution-status";
 
     private int idOfMeasureCurrentlyExecuting;
     private long sequenceNumOfMeasureCurrentlyExecuting;
+    private int lastExecutionStatus;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            idOfMeasureCurrentlyExecuting = savedInstanceState.getInt(MEASURE_CURRENTLY_EXECUTING);
+            idOfMeasureCurrentlyExecuting = savedInstanceState.getInt(CURRENTLY_EXECUTING_ID);
+            sequenceNumOfMeasureCurrentlyExecuting = savedInstanceState.getLong(CURRENTLY_EXECUTING_SEQUENCE_NUM);
+            lastExecutionStatus = savedInstanceState.getInt(LAST_EXECUTION_STATUS);
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
-        out.putInt(MEASURE_CURRENTLY_EXECUTING, idOfMeasureCurrentlyExecuting);
+        out.putInt(CURRENTLY_EXECUTING_ID, idOfMeasureCurrentlyExecuting);
+        out.putLong(CURRENTLY_EXECUTING_SEQUENCE_NUM, sequenceNumOfMeasureCurrentlyExecuting);
+        out.putInt(LAST_EXECUTION_STATUS, lastExecutionStatus);
     }
 
     @Override
@@ -53,18 +61,27 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity imp
     }
 
     void executePendingMeasures() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+
+        }
         SqlStorage<RecoveryMeasure> storage =
                 CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
         List<Integer> executed = new ArrayList<>();
         for (RecoveryMeasure measure : StorageUtils.getPendingRecoveryMeasuresInOrder(storage)) {
             idOfMeasureCurrentlyExecuting = measure.getID();
             sequenceNumOfMeasureCurrentlyExecuting = measure.getSequenceNumber();
-            if (measure.execute(this) == RecoveryMeasure.STATUS_EXECUTED) {
+            lastExecutionStatus = measure.execute(this);
+            if (lastExecutionStatus == RecoveryMeasure.STATUS_EXECUTED) {
                 HiddenPreferences.setLatestRecoveryMeasureExecuted(measure.getSequenceNumber());
                 executed.add(measure.getID());
             } else {
-                // Either the execution failed or we're waiting for some update from an async process
-                measure.setLastAttemptTime();
+                // Either it's too soon to retry, the execution failed, or we're waiting for an
+                // async process to finish
+                if (lastExecutionStatus != RecoveryMeasure.STATUS_TOO_SOON) {
+                    measure.setLastAttemptTime(storage);
+                }
                 break;
             }
         }
@@ -86,29 +103,36 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity imp
     }
 
     @Override
+    protected void setResultOnIntent(Intent i) {
+        i.putExtra(RecoveryMeasuresManager.RECOVERY_MEASURES_LAST_STATUS, lastExecutionStatus);
+    }
+
+    @Override
     public void reportSuccess(boolean b) {
-        System.out.println("App install succeeded for recovery measure " + sequenceNumOfMeasureCurrentlyExecuting);
+        lastExecutionStatus = RecoveryMeasure.STATUS_EXECUTED;
+        System.out.println(String.format(
+                "App install succeeded for recovery measure %s", sequenceNumOfMeasureCurrentlyExecuting));
         proceedAfterAsyncExecutionSuccess();
     }
 
     @Override
     public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusmissing) {
-        System.out.println("App install failed with missing resource for recovery measure " + sequenceNumOfMeasureCurrentlyExecuting);
+        appInstallExecutionFailed("missing resource", sequenceNumOfMeasureCurrentlyExecuting);
     }
 
     @Override
     public void failInvalidResource(InvalidResourceException e, AppInstallStatus statusmissing) {
-        System.out.println("App install failed with invalid resource for recovery measure " + sequenceNumOfMeasureCurrentlyExecuting);
+        appInstallExecutionFailed("invalid resource", sequenceNumOfMeasureCurrentlyExecuting);
     }
 
     @Override
     public void failBadReqs(String vReq, String vAvail, boolean majorIsProblem) {
-        System.out.println("App install failed with bad reqs for recovery measure " + sequenceNumOfMeasureCurrentlyExecuting);
+        appInstallExecutionFailed("bad reqs", sequenceNumOfMeasureCurrentlyExecuting);
     }
 
     @Override
     public void failUnknown(AppInstallStatus statusfailunknown) {
-        System.out.println("App install failed for unknown reason for recovery measure " + sequenceNumOfMeasureCurrentlyExecuting);
+        appInstallExecutionFailed("unknown reason", sequenceNumOfMeasureCurrentlyExecuting);
     }
 
     @Override
@@ -117,12 +141,17 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity imp
 
     @Override
     public void failWithNotification(AppInstallStatus statusfailstate) {
-        System.out.println("App install failed with notification for recovery measure " +
-                sequenceNumOfMeasureCurrentlyExecuting + ": " + statusfailstate.getLocaleKeyBase());
+        appInstallExecutionFailed("notification", sequenceNumOfMeasureCurrentlyExecuting);
     }
 
     @Override
     public void failTargetMismatch() {
-        System.out.println("App install failed with target mismatch for recovery measure " + sequenceNumOfMeasureCurrentlyExecuting);
+        appInstallExecutionFailed("target mismatch", sequenceNumOfMeasureCurrentlyExecuting);
+    }
+
+    private void appInstallExecutionFailed(String reason, long sequenceNumOfMeasureCurrentlyExecuting) {
+        lastExecutionStatus = RecoveryMeasure.STATUS_FAILED;
+        System.out.println(String.format(
+                "App install failed with %s for recovery measure %s", reason, sequenceNumOfMeasureCurrentlyExecuting));
     }
 }

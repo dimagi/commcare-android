@@ -19,7 +19,7 @@
         android:textSize="@dimen/font_size_xlarger"
         android:gravity="center"
         android:layout_centerHorizontal="true"
-        android:paddingTop="@dimen/help_text_padding"
+        android:padding="@dimen/help_text_padding"
         android:layout_below="@id/screen_login_top_banner"/>
 
     <ProgressBar

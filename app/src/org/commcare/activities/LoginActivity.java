@@ -226,12 +226,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
-        if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
-            RecoveryMeasuresManager.startExecutionActivity(this);
-        } else {
+        /*if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
+            Intent i = new Intent();
+            i.putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true);
+            setResult(RESULT_OK, i);
+            finish();
+        } else {*/
             // Otherwise, refresh the activity for current conditions
             uiController.refreshView();
-        }
+        //}
     }
 
     protected boolean checkForSeatedAppChange() {

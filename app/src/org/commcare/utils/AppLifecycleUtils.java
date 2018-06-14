@@ -4,6 +4,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.SqlStorage;
@@ -95,11 +96,6 @@ public class AppLifecycleUtils {
 
         // 8) Delete the ApplicationRecord
         ccInstance.getGlobalStorage(ApplicationRecord.class).remove(record.getID());
-    }
-
-    public static void reinstall(CommCareApp app) {
-        uninstall(app.getAppRecord());
-        // TODO: reinstall
     }
 
     public static void reinstallIfLocalCczPresent(CommCareApp app) {

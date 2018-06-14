@@ -51,6 +51,7 @@ public abstract class BlockingProcessActivity extends CommCareActivity<BlockingP
 
     protected abstract String getDisplayTextKey();
     protected abstract Runnable buildProcessToRun(ProcessFinishedHandler handler);
+    protected abstract void setResultOnIntent(Intent i);
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -79,6 +80,7 @@ public abstract class BlockingProcessActivity extends CommCareActivity<BlockingP
         public void handleMessage(Message msg) {
             activity.setInProgress(false);
             Intent i = new Intent(activity.getIntent());
+            activity.setResultOnIntent(i);
             activity.setResult(RESULT_OK, i);
             activity.finish();
         }

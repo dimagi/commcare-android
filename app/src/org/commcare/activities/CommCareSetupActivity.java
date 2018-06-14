@@ -462,7 +462,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
             ResourceEngineTask<CommCareSetupActivity> task =
                     new ResourceEngineTask<CommCareSetupActivity>(ccApp,
-                            DIALOG_INSTALL_PROGRESS, shouldSleep, determineAuthorityForInstall()) {
+                            DIALOG_INSTALL_PROGRESS, shouldSleep, determineAuthorityForInstall(), false) {
 
                         @Override
                         protected void deliverResult(CommCareSetupActivity receiver,

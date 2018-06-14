@@ -1123,7 +1123,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         boolean kickedOff = false;
 
         if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
-            RecoveryMeasuresManager.startExecutionActivity(this);
+            finishWithExecutionIntent();
             kickedOff = true;
         } else if (CommCareApplication.instance().isSyncPending(false)) {
             triggerSync(true);
@@ -1134,6 +1134,13 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         CommCareApplication.instance().getSession().setAppHealthChecksCompleted();
         return kickedOff;
+    }
+
+    private void finishWithExecutionIntent() {
+        Intent i = new Intent();
+        i.putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true);
+        setResult(RESULT_OK, i);
+        finish();
     }
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {

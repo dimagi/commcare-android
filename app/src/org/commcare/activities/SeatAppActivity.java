@@ -1,5 +1,7 @@
 package org.commcare.activities;
 
+import android.content.Intent;
+
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -30,6 +32,11 @@ public class SeatAppActivity extends BlockingProcessActivity {
             CommCareApplication.instance().initializeAppResources(new CommCareApp(record));
             handler.sendEmptyMessage(0);
         };
+    }
+
+    @Override
+    protected void setResultOnIntent(Intent i) {
+
     }
 
 }

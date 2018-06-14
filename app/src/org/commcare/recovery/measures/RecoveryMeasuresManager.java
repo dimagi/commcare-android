@@ -2,18 +2,23 @@ package org.commcare.recovery.measures;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.DispatchActivity;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.StorageUtils;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * Created by amstone326 on 4/27/18.
  */
 
 public class RecoveryMeasuresManager {
+
+    static final String RECOVERY_MEASURES_LAST_STATUS = "recovery-measures-last-status";
 
     public static void requestRecoveryMeasures() {
         if (CommCareApplication.instance().getCurrentApp() == null) {
@@ -42,8 +47,17 @@ public class RecoveryMeasuresManager {
     }
 
     public static void startExecutionActivity(Activity origin) {
-        System.out.println("Executing recovery measures for app " + CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName());
-        origin.startActivity(new Intent(origin, ExecuteRecoveryMeasuresActivity.class));
+        System.out.println("Executing recovery measures for app " +
+                CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName());
+        origin.startActivityForResult(new Intent(origin, ExecuteRecoveryMeasuresActivity.class),
+                DispatchActivity.RECOVERY_MEASURES);
+    }
+
+    public static void handleExecutionActivityResult(Activity receiver, Intent intent) {
+        int lastExecutionStatus = intent.getIntExtra(RECOVERY_MEASURES_LAST_STATUS, 0);
+        if (lastExecutionStatus == RecoveryMeasure.STATUS_FAILED) {
+            Toast.makeText(receiver, Localization.get("recovery.measure.execution.failed"), Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

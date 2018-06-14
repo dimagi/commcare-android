@@ -4,9 +4,15 @@ import org.commcare.CommCareApp;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.resources.ResourceManager;
+import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
+import org.commcare.utils.AndroidCommCarePlatform;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import static org.commcare.activities.CommCareSetupActivity.DIALOG_INSTALL_PROGRESS;
 import static org.commcare.activities.CommCareSetupActivity.handleAppInstallResult;
@@ -25,19 +31,20 @@ public class SingleAppInstallation {
      * any failure modes. Useful for installing an app automatically without prompting the user.
      */
     public static void installSingleApp(CommCareSetupActivity activity) {
-        installSingleApp(activity, null);
+        installSingleApp(activity, null, false,
+                CommCareSetupActivity.getShellCommCareApp());
     }
 
     public static <T extends CommCareActivity & ResourceEngineListener> void installSingleApp(
-            T activity, String profileRef) {
+            T activity, String profileRef, boolean resourcesAlreadyPrepared, CommCareApp app) {
 
         profileRef = profileRef == null ? SINGLE_APP_REFERENCE : profileRef;
-        CommCareApp app = CommCareSetupActivity.getShellCommCareApp();
 
         ResourceEngineTask<T> task =
-                new ResourceEngineTask<T>(app, DIALOG_INSTALL_PROGRESS, false, Resource.RESOURCE_AUTHORITY_LOCAL) {
+                new ResourceEngineTask<T>(app, DIALOG_INSTALL_PROGRESS, false,
+                        Resource.RESOURCE_AUTHORITY_LOCAL, resourcesAlreadyPrepared) {
 
-            @Override
+                    @Override
                     protected void deliverResult(T receiver, AppInstallStatus result) {
                         handleAppInstallResult(this, receiver, result);
                     }
@@ -54,5 +61,18 @@ public class SingleAppInstallation {
                 };
         task.connect(activity);
         task.executeParallel(profileRef);
+    }
+
+    public static boolean prepareResourcesForSingleApp(CommCareApp app, String profileRef, int authorityForProfile) {
+        try {
+            AndroidCommCarePlatform platform = app.getCommCarePlatform();
+            ResourceTable global = platform.getGlobalResourceTable();
+            ResourceManager.installAppResources(platform, profileRef, global, true, authorityForProfile);
+            return true;
+        } catch (UnresolvedResourceException | UnfullfilledRequirementsException | InstallCancelledException e) {
+            System.out.println("Executing prepareResourcesForSingleApp() from recovery measure failed: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 }
