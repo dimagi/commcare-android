@@ -25,7 +25,7 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
-import org.javarosa.core.model.trace.EvaluationTraceSerializer;
+import org.javarosa.core.model.trace.TraceSerialization;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.reference.ReferenceManager;
@@ -209,8 +209,8 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
             throw new UserCausedRuntimeException(e.getMessage(), e);
         }
 
-        if (!profilingOnFullForm()) {
-            InstrumentationUtils.printAndClearTraces(reporter, "FORM LOAD TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
+        if (!profilingOnFullForm() && profilingEnabledForFormLoad) {
+            InstrumentationUtils.printAndClearTraces(reporter, "FORM LOAD TRACE:", TraceSerialization.TraceInfoType.CACHE_INFO_ONLY);
             InstrumentationUtils.printExpressionsThatUsedCaching(reporter, "FORM LOAD CACHE USAGE:");
         }
 

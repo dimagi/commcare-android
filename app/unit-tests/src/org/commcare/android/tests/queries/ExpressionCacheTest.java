@@ -43,7 +43,7 @@ public class ExpressionCacheTest {
     private long time100Evaluations(boolean enableCaching) {
         EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(mainFormInstance);
         if (enableCaching) {
-            ec.enableCaching();
+            ec.enableExpressionCaching();
         }
 
         long start = System.currentTimeMillis();
@@ -70,7 +70,7 @@ public class ExpressionCacheTest {
     @Test
     public void testAccuracyWithCaching() {
         EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(mainFormInstance);
-        ec.enableCaching();
+        ec.enableExpressionCaching();
         for (int i = 0; i < 3; i++) {
             CaseDbQueryTest.evaluate("join(',',instance('casedb')/casedb/case[@case_type='unit_test_child_child']" +
                             "[@status='open'][true() and instance('casedb')/casedb/case[@case_id = " +

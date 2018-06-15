@@ -44,6 +44,7 @@ import org.robolectric.annotation.Config;
 @RunWith(CommCareTestRunner.class)
 public class FormCacheEligibilityTester {
 
+    // Place whatever app you want to test at this path
     private static final String PATH_TO_CCZ_RESOURCES = "/commcare-apps/cache_eligibility_testing";
 
     private static void categorizeAndPrintExpressions(String resourcePath) throws IOException {

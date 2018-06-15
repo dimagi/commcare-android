@@ -80,7 +80,6 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
-import org.javarosa.core.model.trace.EvaluationTraceSerializer;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.services.Logger;
@@ -92,7 +91,6 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,7 +162,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private FormEntryActivityUIController uiController;
     private SqlStorage<FormRecord> formRecordStorage;
 
-    private boolean fullFormProfilingEnabled = true;
+    private boolean fullFormProfilingEnabled = false;
     private EvaluationTraceReporter traceReporter;
 
     @Override
@@ -1169,9 +1167,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // might be auto-saving a form due to user session expiring
         }
 
-        //InstrumentationUtils.printAndClearTraces(this.traceReporter, "FULL FORM ENTRY TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
-        //InstrumentationUtils.printExpressionsThatUsedCaching(this.traceReporter, "EXPRESSIONS THAT USED CACHING:");
-        InstrumentationUtils.printCachedAndNotCachedExpressions(this.traceReporter, "CACHED AND NOT CACHED EXPRESSIONS:");
+        if (fullFormProfilingEnabled) {
+            // Uncomment 1 of the following expressions for whichever trace serialization format you're interested in
+            //InstrumentationUtils.printAndClearTraces(this.traceReporter, "FULL FORM ENTRY TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
+            //InstrumentationUtils.printExpressionsThatUsedCaching(this.traceReporter, "EXPRESSIONS THAT USED CACHING:");
+            //InstrumentationUtils.printCachedAndNotCachedExpressions(this.traceReporter, "CACHED AND NOT CACHED EXPRESSIONS:");
+        }
 
         dismissProgressDialog();
         reportFormExitTime();
