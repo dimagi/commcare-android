@@ -6,6 +6,7 @@ import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.engine.resource.AndroidResourceTable;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
@@ -98,7 +99,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     }
 
     @Override
-    public void initialize(ResourceTable global, boolean isUpgrade) {
+    public void initialize(ResourceTable global, boolean isUpgrade) throws ResourceInitializationException {
         this.profile = null;
         this.installedSuites.clear();
         // We also need to clear any _resource table_ linked localization files which may have
