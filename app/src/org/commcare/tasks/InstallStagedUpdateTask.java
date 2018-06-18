@@ -5,6 +5,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -45,6 +46,9 @@ public abstract class InstallStagedUpdateTask<R>
         } catch (UnresolvedResourceException e) {
             resourceManager.recordUpdateInstallFailure(e);
             return AppInstallStatus.MissingResources;
+        } catch (ResourceInitializationException e) {
+            resourceManager.recordUpdateInstallFailure(e);
+            return AppInstallStatus.UpdateFailedResourceInit;
         }
 
         ResourceInstallUtils.initAndCommitApp(app);

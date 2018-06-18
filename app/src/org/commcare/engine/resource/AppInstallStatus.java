@@ -41,7 +41,8 @@ public enum AppInstallStatus implements MessageTag {
     /**
      * A catch-all MessageTag to use for reporting app update failures to the notifications bar
      */
-    UpdateFailedGeneral("notification.update.failed.general");
+    UpdateFailedGeneral("notification.update.failed.general"),
+    UpdateFailedResourceInit("notification.update.resource.init.fail");
 
     AppInstallStatus(String root) {
         this.root = root;

@@ -49,7 +49,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(final AndroidCommCarePlatform platform, boolean isUpgrade) {
+    public boolean initialize(final AndroidCommCarePlatform platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException, XmlPullParserException,
+            UnfullfilledRequirementsException {
         InputStream inputStream = null;
         try {
             if (localLocation == null) {
@@ -63,17 +65,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             } else {
                 parser = AndroidSuiteParser.buildInitParser(inputStream, platform.getGlobalResourceTable(), platform.getFixtureStorage());
             }
-
             Suite s = parser.parse();
-
             platform.registerSuite(s);
-
             return true;
-        } catch (InvalidStructureException | InvalidReferenceException
-                | IOException | XmlPullParserException
-                | UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-            Logger.log(LogTypes.TYPE_RESOURCES, "Initialization failed for Suite resource with exception " + e.getMessage());
         } finally {
             try {
                 if (inputStream != null) {
@@ -83,8 +77,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
                 e.printStackTrace();
             }
         }
-
-        return false;
     }
 
     @Override

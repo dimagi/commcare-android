@@ -48,25 +48,19 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
+    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException,
+            XmlPullParserException, UnfullfilledRequirementsException {
         InputStream inputStream = null;
         try {
-
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
             inputStream = local.getStream();
-
-            ProfileParser parser = new ProfileParser(inputStream, platform, platform.getGlobalResourceTable(), null,
-                    Resource.RESOURCE_STATUS_INSTALLED, false);
-
+            ProfileParser parser =
+                    new ProfileParser(inputStream, platform, platform.getGlobalResourceTable(),
+                            null, Resource.RESOURCE_STATUS_INSTALLED, false);
             Profile p = parser.parse();
             platform.setProfile(p);
-
             return true;
-        } catch (UnfullfilledRequirementsException | XmlPullParserException
-                | InvalidStructureException | IOException
-                | InvalidReferenceException e) {
-            e.printStackTrace();
-            Logger.log(LogTypes.TYPE_RESOURCES, "Initialization failed for Profile resource with exception " + e.getMessage());
         } finally {
             if (inputStream != null) {
                 try {
@@ -76,8 +70,6 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                 }
             }
         }
-
-        return false;
     }
 
     @Override
