@@ -137,7 +137,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
             database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
                     "case_id_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_CASE_ID)));
             database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
-                    "case_type_index", "AndroidCase", TableBuilder.scrubName(Case.  INDEX_CASE_TYPE)));
+                    "case_type_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_CASE_TYPE)));
             database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
                     "case_status_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_CASE_STATUS)));
             database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
