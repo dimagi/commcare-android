@@ -280,7 +280,7 @@ class UserDatabaseUpgrader {
         long start = System.currentTimeMillis();
         db.beginTransaction();
         try {
-            SqlStorage<Persistable> userStorage = new SqlStorage<Persistable>(AUser.STORAGE_KEY, AUser.class, new ConcreteAndroidDbHelper(c, db));
+            SqlStorage<Persistable> userStorage = new SqlStorage<>(AUser.STORAGE_KEY, AUser.class, new ConcreteAndroidDbHelper(c, db));
             SqlStorageIterator<Persistable> iterator = userStorage.iterate();
             while (iterator.hasMore()) {
                 AUser oldUser = (AUser)iterator.next();
