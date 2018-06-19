@@ -2,11 +2,9 @@ package org.commcare.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.support.v7.preference.PreferenceManager;
 
-import org.commcare.CommCareApplication;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
+import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.PrefValues;
@@ -18,14 +16,14 @@ import static org.commcare.core.network.CommCareNetworkServiceGenerator.CURRENT_
 import static org.commcare.core.network.CommCareNetworkServiceGenerator.MAX_DRIFT_SINCE_LAST_HEARTBEAT;
 import static org.javarosa.core.model.utils.DateUtils.DAY_IN_MS;
 
-public class DrfitHelper {
+public class DriftHelper {
 
     private static final String INCORRECT_TIME_WARNING_ENABLED = "incorrect_time_warning_enabled";
     private static final String LAST_INCORRECT_TIME_WARNING_AT = "last_incorrect_time_warning_at";
 
     static boolean shouldShowDriftWarning() {
         if (isWarningEnabled()) {
-            long lastIncorrrectTimeWarningAt = getAppPreferences().getLong(LAST_INCORRECT_TIME_WARNING_AT, -1);
+            long lastIncorrrectTimeWarningAt = getPreferenceManager().getLong(LAST_INCORRECT_TIME_WARNING_AT, -1);
             if (new Date().getTime() - lastIncorrrectTimeWarningAt > DAY_IN_MS) {
                 return true;
             }
@@ -34,11 +32,11 @@ public class DrfitHelper {
     }
 
     static void updateLastDriftWarningTime() {
-        getAppPreferences().edit().putLong(LAST_INCORRECT_TIME_WARNING_AT, new Date().getTime()).apply();
+        getPreferenceManager().putLong(LAST_INCORRECT_TIME_WARNING_AT, new Date().getTime());
     }
 
     public static long getCurrentDrift() {
-        return CommCarePreferenceManagerFactory.getCommCarePreferenceManager().getLong(CURRENT_DRIFT, 0);
+        return getPreferenceManager().getLong(CURRENT_DRIFT, 0);
     }
 
     static StandardAlertDialog getDriftDialog(Context context) {
@@ -59,11 +57,11 @@ public class DrfitHelper {
         return DeveloperPreferences.doesPropertyMatch(INCORRECT_TIME_WARNING_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
-    private static SharedPreferences getAppPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+    private static ICommCarePreferenceManager getPreferenceManager() {
+        return CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
     }
 
-    public static long getMaxDrfitSinceLastHeartbeat() {
+    public static long getMaxDriftSinceLastHeartbeat() {
         return CommCarePreferenceManagerFactory.getCommCarePreferenceManager().getLong(MAX_DRIFT_SINCE_LAST_HEARTBEAT, 0);
     }
 
