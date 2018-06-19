@@ -11,6 +11,7 @@ import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.modern.database.TableBuilder;
@@ -180,6 +181,12 @@ class UserDatabaseUpgrader {
         if (oldVersion == 22) {
             if (upgradeTwentyTwoTwentyThree(db)) {
                 oldVersion = 23;
+            }
+        }
+
+        if (oldVersion == 23) {
+            if (upgradeTwentyThreeTwentyFour(db)) {
+                oldVersion = 24;
             }
         }
     }
@@ -525,7 +532,6 @@ class UserDatabaseUpgrader {
         }
     }
 
-
     private boolean upgradeEighteenNineteen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
@@ -614,6 +620,30 @@ class UserDatabaseUpgrader {
             }
         }
         return success;
+    }
+
+    /**
+     * Add external_id index to Case table
+     */
+    private boolean upgradeTwentyThreeTwentyFour(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    ACase.STORAGE_KEY,
+                    Case.EXTERNAL_ID_KEY,
+                    "TEXT"));
+
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            updateModels(caseStorage);
+
+            db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_external_id_index", "AndroidCase", "external_id"));
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private void migrateV2FormRecordsForSingleApp(String appId,
