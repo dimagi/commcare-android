@@ -54,16 +54,16 @@ public class FileSystemUtils {
             }
         }
 
-        boolean suceess = oldFile.renameTo(newFile);
+        boolean success = oldFile.renameTo(newFile);
 
-        if (suceess && oldFile.exists()) {
+        if (success && oldFile.exists()) {
             Logger.log(LogTypes.SOFT_ASSERT, "Old File exists after rename");
         }
 
-        if (suceess && newFile.exists()) {
+        if (success && !newFile.exists()) {
             Logger.log(LogTypes.SOFT_ASSERT, "New File doesn't exist after rename");
         }
 
-        return suceess;
+        return success;
     }
 }
