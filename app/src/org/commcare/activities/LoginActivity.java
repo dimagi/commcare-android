@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
@@ -29,8 +31,6 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.user.DemoUserBuilder;
@@ -41,10 +41,8 @@ import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
-
-import org.commcare.util.LogTypes;
-import org.commcare.utils.CrashUtil;
 import org.commcare.utils.ConsumerAppsUtil;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -670,7 +668,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return;
             }
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
-            if (appRestrictions.containsKey("username") &&
+            if (appRestrictions != null &&
+                    appRestrictions.containsKey("username") &&
                     appRestrictions.containsKey("password")) {
                 uiController.setUsername(appRestrictions.getString("username"));
                 uiController.setPasswordOrPin(appRestrictions.getString("password"));
