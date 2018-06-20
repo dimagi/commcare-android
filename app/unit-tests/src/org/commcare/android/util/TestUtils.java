@@ -263,6 +263,11 @@ public class TestUtils {
 
     //TODO: Make this work natively with the CommCare Android IIF
 
+    public static EvaluationContext getEvaluationContextWithAndroidIIF() {
+        AndroidInstanceInitializer iif = new AndroidInstanceInitializer(CommCareApplication.instance().getCurrentSession());
+        return buildEvaluationContext(iif, null);
+    }
+
     /**
      * @return An evaluation context which is capable of evaluating against
      * the connected storage instances: casedb is the only one supported for now
@@ -272,9 +277,13 @@ public class TestUtils {
     }
 
     public static EvaluationContext getEvaluationContextWithoutSession(DataInstance mainInstanceForEC) {
+        return buildEvaluationContext(buildTestInstanceInitializer(), mainInstanceForEC);
+    }
+
+    private static AndroidInstanceInitializer buildTestInstanceInitializer() {
         final SQLiteDatabase db = getTestDb();
 
-        AndroidInstanceInitializer iif = new AndroidInstanceInitializer() {
+        return new AndroidInstanceInitializer() {
             @Override
             public AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
                 SqlStorage<ACase> storage = getCaseStorage(db);
@@ -289,13 +298,6 @@ public class TestUtils {
                 return new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
             }
         };
-
-        return buildEvaluationContext(iif, mainInstanceForEC);
-    }
-
-    public static EvaluationContext getEvaluationContextWithAndroidIIF() {
-        AndroidInstanceInitializer iif = new AndroidInstanceInitializer(CommCareApplication.instance().getCurrentSession());
-        return buildEvaluationContext(iif, null);
     }
 
     private static EvaluationContext buildEvaluationContext(AndroidInstanceInitializer iif, DataInstance mainInstance) {
@@ -310,6 +312,11 @@ public class TestUtils {
         formInstances.put("ledger", ledgerDataInstance);
 
         return new EvaluationContext(new EvaluationContext(mainInstance), formInstances, TreeReference.rootRef());
+    }
+
+    public static DataInstance getCaseDbInstance() {
+        ExternalDataInstance edi = new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, "casedb");
+        return edi.initialize(buildTestInstanceInitializer(), "casedb");
     }
 
     public static RuntimeException wrapError(Exception e, String prefix) {
