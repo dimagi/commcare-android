@@ -1,5 +1,7 @@
 package org.commcare.android;
 
+import android.os.Environment;
+
 import org.jetbrains.annotations.NotNull;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
@@ -9,6 +11,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.TestLifecycle;
 import org.robolectric.TestLifecycleApplication;
 import org.robolectric.internal.bytecode.InstrumentationConfiguration;
+import org.robolectric.shadows.ShadowEnvironment;
 
 import javax.annotation.Nonnull;
 
@@ -40,7 +43,7 @@ public class CommCareTestRunner extends RobolectricTestRunner {
 
         @Override public void prepareTest(final Object test) {
             if (RuntimeEnvironment.application instanceof TestLifecycleApplication) {
-                //ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
+                ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
                 super.prepareTest(test);
             }
         }
