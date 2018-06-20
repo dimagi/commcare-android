@@ -12,9 +12,6 @@ import com.google.android.gms.ads.MobileAds;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.BuildConfig;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Controls all actions related to showing ads in consumer apps via AdMob
  *
