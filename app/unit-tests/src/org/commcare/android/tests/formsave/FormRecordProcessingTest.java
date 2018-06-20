@@ -1,15 +1,15 @@
 package org.commcare.android.tests.formsave;
 
 import android.content.Intent;
-import android.os.Environment;
 import android.util.Log;
 import android.widget.ImageButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.android.tests.queries.CaseDbQueryTest;
 import org.commcare.android.util.TestAppInstaller;
@@ -17,7 +17,6 @@ import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionNavigator;
 import org.commcare.utils.FormUploadUtil;
@@ -34,7 +33,6 @@ import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowEnvironment;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayInputStream;
@@ -133,7 +131,7 @@ public class FormRecordProcessingTest {
     private ShadowActivity navigateFormEntry(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
+                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
 
         ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);

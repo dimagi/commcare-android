@@ -91,7 +91,7 @@ public class PostRequestActivityTest {
             postLaunchIntent.putExtra(PostRequestActivity.PARAMS_KEY,
                     new HashMap<String, String>());
         }
-        return Robolectric.buildActivity(PostRequestActivity.class).withIntent(postLaunchIntent)
+        return Robolectric.buildActivity(PostRequestActivity.class, postLaunchIntent)
                 .create().start().resume().get();
     }
 
@@ -203,7 +203,7 @@ public class PostRequestActivityTest {
         assertEquals("321", postUrlParams.get("selected_case_id"));
 
         PostRequestActivity postRequestActivity =
-                Robolectric.buildActivity(PostRequestActivity.class).withIntent(postActivityIntent)
+                Robolectric.buildActivity(PostRequestActivity.class, postActivityIntent)
                         .create().start().resume().get();
 
         assertTrue(postRequestActivity.isFinishing());

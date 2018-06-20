@@ -36,7 +36,7 @@ import org.junit.Assert;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.TestLifecycleApplication;
-import org.robolectric.util.ServiceController;
+import org.robolectric.android.controller.ServiceController;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -195,7 +195,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
                 new Intent(RuntimeEnvironment.application, CommCareSessionService.class);
         ServiceController<CommCareSessionService> serviceController =
                 Robolectric.buildService(CommCareSessionService.class, startIntent);
-        serviceController.attach()
+        serviceController
                 .create()
                 .startCommand(0, 1);
         return serviceController.get();

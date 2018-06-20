@@ -47,8 +47,7 @@ public class CommCareSetupActivityTest {
                 new Intent(RuntimeEnvironment.application, CommCareSetupActivity.class);
 
         CommCareSetupActivity setupActivity =
-                Robolectric.buildActivity(CommCareSetupActivity.class)
-                        .withIntent(setupIntent).setup().get();
+                Robolectric.buildActivity(CommCareSetupActivity.class, setupIntent).setup().get();
 
         // click the 'offline install' menu item
         ShadowActivity shadowActivity = Shadows.shadowOf(setupActivity);

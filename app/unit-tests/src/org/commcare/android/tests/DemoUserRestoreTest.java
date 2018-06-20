@@ -46,8 +46,7 @@ public class DemoUserRestoreTest {
         Intent loginActivityIntent =
                 new Intent(RuntimeEnvironment.application, LoginActivity.class);
         LoginActivity loginActivity =
-                Robolectric.buildActivity(LoginActivity.class)
-                        .withIntent(loginActivityIntent).setup().get();
+                Robolectric.buildActivity(LoginActivity.class, loginActivityIntent).setup().get();
         ShadowActivity shadowActivity = Shadows.shadowOf(loginActivity);
         shadowActivity.clickMenuItem(LoginActivity.MENU_DEMO);
     }
@@ -57,8 +56,8 @@ public class DemoUserRestoreTest {
                 new Intent(RuntimeEnvironment.application, StandardHomeActivity.class);
         homeActivityIntent.putExtra(DispatchActivity.START_FROM_LOGIN, true);
         StandardHomeActivity homeActivity =
-                Robolectric.buildActivity(StandardHomeActivity.class)
-                        .withIntent(homeActivityIntent).setup().get();
+                Robolectric.buildActivity(StandardHomeActivity.class, homeActivityIntent)
+                        .setup().get();
         return Shadows.shadowOf(homeActivity);
     }
 

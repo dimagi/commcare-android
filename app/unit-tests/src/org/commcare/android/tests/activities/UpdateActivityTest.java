@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.TextView;
 
-import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.InstallArchiveActivity;
@@ -58,8 +57,7 @@ public class UpdateActivityTest {
                 new Intent(RuntimeEnvironment.application, UpdateActivity.class);
 
         UpdateActivity updateActivity =
-                Robolectric.buildActivity(UpdateActivity.class)
-                        .withIntent(updateActivityIntent).setup().get();
+                Robolectric.buildActivity(UpdateActivity.class, updateActivityIntent).setup().get();
 
         // click the 'offline install' menu item
         ShadowActivity shadowActivity = Shadows.shadowOf(updateActivity);
