@@ -2,7 +2,10 @@ package org.commcare.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.support.v7.preference.PreferenceManager;
 
+import org.commcare.CommCareApplication;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.dalvik.R;
@@ -23,7 +26,7 @@ public class DriftHelper {
 
     static boolean shouldShowDriftWarning() {
         if (isWarningEnabled()) {
-            long lastIncorrrectTimeWarningAt = getPreferenceManager().getLong(LAST_INCORRECT_TIME_WARNING_AT, -1);
+            long lastIncorrrectTimeWarningAt = getPreferences().getLong(LAST_INCORRECT_TIME_WARNING_AT, -1);
             if (new Date().getTime() - lastIncorrrectTimeWarningAt > DAY_IN_MS) {
                 return true;
             }
@@ -32,11 +35,11 @@ public class DriftHelper {
     }
 
     static void updateLastDriftWarningTime() {
-        getPreferenceManager().putLong(LAST_INCORRECT_TIME_WARNING_AT, new Date().getTime());
+        getPreferences().edit().putLong(LAST_INCORRECT_TIME_WARNING_AT, new Date().getTime()).apply();
     }
 
     public static long getCurrentDrift() {
-        return getPreferenceManager().getLong(CURRENT_DRIFT, 0);
+        return getPreferences().getLong(CURRENT_DRIFT, 0);
     }
 
     static StandardAlertDialog getDriftDialog(Context context) {
@@ -57,8 +60,8 @@ public class DriftHelper {
         return DeveloperPreferences.doesPropertyMatch(INCORRECT_TIME_WARNING_ENABLED, PrefValues.NO, PrefValues.YES);
     }
 
-    private static ICommCarePreferenceManager getPreferenceManager() {
-        return CommCarePreferenceManagerFactory.getCommCarePreferenceManager();
+    private static SharedPreferences getPreferences() {
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
     }
 
     public static long getMaxDriftSinceLastHeartbeat() {

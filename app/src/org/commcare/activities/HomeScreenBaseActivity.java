@@ -250,7 +250,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     private void checkForDrift() {
         if (shouldShowDriftWarning()) {
-            if (getCurrentDrift() > 0) {
+            if (getCurrentDrift() != 0) {
                 showAlertDialog(getDriftDialog(this));
                 updateLastDriftWarningTime();
             }
