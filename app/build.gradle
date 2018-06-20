@@ -35,9 +35,9 @@ configurations {
 dependencies {
 
     testImplementation 'junit:junit:4.12'
-    testImplementation ('org.robolectric:robolectric:3.2.2')
-    testImplementation 'org.robolectric:shadows-multidex:3.2.2'
-    testImplementation 'org.robolectric:shadows-core:3.2.2'
+    testImplementation 'org.robolectric:robolectric:3.8'
+    testImplementation 'org.robolectric:shadows-multidex:3.8'
+    testImplementation 'org.robolectric:shadows-framework:3.8'
     testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
