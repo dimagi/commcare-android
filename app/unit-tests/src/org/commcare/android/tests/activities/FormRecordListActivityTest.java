@@ -73,7 +73,7 @@ public class FormRecordListActivityTest {
         StandardHomeActivity homeActivity =
                 Robolectric.buildActivity(StandardHomeActivity.class).create().get();
         ShadowActivity homeActivityShadow = Shadows.shadowOf(homeActivity);
-        homeActivityShadow.callAttach(savedFormsIntent);
+        //homeActivityShadow.callAttach(savedFormsIntent);
 
         homeActivity.startActivityForResult(savedFormsIntent,
                 StandardHomeActivity.GET_INCOMPLETE_FORM);
