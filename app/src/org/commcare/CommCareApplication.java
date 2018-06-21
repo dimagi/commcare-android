@@ -39,6 +39,7 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
@@ -171,6 +172,8 @@ public class CommCareApplication extends MultiDexApplication {
         CrashUtil.init(this);
         DataChangeLogger.init(this);
         logFirstCommCareRun();
+        CommCarePreferenceManagerFactory.init(new AndroidPreferenceManager());
+
         configureCommCareEngineConstantsAndStaticRegistrations();
         noficationManager = new CommCareNoficationManager(this);
 

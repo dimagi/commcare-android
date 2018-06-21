@@ -269,7 +269,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
      * @param matchingValue compare this to key lookup or defaultValue
      * @return boolean
      */
-    private static boolean doesPropertyMatch(String key, String defaultValue, String matchingValue) {
+    public static boolean doesPropertyMatch(String key, String defaultValue, String matchingValue) {
         CommCareApp app = CommCareApplication.instance().getCurrentApp();
         if (app == null) {
             return defaultValue.equals(matchingValue);

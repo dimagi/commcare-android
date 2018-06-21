@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Base64;
-import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
@@ -80,6 +79,11 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Vector;
+
+import static org.commcare.activities.DriftHelper.getCurrentDrift;
+import static org.commcare.activities.DriftHelper.getDriftDialog;
+import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
+import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
 
 /**
  * Manages all of the shared (mostly non-UI) components of a CommCare home screen:
@@ -239,8 +243,18 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
 
         checkForPinLaunchConditions();
-
+        checkForDrift();
         return false;
+    }
+
+
+    private void checkForDrift() {
+        if (shouldShowDriftWarning()) {
+            if (getCurrentDrift() != 0) {
+                showAlertDialog(getDriftDialog(this));
+                updateLastDriftWarningTime();
+            }
+        }
     }
 
     // Open the update info form if available
