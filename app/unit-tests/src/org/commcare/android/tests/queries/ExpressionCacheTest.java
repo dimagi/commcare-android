@@ -8,6 +8,8 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -59,6 +61,41 @@ public class ExpressionCacheTest {
                     ec);
         }
         return System.currentTimeMillis() - start;
+    }
+
+    @Test
+    public void testNumExpressionsCached() {
+        String expression = "join(',',instance('casedb')/casedb/case[@case_type='unit_test_child_child']" +
+                "[@status='open'][true() and instance('casedb')/casedb/case[@case_id = " +
+                "instance('casedb')/casedb/case[@case_id=current()/index/parent]" +
+                "/index/parent]/test = 'true']/@case_id)";
+        Assert.assertEquals(2, getNumExpressionsCached(expression, true));
+        Assert.assertEquals(0, getNumExpressionsCached(expression, false));
+
+        expression = "if(true(), now() + 1, now())";
+        Assert.assertEquals(2, getNumExpressionsCached(expression, true));
+
+        formRoot.addChild(new TreeElement("next_refill_due_date"));
+        expression = "date(/data/next_refill_due_date) <= today()";
+        Assert.assertEquals(0, getNumExpressionsCached(expression, true));
+
+        expression = "random()";
+        Assert.assertEquals(0, getNumExpressionsCached(expression, true));
+    }
+
+    private long getNumExpressionsCached(String exprString, boolean enableCaching) {
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(mainFormInstance);
+        EvaluationTraceReporter reporter = new ReducingTraceReporter(true);
+        ec.setDebugModeOn(reporter);
+        if (enableCaching) {
+            ec.enableExpressionCaching();
+        }
+        for (int i = 0; i < 2; i++) {
+            evaluate(exprString, ec);
+        }
+
+        return reporter.getCollectedTraces().stream()
+                .filter(trace -> trace.evaluationUsedExpressionCache()).count();
     }
 
     private static void evaluate(String xpath, EvaluationContext ec) {

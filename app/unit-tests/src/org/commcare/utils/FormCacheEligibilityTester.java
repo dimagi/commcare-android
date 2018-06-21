@@ -62,7 +62,7 @@ public class FormCacheEligibilityTester {
             
             boolean isCacheable;
             try {
-                isCacheable = !InFormCacheableExpr.referencesMainFormInstance(expr, instance, ec) &&
+                isCacheable = !InFormCacheableExpr.referencesMainFormInstance(expr, ec) &&
                         !InFormCacheableExpr.containsUncacheableSubExpression(expr, ec);
             } catch (Exception e) {
                 int count = notComputable.containsKey(expr) ? notComputable.get(expr) : 0;
