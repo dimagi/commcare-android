@@ -16,6 +16,7 @@ import org.commcare.logging.XPathErrorLogger;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.logic.FileReferenceFactory;
 import org.commcare.models.encryption.EncryptionIO;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
@@ -154,6 +155,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         FormDef fd = XFormExtensionUtils.getFormFromInputStream(fis);
         if (fd == null) {
             throw new RuntimeException("Error reading XForm file: FormDef is null");
+        }
+        if (DeveloperPreferences.useExpressionCachingInForms()) {
+            fd.enableExpressionCaching();
         }
         return fd;
     }
@@ -294,7 +298,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         FormDef fd;
         try {
             // create new form def
-            fd = new FormDef();
+            fd = new FormDef(DeveloperPreferences.useExpressionCachingInForms());
             fis = new FileInputStream(formDefFile);
             DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
