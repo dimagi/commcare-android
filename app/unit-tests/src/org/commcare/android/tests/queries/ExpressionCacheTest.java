@@ -40,31 +40,7 @@ public class ExpressionCacheTest {
     }
 
     @Test
-    public void testFasterWithCaching() {
-        long timeWithoutCaching = time100Evaluations(false);
-        long timeWithCaching = time100Evaluations(true);
-        Assert.assertTrue("Evaluation time with caching should be shorter", timeWithCaching < timeWithoutCaching);
-    }
-
-    private long time100Evaluations(boolean enableCaching) {
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(mainFormInstance);
-        if (enableCaching) {
-            ec.enableExpressionCaching();
-        }
-
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < 100; i++) {
-            evaluate("join(',',instance('casedb')/casedb/case[@case_type='unit_test_child_child']" +
-                    "[@status='open'][true() and instance('casedb')/casedb/case[@case_id = " +
-                    "instance('casedb')/casedb/case[@case_id=current()/index/parent]" +
-                    "/index/parent]/test = 'true']/@case_id)",
-                    ec);
-        }
-        return System.currentTimeMillis() - start;
-    }
-
-    @Test
-    public void testNumExpressionsCached() {
+    public void testNumExpressionsCached() throws XPathSyntaxException {
         String expression = "join(',',instance('casedb')/casedb/case[@case_type='unit_test_child_child']" +
                 "[@status='open'][true() and instance('casedb')/casedb/case[@case_id = " +
                 "instance('casedb')/casedb/case[@case_id=current()/index/parent]" +
@@ -83,7 +59,7 @@ public class ExpressionCacheTest {
         Assert.assertEquals(0, getNumExpressionsCached(expression, true));
     }
 
-    private long getNumExpressionsCached(String exprString, boolean enableCaching) {
+    private long getNumExpressionsCached(String exprString, boolean enableCaching) throws XPathSyntaxException {
         EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(mainFormInstance);
         EvaluationTraceReporter reporter = new ReducingTraceReporter(true);
         ec.setDebugModeOn(reporter);
@@ -98,14 +74,9 @@ public class ExpressionCacheTest {
                 .filter(trace -> trace.evaluationUsedExpressionCache()).count();
     }
 
-    private static void evaluate(String xpath, EvaluationContext ec) {
-        XPathExpression expr;
-        try {
-            expr = XPathParseTool.parseXPath(xpath);
-            expr.eval(ec);
-        } catch (XPathSyntaxException e) {
-            TestUtils.wrapError(e, "XPath: " + xpath);
-        }
+    private static void evaluate(String xpath, EvaluationContext ec) throws XPathSyntaxException {
+        XPathExpression expr = XPathParseTool.parseXPath(xpath);
+        expr.eval(ec);
     }
 
     @Test
