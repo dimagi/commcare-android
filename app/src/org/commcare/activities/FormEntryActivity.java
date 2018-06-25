@@ -79,6 +79,9 @@ import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
@@ -88,7 +91,6 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,6 +161,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean savingFormOnKeySessionExpiration = false;
     private FormEntryActivityUIController uiController;
     private SqlStorage<FormRecord> formRecordStorage;
+
+    private boolean fullFormProfilingEnabled = false;
+    private EvaluationTraceReporter traceReporter;
 
     @Override
     @SuppressLint("NewApi")
@@ -906,6 +911,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 }
             };
+            if (fullFormProfilingEnabled) {
+                traceReporter = new ReducingTraceReporter(true);
+                mFormLoaderTask.setProfilingOnFullForm(traceReporter);
+            }
             mFormLoaderTask.connect(this);
             mFormLoaderTask.executeParallel(formId);
             hasFormLoadBeenTriggered = true;
@@ -920,6 +929,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         mFormController = fc;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // Newer menus may have already built the menu, before all data was ready
             invalidateOptionsMenu();
@@ -1155,6 +1165,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } catch (SessionUnavailableException sue) {
             // looks like the session expired, swallow exception because we
             // might be auto-saving a form due to user session expiring
+        }
+
+        if (fullFormProfilingEnabled) {
+            // Uncomment 1 of the following expressions for whichever trace serialization format you're interested in
+            //InstrumentationUtils.printAndClearTraces(this.traceReporter, "FULL FORM ENTRY TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
+            //InstrumentationUtils.printExpressionsThatUsedCaching(this.traceReporter, "EXPRESSIONS THAT USED CACHING:");
+            //InstrumentationUtils.printCachedAndNotCachedExpressions(this.traceReporter, "CACHED AND NOT CACHED EXPRESSIONS:");
         }
 
         dismissProgressDialog();
