@@ -24,6 +24,9 @@ import java.util.List;
 public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
         implements ResourceEngineListener, TaskListener<Integer, ResultAndError<AppInstallStatus>> {
 
+    protected static final int PROMPT_APK_UPDATE = 1;
+    protected static final int PROMPT_APK_REINSTALL = 2;
+
     private static final String CURRENTLY_EXECUTING_ID = "currently-executing-id";
     private static final String CURRENTLY_EXECUTING_SEQUENCE_NUM = "currently-executing-sequence-num";
     private static final String LAST_EXECUTION_STATUS = "last-execution-status";
@@ -48,6 +51,18 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
         out.putInt(CURRENTLY_EXECUTING_ID, idOfMeasureCurrentlyExecuting);
         out.putLong(CURRENTLY_EXECUTING_SEQUENCE_NUM, sequenceNumOfMeasureCurrentlyExecuting);
         out.putInt(LAST_EXECUTION_STATUS, lastExecutionStatus);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        switch (requestCode) {
+            case PROMPT_APK_UPDATE:
+                onAsyncExecutionSuccess("CommCare update prompt");
+                break;
+            case PROMPT_APK_REINSTALL:
+                onAsyncExecutionSuccess("CommCare reinstall prompt");
+                break;
+        }
     }
 
     @Override

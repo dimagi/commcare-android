@@ -8,7 +8,6 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.PromptCczUpdateActivity;
-import org.commcare.activities.PromptUpdateActivity;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SerializationUtil;
@@ -84,12 +83,6 @@ public class UpdatePromptHelper {
             }
         }
         return null;
-    }
-
-    public static void promptUpdateForRecoveryMeasure(Activity context) {
-        Intent i = new Intent(context, PromptApkUpdateActivity.class);
-        i.putExtra(PromptUpdateActivity.FROM_RECOVERY_MEASURE, true);
-        context.startActivity(i);
     }
 
     protected static void wipeStoredUpdate(UpdateToPrompt.Type type) {

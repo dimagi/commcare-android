@@ -13,7 +13,7 @@ import org.javarosa.core.services.locale.Localization;
  * Created by amstone326 on 7/11/17.
  */
 
-public class PromptCczUpdateActivity extends PromptUpdateActivity {
+public class PromptCczUpdateActivity extends PromptActivity {
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -22,17 +22,23 @@ public class PromptCczUpdateActivity extends PromptUpdateActivity {
     }
 
     @Override
-    void refreshUpdateToPromptObject() {
-        updateToPrompt = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
+    void refreshPromptObject() {
+        toPrompt = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
+    }
+
+    @Override
+    String getActionString() {
+        return "updating";
     }
 
     @Override
     protected void setUpTypeSpecificUIComponents() {
-        updatesAvailableTitle.setText(
+        promptTitle.setText(
                 Localization.get(inForceMode() ? "ccz.update.required.title" : "ccz.update.available.title"));
+        doLaterButton.setText(Localization.get("update.later.button.text"));
 
-        updateButton.setText(Localization.get("ccz.update.action"));
-        updateButton.setOnClickListener(v -> launchUpdateActivity());
+        actionButton.setText(Localization.get("ccz.update.action"));
+        actionButton.setOnClickListener(v -> launchUpdateActivity());
 
         imageCue.setVisibility(View.GONE);
     }

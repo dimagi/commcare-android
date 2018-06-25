@@ -1,6 +1,7 @@
 package org.commcare.recovery.measures;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
@@ -8,10 +9,12 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareSetupActivity;
+import org.commcare.activities.PromptActivity;
+import org.commcare.activities.PromptApkUpdateActivity;
+import org.commcare.activities.PromptCCReinstallActivity;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.heartbeat.ApkVersion;
-import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -145,35 +148,42 @@ public class RecoveryMeasure extends Persisted {
             return STATUS_FAILED;
         }
 
-        switch(type) {
-            case APP_REINSTALL_OTA:
-                // NOT WORKING
-                String profileRef = currentApp.getCommCarePlatform().getCurrentProfile().getAuthReference();
-                CommCareApp newAppInstall = CommCareSetupActivity.getShellCommCareApp();
-                if (SingleAppInstallation.prepareResourcesForSingleApp(newAppInstall, profileRef,
-                        Resource.RESOURCE_AUTHORITY_REMOTE)) {
-                    AppLifecycleUtils.uninstall(currentApp.getAppRecord());
-                    SingleAppInstallation.installSingleApp(activity, profileRef, true, currentApp);
+        try {
+            switch (type) {
+                case APP_REINSTALL_OTA:
+                    // NOT WORKING
+                    String profileRef = currentApp.getCommCarePlatform().getCurrentProfile().getAuthReference();
+                    CommCareApp newAppInstall = CommCareSetupActivity.getShellCommCareApp();
+                    if (SingleAppInstallation.prepareResourcesForSingleApp(newAppInstall, profileRef,
+                            Resource.RESOURCE_AUTHORITY_REMOTE)) {
+                        AppLifecycleUtils.uninstall(currentApp.getAppRecord());
+                        SingleAppInstallation.installSingleApp(activity, profileRef, true, currentApp);
+                        return STATUS_WAITING;
+                    }
+                    return STATUS_FAILED;
+                case APP_REINSTALL_LOCAL:
+                    // NOT IMPLEMENTED
+                    AppLifecycleUtils.reinstallIfLocalCczPresent(currentApp);
                     return STATUS_WAITING;
-                }
-                return STATUS_FAILED;
-            case APP_REINSTALL_LOCAL:
-                // NOT IMPLEMENTED
-                AppLifecycleUtils.reinstallIfLocalCczPresent(currentApp);
-                return STATUS_WAITING;
-            case APP_UPDATE:
-                CommCareApplication.startAutoUpdate(activity,true, activity);
-                return STATUS_WAITING;
-            case CLEAR_USER_DATA:
-                clearDataForCurrentOrLastUser();
-                return STATUS_EXECUTED;
-            case CC_REINSTALL_NEEDED:
-                // NOT IMPLEMENTED
-                return STATUS_EXECUTED;
-            case CC_UPDATE_NEEDED:
-                UpdatePromptHelper.promptUpdateForRecoveryMeasure(activity);
-                return STATUS_EXECUTED;
-
+                case APP_UPDATE:
+                    CommCareApplication.startAutoUpdate(activity, true, activity);
+                    return STATUS_WAITING;
+                case CLEAR_USER_DATA:
+                    clearDataForCurrentOrLastUser();
+                    return STATUS_EXECUTED;
+                case CC_REINSTALL_NEEDED:
+                    Intent i = new Intent(activity, PromptCCReinstallActivity.class);
+                    i.putExtra(PromptActivity.FROM_RECOVERY_MEASURE, true);
+                    activity.startActivityForResult(i, ExecuteRecoveryMeasuresActivity.PROMPT_APK_REINSTALL);
+                    return STATUS_WAITING;
+                case CC_UPDATE_NEEDED:
+                    i = new Intent(activity, PromptApkUpdateActivity.class);
+                    i.putExtra(PromptActivity.FROM_RECOVERY_MEASURE, true);
+                    activity.startActivityForResult(i, ExecuteRecoveryMeasuresActivity.PROMPT_APK_UPDATE);
+                    return STATUS_WAITING;
+            }
+        } catch (Exception e) {
+            // fall through
         }
         return STATUS_FAILED;
     }

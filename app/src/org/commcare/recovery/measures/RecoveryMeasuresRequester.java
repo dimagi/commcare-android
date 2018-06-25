@@ -23,13 +23,13 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
 
     private static final String EMPTY_RESPONSE = "{\"app_id\":\"\"}";
     private static final String MOCK_RESPONSE_1 = "{\"app_id\":\"\",\"recovery_measures\": " +
-            "[{\"sequence_number\":7, \"type\":\"app_update\", \"cc_version_min\":\"2.36.2\", " +
+            "[{\"sequence_number\":8, \"type\":\"cc_reinstall\", \"cc_version_min\":\"2.36.2\", " +
             "\"cc_version_max\":\"2.45.0\", \"app_version_min\":0, \"app_version_max\":100} ]}";
     private static final String MOCK_RESPONSE_2 = "{\"app_id\":\"\",\"recovery_measures\": " +
-            "[{\"sequence_number\":1, \"type\":\"clear_data\", \"cc_version_min\":\"2.36.2\", " +
-            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":200, \"app_version_max\":1000}," +
-            "{\"sequence_number\":2, \"type\":\"app_reinstall_ota\", \"cc_version_min\":\"2.36.2\", " +
-            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":200, \"app_version_max\":1000} ]}";
+            "[{\"sequence_number\":1, \"type\":\"cc_reinstall\", \"cc_version_min\":\"2.36.2\", " +
+            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":0, \"app_version_max\":1000}," +
+            "{\"sequence_number\":2, \"type\":\"cc_update\", \"cc_version_min\":\"2.36.2\", " +
+            "\"cc_version_max\":\"2.45.0\", \"app_version_min\":0, \"app_version_max\":1000} ]}";
 
     public RecoveryMeasuresRequester() {
         super(NAME, TAG, ServerUrls.PREFS_RECOVERY_MEASURES_URL_KEY);
@@ -52,7 +52,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
         // mock waiting for request response
         try {
             Thread.sleep(5000);
-            parseResponse(new JSONObject(MOCK_RESPONSE_1));
+            parseResponse(new JSONObject(MOCK_RESPONSE_2));
         } catch (InterruptedException e) {
             // nothing to do
         } catch (JSONException e) {

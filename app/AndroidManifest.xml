@@ -430,6 +430,7 @@
         </activity>
         <activity android:name="org.commcare.activities.TargetMismatchErrorActivity"/>
         <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
+        <activity android:name="org.commcare.activities.PromptCCReinstallActivity"/>
         <!-- Start Collect Manifest -->
 
         <meta-data

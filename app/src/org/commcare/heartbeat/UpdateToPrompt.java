@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.util.Base64;
 
 import org.commcare.CommCareApplication;
+import org.commcare.interfaces.PromptItem;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.services.Logger;
@@ -25,7 +26,7 @@ import java.util.LinkedList;
  * Created by amstone326 on 4/13/17.
  */
 
-public class UpdateToPrompt implements Externalizable {
+public class UpdateToPrompt extends PromptItem implements Externalizable {
 
     private static final String KEY_CCZ_UPDATE_TO_PROMPT = "ccz-update-to-prompt";
     private static final String KEY_APK_UPDATE_TO_PROMPT = "apk-update-to-prompt";
@@ -43,7 +44,6 @@ public class UpdateToPrompt implements Externalizable {
     private String versionString;
     private int cczVersion;
     private ApkVersion apkVersion;
-    private boolean isForced;
     private Type updateType;
 
     private int numTimesSeen;
@@ -108,10 +108,6 @@ public class UpdateToPrompt implements Externalizable {
             System.out.println(".ccz version to prompt for update set to " + cczVersion);
         }
         System.out.println("Is forced?: " + isForced);
-    }
-
-    public boolean isForced() {
-        return isForced;
     }
 
     public boolean isNewerThanCurrentVersion() {
@@ -200,6 +196,7 @@ public class UpdateToPrompt implements Externalizable {
         return (updateType.hashCode() ^ versionString.hashCode() ^ forcedVal);
     }
 
+    @Override
     public void incrementTimesSeen() {
         numTimesSeen++;
         writeToPrefsObject(CommCareApplication.instance().getCurrentApp().getAppPreferences());
@@ -231,7 +228,7 @@ public class UpdateToPrompt implements Externalizable {
                 .getString(KEY_REDUCED_SHOW_FREQ, ""+REDUCED_SHOW_FREQ_DEFAULT_VALUE));
     }
 
-    public static UpdateToPrompt DUMMY_PROMPT_OBJECT_FOR_RECOVERY_MEASURE =
+    public static UpdateToPrompt DUMMY_APK_PROMPT_FOR_RECOVERY_MEASURE =
             new UpdateToPrompt("1.0", "true", Type.APK_UPDATE);
 
 }

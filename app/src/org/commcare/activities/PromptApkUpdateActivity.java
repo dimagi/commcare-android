@@ -1,9 +1,6 @@
 package org.commcare.activities;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.BuildConfig;
@@ -16,7 +13,7 @@ import org.javarosa.core.services.locale.Localization;
  * Created by amstone326 on 7/11/17.
  */
 
-public class PromptApkUpdateActivity extends PromptUpdateActivity {
+public class PromptApkUpdateActivity extends PromptActivity {
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -25,38 +22,33 @@ public class PromptApkUpdateActivity extends PromptUpdateActivity {
     }
 
     @Override
-    void refreshUpdateToPromptObject() {
+    void refreshPromptObject() {
         if (fromARecoveryMeasure) {
-            updateToPrompt = UpdateToPrompt.DUMMY_PROMPT_OBJECT_FOR_RECOVERY_MEASURE;
+            toPrompt = UpdateToPrompt.DUMMY_APK_PROMPT_FOR_RECOVERY_MEASURE;
         } else {
-            updateToPrompt = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
+            toPrompt = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
         }
     }
 
     @Override
+    String getActionString() {
+        return "updating";
+    }
+
+    @Override
     protected void setUpTypeSpecificUIComponents() {
-        updatesAvailableTitle.setText(
+        promptTitle.setText(
                 Localization.get(inForceMode() ? "apk.update.required.title" : "apk.update.available.title",
                         getCurrentClientName()));
+        doLaterButton.setText(Localization.get("update.later.button.text"));
 
-        updateButton.setText(Localization.get("apk.update.action", getCurrentClientName()));
-        updateButton.setOnClickListener(v -> launchCurrentAppOnPlayStore());
+        actionButton.setText(Localization.get("apk.update.action", getCurrentClientName()));
+        actionButton.setOnClickListener(v -> launchCurrentAppOnPlayStore());
 
         if (BuildConfig.APPLICATION_ID.equals("org.commcare.lts")) {
             imageCue.setImageResource(R.drawable.apk_update_cue_lts);
         } else {
             imageCue.setImageResource(R.drawable.apk_update_cue_commcare);
-        }
-    }
-
-    private void launchCurrentAppOnPlayStore() {
-        final String appPackageName = getPackageName();
-        try {
-            startActivityForResult(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=" + appPackageName)), DO_AN_UPDATE);
-        } catch (android.content.ActivityNotFoundException e) {
-            startActivityForResult(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)), DO_AN_UPDATE);
         }
     }
 }
