@@ -46,7 +46,7 @@ public class UpdateTask
     private final AndroidResourceManager resourceManager;
     private final CommCareApp app;
 
-    private PinnedNotificationWithProgress pinnedNotificationProgress = null;
+    private TaskListener taskListener = null;
     private Context ctx;
     private String profileRef;
     private boolean wasTriggeredByAutoUpdate = false;
@@ -96,10 +96,13 @@ public class UpdateTask
      */
     public void startPinnedNotification(Context ctx) {
         this.ctx = ctx;
-
-        pinnedNotificationProgress =
+        taskListener =
                 new PinnedNotificationWithProgress(ctx, "updates.pinned.download",
                         "updates.pinned.progress", R.drawable.update_download_icon);
+    }
+
+    public void setTaskListener(TaskListener listener) {
+        this.taskListener = listener;
     }
 
     @Override
@@ -164,8 +167,8 @@ public class UpdateTask
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
 
-        if (pinnedNotificationProgress != null) {
-            pinnedNotificationProgress.handleTaskUpdate(values);
+        if (taskListener != null) {
+            taskListener.handleTaskUpdate(values);
         }
     }
 
@@ -184,8 +187,8 @@ public class UpdateTask
             ResourceInstallUtils.recordAutoUpdateCompletion(app);
         }
 
-        if (pinnedNotificationProgress != null) {
-            pinnedNotificationProgress.handleTaskCompletion(resultAndError);
+        if (taskListener != null) {
+            taskListener.handleTaskCompletion(resultAndError);
         }
     }
 
@@ -200,8 +203,8 @@ public class UpdateTask
         }
         taskWasCancelledByUser = false;
 
-        if (pinnedNotificationProgress != null) {
-            pinnedNotificationProgress.handleTaskCancellation();
+        if (taskListener != null) {
+            taskListener.handleTaskCancellation();
         }
 
         resourceManager.upgradeCancelled();

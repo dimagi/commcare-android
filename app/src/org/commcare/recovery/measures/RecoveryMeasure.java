@@ -147,6 +147,7 @@ public class RecoveryMeasure extends Persisted {
 
         switch(type) {
             case APP_REINSTALL_OTA:
+                // NOT WORKING
                 String profileRef = currentApp.getCommCarePlatform().getCurrentProfile().getAuthReference();
                 CommCareApp newAppInstall = CommCareSetupActivity.getShellCommCareApp();
                 if (SingleAppInstallation.prepareResourcesForSingleApp(newAppInstall, profileRef,
@@ -157,18 +158,19 @@ public class RecoveryMeasure extends Persisted {
                 }
                 return STATUS_FAILED;
             case APP_REINSTALL_LOCAL:
+                // NOT IMPLEMENTED
                 AppLifecycleUtils.reinstallIfLocalCczPresent(currentApp);
                 return STATUS_WAITING;
             case APP_UPDATE:
+                CommCareApplication.startAutoUpdate(activity,true, activity);
                 return STATUS_WAITING;
             case CLEAR_USER_DATA:
-                // WORKING
                 clearDataForCurrentOrLastUser();
                 return STATUS_EXECUTED;
             case CC_REINSTALL_NEEDED:
+                // NOT IMPLEMENTED
                 return STATUS_EXECUTED;
             case CC_UPDATE_NEEDED:
-                // WORKING
                 UpdatePromptHelper.promptUpdateForRecoveryMeasure(activity);
                 return STATUS_EXECUTED;
 

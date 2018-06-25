@@ -84,6 +84,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
+import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.util.LogTypes;
@@ -664,7 +665,7 @@ public class CommCareApplication extends MultiDexApplication {
                         }
 
                         if (shouldAutoUpdate()) {
-                            startAutoUpdate();
+                            startAutoUpdate(CommCareApplication.instance(), false, null);
                         }
                         syncPending = PendingCalcs.getPendingSyncStatus();
 
@@ -751,18 +752,24 @@ public class CommCareApplication extends MultiDexApplication {
                         PendingCalcs.isUpdatePending(currentApp.getAppPreferences())));
     }
 
-    private static void startAutoUpdate() {
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "Auto-Update Triggered");
+    public static void startAutoUpdate(Context context, boolean byRecoveryMeasure,
+                                       TaskListener alternateListener) {
+        Logger.log(LogTypes.TYPE_MAINTENANCE,
+                String.format("Auto-Update Triggered%s", byRecoveryMeasure ? " by recovery measure" : ""));
 
         String ref = ResourceInstallUtils.getDefaultProfileRef();
 
         try {
             UpdateTask updateTask = UpdateTask.getNewInstance();
-            updateTask.startPinnedNotification(CommCareApplication.instance());
+            if (alternateListener != null) {
+                updateTask.setTaskListener(alternateListener);
+            } else {
+                updateTask.startPinnedNotification(context);
+            }
             updateTask.setAsAutoUpdate();
             updateTask.executeParallel(ref);
         } catch (IllegalStateException e) {
-            Log.w(TAG, "Trying trigger auto-update when it is already running. " +
+            Log.w(TAG, "Trying to trigger auto-update when it is already running. " +
                     "Should only happen if the user triggered a manual update before this fired.");
         }
     }

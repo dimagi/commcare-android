@@ -11,6 +11,8 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
+import org.commcare.tasks.ResultAndError;
+import org.commcare.tasks.TaskListener;
 import org.commcare.utils.StorageUtils;
 
 import java.util.ArrayList;
@@ -19,7 +21,8 @@ import java.util.List;
 /**
  * Created by amstone326 on 5/22/18.
  */
-public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity implements ResourceEngineListener {
+public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
+        implements ResourceEngineListener, TaskListener<Integer, ResultAndError<AppInstallStatus>> {
 
     private static final String CURRENTLY_EXECUTING_ID = "currently-executing-id";
     private static final String CURRENTLY_EXECUTING_SEQUENCE_NUM = "currently-executing-sequence-num";
@@ -60,6 +63,11 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity imp
         };
     }
 
+    @Override
+    protected void setResultOnIntent(Intent i) {
+        i.putExtra(RecoveryMeasuresManager.RECOVERY_MEASURES_LAST_STATUS, lastExecutionStatus);
+    }
+
     void executePendingMeasures() {
         try {
             Thread.sleep(3000);
@@ -91,7 +99,11 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity imp
         }
     }
 
-    private void proceedAfterAsyncExecutionSuccess() {
+    private void onAsyncExecutionSuccess(String action) {
+        System.out.println(String.format(
+                "%s succeeded for recovery measure %s", action, sequenceNumOfMeasureCurrentlyExecuting));
+        lastExecutionStatus = RecoveryMeasure.STATUS_EXECUTED;
+
         SqlStorage<RecoveryMeasure> storage =
                 CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
         RecoveryMeasure justSucceeded = storage.read(this.idOfMeasureCurrentlyExecuting);
@@ -102,37 +114,41 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity imp
         executePendingMeasures();
     }
 
-    @Override
-    protected void setResultOnIntent(Intent i) {
-        i.putExtra(RecoveryMeasuresManager.RECOVERY_MEASURES_LAST_STATUS, lastExecutionStatus);
+    private void appInstallExecutionFailed(String reason) {
+        onAsyncExecutionFailure("App install", reason);
     }
+
+    private void onAsyncExecutionFailure(String action, String reason) {
+        lastExecutionStatus = RecoveryMeasure.STATUS_FAILED;
+        System.out.println(String.format(
+                "%s failed with %s for recovery measure %s", action, reason, sequenceNumOfMeasureCurrentlyExecuting));
+    }
+
+    // region - ResourceEngineListener method implementations
 
     @Override
     public void reportSuccess(boolean b) {
-        lastExecutionStatus = RecoveryMeasure.STATUS_EXECUTED;
-        System.out.println(String.format(
-                "App install succeeded for recovery measure %s", sequenceNumOfMeasureCurrentlyExecuting));
-        proceedAfterAsyncExecutionSuccess();
+        onAsyncExecutionSuccess("App install");
     }
 
     @Override
     public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusmissing) {
-        appInstallExecutionFailed("missing resource", sequenceNumOfMeasureCurrentlyExecuting);
+        appInstallExecutionFailed("missing resource");
     }
 
     @Override
     public void failInvalidResource(InvalidResourceException e, AppInstallStatus statusmissing) {
-        appInstallExecutionFailed("invalid resource", sequenceNumOfMeasureCurrentlyExecuting);
+        appInstallExecutionFailed("invalid resource");
     }
 
     @Override
     public void failBadReqs(String vReq, String vAvail, boolean majorIsProblem) {
-        appInstallExecutionFailed("bad reqs", sequenceNumOfMeasureCurrentlyExecuting);
+        appInstallExecutionFailed("bad reqs");
     }
 
     @Override
     public void failUnknown(AppInstallStatus statusfailunknown) {
-        appInstallExecutionFailed("unknown reason", sequenceNumOfMeasureCurrentlyExecuting);
+        appInstallExecutionFailed("unknown reason");
     }
 
     @Override
@@ -141,17 +157,37 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity imp
 
     @Override
     public void failWithNotification(AppInstallStatus statusfailstate) {
-        appInstallExecutionFailed("notification", sequenceNumOfMeasureCurrentlyExecuting);
+        appInstallExecutionFailed("notification");
     }
 
     @Override
     public void failTargetMismatch() {
-        appInstallExecutionFailed("target mismatch", sequenceNumOfMeasureCurrentlyExecuting);
+        appInstallExecutionFailed("target mismatch");
     }
 
-    private void appInstallExecutionFailed(String reason, long sequenceNumOfMeasureCurrentlyExecuting) {
-        lastExecutionStatus = RecoveryMeasure.STATUS_FAILED;
-        System.out.println(String.format(
-                "App install failed with %s for recovery measure %s", reason, sequenceNumOfMeasureCurrentlyExecuting));
+    // endregion
+
+    // region - TaskListener method implementations
+
+    @Override
+    public void handleTaskUpdate(Integer... updateVals) {
+
     }
+
+    @Override
+    public void handleTaskCompletion(ResultAndError<AppInstallStatus> appInstallStatusResultAndError) {
+        AppInstallStatus result = appInstallStatusResultAndError.data;
+        if (result == AppInstallStatus.UpdateStaged || result == AppInstallStatus.UpToDate) {
+            onAsyncExecutionSuccess("App update");
+        } else {
+            onAsyncExecutionFailure("App update", appInstallStatusResultAndError.data.name());
+        }
+    }
+
+    @Override
+    public void handleTaskCancellation() {
+        onAsyncExecutionFailure("App update", "update task cancelled");
+    }
+
+    // endregion
 }
