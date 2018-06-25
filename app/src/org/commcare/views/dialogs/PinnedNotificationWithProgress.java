@@ -19,7 +19,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class TaskListener
+public class PinnedNotificationWithProgress
         implements org.commcare.tasks.TaskListener<Integer, ResultAndError<AppInstallStatus>> {
     private final NotificationManager notificationManager;
     private final int notificationId;
@@ -27,7 +27,7 @@ public class TaskListener
 
     private final String progressText;
 
-    public TaskListener(Context ctx, String titleText,
+    public PinnedNotificationWithProgress(Context ctx, String titleText,
                         String progressText,
                         int largeIconResource) {
         this.notificationId = titleText.hashCode();
