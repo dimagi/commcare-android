@@ -24,8 +24,10 @@ import org.javarosa.core.services.locale.Localization;
 public abstract class PromptUpdateActivity extends SessionAwareCommCareActivity {
 
     protected static final int DO_AN_UPDATE = 1;
+    public static String FROM_RECOVERY_MEASURE = "from-recovery-measure";
 
     protected UpdateToPrompt updateToPrompt;
+    protected boolean fromARecoveryMeasure;
 
     protected TextView updatesAvailableTitle;
     protected Button updateButton;
@@ -36,6 +38,7 @@ public abstract class PromptUpdateActivity extends SessionAwareCommCareActivity 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
+        this.fromARecoveryMeasure = getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false);
         if (updateToPrompt == null) {
             refreshUpdateToPromptObject();
         }

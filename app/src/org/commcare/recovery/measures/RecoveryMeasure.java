@@ -11,6 +11,7 @@ import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.heartbeat.ApkVersion;
+import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -161,11 +162,14 @@ public class RecoveryMeasure extends Persisted {
             case APP_UPDATE:
                 return STATUS_WAITING;
             case CLEAR_USER_DATA:
+                // WORKING
                 clearDataForCurrentOrLastUser();
                 return STATUS_EXECUTED;
             case CC_REINSTALL_NEEDED:
                 return STATUS_EXECUTED;
             case CC_UPDATE_NEEDED:
+                // WORKING
+                UpdatePromptHelper.promptUpdateForRecoveryMeasure(activity);
                 return STATUS_EXECUTED;
 
         }

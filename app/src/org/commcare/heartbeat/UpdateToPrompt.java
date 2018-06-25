@@ -231,4 +231,7 @@ public class UpdateToPrompt implements Externalizable {
                 .getString(KEY_REDUCED_SHOW_FREQ, ""+REDUCED_SHOW_FREQ_DEFAULT_VALUE));
     }
 
+    public static UpdateToPrompt DUMMY_PROMPT_OBJECT_FOR_RECOVERY_MEASURE =
+            new UpdateToPrompt("1.0", "true", Type.APK_UPDATE);
+
 }
