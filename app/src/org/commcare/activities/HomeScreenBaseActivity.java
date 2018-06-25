@@ -81,6 +81,11 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Vector;
 
+import static org.commcare.activities.DriftHelper.getCurrentDrift;
+import static org.commcare.activities.DriftHelper.getDriftDialog;
+import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
+import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
+
 /**
  * Manages all of the shared (mostly non-UI) components of a CommCare home screen:
  * activity lifecycle, implementation of available actions, session navigation, etc.
@@ -239,8 +244,18 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
 
         checkForPinLaunchConditions();
-
+        checkForDrift();
         return false;
+    }
+
+
+    private void checkForDrift() {
+        if (shouldShowDriftWarning()) {
+            if (getCurrentDrift() != 0) {
+                showAlertDialog(getDriftDialog(this));
+                updateLastDriftWarningTime();
+            }
+        }
     }
 
     // Open the update info form if available

@@ -3,6 +3,7 @@ package org.commcare.heartbeat;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.DriftHelper;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.network.GetAndParseActor;
@@ -32,6 +33,8 @@ public class HeartbeatRequester extends GetAndParseActor {
 
     private static final String NAME = "heartbeat";
     private static final String TAG = HeartbeatRequester.class.getSimpleName();
+    private static final String CURRENT_DRIFT = "current_drift";
+    private static final String MAX_DRIFT_SINCE_LAST_HEARTBEAT = "max_drift_since_last_heartbeat";
 
     public HeartbeatRequester() {
         super(NAME, TAG, ServerUrls.PREFS_HEARTBEAT_URL_KEY);
@@ -42,11 +45,13 @@ public class HeartbeatRequester extends GetAndParseActor {
         HashMap<String, String> params = new HashMap<>();
         params.put(APP_ID, CommCareApplication.instance().getCurrentApp().getUniqueId());
         params.put(DEVICE_ID, CommCareApplication.instance().getPhoneId());
-        params.put(APP_VERSION, "" + ReportingUtils.getAppBuildNumber());
+        params.put(APP_VERSION, String.valueOf(ReportingUtils.getAppBuildNumber()));
         params.put(CC_VERSION, ReportingUtils.getCommCareVersionString());
-        params.put(QUARANTINED_FORMS_PARAM, "" + StorageUtils.getNumQuarantinedForms());
-        params.put(UNSENT_FORMS_PARAM, "" + StorageUtils.getNumUnsentForms());
+        params.put(QUARANTINED_FORMS_PARAM, String.valueOf(StorageUtils.getNumQuarantinedForms()));
+        params.put(UNSENT_FORMS_PARAM, String.valueOf(StorageUtils.getNumUnsentForms()));
         params.put(LAST_SYNC_TIME_PARAM, getISO8601FormattedLastSyncTime());
+        params.put(CURRENT_DRIFT, String.valueOf(DriftHelper.getCurrentDrift()));
+        params.put(MAX_DRIFT_SINCE_LAST_HEARTBEAT, String.valueOf(DriftHelper.getMaxDriftSinceLastHeartbeat()));
         return params;
     }
 

@@ -7,10 +7,13 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -80,7 +83,9 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     @Override
-                    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) {
+                    public boolean initialize(CommCarePlatform platform, boolean isUpgrade) throws
+                            IOException, InvalidReferenceException, InvalidStructureException,
+                            XmlPullParserException, UnfullfilledRequirementsException {
                         return true;
                     }
 

@@ -312,8 +312,8 @@ public class FormStorageTest {
             , "org.commcare.android.database.app.models.FormDefRecord"
             , "org.commcare.android.resource.installers.XFormAndroidInstallerV1"
             , "org.commcare.android.resource.installers.XFormUpdateInfoInstaller"
-
             , "org.commcare.recovery.measures.RecoveryMeasure"
+            , "org.javarosa.xpath.expr.CacheableExprState"
     );
 
 
