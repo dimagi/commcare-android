@@ -35,7 +35,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     private static final int MENU_ENABLE_PRIVILEGES = 0;
 
     private final static String PREFS_CUSTOM_RESTORE_DOC_LOCATION = "cc-custom-restore-doc-location";
-    private static final String SUPERUSER_ENABLED = "cc-superuser-enabled";
+    public static final String SUPERUSER_ENABLED = "cc-superuser-enabled";
     private static final String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     private static final String CSS_ENABLED = "cc-css-enabled";
     private static final String MARKDOWN_ENABLED = "cc-markdown-enabled";
