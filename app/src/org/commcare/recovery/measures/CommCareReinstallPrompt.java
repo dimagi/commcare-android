@@ -10,11 +10,13 @@ public class CommCareReinstallPrompt extends PromptItem {
     }
 
     @Override
+    public boolean isForced() {
+        return true;
+    }
+
+    @Override
     public void incrementTimesSeen() {
         // do nothing
     }
 
-    public boolean isForced() {
-        return true;
-    }
 }

@@ -41,7 +41,7 @@ public abstract class PromptActivity extends SessionAwareCommCareActivity {
         if (toPrompt == null) {
             refreshPromptObject();
         }
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && !fromARecoveryMeasure) {
             // on initial activity load only
             toPrompt.incrementTimesSeen();
         }

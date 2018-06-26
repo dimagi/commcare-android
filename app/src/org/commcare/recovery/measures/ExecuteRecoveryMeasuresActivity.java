@@ -72,10 +72,7 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
 
     @Override
     protected Runnable buildProcessToRun(ProcessFinishedHandler handler) {
-        return () -> {
-            executePendingMeasures();
-            handler.sendEmptyMessage(0);
-        };
+        return this::executePendingMeasures;
     }
 
     @Override
@@ -84,15 +81,16 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
     }
 
     void executePendingMeasures() {
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-
-        }
         SqlStorage<RecoveryMeasure> storage =
                 CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
+        List<RecoveryMeasure> toExecute = StorageUtils.getPendingRecoveryMeasuresInOrder(storage);
+        if (toExecute.size() == 0) {
+            runFinish();
+            return;
+        }
+
         List<Integer> executed = new ArrayList<>();
-        for (RecoveryMeasure measure : StorageUtils.getPendingRecoveryMeasuresInOrder(storage)) {
+        for (RecoveryMeasure measure : toExecute) {
             idOfMeasureCurrentlyExecuting = measure.getID();
             sequenceNumOfMeasureCurrentlyExecuting = measure.getSequenceNumber();
             lastExecutionStatus = measure.execute(this);
@@ -112,6 +110,10 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
         for (Integer id : executed) {
             storage.remove(id);
         }
+
+        if (lastExecutionStatus != RecoveryMeasure.STATUS_WAITING) {
+            runFinish();
+        }
     }
 
     private void onAsyncExecutionSuccess(String action) {
@@ -129,14 +131,15 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
         executePendingMeasures();
     }
 
-    private void appInstallExecutionFailed(String reason) {
-        onAsyncExecutionFailure("App install", reason);
-    }
-
     private void onAsyncExecutionFailure(String action, String reason) {
         lastExecutionStatus = RecoveryMeasure.STATUS_FAILED;
         System.out.println(String.format(
                 "%s failed with %s for recovery measure %s", action, reason, sequenceNumOfMeasureCurrentlyExecuting));
+        runFinish();
+    }
+
+    private void appInstallExecutionFailed(String reason) {
+        onAsyncExecutionFailure("App install", reason);
     }
 
     // region - ResourceEngineListener method implementations

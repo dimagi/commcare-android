@@ -31,6 +31,11 @@ public abstract class BlockingProcessActivity extends CommCareActivity<BlockingP
 
         inProgress = savedInstanceState != null &&
                 savedInstanceState.getBoolean(KEY_IN_PROGRESS, false);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         if (!inProgress) {
             startProcess();
         }
@@ -78,12 +83,16 @@ public abstract class BlockingProcessActivity extends CommCareActivity<BlockingP
 
         @Override
         public void handleMessage(Message msg) {
-            activity.setInProgress(false);
-            Intent i = new Intent(activity.getIntent());
-            activity.setResultOnIntent(i);
-            activity.setResult(RESULT_OK, i);
-            activity.finish();
+            activity.runFinish();
         }
+    }
+
+    protected void runFinish() {
+        setInProgress(false);
+        Intent i = new Intent(getIntent());
+        setResultOnIntent(i);
+        setResult(RESULT_OK, i);
+        finish();
     }
 
 }

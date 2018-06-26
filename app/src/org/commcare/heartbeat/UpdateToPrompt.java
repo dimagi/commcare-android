@@ -91,7 +91,7 @@ public class UpdateToPrompt extends PromptItem implements Externalizable {
         if (isNewerThanCurrentVersion()) {
             if (!duplicateAlreadyRegistered()) {
                 printDebugStatement();
-                writeToPrefsObject(CommCareApplication.instance().getCurrentApp().getAppPreferences());
+                writeToPrefs(CommCareApplication.instance().getCurrentApp().getAppPreferences());
             }
         } else {
             // If the latest signal we're getting is that our current version is up-to-date,
@@ -136,7 +136,7 @@ public class UpdateToPrompt extends PromptItem implements Externalizable {
         return existing != null && existing.equals(this);
     }
 
-    private void writeToPrefsObject(SharedPreferences prefs) {
+    private void writeToPrefs(SharedPreferences prefs) {
         try {
             byte[] serializedBytes = SerializationUtil.serialize(this);
             String serializedString = Base64.encodeToString(serializedBytes, Base64.DEFAULT);
@@ -199,13 +199,13 @@ public class UpdateToPrompt extends PromptItem implements Externalizable {
     @Override
     public void incrementTimesSeen() {
         numTimesSeen++;
-        writeToPrefsObject(CommCareApplication.instance().getCurrentApp().getAppPreferences());
+        writeToPrefs(CommCareApplication.instance().getCurrentApp().getAppPreferences());
     }
 
     public boolean shouldShowOnThisLogin() {
         int showFrequency = useRegularFrequency(numTimesSeen) ? getRegularShowFrequency() : getReducedShowFrequency();
         boolean shouldShow = showHistory.shouldShowOnThisLogin(showFrequency);
-        writeToPrefsObject(CommCareApplication.instance().getCurrentApp().getAppPreferences());
+        writeToPrefs(CommCareApplication.instance().getCurrentApp().getAppPreferences());
         return shouldShow;
     }
 
