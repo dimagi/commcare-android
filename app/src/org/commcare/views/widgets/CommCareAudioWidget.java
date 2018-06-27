@@ -55,9 +55,9 @@ public class CommCareAudioWidget extends AudioWidget
         LayoutInflater vi = LayoutInflater.from(getContext());
         layout = (LinearLayout)vi.inflate(R.layout.audio_prototype, null);
 
-        mPlayButton = (ImageButton)layout.findViewById(R.id.play_audio);
-        ImageButton captureButton = (ImageButton)layout.findViewById(R.id.capture_button);
-        ImageButton chooseButton = (ImageButton)layout.findViewById(R.id.choose_file);
+        mPlayButton = layout.findViewById(R.id.play_audio);
+        ImageButton captureButton = layout.findViewById(R.id.capture_button);
+        ImageButton chooseButton = layout.findViewById(R.id.choose_file);
 
         captureButton.setOnClickListener(v -> captureAudio(mPrompt));
 
@@ -102,7 +102,7 @@ public class CommCareAudioWidget extends AudioWidget
 
     @Override
     public void setupLayout() {
-        recordingNameText = (TextView)layout.findViewById(R.id.recording_text);
+        recordingNameText = layout.findViewById(R.id.recording_text);
         recordingNameText.setText(Localization.get("recording.prompt"));
         addView(layout);
     }

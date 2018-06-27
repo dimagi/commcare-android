@@ -250,8 +250,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         AdapterView visibleView;
-        GridView gridView = (GridView)this.findViewById(R.id.screen_entity_select_grid);
-        ListView listView = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+        GridView gridView = this.findViewById(R.id.screen_entity_select_grid);
+        ListView listView = this.findViewById(R.id.screen_entity_select_list);
         if (shortSelect.shouldBeLaidOutInGrid()) {
             visibleView = gridView;
             gridView.setVisibility(View.VISIBLE);
@@ -265,14 +265,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
         visibleView.setOnItemClickListener(this);
 
-        header = (LinearLayout)findViewById(R.id.entity_select_header);
+        header = findViewById(R.id.entity_select_header);
         entitySelectSearchUI = new EntitySelectSearchUI(this);
         restoreLastQueryString();
         persistAdapterState(visibleView);
         setUpCalloutClickListener();
         entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, this.customCallout);
         setupMapNav();
-        AdMobManager.requestBannerAdForView(this, (FrameLayout)findViewById(R.id.ad_container),
+        AdMobManager.requestBannerAdForView(this, findViewById(R.id.ad_container),
                 AdLocation.EntitySelect);
     }
 
@@ -289,12 +289,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void setupLandscapeDualPaneView() {
         setContentView(R.layout.screen_compound_select);
-        View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
+        View.inflate(this, R.layout.entity_select_layout, findViewById(R.id.screen_compound_select_left_pane));
         inAwesomeMode = true;
 
-        rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
+        rightFrame = findViewById(R.id.screen_compound_select_right_pane);
 
-        TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
+        TextView message = findViewById(R.id.screen_compound_select_prompt);
         //use the old method here because some Android versions don't like Spannables for titles
         message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
     }
@@ -819,7 +819,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (shortSelect.shouldBeLaidOutInGrid()) {
             visibleView = ((GridView)this.findViewById(R.id.screen_entity_select_grid));
         } else {
-            ListView listView = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+            ListView listView = this.findViewById(R.id.screen_entity_select_list);
             EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
             visibleView = listView;
         }
@@ -883,7 +883,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (adapter != null && selected != null) {
             adapter.notifyCurrentlyHighlighted(selected);
             if (forceMove) {
-                ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+                ListView view = this.findViewById(R.id.screen_entity_select_list);
                 view.setSelection(adapter.getPosition(selected));
             }
         }
@@ -902,7 +902,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (!rightFrameSetup) {
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
             View.inflate(this, R.layout.entity_detail, rightFrame);
-            Button next = (Button)findViewById(R.id.entity_select_button);
+            Button next = findViewById(R.id.entity_select_button);
             //use the old method here because some Android versions don't like Spannables for titles
             next.setText(Localization.get("select.detail.confirm"));
             next.setOnClickListener(v -> performEntitySelect());
@@ -920,7 +920,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 mViewMode = session.isViewCommand(session.getCommand());
             }
 
-            detailView = (TabbedDetailView)rightFrame.findViewById(R.id.entity_detail_tabs);
+            detailView = rightFrame.findViewById(R.id.entity_detail_tabs);
             detailView.setRoot(detailView);
 
             Detail detail = session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID));

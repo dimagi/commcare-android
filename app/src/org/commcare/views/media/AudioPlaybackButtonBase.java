@@ -66,7 +66,7 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
     }
 
     private void setupButton() {
-        playButton = (ImageButton)findViewById(R.id.play_button);
+        playButton = findViewById(R.id.play_button);
         playButton.setOnClickListener(buildOnClickListener());
     }
 

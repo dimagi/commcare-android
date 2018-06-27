@@ -1,9 +1,7 @@
 package org.commcare.activities;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -148,13 +146,13 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         setContentView(R.layout.entity_select_layout);
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
-        searchbox = (EditText)findViewById(R.id.searchbox);
-        LinearLayout header = (LinearLayout)findViewById(R.id.entity_select_header);
-        ImageButton barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+        searchbox = findViewById(R.id.searchbox);
+        LinearLayout header = findViewById(R.id.entity_select_header);
+        ImageButton barcodeButton = findViewById(R.id.barcodeButton);
 
-        Spinner filterSelect = (Spinner)findViewById(R.id.entity_select_filter_dropdown);
+        Spinner filterSelect = findViewById(R.id.entity_select_filter_dropdown);
 
-        listView = (ListView)findViewById(R.id.screen_entity_select_list);
+        listView = findViewById(R.id.screen_entity_select_list);
         listView.setOnItemClickListener(this);
 
         header.setVisibility(View.GONE);
@@ -162,7 +160,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
         barcodeScanOnClickListener = v -> callBarcodeScanIntent(FormRecordListActivity.this);
 
-        TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
+        TextView searchLabel = findViewById(R.id.screen_entity_select_search_label);
         searchLabel.setText(this.localize("select.search.label"));
 
         searchbox.addTextChangedListener(this);
