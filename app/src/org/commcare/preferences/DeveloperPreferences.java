@@ -34,29 +34,28 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     private static final int MENU_ENABLE_PRIVILEGES = 0;
 
-    // REGION - all Developer Preference keys
-
-    public final static String PREFS_CUSTOM_RESTORE_DOC_LOCATION = "cc-custom-restore-doc-location";
+    private final static String PREFS_CUSTOM_RESTORE_DOC_LOCATION = "cc-custom-restore-doc-location";
     public static final String SUPERUSER_ENABLED = "cc-superuser-enabled";
-    public static final String NAV_UI_ENABLED = "cc-nav-ui-enabled";
-    public static final String CSS_ENABLED = "cc-css-enabled";
-    public static final String MARKDOWN_ENABLED = "cc-markdown-enabled";
-    public static final String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
-    public static final String LIST_REFRESH_ENABLED = "cc-list-refresh";
-    public static final String HOME_REPORT_ENABLED = "cc-home-report";
-    public static final String AUTO_PURGE_ENABLED = "cc-auto-purge";
-    public static final String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
-    public static final String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
-    public static final String USE_ROOT_MENU_AS_HOME_SCREEN = "cc-use-root-menu-as-home-screen";
-    public static final String SHOW_ADB_ENTITY_LIST_TRACES = "cc-show-entity-trace-outputs";
-    public static final String USE_OBFUSCATED_PW = "cc-use-pw-obfuscation";
-    public static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
-    public static final String SHOW_UPDATE_OPTIONS_SETTING = "cc-show-update-target-options";
-    public static final String LOCAL_FORM_PAYLOAD_FILE_PATH = "cc-local-form-payload-file-path";
-    public final static String REMOTE_FORM_PAYLOAD_URL = "remote-form-payload-url";
-    public final static String HIDE_ISSUE_REPORT = "cc-hide-issue-report";
-    public final static String ENFORCE_SECURE_ENDPOINT = "cc-enforce-secure-endpoint";
-    public final static String ALLOW_SPACE_IN_SELECT_CHOICES = "cc-allow-space-in-select-choices";
+    private static final String NAV_UI_ENABLED = "cc-nav-ui-enabled";
+    private static final String CSS_ENABLED = "cc-css-enabled";
+    private static final String MARKDOWN_ENABLED = "cc-markdown-enabled";
+    private static final String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
+    private static final String LIST_REFRESH_ENABLED = "cc-list-refresh";
+    private static final String HOME_REPORT_ENABLED = "cc-home-report";
+    private static final String AUTO_PURGE_ENABLED = "cc-auto-purge";
+    private static final String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
+    private static final String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
+    private static final String USE_ROOT_MENU_AS_HOME_SCREEN = "cc-use-root-menu-as-home-screen";
+    private static final String SHOW_ADB_ENTITY_LIST_TRACES = "cc-show-entity-trace-outputs";
+    private static final String USE_OBFUSCATED_PW = "cc-use-pw-obfuscation";
+    private static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
+    private static final String SHOW_UPDATE_OPTIONS_SETTING = "cc-show-update-target-options";
+    private static final String LOCAL_FORM_PAYLOAD_FILE_PATH = "cc-local-form-payload-file-path";
+    private final static String REMOTE_FORM_PAYLOAD_URL = "remote-form-payload-url";
+    private final static String HIDE_ISSUE_REPORT = "cc-hide-issue-report";
+    private final static String ENFORCE_SECURE_ENDPOINT = "cc-enforce-secure-endpoint";
+    private final static String ALLOW_SPACE_IN_SELECT_CHOICES = "cc-allow-space-in-select-choices";
+    private final static String USE_EXPRESSION_CACHING_IN_FORMS = "use-expression-caching-in-forms";
 
     public final static String PROJECT_SET_ACCESS_CODE = "cc-dev-prefs-access-code";
     public final static String USER_ENTERED_ACCESS_CODE = "cc-dev-prefs-user-entered-code";
@@ -73,8 +72,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public final static String EDIT_SAVE_SESSION = "__edit_session_save";
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
     public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
-
-    // ENDREGION
 
     private static final Set<String> WHITELISTED_DEVELOPER_PREF_KEYS = new HashSet<>();
 
@@ -410,6 +407,10 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     public static boolean isSpaceAllowedInSelectChoices() {
         return doesPropertyMatch(ALLOW_SPACE_IN_SELECT_CHOICES, PrefValues.YES, PrefValues.YES);
+    }
+
+    public static boolean useExpressionCachingInForms() {
+        return doesPropertyMatch(USE_EXPRESSION_CACHING_IN_FORMS, PrefValues.NO, PrefValues.YES);
     }
 
     private void hideOrShowDangerousSettings() {
