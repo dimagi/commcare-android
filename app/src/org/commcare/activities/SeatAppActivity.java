@@ -19,6 +19,7 @@ public class SeatAppActivity extends BlockingProcessActivity {
     @Override
     protected String getDisplayTextKey() {
         return "seating.app";
+
     }
 
     @Override

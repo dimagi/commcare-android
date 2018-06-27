@@ -71,8 +71,8 @@ public class TabbedDetailView extends RelativeLayout {
 
         inflater.inflate(R.layout.tabbed_detail_view, root, true);
 
-        mMenu = (LinearLayout)root.findViewById(R.id.tabbed_detail_menu);
-        mViewPager = (ViewPager)root.findViewById(R.id.tabbed_detail_pager);
+        mMenu = root.findViewById(R.id.tabbed_detail_menu);
+        mViewPager = root.findViewById(R.id.tabbed_detail_pager);
         mViewPager.setId(AndroidUtil.generateViewId());
 
         mViewPageTabStrip = root.findViewById(R.id.pager_tab_strip);

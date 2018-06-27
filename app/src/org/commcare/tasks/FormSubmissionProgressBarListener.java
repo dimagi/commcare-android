@@ -55,7 +55,7 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
     private void showProgressBarInActivity(final int progressToSet) {
         this.containingActivity.runOnUiThread(() -> {
             submissionProgressBar =
-                    (ProgressBar)containingActivity.findViewById(R.id.submission_progress_bar);
+                    containingActivity.findViewById(R.id.submission_progress_bar);
             if (submissionProgressBar == null) {
                 // Means that the activity has not finished loading its UI yet, so we have to wait
                 containingActivity.setUiLoadedListener(FormSubmissionProgressBarListener.this);

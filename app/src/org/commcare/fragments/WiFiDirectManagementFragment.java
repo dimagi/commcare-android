@@ -59,7 +59,7 @@ public class WiFiDirectManagementFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mContentView = inflater.inflate(R.layout.wifi_manager, null);
 
-        mStatusText = (TextView)mContentView.findViewById(R.id.wifi_manager_status_text);
+        mStatusText = mContentView.findViewById(R.id.wifi_manager_status_text);
 
         return mContentView;
     }

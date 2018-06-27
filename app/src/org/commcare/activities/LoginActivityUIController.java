@@ -189,7 +189,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
                             Bitmap bitmap = MediaUtil.inflateDisplayImage(activity, customBannerURI);
                             if (bitmap != null) {
                                 ImageView bannerView =
-                                        (ImageView)banner.findViewById(R.id.main_top_banner);
+                                        banner.findViewById(R.id.main_top_banner);
                                 bannerView.setImageBitmap(bitmap);
                             }
                         }
@@ -483,7 +483,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void updateBanner() {
         ImageView topBannerImageView =
-                (ImageView)banner.findViewById(org.commcare.dalvik.R.id.main_top_banner);
+                banner.findViewById(R.id.main_top_banner);
         if (!CustomBanner.useCustomBannerFitToActivity(activity, topBannerImageView)) {
             topBannerImageView.setImageResource(R.drawable.commcare_logo);
         }

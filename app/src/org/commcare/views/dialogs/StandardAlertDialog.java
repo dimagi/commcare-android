@@ -24,9 +24,9 @@ public class StandardAlertDialog extends CommCareAlertDialog {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         view = LayoutInflater.from(context).inflate(R.layout.custom_alert_dialog, null);
 
-        TextView titleView = (TextView)view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_text);
+        TextView titleView = view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_text);
         titleView.setText(title);
-        TextView messageView = (TextView)view.findViewById(R.id.dialog_message);
+        TextView messageView = view.findViewById(R.id.dialog_message);
         messageView.setText(msg);
 
         dialog = builder.create();
@@ -70,27 +70,27 @@ public class StandardAlertDialog extends CommCareAlertDialog {
     }
 
     public void setIcon(int resId) {
-        ImageView icon = (ImageView)view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_icon);
+        ImageView icon = view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_icon);
         icon.setImageResource(resId);
         icon.setVisibility(View.VISIBLE);
     }
 
     public void setPositiveButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
-        Button positiveButton = (Button)this.view.findViewById(R.id.positive_button);
+        Button positiveButton = this.view.findViewById(R.id.positive_button);
         positiveButton.setText(displayText);
         positiveButton.setOnClickListener(v -> buttonListener.onClick(dialog, AlertDialog.BUTTON_POSITIVE));
         positiveButton.setVisibility(View.VISIBLE);
     }
 
     public void setNegativeButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
-        Button negativeButton = (Button)this.view.findViewById(R.id.negative_button);
+        Button negativeButton = this.view.findViewById(R.id.negative_button);
         negativeButton.setText(displayText);
         negativeButton.setOnClickListener(v -> buttonListener.onClick(dialog, AlertDialog.BUTTON_NEGATIVE));
         negativeButton.setVisibility(View.VISIBLE);
     }
 
     public void setNeutralButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
-        Button neutralButton = (Button)this.view.findViewById(R.id.neutral_button);
+        Button neutralButton = this.view.findViewById(R.id.neutral_button);
         neutralButton.setText(displayText);
         neutralButton.setOnClickListener(v -> buttonListener.onClick(dialog, AlertDialog.BUTTON_NEUTRAL));
         neutralButton.setVisibility(View.VISIBLE);

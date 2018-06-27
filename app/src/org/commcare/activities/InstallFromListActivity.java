@@ -102,7 +102,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     private void setupUI() {
         setContentView(R.layout.user_get_available_apps);
-        errorMessageBox = (TextView)findViewById(R.id.error_message);
+        errorMessageBox = findViewById(R.id.error_message);
         authenticateView = findViewById(R.id.authenticate_view);
         setUpGetAppsButton();
         setUpAppsList();
@@ -111,7 +111,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void setUpGetAppsButton() {
-        Button getAppsButton = (Button)findViewById(R.id.get_apps_button);
+        Button getAppsButton = findViewById(R.id.get_apps_button);
         getAppsButton.setOnClickListener(v -> {
             errorMessageBox.setVisibility(View.INVISIBLE);
             if (inputIsValid()) {
@@ -134,7 +134,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     private void setUpAppsList() {
         appsListContainer = findViewById(R.id.apps_list_container);
-        appsListView = (ListView)findViewById(R.id.apps_list_view);
+        appsListView = findViewById(R.id.apps_list_view);
         appsListView.setOnItemClickListener((parent, view, position, id) -> {
             if (position < availableApps.size()) {
                 AppAvailableToInstall app = availableApps.get(position);
@@ -147,7 +147,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void setUpToggle() {
-        FrameLayout toggleContainer = (FrameLayout)findViewById(R.id.toggle_button_container);
+        FrameLayout toggleContainer = findViewById(R.id.toggle_button_container);
         CompoundButton userTypeToggler;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             Switch switchButton = new Switch(this);
@@ -417,9 +417,9 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 }
 
                 AppAvailableToInstall app = this.getItem(position);
-                TextView appName = (TextView)v.findViewById(R.id.app_name);
+                TextView appName = v.findViewById(R.id.app_name);
                 appName.setText(app.getAppName());
-                TextView domain = (TextView)v.findViewById(R.id.domain);
+                TextView domain = v.findViewById(R.id.domain);
                 domain.setText(app.getDomainName());
 
                 return v;

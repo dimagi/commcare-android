@@ -92,14 +92,14 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         activity.setContentView(R.layout.screen_form_entry);
         blockingActionsManager = new BlockingActionsManager(this.activity);
 
-        ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
-        ImageButton prevButton = (ImageButton)activity.findViewById(R.id.nav_btn_prev);
+        ImageButton nextButton = activity.findViewById(R.id.nav_btn_next);
+        ImageButton prevButton = activity.findViewById(R.id.nav_btn_prev);
 
-        Button multiIntentDispatchButton = (Button)activity.findViewById(R.id.multiple_intent_dispatch_button);
+        Button multiIntentDispatchButton = activity.findViewById(R.id.multiple_intent_dispatch_button);
 
         View finishButton = activity.findViewById(R.id.nav_btn_finish);
 
-        TextView finishText = (TextView)finishButton.findViewById(R.id.nav_btn_finish_text);
+        TextView finishText = finishButton.findViewById(R.id.nav_btn_finish_text);
         finishText.setText(Localization.get("form.entry.finish.button").toUpperCase());
 
         nextButton.setOnClickListener(v -> {
@@ -131,7 +131,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         multiIntentDispatchButton.setOnClickListener(v -> activity.fireCompoundIntentDispatch());
 
 
-        mViewPane = (ViewGroup)activity.findViewById(R.id.form_entry_pane);
+        mViewPane = activity.findViewById(R.id.form_entry_pane);
 
         activity.requestMajorLayoutUpdates();
 
@@ -265,7 +265,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         SpannableStringBuilder groupLabelText = questionsView.getGroupLabel();
 
         if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
-            TextView groupLabel = (TextView)activity.findViewById(R.id.form_entry_group_label);
+            TextView groupLabel = activity.findViewById(R.id.form_entry_group_label);
             groupLabel.setText(groupLabelText);
             hasGroupLabel = true;
             FormLayoutHelpers.updateGroupViewVisibility(activity, true, shouldHideGroupLabel);
@@ -678,7 +678,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             hideCompoundIntentCalloutButton();
         } else {
             Button compoundDispatchButton =
-                    (Button)activity.findViewById(R.id.multiple_intent_dispatch_button);
+                    activity.findViewById(R.id.multiple_intent_dispatch_button);
             compoundDispatchButton.setVisibility(View.VISIBLE);
             compoundDispatchButton.setText(i.getTitle() + ": " + i.getNumberOfCallouts());
         }

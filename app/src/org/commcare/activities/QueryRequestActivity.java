@@ -106,7 +106,7 @@ public class QueryRequestActivity
     }
 
     private void buildPromptUI() {
-        LinearLayout promptsLayout = (LinearLayout)findViewById(R.id.query_prompts);
+        LinearLayout promptsLayout = findViewById(R.id.query_prompts);
         OrderedHashtable<String, DisplayUnit> userInputDisplays =
                 remoteQuerySessionManager.getNeededUserInputDisplays();
         int promptCount = 1;

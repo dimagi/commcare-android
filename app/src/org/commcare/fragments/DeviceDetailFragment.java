@@ -39,9 +39,9 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
      */
     public void resetViews() {
         Log.d(TAG, "resetting views");
-        TextView view = (TextView)mContentView.findViewById(R.id.device_address);
+        TextView view = mContentView.findViewById(R.id.device_address);
         view.setText("");
-        view = (TextView)mContentView.findViewById(R.id.status_text);
+        view = mContentView.findViewById(R.id.status_text);
         view.setText("");
     }
 }
