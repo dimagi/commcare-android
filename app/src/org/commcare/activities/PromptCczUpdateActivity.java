@@ -43,6 +43,11 @@ public class PromptCczUpdateActivity extends PromptActivity {
         imageCue.setVisibility(View.GONE);
     }
 
+    @Override
+    String getInstructionsStringKey() {
+        return null;
+    }
+
     private void launchUpdateActivity() {
         startActivityForResult(new Intent(this, UpdateActivity.class), DO_AN_UPDATE);
     }

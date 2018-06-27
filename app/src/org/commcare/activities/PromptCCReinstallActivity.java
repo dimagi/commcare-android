@@ -28,4 +28,9 @@ public class PromptCCReinstallActivity extends PromptActivity {
         imageCue.setVisibility(View.GONE);
     }
 
+    @Override
+    String getInstructionsStringKey() {
+        return "apk.reinstall.instructions";
+    }
+
 }

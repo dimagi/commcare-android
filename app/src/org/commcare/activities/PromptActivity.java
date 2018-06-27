@@ -32,6 +32,7 @@ public abstract class PromptActivity extends SessionAwareCommCareActivity {
     protected Button actionButton;
     protected Button doLaterButton;
     protected ImageView imageCue;
+    protected TextView instructions;
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -47,15 +48,17 @@ public abstract class PromptActivity extends SessionAwareCommCareActivity {
         setupUI();
     }
 
-    abstract void refreshPromptObject();
-    abstract String getActionString();
-
     private void setupUI() {
         setContentView(R.layout.prompt_view);
         promptTitle = findViewById(R.id.prompt_title);
         actionButton = findViewById(R.id.action_button);
         doLaterButton = findViewById(R.id.do_later_button);
         imageCue = findViewById(R.id.image_cue);
+        instructions = findViewById(R.id.instructions);
+
+        if (getInstructionsStringKey() != null) {
+            instructions.setText(Localization.get(getInstructionsStringKey()));
+        }
 
         TextView helpText = findViewById(R.id.help_text);
         helpText.setText(Localization.get("prompt.help.text", getActionString()));
@@ -71,7 +74,10 @@ public abstract class PromptActivity extends SessionAwareCommCareActivity {
         updateVisibilities();
     }
 
+    abstract void refreshPromptObject();
+    abstract String getActionString();
     abstract void setUpTypeSpecificUIComponents();
+    abstract String getInstructionsStringKey();
 
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
@@ -90,6 +96,12 @@ public abstract class PromptActivity extends SessionAwareCommCareActivity {
             doLaterButton.setVisibility(View.GONE);
         } else {
             doLaterButton.setVisibility(View.VISIBLE);
+        }
+
+        if (getInstructionsStringKey() == null) {
+            instructions.setVisibility(View.GONE);
+        } else {
+            instructions.setVisibility(View.VISIBLE);
         }
     }
 

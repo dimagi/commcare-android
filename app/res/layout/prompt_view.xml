@@ -27,6 +27,13 @@
             android:gravity="center"
             android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/instructions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/standard_spacer_double"
+                android:gravity="center"/>
+
             <Button
                 android:id="@+id/action_button"
                 style="@style/PromptedUpdateButtonUpdate" />

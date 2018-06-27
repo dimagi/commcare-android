@@ -30,6 +30,7 @@ apk.update.action=Update ${0} via the Play Store
 
 apk.reinstall.needed.title=Reinstall of ${0} is Required
 apk.reinstall.action=Go to this app on the Play Store
+apk.reinstall.instructions=Follow the link to view this app on the Play Store, select "UNINSTALL", and then select "INSTALL"
 
 verify.retry=Retry
 verify.checking=Verifying media...

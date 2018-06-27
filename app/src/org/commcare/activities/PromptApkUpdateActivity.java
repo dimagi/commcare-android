@@ -51,4 +51,9 @@ public class PromptApkUpdateActivity extends PromptActivity {
             imageCue.setImageResource(R.drawable.apk_update_cue_commcare);
         }
     }
+
+    @Override
+    String getInstructionsStringKey() {
+        return null;
+    }
 }
