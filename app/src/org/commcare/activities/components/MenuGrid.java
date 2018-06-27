@@ -41,7 +41,7 @@ public class MenuGrid extends MenuList implements OnItemLongClickListener {
     @Override
     protected void requestBannerAd() {
         AdMobManager.requestBannerAdForView(activity,
-                (FrameLayout)activity.findViewById(R.id.ad_container), AdLocation.MenuGrid);
+                activity.findViewById(R.id.ad_container), AdLocation.MenuGrid);
     }
 
     @Override

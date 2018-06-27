@@ -234,7 +234,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
                 focusPending = requestFocus;
             }
         }
-        TextView messageView = (TextView)this.warningView.findViewById(R.id.message);
+        TextView messageView = this.warningView.findViewById(R.id.message);
         messageView.setText(text);
 
         //If the warningView already exists, we can just scroll to it right now
@@ -348,7 +348,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         if (changed && focusPending) {
             focusPending = false;
             if (this.warningView != null) {
-                TextView messageView = (TextView)this.warningView.findViewById(R.id.message);
+                TextView messageView = this.warningView.findViewById(R.id.message);
                 requestChildViewOnScreen(messageView);
             }
         }

@@ -109,10 +109,10 @@ public class CommCareWiFiDirectActivity
 
         setContentView(R.layout.wifi_direct_main);
 
-        myStatusText = (TextView)this.findViewById(R.id.my_status_text);
-        formCountText = (TextView)this.findViewById(R.id.form_count_text);
-        stateStatusText = (TextView)this.findViewById(R.id.wifi_state_status);
-        stateHeaderText = (TextView)this.findViewById(R.id.wifi_state_header);
+        myStatusText = this.findViewById(R.id.my_status_text);
+        formCountText = this.findViewById(R.id.form_count_text);
+        stateStatusText = this.findViewById(R.id.wifi_state_status);
+        stateHeaderText = this.findViewById(R.id.wifi_state_header);
 
         String baseDir = this.getFilesDir().getAbsolutePath();
 

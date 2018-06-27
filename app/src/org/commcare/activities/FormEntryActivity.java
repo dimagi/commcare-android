@@ -804,7 +804,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             for (int i = 0; i < uiController.questionsView.getWidgets().size(); i++) {
                 QuestionWidget q = uiController.questionsView.getWidgets().get(i);
                 if (q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID) != null) {
-                    VideoView inlineVideo = (VideoView)q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+                    VideoView inlineVideo = q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
                     if (inlineVideo.isPlaying()) {
                         indexOfWidgetWithVideoPlaying = i;
                         positionOfVideoProgress = inlineVideo.getCurrentPosition();
@@ -818,7 +818,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void restoreInlineVideoState() {
         if (indexOfWidgetWithVideoPlaying != -1) {
             QuestionWidget widgetWithVideoToResume = uiController.questionsView.getWidgets().get(indexOfWidgetWithVideoPlaying);
-            VideoView inlineVideo = (VideoView)widgetWithVideoToResume.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+            VideoView inlineVideo = widgetWithVideoToResume.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
             if (inlineVideo != null) {
                 inlineVideo.seekTo(positionOfVideoProgress);
                 inlineVideo.start();
@@ -1218,7 +1218,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private boolean canNavigateForward() {
-        ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
+        ImageButton nextButton = this.findViewById(R.id.nav_btn_next);
         return FormEntryConstants.NAV_STATE_NEXT.equals(nextButton.getTag());
     }
 

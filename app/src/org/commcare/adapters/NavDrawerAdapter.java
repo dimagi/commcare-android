@@ -33,7 +33,7 @@ public class NavDrawerAdapter extends ArrayAdapter<NavDrawerItem> {
         if (item != null) {
             ((TextView)v.findViewById(R.id.drawer_text)).setText(item.text);
             ((ImageView)v.findViewById(R.id.drawer_icon)).setImageResource(item.iconResource);
-            TextView subtext = ((TextView)v.findViewById(R.id.drawer_subtext));
+            TextView subtext = v.findViewById(R.id.drawer_subtext);
             if (item.subtext != null && !"".equals(item.subtext)) {
                 subtext.setText(item.subtext);
                 subtext.setVisibility(View.VISIBLE);

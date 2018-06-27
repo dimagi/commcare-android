@@ -61,7 +61,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     public GregorianDateWidget(Context context, FormEntryPrompt prompt, boolean closeButton) {
         super(context, prompt);
         todaysDateInMillis = calendar.getTimeInMillis();
-        ImageButton clearAll = (ImageButton)findViewById(R.id.clear_all);
+        ImageButton clearAll = findViewById(R.id.clear_all);
 
         if (closeButton) {
             clearAll.setOnClickListener(v -> clearAll());
@@ -76,7 +76,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         myCalendarFragment.setCancelable(false);
         myCalendarFragment.setToday(todaysDateInMillis);
 
-        openCalButton = (ImageButton)findViewById(R.id.open_calendar_bottom);
+        openCalButton = findViewById(R.id.open_calendar_bottom);
         openCalButton.setOnClickListener(v -> openCalendar());
 
         setAnswer();
@@ -84,9 +84,9 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
 
     @Override
     protected void initText() {
-        dayOfWeek = (TextView)findViewById(R.id.greg_day_of_week);
-        dayText = (EditText)findViewById(R.id.day_txt_field);
-        yearText = (EditText)findViewById(R.id.year_txt_field);
+        dayOfWeek = findViewById(R.id.greg_day_of_week);
+        dayText = findViewById(R.id.day_txt_field);
+        yearText = findViewById(R.id.year_txt_field);
 
         dayText.setOnClickListener(v -> {
             dayText.clearFocus();
@@ -102,7 +102,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     }
 
     private void setupMonthComponents() {
-        monthSpinner = (Spinner)gregorianView.findViewById(R.id.month_spinner);
+        monthSpinner = gregorianView.findViewById(R.id.month_spinner);
         monthList.add("");
         monthSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.calendar_date, monthList));
         monthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

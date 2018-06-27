@@ -46,7 +46,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         final Activity thisActivity = getActivity();
-        this.listView = ((ListView)rootView.findViewById(R.id.screen_entity_detail_list));
+        this.listView = rootView.findViewById(R.id.screen_entity_detail_list);
         if (this.adapter == null && this.loader == null && !EntityLoaderTask.attachToActivity(this)) {
             // Set up task to fetch entity data
             EntityLoaderTask theLoader =
@@ -55,7 +55,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
             theLoader.executeParallel(detailToDisplay.getNodeset().contextualize(referenceToDisplay));
 
             // Add header row
-            final LinearLayout headerLayout = ((LinearLayout)rootView.findViewById(R.id.entity_detail_header));
+            final LinearLayout headerLayout = rootView.findViewById(R.id.entity_detail_header);
             String[] headers = new String[detailToDisplay.getFields().length];
             for (int i = 0; i < headers.length; ++i) {
                 headers[i] = detailToDisplay.getFields()[i].getHeader().evaluate();
