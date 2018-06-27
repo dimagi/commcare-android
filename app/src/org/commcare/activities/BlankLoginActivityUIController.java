@@ -24,8 +24,8 @@ public class BlankLoginActivityUIController extends LoginActivityUIController {
     @Override
     public void setupUI() {
         activity.setContentView(R.layout.blank_screen_login);
-        username = (EditText)activity.findViewById(R.id.edit_username);
-        password = (EditText)activity.findViewById(R.id.edit_password);
+        username = activity.findViewById(R.id.edit_username);
+        password = activity.findViewById(R.id.edit_password);
     }
 
     @Override

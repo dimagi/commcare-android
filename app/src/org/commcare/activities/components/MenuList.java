@@ -62,7 +62,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
 
     protected void requestBannerAd() {
         AdMobManager.requestBannerAdForView(activity,
-                (FrameLayout)activity.findViewById(R.id.ad_container), AdLocation.MenuList);
+                activity.findViewById(R.id.ad_container), AdLocation.MenuList);
     }
 
     protected void initViewAndAdapter(String menuId) {
