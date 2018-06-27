@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.DispatchActivity;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.StorageUtils;
@@ -41,16 +40,12 @@ public class RecoveryMeasuresManager {
     }
 
     public static boolean recoveryMeasuresPending() {
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            return false;
+        }
         SqlStorage<RecoveryMeasure> storage = CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
         return storage.getNumRecords() > 0 &&
                 !StorageUtils.getPendingRecoveryMeasuresInOrder(storage).get(0).triedTooRecently();
-    }
-
-    public static void startExecutionActivity(Activity origin) {
-        System.out.println("Executing recovery measures for app " +
-                CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName());
-        origin.startActivityForResult(new Intent(origin, ExecuteRecoveryMeasuresActivity.class),
-                DispatchActivity.RECOVERY_MEASURES);
     }
 
     public static void handleExecutionActivityResult(Activity receiver, Intent intent) {

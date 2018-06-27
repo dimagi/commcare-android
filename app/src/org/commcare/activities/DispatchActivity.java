@@ -14,6 +14,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresManager;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
@@ -55,7 +56,7 @@ public class DispatchActivity extends FragmentActivity {
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
     private boolean shortcutExtraWasConsumed;
-    private boolean needToExecuteRecoveryMeasures;
+    private boolean needToExecuteRecoveryMeasures = false;
 
     private static final String EXTRA_CONSUMED_KEY = "shortcut_extra_was_consumed";
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
@@ -125,6 +126,7 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void dispatch() {
+        System.out.println("in dispatch");
         if (isDbInBadState()) {
             // appropriate error dialog has been triggered, don't continue w/ dispatch
             return;
@@ -143,11 +145,12 @@ public class DispatchActivity extends FragmentActivity {
         } else {
             if (needToExecuteRecoveryMeasures) {
                 needToExecuteRecoveryMeasures = false;
-                RecoveryMeasuresManager.startExecutionActivity(this);
+                startRecoveryExecutionActivity();
                 return;
             }
 
-            // send this off, results will be stored and queried for later
+            // Send this off at the earliest possible point where we know we have a seated app.
+            // Result will be stored for later use
             RecoveryMeasuresManager.requestRecoveryMeasures();
 
             // Note that the order in which these conditions are checked matters!!
@@ -182,6 +185,7 @@ public class DispatchActivity extends FragmentActivity {
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
+                System.out.println("Launching login screen");
                 launchLoginScreen();
             }
         }
@@ -226,6 +230,13 @@ public class DispatchActivity extends FragmentActivity {
                 launchLoginScreen();
             }
         }
+    }
+
+    private  void startRecoveryExecutionActivity() {
+        System.out.println("Executing recovery measures for app " +
+                CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName());
+        startActivityForResult(
+                new Intent(this, ExecuteRecoveryMeasuresActivity.class), RECOVERY_MEASURES);
     }
 
     private void createNoStorageDialog() {

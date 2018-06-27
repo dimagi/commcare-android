@@ -27,7 +27,6 @@ public abstract class PromptActivity extends SessionAwareCommCareActivity {
     public static String FROM_RECOVERY_MEASURE = "from-recovery-measure";
 
     protected PromptItem toPrompt;
-    protected boolean fromARecoveryMeasure;
 
     protected TextView promptTitle;
     protected Button actionButton;
@@ -37,11 +36,11 @@ public abstract class PromptActivity extends SessionAwareCommCareActivity {
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        this.fromARecoveryMeasure = getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false);
         if (toPrompt == null) {
             refreshPromptObject();
         }
-        if (savedInstanceState == null && !fromARecoveryMeasure) {
+        if (savedInstanceState == null &&
+                !getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false)) {
             // on initial activity load only
             toPrompt.incrementTimesSeen();
         }
@@ -119,7 +118,7 @@ public abstract class PromptActivity extends SessionAwareCommCareActivity {
     @Override
     public void onBackPressed() {
         // Prevent navigating away from this activity if we're in force mode
-        if (!inForceMode() || fromARecoveryMeasure) {
+        if (!inForceMode() || getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false)) {
             super.onBackPressed();
         }
     }

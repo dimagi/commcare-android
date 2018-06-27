@@ -23,7 +23,7 @@ public class PromptApkUpdateActivity extends PromptActivity {
 
     @Override
     void refreshPromptObject() {
-        if (fromARecoveryMeasure) {
+        if (getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false)) {
             toPrompt = UpdateToPrompt.DUMMY_APK_PROMPT_FOR_RECOVERY_MEASURE;
         } else {
             toPrompt = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);

@@ -3,8 +3,11 @@ package org.commcare.utils;
 import android.content.Context;
 import android.content.Intent;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.CrashWarningActivity;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
+import org.commcare.recovery.measures.RecoveryMeasuresManager;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.lang.Thread.UncaughtExceptionHandler;
@@ -33,7 +36,13 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
         // Always report to HQ device logs
         ForceCloseLogger.reportExceptionInBg(ex);
 
-        if (warnUserAndExit(ex)) {
+        if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
+            startRecoveryMeasureActivity();
+            CrashUtil.reportException(ex);
+
+            // You must close the crashed thread in order to start a new activity.
+            System.exit(0);
+        } else if (warnUserAndExit(ex)) {
             CrashUtil.reportException(ex);
 
             // You must close the crashed thread in order to start a new activity.
@@ -42,6 +51,15 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
             // Default error handling, which includes reporting to Crashlytics
             parent.uncaughtException(thread, ex);
         }
+    }
+
+    private void startRecoveryMeasureActivity() {
+        System.out.println("Executing recovery measures for app " +
+                CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName());
+        Intent i = new Intent(ctx, ExecuteRecoveryMeasuresActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        ctx.startActivity(i);
     }
 
     /**
