@@ -49,9 +49,11 @@ public class RecoveryMeasuresManager {
     }
 
     public static void handleExecutionActivityResult(Activity receiver, Intent intent) {
-        int lastExecutionStatus = intent.getIntExtra(RECOVERY_MEASURES_LAST_STATUS, 0);
-        if (lastExecutionStatus == RecoveryMeasure.STATUS_FAILED) {
-            Toast.makeText(receiver, Localization.get("recovery.measure.execution.failed"), Toast.LENGTH_SHORT).show();
+        if (intent != null) {
+            int lastExecutionStatus = intent.getIntExtra(RECOVERY_MEASURES_LAST_STATUS, 0);
+            if (lastExecutionStatus == RecoveryMeasure.STATUS_FAILED) {
+                Toast.makeText(receiver, Localization.get("recovery.measure.execution.failed"), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

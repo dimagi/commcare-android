@@ -230,15 +230,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
-        if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
-            Intent i = new Intent();
-            i.putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true);
-            setResult(RESULT_OK, i);
-            finish();
-        } else {
-            // Otherwise, refresh the activity for current conditions
-            uiController.refreshView();
-        }
+        // Otherwise, refresh the activity for current conditions
+        uiController.refreshView();
+        // NOTE: I was using this to test what happens if a crash occurs before either of the normal
+        // recovery measure execution pathways run
+        //throw new RuntimeException();
     }
 
     protected boolean checkForSeatedAppChange() {
@@ -271,7 +267,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
-        if (CommCareApplication.instance().isConsumerApp()) {
+        if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
+            Intent i = new Intent();
+            i.putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true);
+            setResult(RESULT_OK, i);
+            finish();
+        } else if (CommCareApplication.instance().isConsumerApp()) {
             uiController.setUsername(BuildConfig.CONSUMER_APP_USERNAME);
             uiController.setPasswordOrPin(BuildConfig.CONSUMER_APP_PASSWORD);
             localLoginOrPullAndLogin(false);

@@ -23,7 +23,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
 
     private static final String EMPTY_RESPONSE = "{\"app_id\":\"\"}";
     private static final String MOCK_RESPONSE_1 = "{\"app_id\":\"\",\"recovery_measures\": " +
-            "[{\"sequence_number\":5, \"type\":\"cc_reinstall\", \"cc_version_min\":\"2.36.2\", " +
+            "[{\"sequence_number\":14, \"type\":\"cc_reinstall\", \"cc_version_min\":\"2.36.2\", " +
             "\"cc_version_max\":\"2.46.0\", \"app_version_min\":0, \"app_version_max\":100} ]}";
     private static final String MOCK_RESPONSE_2 = "{\"app_id\":\"\",\"recovery_measures\": " +
             "[{\"sequence_number\":5, \"type\":\"cc_reinstall\", \"cc_version_min\":\"2.36.2\", " +
@@ -31,7 +31,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
             "{\"sequence_number\":6, \"type\":\"cc_update\", \"cc_version_min\":\"2.36.2\", " +
             "\"cc_version_max\":\"2.46.0\", \"app_version_min\":0, \"app_version_max\":1000} ]}";
 
-    public RecoveryMeasuresRequester() {
+    RecoveryMeasuresRequester() {
         super(NAME, TAG, ServerUrls.PREFS_RECOVERY_MEASURES_URL_KEY);
     }
 
