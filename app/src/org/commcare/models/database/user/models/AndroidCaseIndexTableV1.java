@@ -21,7 +21,7 @@ public class AndroidCaseIndexTableV1 {
     private final SQLiteDatabase db;
 
     public AndroidCaseIndexTableV1(SQLiteDatabase db) {
-        this.db = CommCareApplication.instance().getUserDbHandle();
+        this.db = db;
     }
 
 
