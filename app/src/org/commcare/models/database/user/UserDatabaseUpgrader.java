@@ -14,6 +14,7 @@ import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
+import org.commcare.models.database.user.models.AndroidCaseIndexTableV1;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -245,9 +246,9 @@ class UserDatabaseUpgrader {
             db.execSQL(EntityStorageCache.getTableDefinition());
             EntityStorageCache.createIndexes(db);
 
-            db.execSQL(UserDbUpgradeUtils.getCreateV6AndroidCaseIndexTableSqlDef());
+            db.execSQL(AndroidCaseIndexTableV1.getTableDefinition());
             AndroidCaseIndexTable.createIndexes(db);
-            AndroidCaseIndexTable cit = new AndroidCaseIndexTable(db);
+            AndroidCaseIndexTableV1 cit = new AndroidCaseIndexTableV1(db);
 
             //NOTE: Need to use the PreV6 case model any time we manipulate cases in this model for upgraders
             //below 6
