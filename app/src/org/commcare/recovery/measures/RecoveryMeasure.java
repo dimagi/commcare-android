@@ -8,18 +8,15 @@ import android.content.pm.PackageManager;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.activities.PromptActivity;
 import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.PromptCCReinstallActivity;
 import org.commcare.android.storage.framework.Persisted;
-import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.heartbeat.ApkVersion;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AppLifecycleUtils;
 import org.commcare.utils.SessionUnavailableException;
@@ -151,15 +148,7 @@ public class RecoveryMeasure extends Persisted {
         try {
             switch (type) {
                 case APP_REINSTALL_OTA:
-                    // NOT WORKING
-                    String profileRef = currentApp.getCommCarePlatform().getCurrentProfile().getAuthReference();
-                    CommCareApp newAppInstall = CommCareSetupActivity.getShellCommCareApp();
-                    if (SingleAppInstallation.prepareResourcesForSingleApp(newAppInstall, profileRef,
-                            Resource.RESOURCE_AUTHORITY_REMOTE)) {
-                        AppLifecycleUtils.uninstall(currentApp.getAppRecord());
-                        SingleAppInstallation.installSingleApp(activity, profileRef, true, currentApp);
-                        return STATUS_WAITING;
-                    }
+                    // NOT IMPLEMENTED
                     return STATUS_FAILED;
                 case APP_REINSTALL_LOCAL:
                     // NOT IMPLEMENTED

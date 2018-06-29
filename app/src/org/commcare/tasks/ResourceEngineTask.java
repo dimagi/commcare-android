@@ -3,6 +3,7 @@ package org.commcare.tasks;
 import android.os.SystemClock;
 
 import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
@@ -30,7 +31,7 @@ public abstract class ResourceEngineTask<R>
     private final CommCareApp app;
 
     private static final int PHASE_CHECKING = 0;
-    private static final int PHASE_DOWNLOAD = 1;
+    public static final int PHASE_DOWNLOAD = 1;
 
     private int installedResourceCountWhileUpdating = 0;
     private int installedResourceCount = 0;
@@ -47,20 +48,17 @@ public abstract class ResourceEngineTask<R>
     private String versionAvailable;
     private String versionRequired;
     private boolean majorIsProblem;
-    private boolean resourcesAlreadyPrepared;
 
     private final Object statusLock = new Object();
     private boolean statusCheckRunning = false;
 
     private int authorityForInstall;
 
-    protected ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep, int authority,
-                                 boolean resourcesAlreadyPrepared) {
+    public ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep, int authority) {
         this.app = app;
         this.taskId = taskId;
         this.shouldSleep = shouldSleep;
         this.authorityForInstall = authority;
-        this.resourcesAlreadyPrepared = resourcesAlreadyPrepared;
 
         TAG = ResourceEngineTask.class.getSimpleName();
     }
@@ -85,10 +83,7 @@ public abstract class ResourceEngineTask<R>
 
             global.setStateListener(this);
             try {
-                if (!resourcesAlreadyPrepared) {
-                    ResourceManager.installAppResources(platform, profileRef, global, false,
-                            authorityForInstall);
-                }
+                ResourceManager.installAppResources(platform, profileRef, global, false, authorityForInstall);
             } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
