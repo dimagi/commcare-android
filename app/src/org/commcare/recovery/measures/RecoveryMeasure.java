@@ -172,7 +172,8 @@ public class RecoveryMeasure extends Persisted {
                     return STATUS_WAITING;
             }
         } catch (Exception e) {
-            // fall through
+            // If anything goes wrong in the recovery measure execution, just count that as a failure
+            Logger.exception(String.format("Encountered exception while executing recovery measure of type %s", type), e);
         }
         return STATUS_FAILED;
     }

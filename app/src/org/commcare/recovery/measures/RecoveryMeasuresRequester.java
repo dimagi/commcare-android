@@ -49,9 +49,8 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
 
     @Override
     public void makeRequest() {
-        // mock waiting for request response
         try {
-            Thread.sleep(5000);
+            Thread.sleep(5000); // mock waiting for request response
             parseResponse(new JSONObject(MOCK_RESPONSE_1));
         } catch (InterruptedException e) {
             // nothing to do

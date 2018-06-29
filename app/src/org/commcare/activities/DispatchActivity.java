@@ -69,7 +69,6 @@ public class DispatchActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("in DispatchActivity");
         if (finishIfNotRoot()) {
             return;
         }
@@ -184,7 +183,6 @@ public class DispatchActivity extends FragmentActivity {
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
-                System.out.println("Launching login screen");
                 launchLoginScreen();
             }
         }

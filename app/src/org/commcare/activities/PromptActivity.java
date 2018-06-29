@@ -16,7 +16,6 @@ import org.javarosa.core.services.locale.Localization;
 
 /**
  * Activity used to prompt users to update to a newer .apk or app version, or to reinstall CommCare.
- * Will be launched periodically while there is a pending update to prompt.
  *
  * Created by amstone326 on 4/19/17.
  */

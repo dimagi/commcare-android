@@ -89,7 +89,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
             if (!upgrade) {
                 initProperties(p);
-                //checkDuplicate(p);
+                checkDuplicate(p);
                 checkAppTarget();
             }
 
