@@ -85,7 +85,7 @@ public class TestAppInstaller {
 
         CommCareApp app = new CommCareTestApp(new CommCareApp(newRecord));
         ResourceEngineTask<Object> task =
-                new ResourceEngineTask<Object>(app, -1, false, Resource.RESOURCE_AUTHORITY_LOCAL, false) {
+                new ResourceEngineTask<Object>(app, -1, false, Resource.RESOURCE_AUTHORITY_LOCAL) {
                     @Override
                     protected void deliverResult(Object receiver,
                                                  AppInstallStatus result) {
