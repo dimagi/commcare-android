@@ -7,6 +7,7 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.ACasePreV24Model;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.logging.ForceCloseLogEntry;
@@ -14,7 +15,7 @@ import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
-import org.commcare.models.database.user.models.AndroidCaseIndexTableV1;
+import org.commcare.models.database.user.models.AndroidCaseIndexTablePreV21;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -246,9 +247,9 @@ class UserDatabaseUpgrader {
             db.execSQL(EntityStorageCache.getTableDefinition());
             EntityStorageCache.createIndexes(db);
 
-            db.execSQL(AndroidCaseIndexTableV1.getTableDefinition());
+            db.execSQL(AndroidCaseIndexTablePreV21.getTableDefinition());
             AndroidCaseIndexTable.createIndexes(db);
-            AndroidCaseIndexTableV1 cit = new AndroidCaseIndexTableV1(db);
+            AndroidCaseIndexTablePreV21 cit = new AndroidCaseIndexTablePreV21(db);
 
             //NOTE: Need to use the PreV6 case model any time we manipulate cases in this model for upgraders
             //below 6
@@ -520,7 +521,7 @@ class UserDatabaseUpgrader {
                     "owner_id",
                     "TEXT"));
 
-            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACasePreV24Model.class,
                     new ConcreteAndroidDbHelper(c, db));
             updateModels(caseStorage);
 
@@ -536,10 +537,10 @@ class UserDatabaseUpgrader {
     private boolean upgradeEighteenNineteen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACasePreV24Model.class,
                     new ConcreteAndroidDbHelper(c, db));
 
-            AndroidCaseIndexTable indexTable = new AndroidCaseIndexTable(db);
+            AndroidCaseIndexTablePreV21 indexTable = new AndroidCaseIndexTablePreV21(db);
             indexTable.reIndexAllCases(caseStorage);
             db.setTransactionSuccessful();
             return true;
