@@ -4,11 +4,8 @@ import android.content.ContentValues;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.CommCareApplication;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 
 // Case Index table extension for Pre user db model 21 to use in DB migration
