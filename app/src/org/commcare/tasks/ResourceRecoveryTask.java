@@ -1,6 +1,7 @@
 package org.commcare.tasks;
 
 import org.commcare.CommCareApplication;
+import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
@@ -26,15 +27,21 @@ public abstract class ResourceRecoveryTask<Reciever>
         AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
         ResourceTable global = platform.getGlobalResourceTable();
         setTableListeners(global);
-        boolean success = false;
+        boolean success;
         try {
-            success = global.recoverResources(platform);
+            success = global.recoverResources(platform, getProfileReference());
         } catch (InstallCancelledException | UnresolvedResourceException | UnfullfilledRequirementsException e) {
             throw new RuntimeException(e);
+        } finally {
+            unsetTableListeners(global);
         }
-
-        unsetTableListeners(global);
         return success;
+    }
+
+    private String getProfileReference() {
+        String profileRef = ResourceInstallUtils.getDefaultProfileRef();
+        return profileRef.split("\\?")[0];
+
     }
 
     private void setTableListeners(ResourceTable table) {
