@@ -56,10 +56,12 @@ public abstract class ResourceRecoveryTask<Reciever>
 
     @Override
     public void simpleResourceAdded() {
+        // Do nothing
     }
 
     @Override
     public void compoundResourceAdded(ResourceTable table) {
+        // Do nothing
     }
 
     @Override
