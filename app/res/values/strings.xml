@@ -370,10 +370,10 @@
     <string name="recovering_resources_title">Recovering Missing Resources</string>
     <string name="recovering_resources_progress">Installing missing resources...</string>
     <string name="recovery_resource_progress">Recovered %1$s out of %2$s forms</string>
-    <string name="recovery_resource_error">Error while recovering resources</string>
-    <string name="recovery_resource_success">All missing resources are installed. Get back to work!</string>
+    <string name="recovery_error">We were not able to recover your app. Please make sure all forms are submitted and reinstall your app</string>
+    <string name="recovery_success">App recovery has been successful. Get back to work!</string>
     <string name="recovery_app_state_unavailable">App state is unavailable. Make sure your phone storage is available</string>
-    <string name="recovery_app_state_corrupt">App state is unavailable. Make sure your phone storage is available</string>
+    <string name="recovery_app_state_corrupt">App install is corrupt. Make sure forms are sent before attempting recovery.</string>
     <string name="recovery_app_state_valid">App is installed and valid</string>
     <string name="recovery_forms_send_progress">Submitting form(s) to the server...</string>
     <string name="recovery_forms_send_session_expired">Log-in expired during send. Please press back and log in again</string>

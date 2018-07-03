@@ -2,12 +2,15 @@ package org.commcare.tasks;
 
 import org.commcare.CommCareApplication;
 import org.commcare.resources.model.InstallCancelled;
+import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnreliableSourceException;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
 
@@ -23,7 +26,13 @@ public abstract class ResourceRecoveryTask<Reciever>
         AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
         ResourceTable global = platform.getGlobalResourceTable();
         setTableListeners(global);
-        boolean success = global.recoverResources(platform);
+        boolean success = false;
+        try {
+            success = global.recoverResources(platform);
+        } catch (InstallCancelledException | UnresolvedResourceException | UnfullfilledRequirementsException e) {
+            throw new RuntimeException(e);
+        }
+
         unsetTableListeners(global);
         return success;
     }

@@ -161,10 +161,11 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                         @Override
                         protected void deliverResult(RecoveryActivity recoveryActivity, Boolean success) {
                             if (success) {
-                                // Try Reinitializing and check if nothing is missing this time, if yes then auto recover again untill
-                                // there are no missing resources
+                                // Try Reinitializing and attemptRecovery again to correct against further issues
                                 CommCareApplication.instance().initializeAppResources(CommCareApplication.instance().getCurrentApp());
                                 attemptRecovery();
+                            } else {
+                                recoveryActivity.displayMessage(StringUtils.getStringRobust(recoveryActivity, R.string.recovery_error));
                             }
                         }
 
@@ -181,14 +182,19 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                         @Override
                         protected void deliverError(RecoveryActivity recoveryActivity, Exception e) {
                             Logger.exception("Error while recovering missing resources " + ForceCloseLogger.getStackTrace(e), e);
-                            recoveryActivity.displayMessage(StringUtils.getStringRobust(recoveryActivity, R.string.recovery_resource_error) + ": " + e.getMessage());
+                            recoveryActivity.displayMessage(StringUtils.getStringRobust(recoveryActivity, R.string.recovery_error));
                         }
                     };
             task.connect(this);
             task.executeParallel();
         } else {
+            if (isAppCorrupt()) {
+                // todo trigger a full app reinstallation from here
+                displayMessage(StringUtils.getStringRobust(this, R.string.recovery_error));
+            } else {
+                displayMessage(StringUtils.getStringRobust(this, R.string.recovery_success));
+            }
             updateRecoverAppState();
-            displayMessage(StringUtils.getStringRobust(this, R.string.recovery_resource_success));
         }
     }
 
@@ -218,13 +224,17 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             return;
         }
 
-        if (CommCareApplication.instance().getCurrentApp().getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
+        if (isAppCorrupt()) {
             appState.setText(StringUtils.getStringRobust(this, R.string.recovery_app_state_corrupt));
             btnRecoverApp.setEnabled(true);
         } else {
             appState.setText(StringUtils.getStringRobust(this, R.string.recovery_app_state_valid));
             btnRecoverApp.setEnabled(false);
         }
+    }
+
+    private boolean isAppCorrupt() {
+        return CommCareApplication.instance().getCurrentApp().getAppResourceState() == CommCareApplication.STATE_CORRUPTED;
     }
 
     private void updateSendFormsState() {
