@@ -4,12 +4,14 @@ import android.content.ContentValues;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 
 // Case Index table extension for Pre user db model 21 to use in DB migration
-public class AndroidCaseIndexTablePreV21 extends AndroidCaseIndexTable {
+public class AndroidCaseIndexTablePreV21  {
 
     public static final String TABLE_NAME = "case_index_storage";
 
@@ -21,12 +23,10 @@ public class AndroidCaseIndexTablePreV21 extends AndroidCaseIndexTable {
     private final SQLiteDatabase db;
 
     public AndroidCaseIndexTablePreV21(SQLiteDatabase db) {
-        super(db);
         this.db = db;
     }
 
 
-    @Override
     public void indexCase(Case c) {
         db.beginTransaction();
         try {
@@ -52,6 +52,23 @@ public class AndroidCaseIndexTablePreV21 extends AndroidCaseIndexTable {
                 COL_INDEX_TYPE + ", " +
                 COL_INDEX_TARGET +
                 ")";
+    }
+
+    public void reIndexAllCases(SqlStorage<ACase> caseStorage) {
+        db.beginTransaction();
+        try {
+            wipeTable();
+            for (ACase c : caseStorage) {
+                indexCase(c);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public void wipeTable() {
+        SqlStorage.wipeTable(db, TABLE_NAME);
     }
 
 }
