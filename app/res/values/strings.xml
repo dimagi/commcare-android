@@ -369,7 +369,7 @@
     <string name="recovery_mode_attempt_recovery_btn">Attempt Recovery</string>
     <string name="recovering_resources_title">Recovering Missing Resources</string>
     <string name="recovering_resources_progress">Installing missing resources...</string>
-    <string name="recovery_resource_progress">Recovered %1$s out of %2$s forms</string>
+    <string name="recovery_resource_progress">Recovered %1$s out of %2$s resources</string>
     <string name="recovery_error">We were not able to recover your app. Please make sure all forms are submitted and reinstall your app</string>
     <string name="recovery_success">App recovery has been successful. Get back to work!</string>
     <string name="recovery_app_state_unavailable">App state is unavailable. Make sure your phone storage is available</string>
