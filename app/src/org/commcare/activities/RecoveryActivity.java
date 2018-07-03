@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -15,15 +14,12 @@ import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.ServerUrls;
-import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.ResourceRecoveryTask;
-import org.commcare.util.CommCarePlatform;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
-import org.commcare.utils.ConsumerAppsUtil;
+import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
@@ -73,6 +69,11 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             @Override
             public void onClick(View v) {
                 txtUserMessage.setVisibility(View.GONE);
+
+                if (!isNetworkAvaialable()) {
+                    return;
+                }
+
                 FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(
                         CommCareApplication.instance().getUserStorage(FormRecord.class));
                 SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
@@ -146,8 +147,19 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
         btnRecoverApp.setOnClickListener(v -> {
             txtUserMessage.setVisibility(View.GONE);
+            if (!isNetworkAvaialable()) {
+                return;
+            }
             attemptRecovery();
         });
+    }
+
+    private boolean isNetworkAvaialable() {
+        boolean network = ConnectivityStatus.isNetworkAvailable(this);
+        if (!network) {
+            displayMessage(StringUtils.getStringRobust(this, R.string.recovery_network_unavailable));
+        }
+        return network;
     }
 
     private void attemptRecovery() {
@@ -189,7 +201,6 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             task.executeParallel();
         } else {
             if (isAppCorrupt()) {
-                // todo trigger a full app reinstallation from here
                 displayMessage(StringUtils.getStringRobust(this, R.string.recovery_error));
             } else {
                 displayMessage(StringUtils.getStringRobust(this, R.string.recovery_success));
@@ -233,7 +244,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         }
     }
 
-    private boolean isAppCorrupt() {
+    private static boolean isAppCorrupt() {
         return CommCareApplication.instance().getCurrentApp().getAppResourceState() == CommCareApplication.STATE_CORRUPTED;
     }
 

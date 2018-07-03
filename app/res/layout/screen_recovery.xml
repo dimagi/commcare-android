@@ -4,6 +4,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:layout_margin="10dp"
+              android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
               android:orientation="vertical">
 
     <View
@@ -34,14 +35,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="0.75"
+            android:layout_weight="0.70"
             tools:text="This device has 4 unsent forms"/>
 
         <Button
             android:id="@+id/screen_recovery_unsent_button"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="0dp"
-            android:layout_weight="0.25"
+            android:layout_weight="0.30"
             android:layout_height="wrap_content"
             android:text="@string/recovery_mode_send_data_btn"/>
 
@@ -50,6 +51,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_spacer_double"
         android:weightSum="1">
 
         <TextView
@@ -57,7 +59,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="0.75"
+            android:layout_weight="0.70"
             tools:text="The current app install is OK"/>
 
         <Button
@@ -65,7 +67,7 @@
             style="?android:attr/buttonStyleSmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.25"
+            android:layout_weight="0.30"
             android:text="@string/recovery_mode_attempt_recovery_btn"/>
     </LinearLayout>
 
@@ -76,6 +78,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/standard_spacer_double"
         tools:text="Waiting"/>
 
     <View

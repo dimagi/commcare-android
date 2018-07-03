@@ -386,5 +386,6 @@
     <string name="recovery_forms_state_logged_out">Could not read forms since your session has expired. Please login again</string>
     <string name="recovery_forms_state_number_unsent_quarantine">This device has %1$s unsent forms and %2$s quarantine forms</string>
     <string name="recovery_forms_state_error">Error while reading forms</string>
+    <string name="recovery_network_unavailable">No network connection. Please check your internet and try again.</string>
 
 </resources>
