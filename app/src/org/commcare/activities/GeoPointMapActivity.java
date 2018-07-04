@@ -81,16 +81,16 @@ public class GeoPointMapActivity extends Activity
     }
 
     private void setupUI() {
-        Button cancelButton = (Button)findViewById(R.id.cancel_location);
+        Button cancelButton = findViewById(R.id.cancel_location);
         cancelButton.setOnClickListener(v -> finish());
 
-        Button acceptButton = (Button)findViewById(R.id.accept_location);
+        Button acceptButton = findViewById(R.id.accept_location);
         acceptButton.setOnClickListener(v -> returnLocation());
 
-        Button showLocationButton = ((Button)findViewById(R.id.show_location));
+        Button showLocationButton = findViewById(R.id.show_location);
         showLocationButton.setOnClickListener(v -> animateToPoint(location.getLatitude(), location.getLongitude(), location.getAccuracy()));
 
-        locationText = (TextView)findViewById(R.id.location_status);
+        locationText = findViewById(R.id.location_status);
 
         if (inViewMode) {
             acceptButton.setVisibility(View.GONE);
@@ -109,7 +109,7 @@ public class GeoPointMapActivity extends Activity
     }
 
     private void loadMapView(Bundle savedInstanceState) {
-        mapView = (MapView)findViewById(R.id.mapview);
+        mapView = findViewById(R.id.mapview);
         mapView.onCreate(savedInstanceState);
 
         mapView.getMapAsync(this);

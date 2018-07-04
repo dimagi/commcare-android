@@ -68,7 +68,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
 
         //Set app name
         String appName = appRecord.getDisplayName();
-        TextView tv = (TextView)findViewById(R.id.app_name);
+        TextView tv = findViewById(R.id.app_name);
         tv.setText(appName);
     }
 
@@ -103,7 +103,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      */
     private void refresh() {
         // Warns the user that this app came from an old version of the profile file, if necessary
-        TextView warning = (TextView)findViewById(R.id.profile_warning);
+        TextView warning = findViewById(R.id.profile_warning);
         if (appRecord.isPreMultipleAppsProfile()) {
             warning.setVisibility(View.VISIBLE);
         } else {
@@ -111,7 +111,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
         }
 
         // Updates text of the validate button based on the current state of the app's resources
-        Button validateButton = (Button)findViewById(R.id.verify_button);
+        Button validateButton = findViewById(R.id.verify_button);
         if (appRecord.resourcesValidated()) {
             validateButton.setVisibility(View.INVISIBLE);
         } else {
@@ -120,7 +120,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
 
         // Updates text of the archive button based on app's archive status
         boolean isArchived = appRecord.isArchived();
-        Button archiveButton = (Button)findViewById(R.id.archive_button);
+        Button archiveButton = findViewById(R.id.archive_button);
         if (isArchived) {
             archiveButton.setText(R.string.unarchive_app);
         } else {
@@ -129,7 +129,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
 
         // Sets the app version
         int appVersion = appRecord.getVersionNumber();
-        TextView tv = (TextView)findViewById(R.id.app_version);
+        TextView tv = findViewById(R.id.app_version);
         tv.setText("App Version: " + appVersion);
     }
 

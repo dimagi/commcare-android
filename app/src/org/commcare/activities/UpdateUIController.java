@@ -57,10 +57,10 @@ class UpdateUIController implements CommCareActivityUIController {
     public void setupUI() {
         activity.setContentView(R.layout.update_activity);
 
-        progressBar = (ProgressBar)activity.findViewById(R.id.update_progress_bar);
-        progressText = (TextView)activity.findViewById(R.id.update_progress_text);
+        progressBar = activity.findViewById(R.id.update_progress_bar);
+        progressText = activity.findViewById(R.id.update_progress_text);
         currentVersionText =
-                (TextView)activity.findViewById(R.id.current_version_text);
+                activity.findViewById(R.id.current_version_text);
 
         notificationsButtonContainer = activity.findViewById(R.id.btn_view_errors_container);
 
@@ -86,17 +86,17 @@ class UpdateUIController implements CommCareActivityUIController {
 
     private void setupButtonListeners() {
         checkUpdateButton =
-                (SquareButtonWithText)activity.findViewById(R.id.check_for_update_button);
+                activity.findViewById(R.id.check_for_update_button);
         checkUpdateButton.setOnClickListener(v -> activity.startUpdateCheck());
         checkUpdateButton.setText(Localization.getWithDefault("updates.check.start", ""));
 
         stopUpdateButton =
-                (SquareButtonWithText)activity.findViewById(R.id.stop_update_download_button);
+                activity.findViewById(R.id.stop_update_download_button);
         stopUpdateButton.setOnClickListener(v -> activity.stopUpdateCheck());
         stopUpdateButton.setText(Localization.getWithDefault("updates.check.cancel", ""));
 
         installUpdateButton =
-                (SquareButtonWithText)activity.findViewById(R.id.install_update_button);
+                activity.findViewById(R.id.install_update_button);
         installUpdateButton.setOnClickListener(v -> activity.launchUpdateInstallTask());
         String updateVersionPlaceholderMsg =
                 Localization.getWithDefault(applyUpdateButtonTextKey, new String[]{"-1"}, "");

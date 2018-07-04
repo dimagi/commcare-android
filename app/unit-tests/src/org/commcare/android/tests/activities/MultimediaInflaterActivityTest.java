@@ -42,7 +42,7 @@ public class MultimediaInflaterActivityTest {
                         .create().start().resume().get();
 
         ImageButton selectFileButton =
-                (ImageButton)multimediaInflaterActivity.findViewById(
+                multimediaInflaterActivity.findViewById(
                         R.id.screen_multimedia_inflater_filefetch);
         selectFileButton.performClick();
 

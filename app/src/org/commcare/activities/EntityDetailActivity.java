@@ -143,13 +143,13 @@ public class EntityDetailActivity
             next.setText(Localization.get("select.detail.bypass"));
         }
 
-        mDetailView.setRoot((ViewGroup)container.findViewById(R.id.entity_detail_tabs));
+        mDetailView.setRoot(container.findViewById(R.id.entity_detail_tabs));
         mDetailView.refresh(detail, mTreeReference, detailIndex);
 
         mDetailView.showMenu();
         isFinalSwipeActionEnabled = DeveloperPreferences.isDetailTabSwipeActionEnabled();
 
-        AdMobManager.requestBannerAdForView(this, (FrameLayout)this.findViewById(R.id.ad_container),
+        AdMobManager.requestBannerAdForView(this, this.findViewById(R.id.ad_container),
                 AdLocation.EntityDetail);
     }
 
