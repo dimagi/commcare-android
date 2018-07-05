@@ -33,6 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import static org.commcare.utils.AndroidCommCarePlatform.GLOBAL_RESOURCE_TABLE_NAME;
+import static org.commcare.utils.AndroidCommCarePlatform.RECOVERY_RESOURCE_TABLE_NAME;
+import static org.commcare.utils.AndroidCommCarePlatform.UPGRADE_RESOURCE_TABLE_NAME;
+
 /**
  * @author ctsims
  */
@@ -87,7 +91,14 @@ class AppDatabaseUpgrader {
 
         if (oldVersion == 8) {
             if (upgradeEightNine(db)) {
-                oldVersion = 9;
+                // we are doing v9-v10 in upgradeEightNine now, so skip upgradeNineTen
+                oldVersion = 10;
+            }
+        }
+
+        if (oldVersion == 9) {
+            if (upgradeNineTen(db)) {
+                oldVersion = 10;
             }
         }
         //NOTE: If metadata changes are made to the Resource model, they need to be
@@ -220,7 +231,9 @@ class AppDatabaseUpgrader {
         boolean success;
         db.beginTransaction();
         try {
-            upgradeXFormAndroidInstallerV1(db);
+            upgradeXFormAndroidInstallerV1(GLOBAL_RESOURCE_TABLE_NAME, db);
+            upgradeXFormAndroidInstallerV1(UPGRADE_RESOURCE_TABLE_NAME, db);
+            upgradeXFormAndroidInstallerV1(RECOVERY_RESOURCE_TABLE_NAME, db);
 
             // Create FormDef table
             TableBuilder builder = new TableBuilder(FormDefRecord.class);
@@ -233,6 +246,7 @@ class AppDatabaseUpgrader {
             db.endTransaction();
         }
 
+
         // Delete entries from FormsProvider if migration has been successful
         if (success) {
             try {
@@ -244,6 +258,12 @@ class AppDatabaseUpgrader {
             }
         }
         return success;
+    }
+
+    private boolean upgradeNineTen(SQLiteDatabase db) {
+        upgradeXFormAndroidInstallerV1(UPGRADE_RESOURCE_TABLE_NAME, db);
+        upgradeXFormAndroidInstallerV1(RECOVERY_RESOURCE_TABLE_NAME, db);
+        return true;
     }
 
     // migrate formProvider entries to db
@@ -272,10 +292,10 @@ class AppDatabaseUpgrader {
         }
     }
 
-    private void upgradeXFormAndroidInstallerV1(SQLiteDatabase db) {
+    private void upgradeXFormAndroidInstallerV1(String tableName, SQLiteDatabase db) {
         // Get Global Resource Storage using AndroidPrototypeFactoryV1
-        SqlStorage<Resource> oldGlobalResourceStorage = new SqlStorage<>(
-                "GLOBAL_RESOURCE_TABLE",
+        SqlStorage<Resource> oldResourceStorage = new SqlStorage<>(
+                tableName,
                 Resource.class,
                 new ConcreteAndroidDbHelper(context, db) {
                     @Override
@@ -288,7 +308,7 @@ class AppDatabaseUpgrader {
 
         // If Resource Installer is of Type XFormAndroidInstallerV1 , update it to XFormAndroidInstaller
         // and add resource record to the updateResourceList
-        for (Resource resource : oldGlobalResourceStorage) {
+        for (Resource resource : oldResourceStorage) {
             if (resource.getInstaller() instanceof XFormAndroidInstallerV1) {
                 XFormAndroidInstallerV1 oldInstaller = (XFormAndroidInstallerV1)resource.getInstaller();
                 String contentUri = oldInstaller.getContentUri();
@@ -308,12 +328,12 @@ class AppDatabaseUpgrader {
         }
 
         // Rewrite the records in updateResourceList using the standard AndroidProtoTypeFactory
-        SqlStorage<Resource> newGlobalResourceStorage = new SqlStorage<>(
-                "GLOBAL_RESOURCE_TABLE",
+        SqlStorage<Resource> newResourceStorage = new SqlStorage<>(
+                tableName,
                 Resource.class,
                 new ConcreteAndroidDbHelper(context, db));
         for (Resource resource : updateResourceList) {
-            newGlobalResourceStorage.update(resource.getID(), resource);
+            newResourceStorage.update(resource.getID(), resource);
         }
     }
 

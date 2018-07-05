@@ -1,6 +1,7 @@
 package org.commcare.models.database.app;
 
 import android.content.Context;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
@@ -34,6 +35,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.7 - Update serialized fixtures in db to use new schema
      * V.8 - Add fields to UserKeyRecord to support PIN auth
      * V.9 - Adds FormRecord and Instance Record tables, XFormAndroidInstaller: contentUri -> formDefId
+     * V.10 - No Change, Added because of incomplete resource table migration for v8 to v9
      */
     private static final int DB_VERSION_APP = 9;
 
