@@ -202,7 +202,9 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         try {
             sessionStorage.write(ssd);
         } catch (Exception e) {
-            CrashUtil.log("SessionStateDescriptor form id: " + ssd.getFormRecordId());
+            if (ssd != null) {
+                CrashUtil.log("SessionStateDescriptor form id: " + ssd.getFormRecordId());
+            }
             throw e;
         }
         sessionStateRecordId = ssd.getID();
