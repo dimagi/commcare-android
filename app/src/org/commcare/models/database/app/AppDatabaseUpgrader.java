@@ -90,8 +90,7 @@ class AppDatabaseUpgrader {
         }
 
         if (oldVersion == 8) {
-            if (upgradeEightNine(db)) {
-                // we are doing v9-v10 in upgradeEightNine now, so skip upgradeNineTen
+            if (upgradeEightTen(db)) {
                 oldVersion = 10;
             }
         }
@@ -227,7 +226,7 @@ class AppDatabaseUpgrader {
     }
 
     // Migrate records form FormProvider and InstanceProvider to new FormDefRecord and FormRecord respectively
-    private boolean upgradeEightNine(SQLiteDatabase db) {
+    private boolean upgradeEightTen(SQLiteDatabase db) {
         boolean success;
         db.beginTransaction();
         try {
