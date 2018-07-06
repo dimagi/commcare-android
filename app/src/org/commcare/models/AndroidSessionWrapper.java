@@ -3,9 +3,9 @@ package org.commcare.models;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.session.SessionWrapperInterface;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.session.CommCareSession;
@@ -18,12 +18,10 @@ import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.services.Logger;
 
 import java.util.Date;
 import java.util.Hashtable;
