@@ -46,7 +46,7 @@ public class ImageCaptureProcessing {
         boolean savedScaledImage = false;
 
         // Turning off scaling for now, since current code never actually ends up using the
-        // final scaled image. We might wanna turn that later on again sometimes so leaving the scaling
+        // final scaled image. We might wanna turn that later on again sometime so leaving the scaling
         // code as it is
         shouldScale = false;
 
