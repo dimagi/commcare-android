@@ -18,9 +18,12 @@ import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.CommCareUtil;
+import org.commcare.utils.CrashUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.services.Logger;
 
 import java.util.Date;
 import java.util.Hashtable;
@@ -198,7 +201,12 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         setFormRecordId(r.getID());
 
         SessionStateDescriptor ssd = SessionStateDescriptor.buildFromSessionWrapper(this);
-        sessionStorage.write(ssd);
+        try {
+            sessionStorage.write(ssd);
+        } catch (Exception e) {
+            CrashUtil.log("SessionStateDescriptor form id: " + ssd.getFormRecordId());
+            throw e;
+        }
         sessionStateRecordId = ssd.getID();
     }
 
@@ -226,13 +234,13 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
     public EvaluationContext getEvaluationContext(String commandId) {
         return session.getEvaluationContext(getIIF(), commandId, null);
     }
-    
+
     private AndroidInstanceInitializer initializer;
 
     public AndroidInstanceInitializer getIIF() {
         if (initializer == null) {
             initializer = new AndroidInstanceInitializer(session);
-        } 
+        }
 
         return initializer;
     }
@@ -265,7 +273,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
                     if (datum instanceof ComputedDatum) {
                         // Allow mocking of routes that need computed data, useful for case creation forms
                         wrapper = new AndroidSessionWrapper(platform);
-                        wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry) e));
+                        wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry)e));
                         wrapper.session.setCommand(e.getCommandId());
                         wrapper.session.setComputedDatum(wrapper.getEvaluationContext());
                     } else if (datum instanceof EntityDatum) {
@@ -287,7 +295,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
                         }
 
                         wrapper = new AndroidSessionWrapper(platform);
-                        wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry) e));
+                        wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry)e));
                         wrapper.session.setCommand(e.getCommandId());
                         wrapper.session.setDatum(entityDatum.getDataId(), selectedValue);
                     }
