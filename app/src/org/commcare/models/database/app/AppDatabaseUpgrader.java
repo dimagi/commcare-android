@@ -260,8 +260,8 @@ class AppDatabaseUpgrader {
     }
 
     private boolean upgradeNineTen(SQLiteDatabase db) {
-        upgradeXFormAndroidInstallerV1(UPGRADE_RESOURCE_TABLE_NAME, db);
-        upgradeXFormAndroidInstallerV1(RECOVERY_RESOURCE_TABLE_NAME, db);
+        SqlStorage.wipeTable(db, UPGRADE_RESOURCE_TABLE_NAME);
+        SqlStorage.wipeTable(db, RECOVERY_RESOURCE_TABLE_NAME);
         return true;
     }
 
