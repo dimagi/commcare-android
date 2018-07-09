@@ -23,6 +23,7 @@ import org.commcare.models.database.migration.FixtureSerializationMigration;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.resources.model.Resource;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -259,9 +260,16 @@ class AppDatabaseUpgrader {
         return success;
     }
 
+    // I only exist since there was a time when there were no Upgrade and Recovery table in v8-v9 migration
     private boolean upgradeNineTen(SQLiteDatabase db) {
-        SqlStorage.wipeTable(db, UPGRADE_RESOURCE_TABLE_NAME);
-        SqlStorage.wipeTable(db, RECOVERY_RESOURCE_TABLE_NAME);
+        db.beginTransaction();
+        try {
+            upgradeToResourcesV10(UPGRADE_RESOURCE_TABLE_NAME, db);
+            upgradeToResourcesV10(RECOVERY_RESOURCE_TABLE_NAME, db);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
         return true;
     }
 
@@ -290,6 +298,39 @@ class AppDatabaseUpgrader {
             cursor.close();
         }
     }
+
+    /**
+     * There can be 2 different configurations for resource table here
+     * 1. Either the v8-v9 upgrade failed and rsources are in v8 state
+     * 2. v8-v9 upgrade was successful and resources are already in v9/v10 state (Resources downloaded after the update)
+     *
+     * So we wanna assume 1 and try updating the resources to v10,
+     * if above fails, we are checking for 2 i.e resources be in v10 state.
+     * If they are not we are going to wipe the tables
+     *
+     * @param tableName Resource table that need to be upgraded
+     * @param db        App DB
+     */
+    private void upgradeToResourcesV10(String tableName, SQLiteDatabase db) {
+        try {
+            upgradeXFormAndroidInstallerV1(tableName, db);
+        } catch (Exception e) {
+            try {
+                SqlStorage<Resource> newResourceStorage = new SqlStorage<>(
+                        tableName,
+                        Resource.class,
+                        new ConcreteAndroidDbHelper(context, db));
+                for (Resource resource : newResourceStorage) {
+                    // Do nothing, just checking if we can read all resources successfully
+                    // signifying that they are already following new v10 model
+                }
+            } catch (Exception ex) {
+                SqlStorage.wipeTable(db, tableName);
+                Logger.log(LogTypes.SOFT_ASSERT, "Wiped table on upgrade " + tableName);
+            }
+        }
+    }
+
 
     private void upgradeXFormAndroidInstallerV1(String tableName, SQLiteDatabase db) {
         // Get Global Resource Storage using AndroidPrototypeFactoryV1
