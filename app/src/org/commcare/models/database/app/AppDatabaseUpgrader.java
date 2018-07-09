@@ -333,47 +333,53 @@ class AppDatabaseUpgrader {
 
 
     private void upgradeXFormAndroidInstallerV1(String tableName, SQLiteDatabase db) {
-        // Get Global Resource Storage using AndroidPrototypeFactoryV1
-        SqlStorage<Resource> oldResourceStorage = new SqlStorage<>(
-                tableName,
-                Resource.class,
-                new ConcreteAndroidDbHelper(context, db) {
-                    @Override
-                    public PrototypeFactory getPrototypeFactory() {
-                        return AndroidPrototypeFactoryV1.getAndroidPrototypeFactoryV1(c);
+        db.beginTransaction();
+        try {
+            // Get Global Resource Storage using AndroidPrototypeFactoryV1
+            SqlStorage<Resource> oldResourceStorage = new SqlStorage<>(
+                    tableName,
+                    Resource.class,
+                    new ConcreteAndroidDbHelper(context, db) {
+                        @Override
+                        public PrototypeFactory getPrototypeFactory() {
+                            return AndroidPrototypeFactoryV1.getAndroidPrototypeFactoryV1(c);
+                        }
+                    });
+
+            Vector<Resource> updateResourceList = new Vector<>();
+
+            // If Resource Installer is of Type XFormAndroidInstallerV1 , update it to XFormAndroidInstaller
+            // and add resource record to the updateResourceList
+            for (Resource resource : oldResourceStorage) {
+                if (resource.getInstaller() instanceof XFormAndroidInstallerV1) {
+                    XFormAndroidInstallerV1 oldInstaller = (XFormAndroidInstallerV1)resource.getInstaller();
+                    String contentUri = oldInstaller.getContentUri();
+                    int formDefId = -1;
+                    if (!StringUtils.isEmpty(contentUri)) {
+                        formDefId = Integer.valueOf(Uri.parse(contentUri).getLastPathSegment());
                     }
-                });
-
-        Vector<Resource> updateResourceList = new Vector<>();
-
-        // If Resource Installer is of Type XFormAndroidInstallerV1 , update it to XFormAndroidInstaller
-        // and add resource record to the updateResourceList
-        for (Resource resource : oldResourceStorage) {
-            if (resource.getInstaller() instanceof XFormAndroidInstallerV1) {
-                XFormAndroidInstallerV1 oldInstaller = (XFormAndroidInstallerV1)resource.getInstaller();
-                String contentUri = oldInstaller.getContentUri();
-                int formDefId = -1;
-                if (!StringUtils.isEmpty(contentUri)) {
-                    formDefId = Integer.valueOf(Uri.parse(contentUri).getLastPathSegment());
+                    XFormAndroidInstaller newInstaller = new XFormAndroidInstaller(
+                            oldInstaller.getLocalLocation(),
+                            oldInstaller.getLocalDestination(),
+                            oldInstaller.getUpgradeDestination(),
+                            oldInstaller.getNamespace(),
+                            formDefId);
+                    resource.setInstaller(newInstaller);
+                    updateResourceList.add(resource);
                 }
-                XFormAndroidInstaller newInstaller = new XFormAndroidInstaller(
-                        oldInstaller.getLocalLocation(),
-                        oldInstaller.getLocalDestination(),
-                        oldInstaller.getUpgradeDestination(),
-                        oldInstaller.getNamespace(),
-                        formDefId);
-                resource.setInstaller(newInstaller);
-                updateResourceList.add(resource);
             }
-        }
 
-        // Rewrite the records in updateResourceList using the standard AndroidProtoTypeFactory
-        SqlStorage<Resource> newResourceStorage = new SqlStorage<>(
-                tableName,
-                Resource.class,
-                new ConcreteAndroidDbHelper(context, db));
-        for (Resource resource : updateResourceList) {
-            newResourceStorage.update(resource.getID(), resource);
+            // Rewrite the records in updateResourceList using the standard AndroidProtoTypeFactory
+            SqlStorage<Resource> newResourceStorage = new SqlStorage<>(
+                    tableName,
+                    Resource.class,
+                    new ConcreteAndroidDbHelper(context, db));
+            for (Resource resource : updateResourceList) {
+                newResourceStorage.update(resource.getID(), resource);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
     }
 
