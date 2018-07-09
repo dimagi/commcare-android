@@ -305,13 +305,18 @@ class AppDatabaseUpgrader {
      * 2. v8-v9 upgrade was successful and resources are already in v9/v10 state (Resources downloaded after the update)
      *
      * So we wanna assume 1 and try updating the resources to v10,
-     * if above fails, we are checking for 2 i.e resources be in v10 state.
-     * If they are not we are going to wipe the tables
+     * if above fails, we are checking for 2 i.e if resources are in v10 state.
+     * If they are not we are going to wipe the table
      *
      * @param tableName Resource table that need to be upgraded
      * @param db        App DB
      */
     private void upgradeToResourcesV10(String tableName, SQLiteDatabase db) {
+        // Safe checking against calling this method by mistake for Global table
+        if (tableName.contentEquals(GLOBAL_RESOURCE_TABLE_NAME)) {
+            return;
+        }
+
         try {
             upgradeXFormAndroidInstallerV1(tableName, db);
         } catch (Exception e) {
