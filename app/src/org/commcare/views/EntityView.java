@@ -175,7 +175,7 @@ public class EntityView extends LinearLayout {
             view = initView(data, form, uniqueId, sortField);
             view.setId(AndroidUtil.generateViewId());
             if (textColor != -1) {
-                TextView tv = (TextView)view.findViewById(R.id.entity_view_text);
+                TextView tv = view.findViewById(R.id.entity_view_text);
                 if (tv != null) tv.setTextColor(textColor);
             }
 
@@ -323,7 +323,7 @@ public class EntityView extends LinearLayout {
      * Updates the text layout that is passed in, based on the new text
      */
     private void setupText(View layout, final String text, String searchField) {
-        TextView tv = (TextView)layout.findViewById(R.id.entity_view_text);
+        TextView tv = layout.findViewById(R.id.entity_view_text);
         tv.setVisibility(View.VISIBLE);
         Spannable rawText = new SpannableString(text == null ? "" : text);
         tv.setText(highlightSearches(searchTerms, rawText, searchField, mFuzzySearchEnabled, mIsAsynchronous));

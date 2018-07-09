@@ -163,7 +163,7 @@ public class DrawActivity extends Activity {
         LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         RelativeLayout v = (RelativeLayout)inflater.inflate(
                 R.layout.draw_layout, null);
-        LinearLayout ll = (LinearLayout)v.findViewById(R.id.drawViewLayout);
+        LinearLayout ll = v.findViewById(R.id.drawViewLayout);
 
         Paint paint = new Paint();
         paint.setAntiAlias(true);
@@ -187,15 +187,15 @@ public class DrawActivity extends Activity {
 
         setContentView(v);
 
-        Button btnFinished = (Button)findViewById(R.id.btnFinishDraw);
+        Button btnFinished = findViewById(R.id.btnFinishDraw);
         btnFinished.setText(StringUtils.getStringRobust(this, R.string.save_and_close));
         btnFinished.setOnClickListener(v13 -> saveAndClose());
 
-        Button btnReset = (Button)findViewById(R.id.btnResetDraw);
+        Button btnReset = findViewById(R.id.btnResetDraw);
         btnReset.setOnClickListener(v12 -> reset());
         btnReset.setText(StringUtils.getStringRobust(this, R.string.reset_image));
 
-        Button btnCancel = (Button)findViewById(R.id.btnCancelDraw);
+        Button btnCancel = findViewById(R.id.btnCancelDraw);
         btnCancel.setOnClickListener(v1 -> cancelAndClose());
         btnCancel.setText(StringUtils.getStringRobust(this, R.string.cancel));
     }

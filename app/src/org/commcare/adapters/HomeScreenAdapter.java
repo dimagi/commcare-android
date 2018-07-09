@@ -146,7 +146,7 @@ public class HomeScreenAdapter
         public HeaderViewHolder(View itemView) {
             super(itemView);
 
-            headerImage = (ImageView)itemView.findViewById(R.id.main_top_banner);
+            headerImage = itemView.findViewById(R.id.main_top_banner);
         }
     }
 }

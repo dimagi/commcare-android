@@ -152,7 +152,7 @@ public class SpinnerWidget extends QuestionWidget {
                 convertView = inflater.inflate(R.layout.custom_spinner_item, parent, false);
             }
 
-            TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
+            TextView tv = convertView.findViewById(android.R.id.text1);
 
             tv.setText(items[position]);
             tv.setTextSize(textUnit, textSize);
@@ -169,7 +169,7 @@ public class SpinnerWidget extends QuestionWidget {
                 convertView = inflater.inflate(android.R.layout.simple_spinner_item, parent, false);
             }
 
-            TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
+            TextView tv = convertView.findViewById(android.R.id.text1);
             tv.setText(items[position]);
             tv.setTextSize(textUnit, textSize);
             return convertView;
