@@ -1,12 +1,21 @@
 package org.commcare.utils;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Browser;
+import android.support.annotation.NonNull;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.UnderlineSpan;
+import android.util.Log;
+import android.view.View;
+import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.SpanStack;
@@ -18,9 +27,9 @@ import org.htmlcleaner.TagNode;
 import org.javarosa.core.services.locale.Localization;
 
 import in.uncod.android.bypass.Bypass;
+import ru.noties.markwon.LinkResolverDef;
 import ru.noties.markwon.Markwon;
-import ru.noties.markwon.SpannableBuilder;
-import ru.noties.markwon.renderer.SpannableRenderer;
+import ru.noties.markwon.SpannableConfiguration;
 
 public class MarkupUtil {
 
@@ -71,13 +80,62 @@ public class MarkupUtil {
         return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
     }
 
-    private static CharSequence generateMarkdown(Context c, String message) {
+    private static CharSequence generateMarkdown(Context context, String message) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             return trimTrailingWhitespace(
-                    new Bypass(c).markdownToSpannable(convertCharacterEncodings(message)));
+                    new Bypass(context).markdownToSpannable(convertCharacterEncodings(message)));
         }
         return trimTrailingWhitespace(
-                Markwon.markdown(c, convertCharacterEncodings(message)));
+                Markwon.markdown(markwonConfiguration(context), convertCharacterEncodings(message)));
+    }
+
+    private static SpannableConfiguration markwonConfiguration;
+
+    private static SpannableConfiguration markwonConfiguration(Context context) {
+        if (markwonConfiguration == null) {
+            SpannableConfiguration.Builder builder = SpannableConfiguration.builder(context);
+            builder.linkResolver(new LinkResolver(context));
+            markwonConfiguration = builder.build();
+        }
+        return markwonConfiguration;
+    }
+
+    static class LinkResolver extends LinkResolverDef {
+
+        Context context;
+
+        LinkResolver(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void resolve(View view, @NonNull String link) {
+            if (!link.startsWith("file://")) {
+                // If not an absolute path, assume in app data
+                link = CommCareApplication.instance().getAndroidFsRoot() + link;
+            }
+            final Uri uri;
+            final Context context = view.getContext();
+            try {
+                uri = FileUtil.getUriForExternalFile(context, link);
+            } catch (IllegalArgumentException e) {
+                Log.e("MarkupUtil", "Could not create URI for external file " + link, e);
+                String toastMessage = Localization.get("markdown.file.inaccessible", link);
+                Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show();
+                return;
+            }
+            final Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            MimeTypeMap mim = MimeTypeMap.getSingleton();
+            String type = mim.getMimeTypeFromExtension(link.substring(link.lastIndexOf(".") + 1));
+            intent.setDataAndType(uri, type);
+            try {
+                context.startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Log.w("LinkResolverDef", "Actvity was not found for intent, " + intent.toString());
+            }
+        }
     }
 
     /**
