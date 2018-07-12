@@ -74,10 +74,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade)
+                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, boolean recovery)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
-        super.install(r, location, ref, table, platform, upgrade);
+        super.install(r, location, ref, table, platform, upgrade, recovery);
         InputStream inputStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
@@ -89,8 +89,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
             if (!upgrade) {
                 initProperties(p);
-                checkDuplicate(p);
-                checkAppTarget();
+                if(!recovery) {
+                    checkDuplicate(p);
+                    checkAppTarget();
+                }
             }
 
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());

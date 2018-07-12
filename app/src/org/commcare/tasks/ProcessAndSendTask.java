@@ -44,7 +44,6 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, FormUploadResult, R> implements DataSubmissionListener {
 
-    private Context c;
     private String url;
     private FormUploadResult[] results;
 
@@ -81,7 +80,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
      * @param inSyncMode blocks the user with a sync dialog
      */
     public ProcessAndSendTask(Context c, String url, boolean inSyncMode) {
-        this.c = c;
         this.url = url;
         this.processor = new FormRecordProcessor(c);
         this.formSubmissionListeners = new ArrayList<>();
@@ -521,7 +519,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     }
 
     private void clearState() {
-        c = null;
         url = null;
         results = null;
     }

@@ -5,6 +5,7 @@ import org.javarosa.core.reference.Reference;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +42,7 @@ public class JavaFileReference implements Reference {
         File file = file();
         //CTS: Removed a thing here that created an empty file. Not sure why that was there.
         if (!file.exists()) {
-            throw new IOException("No file exists at " + file.getAbsolutePath());
+            throw new FileNotFoundException("No file exists at " + file.getAbsolutePath());
         }
         return new FileInputStream(file);
     }
