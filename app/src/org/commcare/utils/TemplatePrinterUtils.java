@@ -147,13 +147,10 @@ public abstract class TemplatePrinterUtils {
      */
     public static void showAlertDialog(final Activity activity, String title, String msg,
                                        final boolean finishActivity) {
-        StandardAlertDialog.getBasicAlertDialog(activity, title, msg, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                if (finishActivity) {
-                    activity.finish();
-                }
+        StandardAlertDialog.getBasicAlertDialog(activity, title, msg, (dialog, which) -> {
+            dialog.dismiss();
+            if (finishActivity) {
+                activity.finish();
             }
         }).showNonPersistentDialog();
     }
@@ -161,17 +158,14 @@ public abstract class TemplatePrinterUtils {
     public static void showPrintStatusDialog(final Activity activity, String title, String msg,
                                              final boolean printInitiated) {
         StandardAlertDialog.getBasicAlertDialog(activity, title, msg,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        Intent intent = new Intent();
-                        Bundle responses = new Bundle();
-                        responses.putString("print_initiated", "" + printInitiated);
-                        intent.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, responses);
-                        activity.setResult(Activity.RESULT_OK, intent);
-                        activity.finish();
-                    }
+                (dialog, which) -> {
+                    dialog.dismiss();
+                    Intent intent = new Intent();
+                    Bundle responses = new Bundle();
+                    responses.putString("print_initiated", "" + printInitiated);
+                    intent.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, responses);
+                    activity.setResult(Activity.RESULT_OK, intent);
+                    activity.finish();
                 }).showNonPersistentDialog();
 
     }

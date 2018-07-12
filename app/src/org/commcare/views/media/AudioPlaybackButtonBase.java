@@ -66,7 +66,7 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
     }
 
     private void setupButton() {
-        playButton = (ImageButton)findViewById(R.id.play_button);
+        playButton = findViewById(R.id.play_button);
         playButton.setOnClickListener(buildOnClickListener());
     }
 
@@ -120,36 +120,33 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
     }
 
     private OnClickListener buildOnClickListener() {
-        return new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switch (currentState) {
-                    case Ready:
-                        try {
-                            MediaEntity mediaEntity = new MediaEntity(URI, residingViewId, currentState);
-                            AudioController.INSTANCE.setCurrentMediaAndButton(
-                                    mediaEntity,
-                                    AudioPlaybackButtonBase.this);
-                            startPlaying();
-                        } catch (IOException e) {
-                            String errorMsg =
-                                    getContext().getString(R.string.audio_file_invalid);
-                            Log.e(TAG, errorMsg);
-                            Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
-                            e.printStackTrace();
-                        }
-                        break;
-                    case PausedForRenewal:
-                    case Paused:
+        return view -> {
+            switch (currentState) {
+                case Ready:
+                    try {
+                        MediaEntity mediaEntity = new MediaEntity(URI, residingViewId, currentState);
+                        AudioController.INSTANCE.setCurrentMediaAndButton(
+                                mediaEntity,
+                                AudioPlaybackButtonBase.this);
                         startPlaying();
-                        break;
-                    case Playing:
-                        pausePlaying();
-                        break;
-                    default:
-                        Log.w(TAG, "Current playback state set to unexpected value");
+                    } catch (IOException e) {
+                        String errorMsg =
+                                getContext().getString(R.string.audio_file_invalid);
+                        Log.e(TAG, errorMsg);
+                        Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
+                    }
+                    break;
+                case PausedForRenewal:
+                case Paused:
+                    startPlaying();
+                    break;
+                case Playing:
+                    pausePlaying();
+                    break;
+                default:
+                    Log.w(TAG, "Current playback state set to unexpected value");
 
-                }
             }
         };
     }

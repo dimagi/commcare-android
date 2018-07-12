@@ -109,10 +109,10 @@ public class CommCareWiFiDirectActivity
 
         setContentView(R.layout.wifi_direct_main);
 
-        myStatusText = (TextView)this.findViewById(R.id.my_status_text);
-        formCountText = (TextView)this.findViewById(R.id.form_count_text);
-        stateStatusText = (TextView)this.findViewById(R.id.wifi_state_status);
-        stateHeaderText = (TextView)this.findViewById(R.id.wifi_state_header);
+        myStatusText = this.findViewById(R.id.my_status_text);
+        formCountText = this.findViewById(R.id.form_count_text);
+        stateStatusText = this.findViewById(R.id.wifi_state_status);
+        stateHeaderText = this.findViewById(R.id.wifi_state_header);
 
         String baseDir = this.getFilesDir().getAbsolutePath();
 
@@ -205,22 +205,19 @@ public class CommCareWiFiDirectActivity
 
     private void showDialog(Activity activity, String title, String message) {
         StandardAlertDialog d = new StandardAlertDialog(activity, title, message);
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case AlertDialog.BUTTON_POSITIVE:
-                        beSubmitter();
-                        break;
-                    case AlertDialog.BUTTON_NEUTRAL:
-                        beReceiver();
-                        break;
-                    case AlertDialog.BUTTON_NEGATIVE:
-                        beSender();
-                        break;
-                }
-                dismissAlertDialog();
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            switch (which) {
+                case AlertDialog.BUTTON_POSITIVE:
+                    beSubmitter();
+                    break;
+                case AlertDialog.BUTTON_NEUTRAL:
+                    beReceiver();
+                    break;
+                case AlertDialog.BUTTON_NEGATIVE:
+                    beSender();
+                    break;
             }
+            dismissAlertDialog();
         };
         d.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
         d.setNegativeButton(localize("wifi.direct.transfer.forms"), listener);

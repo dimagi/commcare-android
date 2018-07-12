@@ -44,28 +44,25 @@ public enum PollSensorController implements LocationListener {
 
         // LocationManager needs to be dealt with in the main UI thread, so
         // wrap GPS-checking logic in a Handler
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                // Start requesting GPS updates
-                Context context = CommCareApplication.instance();
-                mLocationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+        new Handler(Looper.getMainLooper()).post(() -> {
+            // Start requesting GPS updates
+            Context context = CommCareApplication.instance();
+            mLocationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
 
-                Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
-                if (providers.isEmpty()) {
-                    context.registerReceiver(
-                            new ProvidersChangedHandler(),
-                            new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
-                    );
+            Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
+            if (providers.isEmpty()) {
+                context.registerReceiver(
+                        new ProvidersChangedHandler(),
+                        new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
+                );
 
-                    // This thread can't take action on the UI, so instead send
-                    // a message that actual activities notice and then display
-                    // a dialog asking user to enable location access
-                    Intent noGPSIntent = new Intent(GeoUtils.ACTION_CHECK_GPS_ENABLED);
-                    context.sendStickyBroadcast(noGPSIntent);
-                }
-                requestLocationUpdates(providers);
+                // This thread can't take action on the UI, so instead send
+                // a message that actual activities notice and then display
+                // a dialog asking user to enable location access
+                Intent noGPSIntent = new Intent(GeoUtils.ACTION_CHECK_GPS_ENABLED);
+                context.sendStickyBroadcast(noGPSIntent);
             }
+            requestLocationUpdates(providers);
         });
     }
 

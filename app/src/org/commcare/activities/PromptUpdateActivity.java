@@ -51,21 +51,16 @@ public abstract class PromptUpdateActivity extends SessionAwareCommCareActivity 
     private void setupUI() {
 
         setContentView(R.layout.prompt_update_view);
-        updatesAvailableTitle = (TextView)findViewById(R.id.updates_available_title);
-        updateButton = (Button)findViewById(R.id.update_button);
-        updateLaterButton = (Button)findViewById(R.id.update_later_button);
-        imageCue = (ImageView)findViewById(R.id.update_image_cue);
-        helpText = (TextView)findViewById(R.id.update_help_text);
+        updatesAvailableTitle = findViewById(R.id.updates_available_title);
+        updateButton = findViewById(R.id.update_button);
+        updateLaterButton = findViewById(R.id.update_later_button);
+        imageCue = findViewById(R.id.update_image_cue);
+        helpText = findViewById(R.id.update_help_text);
 
         helpText.setText(Localization.get("prompted.update.help.text"));
 
         updateLaterButton.setText(Localization.get("update.later.button.text"));
-        updateLaterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PromptUpdateActivity.this.finish();
-            }
-        });
+        updateLaterButton.setOnClickListener(v -> PromptUpdateActivity.this.finish());
 
         if (inForceMode()) {
             updatesAvailableTitle.setTextColor(getResources().getColor(R.color.cc_attention_negative_color));

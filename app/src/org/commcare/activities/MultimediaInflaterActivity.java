@@ -67,57 +67,49 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
         final String destination = this.getIntent().getStringExtra(EXTRA_FILE_DESTINATION);
 
         super.onCreate(savedInstanceState);
-        btnFetchFiles.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                //Go fetch us a file path!
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                // only allow look for zip files
-                intent.setType("application/zip");
-                try {
-                    startActivityForResult(intent, REQUEST_FILE_LOCATION);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(MultimediaInflaterActivity.this, Localization.get("mult.install.no.browser"), Toast.LENGTH_LONG).show();
-                }
+        btnFetchFiles.setOnClickListener(v -> {
+            //Go fetch us a file path!
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            // only allow look for zip files
+            intent.setType("application/zip");
+            try {
+                startActivityForResult(intent, REQUEST_FILE_LOCATION);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(MultimediaInflaterActivity.this, Localization.get("mult.install.no.browser"), Toast.LENGTH_LONG).show();
             }
         });
 
-        btnInstallMultimedia.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MultimediaInflaterTask<MultimediaInflaterActivity> task = new MultimediaInflaterTask<MultimediaInflaterActivity>() {
+        btnInstallMultimedia.setOnClickListener(v -> {
+            MultimediaInflaterTask<MultimediaInflaterActivity> task = new MultimediaInflaterTask<MultimediaInflaterActivity>() {
 
-                    @Override
-                    protected void deliverResult(MultimediaInflaterActivity receiver, Integer result) {
-                        if (result > 0) {
-                            receiver.done = true;
-                            receiver.evalState();
-                            receiver.setResult(Activity.RESULT_OK);
-                            receiver.finish();
-                        } else {
-                            //assume that we've already set the error message, but make it look scary
-                            receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-                        }
-                    }
-
-                    @Override
-                    protected void deliverUpdate(MultimediaInflaterActivity receiver, String... update) {
-                        receiver.updateProgress(update[0], CommCareTask.GENERIC_TASK_ID);
-                        receiver.txtInteractiveMessages.setText(update[0]);
-                    }
-
-                    @Override
-                    protected void deliverError(MultimediaInflaterActivity receiver, Exception e) {
-                        receiver.txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[]{e.getMessage()}));
+                @Override
+                protected void deliverResult(MultimediaInflaterActivity receiver, Integer result) {
+                    if (result > 0) {
+                        receiver.done = true;
+                        receiver.evalState();
+                        receiver.setResult(Activity.RESULT_OK);
+                        receiver.finish();
+                    } else {
+                        //assume that we've already set the error message, but make it look scary
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
-                };
+                }
 
-                task.connect(MultimediaInflaterActivity.this);
-                task.executeParallel(editFileLocation.getText().toString(), destination);
-            }
+                @Override
+                protected void deliverUpdate(MultimediaInflaterActivity receiver, String... update) {
+                    receiver.updateProgress(update[0], CommCareTask.GENERIC_TASK_ID);
+                    receiver.txtInteractiveMessages.setText(update[0]);
+                }
 
+                @Override
+                protected void deliverError(MultimediaInflaterActivity receiver, Exception e) {
+                    receiver.txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[]{e.getMessage()}));
+                    receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                }
+            };
+
+            task.connect(MultimediaInflaterActivity.this);
+            task.executeParallel(editFileLocation.getText().toString(), destination);
         });
 
 

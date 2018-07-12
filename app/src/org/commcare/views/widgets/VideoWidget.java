@@ -37,22 +37,19 @@ public class VideoWidget extends MediaWidget {
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
-        mCaptureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
-                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-                        Video.Media.EXTERNAL_CONTENT_URI.toString());
-                try {
-                    ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryConstants.AUDIO_VIDEO_FETCH);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found, "capture video"),
-                            Toast.LENGTH_SHORT).show();
-                }
+        mCaptureButton.setOnClickListener(v -> {
+            Intent i = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
+            i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
+                    Video.Media.EXTERNAL_CONTENT_URI.toString());
+            try {
+                ((Activity)getContext()).startActivityForResult(i,
+                        FormEntryConstants.AUDIO_VIDEO_FETCH);
+                pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(getContext(),
+                        StringUtils.getStringSpannableRobust(getContext(),
+                                R.string.activity_not_found, "capture video"),
+                        Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -64,21 +61,18 @@ public class VideoWidget extends MediaWidget {
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
-        mChooseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.setType("video/*");
-                try {
-                    ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryConstants.AUDIO_VIDEO_FETCH);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found, "choose video "),
-                            Toast.LENGTH_SHORT).show();
-                }
+        mChooseButton.setOnClickListener(v -> {
+            Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+            i.setType("video/*");
+            try {
+                ((Activity)getContext()).startActivityForResult(i,
+                        FormEntryConstants.AUDIO_VIDEO_FETCH);
+                pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(getContext(),
+                        StringUtils.getStringSpannableRobust(getContext(),
+                                R.string.activity_not_found, "choose video "),
+                        Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -90,12 +84,7 @@ public class VideoWidget extends MediaWidget {
                 !mPrompt.isReadOnly());
 
         // on play, launch the appropriate viewer
-        mPlayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playMedia("video/*");
-            }
-        });
+        mPlayButton.setOnClickListener(v -> playMedia("video/*"));
 
         String acq = mPrompt.getAppearanceHint();
         if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq)) {

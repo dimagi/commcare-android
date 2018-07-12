@@ -70,13 +70,13 @@ public class EndOfFormTest {
         assertStoredForms();
     }
 
-    public static ShadowActivity navigateFormEntry(Intent formEntryIntent) {
+    private static ShadowActivity navigateFormEntry(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
                 Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
                         .create().start().resume().get();
 
-        ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
+        ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
 
         // enter an answer for the question
         QuestionsView questionsView = formEntryActivity.getODKView();

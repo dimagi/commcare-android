@@ -34,11 +34,11 @@ public class GeoProgressDialog extends Dialog {
 
         setContentView(R.layout.geo_progress);
 
-        this.imageView = (ImageView)findViewById(R.id.geoImage);
-        this.textView = (TextView)findViewById(R.id.geoText);
-        this.acceptButton = (Button)findViewById(R.id.geoOK);
-        this.cancelButton = (Button)findViewById(R.id.geoCancel);
-        this.progressBar = (ProgressBar)findViewById(R.id.geoProgressBar);
+        this.imageView = findViewById(R.id.geoImage);
+        this.textView = findViewById(R.id.geoText);
+        this.acceptButton = findViewById(R.id.geoOK);
+        this.cancelButton = findViewById(R.id.geoCancel);
+        this.progressBar = findViewById(R.id.geoProgressBar);
         locationFound = false;
         locationFoundMessage = foundMessage;
         searchingMessage = searchMessage;
@@ -48,7 +48,7 @@ public class GeoProgressDialog extends Dialog {
 
     @Override
     public void setTitle(CharSequence title) {
-        TextView customProgressDialogTitle = (TextView)findViewById(R.id.dialog_title_text);
+        TextView customProgressDialogTitle = findViewById(R.id.dialog_title_text);
         customProgressDialogTitle.setText(title);
     }
 

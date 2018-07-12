@@ -141,12 +141,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setTextChangeListeners();
         setBannerLayoutLogic();
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                activity.initiateLoginAttempt(isRestoreSessionChecked());
-            }
-        });
+        loginButton.setOnClickListener(arg0 -> activity.initiateLoginAttempt(isRestoreSessionChecked()));
 
         passwordOrPin.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -157,12 +152,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         });
 
         notificationButton.setText(Localization.get("error.button.text"));
-        notificationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                CommCareNoficationManager.performIntentCalloutToNotificationsView(activity);
-            }
-        });
+        notificationButton.setOnClickListener(view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
     }
 
     private void setTextChangeListeners() {
@@ -180,34 +170,30 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         final View activityRootView = activity.findViewById(R.id.screen_login_main);
         final SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
+                () -> {
+                    int hideAll = getResources().getInteger(
+                            R.integer.login_screen_hide_all_cuttoff);
+                    int hideBanner = getResources().getInteger(
+                            R.integer.login_screen_hide_banner_cuttoff);
+                    int height = activityRootView.getHeight();
 
-                    @Override
-                    public void onGlobalLayout() {
-                        int hideAll = getResources().getInteger(
-                                R.integer.login_screen_hide_all_cuttoff);
-                        int hideBanner = getResources().getInteger(
-                                R.integer.login_screen_hide_banner_cuttoff);
-                        int height = activityRootView.getHeight();
-
-                        if (height < hideAll) {
-                            banner.setVisibility(View.GONE);
-                        } else if (height < hideBanner) {
-                            banner.setVisibility(View.GONE);
-                        } else {
-                            // Override default CommCare banner if requested
-                            String customBannerURI = prefs.getString(
-                                    HiddenPreferences.BRAND_BANNER_LOGIN, "");
-                            if (!"".equals(customBannerURI)) {
-                                Bitmap bitmap = MediaUtil.inflateDisplayImage(activity, customBannerURI);
-                                if (bitmap != null) {
-                                    ImageView bannerView =
-                                            (ImageView)banner.findViewById(R.id.main_top_banner);
-                                    bannerView.setImageBitmap(bitmap);
-                                }
+                    if (height < hideAll) {
+                        banner.setVisibility(View.GONE);
+                    } else if (height < hideBanner) {
+                        banner.setVisibility(View.GONE);
+                    } else {
+                        // Override default CommCare banner if requested
+                        String customBannerURI = prefs.getString(
+                                HiddenPreferences.BRAND_BANNER_LOGIN, "");
+                        if (!"".equals(customBannerURI)) {
+                            Bitmap bitmap = MediaUtil.inflateDisplayImage(activity, customBannerURI);
+                            if (bitmap != null) {
+                                ImageView bannerView =
+                                        banner.findViewById(R.id.main_top_banner);
+                                bannerView.setImageBitmap(bitmap);
                             }
-                            banner.setVisibility(View.VISIBLE);
                         }
+                        banner.setVisibility(View.VISIBLE);
                     }
                 });
     }
@@ -497,7 +483,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void updateBanner() {
         ImageView topBannerImageView =
-                (ImageView)banner.findViewById(org.commcare.dalvik.R.id.main_top_banner);
+                banner.findViewById(R.id.main_top_banner);
         if (!CustomBanner.useCustomBannerFitToActivity(activity, topBannerImageView)) {
             topBannerImageView.setImageResource(R.drawable.commcare_logo);
         }

@@ -47,13 +47,13 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
     }
 
     private ListView setupListAdapter(DialogChoiceItem[] choiceItems) {
-        ListView lv = (ListView)view.findViewById(R.id.choices_list_view);
+        ListView lv = view.findViewById(R.id.choices_list_view);
         lv.setAdapter(new ChoiceDialogAdapter(context, android.R.layout.simple_list_item_1, choiceItems));
         return lv;
     }
 
     private void setTitle(String title) {
-        TextView tv = (TextView)view.findViewById(R.id.choice_dialog_title).
+        TextView tv = view.findViewById(R.id.choice_dialog_title).
                 findViewById(R.id.dialog_title_text);
         tv.setText(title);
     }
@@ -83,7 +83,7 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
     }
 
     public void addButton(String text, View.OnClickListener listener) {
-        Button button = (Button)view.findViewById(R.id.optional_button);
+        Button button = view.findViewById(R.id.optional_button);
         button.setText(text);
         button.setVisibility(View.VISIBLE);
         button.setOnClickListener(listener);
@@ -97,21 +97,16 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
         View extraInfoContainer = view.findViewById(R.id.extra_info_container);
         extraInfoContainer.setVisibility(View.VISIBLE);
 
-        TextView extraInfoContent = (TextView)view.findViewById(R.id.extra_info_content);
+        TextView extraInfoContent = view.findViewById(R.id.extra_info_content);
         extraInfoContent.setText(messageContent);
 
-        final ImageButton extraInfoButton = (ImageButton)view.findViewById(R.id.extra_info_button);
+        final ImageButton extraInfoButton = view.findViewById(R.id.extra_info_button);
         extraInfoButton.setVisibility(View.VISIBLE);
-        extraInfoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleExtraInfoVisibility();
-            }
-        });
+        extraInfoButton.setOnClickListener(v -> toggleExtraInfoVisibility());
     }
 
     private void toggleExtraInfoVisibility() {
-        TextView extraInfoContent = (TextView)view.findViewById(R.id.extra_info_content);
+        TextView extraInfoContent = view.findViewById(R.id.extra_info_content);
         if (extraInfoContent.getVisibility() == View.VISIBLE) {
             extraInfoContent.setVisibility(View.GONE);
         } else {

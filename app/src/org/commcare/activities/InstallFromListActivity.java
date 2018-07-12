@@ -101,7 +101,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     private void setupUI() {
         setContentView(R.layout.user_get_available_apps);
-        errorMessageBox = (TextView)findViewById(R.id.error_message);
+        errorMessageBox = findViewById(R.id.error_message);
         authenticateView = findViewById(R.id.authenticate_view);
         setUpGetAppsButton();
         setUpAppsList();
@@ -110,17 +110,14 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void setUpGetAppsButton() {
-        Button getAppsButton = (Button)findViewById(R.id.get_apps_button);
-        getAppsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                errorMessageBox.setVisibility(View.INVISIBLE);
-                if (inputIsValid()) {
-                    if (ConnectivityStatus.isNetworkAvailable(InstallFromListActivity.this)) {
-                        startRequests(getUsernameForAuth(), getPassword());
-                    } else {
-                        enterErrorState(Localization.get("updates.check.network_unavailable"));
-                    }
+        Button getAppsButton = findViewById(R.id.get_apps_button);
+        getAppsButton.setOnClickListener(v -> {
+            errorMessageBox.setVisibility(View.INVISIBLE);
+            if (inputIsValid()) {
+                if (ConnectivityStatus.isNetworkAvailable(InstallFromListActivity.this)) {
+                    startRequests(getUsernameForAuth(), getPassword());
+                } else {
+                    enterErrorState(Localization.get("updates.check.network_unavailable"));
                 }
             }
         });
@@ -136,23 +133,20 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
 
     private void setUpAppsList() {
         appsListContainer = findViewById(R.id.apps_list_container);
-        appsListView = (ListView)findViewById(R.id.apps_list_view);
-        appsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position < availableApps.size()) {
-                    AppAvailableToInstall app = availableApps.get(position);
-                    Intent i = new Intent(getIntent());
-                    i.putExtra(PROFILE_REF, app.getMediaProfileRef());
-                    setResult(RESULT_OK, i);
-                    finish();
-                }
+        appsListView = findViewById(R.id.apps_list_view);
+        appsListView.setOnItemClickListener((parent, view, position, id) -> {
+            if (position < availableApps.size()) {
+                AppAvailableToInstall app = availableApps.get(position);
+                Intent i = new Intent(getIntent());
+                i.putExtra(PROFILE_REF, app.getMediaProfileRef());
+                setResult(RESULT_OK, i);
+                finish();
             }
         });
     }
 
     private void setUpToggle() {
-        FrameLayout toggleContainer = (FrameLayout)findViewById(R.id.toggle_button_container);
+        FrameLayout toggleContainer = findViewById(R.id.toggle_button_container);
         CompoundButton userTypeToggler;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             Switch switchButton = new Switch(this);
@@ -169,15 +163,12 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         // Important for this call to come first; we don't want the listener to be invoked on the
         // first auto-setting, just on user-triggered ones
         userTypeToggler.setChecked(inMobileUserAuthMode);
-        userTypeToggler.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                inMobileUserAuthMode = isChecked;
-                errorMessage = null;
-                errorMessageBox.setVisibility(View.INVISIBLE);
-                ((EditText)findViewById(R.id.edit_password)).setText("");
-                setProperAuthView();
-            }
+        userTypeToggler.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            inMobileUserAuthMode = isChecked;
+            errorMessage = null;
+            errorMessageBox.setVisibility(View.INVISIBLE);
+            ((EditText)findViewById(R.id.edit_password)).setText("");
+            setProperAuthView();
         });
 
         toggleContainer.addView(userTypeToggler);
@@ -389,23 +380,20 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         if (!requestAppList(getUsernameForAuth(), getPassword())) {
             // Means we've tried requesting to both endpoints
 
-            this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (availableApps.size() == 0) {
-                        if (responseWasError) {
-                            if (couldBeUserError) {
-                                enterErrorState(Localization.get("get.app.list.user.error." +
-                                        (inMobileUserAuthMode ? "mobile" : "web")));
-                            } else {
-                                enterErrorState(Localization.get("get.app.list.unknown.error"));
-                            }
+            this.runOnUiThread(() -> {
+                if (availableApps.size() == 0) {
+                    if (responseWasError) {
+                        if (couldBeUserError) {
+                            enterErrorState(Localization.get("get.app.list.user.error." +
+                                    (inMobileUserAuthMode ? "mobile" : "web")));
                         } else {
-                            enterErrorState(Localization.get("no.apps.available"));
+                            enterErrorState(Localization.get("get.app.list.unknown.error"));
                         }
                     } else {
-                        showResults();
+                        enterErrorState(Localization.get("no.apps.available"));
                     }
+                } else {
+                    showResults();
                 }
             });
         }
@@ -427,9 +415,9 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
                 }
 
                 AppAvailableToInstall app = this.getItem(position);
-                TextView appName = (TextView)v.findViewById(R.id.app_name);
+                TextView appName = v.findViewById(R.id.app_name);
                 appName.setText(app.getAppName());
-                TextView domain = (TextView)v.findViewById(R.id.domain);
+                TextView domain = v.findViewById(R.id.domain);
                 domain.setText(app.getDomainName());
 
                 return v;
@@ -439,12 +427,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void sortAppList() {
-        Collections.sort(this.availableApps, new Comparator<AppAvailableToInstall>() {
-            @Override
-            public int compare(AppAvailableToInstall o1, AppAvailableToInstall o2) {
-                return o1.getAppName().toLowerCase().compareTo(o2.getAppName().toLowerCase());
-            }
-        });
+        Collections.sort(this.availableApps, (o1, o2) -> o1.getAppName().toLowerCase().compareTo(o2.getAppName().toLowerCase()));
     }
 
     @Override

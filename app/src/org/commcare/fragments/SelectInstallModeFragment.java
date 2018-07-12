@@ -69,65 +69,56 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.select_install_mode_fragment, container, false);
 
-        TextView setupMsg = (TextView)view.findViewById(R.id.str_setup_message);
+        TextView setupMsg = view.findViewById(R.id.str_setup_message);
         setupMsg.setText(Localization.get("install.barcode.top"));
 
-        TextView setupMsg2 = (TextView)view.findViewById(R.id.str_setup_message_2);
+        TextView setupMsg2 = view.findViewById(R.id.str_setup_message_2);
         setupMsg2.setText(Localization.get("install.barcode.bottom"));
 
-        SquareButtonWithText scanBarcodeButton = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_uri);
+        SquareButtonWithText scanBarcodeButton = view.findViewById(R.id.btn_fetch_uri);
         final View barcodeButtonContainer = view.findViewById(R.id.btn_fetch_uri_container);
-        scanBarcodeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    Activity currentActivity = getActivity();
-                    if (currentActivity instanceof CommCareSetupActivity) {
-                        ((CommCareSetupActivity)currentActivity).clearErrorMessage();
-                    }
-                    Intent intent = new IntentIntegrator(getActivity())
-                            .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
-                            .createScanIntent();
-                    currentActivity.startActivityForResult(intent, CommCareSetupActivity.BARCODE_CAPTURE);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getActivity(), "No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
-                    barcodeButtonContainer.setVisibility(View.GONE);
-                }
-            }
-        });
-
-        SquareButtonWithText enterURLButton = (SquareButtonWithText)view.findViewById(R.id.enter_app_location);
-        enterURLButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SetupEnterURLFragment enterUrl = new SetupEnterURLFragment();
+        scanBarcodeButton.setOnClickListener(v -> {
+            try {
                 Activity currentActivity = getActivity();
                 if (currentActivity instanceof CommCareSetupActivity) {
-                    ((CommCareSetupActivity)currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
                     ((CommCareSetupActivity)currentActivity).clearErrorMessage();
-                    ((CommCareSetupActivity)currentActivity).checkManagedConfiguration();
                 }
-                // if we use getChildFragmentManager, we're going to have a crash
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
-                ft.remove(SelectInstallModeFragment.this);
-                ft.replace(SelectInstallModeFragment.this.getId(), enterUrl);
-                ft.commit();
+                Intent intent = new IntentIntegrator(getActivity())
+                        .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
+                        .createScanIntent();
+                currentActivity.startActivityForResult(intent, CommCareSetupActivity.BARCODE_CAPTURE);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(getActivity(), "No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
+                barcodeButtonContainer.setVisibility(View.GONE);
             }
         });
 
-        SquareButtonWithText installFromLocal = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_hub);
-        installFromLocal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Activity currentActivity = getActivity();
-                if (currentActivity instanceof CommCareSetupActivity) {
-                    showLocalAppDialog();
-                }
+        SquareButtonWithText enterURLButton = view.findViewById(R.id.enter_app_location);
+        enterURLButton.setOnClickListener(v -> {
+            SetupEnterURLFragment enterUrl = new SetupEnterURLFragment();
+            Activity currentActivity = getActivity();
+            if (currentActivity instanceof CommCareSetupActivity) {
+                ((CommCareSetupActivity)currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
+                ((CommCareSetupActivity)currentActivity).clearErrorMessage();
+                ((CommCareSetupActivity)currentActivity).checkManagedConfiguration();
+            }
+            // if we use getChildFragmentManager, we're going to have a crash
+            FragmentManager fm = getActivity().getSupportFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.remove(SelectInstallModeFragment.this);
+            ft.replace(SelectInstallModeFragment.this.getId(), enterUrl);
+            ft.commit();
+        });
+
+        SquareButtonWithText installFromLocal = view.findViewById(R.id.btn_fetch_hub);
+        installFromLocal.setOnClickListener(v -> {
+            Activity currentActivity = getActivity();
+            if (currentActivity instanceof CommCareSetupActivity) {
+                showLocalAppDialog();
             }
         });
 
-        mErrorMessageView = (TextView)view.findViewById(R.id.install_error_text);
+        mErrorMessageView = view.findViewById(R.id.install_error_text);
 
         mViewErrorContainer = view.findViewById(R.id.btn_view_errors_container);
 
@@ -135,12 +126,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         mViewErrorButton.setText(Localization.get("error.button.text"));
 
-        mViewErrorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                CommCareNoficationManager.performIntentCalloutToNotificationsView(getActivity());
-            }
-        });
+        mViewErrorButton.setOnClickListener(view1 -> CommCareNoficationManager.performIntentCalloutToNotificationsView(getActivity()));
         showOrHideErrorMessage();
 
         mFetchHubContainer = view.findViewById(R.id.btn_fetch_hub_container);
@@ -159,15 +145,12 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         DialogChoiceItem[] items = new DialogChoiceItem[mLocalApps.size()];
         int count = 0;
         for (final MicroNode.AppManifest app : mLocalApps) {
-            DialogChoiceItem item = new DialogChoiceItem(app.getName(), -1, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Activity currentActivity = getActivity();
-                    if (currentActivity instanceof CommCareSetupActivity) {
-                        ((CommCareSetupActivity)currentActivity).onURLChosen(app.getLocalUrl());
-                    }
-                    ((CommCareActivity)getActivity()).dismissAlertDialog();
+            DialogChoiceItem item = new DialogChoiceItem(app.getName(), -1, v -> {
+                Activity currentActivity = getActivity();
+                if (currentActivity instanceof CommCareSetupActivity) {
+                    ((CommCareSetupActivity)currentActivity).onURLChosen(app.getLocalUrl());
                 }
+                ((CommCareActivity)getActivity()).dismissAlertDialog();
             });
             items[count] = item;
             count++;
@@ -188,12 +171,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         }
         Activity activity = getActivity();
         if (appsAvailable && activity != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mFetchHubContainer.setVisibility(View.VISIBLE);
-                }
-            });
+            getActivity().runOnUiThread(() -> mFetchHubContainer.setVisibility(View.VISIBLE));
         }
     }
 

@@ -114,8 +114,8 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
             }
             WifiP2pDevice device = items.get(position);
             if (device != null) {
-                TextView top = (TextView)v.findViewById(R.id.device_name);
-                TextView bottom = (TextView)v.findViewById(R.id.device_details);
+                TextView top = v.findViewById(R.id.device_name);
+                TextView bottom = v.findViewById(R.id.device_details);
                 if (top != null) {
                     top.setText(device.deviceName);
                 }
@@ -136,9 +136,9 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      */
     public void updateThisDevice(WifiP2pDevice device) {
         Log.d(TAG, "updating my device: " + device.deviceName + " with status: " + device.status);
-        TextView view = (TextView)mContentView.findViewById(R.id.my_name);
+        TextView view = mContentView.findViewById(R.id.my_name);
         view.setText(device.deviceName);
-        view = (TextView)mContentView.findViewById(R.id.my_status);
+        view = mContentView.findViewById(R.id.my_status);
         view.setText(getDeviceStatus(device.status));
     }
 
@@ -168,12 +168,8 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
             progressDialog.dismiss();
         }
         progressDialog = ProgressDialog.show(getActivity(), "Press back to cancel", "finding peers", true,
-                true, new DialogInterface.OnCancelListener() {
+                true, dialog -> {
 
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-
-                    }
                 });
     }
 

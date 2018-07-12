@@ -77,8 +77,9 @@ object DataChangeLogger {
      */
     @JvmStatic
     fun log(dataChangeLog: DataChangeLog) {
-        // Include this info as part of any crash reports
+        // Include this info as part of any crash reports and the normal device logs
         CrashUtil.log(dataChangeLog.message);
+        Logger.log(LogTypes.TYPE_DATA_CHANGE, dataChangeLog.message);
 
         // Write to local storage
         if (primaryFile != null && primaryFile!!.exists()) {

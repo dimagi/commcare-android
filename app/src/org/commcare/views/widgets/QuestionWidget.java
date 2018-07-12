@@ -103,12 +103,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         //this is pretty sketch but is the only way to make the required background to work trivially for now
         this.setClipToPadding(false);
 
-        this.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                QuestionWidget.this.acceptFocus();
-            }
-        });
+        this.setOnClickListener(v -> QuestionWidget.this.acceptFocus());
 
         SharedPreferences settings =
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
@@ -149,18 +144,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         trigger.setScaleType(ScaleType.FIT_CENTER);
         trigger.setImageResource(R.drawable.icon_info_outline_lightcool);
         trigger.setBackgroundDrawable(null);
-        trigger.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                trigger.setImageResource(R.drawable.icon_info_fill_lightcool);
-                fireHelpText(new Runnable() {
-                    @Override
-                    public void run() {
-                        // back to the old icon
-                        trigger.setImageResource(R.drawable.icon_info_outline_lightcool);
-                    }
-                });
-            }
+        trigger.setOnClickListener(v -> {
+            trigger.setImageResource(R.drawable.icon_info_fill_lightcool);
+            fireHelpText(() -> {
+                // back to the old icon
+                trigger.setImageResource(R.drawable.icon_info_outline_lightcool);
+            });
         });
         trigger.setId(847294011);
         LinearLayout triggerLayout = new LinearLayout(getContext());
@@ -245,7 +234,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
                 focusPending = requestFocus;
             }
         }
-        TextView messageView = (TextView)this.warningView.findViewById(R.id.message);
+        TextView messageView = this.warningView.findViewById(R.id.message);
         messageView.setText(text);
 
         //If the warningView already exists, we can just scroll to it right now
@@ -359,7 +348,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         if (changed && focusPending) {
             focusPending = false;
             if (this.warningView != null) {
-                TextView messageView = (TextView)this.warningView.findViewById(R.id.message);
+                TextView messageView = this.warningView.findViewById(R.id.message);
                 requestChildViewOnScreen(messageView);
             }
         }
@@ -475,15 +464,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             scrollView.addView(createHelpLayout());
             mAlertDialog.setView(scrollView);
 
-            DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int i) {
-                    switch (i) {
-                        case DialogInterface.BUTTON1:
-                            dialog.cancel();
-                            if (r != null) r.run();
-                            break;
-                    }
+            DialogInterface.OnClickListener errorListener = (dialog, i) -> {
+                switch (i) {
+                    case DialogInterface.BUTTON1:
+                        dialog.cancel();
+                        if (r != null) r.run();
+                        break;
                 }
             };
             mAlertDialog.setCancelable(true);

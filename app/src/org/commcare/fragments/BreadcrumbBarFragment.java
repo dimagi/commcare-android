@@ -226,22 +226,19 @@ public class BreadcrumbBarFragment extends Fragment {
         final String inlineDetail = (String)tile.getTag();
         ((ViewGroup)holder.findViewById(R.id.com_tile_holder_frame)).addView(tile, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-        ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
+        ImageButton infoButton = holder.findViewById(R.id.com_tile_holder_btn_open);
         if (inlineDetail == null) {
             infoButton.setVisibility(View.GONE);
         }
 
         holder.setTag(INLINE_TILE_COLLAPSED);
 
-        infoButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean isCollapsed = INLINE_TILE_COLLAPSED.equals(holder.getTag());
-                if (isCollapsed) {
-                    expandInlineTile(activity, holder, tileData, inlineDetail);
-                } else {
-                    collapseTileIfExpanded(activity);
-                }
+        infoButton.setOnClickListener(v -> {
+            boolean isCollapsed = INLINE_TILE_COLLAPSED.equals(holder.getTag());
+            if (isCollapsed) {
+                expandInlineTile(activity, holder, tileData, inlineDetail);
+            } else {
+                collapseTileIfExpanded(activity);
             }
         });
         return holder;
@@ -252,7 +249,7 @@ public class BreadcrumbBarFragment extends Fragment {
                                  String inlineDetailId) {
 
         if (mInternalDetailView == null) {
-            mInternalDetailView = (TabbedDetailView)holder.findViewById(R.id.com_tile_holder_detail_frame);
+            mInternalDetailView = holder.findViewById(R.id.com_tile_holder_detail_frame);
             mInternalDetailView.setRoot(mInternalDetailView);
 
             AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
@@ -264,7 +261,7 @@ public class BreadcrumbBarFragment extends Fragment {
         }
         expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
 
-        ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
+        ImageButton infoButton = holder.findViewById(R.id.com_tile_holder_btn_open);
         infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
         holder.setTag(INLINE_TILE_EXPANDED);
     }
@@ -288,7 +285,7 @@ public class BreadcrumbBarFragment extends Fragment {
 
         collapse(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
 
-        ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
+        ImageButton infoButton = holder.findViewById(R.id.com_tile_holder_btn_open);
         infoButton.setImageResource(R.drawable.icon_info_outline_brandbg);
         holder.setTag(INLINE_TILE_COLLAPSED);
         return true;
@@ -336,7 +333,7 @@ public class BreadcrumbBarFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (tile != null) {
-            ViewGroup vg = (ViewGroup)this.getActivity().findViewById(R.id.universal_frame_tile);
+            ViewGroup vg = this.getActivity().findViewById(R.id.universal_frame_tile);
             //Check whether the view group is available. If so, this activity is a frame tile host 
             if (vg != null) {
                 if (tile.getParent() != null) {
@@ -453,6 +450,6 @@ public class BreadcrumbBarFragment extends Fragment {
                 new int[]{R.attr.drawer_pulldown_text_color, R.attr.menu_tile_title_text_color});
         tile.setTextColor(textColor[0]);
         tile.setTitleTextColor(textColor[1]);
-        return Pair.create(((View)tile), ref);
+        return Pair.create(tile, ref);
     }
 }

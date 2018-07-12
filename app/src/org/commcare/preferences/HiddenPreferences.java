@@ -58,6 +58,9 @@ public class HiddenPreferences {
     // Boolean pref to determine first commcare run
     public final static String FIRST_COMMCARE_RUN = "first-commcare-run";
 
+    // Boolean pref to determine whether user has already been through the update information form
+    public final static String SHOW_XFORM_UPDATE_INFO = "show-xform-update-info";
+
     /**
      * @return How many seconds should a user session remain open before expiring?
      */
@@ -228,5 +231,15 @@ public class HiddenPreferences {
         String currentUserId = CommCareApplication.instance().getCurrentUserId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putInt(ID_OF_INTERRUPTED_SSD + currentUserId, -1).apply();
+    }
+
+    public static void setShowXformUpdateInfo(boolean showXformUpdateInfo) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putBoolean(SHOW_XFORM_UPDATE_INFO, showXformUpdateInfo).apply();
+    }
+
+    public static Boolean shouldShowXformUpdateInfo() {
+        return CommCareApplication.instance().getCurrentApp()
+                .getAppPreferences().getBoolean(SHOW_XFORM_UPDATE_INFO, false);
     }
 }

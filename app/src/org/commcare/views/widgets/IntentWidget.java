@@ -124,12 +124,7 @@ public class IntentWidget extends QuestionWidget {
                 !mPrompt.isReadOnly());
 
         // launch barcode capture intent on click
-        launchIntentButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                performCallout();
-            }
-        });
+        launchIntentButton.setOnClickListener(v -> performCallout());
         addView(launchIntentButton);
     }
 

@@ -63,7 +63,7 @@ public class ComboboxAdapter extends ArrayAdapter<String> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = super.getView(position, convertView, parent);
-        TextView tv = (TextView)view.findViewById(android.R.id.text1);
+        TextView tv = view.findViewById(android.R.id.text1);
         if (customTextSize != -1) {
             tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, customTextSize);
         }

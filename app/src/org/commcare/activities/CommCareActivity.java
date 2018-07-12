@@ -407,14 +407,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Display exception details as a pop-up to the user.
      */
     private void displayException(String title, String message) {
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        finish();
-                        break;
-                }
+        DialogInterface.OnClickListener listener = (dialog, i) -> {
+            switch (i) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    finish();
+                    break;
             }
         };
         showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
@@ -698,7 +695,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 int id = searchView.getContext()
                         .getResources()
                         .getIdentifier("android:id/search_src_text", null, null);
-                TextView textView = (TextView) searchView.findViewById(id);
+                TextView textView = searchView.findViewById(id);
                 textView.setTextColor(searchViewStyle[0]);
                 if (instantiator != null) {
                     instantiator.onActionBarFound(searchMenuItem, searchView, barcodeItem);

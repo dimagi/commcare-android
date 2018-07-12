@@ -132,13 +132,10 @@ public class EntityDetailActivity
             }
         }
 
-        next.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportEntityDetailContinue(
-                        AnalyticsParamValue.NAV_BUTTON_PRESS, mDetailView.getTabCount());
-                select();
-            }
+        next.setOnClickListener(v -> {
+            FirebaseAnalyticsUtil.reportEntityDetailContinue(
+                    AnalyticsParamValue.NAV_BUTTON_PRESS, mDetailView.getTabCount());
+            select();
         });
 
         if (viewMode) {
@@ -146,13 +143,13 @@ public class EntityDetailActivity
             next.setText(Localization.get("select.detail.bypass"));
         }
 
-        mDetailView.setRoot((ViewGroup)container.findViewById(R.id.entity_detail_tabs));
+        mDetailView.setRoot(container.findViewById(R.id.entity_detail_tabs));
         mDetailView.refresh(detail, mTreeReference, detailIndex);
 
         mDetailView.showMenu();
         isFinalSwipeActionEnabled = DeveloperPreferences.isDetailTabSwipeActionEnabled();
 
-        AdMobManager.requestBannerAdForView(this, (FrameLayout)this.findViewById(R.id.ad_container),
+        AdMobManager.requestBannerAdForView(this, this.findViewById(R.id.ad_container),
                 AdLocation.EntityDetail);
     }
 

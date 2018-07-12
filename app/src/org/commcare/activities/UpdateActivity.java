@@ -443,6 +443,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         final String upgradeFinishedText =
                 Localization.get("updates.install.finished");
         HiddenPreferences.setPostUpdateSyncNeeded(!isLocalUpdate && !BuildConfig.DEBUG);
+        HiddenPreferences.setShowXformUpdateInfo(true);
         CommCareApplication.instance().expireUserSession();
         if (proceedAutomatically) {
             finishWithResult(RefreshToLatestBuildActivity.UPDATE_SUCCESS);
@@ -520,31 +521,22 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 new PaneledChoiceDialog(this, Localization.get("menu.update.options"));
 
         DialogChoiceItem latestStarredChoice = new DialogChoiceItem(
-                Localization.get("update.option.starred"), -1, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_STARRED);
-                dialog.dismiss();
-            }
-        });
+                Localization.get("update.option.starred"), -1, v -> {
+                    MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_STARRED);
+                    dialog.dismiss();
+                });
 
         DialogChoiceItem latestBuildChoice = new DialogChoiceItem(
-                Localization.get("update.option.build"), -1, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_BUILD);
-                dialog.dismiss();
-            }
-        });
+                Localization.get("update.option.build"), -1, v -> {
+                    MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_BUILD);
+                    dialog.dismiss();
+                });
 
         DialogChoiceItem latestSavedChoice = new DialogChoiceItem(
-                Localization.get("update.option.saved"), -1, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_SAVED);
-                dialog.dismiss();
-            }
-        });
+                Localization.get("update.option.saved"), -1, v -> {
+                    MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_SAVED);
+                    dialog.dismiss();
+                });
 
         dialog.setChoiceItems(
                 new DialogChoiceItem[]{latestStarredChoice, latestBuildChoice, latestSavedChoice});
@@ -584,12 +576,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         for (MicroNode node : NSDDiscoveryTools.getAvailableMicronodes()) {
             final MicroNode.AppManifest appManifest = node.getManifestForAppId(appId);
             if (appManifest != null) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyLocalUpdatePathAvailable(appManifest);
-                    }
-                });
+                runOnUiThread(() -> notifyLocalUpdatePathAvailable(appManifest));
             }
         }
     }

@@ -388,8 +388,8 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     private View curday() {
         final ViewGroup dayView = (ViewGroup)View.inflate(this, R.layout.dotsdoses, null);
         TableRow[] rows = new TableRow[4];
-        rows[0] = (TableRow)dayView.findViewById(R.id.dots_dose_one);
-        rows[1] = (TableRow)dayView.findViewById(R.id.dots_dose_two);
+        rows[0] = dayView.findViewById(R.id.dots_dose_one);
+        rows[1] = dayView.findViewById(R.id.dots_dose_two);
         //rows[2] = (TableRow)dayView.findViewById(R.id.dots_dose_three);
         //rows[3] = (TableRow)dayView.findViewById(R.id.dots_dose_four);
         
@@ -404,23 +404,18 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
                 continue;
             }
             
-            doseView.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    Rect hitRect = new Rect();
-                    if(v.getParent() instanceof View) {
-                        v.getHitRect(hitRect);
-                        View parent = (View)v.getParent();
-                        dayView.offsetDescendantRectToMyCoords(parent, hitRect);
-                        DotsEntryActivity.this.editDose(curday, regIndex, dotsData.days()[curday], hitRect);
-                    } else{
-                        hitRect = new Rect(0,0,v.getWidth(), v.getHeight());
-                        dayView.offsetDescendantRectToMyCoords(v, hitRect);
-                        DotsEntryActivity.this.editDose(curday, regIndex, dotsData.days()[curday], hitRect);
-                    }
+            doseView.setOnClickListener(v -> {
+                Rect hitRect = new Rect();
+                if(v.getParent() instanceof View) {
+                    v.getHitRect(hitRect);
+                    View parent = (View)v.getParent();
+                    dayView.offsetDescendantRectToMyCoords(parent, hitRect);
+                    DotsEntryActivity.this.editDose(curday, regIndex, dotsData.days()[curday], hitRect);
+                } else{
+                    hitRect = new Rect(0,0,v.getWidth(), v.getHeight());
+                    dayView.offsetDescendantRectToMyCoords(v, hitRect);
+                    DotsEntryActivity.this.editDose(curday, regIndex, dotsData.days()[curday], hitRect);
                 }
-                
             });
         }
         
@@ -428,38 +423,17 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         if(curday == dotsData.days().length - 1) {
             next.setVisibility(View.INVISIBLE);
         } else{
-            next.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    tryMove(1);
-                }
-                
-            });
+            next.setOnClickListener(v -> tryMove(1));
         }
         View prev = dayView.findViewById(R.id.btn_doses_prev);
         if(curday == 0) {
             prev.setVisibility(View.INVISIBLE);
         } else{
-            prev.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    tryMove(-1);
-                }
-                
-            });
+            prev.setOnClickListener(v -> tryMove(-1));
         }
         
-        Button done = (Button)dayView.findViewById(R.id.btn_dots_doses_done);
-        done.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                DotsEntryActivity.this.cancelDayEdit(curday);
-            }
-            
-        });
+        Button done = dayView.findViewById(R.id.btn_dots_doses_done);
+        done.setOnClickListener(v -> DotsEntryActivity.this.cancelDayEdit(curday));
         return dayView;
     }
     
@@ -479,13 +453,13 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         c.roll(Calendar.DATE, dotsData.days().length - dayIndex + 1);
         
         ViewGroup doseView = (ViewGroup)View.inflate(this, R.layout.dotsdose, null);
-        TextView dosename = (TextView)doseView.findViewById(R.id.text_dosename);
-        TableLayout table = (TableLayout)doseView.findViewById(R.id.dose_table);
+        TextView dosename = doseView.findViewById(R.id.text_dosename);
+        TableLayout table = doseView.findViewById(R.id.dose_table);
         table.setPadding(0,0,2,0);
         table.setShrinkAllColumns(true);
         
-        TableRow doses = (TableRow)table.findViewById(R.id.dose_status);
-        TableRow selfReported = (TableRow)table.findViewById(R.id.self_report_row);
+        TableRow doses = table.findViewById(R.id.dose_status);
+        TableRow selfReported = table.findViewById(R.id.self_report_row);
         
         dosename.setText(DotsDetailView.labels[d.getMaxReg() -1 ][regimenIndex]);
         

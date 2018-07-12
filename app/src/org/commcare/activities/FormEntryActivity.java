@@ -79,6 +79,9 @@ import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
@@ -88,7 +91,6 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,6 +161,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean savingFormOnKeySessionExpiration = false;
     private FormEntryActivityUIController uiController;
     private SqlStorage<FormRecord> formRecordStorage;
+
+    private boolean fullFormProfilingEnabled = false;
+    private EvaluationTraceReporter traceReporter;
 
     @Override
     @SuppressLint("NewApi")
@@ -555,12 +560,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // bring focus to the first one
             List<FormIndex> indexKeys = new ArrayList<>();
             indexKeys.addAll(answers.keySet());
-            Collections.sort(indexKeys, new Comparator<FormIndex>() {
-                @Override
-                public int compare(FormIndex arg0, FormIndex arg1) {
-                    return arg0.compareTo(arg1);
-                }
-            });
+            Collections.sort(indexKeys, FormIndex::compareTo);
 
             for (FormIndex index : indexKeys) {
                 // Within a group, you can only save for question events
@@ -809,7 +809,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             for (int i = 0; i < uiController.questionsView.getWidgets().size(); i++) {
                 QuestionWidget q = uiController.questionsView.getWidgets().get(i);
                 if (q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID) != null) {
-                    VideoView inlineVideo = (VideoView)q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+                    VideoView inlineVideo = q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
                     if (inlineVideo.isPlaying()) {
                         indexOfWidgetWithVideoPlaying = i;
                         positionOfVideoProgress = inlineVideo.getCurrentPosition();
@@ -823,7 +823,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void restoreInlineVideoState() {
         if (indexOfWidgetWithVideoPlaying != -1) {
             QuestionWidget widgetWithVideoToResume = uiController.questionsView.getWidgets().get(indexOfWidgetWithVideoPlaying);
-            VideoView inlineVideo = (VideoView)widgetWithVideoToResume.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+            VideoView inlineVideo = widgetWithVideoToResume.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
             if (inlineVideo != null) {
                 inlineVideo.seekTo(positionOfVideoProgress);
                 inlineVideo.start();
@@ -865,7 +865,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (intent != null) {
             loadIntentFormData(intent);
             setTitleToLoading();
-            int formId = -1;
+            int formId;
             try {
                 SqlStorage<FormDefRecord> formDefStorage = CommCareApplication.instance().getAppStorage(FormDefRecord.class);
                 if (intent.hasExtra(KEY_FORM_RECORD_ID)) {
@@ -911,6 +911,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 }
             };
+            if (fullFormProfilingEnabled) {
+                traceReporter = new ReducingTraceReporter(true);
+                mFormLoaderTask.setProfilingOnFullForm(traceReporter);
+            }
             mFormLoaderTask.connect(this);
             mFormLoaderTask.executeParallel(formId);
             hasFormLoadBeenTriggered = true;
@@ -925,6 +929,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         mFormController = fc;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // Newer menus may have already built the menu, before all data was ready
             invalidateOptionsMenu();
@@ -1162,6 +1167,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // might be auto-saving a form due to user session expiring
         }
 
+        if (fullFormProfilingEnabled) {
+            // Uncomment 1 of the following expressions for whichever trace serialization format you're interested in
+            //InstrumentationUtils.printAndClearTraces(this.traceReporter, "FULL FORM ENTRY TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
+            //InstrumentationUtils.printExpressionsThatUsedCaching(this.traceReporter, "EXPRESSIONS THAT USED CACHING:");
+            //InstrumentationUtils.printCachedAndNotCachedExpressions(this.traceReporter, "CACHED AND NOT CACHED EXPRESSIONS:");
+        }
+
         dismissProgressDialog();
         reportFormExitTime();
         finish();
@@ -1223,7 +1235,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private boolean canNavigateForward() {
-        ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
+        ImageButton nextButton = this.findViewById(R.id.nav_btn_next);
         return FormEntryConstants.NAV_STATE_NEXT.equals(nextButton.getTag());
     }
 

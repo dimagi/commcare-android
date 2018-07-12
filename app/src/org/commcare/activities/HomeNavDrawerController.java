@@ -50,8 +50,8 @@ public class HomeNavDrawerController {
 
     public HomeNavDrawerController(RootMenuHomeActivity activity) {
         this.activity = activity;
-        drawerLayout = (DrawerLayout)activity.findViewById(R.id.menu_activity_drawer_layout);
-        navDrawerList = (ListView)activity.findViewById(R.id.nav_drawer);
+        drawerLayout = activity.findViewById(R.id.menu_activity_drawer_layout);
+        navDrawerList = activity.findViewById(R.id.nav_drawer);
         // Disable opening of the nav drawer via swiping
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
@@ -129,39 +129,36 @@ public class HomeNavDrawerController {
     }
 
     private ListView.OnItemClickListener getNavDrawerClickListener() {
-        return new ListView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                drawerLayout.closeDrawer(navDrawerList);
-                switch(drawerItemsShowing[position].id) {
-                    case SYNC_DRAWER_ITEM_ID:
-                        activity.sendFormsOrSync(true);
-                        break;
-                    case SAVED_FORMS_ITEM_ID:
-                        activity.goToFormArchive(false);
-                        break;
-                    case UPDATE_DRAWER_ITEM_ID:
-                        activity.launchUpdateActivity();
-                        break;
-                    case ABOUT_CC_DRAWER_ITEM_ID:
-                        activity.showAboutCommCareDialog();
-                        break;
-                    case SETTINGS_DRAWER_ITEM_ID:
-                        HomeScreenBaseActivity.createPreferencesMenu(activity);
-                        break;
-                    case ADVANCED_DRAWER_ITEM_ID:
-                        activity.showAdvancedActionsPreferences();
-                        break;
-                    case CHANGE_LANGUAGE_DRAWER_ITEM_ID:
-                        activity.showLocaleChangeMenu(null);
-                        break;
-                    case LOGOUT_DRAWER_ITEM_ID:
-                        activity.userTriggeredLogout();
-                        break;
-                    case TRAINING_DRAWER_ITEM_ID:
-                        activity.enterTrainingModule();
-                        break;
-                }
+        return (parent, view, position, id) -> {
+            drawerLayout.closeDrawer(navDrawerList);
+            switch(drawerItemsShowing[position].id) {
+                case SYNC_DRAWER_ITEM_ID:
+                    activity.sendFormsOrSync(true);
+                    break;
+                case SAVED_FORMS_ITEM_ID:
+                    activity.goToFormArchive(false);
+                    break;
+                case UPDATE_DRAWER_ITEM_ID:
+                    activity.launchUpdateActivity();
+                    break;
+                case ABOUT_CC_DRAWER_ITEM_ID:
+                    activity.showAboutCommCareDialog();
+                    break;
+                case SETTINGS_DRAWER_ITEM_ID:
+                    HomeScreenBaseActivity.createPreferencesMenu(activity);
+                    break;
+                case ADVANCED_DRAWER_ITEM_ID:
+                    activity.showAdvancedActionsPreferences();
+                    break;
+                case CHANGE_LANGUAGE_DRAWER_ITEM_ID:
+                    activity.showLocaleChangeMenu(null);
+                    break;
+                case LOGOUT_DRAWER_ITEM_ID:
+                    activity.userTriggeredLogout();
+                    break;
+                case TRAINING_DRAWER_ITEM_ID:
+                    activity.enterTrainingModule();
+                    break;
             }
         };
     }

@@ -93,13 +93,10 @@ public class QueryRequestActivity
     private void setupUI() {
         buildPromptUI();
 
-        queryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ViewUtil.hideVirtualKeyboard(QueryRequestActivity.this);
-                answerPrompts();
-                makeQueryRequest();
-            }
+        queryButton.setOnClickListener(v -> {
+            ViewUtil.hideVirtualKeyboard(QueryRequestActivity.this);
+            answerPrompts();
+            makeQueryRequest();
         });
 
         if (inErrorState) {
@@ -108,7 +105,7 @@ public class QueryRequestActivity
     }
 
     private void buildPromptUI() {
-        LinearLayout promptsLayout = (LinearLayout)findViewById(R.id.query_prompts);
+        LinearLayout promptsLayout = findViewById(R.id.query_prompts);
         OrderedHashtable<String, DisplayUnit> userInputDisplays =
                 remoteQuerySessionManager.getNeededUserInputDisplays();
         int promptCount = 1;

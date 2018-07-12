@@ -28,6 +28,9 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -45,7 +48,7 @@ import java.util.Vector;
 public class XFormAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = XFormAndroidInstaller.class.getSimpleName();
 
-    private String namespace;
+    protected String namespace;
     private int formDefId = -1;
 
     @SuppressWarnings("unused")
@@ -64,7 +67,9 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
+    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException,
+            XmlPullParserException, UnfullfilledRequirementsException {
         platform.registerXmlns(namespace, formDefId);
         return true;
     }

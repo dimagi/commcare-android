@@ -31,6 +31,8 @@ import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.logging.DataChangeLog;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.suite.model.OfflineUserRestore;
@@ -40,6 +42,7 @@ import org.commcare.tasks.ManageKeyRecordTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 
+import org.commcare.util.LogTypes;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.Permissions;
@@ -50,6 +53,7 @@ import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
@@ -199,10 +203,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void startDataPull(DataPullMode mode) {
-        switch(mode) {
+        switch (mode) {
             case CONSUMER_APP:
                 formAndDataSyncer.performLocalRestore(this, getUniformUsername(),
-                    uiController.getEnteredPasswordOrPin());
+                        uiController.getEnteredPasswordOrPin());
                 break;
             case CCZ_DEMO:
                 OfflineUserRestore offlineUserRestore = CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
@@ -542,6 +546,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                             Toast.makeText(receiver,
                                     Localization.get("login.update.install.success"),
                                     Toast.LENGTH_LONG).show();
+                            DataChangeLogger.log(new DataChangeLog.CommCareAppUpdated());
                         } else {
                             CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(result));
                         }
@@ -558,7 +563,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     protected void deliverError(LoginActivity receiver,
                                                 Exception e) {
                         e.printStackTrace();
-                        Log.e(TAG, "update installation on login failed: " + e.getMessage());
+                        Logger.exception("Auto update on login failed", e);
                         Toast.makeText(receiver,
                                 Localization.get("login.update.install.failure"),
                                 Toast.LENGTH_LONG).show();
@@ -655,12 +660,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void handlePullTaskError() {
         raiseLoginMessage(StockMessages.Restore_Unknown, true);
     }
-    
+
     private void checkManagedConfiguration() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             // Check for managed configuration
             RestrictionsManager restrictionsManager =
-                    (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
+                    (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
             if (restrictionsManager == null) {
                 return;
             }

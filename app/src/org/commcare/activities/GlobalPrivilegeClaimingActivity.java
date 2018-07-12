@@ -46,12 +46,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
 
         setContentView(R.layout.privilege_claiming_view);
 
-        findViewById(R.id.claim_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callOutToBarcodeScanner();
-            }
-        });
+        findViewById(R.id.claim_button).setOnClickListener(v -> callOutToBarcodeScanner());
 
         CommCarePreferenceActivity.addBackButtonToActionBar(this);
     }
@@ -63,10 +58,10 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     }
 
     private void refreshUI() {
-        TextView enabledTextView = (TextView) findViewById(R.id.enabled_textview);
-        TextView notEnabledTextView = (TextView) findViewById(R.id.not_enabled_textview);
-        Button claimButton = (Button) findViewById(R.id.claim_button);
-        TextView instructions = (TextView) findViewById(R.id.instructions);
+        TextView enabledTextView = findViewById(R.id.enabled_textview);
+        TextView notEnabledTextView = findViewById(R.id.not_enabled_textview);
+        Button claimButton = findViewById(R.id.claim_button);
+        TextView instructions = findViewById(R.id.instructions);
 
         if (GlobalPrivilegesManager.getEnabledPrivileges().size() > 0) {
             notEnabledTextView.setVisibility(View.GONE);

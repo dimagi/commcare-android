@@ -72,7 +72,7 @@ public class PostRequestActivityTest {
                                            boolean isVisible,
                                            String expectedErrorMessage) {
         TextView errorMessage =
-                (TextView)postRequestActivity.findViewById(R.id.error_message);
+                postRequestActivity.findViewById(R.id.error_message);
         if (isVisible) {
             assertEquals(View.VISIBLE, errorMessage.getVisibility());
         } else {
@@ -156,7 +156,7 @@ public class PostRequestActivityTest {
 
         PostRequestActivity postRequestActivity = buildPostActivity("https://www.fake.com");
 
-        Button retryButton = (Button)postRequestActivity.findViewById(R.id.request_button);
+        Button retryButton = postRequestActivity.findViewById(R.id.request_button);
         assertEquals(View.VISIBLE, retryButton.getVisibility());
         retryButton.performClick();
 

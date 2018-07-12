@@ -28,7 +28,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -351,12 +350,7 @@ class AppDatabaseUpgrader {
             } else {
                 // Otherwise, sort the records in decreasing order of validTo date, and then mark
                 // the first one in the list as active
-                Collections.sort(records, new Comparator<UserKeyRecord>() {
-                    @Override
-                    public int compare(UserKeyRecord lhs, UserKeyRecord rhs) {
-                        return lhs.getValidTo().compareTo(rhs.getValidTo());
-                    }
-                });
+                Collections.sort(records, (lhs, rhs) -> lhs.getValidTo().compareTo(rhs.getValidTo()));
                 activeRecord = records.get(0);
             }
             activeRecord.setActive();

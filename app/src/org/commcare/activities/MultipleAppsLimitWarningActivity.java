@@ -26,7 +26,7 @@ public class MultipleAppsLimitWarningActivity extends CommCareActivity {
     }
 
     private void setupUI(final boolean installAttemptCameFromManager) {
-        Button toManagerButton = (Button)findViewById(R.id.back_to_manager_button);
+        Button toManagerButton = findViewById(R.id.back_to_manager_button);
 
         if (installAttemptCameFromManager) {
             toManagerButton.setText(R.string.back_to_manager);
@@ -34,12 +34,7 @@ public class MultipleAppsLimitWarningActivity extends CommCareActivity {
             toManagerButton.setText(R.string.go_to_manager);
         }
 
-        toManagerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               onManagerButtonClicked(installAttemptCameFromManager);
-            }
-        });
+        toManagerButton.setOnClickListener(v -> onManagerButtonClicked(installAttemptCameFromManager));
     }
 
     private void onManagerButtonClicked(boolean installAttemptCameFromManager) {

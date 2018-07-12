@@ -57,8 +57,8 @@ public abstract class CustomButtonWithText extends RelativeLayout {
 
         typedArray.recycle();
 
-        button = (ImageButton)findViewById(R.id.button);
-        textView = (TextView)findViewById(R.id.text_view);
+        button = findViewById(R.id.button);
+        textView = findViewById(R.id.text_view);
 
         if (isInEditMode()) {
             setUI(R.color.cc_brand_color, getResources().getDrawable(R.drawable.barcode), "Your text goes here", colorButtonText);

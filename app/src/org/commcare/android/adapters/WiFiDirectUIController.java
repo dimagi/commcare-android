@@ -26,41 +26,21 @@ public class WiFiDirectUIController implements CommCareActivityUIController {
     }
 
     private void setupButtonListeners() {
-        modeButton = (SquareButtonWithText)activity.findViewById(R.id.mode);
+        modeButton = activity.findViewById(R.id.mode);
         modeButton.setText(Localization.get("wifi.direct.change.mode.button"));
-        modeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.showChangeStateDialog();
-            }
-        });
+        modeButton.setOnClickListener(v -> activity.showChangeStateDialog());
 
-        submitButton = (SquareButtonWithText)activity.findViewById(R.id.submit);
+        submitButton = activity.findViewById(R.id.submit);
         submitButton.setText(Localization.get("wifi.direct.submit.button"));
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.submitFiles();
-            }
-        });
+        submitButton.setOnClickListener(v -> activity.submitFiles());
 
-        discoverButton = (SquareButtonWithText)activity.findViewById(R.id.discover);
+        discoverButton = activity.findViewById(R.id.discover);
         discoverButton.setText(Localization.get("wifi.direct.discover.button"));
-        discoverButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.discoverPeers();
-            }
-        });
+        discoverButton.setOnClickListener(v -> activity.discoverPeers());
 
-        sendButton = (SquareButtonWithText)activity.findViewById(R.id.send);
+        sendButton = activity.findViewById(R.id.send);
         sendButton.setText(Localization.get("wifi.direct.send.button"));
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.prepareFileTransfer();
-            }
-        });
+        sendButton.setOnClickListener(v -> activity.prepareFileTransfer());
     }
 
     @Override

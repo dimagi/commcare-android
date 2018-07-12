@@ -86,19 +86,16 @@ public class ListMultiWidget extends QuestionWidget {
                 CheckBox c = new CheckBox(getContext());
 
                 // when clicked, check for readonly before toggling
-                c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        // TODO PLM: hmmm, the conditional below is always false...
-                        if (!mCheckboxInit && mPrompt.isReadOnly()) {
-                            if (buttonView.isChecked()) {
-                                buttonView.setChecked(false);
-                            } else {
-                                buttonView.setChecked(true);
-                            }
+                c.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    // TODO PLM: hmmm, the conditional below is always false...
+                    if (!mCheckboxInit && mPrompt.isReadOnly()) {
+                        if (buttonView.isChecked()) {
+                            buttonView.setChecked(false);
+                        } else {
+                            buttonView.setChecked(true);
                         }
-                        widgetEntryChanged();
                     }
+                    widgetEntryChanged();
                 });
 
                 c.setId(CHECKBOX_ID + i);
@@ -243,7 +240,7 @@ public class ListMultiWidget extends QuestionWidget {
         for (int i = 0; i < j; i++) {
 
             // no checkbox group so find by id + offset
-            CheckBox c = ((CheckBox)findViewById(CHECKBOX_ID + i));
+            CheckBox c = findViewById(CHECKBOX_ID + i);
             if (c.isChecked()) {
                 c.setChecked(false);
             }
@@ -255,7 +252,7 @@ public class ListMultiWidget extends QuestionWidget {
     public IAnswerData getAnswer() {
         Vector<Selection> vc = new Vector<>();
         for (int i = 0; i < mItems.size(); i++) {
-            CheckBox c = ((CheckBox)findViewById(CHECKBOX_ID + i));
+            CheckBox c = findViewById(CHECKBOX_ID + i);
             if (c.isChecked()) {
                 vc.add(new Selection(mItems.get(i)));
             }

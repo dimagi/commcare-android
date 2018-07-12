@@ -44,12 +44,7 @@ public class ForceCloseLogger {
     }
 
     public static void reportExceptionInBg(final Throwable exception) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                sendToServerOrStore(exception);
-            }
-        }).start();
+        new Thread(() -> sendToServerOrStore(exception)).start();
     }
 
     /**

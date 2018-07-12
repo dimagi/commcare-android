@@ -82,41 +82,30 @@ public class PinAuthenticationActivity extends
         }
 
         pinEntry.addTextChangedListener(CreatePinActivity.getPinTextWatcher(enterButton));
-        pinEntry.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_NEXT) {
-                    if (CreatePinActivity.pinLengthIsValid(pinEntry.getText())) {
-                        enterButton.performClick();
-                    } else {
-                        Toast.makeText(PinAuthenticationActivity.this,
-                                Localization.get("pin.length.error"), Toast.LENGTH_LONG).show();
-                    }
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        enterButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                if (authMode == LoginMode.PASSWORD) {
-                    checkEnteredPassword();
+        pinEntry.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                if (CreatePinActivity.pinLengthIsValid(pinEntry.getText())) {
+                    enterButton.performClick();
                 } else {
-                    checkEnteredPin();
+                    Toast.makeText(PinAuthenticationActivity.this,
+                            Localization.get("pin.length.error"), Toast.LENGTH_LONG).show();
                 }
+                return true;
+            }
+            return false;
+        });
+
+        enterButton.setOnClickListener(v -> {
+            if (authMode == LoginMode.PASSWORD) {
+                checkEnteredPassword();
+            } else {
+                checkEnteredPin();
             }
         });
 
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                setResult(RESULT_CANCELED);
-                finish();
-            }
+        cancelButton.setOnClickListener(v -> {
+            setResult(RESULT_CANCELED);
+            finish();
         });
     }
 

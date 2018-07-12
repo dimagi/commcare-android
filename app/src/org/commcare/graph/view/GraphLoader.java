@@ -24,11 +24,6 @@ public class GraphLoader extends TimerTask {
     @JavascriptInterface
     @Override
     public void run() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                spinner.setVisibility(View.GONE);
-            }
-        });
+        activity.runOnUiThread(() -> spinner.setVisibility(View.GONE));
     }
 }

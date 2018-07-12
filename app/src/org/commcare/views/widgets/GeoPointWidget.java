@@ -87,18 +87,15 @@ public class GeoPointWidget extends QuestionWidget {
                 mAnswerFontSize,
                 !prompt.isReadOnly());
 
-        mGetLocationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i;
-                if (mUseMaps) {
-                    i = new Intent(getContext(), GeoPointMapActivity.class);
-                } else {
-                    i = new Intent(getContext(), GeoPointActivity.class);
-                }
-                ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.LOCATION_CAPTURE);
-                pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+        mGetLocationButton.setOnClickListener(v -> {
+            Intent i;
+            if (mUseMaps) {
+                i = new Intent(getContext(), GeoPointMapActivity.class);
+            } else {
+                i = new Intent(getContext(), GeoPointActivity.class);
             }
+            ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.LOCATION_CAPTURE);
+            pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
         });
 
         // setup 'view location' button
@@ -109,20 +106,17 @@ public class GeoPointWidget extends QuestionWidget {
                 viewButtonEnabled);
 
         // launch appropriate map viewer
-        mViewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String s = mStringAnswer.getText().toString();
-                String[] sa = s.split(" ");
-                double gp[] = new double[4];
-                gp[0] = Double.valueOf(sa[0]);
-                gp[1] = Double.valueOf(sa[1]);
-                gp[2] = Double.valueOf(sa[2]);
-                gp[3] = Double.valueOf(sa[3]);
-                Intent i = new Intent(getContext(), GeoPointMapActivity.class);
-                i.putExtra(LOCATION, gp);
-                getContext().startActivity(i);
-            }
+        mViewButton.setOnClickListener(v -> {
+            String s1 = mStringAnswer.getText().toString();
+            String[] sa = s1.split(" ");
+            double gp[] = new double[4];
+            gp[0] = Double.valueOf(sa[0]);
+            gp[1] = Double.valueOf(sa[1]);
+            gp[2] = Double.valueOf(sa[2]);
+            gp[3] = Double.valueOf(sa[3]);
+            Intent i = new Intent(getContext(), GeoPointMapActivity.class);
+            i.putExtra(LOCATION, gp);
+            getContext().startActivity(i);
         });
 
         addView(mGetLocationButton);

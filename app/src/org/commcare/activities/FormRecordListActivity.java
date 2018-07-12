@@ -1,9 +1,7 @@
 package org.commcare.activities;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -148,26 +146,21 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         setContentView(R.layout.entity_select_layout);
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
-        searchbox = (EditText)findViewById(R.id.searchbox);
-        LinearLayout header = (LinearLayout)findViewById(R.id.entity_select_header);
-        ImageButton barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+        searchbox = findViewById(R.id.searchbox);
+        LinearLayout header = findViewById(R.id.entity_select_header);
+        ImageButton barcodeButton = findViewById(R.id.barcodeButton);
 
-        Spinner filterSelect = (Spinner)findViewById(R.id.entity_select_filter_dropdown);
+        Spinner filterSelect = findViewById(R.id.entity_select_filter_dropdown);
 
-        listView = (ListView)findViewById(R.id.screen_entity_select_list);
+        listView = findViewById(R.id.screen_entity_select_list);
         listView.setOnItemClickListener(this);
 
         header.setVisibility(View.GONE);
         barcodeButton.setVisibility(View.GONE);
 
-        barcodeScanOnClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callBarcodeScanIntent(FormRecordListActivity.this);
-            }
-        };
+        barcodeScanOnClickListener = v -> callBarcodeScanIntent(FormRecordListActivity.this);
 
-        TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
+        TextView searchLabel = findViewById(R.id.screen_entity_select_search_label);
         searchLabel.setText(this.localize("select.search.label"));
 
         searchbox.addTextChangedListener(this);
@@ -425,12 +418,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                             CommCareApplication.instance().getUserStorage(FormRecord.class).read((int)info.id);
                     toDelete.logPendingDeletion(TAG, "the user manually selected 'DELETE' in FormRecordListActivity");
                     FormRecordCleanupTask.wipeRecord(toDelete);
-                    listView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.notifyDataSetInvalidated();
-                        }
-                    });
+                    listView.post(adapter::notifyDataSetInvalidated);
                     return true;
                 case RESTORE_RECORD:
                     new FormRecordProcessor(this).updateRecordStatus(selectedRecord, FormRecord.STATUS_UNSENT);
@@ -467,12 +455,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 result.second, resId, null);
 
         if (record.getStatus().equals(FormRecord.STATUS_UNSENT)) {
-            dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    manuallyQuarantineRecord(record);
-                    dismissAlertDialog();
-                }
+            dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), (dialog1, which) -> {
+                manuallyQuarantineRecord(record);
+                dismissAlertDialog();
             });
         }
 
@@ -481,12 +466,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     private void manuallyQuarantineRecord(FormRecord record) {
         this.formRecordProcessor.quarantineRecord(record, FormRecord.QuarantineReason_MANUAL);
-        listView.post(new Runnable() {
-            @Override
-            public void run() {
-                adapter.notifyDataSetInvalidated();
-            }
-        });
+        listView.post(adapter::notifyDataSetInvalidated);
         record.logManualQuarantine();
     }
 
@@ -517,35 +497,31 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
-        tryToAddSearchActionToAppBar(this, menu, new ActionBarInstantiator() {
-            // this should be unnecessary...
-            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-            @Override
-            public void onActionBarFound(MenuItem searchItem, SearchView searchView, MenuItem barcodeItem) {
-                FormRecordListActivity.this.searchItem = searchItem;
-                FormRecordListActivity.this.searchView = searchView;
-                if (lastQueryString != null && lastQueryString.length() > 0) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                        searchItem.expandActionView();
-                    }
-                    setSearchText(lastQueryString);
-                    if (adapter != null) {
-                        adapter.applyTextFilter(lastQueryString == null ? "" : lastQueryString);
-                    }
+        // this should be unnecessary...
+        tryToAddSearchActionToAppBar(this, menu, (searchItem, searchView, barcodeItem) -> {
+            FormRecordListActivity.this.searchItem = searchItem;
+            FormRecordListActivity.this.searchView = searchView;
+            if (lastQueryString != null && lastQueryString.length() > 0) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                    searchItem.expandActionView();
                 }
-                FormRecordListActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-                        adapter.applyTextFilter(newText);
-                        return false;
-                    }
-                });
+                setSearchText(lastQueryString);
+                if (adapter != null) {
+                    adapter.applyTextFilter(lastQueryString == null ? "" : lastQueryString);
+                }
             }
+            FormRecordListActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    adapter.applyTextFilter(newText);
+                    return false;
+                }
+            });
         });
         if (!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
             String source = DeveloperPreferences.getRemoteFormPayloadUrl();

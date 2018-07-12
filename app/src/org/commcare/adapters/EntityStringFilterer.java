@@ -96,12 +96,7 @@ public class EntityStringFilterer extends EntityFiltererBase {
                     isFuzzySearchEnabled,
                     matchScores,
                     matchList,
-                    new EntityProvider() {
-                        @Override
-                        public Entity<TreeReference> getEntity(int index) {
-                            return getEntityAtIndex(db, index);
-                        }
-                    });
+                    index -> getEntityAtIndex(db, index));
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
