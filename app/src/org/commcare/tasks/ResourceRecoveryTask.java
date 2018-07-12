@@ -38,6 +38,10 @@ public abstract class ResourceRecoveryTask<Reciever>
         return success;
     }
 
+    /**
+     *
+     * @return CommCare App Profile url without query params
+     */
     private String getProfileReference() {
         String profileRef = ResourceInstallUtils.getDefaultProfileRef();
         return profileRef.split("\\?")[0];
