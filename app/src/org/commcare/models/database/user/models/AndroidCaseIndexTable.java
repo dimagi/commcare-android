@@ -92,36 +92,6 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
         }
     }
 
-    public Vector<CaseIndex> getIndicesForCase(int recordId) {
-        Vector<CaseIndex> indices = new Vector<>();
-
-        String[] projection = new String[] {COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TYPE, COL_INDEX_TARGET, COL_INDEX_RELATIONSHIP};
-
-        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
-            String sqlStatement = String.format("SELECT %s, %s, %s, %s, %s FROM %s WHERE %s = %d",
-                    COL_CASE_RECORD_ID, COL_INDEX_NAME, COL_INDEX_TYPE, COL_INDEX_TARGET, COL_INDEX_RELATIONSHIP, TABLE_NAME, COL_CASE_RECORD_ID, recordId);
-            DbUtil.explainSql(db, sqlStatement, null);
-        }
-
-        //NOTE: This does terrible things to SQL's cache (not using parameters), but it's the only
-        //way to actually make the indexes seek properly
-        Cursor c = db.query(TABLE_NAME, projection, String.format("%s = %d", COL_CASE_RECORD_ID, recordId) ,null, null, null, null);
-        try {
-            c.moveToFirst();
-            while (!c.isAfterLast()) {
-                indices.add(new CaseIndex(c.getString(c.getColumnIndexOrThrow(COL_INDEX_NAME)),
-                        c.getString(c.getColumnIndexOrThrow(COL_INDEX_TYPE)),
-                        c.getString(c.getColumnIndexOrThrow(COL_INDEX_TARGET)),
-                        c.getString(c.getColumnIndexOrThrow(COL_INDEX_RELATIONSHIP))));
-                c.moveToNext();
-            }
-            return indices;
-        } finally {
-            c.close();
-        }
-
-    }
-
     public HashMap<Integer,Vector<Pair<String, String>>> getCaseIndexMap() {
         String[] projection = new String[] {COL_CASE_RECORD_ID, COL_INDEX_TARGET, COL_INDEX_RELATIONSHIP};
         HashMap<Integer,Vector<Pair<String, String>>> caseIndexMap = new HashMap<>();
