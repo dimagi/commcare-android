@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.support.annotation.NonNull;
@@ -39,6 +40,7 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
@@ -167,10 +169,22 @@ public class CommCareApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if (BuildConfig.DEBUG) {
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    .penaltyDeath()
+                    .build());
+        }
+
         CommCareApplication.app = this;
         CrashUtil.init(this);
         DataChangeLogger.init(this);
         logFirstCommCareRun();
+        CommCarePreferenceManagerFactory.init(new AndroidPreferenceManager());
+
         configureCommCareEngineConstantsAndStaticRegistrations();
         noficationManager = new CommCareNoficationManager(this);
 

@@ -134,7 +134,7 @@ public class FormRecordProcessingTest {
                 Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
 
-        ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
+        ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
 
         // enter an answer for the question
         QuestionsView questionsView = formEntryActivity.getODKView();

@@ -60,7 +60,7 @@ public class IntentCalloutTests {
                         .create().start().resume().get();
         StringNumberWidget favoriteNumber = (StringNumberWidget)formEntryActivity.getODKView().getWidgets().get(0);
         favoriteNumber.setAnswer("1234567890");
-        ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
+        ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
         nextButton.performClick();
         return formEntryActivity;
     }

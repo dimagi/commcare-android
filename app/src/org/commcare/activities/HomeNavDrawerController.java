@@ -50,8 +50,8 @@ public class HomeNavDrawerController {
 
     public HomeNavDrawerController(RootMenuHomeActivity activity) {
         this.activity = activity;
-        drawerLayout = (DrawerLayout)activity.findViewById(R.id.menu_activity_drawer_layout);
-        navDrawerList = (ListView)activity.findViewById(R.id.nav_drawer);
+        drawerLayout = activity.findViewById(R.id.menu_activity_drawer_layout);
+        navDrawerList = activity.findViewById(R.id.nav_drawer);
         // Disable opening of the nav drawer via swiping
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }

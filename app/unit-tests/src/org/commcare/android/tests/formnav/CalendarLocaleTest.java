@@ -59,12 +59,12 @@ public class CalendarLocaleTest {
                 Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
 
-        ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
+        ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
 
         // enter an answer for the question
-        TextView dayText = (TextView)formEntryActivity.findViewById(R.id.daytxt);
-        TextView monthText = (TextView)formEntryActivity.findViewById(R.id.monthtxt);
-        TextView yearText = (TextView)formEntryActivity.findViewById(R.id.yeartxt);
+        TextView dayText = formEntryActivity.findViewById(R.id.daytxt);
+        TextView monthText = formEntryActivity.findViewById(R.id.monthtxt);
+        TextView yearText = formEntryActivity.findViewById(R.id.yeartxt);
 
         assertEquals(monthText.getText(), "Ashadh");
         assertEquals(dayText.getText(), "19");
@@ -73,9 +73,9 @@ public class CalendarLocaleTest {
 
         nextButton.performClick();
 
-        TextView ethiopianDayText = (TextView)formEntryActivity.findViewById(R.id.daytxt);
-        TextView ethiopianMonthText = (TextView)formEntryActivity.findViewById(R.id.monthtxt);
-        TextView ethiopianYearText = (TextView)formEntryActivity.findViewById(R.id.yeartxt);
+        TextView ethiopianDayText = formEntryActivity.findViewById(R.id.daytxt);
+        TextView ethiopianMonthText = formEntryActivity.findViewById(R.id.monthtxt);
+        TextView ethiopianYearText = formEntryActivity.findViewById(R.id.yeartxt);
         assertEquals("Säne",ethiopianMonthText.getText());
         assertEquals("26", ethiopianDayText.getText());
         assertEquals("2008", ethiopianYearText.getText());

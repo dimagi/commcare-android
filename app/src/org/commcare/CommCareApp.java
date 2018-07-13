@@ -16,9 +16,9 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.Table;
-import org.commcare.preferences.PrefValues;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -225,6 +225,12 @@ public class CommCareApp implements AppFilePathBuilder {
         if (profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
             try {
                 platform.initialize(global, false);
+
+                // Return false if resources are missing
+                if (!global.getMissingResources().isEmpty()) {
+                    return false;
+                }
+
                 Localization.setLocale(
                         getAppPreferences().getString(MainConfigurablePreferences.PREFS_LOCALE_KEY, "default"));
             } catch (UnregisteredLocaleException urle) {

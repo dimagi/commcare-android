@@ -7,12 +7,15 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.ACasePreV24Model;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
+import org.commcare.models.database.user.models.AndroidCaseIndexTablePreV21;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -182,6 +185,12 @@ class UserDatabaseUpgrader {
                 oldVersion = 23;
             }
         }
+
+        if (oldVersion == 23) {
+            if (upgradeTwentyThreeTwentyFour(db)) {
+                oldVersion = 24;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -238,9 +247,9 @@ class UserDatabaseUpgrader {
             db.execSQL(EntityStorageCache.getTableDefinition());
             EntityStorageCache.createIndexes(db);
 
-            db.execSQL(UserDbUpgradeUtils.getCreateV6AndroidCaseIndexTableSqlDef());
+            db.execSQL(AndroidCaseIndexTablePreV21.getTableDefinition());
             AndroidCaseIndexTable.createIndexes(db);
-            AndroidCaseIndexTable cit = new AndroidCaseIndexTable(db);
+            AndroidCaseIndexTablePreV21 cit = new AndroidCaseIndexTablePreV21(db);
 
             //NOTE: Need to use the PreV6 case model any time we manipulate cases in this model for upgraders
             //below 6
@@ -280,7 +289,7 @@ class UserDatabaseUpgrader {
         long start = System.currentTimeMillis();
         db.beginTransaction();
         try {
-            SqlStorage<Persistable> userStorage = new SqlStorage<Persistable>(AUser.STORAGE_KEY, AUser.class, new ConcreteAndroidDbHelper(c, db));
+            SqlStorage<Persistable> userStorage = new SqlStorage<>(AUser.STORAGE_KEY, AUser.class, new ConcreteAndroidDbHelper(c, db));
             SqlStorageIterator<Persistable> iterator = userStorage.iterate();
             while (iterator.hasMore()) {
                 AUser oldUser = (AUser)iterator.next();
@@ -512,7 +521,7 @@ class UserDatabaseUpgrader {
                     "owner_id",
                     "TEXT"));
 
-            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACasePreV24Model.class,
                     new ConcreteAndroidDbHelper(c, db));
             updateModels(caseStorage);
 
@@ -525,14 +534,13 @@ class UserDatabaseUpgrader {
         }
     }
 
-
     private boolean upgradeEighteenNineteen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACasePreV24Model.class,
                     new ConcreteAndroidDbHelper(c, db));
 
-            AndroidCaseIndexTable indexTable = new AndroidCaseIndexTable(db);
+            AndroidCaseIndexTablePreV21 indexTable = new AndroidCaseIndexTablePreV21(db);
             indexTable.reIndexAllCases(caseStorage);
             db.setTransactionSuccessful();
             return true;
@@ -614,6 +622,30 @@ class UserDatabaseUpgrader {
             }
         }
         return success;
+    }
+
+    /**
+     * Add external_id index to Case table
+     */
+    private boolean upgradeTwentyThreeTwentyFour(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    ACase.STORAGE_KEY,
+                    Case.EXTERNAL_ID_KEY,
+                    "TEXT"));
+
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            updateModels(caseStorage);
+
+            db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_external_id_index", "AndroidCase", "external_id"));
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private void migrateV2FormRecordsForSingleApp(String appId,

@@ -50,19 +50,19 @@ public class CrashWarningActivity extends Activity {
     }
 
     private void setupButtons() {
-        Button closeButton = (Button)findViewById(R.id.RestartCommCare);
+        Button closeButton = findViewById(R.id.RestartCommCare);
         closeButton.setText(Localization.get("crash.warning.button"));
         closeButton.setOnClickListener(v -> LifecycleUtils.restartCommCare(CrashWarningActivity.this, true));
 
-        infoButton = (ImageButton)findViewById(R.id.InfoButton);
+        infoButton = findViewById(R.id.InfoButton);
         infoButton.setOnClickListener(v -> toggleErrorMessageVisibility());
     }
 
     private void setupText() {
-        TextView simpleWarningView = (TextView)findViewById(R.id.SimpleWarningMessage);
+        TextView simpleWarningView = findViewById(R.id.SimpleWarningMessage);
         simpleWarningView.setText(Localization.get("crash.warning.header"));
 
-        TextView errorMessageView = (TextView)findViewById(R.id.ErrorText);
+        TextView errorMessageView = findViewById(R.id.ErrorText);
 
         Intent intent = getIntent();
         if (intent.hasExtra(CommCareExceptionHandler.WARNING_MESSAGE_KEY)) {
@@ -71,7 +71,7 @@ public class CrashWarningActivity extends Activity {
             errorMessageView.setText(Localization.get("crash.warning.detail") + "\n" + warningMessage);
         }
 
-        errorView = (LinearLayout)findViewById(R.id.Error);
+        errorView = findViewById(R.id.Error);
         errorView.setVisibility(errorMessageVisibility);
         updateButtonState();
     }

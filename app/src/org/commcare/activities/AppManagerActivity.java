@@ -82,7 +82,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
      * Refresh the list of installed apps
      */
     private void refreshView() {
-        ListView lv = (ListView)findViewById(R.id.apps_list_view);
+        ListView lv = findViewById(R.id.apps_list_view);
         lv.setAdapter(new AppManagerAdapter(this));
     }
 

@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.ACasePreV24Model;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.FormRecordV2;
@@ -165,7 +166,7 @@ public class UserDbUpgradeUtils {
     }
 
     protected static void addRelationshipToAllCases(Context c, SQLiteDatabase db) {
-        SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+        SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACasePreV24Model.class,
                 new ConcreteAndroidDbHelper(c, db));
 
         db.execSQL(DbUtil.addColumnToTable(
@@ -254,15 +255,5 @@ public class UserDbUpgradeUtils {
                 FormRecord.STORAGE_KEY,
                 formRecordClass,
                 new ConcreteAndroidDbHelper(c, db));
-    }
-    
-    public static String getCreateV6AndroidCaseIndexTableSqlDef() {
-        return "CREATE TABLE " + "case_index_storage" + "(" +
-                "commcare_sql_id" + " INTEGER PRIMARY KEY, " +
-                "case_rec_id" + ", " +
-                "name" + ", " +
-                "type" + ", " +
-                "target" +
-                ")";
     }
 }
