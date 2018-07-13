@@ -23,6 +23,10 @@ import java.util.Vector;
  */
 public class AndroidCommCarePlatform extends CommCarePlatform {
 
+    public static final String GLOBAL_RESOURCE_TABLE_NAME = "GLOBAL_RESOURCE_TABLE";
+    public static final String UPGRADE_RESOURCE_TABLE_NAME = "UPGRADE_RESOURCE_TABLE";
+    public static final String RECOVERY_RESOURCE_TABLE_NAME = "RECOVERY_RESOURCE_TABLE";
+
     private final Hashtable<String, Integer> xmlnstable;
     private ResourceTable global;
     private ResourceTable upgrade;
@@ -59,21 +63,21 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 
     public ResourceTable getGlobalResourceTable() {
         if (global == null) {
-            global = new AndroidResourceTable(app.getStorage("GLOBAL_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
+            global = new AndroidResourceTable(app.getStorage(GLOBAL_RESOURCE_TABLE_NAME, Resource.class), new AndroidResourceInstallerFactory());
         }
         return global;
     }
 
     public ResourceTable getUpgradeResourceTable() {
         if (upgrade == null) {
-            upgrade = new AndroidResourceTable(app.getStorage("UPGRADE_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
+            upgrade = new AndroidResourceTable(app.getStorage(UPGRADE_RESOURCE_TABLE_NAME, Resource.class), new AndroidResourceInstallerFactory());
         }
         return upgrade;
     }
 
     public ResourceTable getRecoveryTable() {
         if (recovery == null) {
-            recovery = new AndroidResourceTable(app.getStorage("RECOVERY_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
+            recovery = new AndroidResourceTable(app.getStorage(RECOVERY_RESOURCE_TABLE_NAME, Resource.class), new AndroidResourceInstallerFactory());
         }
         return recovery;
     }
