@@ -7,7 +7,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.CrashWarningActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
-import org.commcare.recovery.measures.RecoveryMeasuresManager;
+import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.lang.Thread.UncaughtExceptionHandler;
@@ -36,7 +36,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
         // Always report to HQ device logs
         ForceCloseLogger.reportExceptionInBg(ex);
 
-        if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
+        if (RecoveryMeasuresHelper.recoveryMeasuresPending()) {
             startRecoveryMeasureActivity();
             CrashUtil.reportException(ex);
 

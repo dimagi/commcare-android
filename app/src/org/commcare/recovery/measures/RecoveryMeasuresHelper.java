@@ -6,16 +6,21 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.StorageUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Created by amstone326 on 4/27/18.
  */
 
-public class RecoveryMeasuresManager {
+public class RecoveryMeasuresHelper {
 
     static final String RECOVERY_MEASURES_LAST_STATUS = "recovery-measures-last-status";
 
@@ -44,8 +49,39 @@ public class RecoveryMeasuresManager {
             return false;
         }
         SqlStorage<RecoveryMeasure> storage = CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
-        return storage.getNumRecords() > 0 &&
-                !StorageUtils.getPendingRecoveryMeasuresInOrder(storage).get(0).triedTooRecently();
+        List<RecoveryMeasure> pendingMeasures = getPendingRecoveryMeasuresInOrder(storage);
+        return pendingMeasures.size() > 0 &&
+                !getPendingRecoveryMeasuresInOrder(storage).get(0).triedTooRecently();
+    }
+
+    public static List<RecoveryMeasure> getPendingRecoveryMeasuresInOrder(SqlStorage<RecoveryMeasure> storage) {
+        List<RecoveryMeasure> toExecute = new ArrayList<>();
+        List<RecoveryMeasure> toDelete = new ArrayList<>();
+
+        long latestMeasureExecuted = HiddenPreferences.getLatestRecoveryMeasureExecuted();
+        for (RecoveryMeasure measure : storage) {
+            if (measure.getSequenceNumber() <= latestMeasureExecuted) {
+                toDelete.add(measure);
+            } else {
+                toExecute.add(measure);
+            }
+        }
+
+        for (RecoveryMeasure measure : toDelete) {
+            storage.remove(measure.getID());
+        }
+
+        Collections.sort(toExecute, (measure1, measure2) -> {
+            long diff = measure1.getSequenceNumber() - measure2.getSequenceNumber();
+            if (diff < 0) {
+                return -1;
+            } else if (diff == 0) {
+                return 0;
+            } else {
+                return 1;
+            }
+        });
+        return toExecute;
     }
 
     public static void handleExecutionActivityResult(Activity receiver, Intent intent) {

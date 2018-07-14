@@ -7,6 +7,7 @@ import android.view.View;
 import org.commcare.CommCareApplication;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.heartbeat.UpdateToPrompt;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -16,9 +17,15 @@ import org.javarosa.core.services.locale.Localization;
 public class PromptCczUpdateActivity extends PromptActivity {
 
     @Override
-    public void onCreateSessionSafe(Bundle savedInstanceState) {
-        super.onCreateSessionSafe(savedInstanceState);
-        CommCareApplication.instance().getSession().setCczUpdatePromptWasShown();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Mark that we have shown the prompt for this user login
+        try {
+            CommCareApplication.instance().getSession().setCczUpdatePromptWasShown();
+        } catch (SessionUnavailableException e) {
+            // we are showing the prompt before user login, so nothing to mark
+        }
     }
 
     @Override

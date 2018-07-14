@@ -7,6 +7,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.heartbeat.UpdateToPrompt;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -16,9 +17,14 @@ import org.javarosa.core.services.locale.Localization;
 public class PromptApkUpdateActivity extends PromptActivity {
 
     @Override
-    public void onCreateSessionSafe(Bundle savedInstanceState) {
-        super.onCreateSessionSafe(savedInstanceState);
-        CommCareApplication.instance().getSession().setApkUpdatePromptWasShown();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Mark that we have shown the prompt for this user login
+        try {
+            CommCareApplication.instance().getSession().setApkUpdatePromptWasShown();
+        } catch (SessionUnavailableException e) {
+            // we are showing the prompt before user login, so nothing to mark
+        }
     }
 
     @Override

@@ -35,7 +35,7 @@ import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.DevSessionRestorer;
-import org.commcare.recovery.measures.RecoveryMeasuresManager;
+import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
@@ -43,7 +43,6 @@ import org.commcare.tasks.ManageKeyRecordTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 
-import org.commcare.util.LogTypes;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.Permissions;
@@ -267,7 +266,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
-        if (RecoveryMeasuresManager.recoveryMeasuresPending()) {
+        if (RecoveryMeasuresHelper.recoveryMeasuresPending()) {
             Intent i = new Intent();
             i.putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true);
             setResult(RESULT_OK, i);

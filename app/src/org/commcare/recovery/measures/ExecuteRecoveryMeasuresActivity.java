@@ -77,13 +77,13 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
 
     @Override
     protected void setResultOnIntent(Intent i) {
-        i.putExtra(RecoveryMeasuresManager.RECOVERY_MEASURES_LAST_STATUS, lastExecutionStatus);
+        i.putExtra(RecoveryMeasuresHelper.RECOVERY_MEASURES_LAST_STATUS, lastExecutionStatus);
     }
 
     void executePendingMeasures() {
         SqlStorage<RecoveryMeasure> storage =
                 CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
-        List<RecoveryMeasure> toExecute = StorageUtils.getPendingRecoveryMeasuresInOrder(storage);
+        List<RecoveryMeasure> toExecute = RecoveryMeasuresHelper.getPendingRecoveryMeasuresInOrder(storage);
         if (toExecute.size() == 0) {
             runFinish();
             return;

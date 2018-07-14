@@ -19,7 +19,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * Created by amstone326 on 4/19/17.
  */
-public abstract class PromptActivity extends SessionAwareCommCareActivity {
+public abstract class PromptActivity extends CommCareActivity {
 
     protected static final int DO_AN_UPDATE = 1;
 
@@ -34,8 +34,8 @@ public abstract class PromptActivity extends SessionAwareCommCareActivity {
     protected TextView instructions;
 
     @Override
-    public void onCreateSessionSafe(Bundle savedInstanceState) {
-        super.onCreateSessionSafe(savedInstanceState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         if (toPrompt == null) {
             refreshPromptObject();
         }
@@ -74,12 +74,15 @@ public abstract class PromptActivity extends SessionAwareCommCareActivity {
     }
 
     abstract void refreshPromptObject();
+
     abstract String getActionString();
+
     abstract void setUpTypeSpecificUIComponents();
+
     abstract String getInstructionsStringKey();
 
     @Override
-    public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == DO_AN_UPDATE) {
             refreshPromptObject();
             if (toPrompt == null) {
@@ -87,6 +90,8 @@ public abstract class PromptActivity extends SessionAwareCommCareActivity {
             } else {
                 updateVisibilities();
             }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 

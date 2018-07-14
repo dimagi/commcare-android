@@ -15,7 +15,7 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
-import org.commcare.recovery.measures.RecoveryMeasuresManager;
+import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
@@ -149,7 +149,7 @@ public class DispatchActivity extends FragmentActivity {
 
             // Send this off at the earliest possible point where we know we have a seated app.
             // Result will be stored for later use
-            RecoveryMeasuresManager.requestRecoveryMeasures();
+            RecoveryMeasuresHelper.requestRecoveryMeasures();
 
             // Note that the order in which these conditions are checked matters!!
             if (CommCareApplication.instance().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
@@ -400,7 +400,7 @@ public class DispatchActivity extends FragmentActivity {
                 }
                 return;
             case RECOVERY_MEASURES:
-                RecoveryMeasuresManager.handleExecutionActivityResult(this, intent);
+                RecoveryMeasuresHelper.handleExecutionActivityResult(this, intent);
                 return;
         }
         super.onActivityResult(requestCode, resultCode, intent);
