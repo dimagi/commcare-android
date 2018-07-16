@@ -10,6 +10,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACasePreV24Model;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.cases.model.Case;
@@ -189,6 +190,12 @@ class UserDatabaseUpgrader {
         if (oldVersion == 23) {
             if (upgradeTwentyThreeTwentyFour(db)) {
                 oldVersion = 24;
+            }
+        }
+
+        if (oldVersion == 24) {
+            if (upgradeTwentyFourTwentyFive(db)) {
+                oldVersion = 25;
             }
         }
     }
@@ -641,6 +648,33 @@ class UserDatabaseUpgrader {
 
             db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
                     "case_external_id_index", "AndroidCase", "external_id"));
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    // check for integrity of SSD records and wipes the whole table in case of any discrepancy
+    private boolean upgradeTwentyFourTwentyFive(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            boolean strandedRecordObserved = false;
+            SqlStorage<FormRecord> formRecordStorage = UserDbUpgradeUtils.getFormRecordStorage(c, db, FormRecord.class);
+            SqlStorage<SessionStateDescriptor> ssdStorage = new SqlStorage<>(
+                    SessionStateDescriptor.STORAGE_KEY,
+                    SessionStateDescriptor.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            for (SessionStateDescriptor ssd : ssdStorage) {
+                if (!formRecordStorage.exists(ssd.getFormRecordId())) {
+                    strandedRecordObserved = true;
+                    break;
+                }
+            }
+
+            if (strandedRecordObserved) {
+                SqlStorage.wipeTable(db, SessionStateDescriptor.STORAGE_KEY);
+            }
             db.setTransactionSuccessful();
             return true;
         } finally {

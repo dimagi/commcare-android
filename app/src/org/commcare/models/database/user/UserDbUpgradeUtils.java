@@ -30,7 +30,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -198,7 +197,8 @@ public class UserDbUpgradeUtils {
 
     /**
      * Migrated form records to include data from corresponding Instance from InstanceProvider
-     * @param c Context
+     *
+     * @param c  Context
      * @param db User DB we are migrating
      * @return a Vector containing Instance Uris corresponding to InstanceProvider entries that got migrated successfully
      */
@@ -232,6 +232,7 @@ public class UserDbUpgradeUtils {
                     cursor.close();
                 }
             }
+            newRecord.setID(oldRecord.getID());
             newRecords.add(new Pair<>(newRecord, instanceUri));
         }
 
@@ -242,15 +243,33 @@ public class UserDbUpgradeUtils {
 
         // Write to the new table
         SqlStorage<FormRecord> newStorage = getFormRecordStorage(c, db, FormRecord.class);
+        SqlStorage<SessionStateDescriptor> ssdStorage = new SqlStorage<>(
+                SessionStateDescriptor.STORAGE_KEY,
+                SessionStateDescriptor.class,
+                new ConcreteAndroidDbHelper(c, db));
         for (Pair entry : newRecords) {
-            newStorage.write(((FormRecord)entry.first));
+            FormRecord newRecord = ((FormRecord)entry.first);
+            int oldId = newRecord.getID();
+
+            // Since we are writing in new table, reset the id before write
+            newRecord.setID(-1);
+            newStorage.write(newRecord);
+
+            // Migrate SSD
+            try {
+                SessionStateDescriptor ssd = ssdStorage.getRecordForValue(SessionStateDescriptor.META_FORM_RECORD_ID, oldId);
+                ssd.setFormRecordId(newRecord.getID());
+            } catch (Exception e) {
+                // Ignore failures in SSD Migration
+            }
+
             migratedInstances.add(((Uri)entry.second));
         }
 
         return migratedInstances;
     }
 
-    private static SqlStorage getFormRecordStorage(Context c, SQLiteDatabase db, Class formRecordClass) {
+    public static SqlStorage getFormRecordStorage(Context c, SQLiteDatabase db, Class formRecordClass) {
         return new SqlStorage<>(
                 FormRecord.STORAGE_KEY,
                 formRecordClass,
