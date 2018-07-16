@@ -60,23 +60,27 @@ public abstract class GetAndParseActor {
     }
 
     public abstract HashMap<String, String> getRequestParams();
+
     public abstract AuthInfo getAuth();
+
     public abstract void parseResponse(JSONObject responseAsJson);
 
     protected final HttpResponseProcessor responseProcessor = new HttpResponseProcessor() {
 
         @Override
-        public void processSuccess(int responseCode, InputStream responseData) {
+        public void processSuccess(int responseCode, InputStream responseStream) {
             try {
-                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseStream));
                 JSONObject jsonResponse = new JSONObject(responseAsString);
-                parseResponseOnUiThread(jsonResponse);
+                parseResponse(jsonResponse);
             } catch (JSONException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         String.format("%s response was not properly-formed JSON: %s", requestName, e.getMessage()));
             } catch (IOException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         String.format("IO error while processing %s response: %s", requestName, e.getMessage()));
+            } finally {
+                StreamsUtil.closeStream(responseStream);
             }
         }
 
@@ -113,10 +117,6 @@ public abstract class GetAndParseActor {
                     String.format("Received error response from %s request: %s", requestName, responseCode));
         }
     };
-
-    private void parseResponseOnUiThread(final JSONObject responseAsJson) {
-        new Handler(Looper.getMainLooper()).post(() -> parseResponse(responseAsJson));
-    }
 
     protected boolean checkForAppIdMatch(JSONObject responseAsJson) {
         try {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
@@ -33,7 +34,6 @@ import java.util.List;
 public class RecoveryMeasure extends Persisted {
 
     public static final String STORAGE_KEY = "RecoveryMeasures";
-    private static final int ONE_HOUR_IN_MILLIS = 60 * 60 * 1000;
 
     private static final String APP_REINSTALL_OTA = "app_reinstall_ota";
     private static final String APP_REINSTALL_LOCAL = "app_reinstall_local";
@@ -63,7 +63,6 @@ public class RecoveryMeasure extends Persisted {
     private long lastAttemptTime;
 
     public RecoveryMeasure() {
-
     }
 
     protected RecoveryMeasure(String type, int sequenceNumber, String ccVersionMin,
@@ -81,7 +80,7 @@ public class RecoveryMeasure extends Persisted {
         List<RecoveryMeasure> pendingInStorage = RecoveryMeasuresHelper.getPendingRecoveryMeasuresInOrder(
                 CommCareApplication.instance().getAppStorage(RecoveryMeasure.class));
         return pendingInStorage.size() == 0 ||
-                this.sequenceNumber > pendingInStorage.get(pendingInStorage.size()-1).sequenceNumber;
+                sequenceNumber > pendingInStorage.get(pendingInStorage.size() - 1).sequenceNumber;
     }
 
     protected boolean applicableToCurrentInstallation() {
@@ -93,18 +92,31 @@ public class RecoveryMeasure extends Persisted {
     }
 
     private boolean applicableToAppVersion() {
-        int currentAppVersion = CommCareApplication.instance().getCommCarePlatform()
-                .getCurrentProfile().getVersion();
-        return currentAppVersion >= this.appVersionMin && currentAppVersion <= this.appVersionMax;
+        // max and min both being -1 signifies that the measure is applicable to all versions
+        if (appVersionMin == -1 && appVersionMax == -1) {
+            return true;
+        }
+
+        int currentAppVersion = CommCareApplication.instance()
+                .getCommCarePlatform()
+                .getCurrentProfile()
+                .getVersion();
+
+        return currentAppVersion >= appVersionMin && currentAppVersion <= appVersionMax;
     }
 
     private boolean applicableToCommCareVersion() {
+        // max and min both being null signifies that the measure is applicable to all versions
+        if (ccVersionMax == null && ccVersionMin == null) {
+            return true;
+        }
+
         try {
             Context c = CommCareApplication.instance();
             PackageInfo pi = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
             ApkVersion currentVersion = new ApkVersion(pi.versionName);
-            return currentVersion.compareTo(new ApkVersion(this.ccVersionMin)) >= 0 &&
-                    currentVersion.compareTo(new ApkVersion(this.ccVersionMax)) <= 0;
+            return currentVersion.compareTo(new ApkVersion(ccVersionMin)) >= 0 &&
+                    currentVersion.compareTo(new ApkVersion(ccVersionMax)) <= 0;
         } catch (PackageManager.NameNotFoundException e) {
             // This should never happen, but it if it does, there's no way for us to know for sure
             // if the recovery measure is applicable, so assume it is
