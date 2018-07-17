@@ -61,6 +61,10 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
         return formRecordId;
     }
 
+    public void setFormRecordId(int formRecordId) {
+        this.formRecordId = formRecordId;
+    }
+
     public SessionStateDescriptor reMapFormRecordId(int idForNewRecord) {
         SessionStateDescriptor copy = new SessionStateDescriptor();
         copy.formRecordId = idForNewRecord;
