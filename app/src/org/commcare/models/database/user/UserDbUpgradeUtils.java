@@ -259,6 +259,7 @@ public class UserDbUpgradeUtils {
             try {
                 SessionStateDescriptor ssd = ssdStorage.getRecordForValue(SessionStateDescriptor.META_FORM_RECORD_ID, oldId);
                 ssd.setFormRecordId(newRecord.getID());
+                ssdStorage.write(ssd);
             } catch (Exception e) {
                 // Ignore failures in SSD Migration
             }
