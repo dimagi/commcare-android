@@ -695,15 +695,9 @@ class UserDatabaseUpgrader {
                 // Since we have wiped out SSD records, we won't be able to resume
                 // incomplete forms with their earlier session state. Therfore we are
                 // going to delete all incomplete form records as well
-                Vector<Integer> incompleteRecords = new Vector();
-                for (FormRecord formRecord : formRecordStorage) {
-                    if (formRecord.getStatus().contentEquals(FormRecord.STATUS_INCOMPLETE)) {
-                        incompleteRecords.add(formRecord.getID());
-                    }
-                }
-
-                for (int incompleteRecordId : incompleteRecords) {
-                    formRecordStorage.remove(incompleteRecordId);
+                Vector<FormRecord> incompleteRecords = formRecordStorage.getRecordsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
+                for (FormRecord incompleteRecord : incompleteRecords) {
+                    formRecordStorage.remove(incompleteRecord);
                 }
             }
             db.setTransactionSuccessful();
