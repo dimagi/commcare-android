@@ -123,7 +123,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
             @Override
             public AndroidCaseXmlParser getParser(KXmlParser parser) {
                 if (created == null) {
-                    created = new AndroidCaseXmlParser(parser, true, (SqlStorage<ACase>)sandbox.getCaseStorage(), generator) {
+                    created = new AndroidCaseXmlParser(parser, true, sandbox.getCaseStorage(), generator) {
 
                         @Override
                         public void onIndexDisrupted(String caseId) {

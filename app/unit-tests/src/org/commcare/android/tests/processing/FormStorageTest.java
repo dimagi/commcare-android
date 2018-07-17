@@ -313,6 +313,9 @@ public class FormStorageTest {
             , "org.commcare.android.resource.installers.XFormAndroidInstallerV1"
             , "org.commcare.android.resource.installers.XFormUpdateInfoInstaller"
             , "org.commcare.android.database.user.models.ACasePreV24Model"
+
+            // Added in 2.45
+            , "org.javarosa.xpath.expr.CacheableExprState"
     );
 
 

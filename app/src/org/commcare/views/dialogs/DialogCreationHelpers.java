@@ -25,10 +25,10 @@ public class DialogCreationHelpers {
 
         LayoutInflater li = LayoutInflater.from(activity);
         View view = li.inflate(R.layout.scrolling_info_dialog, null);
-        TextView titleView = (TextView) view.findViewById(R.id.dialog_title_text);
+        TextView titleView = view.findViewById(R.id.dialog_title_text);
         titleView.setText(activity.getString(R.string.about_cc));
         Spannable markdownText = buildAboutMessage(activity);
-        TextView aboutText = (TextView)view.findViewById(R.id.dialog_text);
+        TextView aboutText = view.findViewById(R.id.dialog_text);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             aboutText.setText(markdownText);
         } else {
@@ -63,9 +63,9 @@ public class DialogCreationHelpers {
                                                            String body) {
 
         View view = LayoutInflater.from(activity).inflate(R.layout.scrolling_info_dialog, null);
-        TextView bodyText = (TextView)view.findViewById(R.id.dialog_text);
+        TextView bodyText = view.findViewById(R.id.dialog_text);
         bodyText.setText(body);
-        TextView titleText = (TextView) view.findViewById(R.id.dialog_title_text);
+        TextView titleText = view.findViewById(R.id.dialog_title_text);
         titleText.setText(title);
 
         CustomViewAlertDialog dialog = new CustomViewAlertDialog(activity, view);

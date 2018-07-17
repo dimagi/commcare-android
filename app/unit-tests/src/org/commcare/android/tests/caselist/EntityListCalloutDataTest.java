@@ -146,7 +146,7 @@ public class EntityListCalloutDataTest {
         // clear the callout data and make sure the extra column is removed and
         // all the entities are shown
         ImageButton clearSearchButton =
-                (ImageButton)entitySelectActivity.findViewById(R.id.clear_search_button);
+                entitySelectActivity.findViewById(R.id.clear_search_button);
         clearSearchButton.performClick();
     }
 }

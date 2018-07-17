@@ -84,13 +84,13 @@ public class QueryRequestActivityTest {
                         .withIntent(queryActivityIntent).setup().get();
 
         LinearLayout promptsLayout =
-                (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+                queryRequestActivity.findViewById(R.id.query_prompts);
         EditText patientName = (EditText)promptsLayout.getChildAt(1);
         patientName.setText("francisco");
         EditText patientId = (EditText)promptsLayout.getChildAt(3);
         patientId.setText("123");
 
-        Button queryButton = (Button)queryRequestActivity.findViewById(R.id.request_button);
+        Button queryButton = queryRequestActivity.findViewById(R.id.request_button);
         queryButton.performClick();
 
         assertEquals(Activity.RESULT_OK,
@@ -121,17 +121,17 @@ public class QueryRequestActivityTest {
         QueryRequestActivity queryRequestActivity = controller.get();
 
         LinearLayout promptsLayout =
-                (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+                queryRequestActivity.findViewById(R.id.query_prompts);
         EditText patientName = (EditText)promptsLayout.getChildAt(1);
         patientName.setText("francisco");
         EditText patientId = (EditText)promptsLayout.getChildAt(3);
         patientId.setText("123");
 
         Button queryButton =
-                (Button)queryRequestActivity.findViewById(R.id.request_button);
+                queryRequestActivity.findViewById(R.id.request_button);
         queryButton.performClick();
 
-        TextView errorMessage = (TextView)queryRequestActivity.findViewById(R.id.error_message);
+        TextView errorMessage = queryRequestActivity.findViewById(R.id.error_message);
         assertEquals(View.VISIBLE, errorMessage.getVisibility());
         String expectedErrorPart = Localization.get("query.response.format.error", "");
         assertTrue(((String)errorMessage.getText()).contains(expectedErrorPart));
@@ -145,7 +145,7 @@ public class QueryRequestActivityTest {
                 .withIntent(queryActivityIntent).setup(savedInstanceState).get();
 
         // check that the error message is still there
-        errorMessage = (TextView)queryRequestActivity.findViewById(R.id.error_message);
+        errorMessage = queryRequestActivity.findViewById(R.id.error_message);
         assertEquals(View.VISIBLE, errorMessage.getVisibility());
         assertTrue(((String)errorMessage.getText()).contains(expectedErrorPart));
     }
@@ -167,7 +167,7 @@ public class QueryRequestActivityTest {
         QueryRequestActivity queryRequestActivity = controller.get();
 
         LinearLayout promptsLayout =
-                (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+                queryRequestActivity.findViewById(R.id.query_prompts);
         EditText patientId = (EditText)promptsLayout.getChildAt(1);
         patientId.setText("123");
 
@@ -180,7 +180,7 @@ public class QueryRequestActivityTest {
                 .withIntent(queryActivityIntent).setup(savedInstanceState).get();
 
         // check that the query prompts are filled out still
-        promptsLayout = (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+        promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
         patientId = (EditText)promptsLayout.getChildAt(1);
         assertEquals("123", patientId.getText().toString());
 
@@ -212,12 +212,12 @@ public class QueryRequestActivityTest {
         QueryRequestActivity queryRequestActivity = controller.get();
 
         LinearLayout promptsLayout =
-                (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+                queryRequestActivity.findViewById(R.id.query_prompts);
         EditText patientName = (EditText)promptsLayout.getChildAt(1);
         patientName.setText("francisco");
 
         Button queryButton =
-                (Button)queryRequestActivity.findViewById(R.id.request_button);
+                queryRequestActivity.findViewById(R.id.request_button);
         queryButton.performClick();
 
         Assert.assertEquals(Localization.get("query.response.empty"),

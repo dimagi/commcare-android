@@ -163,9 +163,9 @@ public class CustomProgressDialog extends DialogFragment {
             view = LayoutInflater.from(context).inflate(R.layout.progress_dialog_indeterminate, null);
         }
 
-        TextView titleView = (TextView)view.findViewById(R.id.progress_dialog_title).findViewById(R.id.dialog_title_text);
+        TextView titleView = view.findViewById(R.id.progress_dialog_title).findViewById(R.id.dialog_title_text);
         titleView.setText(title);
-        TextView messageView = (TextView)view.findViewById(R.id.progress_dialog_message);
+        TextView messageView = view.findViewById(R.id.progress_dialog_message);
         messageView.setText(message);
 
         if (usingCancelButton) {
@@ -183,7 +183,7 @@ public class CustomProgressDialog extends DialogFragment {
     }
 
     private void setupDeterminateView(View view) {
-        ProgressBar bar = (ProgressBar)view.findViewById(R.id.progress_bar_horizontal);
+        ProgressBar bar = view.findViewById(R.id.progress_bar_horizontal);
         bar.setProgress(progressBarProgress);
         bar.setMax(progressBarMax);
         if (progressBarIsVisible) {
@@ -193,7 +193,7 @@ public class CustomProgressDialog extends DialogFragment {
         }
 
         if (usingCheckbox) {
-            CheckBox cb = (CheckBox)view.findViewById(R.id.progress_dialog_checkbox);
+            CheckBox cb = view.findViewById(R.id.progress_dialog_checkbox);
             cb.setVisibility(View.VISIBLE);
             cb.setText(checkboxText);
             cb.setOnClickListener(v -> isChecked = ((CheckBox)v).isChecked());
@@ -204,7 +204,7 @@ public class CustomProgressDialog extends DialogFragment {
     }
 
     private Button setupCancelButton(View v) {
-        Button b = (Button)v.findViewById(R.id.dialog_cancel_button);
+        Button b = v.findViewById(R.id.dialog_cancel_button);
         b.setOnClickListener(v1 -> {
             ((CommCareActivity)getActivity()).cancelCurrentTask();
             showCancelledState();
@@ -218,9 +218,9 @@ public class CustomProgressDialog extends DialogFragment {
 
         AlertDialog pd = (AlertDialog)getDialog();
         if (pd != null) {
-            TextView titleView = (TextView)pd.findViewById(R.id.progress_dialog_title).findViewById(R.id.dialog_title_text);
-            TextView messageView = (TextView)pd.findViewById(R.id.progress_dialog_message);
-            Button cancelButton = (Button)pd.findViewById(R.id.dialog_cancel_button);
+            TextView titleView = pd.findViewById(R.id.progress_dialog_title).findViewById(R.id.dialog_title_text);
+            TextView messageView = pd.findViewById(R.id.progress_dialog_message);
+            Button cancelButton = pd.findViewById(R.id.dialog_cancel_button);
             setCancellingText(titleView, messageView, cancelButton);
         }
     }
@@ -244,7 +244,7 @@ public class CustomProgressDialog extends DialogFragment {
     private void updateTextView(String newText, int idOfViewToUpdate) {
         AlertDialog dialog = (AlertDialog)getDialog();
         if (dialog != null) {
-            TextView tv = (TextView)dialog.findViewById(idOfViewToUpdate);
+            TextView tv = dialog.findViewById(idOfViewToUpdate);
             tv.setText(newText);
         }
     }
@@ -272,7 +272,7 @@ public class CustomProgressDialog extends DialogFragment {
             progressBarIsVisible = visible;
             Dialog dialog = getDialog();
             if (dialog != null) {
-                ProgressBar bar = (ProgressBar) dialog.findViewById(R.id.progress_bar_horizontal);
+                ProgressBar bar = dialog.findViewById(R.id.progress_bar_horizontal);
                 if (progressBarIsVisible) {
                     bar.setVisibility(View.VISIBLE);
                 } else {
@@ -289,7 +289,7 @@ public class CustomProgressDialog extends DialogFragment {
             this.progressBarMax = max;
             Dialog dialog = getDialog();
             if (dialog != null) {
-                ProgressBar bar = (ProgressBar)dialog.findViewById(R.id.progress_bar_horizontal);
+                ProgressBar bar = dialog.findViewById(R.id.progress_bar_horizontal);
                 bar.setProgress(progress);
                 bar.setMax(max);
             }
