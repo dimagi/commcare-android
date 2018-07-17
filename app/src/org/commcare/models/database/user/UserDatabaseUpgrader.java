@@ -37,6 +37,7 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Vector;
 
@@ -62,6 +63,8 @@ class UserDatabaseUpgrader {
         // A lot of the upgrade processes can take a little while, so we tell the service to wait
         // longer than usual in order to make sure the upgrade has time to finish
         CommCareApplication.instance().setCustomServiceBindTimeout(5 * 60 * 1000);
+
+        int startVersion = oldVersion;
 
         if (oldVersion == 1) {
             if (upgradeOneTwo(db)) {
@@ -194,7 +197,13 @@ class UserDatabaseUpgrader {
         }
 
         if (oldVersion == 24) {
-            if (upgradeTwentyFourTwentyFive(db)) {
+            // We are doing migration to v25 because of a bug in migration to v23 earlier, so
+            // we only want to actually trigger this for apps already on v23 or greater
+            if (startVersion > 22) {
+                if (upgradeTwentyFourTwentyFive(db)) {
+                    oldVersion = 25;
+                }
+            } else {
                 oldVersion = 25;
             }
         }
@@ -666,7 +675,15 @@ class UserDatabaseUpgrader {
                     SessionStateDescriptor.class,
                     new ConcreteAndroidDbHelper(c, db));
             for (SessionStateDescriptor ssd : ssdStorage) {
-                if (!formRecordStorage.exists(ssd.getFormRecordId())) {
+                // we are in invalid state if formRecord with corresponding ssd form id
+                // either doesn't exist or has status unstarted
+                try {
+                    FormRecord formRecord = formRecordStorage.read(ssd.getFormRecordId());
+                    if (formRecord.getStatus().contentEquals(FormRecord.STATUS_UNSTARTED)) {
+                        strandedRecordObserved = true;
+                        break;
+                    }
+                } catch (NoSuchElementException e) {
                     strandedRecordObserved = true;
                     break;
                 }
@@ -674,6 +691,15 @@ class UserDatabaseUpgrader {
 
             if (strandedRecordObserved) {
                 SqlStorage.wipeTable(db, SessionStateDescriptor.STORAGE_KEY);
+
+                // Since we have wiped out SSD records, we won't be able to resume
+                // incomplete forms with their earlier session state. Therfore we are
+                // going to delete all incomplete form records as well
+                for (FormRecord formRecord : formRecordStorage) {
+                    if (formRecord.getStatus().contentEquals(FormRecord.STATUS_INCOMPLETE)) {
+                        formRecordStorage.remove(formRecord);
+                    }
+                }
             }
             db.setTransactionSuccessful();
             return true;
