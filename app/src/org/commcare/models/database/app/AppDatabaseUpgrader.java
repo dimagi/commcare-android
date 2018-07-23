@@ -3,6 +3,7 @@ package org.commcare.models.database.app;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -24,9 +25,11 @@ import org.commcare.modern.database.TableBuilder;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -101,6 +104,13 @@ class AppDatabaseUpgrader {
                 oldVersion = 10;
             }
         }
+
+        if (oldVersion == 10) {
+            if (upgradeTenEleven(db)) {
+                oldVersion = 11;
+            }
+        }
+
         //NOTE: If metadata changes are made to the Resource model, they need to be
         //managed by changing the TwoThree updater to maintain that metadata.
     }
@@ -266,6 +276,36 @@ class AppDatabaseUpgrader {
         try {
             upgradeToResourcesV10(UPGRADE_RESOURCE_TABLE_NAME, db);
             upgradeToResourcesV10(RECOVERY_RESOURCE_TABLE_NAME, db);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        return true;
+    }
+
+    // Corrects 'update' file references for FormDef Records that didn't
+    // change to 'install' path because of an earlier bug
+    private boolean upgradeTenEleven(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage<FormDefRecord> formDefRecordStorage = new SqlStorage<>(
+                    FormDefRecord.STORAGE_KEY,
+                    FormDefRecord.class,
+                    new ConcreteAndroidDbHelper(context, db));
+            for (FormDefRecord formDefRecord : formDefRecordStorage) {
+                String filePath = formDefRecord.getFilePath();
+                File formFile = new File(filePath);
+
+                // update the path for the record if it points to a non existent upgrade path and corresponding install path exists
+                if (!formFile.exists() && filePath.contains(GlobalConstants.FILE_CC_UPGRADE)) {
+                    String newFilePath = filePath.replace(GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_INSTALL + "/");
+                    if (new File(newFilePath).exists()) {
+                        formDefRecord.updateFilePath(formDefRecordStorage, newFilePath);
+                    } else {
+                        Logger.log(LogTypes.SOFT_ASSERT, "File not found at both upgrade and install path for form " + formDefRecord.getJrFormId());
+                    }
+                }
+            }
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
