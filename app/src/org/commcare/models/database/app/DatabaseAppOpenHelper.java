@@ -36,8 +36,9 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.8 - Add fields to UserKeyRecord to support PIN auth
      * V.9 - Adds FormRecord and Instance Record tables, XFormAndroidInstaller: contentUri -> formDefId
      * V.10 - No Change, Added because of incomplete resource table migration for v8 to v9
+     * V.11 - No Change, Corrects FormDef references if corrupt (because of an earlier bug)
      */
-    private static final int DB_VERSION_APP = 10;
+    private static final int DB_VERSION_APP = 11;
 
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
 
