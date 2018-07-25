@@ -157,13 +157,17 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        setUpActionBar();
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void setUpActionBar() {
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
             actionBar.setHomeButtonEnabled(false);
             actionBar.setDisplayHomeAsUpEnabled(false);
-//            actionBar.setDisplayShowHomeEnabled(false);
+            actionBar.setTitle(getActivityTitle());
         }
-        return super.onCreateOptionsMenu(menu);
     }
 
     private boolean isNetworkAvaialable() {
@@ -265,7 +269,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         // If app is no longer corrupt, launch home screen again
         if (!isAppCorrupt()) {
             Intent i = new Intent(this, DispatchActivity.class);
-            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(i);
         } else {
             super.onBackPressed();
@@ -315,5 +319,10 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             return dialog;
         }
         return null;
+    }
+
+    @Override
+    protected String getActivityTitle() {
+        return StringUtils.getStringRobust(this, R.string.recovery_mode_title);
     }
 }
