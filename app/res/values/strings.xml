@@ -364,7 +364,7 @@
     <string name="incorrect_time_dialog_cancel" cc:translatable="true">Cancel</string>
 
     <!--Recovery Activity-->
-    <string name="recovery_mode_title">CommCare has entered Recovery Mode due to a problem with the local device</string>
+    <string name="recovery_mode_detail">CommCare has entered recovery mode due to some problem with your app. Please make sure you have network access and attempt to recover the app.</string>
     <string name="recovery_mode_send_data_btn">Send Data</string>
     <string name="recovery_mode_attempt_recovery_btn">Attempt Recovery</string>
     <string name="recovering_resources_title">Recovering Missing Resources</string>

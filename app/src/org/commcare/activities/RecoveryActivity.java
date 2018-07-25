@@ -1,8 +1,11 @@
 package org.commcare.activities;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -51,11 +54,9 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     @UiElement(R.id.screen_recovery_progress)
     TextView txtUserMessage;
 
-
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-
         if (savedInstanceState == null) {
             // launching activity, not just changing orientation
             CommCareUtil.triggerLogSubmission(this);
@@ -154,6 +155,17 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setHomeButtonEnabled(false);
+            actionBar.setDisplayHomeAsUpEnabled(false);
+//            actionBar.setDisplayShowHomeEnabled(false);
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
     private boolean isNetworkAvaialable() {
         boolean network = ConnectivityStatus.isNetworkAvailable(this);
         if (!network) {
@@ -246,6 +258,18 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
     private static boolean isAppCorrupt() {
         return CommCareApplication.instance().getCurrentApp().getAppResourceState() == CommCareApplication.STATE_CORRUPTED;
+    }
+
+    @Override
+    public void onBackPressed() {
+        // If app is no longer corrupt, launch home screen again
+        if (!isAppCorrupt()) {
+            Intent i = new Intent(this, DispatchActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     private void updateSendFormsState() {
