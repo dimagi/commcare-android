@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -24,12 +25,14 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.FormUploadResult;
+import org.commcare.utils.Permissions;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -40,6 +43,8 @@ import org.javarosa.core.services.locale.Localization;
 public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActivity> {
 
     private static final int RECOVERY_TASK = 10000;
+    private static final int MENU_APP_MANAGER = Menu.FIRST;
+
     @UiElement(R.id.screen_recovery_unsent_message)
     TextView txtUnsentAndQuarantineForms;
 
@@ -158,6 +163,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         setUpActionBar();
+        menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -324,5 +330,18 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     @Override
     protected String getActivityTitle() {
         return StringUtils.getStringRobust(this, R.string.recovery_mode_title);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case MENU_APP_MANAGER:
+                Intent i = new Intent(this, AppManagerActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
