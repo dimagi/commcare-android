@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
@@ -160,8 +161,8 @@ public class RecoveryMeasure extends Persisted {
         try {
             switch (type) {
                 case APP_REINSTALL_OTA:
-                    // NOT IMPLEMENTED
-                    return STATUS_FAILED;
+                    AppLifecycleUtils.reinstallApp(currentApp);
+                    return STATUS_EXECUTED;
                 case APP_REINSTALL_LOCAL:
                     // NOT IMPLEMENTED
                     AppLifecycleUtils.reinstallIfLocalCczPresent(currentApp);
@@ -185,6 +186,7 @@ public class RecoveryMeasure extends Persisted {
             }
         } catch (Exception e) {
             // If anything goes wrong in the recovery measure execution, just count that as a failure
+            Toast.makeText(activity, "Execution Failed", Toast.LENGTH_LONG).show();
             Logger.exception(String.format("Encountered exception while executing recovery measure of type %s", type), e);
         }
         return STATUS_FAILED;

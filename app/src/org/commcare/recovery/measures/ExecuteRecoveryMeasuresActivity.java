@@ -80,7 +80,7 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
         i.putExtra(RecoveryMeasuresHelper.RECOVERY_MEASURES_LAST_STATUS, lastExecutionStatus);
     }
 
-    void executePendingMeasures() {
+    private void executePendingMeasures() {
         SqlStorage<RecoveryMeasure> storage =
                 CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
         List<RecoveryMeasure> toExecute = RecoveryMeasuresHelper.getPendingRecoveryMeasuresInOrder(storage);
@@ -142,8 +142,6 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
         onAsyncExecutionFailure("App install", reason);
     }
 
-    // region - ResourceEngineListener method implementations
-
     @Override
     public void reportSuccess(boolean b) {
         onAsyncExecutionSuccess("App install");
@@ -183,9 +181,6 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
         appInstallExecutionFailed("target mismatch");
     }
 
-    // endregion
-
-    // region - TaskListener method implementations
 
     @Override
     public void handleTaskUpdate(Integer... updateVals) {
@@ -207,5 +202,4 @@ public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
         onAsyncExecutionFailure("App update", "update task cancelled");
     }
 
-    // endregion
 }

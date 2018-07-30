@@ -12,8 +12,13 @@ import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.provider.ProviderUtils;
+import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.io.File;
 
@@ -106,4 +111,9 @@ public class AppLifecycleUtils {
         // TODO: Check that file actually exists, then uninstall, then reinstall from the .ccz
     }
 
+    public static void reinstallApp(CommCareApp currentApp) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
+        AndroidCommCarePlatform platform = currentApp.getCommCarePlatform();
+        ResourceTable global = platform.getGlobalResourceTable();
+        global.reinstallTable(platform);
+    }
 }
