@@ -25,8 +25,8 @@ public class FormLayoutHelpers {
                                                            Rect newRootViewDimensions,
                                                            boolean hasGroupLabel,
                                                            boolean shouldHideGroupLabel) {
-        FrameLayout header = (FrameLayout)activity.findViewById(R.id.form_entry_header);
-        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+        FrameLayout header = activity.findViewById(R.id.form_entry_header);
+        TextView groupLabel = header.findViewById(R.id.form_entry_group_label);
 
         int numberOfGroupLinesAllowed =
                 getNumberOfGroupLinesAllowed(groupLabel, newRootViewDimensions, activity);
@@ -65,8 +65,8 @@ public class FormLayoutHelpers {
     public static void updateGroupViewVisibility(FormEntryActivity activity,
                                                  boolean hasGroupLabel,
                                                  boolean shouldHideGroupLabel) {
-        FrameLayout header = (FrameLayout)activity.findViewById(R.id.form_entry_header);
-        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+        FrameLayout header = activity.findViewById(R.id.form_entry_header);
+        TextView groupLabel = header.findViewById(R.id.form_entry_group_label);
         updateGroupViewVisibility(header, groupLabel, hasGroupLabel, shouldHideGroupLabel);
     }
 

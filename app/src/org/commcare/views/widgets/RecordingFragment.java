@@ -93,18 +93,18 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
     }
 
     private void prepareText() {
-        TextView header = (TextView)layout.findViewById(R.id.recording_header);
+        TextView header = layout.findViewById(R.id.recording_header);
         header.setText(Localization.get("recording.header"));
-        instruction = (TextView)layout.findViewById(R.id.recording_instruction);
+        instruction = layout.findViewById(R.id.recording_instruction);
         instruction.setText(Localization.get("before.recording"));
-        recordingDuration = (Chronometer)layout.findViewById(R.id.recording_time);
+        recordingDuration = layout.findViewById(R.id.recording_time);
     }
 
     private void prepareButtons() {
-        ImageButton discardRecording = (ImageButton)layout.findViewById(R.id.discardrecording);
-        toggleRecording = (ImageButton)layout.findViewById(R.id.startrecording);
-        saveRecording = (Button)layout.findViewById(R.id.saverecording);
-        recordAgain = (Button)layout.findViewById(R.id.recycle);
+        ImageButton discardRecording = layout.findViewById(R.id.discardrecording);
+        toggleRecording = layout.findViewById(R.id.startrecording);
+        saveRecording = layout.findViewById(R.id.saverecording);
+        recordAgain = layout.findViewById(R.id.recycle);
 
         recordAgain.setOnClickListener(v -> resetRecordingView());
 
@@ -113,7 +113,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         toggleRecording.setOnClickListener(v -> startRecording());
         saveRecording.setOnClickListener(v -> saveRecording());
         saveRecording.setText(Localization.get("save"));
-        recordingProgress = (ProgressBar)layout.findViewById(R.id.demo_mpc);
+        recordingProgress = layout.findViewById(R.id.demo_mpc);
     }
 
     private void resetRecordingView() {

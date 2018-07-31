@@ -30,10 +30,10 @@ public class InstallPermissionsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.install_permission_requester, container, false);
 
-        TextView neededPermDetails = (TextView)view.findViewById(R.id.perms_rationale_message);
+        TextView neededPermDetails = view.findViewById(R.id.perms_rationale_message);
         neededPermDetails.setText(Localization.get("install.perms.rationale.message"));
 
-        Button requestPermsButton = (Button)view.findViewById(R.id.get_perms_button);
+        Button requestPermsButton = view.findViewById(R.id.get_perms_button);
         requestPermsButton.setOnClickListener(v -> {
             RuntimePermissionRequester permissionRequester = (RuntimePermissionRequester)getActivity();
             Permissions.acquireAllAppPermissions(getActivity(), permissionRequester,
@@ -48,7 +48,7 @@ public class InstallPermissionsFragment extends Fragment {
         attemptCount++;
         View currentView = getView();
         if (currentView != null) {
-            TextView deniedDetails = (TextView)currentView.findViewById(R.id.needed_perms_message);
+            TextView deniedDetails = currentView.findViewById(R.id.needed_perms_message);
             deniedDetails.setText(Localization.get("install.perms.denied.message",
                     new String[]{attemptCount + ""}));
         }

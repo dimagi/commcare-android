@@ -63,7 +63,7 @@ public class FormIntentTests {
                 Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
                         .create().start().resume().get();
 
-        ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
+        ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
 
         testStandaloneIntent(formEntryActivity);
 

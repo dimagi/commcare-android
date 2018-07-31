@@ -66,14 +66,20 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     }
 
     @Override
-    public abstract boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
+    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
             IOException, InvalidReferenceException, InvalidStructureException,
-            XmlPullParserException, UnfullfilledRequirementsException;
+            XmlPullParserException, UnfullfilledRequirementsException {
+        Reference ref = ReferenceManager.instance().DeriveReference(localLocation);
+        if (!ref.doesBinaryExist()) {
+            throw new FileNotFoundException("No file exists at " + ref.getLocalURI());
+        }
+        return true;
+    }
 
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           AndroidCommCarePlatform platform, boolean upgrade)
+                           AndroidCommCarePlatform platform, boolean upgrade, boolean recovery)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
             InputStream inputFileStream;

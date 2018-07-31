@@ -71,7 +71,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     private void setupGridView() {
-        final RecyclerView grid = (RecyclerView)activity.findViewById(R.id.home_gridview_buttons);
+        final RecyclerView grid = activity.findViewById(R.id.home_gridview_buttons);
         grid.setHasFixedSize(false);
 
         StaggeredGridLayoutManager gridView =
