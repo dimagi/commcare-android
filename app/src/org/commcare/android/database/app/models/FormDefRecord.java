@@ -138,6 +138,7 @@ public class FormDefRecord extends Persisted {
         }
 
         // Set new values now
+        mFormFilePath = newFilePath;
         mFormMediaPath = getMediaPath(newFilePath);
         formDefRecordStorage.write(this);
     }

@@ -10,6 +10,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACasePreV24Model;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.cases.model.Case;
@@ -36,6 +37,7 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Vector;
 
@@ -61,6 +63,8 @@ class UserDatabaseUpgrader {
         // A lot of the upgrade processes can take a little while, so we tell the service to wait
         // longer than usual in order to make sure the upgrade has time to finish
         CommCareApplication.instance().setCustomServiceBindTimeout(5 * 60 * 1000);
+
+        int startVersion = oldVersion;
 
         if (oldVersion == 1) {
             if (upgradeOneTwo(db)) {
@@ -189,6 +193,18 @@ class UserDatabaseUpgrader {
         if (oldVersion == 23) {
             if (upgradeTwentyThreeTwentyFour(db)) {
                 oldVersion = 24;
+            }
+        }
+
+        if (oldVersion == 24) {
+            // We are doing migration to v25 because of a bug in migration to v23 earlier, so
+            // we only want to actually trigger this for apps already on v23 or greater
+            if (startVersion > 22) {
+                if (upgradeTwentyFourTwentyFive(db)) {
+                    oldVersion = 25;
+                }
+            } else {
+                oldVersion = 25;
             }
         }
     }
@@ -641,6 +657,49 @@ class UserDatabaseUpgrader {
 
             db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
                     "case_external_id_index", "AndroidCase", "external_id"));
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    // check for integrity of SSD records and wipes the whole table in case of any discrepancy
+    private boolean upgradeTwentyFourTwentyFive(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            boolean strandedRecordObserved = false;
+            SqlStorage<FormRecord> formRecordStorage = UserDbUpgradeUtils.getFormRecordStorage(c, db, FormRecord.class);
+            SqlStorage<SessionStateDescriptor> ssdStorage = new SqlStorage<>(
+                    SessionStateDescriptor.STORAGE_KEY,
+                    SessionStateDescriptor.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            for (SessionStateDescriptor ssd : ssdStorage) {
+                // we are in invalid state if formRecord with corresponding ssd form id
+                // either doesn't exist or has status unstarted
+                try {
+                    FormRecord formRecord = formRecordStorage.read(ssd.getFormRecordId());
+                    if (formRecord.getStatus().contentEquals(FormRecord.STATUS_UNSTARTED)) {
+                        strandedRecordObserved = true;
+                        break;
+                    }
+                } catch (NoSuchElementException e) {
+                    strandedRecordObserved = true;
+                    break;
+                }
+            }
+
+            if (strandedRecordObserved) {
+                SqlStorage.wipeTable(db, SessionStateDescriptor.STORAGE_KEY);
+
+                // Since we have wiped out SSD records, we won't be able to resume
+                // incomplete forms with their earlier session state. Therfore we are
+                // going to delete all incomplete form records as well
+                Vector<FormRecord> incompleteRecords = formRecordStorage.getRecordsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
+                for (FormRecord incompleteRecord : incompleteRecords) {
+                    formRecordStorage.remove(incompleteRecord);
+                }
+            }
             db.setTransactionSuccessful();
             return true;
         } finally {

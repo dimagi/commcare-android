@@ -62,9 +62,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.22 - Add column for appId in entity_cache table
      * V.23 - Merges InstanceProvider to FormRecord (delete instanceUri, add displayName, filePath and canEditWhenComplete)
      * v.24 - Adds and indexes column for Case external_id
+     * v.25 - No DB changes, validates SessionStateDescriptor records corrupted due to an earlier bug in v23 migration (In 2.44 and 2.44.1)
      */
 
-    private static final int USER_DB_VERSION = 24;
+    private static final int USER_DB_VERSION = 25;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
