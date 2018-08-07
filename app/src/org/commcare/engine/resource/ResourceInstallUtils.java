@@ -254,4 +254,12 @@ public class ResourceInstallUtils {
             return prefs.getString(DEFAULT_APP_SERVER_KEY, null);
         }
     }
+
+    /**
+     * @return CommCare App Profile url without query params
+     */
+    public static String getProfileReference() {
+        String profileRef = getDefaultProfileRef();
+        return profileRef.split("\\?")[0];
+    }
 }

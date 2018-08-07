@@ -86,6 +86,7 @@ import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.TaskListener;
+import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.util.LogTypes;
@@ -773,7 +774,7 @@ public class CommCareApplication extends MultiDexApplication {
         try {
             UpdateTask updateTask = UpdateTask.getNewInstance();
             if (alternateListener != null) {
-                updateTask.setTaskListener(alternateListener);
+                updateTask.registerTaskListener(alternateListener);
             } else {
                 updateTask.startPinnedNotification(context);
             }
@@ -782,6 +783,8 @@ public class CommCareApplication extends MultiDexApplication {
         } catch (IllegalStateException e) {
             Log.w(TAG, "Trying to trigger auto-update when it is already running. " +
                     "Should only happen if the user triggered a manual update before this fired.");
+        } catch (TaskListenerRegistrationException e) {
+            Logger.log(LogTypes.SOFT_ASSERT, "Attempting to register a TaskListener to an already registered update task.");
         }
     }
 

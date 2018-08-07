@@ -134,7 +134,7 @@ public abstract class PromptActivity extends CommCareActivity {
     @Override
     public void onBackPressed() {
         // Prevent navigating away from this activity if we're in force mode
-        if (!inForceMode() || getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false)) {
+        if (!inForceMode()) {
             super.onBackPressed();
         }
     }

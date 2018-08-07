@@ -18,6 +18,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
 import org.commcare.xml.ProfileParser;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -89,7 +90,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
             if (!upgrade) {
                 initProperties(p);
-                if(!recovery) {
+                if (!recovery) {
                     checkDuplicate(p);
                     checkAppTarget();
                 }
@@ -162,11 +163,12 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             return false;
         }
 
+        InputStream profileStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
-
+            profileStream = local.getStream();
             //Create a parser with no side effects
-            ProfileParser parser = new ProfileParser(local.getStream(), null, new DummyResourceTable(), null, Resource.RESOURCE_STATUS_INSTALLED, false);
+            ProfileParser parser = new ProfileParser(profileStream, null, new DummyResourceTable(), null, Resource.RESOURCE_STATUS_INSTALLED, false);
 
             //Parse just the file (for the properties)
             Profile p = parser.parse();
@@ -177,6 +179,8 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_RESOURCES, "Profile not available after upgrade: " + e.getMessage());
             return false;
+        } finally {
+            StreamsUtil.closeStream(profileStream);
         }
 
         return true;

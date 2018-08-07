@@ -1,205 +1,144 @@
 package org.commcare.recovery.measures;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import org.commcare.CommCareApplication;
-import org.commcare.activities.BlockingProcessActivity;
+import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.InstallArchiveActivity;
+import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
-import org.commcare.models.database.SqlStorage;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
-import org.commcare.tasks.ResultAndError;
-import org.commcare.tasks.TaskListener;
-import org.commcare.utils.StorageUtils;
+import org.javarosa.core.services.locale.Localization;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.commcare.recovery.measures.ExecuteRecoveryMeasuresPresenter.OFFLINE_INSTALL_REQUEST;
 
 /**
  * Created by amstone326 on 5/22/18.
  */
-public class ExecuteRecoveryMeasuresActivity extends BlockingProcessActivity
-        implements ResourceEngineListener, TaskListener<Integer, ResultAndError<AppInstallStatus>> {
+public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRecoveryMeasuresActivity> implements ResourceEngineListener {
 
     protected static final int PROMPT_APK_UPDATE = 1;
     protected static final int PROMPT_APK_REINSTALL = 2;
 
     private static final String CURRENTLY_EXECUTING_ID = "currently-executing-id";
-    private static final String CURRENTLY_EXECUTING_SEQUENCE_NUM = "currently-executing-sequence-num";
-    private static final String LAST_EXECUTION_STATUS = "last-execution-status";
+    private ExecuteRecoveryMeasuresPresenter mPresenter;
 
-    private int idOfMeasureCurrentlyExecuting;
-    private long sequenceNumOfMeasureCurrentlyExecuting;
-    private int lastExecutionStatus;
+    private TextView progressTv;
+    private TextView detailTv;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPresenter = new ExecuteRecoveryMeasuresPresenter(this);
         if (savedInstanceState != null) {
-            idOfMeasureCurrentlyExecuting = savedInstanceState.getInt(CURRENTLY_EXECUTING_ID);
-            sequenceNumOfMeasureCurrentlyExecuting = savedInstanceState.getLong(CURRENTLY_EXECUTING_SEQUENCE_NUM);
-            lastExecutionStatus = savedInstanceState.getInt(LAST_EXECUTION_STATUS);
+            mPresenter.setMeasureFromId(savedInstanceState.getInt(CURRENTLY_EXECUTING_ID));
         }
+        setUpUI();
+        mPresenter.executePendingMeasures();
+    }
+
+    private void setUpUI() {
+        setContentView(R.layout.blocking_process_screen);
+        detailTv = findViewById(R.id.detail);
+        detailTv.setText(Localization.get(getDisplayTextKey()));
+        progressTv = findViewById(R.id.progress_text);
     }
 
     @Override
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
-        out.putInt(CURRENTLY_EXECUTING_ID, idOfMeasureCurrentlyExecuting);
-        out.putLong(CURRENTLY_EXECUTING_SEQUENCE_NUM, sequenceNumOfMeasureCurrentlyExecuting);
-        out.putInt(LAST_EXECUTION_STATUS, lastExecutionStatus);
+        out.putInt(CURRENTLY_EXECUTING_ID, mPresenter.getCurrentMeasure().getID());
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
+            //todo check if we are on latest version ? If a reinstall has happened we should be on latest version
             case PROMPT_APK_UPDATE:
-                onAsyncExecutionSuccess("CommCare update prompt");
+                mPresenter.onAsyncExecutionSuccess("CommCare update prompt");
                 break;
             case PROMPT_APK_REINSTALL:
-                onAsyncExecutionSuccess("CommCare reinstall prompt");
+                mPresenter.onAsyncExecutionSuccess("CommCare reinstall prompt");
+                break;
+            case OFFLINE_INSTALL_REQUEST:
+                if (resultCode == Activity.RESULT_OK) {
+                    mPresenter.doOfflineAppInstall(intent.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE));
+                }
                 break;
         }
     }
 
-    @Override
     protected String getDisplayTextKey() {
         return "executing.recovery.measures";
     }
 
-    @Override
-    protected Runnable buildProcessToRun(ProcessFinishedHandler handler) {
-        return this::executePendingMeasures;
+
+    public void displayError(String message) {
+        // todo show a sticking error instead
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
-    @Override
-    protected void setResultOnIntent(Intent i) {
-        i.putExtra(RecoveryMeasuresHelper.RECOVERY_MEASURES_LAST_STATUS, lastExecutionStatus);
+    public void updateStatus(String msg) {
+        progressTv.setVisibility(View.VISIBLE);
+        progressTv.setText(msg);
     }
 
-    private void executePendingMeasures() {
-        SqlStorage<RecoveryMeasure> storage =
-                CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
-        List<RecoveryMeasure> toExecute = RecoveryMeasuresHelper.getPendingRecoveryMeasuresInOrder(storage);
-        if (toExecute.size() == 0) {
-            runFinish();
-            return;
-        }
-
-        List<Integer> executed = new ArrayList<>();
-        for (RecoveryMeasure measure : toExecute) {
-            idOfMeasureCurrentlyExecuting = measure.getID();
-            sequenceNumOfMeasureCurrentlyExecuting = measure.getSequenceNumber();
-            lastExecutionStatus = measure.execute(this);
-            if (lastExecutionStatus == RecoveryMeasure.STATUS_EXECUTED) {
-                HiddenPreferences.setLatestRecoveryMeasureExecuted(measure.getSequenceNumber());
-                executed.add(measure.getID());
-            } else {
-                // Either it's too soon to retry, the execution failed, or we're waiting for an
-                // async process to finish
-                if (lastExecutionStatus != RecoveryMeasure.STATUS_TOO_SOON) {
-                    measure.setLastAttemptTime(storage);
-                }
-                break;
-            }
-        }
-
-        for (Integer id : executed) {
-            storage.remove(id);
-        }
-
-        if (lastExecutionStatus != RecoveryMeasure.STATUS_WAITING) {
-            runFinish();
-        }
-    }
-
-    private void onAsyncExecutionSuccess(String action) {
-        System.out.println(String.format(
-                "%s succeeded for recovery measure %s", action, sequenceNumOfMeasureCurrentlyExecuting));
-        lastExecutionStatus = RecoveryMeasure.STATUS_EXECUTED;
-
-        SqlStorage<RecoveryMeasure> storage =
-                CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
-        RecoveryMeasure justSucceeded = storage.read(this.idOfMeasureCurrentlyExecuting);
-        HiddenPreferences.setLatestRecoveryMeasureExecuted(justSucceeded.getSequenceNumber());
-        storage.remove(justSucceeded.getID());
-
-        // so that we pick back up with the next measure, if there are any more
-        executePendingMeasures();
-    }
-
-    private void onAsyncExecutionFailure(String action, String reason) {
-        lastExecutionStatus = RecoveryMeasure.STATUS_FAILED;
-        System.out.println(String.format(
-                "%s failed with %s for recovery measure %s", action, reason, sequenceNumOfMeasureCurrentlyExecuting));
-        runFinish();
-    }
-
-    private void appInstallExecutionFailed(String reason) {
-        onAsyncExecutionFailure("App install", reason);
+    public void hideProgress() {
+        progressTv.setVisibility(View.GONE);
     }
 
     @Override
     public void reportSuccess(boolean b) {
-        onAsyncExecutionSuccess("App install");
+        mPresenter.onAsyncExecutionSuccess("App install");
     }
 
     @Override
     public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusmissing) {
-        appInstallExecutionFailed("missing resource");
+        mPresenter.appInstallExecutionFailed("missing resource");
     }
 
     @Override
     public void failInvalidResource(InvalidResourceException e, AppInstallStatus statusmissing) {
-        appInstallExecutionFailed("invalid resource");
+        mPresenter.appInstallExecutionFailed("invalid resource");
     }
 
     @Override
     public void failBadReqs(String vReq, String vAvail, boolean majorIsProblem) {
-        appInstallExecutionFailed("bad reqs");
+        mPresenter.appInstallExecutionFailed("bad reqs");
     }
 
     @Override
     public void failUnknown(AppInstallStatus statusfailunknown) {
-        appInstallExecutionFailed("unknown reason");
+        mPresenter.appInstallExecutionFailed("unknown reason");
     }
 
     @Override
-    public void updateResourceProgress(int done, int pending, int phase) {
+    public void updateResourceProgress(int done, int total, int phase) {
+        String installProgressText =
+                Localization.getWithDefault("profile.found",
+                        new String[]{"" + done, "" + total},
+                        "Setting up app...");
+        updateStatus(installProgressText);
     }
 
     @Override
     public void failWithNotification(AppInstallStatus statusfailstate) {
-        appInstallExecutionFailed("notification");
+        mPresenter.appInstallExecutionFailed("notification");
     }
 
     @Override
     public void failTargetMismatch() {
-        appInstallExecutionFailed("target mismatch");
+        mPresenter.appInstallExecutionFailed("target mismatch");
     }
 
-
-    @Override
-    public void handleTaskUpdate(Integer... updateVals) {
-
+    public void runFinish() {
+        setResult(RESULT_OK, getIntent());
+        finish();
     }
-
-    @Override
-    public void handleTaskCompletion(ResultAndError<AppInstallStatus> appInstallStatusResultAndError) {
-        AppInstallStatus result = appInstallStatusResultAndError.data;
-        if (result == AppInstallStatus.UpdateStaged || result == AppInstallStatus.UpToDate) {
-            onAsyncExecutionSuccess("App update");
-        } else {
-            onAsyncExecutionFailure("App update", appInstallStatusResultAndError.data.name());
-        }
-    }
-
-    @Override
-    public void handleTaskCancellation() {
-        onAsyncExecutionFailure("App update", "update task cancelled");
-    }
-
 }

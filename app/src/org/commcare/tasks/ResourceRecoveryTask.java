@@ -15,6 +15,8 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
 
+import static org.commcare.engine.resource.ResourceInstallUtils.getProfileReference;
+
 public abstract class ResourceRecoveryTask<Reciever>
         extends CommCareTask<Void, Integer, Boolean, Reciever> implements TableStateListener, InstallCancelled {
 
@@ -36,16 +38,6 @@ public abstract class ResourceRecoveryTask<Reciever>
             unsetTableListeners(global);
         }
         return success;
-    }
-
-    /**
-     *
-     * @return CommCare App Profile url without query params
-     */
-    private String getProfileReference() {
-        String profileRef = ResourceInstallUtils.getDefaultProfileRef();
-        return profileRef.split("\\?")[0];
-
     }
 
     private void setTableListeners(ResourceTable table) {

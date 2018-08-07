@@ -102,18 +102,4 @@ public class AppLifecycleUtils {
         // 8) Delete the ApplicationRecord
         ccInstance.getGlobalStorage(ApplicationRecord.class).remove(record.getID());
     }
-
-    public static void reinstallIfLocalCczPresent(CommCareApp app) {
-        String backupCczLocation = HiddenPreferences.getBackupCczLocation();
-        if (backupCczLocation == null || "".equals(backupCczLocation)) {
-            return;
-        }
-        // TODO: Check that file actually exists, then uninstall, then reinstall from the .ccz
-    }
-
-    public static void reinstallApp(CommCareApp currentApp) throws InstallCancelledException, UnresolvedResourceException, UnfullfilledRequirementsException {
-        AndroidCommCarePlatform platform = currentApp.getCommCarePlatform();
-        ResourceTable global = platform.getGlobalResourceTable();
-        global.reinstallTable(platform);
-    }
 }

@@ -16,19 +16,23 @@ import org.javarosa.core.services.locale.Localization;
  * Abstract activity that can be extended to serve as an activity that blocks the UI with
  * a simple message and progress dialog, while a process is executed on a background thread
  */
-public abstract class BlockingProcessActivity extends CommCareActivity<BlockingProcessActivity> {
+public abstract class BlockingProcessActivity<T> extends CommCareActivity<T> {
 
     private static final String KEY_IN_PROGRESS = "initialization_in_progress";
     protected boolean inProgress;
 
+    protected TextView progressTv;
+    protected TextView detailTv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // todo remove
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
         setContentView(R.layout.blocking_process_screen);
-        TextView tv = findViewById(R.id.text);
-        tv.setText(Localization.get(getDisplayTextKey()));
-
+        detailTv = findViewById(R.id.detail);
+        detailTv.setText(Localization.get(getDisplayTextKey()));
+        progressTv = findViewById(R.id.progress_text);
         inProgress = savedInstanceState != null &&
                 savedInstanceState.getBoolean(KEY_IN_PROGRESS, false);
     }
@@ -55,8 +59,11 @@ public abstract class BlockingProcessActivity extends CommCareActivity<BlockingP
     }
 
     protected abstract String getDisplayTextKey();
+
     protected abstract Runnable buildProcessToRun(ProcessFinishedHandler handler);
-    protected abstract void setResultOnIntent(Intent i);
+
+    protected void setResultOnIntent(Intent i){
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -87,12 +94,10 @@ public abstract class BlockingProcessActivity extends CommCareActivity<BlockingP
         }
     }
 
-    protected void runFinish() {
+    public void runFinish() {
         setInProgress(false);
-        Intent i = new Intent(getIntent());
-        setResultOnIntent(i);
-        setResult(RESULT_OK, i);
+        setResultOnIntent(getIntent());
+        setResult(RESULT_OK, getIntent());
         finish();
     }
-
 }

@@ -51,15 +51,16 @@ public abstract class ResourceEngineTask<R>
 
     private final Object statusLock = new Object();
     private boolean statusCheckRunning = false;
+    private boolean reinstall = false;
 
     private int authorityForInstall;
 
-    public ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep, int authority) {
+    public ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep, int authority, boolean reinstall) {
         this.app = app;
         this.taskId = taskId;
         this.shouldSleep = shouldSleep;
         this.authorityForInstall = authority;
-
+        this.reinstall = reinstall;
         TAG = ResourceEngineTask.class.getSimpleName();
     }
 
@@ -81,9 +82,13 @@ public abstract class ResourceEngineTask<R>
             AndroidCommCarePlatform platform = app.getCommCarePlatform();
             ResourceTable global = platform.getGlobalResourceTable();
 
+            if (reinstall) {
+                global.clear(platform);
+            }
+
             global.setStateListener(this);
             try {
-                ResourceManager.installAppResources(platform, profileRef, global, false, authorityForInstall);
+                ResourceManager.installAppResources(platform, profileRef, global, reinstall, authorityForInstall);
             } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
