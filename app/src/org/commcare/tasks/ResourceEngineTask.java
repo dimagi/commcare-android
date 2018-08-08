@@ -94,6 +94,9 @@ public abstract class ResourceEngineTask<R>
                         "Couldn't install file to local storage|");
                 return AppInstallStatus.NoLocalStorage;
             } catch (UnfullfilledRequirementsException e) {
+                if (e.isIncorrectCCZException()) {
+                    return AppInstallStatus.ReinstallFromInvalidCcz;
+                }
                 if (e.isDuplicateException()) {
                     return AppInstallStatus.DuplicateApp;
                 } else if (e.isIncorrectTargetException()) {

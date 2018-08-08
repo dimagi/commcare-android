@@ -525,6 +525,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case IncorrectTargetPackage:
                 receiver.failTargetMismatch();
                 break;
+            case ReinstallFromInvalidCcz:
+                receiver.failUnknown(AppInstallStatus.ReinstallFromInvalidCcz);
             default:
                 receiver.failUnknown(AppInstallStatus.UnknownFailure);
                 break;

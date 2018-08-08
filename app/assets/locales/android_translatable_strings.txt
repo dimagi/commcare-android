@@ -548,6 +548,9 @@ notification.update.resource.init.fail.title=Resource initialization failed
 notification.update.resource.init.fail.detail=An app resource failed to initialize. This is usually because a file is missing or the database has been corrupted.
 notification.update.resource.init.fail.action=Fixing this will usually require reinstalling CommCare.
 
+notification.reinstall.invalid.ccz.title=Invalid CCZ File
+notification.reinstall.invalid.ccz.detail=CCZ file you selected belongs to a different app. Please select the right CCZ file to reinstall app.
+
 notification.install.badarchive.title=Archive must be in file system
 notification.install.badarchive.detail=Your .ccz archive file must be on your phone's file system
 notification.install.badarchive.action=Download this fule and place it on your phone's SD card and retry. 

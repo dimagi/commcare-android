@@ -99,23 +99,23 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     }
 
     @Override
-    public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusmissing) {
-        mPresenter.appInstallExecutionFailed("missing resource");
+    public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus status) {
+        mPresenter.appInstallExecutionFailed(status, "missing resource");
     }
 
     @Override
-    public void failInvalidResource(InvalidResourceException e, AppInstallStatus statusmissing) {
-        mPresenter.appInstallExecutionFailed("invalid resource");
+    public void failInvalidResource(InvalidResourceException e, AppInstallStatus status) {
+        mPresenter.appInstallExecutionFailed(status, "invalid resource");
     }
 
     @Override
     public void failBadReqs(String vReq, String vAvail, boolean majorIsProblem) {
-        mPresenter.appInstallExecutionFailed("bad reqs");
+        mPresenter.appInstallExecutionFailed(AppInstallStatus.IncompatibleReqs, "bad reqs");
     }
 
     @Override
-    public void failUnknown(AppInstallStatus statusfailunknown) {
-        mPresenter.appInstallExecutionFailed("unknown reason");
+    public void failUnknown(AppInstallStatus status) {
+        mPresenter.appInstallExecutionFailed(status, "unknown reason");
     }
 
     @Override
@@ -128,13 +128,13 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     }
 
     @Override
-    public void failWithNotification(AppInstallStatus statusfailstate) {
-        mPresenter.appInstallExecutionFailed("notification");
+    public void failWithNotification(AppInstallStatus status) {
+        mPresenter.appInstallExecutionFailed(status, "notification");
     }
 
     @Override
     public void failTargetMismatch() {
-        mPresenter.appInstallExecutionFailed("target mismatch");
+        mPresenter.appInstallExecutionFailed(AppInstallStatus.IncorrectTargetPackage, "target mismatch");
     }
 
     public void runFinish() {

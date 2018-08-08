@@ -217,7 +217,12 @@ public class ExecuteRecoveryMeasuresPresenter {
         mCurrentMeasure = getStorage().read(measureId);
     }
 
-    public void appInstallExecutionFailed(String reason) {
+    public void appInstallExecutionFailed(AppInstallStatus appInstallStatus) {
+        onAsyncExecutionFailure("App install", appInstallStatus.getLocaleKeyBase());
+    }
+
+    public void appInstallExecutionFailed(AppInstallStatus status, String reason) {
+        mActivity.updateStatus(Localization.get(status.getLocaleKeyBase()) + ".detail");
         onAsyncExecutionFailure("App install", reason);
     }
 
