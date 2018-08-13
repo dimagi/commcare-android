@@ -86,7 +86,6 @@ public class QueryRequestActivity
             finish();
         } else {
             loadStateFromSavedInstance(savedInstanceState);
-
             setupUI();
         }
     }

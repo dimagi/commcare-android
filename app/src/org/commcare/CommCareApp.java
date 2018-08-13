@@ -440,5 +440,4 @@ public class CommCareApp implements AppFilePathBuilder {
             throw new RuntimeException("For testing purposes only!");
         }
     }
-
 }

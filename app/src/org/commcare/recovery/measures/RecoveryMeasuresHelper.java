@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.StorageUtils;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -88,7 +90,7 @@ public class RecoveryMeasuresHelper {
         if (intent != null) {
             int lastExecutionStatus = intent.getIntExtra(RECOVERY_MEASURES_LAST_STATUS, 0);
             if (lastExecutionStatus == RecoveryMeasure.STATUS_FAILED) {
-                Toast.makeText(receiver, Localization.get("recovery.measure.execution.failed"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(receiver, StringUtils.getStringRobust(receiver, R.string.recovery_measure_faiure), Toast.LENGTH_LONG).show();
             }
         }
     }

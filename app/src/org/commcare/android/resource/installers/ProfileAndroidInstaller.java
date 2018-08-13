@@ -120,8 +120,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     }
 
     private void checkForSameApp(AndroidCommCarePlatform platform, Profile p) throws UnfullfilledRequirementsException {
-        Profile currentProfile = platform.getCurrentProfile();
-        if (!currentProfile.getUniqueId().contentEquals(p.getUniqueId())) {
+        if (!platform.getApp().getAppRecord().getApplicationId().contentEquals(p.getUniqueId())) {
             throw new UnfullfilledRequirementsException(
                     "Trying to recover using ccz for a different CommCare App",
                     UnfullfilledRequirementsException.RequirementType.INCORRECT_APP_CCZ);

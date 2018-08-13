@@ -527,6 +527,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case ReinstallFromInvalidCcz:
                 receiver.failUnknown(AppInstallStatus.ReinstallFromInvalidCcz);
+                break;
             default:
                 receiver.failUnknown(AppInstallStatus.UnknownFailure);
                 break;

@@ -388,4 +388,13 @@
     <string name="recovery_forms_state_error">Error while reading forms</string>
     <string name="recovery_network_unavailable">No network connection. Please check your internet and try again.</string>
 
+    <!--Recovery Measures-->
+    <string name="recovery_measure_reinstall_method">Choose Reinstall Method</string>
+    <string name="recovery_measure_reinstall_detail">Your app needs to be reinstalled due to a problem, please select a method for reinstalling.</string>
+    <string name="recovery_measure_reinstall_online_method">Online Reinstall</string>
+    <string name="recovery_measure_reinstall_offline_method">Reinstall Using CCZ</string>
+    <string name="recovery_measure_detail">Recovery proedures has been initiated for your CommCare App due to a problem with it. Please wait...</string>
+    <string name="recovery_measure_faiure">An error occurred when CommCare tried to execute a recovery measure. We will try again later. If the problem persists please contact helpdesk</string>
+    <string name="recovery_measure_retry">Retry</string>
+
 </resources>

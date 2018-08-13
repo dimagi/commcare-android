@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,6 +16,9 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
+import org.commcare.utils.StringUtils;
+import org.commcare.views.ManagedUi;
+import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
 import static org.commcare.recovery.measures.ExecuteRecoveryMeasuresPresenter.OFFLINE_INSTALL_REQUEST;
@@ -21,6 +26,8 @@ import static org.commcare.recovery.measures.ExecuteRecoveryMeasuresPresenter.OF
 /**
  * Created by amstone326 on 5/22/18.
  */
+
+@ManagedUi(R.layout.execute_recovery_measures)
 public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRecoveryMeasuresActivity> implements ResourceEngineListener {
 
     protected static final int PROMPT_APK_UPDATE = 1;
@@ -29,8 +36,17 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     private static final String CURRENTLY_EXECUTING_ID = "currently-executing-id";
     private ExecuteRecoveryMeasuresPresenter mPresenter;
 
-    private TextView progressTv;
+    @UiElement(value = R.id.status_tv)
+    private TextView statusTv;
+
+    @UiElement(value = R.id.detail)
     private TextView detailTv;
+
+    @UiElement(value = R.id.retry_button)
+    private Button retryBt;
+
+    @UiElement(value = R.id.progress_bar)
+    private ProgressBar progressBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,11 +60,13 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     }
 
     private void setUpUI() {
-        setContentView(R.layout.blocking_process_screen);
-        detailTv = findViewById(R.id.detail);
-        detailTv.setText(Localization.get(getDisplayTextKey()));
-        progressTv = findViewById(R.id.progress_text);
+        detailTv.setText(StringUtils.getStringRobust(this, R.string.recovery_measure_reinstall_offline_method));
+        retryBt.setOnClickListener(v -> {
+            retryBt.setVisibility(View.GONE);
+            mPresenter.executePendingMeasures();
+        });
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle out) {
@@ -74,23 +92,18 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
         }
     }
 
-    protected String getDisplayTextKey() {
-        return "executing.recovery.measures";
-    }
-
-
     public void displayError(String message) {
         // todo show a sticking error instead
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     public void updateStatus(String msg) {
-        progressTv.setVisibility(View.VISIBLE);
-        progressTv.setText(msg);
+        statusTv.setVisibility(View.VISIBLE);
+        statusTv.setText(msg);
     }
 
-    public void hideProgress() {
-        progressTv.setVisibility(View.GONE);
+    public void hideStatus() {
+        statusTv.setVisibility(View.GONE);
     }
 
     @Override
@@ -140,5 +153,24 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     public void runFinish() {
         setResult(RESULT_OK, getIntent());
         finish();
+    }
+
+    public void enableRetry() {
+        retryBt.setVisibility(View.VISIBLE);
+    }
+
+    public void disableLoadingIndicator() {
+        progressBar.setVisibility(View.GONE);
+    }
+
+    public void enableLoadingIndicator() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mPresenter.shouldAllowBackPress()) {
+            super.onBackPressed();
+        }
     }
 }

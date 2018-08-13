@@ -12,6 +12,7 @@ import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.PromptActivity;
 import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.PromptCCReinstallActivity;
+import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
@@ -21,6 +22,7 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -55,6 +57,8 @@ public class ExecuteRecoveryMeasuresPresenter {
     }
 
     void executePendingMeasures() {
+        mActivity.enableLoadingIndicator();
+
         SqlStorage<RecoveryMeasure> storage =
                 CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
         List<RecoveryMeasure> toExecute = RecoveryMeasuresHelper.getPendingRecoveryMeasuresInOrder(storage);
@@ -165,13 +169,13 @@ public class ExecuteRecoveryMeasuresPresenter {
                 } else {
                     onAsyncExecutionFailure("App update", appInstallStatusResultAndError.data.name());
                 }
-                mActivity.hideProgress();
+                mActivity.hideStatus();
             }
 
             @Override
             public void handleTaskCancellation() {
                 onAsyncExecutionFailure("App update", "update task cancelled");
-                mActivity.hideProgress();
+                mActivity.hideStatus();
             }
         });
         return STATUS_WAITING;
@@ -206,7 +210,8 @@ public class ExecuteRecoveryMeasuresPresenter {
         mLastExecutionStatus = STATUS_FAILED;
         Logger.log(LogTypes.TYPE_MAINTENANCE, String.format(
                 "%s failed with %s for recovery measure %s", action, reason, mCurrentMeasure.getSequenceNumber()));
-        mActivity.runFinish();
+        mActivity.disableLoadingIndicator();
+        mActivity.enableRetry();
     }
 
     public RecoveryMeasure getCurrentMeasure() {
@@ -217,12 +222,8 @@ public class ExecuteRecoveryMeasuresPresenter {
         mCurrentMeasure = getStorage().read(measureId);
     }
 
-    public void appInstallExecutionFailed(AppInstallStatus appInstallStatus) {
-        onAsyncExecutionFailure("App install", appInstallStatus.getLocaleKeyBase());
-    }
-
     public void appInstallExecutionFailed(AppInstallStatus status, String reason) {
-        mActivity.updateStatus(Localization.get(status.getLocaleKeyBase()) + ".detail");
+        mActivity.updateStatus(Localization.get(status.getLocaleKeyBase() + ".detail"));
         onAsyncExecutionFailure("App install", reason);
     }
 
@@ -230,10 +231,9 @@ public class ExecuteRecoveryMeasuresPresenter {
         return CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
     }
 
-
     public void showInstallMethodChooser() {
-        String title = "Install Method";
-        String message = "Choose installation method";
+        String title = StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_method);
+        String message = StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_detail);
         StandardAlertDialog d = new StandardAlertDialog(mActivity, title, message);
         DialogInterface.OnClickListener listener = (dialog, which) -> {
             mActivity.dismissAlertDialog();
@@ -243,8 +243,8 @@ public class ExecuteRecoveryMeasuresPresenter {
                 showOfflineInstallActivity();
             }
         };
-        d.setPositiveButton("Online", listener);
-        d.setNegativeButton("Offline(Using CCZ)", listener);
+        d.setPositiveButton( StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_online_method), listener);
+        d.setNegativeButton( StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_offline_method), listener);
         mActivity.showAlertDialog(d);
     }
 
@@ -263,6 +263,10 @@ public class ExecuteRecoveryMeasuresPresenter {
         reinstallApp(CommCareApplication.instance().getCurrentApp(),
                 profileRef,
                 Resource.RESOURCE_AUTHORITY_LOCAL);
+    }
+
+    public boolean shouldAllowBackPress() {
+        return false;
     }
 
     private static class sResourceEngineTask<T> extends ResourceEngineTask<ExecuteRecoveryMeasuresActivity> {

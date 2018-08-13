@@ -4,7 +4,9 @@
                 android:gravity="center"
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin">
 
     <ImageView
         android:id="@+id/screen_login_top_banner"
@@ -20,8 +22,9 @@
         android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:padding="@dimen/help_text_padding"
-        android:textSize="@dimen/font_size_xlarger"/>
+        android:padding="@dimen/activity_vertical_margin"
+        android:textSize="@dimen/standard_spacer_double"
+        tools:text="App recovery has been initiated due to a problem with your app."/>
 
     <ProgressBar
         style="?android:attr/progressBarStyleLarge"
@@ -31,15 +34,27 @@
         android:layout_gravity="center"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:paddingTop="@dimen/help_text_padding"/>
+        android:paddingTop="@dimen/standard_spacer_double"
+        android:visibility="gone"/>
 
     <TextView
-        android:id="@+id/progress_text"
+        android:id="@+id/status_tv"
         android:layout_below="@id/progress_bar"
         android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:paddingTop="@dimen/standard_spacer"
         android:visibility="gone"
         tools:text="2 out of 5 done"/>
+
+    <Button
+        android:id="@+id/retry_button"
+        android:layout_below="@id/status_tv"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_spacer_large"
+        android:layout_width="wrap_content"
+        android:text="@string/recovery_measure_retry"
+        android:visibility="gone"/>
 
 </RelativeLayout>
