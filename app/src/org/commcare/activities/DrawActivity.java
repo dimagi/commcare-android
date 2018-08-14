@@ -221,7 +221,7 @@ public class DrawActivity extends Activity {
             FileOutputStream fos;
             fos = new FileOutputStream(f);
             Bitmap bitmap = Bitmap.createBitmap(drawView.getWidth(),
-                    drawView.getHeight(), Bitmap.Config.ARGB_8888);
+                    drawView.getHeight(), Bitmap.Config.RGB_565);
             Canvas canvas = new Canvas(bitmap);
             drawView.draw(canvas);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 70, fos);
@@ -348,7 +348,7 @@ public class DrawActivity extends Activity {
                 // w, h, true);
                 mCanvas = new Canvas(mBitmap);
             } else {
-                mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+                mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565);
                 mCanvas = new Canvas(mBitmap);
                 mCanvas.drawColor(0xFFFFFFFF);
                 if (isSignature) {
