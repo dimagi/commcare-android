@@ -60,7 +60,7 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     }
 
     private void setUpUI() {
-        detailTv.setText(StringUtils.getStringRobust(this, R.string.recovery_measure_reinstall_offline_method));
+        detailTv.setText(StringUtils.getStringRobust(this, R.string.recovery_measure_detail));
         retryBt.setOnClickListener(v -> {
             retryBt.setVisibility(View.GONE);
             mPresenter.executePendingMeasures();
