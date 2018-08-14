@@ -79,10 +79,10 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
         switch (requestCode) {
             //todo check if we are on latest version ? If a reinstall has happened we should be on latest version
             case PROMPT_APK_UPDATE:
-                mPresenter.onAsyncExecutionSuccess("CommCare update prompt");
+                mPresenter.onAsyncExecutionSuccess();
                 break;
             case PROMPT_APK_REINSTALL:
-                mPresenter.onAsyncExecutionSuccess("CommCare reinstall prompt");
+                mPresenter.onAsyncExecutionSuccess();
                 break;
             case OFFLINE_INSTALL_REQUEST:
                 if (resultCode == Activity.RESULT_OK) {
@@ -108,7 +108,7 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
 
     @Override
     public void reportSuccess(boolean b) {
-        mPresenter.onAsyncExecutionSuccess("App install");
+        mPresenter.onAsyncExecutionSuccess();
     }
 
     @Override

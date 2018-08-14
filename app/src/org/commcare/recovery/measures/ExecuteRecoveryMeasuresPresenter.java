@@ -154,31 +154,39 @@ public class ExecuteRecoveryMeasuresPresenter {
         CommCareApplication.startAutoUpdate(mActivity, true, new TaskListener<Integer, ResultAndError<AppInstallStatus>>() {
             @Override
             public void handleTaskUpdate(Integer... updateVals) {
-                int progress = updateVals[0];
-                int max = updateVals[1];
-                String msg = Localization.get("updates.found",
-                        new String[]{"" + progress, "" + max});
-                mActivity.updateStatus(msg);
+                if (mActivity != null) {
+                    int progress = updateVals[0];
+                    int max = updateVals[1];
+                    String msg = Localization.get("updates.found",
+                            new String[]{"" + progress, "" + max});
+                    mActivity.updateStatus(msg);
+                }
             }
 
             @Override
             public void handleTaskCompletion(ResultAndError<AppInstallStatus> appInstallStatusResultAndError) {
                 AppInstallStatus result = appInstallStatusResultAndError.data;
                 if (result == AppInstallStatus.UpdateStaged || result == AppInstallStatus.UpToDate) {
-                    onAsyncExecutionSuccess("App update");
+                    onAsyncExecutionSuccess();
+                    updateStatus("");
                 } else {
+                    updateStatus(appInstallStatusResultAndError.errorMessage);
                     onAsyncExecutionFailure("App update", appInstallStatusResultAndError.data.name());
                 }
-                mActivity.hideStatus();
             }
 
             @Override
             public void handleTaskCancellation() {
                 onAsyncExecutionFailure("App update", "update task cancelled");
-                mActivity.hideStatus();
             }
         });
         return STATUS_WAITING;
+    }
+
+    private void updateStatus(String status) {
+        if (mActivity != null) {
+            mActivity.updateStatus(status);
+        }
     }
 
     private static void clearDataForCurrentOrLastUser() {
@@ -199,19 +207,21 @@ public class ExecuteRecoveryMeasuresPresenter {
         getStorage().remove(mCurrentMeasure);
     }
 
-    public void onAsyncExecutionSuccess(String action) {
+    public void onAsyncExecutionSuccess() {
         mLastExecutionStatus = STATUS_EXECUTED;
         markMeasureAsExecuted();
         // so that we pick back up with the next measure, if there are any more
         executePendingMeasures();
     }
 
-    public void onAsyncExecutionFailure(String action, String reason) {
+    private void onAsyncExecutionFailure(String action, String reason) {
         mLastExecutionStatus = STATUS_FAILED;
         Logger.log(LogTypes.TYPE_MAINTENANCE, String.format(
                 "%s failed with %s for recovery measure %s", action, reason, mCurrentMeasure.getSequenceNumber()));
-        mActivity.disableLoadingIndicator();
-        mActivity.enableRetry();
+        if (mActivity != null) {
+            mActivity.disableLoadingIndicator();
+            mActivity.enableRetry();
+        }
     }
 
     public RecoveryMeasure getCurrentMeasure() {
@@ -223,7 +233,7 @@ public class ExecuteRecoveryMeasuresPresenter {
     }
 
     public void appInstallExecutionFailed(AppInstallStatus status, String reason) {
-        mActivity.updateStatus(Localization.get(status.getLocaleKeyBase() + ".detail"));
+        updateStatus(Localization.get(status.getLocaleKeyBase() + ".detail"));
         onAsyncExecutionFailure("App install", reason);
     }
 
