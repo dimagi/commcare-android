@@ -21,6 +21,7 @@ import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
@@ -294,13 +295,14 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
      * Read serialized {@link FormDef} from file and recreate as object.
      */
     private static FormDef deserializeFormDef(Context context, File formDefFile) {
-        FileInputStream fis;
+        FileInputStream fis = null;
+        DataInputStream dis = null;
         FormDef fd;
         try {
             // create new form def
             fd = new FormDef(DeveloperPreferences.useExpressionCachingInForms());
             fis = new FileInputStream(formDefFile);
-            DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
+            dis = new DataInputStream(new BufferedInputStream(fis));
 
             // read serialized formdef into new formdef
             fd.readExternal(dis, CommCareApplication.instance().getPrototypeFactory(context));
@@ -308,6 +310,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         } catch (Throwable e) {
             e.printStackTrace();
             fd = null;
+        } finally {
+            StreamsUtil.closeStream(fis);
+            StreamsUtil.closeStream(dis);
         }
 
         return fd;

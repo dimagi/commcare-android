@@ -65,6 +65,8 @@ public class HeartbeatRequester {
             } catch (IOException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "IO error while processing heartbeat response: " + e.getMessage());
+            } finally {
+                StreamsUtil.closeStream(responseData);
             }
         }
 
