@@ -365,28 +365,21 @@
 
     <!--Recovery Activity-->
     <string name="recovery_mode_title">CommCare Recovery Mode</string>
-    <string name="recovery_mode_detail">CommCare has entered recovery mode due to some problem with your app. Please make sure you have network access and attempt to recover the app.</string>
-    <string name="recovery_mode_send_data_btn">Send Data</string>
-    <string name="recovery_mode_attempt_recovery_btn">Attempt Recovery</string>
-    <string name="recovering_resources_title">Recovering Missing Resources</string>
-    <string name="recovering_resources_progress">Installing missing resources...</string>
+    <string name="recovery_mode_detail">CommCare has entered recovery mode due to a problem with your app. We are trying to recover your app. Please wait...</string>
     <string name="recovery_resource_progress">Recovered %1$s out of %2$s resources</string>
-    <string name="recovery_error">We were not able to recover your app. Please make sure all forms are submitted and reinstall your app</string>
+    <string name="recovery_error">We were not able to recover your app. Please reinstall your app by going to App Manager</string>
     <string name="recovery_success">App recovery has been successful. Get back to work!</string>
     <string name="recovery_app_state_unavailable">App state is unavailable. Make sure your phone storage is available</string>
-    <string name="recovery_app_state_corrupt">App install is corrupt. Make sure forms are sent before attempting recovery.</string>
-    <string name="recovery_app_state_valid">App is installed and valid</string>
     <string name="recovery_forms_send_progress">Submitting form(s) to the server...</string>
-    <string name="recovery_forms_send_session_expired">Log-in expired during send. Please press back and log in again</string>
+    <string name="recovery_forms_send_session_expired">Log-in expired during send</string>
     <string name="recovery_forms_send_successful">Send successful. All %s forms were submitted</string>
     <string name="recovery_forms_send_failure">There were errors submitting the forms.</string>
-    <string name="recovery_forms_send_parital_success">There were errors submitting the forms. Only %s were submitted</string>
+    <string name="recovery_forms_send_parital_success">There were errors submitting the forms. Only %s were submitted. Please try again later</string>
     <string name="recovery_forms_send_network_error">Forms submissing failed due to poor network</string>
     <string name="recovery_forms_send_error">Error while sending forms</string>
     <string name="recovery_forms_state_unavailable">Forms are not available. Make sure your phone storage is available</string>
-    <string name="recovery_forms_state_logged_out">Could not read forms since your session has expired. Please login again</string>
-    <string name="recovery_forms_state_number_unsent_quarantine">This device has %1$s unsent forms and %2$s quarantine forms</string>
     <string name="recovery_forms_state_error">Error while reading forms</string>
     <string name="recovery_network_unavailable">No network connection. Please check your internet and try again.</string>
+    <string name="recovery_app_manager">Go to App Manager</string>
 
 </resources>
