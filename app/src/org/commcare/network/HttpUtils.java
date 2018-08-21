@@ -2,13 +2,16 @@ package org.commcare.network;
 
 import org.commcare.CommCareApplication;
 import org.commcare.modern.util.Pair;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.CredentialUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.User;
 
 import javax.annotation.Nullable;
+
+import okhttp3.Credentials;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -20,9 +23,13 @@ public class HttpUtils {
         if (usernameAndPasswordToAuthWith == null) {
             // use the logged in user
             User user = getUser();
-            credential = getCredential(user.getUsername(), user.getCachedPwd());
+            credential = getCredential(
+                    buildDomainUser(user.getUsername()),
+                    user.getCachedPwd());
         } else {
-            credential = getCredential(usernameAndPasswordToAuthWith.first, usernameAndPasswordToAuthWith.second);
+            credential = getCredential(
+                    buildDomainUser(usernameAndPasswordToAuthWith.first),
+                    usernameAndPasswordToAuthWith.second);
         }
         return credential;
     }
@@ -58,7 +65,7 @@ public class HttpUtils {
         if (username == null || password == null) {
             return null;
         } else {
-            return okhttp3.Credentials.basic(buildDomainUser(username), buildAppPassword(password));
+            return Credentials.basic(username, buildAppPassword(password));
         }
     }
 }
