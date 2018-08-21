@@ -306,7 +306,6 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
 
             // read serialized formdef into new formdef
             fd.readExternal(dis, CommCareApplication.instance().getPrototypeFactory(context));
-            dis.close();
         } catch (Throwable e) {
             e.printStackTrace();
             fd = null;
