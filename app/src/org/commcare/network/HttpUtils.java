@@ -2,13 +2,16 @@ package org.commcare.network;
 
 import org.commcare.CommCareApplication;
 import org.commcare.modern.util.Pair;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.CredentialUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.User;
 
 import javax.annotation.Nullable;
+
+import okhttp3.Credentials;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -18,29 +21,27 @@ public class HttpUtils {
     public static String getCredential(@Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
         String credential;
         if (usernameAndPasswordToAuthWith == null) {
-            // User already logged in
-            Pair<User, String> userAndDomain = getUserAndDomain(true);
-            credential = getCredential(userAndDomain.first, userAndDomain.second);
+            // use the logged in user
+            User user = getUser();
+            credential = getCredential(
+                    buildDomainUser(user.getUsername()),
+                    user.getCachedPwd());
         } else {
             credential = getCredential(
                     buildDomainUser(usernameAndPasswordToAuthWith.first),
-                    buildAppPassword(usernameAndPasswordToAuthWith.second));
+                    usernameAndPasswordToAuthWith.second);
         }
         return credential;
     }
 
-    private static Pair<User, String> getUserAndDomain(boolean isAuthenticatedRequest) {
-        User user = null;
-        String domain = null;
-        if (isAuthenticatedRequest) {
-            try {
-                user = CommCareApplication.instance().getSession().getLoggedInUser();
-            } catch (SessionUnavailableException sue) {
-                throw new RuntimeException("Can't find user to make authenticated http request.");
-            }
-            domain = HiddenPreferences.getUserDomain();
+    private static User getUser() {
+        User user;
+        try {
+            user = CommCareApplication.instance().getSession().getLoggedInUser();
+        } catch (SessionUnavailableException sue) {
+            throw new RuntimeException("Can't find user to make authenticated http request.");
         }
-        return new Pair<>(user, domain);
+        return user;
     }
 
     private static String buildAppPassword(String password) {
@@ -60,22 +61,11 @@ public class HttpUtils {
         return username;
     }
 
-    private static String getCredential(User user, String domain) {
-        final String username;
-        if (domain != null) {
-            username = user.getUsername() + "@" + domain;
-        } else {
-            username = user.getUsername();
-        }
-        final String password = user.getCachedPwd();
-        return getCredential(username, password);
-    }
-
     private static String getCredential(String username, String password) {
         if (username == null || password == null) {
             return null;
         } else {
-            return okhttp3.Credentials.basic(username, password);
+            return Credentials.basic(username, buildAppPassword(password));
         }
     }
 }
