@@ -98,7 +98,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             }
         });
 
-        ImageButton closer = (ImageButton) layout.findViewById(R.id.close_calendar);
+        ImageButton closer = layout.findViewById(R.id.close_calendar);
         closer.setOnClickListener(v -> {
             dismiss();
             if (calendarCloseListener != null) {
@@ -120,15 +120,15 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
     }
 
     private void initDisplay() {
-        calendarGrid = (GridView)layout.findViewById(R.id.calendar_grid);
+        calendarGrid = layout.findViewById(R.id.calendar_grid);
         setupMonthComponents();
         setupYearComponents();
-        cancel = (ImageButton)layout.findViewById(R.id.cancel_calendar);
-        today = (Button)layout.findViewById(R.id.today);
+        cancel = layout.findViewById(R.id.cancel_calendar);
+        today = layout.findViewById(R.id.today);
     }
 
     private void setupYearComponents() {
-        yearSpinner = (Spinner)layout.findViewById(R.id.year_spinner);
+        yearSpinner = layout.findViewById(R.id.year_spinner);
 
         ArrayList<String> years = new ArrayList<>();
 
@@ -153,7 +153,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     //Have to sort month names because Calendar can't return them in order
     private void setupMonthComponents() {
-        monthSpinner = (Spinner)layout.findViewById(R.id.calendar_spinner);
+        monthSpinner = layout.findViewById(R.id.calendar_spinner);
 
         final Map<String, Integer> monthMap = calendar.getDisplayNames(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
         ArrayList<String> monthList = new ArrayList<>(monthMap.keySet());

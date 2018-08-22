@@ -49,12 +49,12 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
 
         setTitle(Localization.get("form.hierarchy"));
 
-        mPath = (TextView)findViewById(R.id.pathtext);
+        mPath = findViewById(R.id.pathtext);
 
-        jumpPreviousButton = (Button)findViewById(R.id.jumpPreviousButton);
+        jumpPreviousButton = findViewById(R.id.jumpPreviousButton);
         jumpPreviousButton.setOnClickListener(v -> goUpLevel());
 
-        Button jumpBeginningButton = (Button)findViewById(R.id.jumpBeginningButton);
+        Button jumpBeginningButton = findViewById(R.id.jumpBeginningButton);
         jumpBeginningButton.setOnClickListener(v -> {
             FormEntryActivity.mFormController.jumpToIndex(FormIndex
                     .createBeginningOfFormIndex());
@@ -62,7 +62,7 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
             finish();
         });
 
-        Button jumpEndButton = (Button)findViewById(R.id.jumpEndButton);
+        Button jumpEndButton = findViewById(R.id.jumpEndButton);
         jumpEndButton.setOnClickListener(v -> {
             FormEntryActivity.mFormController.jumpToIndex(FormIndex.createEndOfFormIndex());
             setResult(RESULT_OK);

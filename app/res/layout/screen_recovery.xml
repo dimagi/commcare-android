@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:layout_margin="10dp"
+              android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
               android:orientation="vertical">
 
     <View
@@ -16,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:gravity="center"
-        android:text="CommCare has entered Recovery Mode due to a problem with the local device"/>
+        android:text="@string/recovery_mode_title"/>
 
     <View
         android:layout_width="wrap_content"
@@ -33,22 +35,23 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="0.75"
-            android:text="This device has 4 unsent forms"/>
+            android:layout_weight="0.70"
+            tools:text="This device has 4 unsent forms"/>
 
         <Button
             android:id="@+id/screen_recovery_unsent_button"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="0dp"
-            android:layout_weight="0.25"
+            android:layout_weight="0.30"
             android:layout_height="wrap_content"
-            android:text="Send Data"/>
+            android:text="@string/recovery_mode_send_data_btn"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_spacer_double"
         android:weightSum="1">
 
         <TextView
@@ -56,25 +59,27 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="0.75"
-            android:text="The current app install is OK"/>
+            android:layout_weight="0.70"
+            tools:text="The current app install is OK"/>
 
         <Button
             android:id="@+id/screen_recovery_app_install_button"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.25"
-            android:text="Attempt Reinstall"/>
+            android:layout_weight="0.30"
+            android:text="@string/recovery_mode_attempt_recovery_btn"/>
     </LinearLayout>
 
     <TextView
         android:id="@+id/screen_recovery_progress"
         style="@style/TextInteractiveFreeFloating"
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Waiting"/>
+        android:layout_marginTop="@dimen/standard_spacer_double"
+        tools:text="Waiting"/>
 
     <View
         android:layout_width="wrap_content"

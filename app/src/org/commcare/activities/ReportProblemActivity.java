@@ -23,7 +23,7 @@ public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportPr
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         setContentView(R.layout.activity_report_problem);
-        Button submitButton = (Button)findViewById(R.id.ReportButton01);
+        Button submitButton = findViewById(R.id.ReportButton01);
         submitButton.setText(this.localize("problem.report.button"));
         submitButton.setOnClickListener(this);
         ((TextView)findViewById(R.id.ReportPrompt01)).setText(this.localize("problem.report.prompt"));
@@ -31,7 +31,7 @@ public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportPr
 
     @Override
     public void onClick(View v) {
-        EditText mEdit = (EditText)findViewById(R.id.ReportText01);
+        EditText mEdit = findViewById(R.id.ReportText01);
         String reportEntry = mEdit.getText().toString();
         Logger.log(LogTypes.USER_REPORTED_PROBLEM, reportEntry);
         setResult(RESULT_OK);

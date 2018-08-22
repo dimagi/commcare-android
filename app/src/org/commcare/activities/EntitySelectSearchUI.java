@@ -43,8 +43,8 @@ class EntitySelectSearchUI implements TextWatcher {
 
     private void initUIComponents() {
         searchBanner = activity.findViewById(R.id.search_result_banner);
-        searchResultStatus = (TextView)activity.findViewById(R.id.search_results_status);
-        clearSearchButton = (ImageButton)activity.findViewById(R.id.clear_search_button);
+        searchResultStatus = activity.findViewById(R.id.search_results_status);
+        clearSearchButton = activity.findViewById(R.id.clear_search_button);
         clearSearchButton.setOnClickListener(v -> {
             activity.getAdapter().clearCalloutResponseData();
             activity.refreshView();
@@ -125,7 +125,7 @@ class EntitySelectSearchUI implements TextWatcher {
     protected void setupPreHoneycombFooter(View.OnClickListener barcodeScanOnClickListener, Callout callout) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             TextView preHoneycombSearchLabel =
-                    (TextView)activity.findViewById(R.id.screen_entity_select_search_label);
+                    activity.findViewById(R.id.screen_entity_select_search_label);
             //use the old method here because some Android versions don't like Spannables for titles
             preHoneycombSearchLabel.setText(Localization.get("select.search.label"));
             preHoneycombSearchLabel.setOnClickListener(v -> {
@@ -138,14 +138,14 @@ class EntitySelectSearchUI implements TextWatcher {
                 inputMethodManager.showSoftInput(preHoneycombSearchBox, InputMethodManager.SHOW_IMPLICIT);
             });
 
-            preHoneycombSearchBox = (EditText)activity.findViewById(R.id.searchbox);
+            preHoneycombSearchBox = activity.findViewById(R.id.searchbox);
             preHoneycombSearchBox.setMaxLines(3);
             preHoneycombSearchBox.setHorizontallyScrolling(false);
             preHoneycombSearchBox.addTextChangedListener(this);
             preHoneycombSearchBox.requestFocus();
             preHoneycombSearchBox.setText(activity.getLastQueryString());
 
-            ImageButton preHoneycombBarcodeButton = (ImageButton)activity.findViewById(R.id.barcodeButton);
+            ImageButton preHoneycombBarcodeButton = activity.findViewById(R.id.barcodeButton);
             preHoneycombBarcodeButton.setOnClickListener(barcodeScanOnClickListener);
             if (callout != null && callout.getImage() != null) {
                 EntitySelectCalloutSetup.setupImageLayout(activity, preHoneycombBarcodeButton, callout.getImage());

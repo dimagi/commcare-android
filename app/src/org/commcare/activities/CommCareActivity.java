@@ -695,7 +695,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 int id = searchView.getContext()
                         .getResources()
                         .getIdentifier("android:id/search_src_text", null, null);
-                TextView textView = (TextView) searchView.findViewById(id);
+                TextView textView = searchView.findViewById(id);
                 textView.setTextColor(searchViewStyle[0]);
                 if (instantiator != null) {
                     instantiator.onActionBarFound(searchMenuItem, searchView, barcodeItem);
