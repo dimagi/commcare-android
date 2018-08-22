@@ -66,7 +66,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     }
 
     private void sendForms() {
-        if (!isNetworkAvaialable()) {
+
+        if (!isNetworkAvaialable() || !isStorageAvailable()) {
             return;
         }
 
@@ -196,7 +197,6 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                             updateStatus(
                                     StringUtils.getStringRobust(recoveryActivity, R.string.recovery_resource_progress,
                                             new String[]{String.valueOf(done), String.valueOf(total)}));
-//                            updateProgressBar(done, total, RECOVERY_TASK);
                         }
 
                         @Override
@@ -243,22 +243,6 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         super.stopBlockingForTask(id);
     }
 
-//    private void updateRecoverAppState() {
-//        btnRecoverApp.setEnabled(false);
-//        if (!CommCareApplication.instance().isStorageAvailable()) {
-//            appState.setText(StringUtils.getStringRobust(this, R.string.recovery_app_state_unavailable));
-//            return;
-//        }
-//
-//        if (isAppCorrupt()) {
-//            appState.setText(StringUtils.getStringRobust(this, R.string.recovery_app_state_corrupt));
-//            btnRecoverApp.setEnabled(true);
-//        } else {
-//            appState.setText(StringUtils.getStringRobust(this, R.string.recovery_app_state_valid));
-//            btnRecoverApp.setEnabled(false);
-//        }
-//    }
-
     private static boolean isAppCorrupt() {
         return CommCareApplication.instance().getCurrentApp().getAppResourceState() == CommCareApplication.STATE_CORRUPTED;
     }
@@ -279,50 +263,13 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         startActivity(i);
     }
 
-//    private void updateSendFormsState() {
-//        sendForms.setEnabled(false);
-//        if (!CommCareApplication.instance().isStorageAvailable()) {
-//            txtUnsentAndQuarantineForms.setText(StringUtils.getStringRobust(this, R.string.recovery_forms_state_unavailable));
-//            return;
-//        }
-//
-//        try {
-//            CommCareApplication.instance().getSession();
-//        } catch (SessionUnavailableException sue) {
-//            txtUnsentAndQuarantineForms.setText(StringUtils.getStringRobust(this, R.string.recovery_forms_state_logged_out));
-//            return;
-//        }
-//
-//        SqlStorage<FormRecord> recordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-//        try {
-//            int unsentForms = StorageUtils.getUnsentRecordsForCurrentApp(recordStorage).length;
-//            int quarantineForms = StorageUtils.getNumQuarantinedForms();
-//            String formsStateMessage = StringUtils.getStringRobust(this,
-//                    R.string.recovery_forms_state_number_unsent_quarantine,
-//                    new String[]{String.valueOf(unsentForms), String.valueOf(quarantineForms)});
-//            sendForms.setEnabled(unsentForms > 0);
-//            txtUnsentAndQuarantineForms.setText(formsStateMessage);
-//        } catch (Exception e) {
-//            Logger.exception("Encountered exception during recovery attempt " + e.getMessage(), e);
-//            txtUnsentAndQuarantineForms.setText(
-//                    StringUtils.getStringRobust(this, R.string.recovery_forms_state_error) + ": " + e.getMessage());
-//        }
-//    }
-
-//    @Override
-//    public CustomProgressDialog generateProgressDialog(int taskId) {
-//        if (taskId == RECOVERY_TASK) {
-//            CustomProgressDialog dialog =
-//                    CustomProgressDialog.newInstance(
-//                            StringUtils.getStringRobust(this, R.string.recovering_resources_title),
-//                            StringUtils.getStringRobust(this, R.string.recovering_resources_progress),
-//                            taskId);
-//            dialog.addProgressBar();
-//            dialog.addCancelButton();
-//            return dialog;
-//        }
-//        return null;
-//    }
+    private boolean isStorageAvailable() {
+        if (!CommCareApplication.instance().isStorageAvailable()) {
+            updateStatus(getLocalizedString(R.string.recovery_forms_state_unavailable));
+            return false;
+        }
+        return true;
+    }
 
     @Override
     protected String getActivityTitle() {
