@@ -5,6 +5,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
 
@@ -54,8 +55,11 @@ public class PurgeStaleArchivedFormsTask
     @Override
     protected Void doInBackground(Void... params) {
         CommCareApp app = CommCareApplication.instance().getCurrentApp();
-
-        performArchivedFormPurge(app);
+        try {
+            performArchivedFormPurge(app);
+        } catch (SessionUnavailableException e) {
+            // do nothing
+        }
         return null;
     }
 

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -99,7 +100,12 @@ public class StandardHomeActivity
             return;
         }
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
-        sendFormsOrSync(true);
+
+        try {
+            sendFormsOrSync(true);
+        } catch (SessionUnavailableException e) {
+            // do nothing
+        }
     }
 
     @Override
@@ -245,5 +251,5 @@ public class StandardHomeActivity
     public void refreshUI() {
         uiController.refreshView();
     }
-    
+
 }

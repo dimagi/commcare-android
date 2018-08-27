@@ -12,6 +12,7 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -77,6 +78,9 @@ public class EntityLoaderTask
             xe.printStackTrace();
             Logger.exception("Error during EntityLoaderTask: " + ForceCloseLogger.getStackTrace(xe), xe);
             mException = xe;
+            return null;
+        } catch (SessionUnavailableException e) {
+            mException = e;
             return null;
         }
     }
