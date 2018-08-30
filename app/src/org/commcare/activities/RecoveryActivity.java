@@ -17,6 +17,7 @@ import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.ResourceRecoveryTask;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -87,21 +88,21 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                     @Override
                     protected void deliverResult(RecoveryActivity receiver, FormUploadResult result) {
                         if (result == FormUploadResult.PROGRESS_LOGGED_OUT) {
-                            updateStatus(R.string.recovery_forms_send_session_expired);
-                            relaunch();
+                            receiver.updateStatus(R.string.recovery_forms_send_session_expired);
+                            receiver.relaunch();
                             return;
                         }
 
-                        loadingIndicator.setVisibility(View.INVISIBLE);
+                        receiver.loadingIndicator.setVisibility(View.INVISIBLE);
 
                         int successfulSends = this.getSuccessfulSends();
 
                         if (result == FormUploadResult.FULL_SUCCESS) {
-                            updateStatus(StringUtils.getStringRobust(
+                            receiver.updateStatus(StringUtils.getStringRobust(
                                     RecoveryActivity.this,
                                     R.string.recovery_forms_send_successful,
                                     String.valueOf(successfulSends)));
-                            attemptRecovery();
+                            receiver.attemptRecovery();
                         } else if (result == FormUploadResult.FAILURE) {
                             String failureMessage = successfulSends > 0 ?
                                     StringUtils.getStringRobust(
@@ -111,13 +112,13 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                                             RecoveryActivity.this,
                                             R.string.recovery_forms_send_parital_success,
                                             String.valueOf(successfulSends));
-                            updateStatus(failureMessage);
+                            receiver.updateStatus(failureMessage);
                         } else if (result == FormUploadResult.TRANSPORT_FAILURE) {
-                            updateStatus(R.string.recovery_forms_send_network_error);
+                            receiver.updateStatus(R.string.recovery_forms_send_network_error);
                         } else if (result == FormUploadResult.RECORD_FAILURE) {
-                            updateStatus(Localization.get("sync.fail.individual"));
+                            receiver.updateStatus(Localization.get("sync.fail.individual"));
                         } else if (result == FormUploadResult.AUTH_OVER_HTTP) {
-                            updateStatus(Localization.get("auth.over.http"));
+                            receiver.updateStatus(Localization.get("auth.over.http"));
                         }
                     }
 
@@ -129,14 +130,14 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                     @Override
                     protected void deliverError(RecoveryActivity receiver, Exception e) {
                         Logger.exception("Error in recovery form send: " + ForceCloseLogger.getStackTrace(e), e);
-                        updateStatus(StringUtils.getStringRobust(receiver, R.string.recovery_forms_send_error) + ": " + e.getMessage());
-                        loadingIndicator.setVisibility(View.INVISIBLE);
+                        receiver.updateStatus(StringUtils.getStringRobust(receiver, R.string.recovery_forms_send_error) + ": " + e.getMessage());
+                        receiver.loadingIndicator.setVisibility(View.INVISIBLE);
                     }
 
                 };
 
         mProcess.addSubmissionListener(CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
-        mProcess.connect(RecoveryActivity.this);
+        mProcess.connect(this);
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
         //but this is the big one for now.
@@ -184,17 +185,17 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                             if (success) {
                                 // Try Reinitializing and attemptRecovery again to correct against further issues
                                 CommCareApplication.instance().initializeAppResources(CommCareApplication.instance().getCurrentApp());
-                                attemptRecovery();
-                                loadingIndicator.setVisibility(View.INVISIBLE);
+                                recoveryActivity.attemptRecovery();
+                                recoveryActivity.loadingIndicator.setVisibility(View.INVISIBLE);
                             } else {
-                                onRecoveryFailure();
+                                onRecoveryFailure(getLocalizedString(R.string.recovery_error_unknown));
                             }
                         }
 
                         @Override
                         protected void deliverUpdate(RecoveryActivity recoveryActivity, Integer... update) {
                             int done = update[0];
-                            updateStatus(
+                            recoveryActivity.updateStatus(
                                     StringUtils.getStringRobust(recoveryActivity, R.string.recovery_resource_progress,
                                             new String[]{String.valueOf(done), String.valueOf(total)}));
                         }
@@ -202,14 +203,19 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                         @Override
                         protected void deliverError(RecoveryActivity recoveryActivity, Exception e) {
                             Logger.exception("Error while recovering missing resources " + ForceCloseLogger.getStackTrace(e), e);
-                            onRecoveryFailure();
+
+                            if (e.getCause() instanceof UnreliableSourceException) {
+                                recoveryActivity.onRecoveryFailure(getLocalizedString(R.string.recovery_error_poor_connection));
+                            } else {
+                                recoveryActivity.onRecoveryFailure(e.getMessage());
+                            }
                         }
                     };
             task.connect(this);
             task.executeParallel();
         } else {
             if (isAppCorrupt()) {
-                onRecoveryFailure();
+                onRecoveryFailure(getLocalizedString(R.string.recovery_error_unknown));
             } else {
                 updateStatus(R.string.recovery_success);
                 loadingIndicator.setVisibility(View.INVISIBLE);
@@ -217,8 +223,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         }
     }
 
-    private void onRecoveryFailure() {
-        updateStatus(R.string.recovery_error);
+    private void onRecoveryFailure(String message) {
+        updateStatus(message);
         appManagerBt.setVisibility(View.VISIBLE);
         loadingIndicator.setVisibility(View.INVISIBLE);
     }
