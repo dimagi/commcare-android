@@ -58,9 +58,9 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         if (savedInstanceState == null) {
             // launching activity, not just changing orientation
             CommCareUtil.triggerLogSubmission(this);
+            sendForms();
         }
 
-        sendForms();
         appManagerBt.setOnClickListener(v -> {
             launchAppManager();
         });
@@ -173,7 +173,10 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         appManagerBt.setVisibility(View.INVISIBLE);
         loadingIndicator.setVisibility(View.VISIBLE);
 
-        AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
+        CommCareApplication commCareApplication = CommCareApplication.instance();
+        // Try to reinitialize to refresh the list of missing resources
+        commCareApplication.initializeAppResources(commCareApplication.getCurrentApp());
+        AndroidCommCarePlatform platform = commCareApplication.getCommCarePlatform();
         ResourceTable global = platform.getGlobalResourceTable();
         if (!global.getMissingResources().isEmpty()) {
             int total = global.getMissingResources().size();
@@ -183,8 +186,6 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                         @Override
                         protected void deliverResult(RecoveryActivity recoveryActivity, Boolean success) {
                             if (success) {
-                                // Try Reinitializing and attemptRecovery again to correct against further issues
-                                CommCareApplication.instance().initializeAppResources(CommCareApplication.instance().getCurrentApp());
                                 recoveryActivity.attemptRecovery();
                                 recoveryActivity.loadingIndicator.setVisibility(View.INVISIBLE);
                             } else {
