@@ -17,7 +17,6 @@ import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.ResourceRecoveryTask;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -169,7 +168,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         return network;
     }
 
-    private void attemptRecovery() {
+    public void attemptRecovery() {
         appManagerBt.setVisibility(View.INVISIBLE);
         loadingIndicator.setVisibility(View.VISIBLE);
 
@@ -179,39 +178,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         AndroidCommCarePlatform platform = commCareApplication.getCommCarePlatform();
         ResourceTable global = platform.getGlobalResourceTable();
         if (!global.getMissingResources().isEmpty()) {
-            int total = global.getMissingResources().size();
-            ResourceRecoveryTask<RecoveryActivity> task =
-                    new ResourceRecoveryTask<RecoveryActivity>(RECOVERY_TASK) {
-
-                        @Override
-                        protected void deliverResult(RecoveryActivity recoveryActivity, Boolean success) {
-                            if (success) {
-                                recoveryActivity.attemptRecovery();
-                                recoveryActivity.loadingIndicator.setVisibility(View.INVISIBLE);
-                            } else {
-                                onRecoveryFailure(getLocalizedString(R.string.recovery_error_unknown));
-                            }
-                        }
-
-                        @Override
-                        protected void deliverUpdate(RecoveryActivity recoveryActivity, Integer... update) {
-                            int done = update[0];
-                            recoveryActivity.updateStatus(
-                                    StringUtils.getStringRobust(recoveryActivity, R.string.recovery_resource_progress,
-                                            new String[]{String.valueOf(done), String.valueOf(total)}));
-                        }
-
-                        @Override
-                        protected void deliverError(RecoveryActivity recoveryActivity, Exception e) {
-                            Logger.exception("Error while recovering missing resources " + ForceCloseLogger.getStackTrace(e), e);
-
-                            if (e.getCause() instanceof UnreliableSourceException) {
-                                recoveryActivity.onRecoveryFailure(getLocalizedString(R.string.recovery_error_poor_connection));
-                            } else {
-                                recoveryActivity.onRecoveryFailure(e.getMessage());
-                            }
-                        }
-                    };
+            ResourceRecoveryTask task = ResourceRecoveryTask.getInstance();
             task.connect(this);
             task.executeParallel();
         } else {
@@ -224,7 +191,11 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         }
     }
 
-    private void onRecoveryFailure(String message) {
+    public void onRecoveryFailure(int messageResource) {
+        onRecoveryFailure(getLocalizedString(messageResource));
+    }
+
+    public void onRecoveryFailure(String message) {
         updateStatus(message);
         appManagerBt.setVisibility(View.VISIBLE);
         loadingIndicator.setVisibility(View.INVISIBLE);
@@ -235,7 +206,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         updateStatus(StringUtils.getStringRobust(this, resource));
     }
 
-    private void updateStatus(String text) {
+    public void updateStatus(String text) {
         statusTv.setVisibility(View.VISIBLE);
         statusTv.setText(text);
     }
@@ -298,5 +269,9 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         Intent i = new Intent(this, AppManagerActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(i);
+    }
+
+    public void stopLoading() {
+        loadingIndicator.setVisibility(View.INVISIBLE);
     }
 }

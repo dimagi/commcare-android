@@ -1,25 +1,40 @@
 package org.commcare.tasks;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.RecoveryActivity;
+import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.dalvik.R;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
-import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.StringUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
-import java.util.Vector;
+public class ResourceRecoveryTask
+        extends CommCareTask<Void, Integer, Boolean, RecoveryActivity> implements TableStateListener, InstallCancelled {
 
-public abstract class ResourceRecoveryTask<Reciever>
-        extends CommCareTask<Void, Integer, Boolean, Reciever> implements TableStateListener, InstallCancelled {
+    private static final int RECOVERY_TASK = 10000;
+    private static ResourceRecoveryTask singletonRunningInstance = null;
+    private static final Object lock = new Object();
 
-    public ResourceRecoveryTask(int taskId) {
-        this.taskId = taskId;
+    private ResourceRecoveryTask() {
+        this.taskId = RECOVERY_TASK;
+    }
+
+    public static ResourceRecoveryTask getInstance() {
+        synchronized (lock) {
+            if (singletonRunningInstance == null) {
+                singletonRunningInstance = new ResourceRecoveryTask();
+            }
+            return singletonRunningInstance;
+        }
     }
 
     @Override
@@ -38,8 +53,55 @@ public abstract class ResourceRecoveryTask<Reciever>
         return success;
     }
 
+    @Override
+    protected void onPostExecute(Boolean aBoolean) {
+        super.onPostExecute(aBoolean);
+        clearTaskInstance();
+    }
+
+    @Override
+    protected void onCancelled() {
+        super.onCancelled();
+        clearTaskInstance();
+    }
+
+    private void clearTaskInstance() {
+        synchronized (lock) {
+            singletonRunningInstance = null;
+        }
+    }
+
+    @Override
+    protected void deliverResult(RecoveryActivity recoveryActivity, Boolean success) {
+        if (success) {
+            recoveryActivity.attemptRecovery();
+            recoveryActivity.stopLoading();
+        } else {
+            recoveryActivity.onRecoveryFailure(R.string.recovery_error_unknown);
+        }
+    }
+
+    @Override
+    protected void deliverUpdate(RecoveryActivity recoveryActivity, Integer... update) {
+        int done = update[0];
+        int total = update[1];
+        recoveryActivity.updateStatus(
+                StringUtils.getStringRobust(recoveryActivity, R.string.recovery_resource_progress,
+                        new String[]{String.valueOf(done), String.valueOf(total)}));
+    }
+
+    @Override
+    protected void deliverError(RecoveryActivity recoveryActivity, Exception e) {
+        Logger.exception("Error while recovering missing resources " + ForceCloseLogger.getStackTrace(e), e);
+
+        if (e.getCause() instanceof UnreliableSourceException) {
+            recoveryActivity.onRecoveryFailure(R.string.recovery_error_poor_connection);
+        } else {
+            recoveryActivity.onRecoveryFailure(e.getMessage());
+        }
+    }
+
     /**
-     *
      * @return CommCare App Profile url without query params
      */
     private String getProfileReference() {
@@ -70,7 +132,7 @@ public abstract class ResourceRecoveryTask<Reciever>
 
     @Override
     public void incrementProgress(int complete, int total) {
-        this.publishProgress(complete);
+        this.publishProgress(complete, total);
     }
 
     @Override
