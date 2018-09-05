@@ -12,8 +12,10 @@ import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.PromptActivity;
 import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.PromptCCReinstallActivity;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.heartbeat.ApkVersion;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.Resource;
@@ -31,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.commcare.engine.resource.ResourceInstallUtils.getProfileReference;
-import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_REINSTALL;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_REINSTALL_AND_UPDATE;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_UPDATE;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_REINSTALL_NEEDED;
@@ -108,19 +109,37 @@ public class ExecuteRecoveryMeasuresPresenter {
         try {
             switch (mCurrentMeasure.getType()) {
                 case MEASURE_TYPE_APP_REINSTALL_AND_UPDATE:
-                    showInstallMethodChooser();
-                    return STATUS_WAITING;
+                    if (notOnLatestAppVersion()) {
+                        showInstallMethodChooser();
+                        return STATUS_WAITING;
+                    } else {
+                        return STATUS_EXECUTED;
+                    }
+
                 case MEASURE_TYPE_APP_UPDATE:
-                    return executeAutoUpdate();
+                    if (notOnLatestAppVersion()) {
+                        executeAutoUpdate();
+                        return STATUS_WAITING;
+                    } else {
+                        return STATUS_EXECUTED;
+                    }
                 case MEASURE_TYPE_CLEAR_USER_DATA:
-//                    clearDataForCurrentOrLastUser();
+                    clearDataForCurrentOrLastUser();
                     return STATUS_EXECUTED;
                 case MEASURE_TYPE_CC_REINSTALL_NEEDED:
-                    launchActivity(PromptCCReinstallActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_REINSTALL);
-                    return STATUS_WAITING;
+                    if (notOnLatestCCVersion()) {
+                        launchActivity(PromptCCReinstallActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_REINSTALL);
+                        return STATUS_WAITING;
+                    } else {
+                        return STATUS_EXECUTED;
+                    }
                 case MEASURE_TYPE_CC_UPDATE_NEEDED:
-                    launchActivity(PromptApkUpdateActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_UPDATE);
-                    return STATUS_WAITING;
+                    if (notOnLatestCCVersion()) {
+                        launchActivity(PromptApkUpdateActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_UPDATE);
+                        return STATUS_WAITING;
+                    } else {
+                        return STATUS_EXECUTED;
+                    }
                 default:
                     // A type that we do not recognize, mark it as executed so that it gets ignored
                     return STATUS_EXECUTED;
@@ -131,6 +150,15 @@ public class ExecuteRecoveryMeasuresPresenter {
             Logger.exception(String.format("Encountered exception while executing recovery measure of type %s", mCurrentMeasure.getType()), e);
         }
         return STATUS_FAILED;
+    }
+
+    private boolean notOnLatestAppVersion() {
+        return ReportingUtils.getAppVersion() < HiddenPreferences.getLatestAppVersion();
+    }
+
+    private boolean notOnLatestCCVersion() {
+        return new ApkVersion(ReportingUtils.getCommCareVersionString()).compareTo(
+                new ApkVersion(HiddenPreferences.getLatestCommcareVersion())) < 0;
     }
 
     private void reinstallApp(CommCareApp currentApp, String profileRef, int authority) {

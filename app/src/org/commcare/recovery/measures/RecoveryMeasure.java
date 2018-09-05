@@ -7,6 +7,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.StringDef;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.heartbeat.ApkVersion;
 import org.commcare.models.database.SqlStorage;
@@ -101,12 +102,7 @@ public class RecoveryMeasure extends Persisted {
         if (appVersionMin == -1 && appVersionMax == -1) {
             return true;
         }
-
-        int currentAppVersion = CommCareApplication.instance()
-                .getCommCarePlatform()
-                .getCurrentProfile()
-                .getVersion();
-
+        int currentAppVersion = ReportingUtils.getAppVersion();
         return currentAppVersion >= appVersionMin && currentAppVersion <= appVersionMax;
     }
 

@@ -1,6 +1,7 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -32,6 +33,8 @@ public class HiddenPreferences {
     private final static String LATEST_RECOVERY_MEASURE = "latest-recovery-measure-exectued";
     public static final String LAST_SUCCESSFUL_CC_VERSION = "last_successful_commcare_version";
     public final static String FIRST_COMMCARE_RUN = "first-commcare-run";
+    public final static String LATEST_COMMCARE_VERSION = "latest-commcare-version";
+    public final static String LATEST_APP_VERSION = "latest-app-version";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
@@ -260,5 +263,27 @@ public class HiddenPreferences {
     public static Boolean shouldShowXformUpdateInfo() {
         return CommCareApplication.instance().getCurrentApp()
                 .getAppPreferences().getBoolean(SHOW_XFORM_UPDATE_INFO, false);
+    }
+
+    public static void setLatestCommcareVersion(String ccVersion) {
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .edit()
+                .putString(LATEST_COMMCARE_VERSION, ccVersion).apply();
+    }
+
+    public static String getLatestCommcareVersion() {
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getString(LATEST_COMMCARE_VERSION, null);
+    }
+
+    public static void setLatestAppVersion(int appVersion) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putInt(LATEST_APP_VERSION, appVersion).apply();
+    }
+
+    public static int getLatestAppVersion() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getInt(LATEST_APP_VERSION, -1);
     }
 }

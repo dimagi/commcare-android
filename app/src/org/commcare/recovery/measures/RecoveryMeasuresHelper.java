@@ -9,10 +9,8 @@ import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.StorageUtils;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +51,7 @@ public class RecoveryMeasuresHelper {
         SqlStorage<RecoveryMeasure> storage = CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
         List<RecoveryMeasure> pendingMeasures = getPendingRecoveryMeasuresInOrder(storage);
         return pendingMeasures.size() > 0 &&
-                !getPendingRecoveryMeasuresInOrder(storage).get(0).triedTooRecently();
+                !pendingMeasures.get(0).triedTooRecently();
     }
 
     public static List<RecoveryMeasure> getPendingRecoveryMeasuresInOrder(SqlStorage<RecoveryMeasure> storage) {

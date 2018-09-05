@@ -3,6 +3,7 @@ package org.commcare.recovery.measures;
 import org.commcare.CommCareApplication;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.network.GetAndParseActor;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
@@ -22,8 +23,8 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
     private static final String TAG = RecoveryMeasuresRequester.class.getSimpleName();
 
     private static final String MOCK_RESPONSE_1 = "{\"app_id\":\"\",\"recovery_measures\": " +
-            "[{\"sequence_number\":42, \"type\":\"app_reinstall_and_update\", \"cc_version_min\":\"2.36.2\", " +
-            "\"cc_version_max\":\"2.46.0\", \"app_version_min\":0, \"latest_app_version\":331, \"latest_cc_version\":\"2.47.0\", \"app_version_max\":330} ]}";
+            "[{\"sequence_number\":50, \"type\":\"cc_reinstall\", \"cc_version_min\":\"2.36.2\", " +
+            "\"cc_version_max\":\"2.46.0\", \"app_version_min\":0, \"latest_app_version\":331, \"latest_cc_version\":\"2.47.0\", \"app_version_max\":1000} ]}";
 
     RecoveryMeasuresRequester() {
         super(NAME, TAG, ServerUrls.PREFS_RECOVERY_MEASURES_URL_KEY);
@@ -102,6 +103,9 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
                 measure.registerWithSystem();
                 System.out.println("Recovery measure " + sequenceNumber + " registered to system");
             }
+
+            HiddenPreferences.setLatestCommcareVersion(recoveryMeasureObject.getString("latest_cc_version"));
+            HiddenPreferences.setLatestAppVersion(recoveryMeasureObject.getInt("latest_app_version"));
         } catch (JSONException e) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     String.format("Recovery measure object not properly formatted: %s", e.getMessage()));
