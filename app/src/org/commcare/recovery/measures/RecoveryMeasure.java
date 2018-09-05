@@ -29,11 +29,12 @@ public class RecoveryMeasure extends Persisted {
 
     public static final String STORAGE_KEY = "RecoveryMeasures";
 
-    public static final String MEASURE_TYPE_APP_REINSTALL = "app_reinstall";
     public static final String MEASURE_TYPE_APP_UPDATE = "app_update";
-    public static final String MEASURE_TYPE_CLEAR_USER_DATA = "clear_data";
+    public static final String MEASURE_TYPE_APP_REINSTALL_AND_UPDATE = "app_reinstall_and_update";
     public static final String MEASURE_TYPE_CC_REINSTALL_NEEDED = "cc_reinstall";
     public static final String MEASURE_TYPE_CC_UPDATE_NEEDED = "cc_update";
+    public static final String MEASURE_TYPE_CLEAR_USER_DATA = "clear_data";
+    public static final String MEASURE_TYPE_APP_REINSTALL = "app_reinstall";
 
     public static final int STATUS_EXECUTED = 0;
     public static final int STATUS_FAILED = 1;
@@ -58,13 +59,13 @@ public class RecoveryMeasure extends Persisted {
     public RecoveryMeasure() {
     }
 
-    @StringDef({MEASURE_TYPE_APP_REINSTALL, MEASURE_TYPE_APP_UPDATE,
+    @StringDef({MEASURE_TYPE_APP_REINSTALL_AND_UPDATE, MEASURE_TYPE_APP_UPDATE, MEASURE_TYPE_APP_REINSTALL,
             MEASURE_TYPE_CLEAR_USER_DATA, MEASURE_TYPE_CC_REINSTALL_NEEDED, MEASURE_TYPE_CC_UPDATE_NEEDED})
     @Retention(RetentionPolicy.SOURCE)
     private @interface MeasureType {
     }
 
-    @IntDef({STATUS_EXECUTED, STATUS_FAILED, STATUS_WAITING,STATUS_TOO_SOON})
+    @IntDef({STATUS_EXECUTED, STATUS_FAILED, STATUS_WAITING, STATUS_TOO_SOON})
     @Retention(RetentionPolicy.SOURCE)
     public @interface RecoveryMeasureStatus {
     }
@@ -149,7 +150,7 @@ public class RecoveryMeasure extends Persisted {
             return false;
         }
         long timediff = System.currentTimeMillis() - this.lastAttemptTime;
-        if(timediff < 0){
+        if (timediff < 0) {
             timediff *= -1;
         }
         return timediff < 10000; //TODO: change threshold back

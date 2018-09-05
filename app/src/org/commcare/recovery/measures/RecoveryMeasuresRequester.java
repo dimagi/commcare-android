@@ -22,8 +22,8 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
     private static final String TAG = RecoveryMeasuresRequester.class.getSimpleName();
 
     private static final String MOCK_RESPONSE_1 = "{\"app_id\":\"\",\"recovery_measures\": " +
-            "[{\"sequence_number\":35, \"type\":\"app_update\", \"cc_version_min\":\"2.36.2\", " +
-            "\"cc_version_max\":\"2.46.0\", \"app_version_min\":0, \"app_version_max\":1000} ]}";
+            "[{\"sequence_number\":42, \"type\":\"app_reinstall_and_update\", \"cc_version_min\":\"2.36.2\", " +
+            "\"cc_version_max\":\"2.46.0\", \"app_version_min\":0, \"latest_app_version\":331, \"latest_cc_version\":\"2.47.0\", \"app_version_max\":330} ]}";
 
     RecoveryMeasuresRequester() {
         super(NAME, TAG, ServerUrls.PREFS_RECOVERY_MEASURES_URL_KEY);

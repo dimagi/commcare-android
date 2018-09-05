@@ -83,7 +83,7 @@ public abstract class ResourceEngineTask<R>
             ResourceTable global = platform.getGlobalResourceTable();
 
             if (reinstall) {
-                global.clear(platform);
+                global.clearAll(platform);
             }
 
             global.setStateListener(this);

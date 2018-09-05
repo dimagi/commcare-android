@@ -32,6 +32,7 @@ import java.util.List;
 
 import static org.commcare.engine.resource.ResourceInstallUtils.getProfileReference;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_REINSTALL;
+import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_REINSTALL_AND_UPDATE;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_UPDATE;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_REINSTALL_NEEDED;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_UPDATE_NEEDED;
@@ -70,7 +71,7 @@ public class ExecuteRecoveryMeasuresPresenter {
         List<Integer> executed = new ArrayList<>();
         for (RecoveryMeasure measure : toExecute) {
             mCurrentMeasure = measure;
-            mLastExecutionStatus = executeMeasure(measure);
+            mLastExecutionStatus = executeMeasure();
             if (mLastExecutionStatus == STATUS_EXECUTED) {
                 HiddenPreferences.setLatestRecoveryMeasureExecuted(measure.getSequenceNumber());
                 executed.add(measure.getID());
@@ -94,8 +95,8 @@ public class ExecuteRecoveryMeasuresPresenter {
     }
 
     public @RecoveryMeasure.RecoveryMeasureStatus
-    int executeMeasure(RecoveryMeasure measure) {
-        if (measure.triedTooRecently()) {
+    int executeMeasure() {
+        if (mCurrentMeasure.triedTooRecently()) {
             return STATUS_TOO_SOON;
         }
         // All recovery measures assume there is a seated app to execute upon, so check that first
@@ -105,14 +106,14 @@ public class ExecuteRecoveryMeasuresPresenter {
         }
 
         try {
-            switch (measure.getType()) {
-                case MEASURE_TYPE_APP_REINSTALL:
+            switch (mCurrentMeasure.getType()) {
+                case MEASURE_TYPE_APP_REINSTALL_AND_UPDATE:
                     showInstallMethodChooser();
                     return STATUS_WAITING;
                 case MEASURE_TYPE_APP_UPDATE:
                     return executeAutoUpdate();
                 case MEASURE_TYPE_CLEAR_USER_DATA:
-                    clearDataForCurrentOrLastUser();
+//                    clearDataForCurrentOrLastUser();
                     return STATUS_EXECUTED;
                 case MEASURE_TYPE_CC_REINSTALL_NEEDED:
                     launchActivity(PromptCCReinstallActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_REINSTALL);
@@ -127,7 +128,7 @@ public class ExecuteRecoveryMeasuresPresenter {
         } catch (Exception e) {
             // If anything goes wrong in the recovery measure execution, just count that as a failure
             mActivity.displayError("Failed to execute ");
-            Logger.exception(String.format("Encountered exception while executing recovery measure of type %s", measure.getType()), e);
+            Logger.exception(String.format("Encountered exception while executing recovery measure of type %s", mCurrentMeasure.getType()), e);
         }
         return STATUS_FAILED;
     }
@@ -253,8 +254,8 @@ public class ExecuteRecoveryMeasuresPresenter {
                 showOfflineInstallActivity();
             }
         };
-        d.setPositiveButton( StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_online_method), listener);
-        d.setNegativeButton( StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_offline_method), listener);
+        d.setPositiveButton(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_online_method), listener);
+        d.setNegativeButton(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_offline_method), listener);
         mActivity.showAlertDialog(d);
     }
 
@@ -277,6 +278,14 @@ public class ExecuteRecoveryMeasuresPresenter {
 
     public boolean shouldAllowBackPress() {
         return false;
+    }
+
+    public void onAppReinstallSuccess() {
+        if (mCurrentMeasure.getType().contentEquals(MEASURE_TYPE_APP_REINSTALL_AND_UPDATE)) {
+            executeAutoUpdate();
+        } else {
+            onAsyncExecutionSuccess();
+        }
     }
 
     private static class sResourceEngineTask<T> extends ResourceEngineTask<ExecuteRecoveryMeasuresActivity> {

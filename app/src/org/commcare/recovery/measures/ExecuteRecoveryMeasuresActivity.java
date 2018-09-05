@@ -108,7 +108,7 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
 
     @Override
     public void reportSuccess(boolean b) {
-        mPresenter.onAsyncExecutionSuccess();
+        mPresenter.onAppReinstallSuccess();
     }
 
     @Override
