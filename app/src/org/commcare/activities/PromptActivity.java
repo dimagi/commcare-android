@@ -110,7 +110,10 @@ public abstract class PromptActivity extends CommCareActivity {
     }
 
     protected void launchCurrentAppOnPlayStore() {
-        final String appPackageName = getPackageName();
+        String appPackageName = getPackageName();
+        if(BuildConfig.DEBUG) {
+            appPackageName = appPackageName.replace(".debug", "");
+        }
         try {
             startActivityForResult(new Intent(Intent.ACTION_VIEW,
                     Uri.parse("market://details?id=" + appPackageName)), DO_AN_UPDATE);

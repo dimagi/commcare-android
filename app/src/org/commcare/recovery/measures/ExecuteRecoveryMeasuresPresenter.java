@@ -12,10 +12,8 @@ import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.PromptActivity;
 import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.PromptCCReinstallActivity;
-import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
-import org.commcare.heartbeat.ApkVersion;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.Resource;
@@ -52,9 +50,9 @@ public class ExecuteRecoveryMeasuresPresenter {
     int mLastExecutionStatus;
 
     private static final int REINSTALL_TASK_ID = 1;
-    public static final int OFFLINE_INSTALL_REQUEST = 1001;
+    static final int OFFLINE_INSTALL_REQUEST = 1001;
 
-    public ExecuteRecoveryMeasuresPresenter(ExecuteRecoveryMeasuresActivity activity) {
+    ExecuteRecoveryMeasuresPresenter(ExecuteRecoveryMeasuresActivity activity) {
         mActivity = activity;
     }
 
@@ -95,8 +93,8 @@ public class ExecuteRecoveryMeasuresPresenter {
         }
     }
 
-    public @RecoveryMeasure.RecoveryMeasureStatus
-    int executeMeasure() {
+    @RecoveryMeasure.RecoveryMeasureStatus
+    private int executeMeasure() {
         if (mCurrentMeasure.triedTooRecently()) {
             return STATUS_TOO_SOON;
         }
@@ -109,7 +107,7 @@ public class ExecuteRecoveryMeasuresPresenter {
         try {
             switch (mCurrentMeasure.getType()) {
                 case MEASURE_TYPE_APP_REINSTALL_AND_UPDATE:
-                    if (notOnLatestAppVersion()) {
+                    if (AppUtils.notOnLatestAppVersion()) {
                         showInstallMethodChooser();
                         return STATUS_WAITING;
                     } else {
@@ -117,7 +115,7 @@ public class ExecuteRecoveryMeasuresPresenter {
                     }
 
                 case MEASURE_TYPE_APP_UPDATE:
-                    if (notOnLatestAppVersion()) {
+                    if (AppUtils.notOnLatestAppVersion()) {
                         executeAutoUpdate();
                         return STATUS_WAITING;
                     } else {
@@ -127,14 +125,14 @@ public class ExecuteRecoveryMeasuresPresenter {
                     clearDataForCurrentOrLastUser();
                     return STATUS_EXECUTED;
                 case MEASURE_TYPE_CC_REINSTALL_NEEDED:
-                    if (notOnLatestCCVersion()) {
+                    if (AppUtils.notOnLatestCCVersion()) {
                         launchActivity(PromptCCReinstallActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_REINSTALL);
                         return STATUS_WAITING;
                     } else {
                         return STATUS_EXECUTED;
                     }
                 case MEASURE_TYPE_CC_UPDATE_NEEDED:
-                    if (notOnLatestCCVersion()) {
+                    if (AppUtils.notOnLatestCCVersion()) {
                         launchActivity(PromptApkUpdateActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_UPDATE);
                         return STATUS_WAITING;
                     } else {
@@ -152,18 +150,9 @@ public class ExecuteRecoveryMeasuresPresenter {
         return STATUS_FAILED;
     }
 
-    private boolean notOnLatestAppVersion() {
-        return ReportingUtils.getAppVersion() < HiddenPreferences.getLatestAppVersion();
-    }
-
-    private boolean notOnLatestCCVersion() {
-        return new ApkVersion(ReportingUtils.getCommCareVersionString()).compareTo(
-                new ApkVersion(HiddenPreferences.getLatestCommcareVersion())) < 0;
-    }
-
     private void reinstallApp(CommCareApp currentApp, String profileRef, int authority) {
         ResourceEngineTask<ExecuteRecoveryMeasuresActivity> task
-                = new sResourceEngineTask<ExecuteRecoveryMeasuresActivity>(
+                = new sResourceEngineTask(
                 currentApp,
                 REINSTALL_TASK_ID,
                 false, authority,
@@ -178,8 +167,7 @@ public class ExecuteRecoveryMeasuresPresenter {
         mActivity.startActivityForResult(i, requestCode);
     }
 
-    private @RecoveryMeasure.RecoveryMeasureStatus
-    int executeAutoUpdate() {
+    private void executeAutoUpdate() {
         CommCareApplication.startAutoUpdate(mActivity, true, new TaskListener<Integer, ResultAndError<AppInstallStatus>>() {
             @Override
             public void handleTaskUpdate(Integer... updateVals) {
@@ -200,16 +188,15 @@ public class ExecuteRecoveryMeasuresPresenter {
                     updateStatus("");
                 } else {
                     updateStatus(appInstallStatusResultAndError.errorMessage);
-                    onAsyncExecutionFailure("App update", appInstallStatusResultAndError.data.name());
+                    onAsyncExecutionFailure(appInstallStatusResultAndError.data.name());
                 }
             }
 
             @Override
             public void handleTaskCancellation() {
-                onAsyncExecutionFailure("App update", "update task cancelled");
+                onAsyncExecutionFailure("update task cancelled");
             }
         });
-        return STATUS_WAITING;
     }
 
     private void updateStatus(String status) {
@@ -236,17 +223,17 @@ public class ExecuteRecoveryMeasuresPresenter {
         getStorage().remove(mCurrentMeasure);
     }
 
-    public void onAsyncExecutionSuccess() {
+    private void onAsyncExecutionSuccess() {
         mLastExecutionStatus = STATUS_EXECUTED;
         markMeasureAsExecuted();
         // so that we pick back up with the next measure, if there are any more
         executePendingMeasures();
     }
 
-    private void onAsyncExecutionFailure(String action, String reason) {
+    private void onAsyncExecutionFailure(String reason) {
         mLastExecutionStatus = STATUS_FAILED;
         Logger.log(LogTypes.TYPE_MAINTENANCE, String.format(
-                "%s failed with %s for recovery measure %s", action, reason, mCurrentMeasure.getSequenceNumber()));
+                "%s failed with %s for recovery measure %s", mCurrentMeasure.getType(), reason, mCurrentMeasure.getSequenceNumber()));
         if (mActivity != null) {
             mActivity.disableLoadingIndicator();
             mActivity.enableRetry();
@@ -263,14 +250,14 @@ public class ExecuteRecoveryMeasuresPresenter {
 
     public void appInstallExecutionFailed(AppInstallStatus status, String reason) {
         updateStatus(Localization.get(status.getLocaleKeyBase() + ".detail"));
-        onAsyncExecutionFailure("App install", reason);
+        onAsyncExecutionFailure(reason);
     }
 
     private static SqlStorage<RecoveryMeasure> getStorage() {
         return CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
     }
 
-    public void showInstallMethodChooser() {
+    private void showInstallMethodChooser() {
         String title = StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_method);
         String message = StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_detail);
         StandardAlertDialog d = new StandardAlertDialog(mActivity, title, message);
@@ -287,13 +274,13 @@ public class ExecuteRecoveryMeasuresPresenter {
         mActivity.showAlertDialog(d);
     }
 
-    public void doOnlineAppInstall() {
+    private void doOnlineAppInstall() {
         reinstallApp(CommCareApplication.instance().getCurrentApp(),
                 getProfileReference(),
                 Resource.RESOURCE_AUTHORITY_REMOTE);
     }
 
-    public void showOfflineInstallActivity() {
+    private void showOfflineInstallActivity() {
         Intent i = new Intent(mActivity, InstallArchiveActivity.class);
         mActivity.startActivityForResult(i, OFFLINE_INSTALL_REQUEST);
     }
@@ -316,8 +303,16 @@ public class ExecuteRecoveryMeasuresPresenter {
         }
     }
 
-    private static class sResourceEngineTask<T> extends ResourceEngineTask<ExecuteRecoveryMeasuresActivity> {
-        public sResourceEngineTask(CommCareApp currentApp, int taskId, boolean shouldSleep, int authority, boolean reinstall) {
+    public void onReturnFromPlaystorePrompts() {
+        if (AppUtils.notOnLatestCCVersion()) {
+            onAsyncExecutionFailure("App Not Updated");
+        } else {
+            onAsyncExecutionSuccess();
+        }
+    }
+
+    static class sResourceEngineTask extends ResourceEngineTask<ExecuteRecoveryMeasuresActivity> {
+        sResourceEngineTask(CommCareApp currentApp, int taskId, boolean shouldSleep, int authority, boolean reinstall) {
             super(currentApp, taskId, shouldSleep, authority, reinstall);
         }
 

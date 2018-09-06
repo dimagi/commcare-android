@@ -2,6 +2,7 @@ package org.commcare.activities;
 
 import android.os.Bundle;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -30,7 +31,7 @@ public class PromptApkUpdateActivity extends PromptActivity {
     @Override
     void refreshPromptObject() {
         if (getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false)) {
-            toPrompt = UpdateToPrompt.DUMMY_APK_PROMPT_FOR_RECOVERY_MEASURE;
+            toPrompt = AppUtils.notOnLatestCCVersion() ? UpdateToPrompt.DUMMY_APK_PROMPT_FOR_RECOVERY_MEASURE : null;
         } else {
             toPrompt = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
         }

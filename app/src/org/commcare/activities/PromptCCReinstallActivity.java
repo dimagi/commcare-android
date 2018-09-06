@@ -2,6 +2,7 @@ package org.commcare.activities;
 
 import android.view.View;
 
+import org.commcare.AppUtils;
 import org.commcare.recovery.measures.CommCareReinstallPrompt;
 import org.javarosa.core.services.locale.Localization;
 
@@ -9,7 +10,11 @@ public class PromptCCReinstallActivity extends PromptActivity {
 
     @Override
     void refreshPromptObject() {
-        toPrompt = CommCareReinstallPrompt.INSTANCE;
+        if (AppUtils.notOnLatestCCVersion()) {
+            toPrompt = CommCareReinstallPrompt.INSTANCE;
+        } else {
+            toPrompt = null;
+        }
     }
 
     @Override

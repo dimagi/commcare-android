@@ -5,8 +5,10 @@ import android.content.pm.PackageManager;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.heartbeat.ApkVersion;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
@@ -173,5 +175,14 @@ public class AppUtils {
                 .getCommCarePlatform()
                 .getCurrentProfile()
                 .getUniqueId();
+    }
+
+    public static boolean notOnLatestAppVersion() {
+        return ReportingUtils.getAppVersion() < HiddenPreferences.getLatestAppVersion();
+    }
+
+    public static boolean notOnLatestCCVersion() {
+        return new ApkVersion(ReportingUtils.getCommCareVersionString()).compareTo(
+                new ApkVersion(HiddenPreferences.getLatestCommcareVersion())) < 0;
     }
 }
