@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.InstallArchiveActivity;
@@ -32,8 +31,6 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     protected static final int PROMPT_APK_UPDATE = 1;
     protected static final int PROMPT_APK_REINSTALL = 2;
 
-    private static final String CURRENTLY_EXECUTING_ID = "currently-executing-id";
-    private static final String RECOVERY_STATE = "recovery_state";
     private ExecuteRecoveryMeasuresPresenter mPresenter;
 
     @UiElement(value = R.id.status_tv)
@@ -52,18 +49,16 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPresenter = new ExecuteRecoveryMeasuresPresenter(this);
-        if (savedInstanceState != null) {
-            mPresenter.setMeasureFromId(savedInstanceState.getInt(CURRENTLY_EXECUTING_ID));
-            mPresenter.setRecoveryState(savedInstanceState.getInt(RECOVERY_STATE));
-        }
+        mPresenter.loadSaveInstanceState(savedInstanceState);
         setUpUI();
-        mPresenter.executePendingMeasures();
+        mPresenter.start();
     }
 
     private void setUpUI() {
         detailTv.setText(StringUtils.getStringRobust(this, R.string.recovery_measure_detail));
         retryBt.setOnClickListener(v -> {
             retryBt.setVisibility(View.GONE);
+            statusTv.setVisibility(View.GONE);
             mPresenter.executePendingMeasures();
         });
     }
@@ -72,14 +67,12 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     @Override
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
-        out.putInt(CURRENTLY_EXECUTING_ID, mPresenter.getCurrentMeasure().getID());
-        out.putInt(RECOVERY_STATE, mPresenter.getRecoveryState());
+        mPresenter.saveInstanceState(out);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-            //todo check if we are on latest version ? If a reinstall has happened we should be on latest version
             case PROMPT_APK_UPDATE:
             case PROMPT_APK_REINSTALL:
                 mPresenter.onReturnFromPlaystorePrompts();
@@ -90,11 +83,6 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
                 }
                 break;
         }
-    }
-
-    public void displayError(String message) {
-        // todo show a sticking error instead
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     public void updateStatus(String msg) {

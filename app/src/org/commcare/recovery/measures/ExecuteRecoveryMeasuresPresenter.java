@@ -3,6 +3,7 @@ package org.commcare.recovery.measures;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -18,6 +19,7 @@ import org.commcare.activities.PromptCCReinstallActivity;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
+import org.commcare.interfaces.BasePresenterContract;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.Resource;
@@ -35,7 +37,6 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -47,10 +48,9 @@ import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_UPD
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CLEAR_USER_DATA;
 import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_EXECUTED;
 import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_FAILED;
-import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_TOO_SOON;
 import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_WAITING;
 
-public class ExecuteRecoveryMeasuresPresenter implements TaskListener<Integer, ResultAndError<AppInstallStatus>> {
+public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, TaskListener<Integer, ResultAndError<AppInstallStatus>> {
 
 
     private final ExecuteRecoveryMeasuresActivity mActivity;
@@ -63,15 +63,17 @@ public class ExecuteRecoveryMeasuresPresenter implements TaskListener<Integer, R
     static final int OFFLINE_INSTALL_REQUEST = 1001;
 
 
-    public static final int RECOVERY_STATE_NONE = 0;
-    public static final int RECOVERY_STATE_TASK_IN_PROGRESS = 1;
-    public static final int RECOVERY_STATE_APP_UPDATE_IN_PROGRESS = 2;
+    static final int RECOVERY_STATE_NONE = 0;
+    static final int RECOVERY_STATE_TASK_IN_PROGRESS = 1;
+    static final int RECOVERY_STATE_APP_UPDATE_IN_PROGRESS = 2;
 
     private static final String TAG = ExecuteRecoveryMeasuresPresenter.class.getSimpleName();
+    private static final String CURRENTLY_EXECUTING_ID = "currently-executing-id";
+    private static final String RECOVERY_STATE = "recovery_state";
 
     @IntDef({RECOVERY_STATE_NONE, RECOVERY_STATE_TASK_IN_PROGRESS, RECOVERY_STATE_APP_UPDATE_IN_PROGRESS})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface RecoveryState {
+    @interface RecoveryState {
     }
 
     @RecoveryState
@@ -79,6 +81,11 @@ public class ExecuteRecoveryMeasuresPresenter implements TaskListener<Integer, R
 
     ExecuteRecoveryMeasuresPresenter(ExecuteRecoveryMeasuresActivity activity) {
         mActivity = activity;
+    }
+
+    @Override
+    public void start() {
+        executePendingMeasures();
     }
 
     // recursively executes measures one after another
@@ -160,7 +167,7 @@ public class ExecuteRecoveryMeasuresPresenter implements TaskListener<Integer, R
             }
         } catch (Exception e) {
             // If anything goes wrong in the recovery measure execution, just count that as a failure
-            mActivity.displayError("Failed to execute ");
+            mActivity.updateStatus("Failed to execute ");
             Logger.exception(String.format("Encountered exception while executing recovery measure of type %s", mCurrentMeasure.getType()), e);
         }
         return STATUS_FAILED;
@@ -253,18 +260,6 @@ public class ExecuteRecoveryMeasuresPresenter implements TaskListener<Integer, R
         }
     }
 
-    public RecoveryMeasure getCurrentMeasure() {
-        return mCurrentMeasure;
-    }
-
-    public void setMeasureFromId(int measureId) {
-        try {
-            mCurrentMeasure = getStorage().read(measureId);
-        } catch (NoSuchElementException e) {
-            mCurrentMeasure = null;
-        }
-    }
-
     public void appInstallExecutionFailed(AppInstallStatus status, String reason) {
         updateStatus(Localization.get(status.getLocaleKeyBase() + ".detail"));
         onAsyncExecutionFailure(reason);
@@ -328,12 +323,45 @@ public class ExecuteRecoveryMeasuresPresenter implements TaskListener<Integer, R
         }
     }
 
-    public int getRecoveryState() {
-        return mRecoveryState;
+    @Override
+    public void saveInstanceState(Bundle out) {
+        out.putInt(CURRENTLY_EXECUTING_ID, mCurrentMeasure != null ? mCurrentMeasure.getID() : -1);
+        out.putInt(RECOVERY_STATE, mRecoveryState);
     }
 
-    public void setRecoveryState(int recoveryState) {
-        this.mRecoveryState = recoveryState;
+    @Override
+    public void loadSaveInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            setMeasureFromId(savedInstanceState.getInt(CURRENTLY_EXECUTING_ID));
+            mRecoveryState = savedInstanceState.getInt(RECOVERY_STATE);
+        }
+    }
+
+    private void setMeasureFromId(int measureId) {
+        if (measureId != -1) {
+            try {
+                mCurrentMeasure = getStorage().read(measureId);
+            } catch (NoSuchElementException e) {
+                mCurrentMeasure = null;
+            }
+        }
+    }
+
+    @Override
+    public void onActivityDestroy() {
+        unregisterUpdate();
+    }
+
+    private void unregisterUpdate() {
+        if (updateTask != null) {
+            try {
+                updateTask.unregisterTaskListener(this);
+            } catch (TaskListenerRegistrationException e) {
+                Log.e(TAG, "Attempting to unregister a not previously " +
+                        "registered TaskListener.");
+            }
+            updateTask = null;
+        }
     }
 
 
@@ -366,22 +394,6 @@ public class ExecuteRecoveryMeasuresPresenter implements TaskListener<Integer, R
     @Override
     public void handleTaskCancellation() {
         onAsyncExecutionFailure("update task cancelled");
-    }
-
-    public void onActivityDestroy() {
-        unregisterUpdate();
-    }
-
-    private void unregisterUpdate() {
-        if (updateTask != null) {
-            try {
-                updateTask.unregisterTaskListener(this);
-            } catch (TaskListenerRegistrationException e) {
-                Log.e(TAG, "Attempting to unregister a not previously " +
-                        "registered TaskListener.");
-            }
-            updateTask = null;
-        }
     }
 
 
