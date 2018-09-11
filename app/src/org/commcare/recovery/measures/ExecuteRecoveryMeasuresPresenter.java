@@ -114,9 +114,6 @@ public class ExecuteRecoveryMeasuresPresenter implements TaskListener<Integer, R
 
     @RecoveryMeasure.RecoveryMeasureStatus
     private int executeMeasure() {
-//        if (mCurrentMeasure.triedTooRecently()) {
-//            return STATUS_TOO_SOON;
-//        }
         // All recovery measures assume there is a seated app to execute upon, so check that first
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         if (currentApp == null) {

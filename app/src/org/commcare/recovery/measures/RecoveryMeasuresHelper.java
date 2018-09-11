@@ -50,8 +50,7 @@ public class RecoveryMeasuresHelper {
         }
         SqlStorage<RecoveryMeasure> storage = CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
         List<RecoveryMeasure> pendingMeasures = getPendingRecoveryMeasuresInOrder(storage);
-        return pendingMeasures.size() > 0 &&
-                !pendingMeasures.get(0).triedTooRecently();
+        return pendingMeasures.size() > 0;
     }
 
     public static List<RecoveryMeasure> getPendingRecoveryMeasuresInOrder(SqlStorage<RecoveryMeasure> storage) {

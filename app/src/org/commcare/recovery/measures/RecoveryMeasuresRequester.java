@@ -22,10 +22,6 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
     private static final String NAME = "recovery measures";
     private static final String TAG = RecoveryMeasuresRequester.class.getSimpleName();
 
-    private static final String MOCK_RESPONSE_1 = "{\"app_id\":\"\",\"recovery_measures\": " +
-            "[{\"sequence_number\":56, \"type\":\"app_reinstall_and_update\", \"cc_version_min\":\"2.36.2\", " +
-            "\"cc_version_max\":\"2.46.0\", \"app_version_min\":0, \"latest_app_version\":332, \"latest_cc_version\":\"2.45.0\", \"app_version_max\":1000} ]}";
-
     RecoveryMeasuresRequester() {
         super(NAME, TAG, ServerUrls.PREFS_RECOVERY_MEASURES_URL_KEY);
     }
@@ -43,21 +39,8 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
     }
 
     @Override
-    public void makeRequest() {
-        try {
-            Thread.sleep(5000); // mock waiting for request response
-            parseResponse(new JSONObject(MOCK_RESPONSE_1));
-        } catch (InterruptedException e) {
-            // nothing to do
-        } catch (JSONException e) {
-            System.out.println("JSONException while parsing mock response: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    @Override
     public void parseResponse(JSONObject responseAsJson) {
-        //if (checkForAppIdMatch(responseAsJson)) {
+        if (checkForAppIdMatch(responseAsJson)) {
             try {
                 if (responseAsJson.has("recovery_measures")) {
                     JSONArray recoveryMeasures = responseAsJson.getJSONArray("recovery_measures");
@@ -70,7 +53,7 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         "recovery_measures array not properly formatted: " + e.getMessage());
             }
-        //}
+        }
     }
 
     private static void parseAndStoreRecoveryMeasure(JSONObject recoveryMeasureObject) {

@@ -54,8 +54,6 @@ public class RecoveryMeasure extends Persisted {
     private int appVersionMin;
     @Persisting(6)
     private int appVersionMax;
-    @Persisting(7)
-    private long lastAttemptTime;
 
     public RecoveryMeasure() {
     }
@@ -79,7 +77,6 @@ public class RecoveryMeasure extends Persisted {
         this.ccVersionMax = ccVersionMax;
         this.appVersionMin = appVersionMin;
         this.appVersionMax = appVersionMax;
-        this.lastAttemptTime = -1;
     }
 
     protected boolean newToCurrentInstallation() {
@@ -134,22 +131,6 @@ public class RecoveryMeasure extends Persisted {
 
     void registerWithSystem() {
         CommCareApplication.instance().getAppStorage(RecoveryMeasure.class).write(this);
-    }
-
-    void setLastAttemptTime(SqlStorage<RecoveryMeasure> storage) {
-        this.lastAttemptTime = System.currentTimeMillis();
-        storage.write(this);
-    }
-
-    boolean triedTooRecently() {
-        if (lastAttemptTime == -1) {
-            return false;
-        }
-        long timediff = System.currentTimeMillis() - this.lastAttemptTime;
-        if (timediff < 0) {
-            timediff *= -1;
-        }
-        return timediff < 10000; //TODO: change threshold back
     }
 
     public String getType() {
