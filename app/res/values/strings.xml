@@ -396,5 +396,7 @@
     <string name="recovery_measure_detail">Recovery procedures have been initiated for your CommCare App due to a problem with it. Please wait...</string>
     <string name="recovery_measure_faiure">An error occurred when CommCare tried to execute a recovery measure. We will try again later. If the problem persists please contact helpdesk</string>
     <string name="recovery_measure_retry">Retry</string>
+    <string name="recovery_measure_app_reinstall_progress">Reinstalling %1$s out of %2$s resources</string>
+    <string name="recovery_measure_app_update_progress">Updating %1$s out of %2$s resources</string>
 
 </resources>

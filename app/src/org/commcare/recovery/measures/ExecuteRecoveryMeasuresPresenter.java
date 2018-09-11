@@ -3,6 +3,9 @@ package org.commcare.recovery.measures;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
+import android.util.Log;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
@@ -14,12 +17,15 @@ import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.PromptCCReinstallActivity;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
+import org.commcare.tasks.TaskListenerRegistrationException;
+import org.commcare.tasks.UpdateTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
@@ -27,8 +33,11 @@ import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.commcare.engine.resource.ResourceInstallUtils.getProfileReference;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_REINSTALL_AND_UPDATE;
@@ -41,63 +50,73 @@ import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_FAILED;
 import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_TOO_SOON;
 import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_WAITING;
 
-public class ExecuteRecoveryMeasuresPresenter {
+public class ExecuteRecoveryMeasuresPresenter implements TaskListener<Integer, ResultAndError<AppInstallStatus>> {
 
 
     private final ExecuteRecoveryMeasuresActivity mActivity;
     private RecoveryMeasure mCurrentMeasure;
+    private UpdateTask updateTask;
     private @RecoveryMeasure.RecoveryMeasureStatus
     int mLastExecutionStatus;
 
     private static final int REINSTALL_TASK_ID = 1;
     static final int OFFLINE_INSTALL_REQUEST = 1001;
 
+
+    public static final int RECOVERY_STATE_NONE = 0;
+    public static final int RECOVERY_STATE_TASK_IN_PROGRESS = 1;
+    public static final int RECOVERY_STATE_APP_UPDATE_IN_PROGRESS = 2;
+
+    private static final String TAG = ExecuteRecoveryMeasuresPresenter.class.getSimpleName();
+
+    @IntDef({RECOVERY_STATE_NONE, RECOVERY_STATE_TASK_IN_PROGRESS, RECOVERY_STATE_APP_UPDATE_IN_PROGRESS})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RecoveryState {
+    }
+
+    @RecoveryState
+    private int mRecoveryState = RECOVERY_STATE_NONE;
+
     ExecuteRecoveryMeasuresPresenter(ExecuteRecoveryMeasuresActivity activity) {
         mActivity = activity;
     }
 
+    // recursively executes measures one after another
     void executePendingMeasures() {
-        mActivity.enableLoadingIndicator();
+        if (mRecoveryState == RECOVERY_STATE_NONE) {
+            mActivity.enableLoadingIndicator();
+            mCurrentMeasure = getNextMeasureToExecute();
+            if (mCurrentMeasure != null) {
+                mLastExecutionStatus = executeMeasure();
+                if (mLastExecutionStatus == STATUS_EXECUTED) {
+                    markMeasureAsExecuted();
+                    executePendingMeasures();
+                }
+            } else {
+                // Nothing to execute
+                mActivity.runFinish();
+            }
+        } else if (mRecoveryState == RECOVERY_STATE_APP_UPDATE_IN_PROGRESS) {
+            connectToUpdateTask();
+        }
+    }
 
+    @Nullable
+    private RecoveryMeasure getNextMeasureToExecute() {
         SqlStorage<RecoveryMeasure> storage =
                 CommCareApplication.instance().getAppStorage(RecoveryMeasure.class);
         List<RecoveryMeasure> toExecute = RecoveryMeasuresHelper.getPendingRecoveryMeasuresInOrder(storage);
-        if (toExecute.size() == 0) {
-            mActivity.runFinish();
-            return;
+        if (toExecute.size() != 0) {
+            return toExecute.get(0);
         }
-
-        List<Integer> executed = new ArrayList<>();
-        for (RecoveryMeasure measure : toExecute) {
-            mCurrentMeasure = measure;
-            mLastExecutionStatus = executeMeasure();
-            if (mLastExecutionStatus == STATUS_EXECUTED) {
-                HiddenPreferences.setLatestRecoveryMeasureExecuted(measure.getSequenceNumber());
-                executed.add(measure.getID());
-            } else {
-                // Either it's too soon to retry, the execution failed, or we're waiting for an
-                // async process to finish
-                if (mLastExecutionStatus != STATUS_TOO_SOON) {
-                    measure.setLastAttemptTime(storage);
-                }
-                break;
-            }
-        }
-
-        for (Integer id : executed) {
-            storage.remove(id);
-        }
-
-        if (mLastExecutionStatus != STATUS_WAITING) {
-            mActivity.runFinish();
-        }
+        return null;
     }
 
     @RecoveryMeasure.RecoveryMeasureStatus
     private int executeMeasure() {
-        if (mCurrentMeasure.triedTooRecently()) {
-            return STATUS_TOO_SOON;
-        }
+//        if (mCurrentMeasure.triedTooRecently()) {
+//            return STATUS_TOO_SOON;
+//        }
         // All recovery measures assume there is a seated app to execute upon, so check that first
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         if (currentApp == null) {
@@ -159,6 +178,7 @@ public class ExecuteRecoveryMeasuresPresenter {
                 true);
         task.connect(mActivity);
         task.execute(profileRef);
+        mRecoveryState = RECOVERY_STATE_TASK_IN_PROGRESS;
     }
 
     private void launchActivity(Class activity, int requestCode) {
@@ -168,35 +188,30 @@ public class ExecuteRecoveryMeasuresPresenter {
     }
 
     private void executeAutoUpdate() {
-        CommCareApplication.startAutoUpdate(mActivity, true, new TaskListener<Integer, ResultAndError<AppInstallStatus>>() {
-            @Override
-            public void handleTaskUpdate(Integer... updateVals) {
-                if (mActivity != null) {
-                    int progress = updateVals[0];
-                    int max = updateVals[1];
-                    String msg = Localization.get("updates.found",
-                            new String[]{"" + progress, "" + max});
-                    mActivity.updateStatus(msg);
-                }
-            }
+        mRecoveryState = RECOVERY_STATE_APP_UPDATE_IN_PROGRESS;
+        String ref = ResourceInstallUtils.getDefaultProfileRef();
+        try {
+            updateTask = UpdateTask.getNewInstance();
+            updateTask.registerTaskListener(this);
+            updateTask.executeParallel(ref);
+        } catch (IllegalStateException e) {
+            Log.w(TAG, "Trying to trigger auto-update when it is already running");
+        } catch (TaskListenerRegistrationException e) {
+            Logger.log(LogTypes.SOFT_ASSERT, "Attempting to register a TaskListener to an already registered update task.");
+        }
 
-            @Override
-            public void handleTaskCompletion(ResultAndError<AppInstallStatus> appInstallStatusResultAndError) {
-                AppInstallStatus result = appInstallStatusResultAndError.data;
-                if (result == AppInstallStatus.UpdateStaged || result == AppInstallStatus.UpToDate) {
-                    onAsyncExecutionSuccess();
-                    updateStatus("");
-                } else {
-                    updateStatus(appInstallStatusResultAndError.errorMessage);
-                    onAsyncExecutionFailure(appInstallStatusResultAndError.data.name());
-                }
-            }
+    }
 
-            @Override
-            public void handleTaskCancellation() {
-                onAsyncExecutionFailure("update task cancelled");
+    private void connectToUpdateTask() {
+        updateTask = UpdateTask.getRunningInstance();
+        if (updateTask != null) {
+            try {
+                updateTask.registerTaskListener(this);
+            } catch (TaskListenerRegistrationException e) {
+                Log.e(TAG, "Attempting to register a TaskListener to an already " +
+                        "registered task.");
             }
-        });
+        }
     }
 
     private void updateStatus(String status) {
@@ -225,6 +240,7 @@ public class ExecuteRecoveryMeasuresPresenter {
 
     private void onAsyncExecutionSuccess() {
         mLastExecutionStatus = STATUS_EXECUTED;
+        mRecoveryState = RECOVERY_STATE_NONE;
         markMeasureAsExecuted();
         // so that we pick back up with the next measure, if there are any more
         executePendingMeasures();
@@ -245,7 +261,11 @@ public class ExecuteRecoveryMeasuresPresenter {
     }
 
     public void setMeasureFromId(int measureId) {
-        mCurrentMeasure = getStorage().read(measureId);
+        try {
+            mCurrentMeasure = getStorage().read(measureId);
+        } catch (NoSuchElementException e) {
+            mCurrentMeasure = null;
+        }
     }
 
     public void appInstallExecutionFailed(AppInstallStatus status, String reason) {
@@ -310,6 +330,63 @@ public class ExecuteRecoveryMeasuresPresenter {
             onAsyncExecutionSuccess();
         }
     }
+
+    public int getRecoveryState() {
+        return mRecoveryState;
+    }
+
+    public void setRecoveryState(int recoveryState) {
+        this.mRecoveryState = recoveryState;
+    }
+
+
+    // Update Task Listeners
+    @Override
+    public void handleTaskUpdate(Integer... updateVals) {
+        if (mActivity != null) {
+            int progress = updateVals[0];
+            int max = updateVals[1];
+            String msg = StringUtils.getStringRobust(
+                    mActivity,
+                    R.string.recovery_measure_app_update_progress,
+                    new String[]{"" + progress, "" + max});
+            mActivity.updateStatus(msg);
+        }
+    }
+
+    @Override
+    public void handleTaskCompletion(ResultAndError<AppInstallStatus> appInstallStatusResultAndError) {
+        AppInstallStatus result = appInstallStatusResultAndError.data;
+        if (result == AppInstallStatus.UpdateStaged || result == AppInstallStatus.UpToDate) {
+            onAsyncExecutionSuccess();
+            updateStatus("");
+        } else {
+            updateStatus(appInstallStatusResultAndError.errorMessage);
+            onAsyncExecutionFailure(appInstallStatusResultAndError.data.name());
+        }
+    }
+
+    @Override
+    public void handleTaskCancellation() {
+        onAsyncExecutionFailure("update task cancelled");
+    }
+
+    public void onActivityDestroy() {
+        unregisterUpdate();
+    }
+
+    private void unregisterUpdate() {
+        if (updateTask != null) {
+            try {
+                updateTask.unregisterTaskListener(this);
+            } catch (TaskListenerRegistrationException e) {
+                Log.e(TAG, "Attempting to unregister a not previously " +
+                        "registered TaskListener.");
+            }
+            updateTask = null;
+        }
+    }
+
 
     static class sResourceEngineTask extends ResourceEngineTask<ExecuteRecoveryMeasuresActivity> {
         sResourceEngineTask(CommCareApp currentApp, int taskId, boolean shouldSleep, int authority, boolean reinstall) {

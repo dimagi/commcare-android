@@ -19,7 +19,6 @@ import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
-import org.javarosa.core.services.locale.Localization;
 
 import static org.commcare.recovery.measures.ExecuteRecoveryMeasuresPresenter.OFFLINE_INSTALL_REQUEST;
 
@@ -34,6 +33,7 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     protected static final int PROMPT_APK_REINSTALL = 2;
 
     private static final String CURRENTLY_EXECUTING_ID = "currently-executing-id";
+    private static final String RECOVERY_STATE = "recovery_state";
     private ExecuteRecoveryMeasuresPresenter mPresenter;
 
     @UiElement(value = R.id.status_tv)
@@ -54,6 +54,7 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
         mPresenter = new ExecuteRecoveryMeasuresPresenter(this);
         if (savedInstanceState != null) {
             mPresenter.setMeasureFromId(savedInstanceState.getInt(CURRENTLY_EXECUTING_ID));
+            mPresenter.setRecoveryState(savedInstanceState.getInt(RECOVERY_STATE));
         }
         setUpUI();
         mPresenter.executePendingMeasures();
@@ -72,6 +73,7 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
         out.putInt(CURRENTLY_EXECUTING_ID, mPresenter.getCurrentMeasure().getID());
+        out.putInt(RECOVERY_STATE, mPresenter.getRecoveryState());
     }
 
     @Override
@@ -98,10 +100,6 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     public void updateStatus(String msg) {
         statusTv.setVisibility(View.VISIBLE);
         statusTv.setText(msg);
-    }
-
-    public void hideStatus() {
-        statusTv.setVisibility(View.GONE);
     }
 
     @Override
@@ -131,10 +129,10 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
 
     @Override
     public void updateResourceProgress(int done, int total, int phase) {
-        String installProgressText =
-                Localization.getWithDefault("profile.found",
-                        new String[]{"" + done, "" + total},
-                        "Setting up app...");
+        String installProgressText = StringUtils.getStringRobust(
+                this,
+                R.string.recovery_measure_app_reinstall_progress,
+                new String[]{"" + done, "" + total});
         updateStatus(installProgressText);
     }
 
@@ -170,5 +168,11 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
         if (mPresenter.shouldAllowBackPress()) {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mPresenter.onActivityDestroy();
     }
 }
