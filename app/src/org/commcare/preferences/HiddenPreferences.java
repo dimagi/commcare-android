@@ -58,7 +58,6 @@ public class HiddenPreferences {
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
     private final static String LOGS_ENABLED = "logenabled";
     private final static String LOGS_ENABLED_YES = "Enabled";
-    private final static String ON_DEVICE_BACKUP_CCZ_LOCATION = "on-device-backup-ccz-location";
 
     // Boolean pref to determine whether user has already been through the update information form
     public final static String SHOW_XFORM_UPDATE_INFO = "show-xform-update-info";
@@ -248,11 +247,6 @@ public class HiddenPreferences {
                     .edit().putLong(LATEST_RECOVERY_MEASURE, latestSequenceNumber)
                     .apply();
         }
-    }
-
-    public static String getBackupCczLocation() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getString(ON_DEVICE_BACKUP_CCZ_LOCATION, null);
     }
 
     public static void setShowXformUpdateInfo(boolean showXformUpdateInfo) {

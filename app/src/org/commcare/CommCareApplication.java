@@ -677,7 +677,7 @@ public class CommCareApplication extends MultiDexApplication {
                         }
 
                         if (shouldAutoUpdate()) {
-                            startAutoUpdate(CommCareApplication.instance(), false, null);
+                            startAutoUpdate();
                         }
                         syncPending = PendingCalcs.getPendingSyncStatus();
 
@@ -764,27 +764,19 @@ public class CommCareApplication extends MultiDexApplication {
                         PendingCalcs.isUpdatePending(currentApp.getAppPreferences())));
     }
 
-    public static void startAutoUpdate(Context context, boolean byRecoveryMeasure,
-                                       TaskListener alternateListener) {
-        Logger.log(LogTypes.TYPE_MAINTENANCE,
-                String.format("Auto-Update Triggered%s", byRecoveryMeasure ? " by recovery measure" : ""));
+    private static void startAutoUpdate() {
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Auto-Update Triggered");
 
         String ref = ResourceInstallUtils.getDefaultProfileRef();
 
         try {
             UpdateTask updateTask = UpdateTask.getNewInstance();
-            if (alternateListener != null) {
-                updateTask.registerTaskListener(alternateListener);
-            } else {
-                updateTask.startPinnedNotification(context);
-            }
+            updateTask.startPinnedNotification(CommCareApplication.instance());
             updateTask.setAsAutoUpdate();
             updateTask.executeParallel(ref);
         } catch (IllegalStateException e) {
-            Log.w(TAG, "Trying to trigger auto-update when it is already running. " +
+            Log.w(TAG, "Trying trigger auto-update when it is already running. " +
                     "Should only happen if the user triggered a manual update before this fired.");
-        } catch (TaskListenerRegistrationException e) {
-            Logger.log(LogTypes.SOFT_ASSERT, "Attempting to register a TaskListener to an already registered update task.");
         }
     }
 

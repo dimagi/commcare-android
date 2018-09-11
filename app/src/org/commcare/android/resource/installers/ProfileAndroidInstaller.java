@@ -89,7 +89,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             Profile p = parser.parse();
 
             if (recovery) {
-                checkForSameApp(platform, p);
+                validateRecovery(platform, p);
             }
 
             if (!upgrade) {
@@ -119,11 +119,12 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
-    private void checkForSameApp(AndroidCommCarePlatform platform, Profile p) throws UnfullfilledRequirementsException {
+    // Makes sure we are recovering from profile belonging to the same app
+    private void validateRecovery(AndroidCommCarePlatform platform, Profile p) throws UnfullfilledRequirementsException {
         if (!platform.getApp().getAppRecord().getUniqueId().contentEquals(p.getUniqueId())) {
             throw new UnfullfilledRequirementsException(
                     "Trying to recover using ccz for a different CommCare App",
-                    UnfullfilledRequirementsException.RequirementType.INCORRECT_APP_CCZ);
+                    UnfullfilledRequirementsException.RequirementType.REINSTALL_FROM_INVALID_CCZ);
         }
     }
 

@@ -230,10 +230,9 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private  void startRecoveryExecutionActivity() {
-        System.out.println("Executing recovery measures for app " +
-                CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName());
         startActivityForResult(
-                new Intent(this, ExecuteRecoveryMeasuresActivity.class), RECOVERY_MEASURES);
+                new Intent(this, ExecuteRecoveryMeasuresActivity.class),
+                RECOVERY_MEASURES);
     }
 
     private void createNoStorageDialog() {

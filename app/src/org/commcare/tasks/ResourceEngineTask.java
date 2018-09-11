@@ -3,7 +3,6 @@ package org.commcare.tasks;
 import android.os.SystemClock;
 
 import org.commcare.CommCareApp;
-import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
@@ -94,7 +93,7 @@ public abstract class ResourceEngineTask<R>
                         "Couldn't install file to local storage|");
                 return AppInstallStatus.NoLocalStorage;
             } catch (UnfullfilledRequirementsException e) {
-                if (e.isIncorrectCCZException()) {
+                if (e.isReinstallFromInvalidCCZException()) {
                     return AppInstallStatus.ReinstallFromInvalidCcz;
                 }
                 if (e.isDuplicateException()) {

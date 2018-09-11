@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
@@ -58,7 +57,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 

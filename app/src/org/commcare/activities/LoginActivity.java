@@ -231,9 +231,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         // Otherwise, refresh the activity for current conditions
         uiController.refreshView();
-        // NOTE: I was using this to test what happens if a crash occurs before either of the normal
-        // recovery measure execution pathways run
-        //throw new RuntimeException();
     }
 
     protected boolean checkForSeatedAppChange() {
