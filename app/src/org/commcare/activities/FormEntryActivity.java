@@ -1147,9 +1147,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void finishReturnInstance(boolean reportSaved) {
         String action = getIntent().getAction();
         if (Intent.ACTION_PICK.equals(action) || Intent.ACTION_EDIT.equals(action)) {
-            FormRecord formRecord = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
             Intent formReturnIntent = new Intent();
-            formReturnIntent.putExtra(KEY_FORM_RECORD_ID, formRecord.getID());
             formReturnIntent.putExtra(FormEntryConstants.IS_ARCHIVED_FORM, mFormController.isFormReadOnly());
             formReturnIntent.putExtra(KEY_IS_RESTART_AFTER_EXPIRATION,
                     getIntent().getBooleanExtra(KEY_IS_RESTART_AFTER_EXPIRATION, false));

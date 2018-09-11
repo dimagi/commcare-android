@@ -174,7 +174,6 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         if (!super.upgrade(r, platform)) {
             return false;
         }
-
         InputStream profileStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
