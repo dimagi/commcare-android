@@ -46,9 +46,9 @@ public class RecoveryMeasure extends Persisted {
     private String type;
     @Persisting(2)
     private long sequenceNumber;
-    @Persisting(3)
+    @Persisting(value = 3, nullable = true)
     private String ccVersionMin;
-    @Persisting(4)
+    @Persisting(value = 4, nullable = true)
     private String ccVersionMax;
     @Persisting(5)
     private int appVersionMin;
