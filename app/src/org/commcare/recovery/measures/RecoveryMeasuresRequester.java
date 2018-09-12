@@ -58,6 +58,9 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
 
     private static void parseAndStoreRecoveryMeasure(JSONObject recoveryMeasureObject) {
         try {
+            // Do this as the first thing
+            updateLatestVersionPrefs(recoveryMeasureObject);
+
             String ccVersionMin = null, ccVersionMax = null;
             int appVersionMin = -1, appVersionMax = -1;
             if (recoveryMeasureObject.has("cc_version_min")) {
@@ -84,15 +87,16 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
                     ccVersionMax, appVersionMin, appVersionMax);
             if (measure.newToCurrentInstallation() && measure.applicableToCurrentInstallation()) {
                 measure.registerWithSystem();
-                System.out.println("Recovery measure " + sequenceNumber + " registered to system");
             }
-
-            HiddenPreferences.setLatestCommcareVersion(recoveryMeasureObject.getString("latest_cc_version"));
-            HiddenPreferences.setLatestAppVersion(recoveryMeasureObject.getInt("latest_app_version"));
         } catch (JSONException e) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     String.format("Recovery measure object not properly formatted: %s", e.getMessage()));
         }
+    }
+
+    private static void updateLatestVersionPrefs(JSONObject recoveryMeasureObject) throws JSONException {
+        HiddenPreferences.setLatestCommcareVersion(recoveryMeasureObject.getString("latest_cc_version"));
+        HiddenPreferences.setLatestAppVersion(recoveryMeasureObject.getInt("latest_app_version"));
     }
 
 }

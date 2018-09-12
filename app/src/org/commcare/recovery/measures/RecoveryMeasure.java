@@ -6,11 +6,11 @@ import android.content.pm.PackageManager;
 import android.support.annotation.IntDef;
 import android.support.annotation.StringDef;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.heartbeat.ApkVersion;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.preferences.HiddenPreferences;
@@ -32,8 +32,8 @@ public class RecoveryMeasure extends Persisted {
 
     public static final String MEASURE_TYPE_APP_UPDATE = "app_update";
     public static final String MEASURE_TYPE_APP_REINSTALL_AND_UPDATE = "app_reinstall_and_update";
-    public static final String MEASURE_TYPE_CC_REINSTALL_NEEDED = "cc_reinstall";
-    public static final String MEASURE_TYPE_CC_UPDATE_NEEDED = "cc_update";
+    public static final String MEASURE_TYPE_CC_REINSTALL = "cc_reinstall";
+    public static final String MEASURE_TYPE_CC_UPDATE = "cc_update";
     public static final String MEASURE_TYPE_CLEAR_USER_DATA = "clear_data";
     public static final String MEASURE_TYPE_APP_REINSTALL = "app_reinstall";
 
@@ -59,7 +59,7 @@ public class RecoveryMeasure extends Persisted {
     }
 
     @StringDef({MEASURE_TYPE_APP_REINSTALL_AND_UPDATE, MEASURE_TYPE_APP_UPDATE, MEASURE_TYPE_APP_REINSTALL,
-            MEASURE_TYPE_CLEAR_USER_DATA, MEASURE_TYPE_CC_REINSTALL_NEEDED, MEASURE_TYPE_CC_UPDATE_NEEDED})
+            MEASURE_TYPE_CLEAR_USER_DATA, MEASURE_TYPE_CC_REINSTALL, MEASURE_TYPE_CC_UPDATE})
     @Retention(RetentionPolicy.SOURCE)
     private @interface MeasureType {
     }
@@ -95,6 +95,16 @@ public class RecoveryMeasure extends Persisted {
     }
 
     private boolean applicableToAppVersion() {
+
+        // If we are on the latest App version for a App Related measure, return false
+        if (type.contentEquals(MEASURE_TYPE_APP_REINSTALL) ||
+                type.contentEquals(MEASURE_TYPE_APP_UPDATE) ||
+                type.contentEquals(MEASURE_TYPE_APP_REINSTALL_AND_UPDATE)) {
+            if (!AppUtils.notOnLatestAppVersion()) {
+                return false;
+            }
+        }
+
         // max and min both being -1 signifies that the measure is applicable to all versions
         if (appVersionMin == -1 && appVersionMax == -1) {
             return true;
@@ -104,6 +114,14 @@ public class RecoveryMeasure extends Persisted {
     }
 
     private boolean applicableToCommCareVersion() {
+
+        // If we are on the latest CC version for a CC Related measure, return false
+        if (type.contentEquals(MEASURE_TYPE_CC_REINSTALL) || type.contentEquals(MEASURE_TYPE_CC_UPDATE)) {
+            if (!AppUtils.notOnLatestCCVersion()) {
+                return false;
+            }
+        }
+
         // max and min both being null signifies that the measure is applicable to all versions
         if (ccVersionMax == null && ccVersionMin == null) {
             return true;

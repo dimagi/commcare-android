@@ -43,8 +43,8 @@ import java.util.NoSuchElementException;
 import static org.commcare.engine.resource.ResourceInstallUtils.getProfileReference;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_REINSTALL_AND_UPDATE;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_UPDATE;
-import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_REINSTALL_NEEDED;
-import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_UPDATE_NEEDED;
+import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_REINSTALL;
+import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_UPDATE;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CLEAR_USER_DATA;
 import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_EXECUTED;
 import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_FAILED;
@@ -147,14 +147,14 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
                 case MEASURE_TYPE_CLEAR_USER_DATA:
                     clearDataForCurrentOrLastUser();
                     return STATUS_EXECUTED;
-                case MEASURE_TYPE_CC_REINSTALL_NEEDED:
+                case MEASURE_TYPE_CC_REINSTALL:
                     if (AppUtils.notOnLatestCCVersion()) {
                         launchActivity(PromptCCReinstallActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_REINSTALL);
                         return STATUS_WAITING;
                     } else {
                         return STATUS_EXECUTED;
                     }
-                case MEASURE_TYPE_CC_UPDATE_NEEDED:
+                case MEASURE_TYPE_CC_UPDATE:
                     if (AppUtils.notOnLatestCCVersion()) {
                         launchActivity(PromptApkUpdateActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_UPDATE);
                         return STATUS_WAITING;
