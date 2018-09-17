@@ -178,15 +178,26 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         AndroidCommCarePlatform platform = commCareApplication.getCommCarePlatform();
         ResourceTable global = platform.getGlobalResourceTable();
         if (!global.getMissingResources().isEmpty()) {
-            ResourceRecoveryTask task = ResourceRecoveryTask.getInstance();
-            task.connect(this);
-            task.executeParallel();
+            startRecoveryTask();
         } else {
             if (isAppCorrupt()) {
                 onRecoveryFailure(getLocalizedString(R.string.recovery_error_unknown));
             } else {
                 updateStatus(R.string.recovery_success);
                 loadingIndicator.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
+
+    private void startRecoveryTask() {
+        try {
+            ResourceRecoveryTask task = ResourceRecoveryTask.getInstance();
+            task.connect(this);
+            task.executeParallel();
+        } catch (IllegalStateException e) {
+            ResourceRecoveryTask task = ResourceRecoveryTask.getRunningInstance();
+            if (task != null) {
+                task.connect(this);
             }
         }
     }

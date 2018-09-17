@@ -1,5 +1,7 @@
 package org.commcare.tasks;
 
+import android.support.annotation.Nullable;
+
 import org.commcare.CommCareApplication;
 import org.commcare.activities.RecoveryActivity;
 import org.commcare.android.logging.ForceCloseLogger;
@@ -25,6 +27,7 @@ public class ResourceRecoveryTask
     private static final Object lock = new Object();
 
     private ResourceRecoveryTask() {
+        TAG = ResourceRecoveryTask.class.getSimpleName();
         this.taskId = RECOVERY_TASK;
     }
 
@@ -32,8 +35,21 @@ public class ResourceRecoveryTask
         synchronized (lock) {
             if (singletonRunningInstance == null) {
                 singletonRunningInstance = new ResourceRecoveryTask();
+                return singletonRunningInstance;
+            } else {
+                throw new IllegalStateException("An instance of " + TAG + " already exists.");
             }
-            return singletonRunningInstance;
+        }
+    }
+
+    @Nullable
+    public static ResourceRecoveryTask getRunningInstance() {
+        synchronized (lock) {
+            if (singletonRunningInstance != null &&
+                    singletonRunningInstance.getStatus() == Status.RUNNING) {
+                return singletonRunningInstance;
+            }
+            return null;
         }
     }
 
