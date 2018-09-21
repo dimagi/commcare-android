@@ -42,6 +42,8 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
     public void parseResponse(JSONObject responseAsJson) {
         if (checkForAppIdMatch(responseAsJson)) {
             try {
+                // Do this as the first thing
+                updateLatestVersionPrefs(responseAsJson);
                 if (responseAsJson.has("recovery_measures")) {
                     JSONArray recoveryMeasures = responseAsJson.getJSONArray("recovery_measures");
                     for (int i = 0; i < recoveryMeasures.length(); i++) {
@@ -58,8 +60,6 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
 
     private static void parseAndStoreRecoveryMeasure(JSONObject recoveryMeasureObject) {
         try {
-            // Do this as the first thing
-            updateLatestVersionPrefs(recoveryMeasureObject);
 
             String ccVersionMin = null, ccVersionMax = null;
             int appVersionMin = -1, appVersionMax = -1;
@@ -95,8 +95,8 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
     }
 
     private static void updateLatestVersionPrefs(JSONObject recoveryMeasureObject) throws JSONException {
-        HiddenPreferences.setLatestCommcareVersion(recoveryMeasureObject.getString("latest_cc_version"));
-        HiddenPreferences.setLatestAppVersion(recoveryMeasureObject.getInt("latest_app_version"));
+        HiddenPreferences.setLatestCommcareVersion(recoveryMeasureObject.getString("latest_apk_version"));
+        HiddenPreferences.setLatestAppVersion(recoveryMeasureObject.getInt("latest_ccz_version"));
     }
 
 }
