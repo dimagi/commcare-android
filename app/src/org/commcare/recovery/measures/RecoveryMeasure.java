@@ -34,8 +34,6 @@ public class RecoveryMeasure extends Persisted {
     public static final String MEASURE_TYPE_APP_REINSTALL_AND_UPDATE = "app_reinstall_and_update";
     public static final String MEASURE_TYPE_CC_REINSTALL = "cc_reinstall";
     public static final String MEASURE_TYPE_CC_UPDATE = "cc_update";
-    public static final String MEASURE_TYPE_CLEAR_USER_DATA = "clear_data";
-    public static final String MEASURE_TYPE_APP_REINSTALL = "app_reinstall";
 
     public static final int STATUS_EXECUTED = 0;
     public static final int STATUS_FAILED = 1;
@@ -58,8 +56,8 @@ public class RecoveryMeasure extends Persisted {
     public RecoveryMeasure() {
     }
 
-    @StringDef({MEASURE_TYPE_APP_REINSTALL_AND_UPDATE, MEASURE_TYPE_APP_UPDATE, MEASURE_TYPE_APP_REINSTALL,
-            MEASURE_TYPE_CLEAR_USER_DATA, MEASURE_TYPE_CC_REINSTALL, MEASURE_TYPE_CC_UPDATE})
+    @StringDef({MEASURE_TYPE_APP_REINSTALL_AND_UPDATE, MEASURE_TYPE_APP_UPDATE,
+            MEASURE_TYPE_CC_REINSTALL, MEASURE_TYPE_CC_UPDATE})
     @Retention(RetentionPolicy.SOURCE)
     private @interface MeasureType {
     }
@@ -97,8 +95,7 @@ public class RecoveryMeasure extends Persisted {
     private boolean applicableToAppVersion() {
 
         // If we are on the latest App version for a App Related measure, return false
-        if (type.contentEquals(MEASURE_TYPE_APP_REINSTALL) ||
-                type.contentEquals(MEASURE_TYPE_APP_UPDATE) ||
+        if (type.contentEquals(MEASURE_TYPE_APP_UPDATE) ||
                 type.contentEquals(MEASURE_TYPE_APP_REINSTALL_AND_UPDATE)) {
             if (!AppUtils.notOnLatestAppVersion()) {
                 return false;

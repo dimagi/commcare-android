@@ -45,7 +45,6 @@ import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_RE
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_UPDATE;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_REINSTALL;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_UPDATE;
-import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CLEAR_USER_DATA;
 import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_EXECUTED;
 import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_FAILED;
 import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_WAITING;
@@ -136,7 +135,6 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
                     } else {
                         return STATUS_EXECUTED;
                     }
-
                 case MEASURE_TYPE_APP_UPDATE:
                     if (AppUtils.notOnLatestAppVersion()) {
                         executeAutoUpdate();
@@ -144,9 +142,6 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
                     } else {
                         return STATUS_EXECUTED;
                     }
-                case MEASURE_TYPE_CLEAR_USER_DATA:
-                    clearDataForCurrentOrLastUser();
-                    return STATUS_EXECUTED;
                 case MEASURE_TYPE_CC_REINSTALL:
                     if (AppUtils.notOnLatestCCVersion()) {
                         launchActivity(PromptCCReinstallActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_REINSTALL);
@@ -221,19 +216,6 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     private void updateStatus(String status) {
         if (mActivity != null) {
             mActivity.updateStatus(status);
-        }
-    }
-
-    private static void clearDataForCurrentOrLastUser() {
-        try {
-            CommCareApplication.instance().getSession();
-            AppUtils.clearUserData();
-        } catch (SessionUnavailableException e) {
-            String lastUser = CommCareApplication.instance().getCurrentApp().getAppPreferences().
-                    getString(HiddenPreferences.LAST_LOGGED_IN_USER, null);
-            if (lastUser != null) {
-                AppUtils.wipeSandboxForUser(lastUser);
-            }
         }
     }
 
