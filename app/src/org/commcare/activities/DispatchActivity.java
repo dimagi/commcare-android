@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -20,8 +19,6 @@ import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.views.dialogs.AlertDialogFragment;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -217,11 +214,12 @@ public class DispatchActivity extends FragmentActivity {
         if (!CommCareApplication.instance().isStorageAvailable()) {
             createNoStorageDialog();
         } else {
-            // See if we're logged in. If so, prompt for recovery.
+            // See if we're logged in. If so, show recovery screen
             try {
                 CommCareApplication.instance().getSession();
-
-                createAskFixDialog().show(getSupportFragmentManager(), "damage-dialog");
+                Intent intent = new Intent(DispatchActivity.this, RecoveryActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
             } catch (SessionUnavailableException e) {
                 // Otherwise, log in first
                 launchLoginScreen();
@@ -403,27 +401,5 @@ public class DispatchActivity extends FragmentActivity {
                 return;
         }
         super.onActivityResult(requestCode, resultCode, intent);
-    }
-
-    private AlertDialogFragment createAskFixDialog() {
-        //TODO: Localize this in theory, but really shift it to the upgrade/management state
-        String title = "Storage is Corrupt :/";
-        String message = "Sorry, something really bad has happened, and the app can't start up. " +
-                "With your permission CommCare can try to repair itself if you have network access.";
-        StandardAlertDialog d = new StandardAlertDialog(this, title, message);
-        DialogInterface.OnClickListener listener = (dialog, i) -> {
-            switch (i) {
-                case DialogInterface.BUTTON_POSITIVE: // attempt repair
-                    Intent intent = new Intent(DispatchActivity.this, RecoveryActivity.class);
-                    startActivity(intent);
-                    break;
-                case DialogInterface.BUTTON_NEGATIVE: // Shut down
-                    DispatchActivity.this.finish();
-                    break;
-            }
-        };
-        d.setPositiveButton("Enter Recovery Mode", listener);
-        d.setNegativeButton("Shut Down", listener);
-        return AlertDialogFragment.fromCommCareAlertDialog(d);
     }
 }
