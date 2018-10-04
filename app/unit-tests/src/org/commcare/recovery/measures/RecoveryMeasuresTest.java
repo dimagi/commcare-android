@@ -30,46 +30,47 @@ import static junit.framework.Assert.assertTrue;
 @RunWith(CommCareTestRunner.class)
 public class RecoveryMeasuresTest {
 
-    private static final String REINSTALL_AND_UPDATE_VALID_FOR_CURRENT_APP_VERSION =  "{\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
+    private static final String REINSTALL_AND_UPDATE_VALID_FOR_CURRENT_APP_VERSION =  "{ \"latest_ccz_version\":9, \"latest_apk_version\":\"2.91.0\"," +
+            "\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\", \"recovery_measures\": " +
             "[{\"sequence_number\":1, \"type\":\"app_reinstall_and_update\", \"cc_version_min\":\"2.44.0\", " +
-            "\"cc_version_max\":\"2.90.0\", \"app_version_min\":0, \"latest_app_version\":9," +
-            "\"latest_cc_version\":\"2.91.0\", \"app_version_max\":6} ]}";
+            "\"cc_version_max\":\"2.90.0\", \"app_version_min\":0," +
+            "\"app_version_max\":6} ]}";
 
-    private static final String REINSTALL_AND_UPDATE_NOT_VALID_FOR_CURRENT_APP_VERSION =  "{\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
+    private static final String REINSTALL_AND_UPDATE_INVALID_FOR_CURRENT_APP_VERSION =  "{\"latest_ccz_version\":9, \"latest_apk_version\":\"2.91.0\"," +
+            "\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
             "[{\"sequence_number\":2, \"type\":\"app_reinstall_and_update\", \"cc_version_min\":\"2.44.0\", " +
-            "\"cc_version_max\":\"2.90.0\", \"app_version_min\":0, \"latest_app_version\":9," +
-            "\"latest_cc_version\":\"2.91.0\", \"app_version_max\":5} ]}";
+            "\"cc_version_max\":\"2.90.0\", \"app_version_min\":0, \"app_version_max\":5} ]}";
 
-    private static final String CC_REINSTALL_INVALID_FOR_CURRENT_CC_VERSION =  "{\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
+    private static final String CC_REINSTALL_INVALID_FOR_CURRENT_CC_VERSION =  "{\"latest_ccz_version\":9, \"latest_apk_version\":\"2.91.0\"," +
+            "\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
             "[{\"sequence_number\":3, \"type\":\"cc_reinstall\", \"cc_version_min\":\"2.44.0\", " +
-            "\"cc_version_max\":\"2.44.0\", \"app_version_min\":0, \"latest_app_version\":9," +
-            "\"latest_cc_version\":\"2.91.0\", \"app_version_max\":6} ]}";
+            "\"cc_version_max\":\"2.44.0\", \"app_version_min\":0, \"app_version_max\":6} ]}";
 
-    private static final String CC_REINSTALL_VALID_FOR_ALL_CC_VERSION =  "{\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
-            "[{\"sequence_number\":4, \"type\":\"cc_reinstall\", \"app_version_min\":0, \"latest_app_version\":9," +
-            "\"latest_cc_version\":\"2.91.0\", \"app_version_max\":6} ]}";
+    private static final String CC_REINSTALL_VALID_FOR_ALL_CC_VERSION =  "{\"latest_ccz_version\":9, \"latest_apk_version\":\"2.91.0\"," +
+            "\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
+            "[{\"sequence_number\":4, \"type\":\"cc_reinstall\", \"app_version_min\":0, \"app_version_max\":6} ]}";
 
-    private static final String APP_UPDATE_VALID_FOR_ALL_APP_VERSION =  "{\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
+    private static final String APP_UPDATE_VALID_FOR_ALL_APP_VERSION =  "{\"latest_ccz_version\":9, \"latest_apk_version\":\"2.91.0\"," +
+            "\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
             "[{\"sequence_number\":5, \"type\":\"app_update\", \"cc_version_min\":\"2.44.0\", " +
-            "\"cc_version_max\":\"2.90.0\", \"latest_app_version\":9," +
-            "\"latest_cc_version\":\"2.91.0\"} ]}";
+            "\"cc_version_max\":\"2.90.0\" }]}";
 
-    private static final String VALID_FOR_ALL_HENCE_INVALID =  "{\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
-            "[{\"sequence_number\":6, \"type\":\"app_update\", \"latest_app_version\":9," +
-            "\"latest_cc_version\":\"2.91.0\"} ]}";
+    private static final String VALID_FOR_ALL_HENCE_INVALID =  "{\"latest_ccz_version\":9, \"latest_apk_version\":\"2.91.0\"," +
+            "\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
+            "[{\"sequence_number\":6, \"type\":\"app_update\" }]}";
 
-    private static final String CC_UPDATE_INVALID_DUE_TO_LATEST_VERSION =  "{\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
-            "[{\"sequence_number\":7, \"type\":\"cc_update\", \"app_version_min\":0, \"latest_app_version\":9," +
-            "\"latest_cc_version\":\"2.44.0\", \"app_version_max\":6} ]}";
+    private static final String CC_UPDATE_INVALID_DUE_TO_LATEST_VERSION =  "{\"latest_ccz_version\":9, \"latest_apk_version\":\"2.44.0\"," +
+            "\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
+            "[{\"sequence_number\":7, \"type\":\"cc_update\", \"app_version_min\":0, \"app_version_max\":6} ]}";
 
-    private static final String APP_UPDATE_INVALID_DUE_TO_LATEST_VERSION =  "{\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
+    private static final String APP_UPDATE_INVALID_DUE_TO_LATEST_VERSION =  "{\"latest_ccz_version\":6, \"latest_apk_version\":\"2.91.0\"," +
+            "\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
             "[{\"sequence_number\":8, \"type\":\"app_update\", \"cc_version_min\":\"2.44.0\", " +
-            "\"cc_version_max\":\"2.90.0\", \"latest_app_version\":6," +
-            "\"latest_cc_version\":\"2.91.0\"} ]}";
+            "\"cc_version_max\":\"2.90.0\" }]}";
 
-    private static final String CC_UPDATE_VALID =  "{\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
-            "[{\"sequence_number\":9, \"type\":\"cc_update\", \"app_version_min\":0, \"latest_app_version\":6," +
-            "\"latest_cc_version\":\"2.91.0\", \"app_version_max\":6} ]}";
+    private static final String CC_UPDATE_VALID =  "{\"latest_ccz_version\":9, \"latest_apk_version\":\"2.91.0\"," +
+            "\"app_id\":\"ac46998a182d2e1d1fd8e75684d23903\",\"recovery_measures\": " +
+            "[{\"sequence_number\":9, \"type\":\"cc_update\", \"app_version_min\":0, \"app_version_max\":6} ]}";
 
 
     @Before
@@ -84,7 +85,7 @@ public class RecoveryMeasuresTest {
     @Test
     public void OnlyValidRecoveryMeasures_ShouldGetAdded() {
         requestRecoveryMeasures(REINSTALL_AND_UPDATE_VALID_FOR_CURRENT_APP_VERSION);
-        requestRecoveryMeasures(REINSTALL_AND_UPDATE_NOT_VALID_FOR_CURRENT_APP_VERSION);
+        requestRecoveryMeasures(REINSTALL_AND_UPDATE_INVALID_FOR_CURRENT_APP_VERSION);
         requestRecoveryMeasures(CC_REINSTALL_INVALID_FOR_CURRENT_CC_VERSION);
         requestRecoveryMeasures(CC_REINSTALL_VALID_FOR_ALL_CC_VERSION);
         requestRecoveryMeasures(APP_UPDATE_VALID_FOR_ALL_APP_VERSION);
