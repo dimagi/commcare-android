@@ -302,7 +302,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     try {
                         try {
                             if (StringUtils.isEmpty(record.getFilePath())) {
-                                throw new FileNotFoundException("No form instance URI exists for formrecord " +
+                                throw new FileNotFoundException("File path empty for formrecord " +
                                         record.getID() + " with xmlns " + record.getFormNamespace());
                             }
                             folder = new File(record.getFilePath()).getCanonicalFile().getParentFile();
