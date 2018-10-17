@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 
+import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.UpdateActivity;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.tasks.ResultAndError;
@@ -41,7 +42,7 @@ public class PinnedNotificationWithProgress
         Bitmap largeIcon =
                 BitmapFactory.decodeResource(ctx.getResources(), largeIconResource);
 
-        notificationBuilder = new NotificationCompat.Builder(ctx)
+        notificationBuilder = new NotificationCompat.Builder(ctx, CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
                 .setContentText(getProgressText(0, 0))
                 .setContentTitle(Localization.get(titleText))
                 .setProgress(100, 0, false)
