@@ -31,7 +31,7 @@ HELP_MSG = """'capture' saves the current session for restoring later.
 """
 BASE_RECEIVER_CMD = "adb shell am broadcast -a"
 BASE_ACTIVITY_CMD = "adb shell am start -n"
-PACKAGE_NAME = "org.commcare.dalvik.debug"
+PACKAGE_NAME = "org.commcare.dalvik"
 DEBUG_CONTROL_RECEIVER = "org.commcare.provider.DebugControlsReceiver"
 
 
