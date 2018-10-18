@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -35,20 +36,22 @@ public class DebugControlsReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (action.endsWith("SessionCaptureAction")) {
-            captureSession();
-        } else if (action.endsWith("UninstallApp")) {
-            uninstallApp(intent.getStringExtra("app_id"));
-        } else if (action.endsWith("LoginWithCreds")) {
-            login(context, intent.getStringExtra("username"), intent.getStringExtra("password"));
-        } else if (action.endsWith("TriggerSyncRecover")) {
-            storeFakeCaseDbHash();
-        } else if (action.endsWith("ExpireUserKeyRecord")) {
-            invalidateUserKeyRecord(intent.getStringExtra("username"));
-        } else if (action.endsWith("ClearCacheOnRestore")) {
-            CommCareApplication.instance().setInvalidateCacheFlag(true);
-        } else if (action.endsWith("SetImageWidgetPath")) {
-            ImageCaptureProcessing.setCustomImagePath(intent.getStringExtra("file_path"));
+        if (!StringUtils.isEmpty(action)) {
+            if (action.endsWith("SessionCaptureAction")) {
+                captureSession();
+            } else if (action.endsWith("UninstallApp")) {
+                uninstallApp(intent.getStringExtra("app_id"));
+            } else if (action.endsWith("LoginWithCreds")) {
+                login(context, intent.getStringExtra("username"), intent.getStringExtra("password"));
+            } else if (action.endsWith("TriggerSyncRecover")) {
+                storeFakeCaseDbHash();
+            } else if (action.endsWith("ExpireUserKeyRecord")) {
+                invalidateUserKeyRecord(intent.getStringExtra("username"));
+            } else if (action.endsWith("ClearCacheOnRestore")) {
+                CommCareApplication.instance().setInvalidateCacheFlag(true);
+            } else if (action.endsWith("SetImageWidgetPath")) {
+                ImageCaptureProcessing.setCustomImagePath(intent.getStringExtra("file_path"));
+            }
         }
     }
 
