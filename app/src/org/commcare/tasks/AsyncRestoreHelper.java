@@ -2,6 +2,7 @@ package org.commcare.tasks;
 
 import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.util.LogTypes;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.ElementParser;
 import org.kxml2.io.KXmlParser;
@@ -55,8 +56,9 @@ public class AsyncRestoreHelper {
     }
 
     private boolean parseProgressFromRetryResult(RemoteDataPullResponse response) {
+        InputStream stream = null;
         try {
-            InputStream stream = response.writeResponseToCache(syncTask.context).retrieveCache();
+            stream = response.writeResponseToCache(syncTask.context).retrieveCache();
             KXmlParser parser = ElementParser.instantiateParser(stream);
             parser.next();
             int eventType = parser.getEventType();
@@ -75,6 +77,8 @@ public class AsyncRestoreHelper {
         } catch (IOException | XmlPullParserException e) {
             Logger.log(LogTypes.TYPE_USER,
                     "Error while parsing progress values of retry result");
+        } finally {
+            StreamsUtil.closeStream(stream);
         }
         return false;
     }
