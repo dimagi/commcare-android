@@ -36,6 +36,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.xml.AvailableAppsParser;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.ElementParser;
@@ -328,6 +329,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             availableApps.addAll(apps);
         } catch (IOException | InvalidStructureException | XmlPullParserException | UnfullfilledRequirementsException e) {
             Logger.log(LogTypes.TYPE_RESOURCES, "Error encountered while parsing apps available for install");
+        } finally {
+            StreamsUtil.closeStream(responseData);
         }
     }
 

@@ -29,6 +29,7 @@ import org.commcare.views.UiElement;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.media.MediaLayout;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
@@ -225,17 +226,21 @@ public class QueryRequestActivity
 
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
-        Pair<ExternalDataInstance, String> instanceOrError =
-                remoteQuerySessionManager.buildExternalDataInstance(responseData);
-        if (instanceOrError.first == null) {
-            enterErrorState(Localization.get("query.response.format.error",
-                    instanceOrError.second));
-        } else if (isResponseEmpty(instanceOrError.first)) {
-            Toast.makeText(this, Localization.get("query.response.empty"), Toast.LENGTH_SHORT).show();
-        } else {
-            CommCareApplication.instance().getCurrentSession().setQueryDatum(instanceOrError.first);
-            setResult(RESULT_OK);
-            finish();
+        try {
+            Pair<ExternalDataInstance, String> instanceOrError =
+                    remoteQuerySessionManager.buildExternalDataInstance(responseData);
+            if (instanceOrError.first == null) {
+                enterErrorState(Localization.get("query.response.format.error",
+                        instanceOrError.second));
+            } else if (isResponseEmpty(instanceOrError.first)) {
+                Toast.makeText(this, Localization.get("query.response.empty"), Toast.LENGTH_SHORT).show();
+            } else {
+                CommCareApplication.instance().getCurrentSession().setQueryDatum(instanceOrError.first);
+                setResult(RESULT_OK);
+                finish();
+            }
+        } finally {
+            StreamsUtil.closeStream(responseData);
         }
     }
 

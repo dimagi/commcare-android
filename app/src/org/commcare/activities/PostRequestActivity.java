@@ -18,6 +18,7 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
@@ -169,6 +170,7 @@ public class PostRequestActivity
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
         performSync();
+        StreamsUtil.closeStream(responseData);
     }
 
     @Override
