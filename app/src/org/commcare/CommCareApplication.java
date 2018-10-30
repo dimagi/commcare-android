@@ -175,7 +175,7 @@ public class CommCareApplication extends MultiDexApplication {
         CommCarePreferenceManagerFactory.init(new AndroidPreferenceManager());
 
         configureCommCareEngineConstantsAndStaticRegistrations();
-        noficationManager = new CommCareNoficationManager(this);
+        initNotifications();
 
         //TODO: Make this robust
         PreInitLogger pil = new PreInitLogger();
@@ -208,6 +208,14 @@ public class CommCareApplication extends MultiDexApplication {
         if (dbState != STATE_MIGRATION_FAILED && dbState != STATE_MIGRATION_QUESTIONABLE) {
             AppUtils.checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
+        }
+    }
+
+    private void initNotifications() {
+        noficationManager = new CommCareNoficationManager(this);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            noficationManager.createNotificationChannels();
         }
     }
 
