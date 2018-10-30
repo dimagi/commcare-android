@@ -170,7 +170,6 @@ public class PostRequestActivity
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
         performSync();
-        StreamsUtil.closeStream(responseData);
     }
 
     @Override

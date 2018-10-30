@@ -329,8 +329,6 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             availableApps.addAll(apps);
         } catch (IOException | InvalidStructureException | XmlPullParserException | UnfullfilledRequirementsException e) {
             Logger.log(LogTypes.TYPE_RESOURCES, "Error encountered while parsing apps available for install");
-        } finally {
-            StreamsUtil.closeStream(responseData);
         }
     }
 

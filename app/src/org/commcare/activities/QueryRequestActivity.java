@@ -226,21 +226,17 @@ public class QueryRequestActivity
 
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
-        try {
-            Pair<ExternalDataInstance, String> instanceOrError =
-                    remoteQuerySessionManager.buildExternalDataInstance(responseData);
-            if (instanceOrError.first == null) {
-                enterErrorState(Localization.get("query.response.format.error",
-                        instanceOrError.second));
-            } else if (isResponseEmpty(instanceOrError.first)) {
-                Toast.makeText(this, Localization.get("query.response.empty"), Toast.LENGTH_SHORT).show();
-            } else {
-                CommCareApplication.instance().getCurrentSession().setQueryDatum(instanceOrError.first);
-                setResult(RESULT_OK);
-                finish();
-            }
-        } finally {
-            StreamsUtil.closeStream(responseData);
+        Pair<ExternalDataInstance, String> instanceOrError =
+                remoteQuerySessionManager.buildExternalDataInstance(responseData);
+        if (instanceOrError.first == null) {
+            enterErrorState(Localization.get("query.response.format.error",
+                    instanceOrError.second));
+        } else if (isResponseEmpty(instanceOrError.first)) {
+            Toast.makeText(this, Localization.get("query.response.empty"), Toast.LENGTH_SHORT).show();
+        } else {
+            CommCareApplication.instance().getCurrentSession().setQueryDatum(instanceOrError.first);
+            setResult(RESULT_OK);
+            finish();
         }
     }
 
