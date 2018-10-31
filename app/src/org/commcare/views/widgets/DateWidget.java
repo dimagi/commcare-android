@@ -33,10 +33,13 @@ public class DateWidget extends QuestionWidget {
 
     private final DatePicker mDatePicker;
     private final DatePicker.OnDateChangedListener mDateListener;
+    private boolean isFilled = false;
 
     @SuppressLint("NewApi")
     public DateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
+
+        resetIsFilled();
 
         mDatePicker = buildDatePicker(!prompt.isReadOnly());
         mDateListener = buildDateListener();
@@ -79,6 +82,7 @@ public class DateWidget extends QuestionWidget {
                 }
             }
 
+            isFilled = true;
             widgetEntryChangedDelayed();
         };
     }
@@ -103,6 +107,7 @@ public class DateWidget extends QuestionWidget {
 
             mDatePicker.init(adjustedDate.getYear(), adjustedDate.getMonthOfYear() - 1, adjustedDate.getDayOfMonth(),
                     mDateListener);
+            isFilled = true;
         } else {
             // create date widget with current time as of right now
             clearAnswer();
@@ -117,15 +122,28 @@ public class DateWidget extends QuestionWidget {
         DateTime ldt = new DateTime();
         mDatePicker.init(ldt.getYear(), ldt.getMonthOfYear() - 1, ldt.getDayOfMonth(),
                 mDateListener);
+        resetIsFilled();
+    }
+
+    private void resetIsFilled() {
+        // if it's not editable, assume it to be filled.
+        if (mPrompt.isReadOnly()) {
+            isFilled = true;
+        } else {
+            isFilled = false;
+        }
     }
 
     @Override
     public IAnswerData getAnswer() {
-        mDatePicker.clearFocus();
+        if (isFilled) {
+            mDatePicker.clearFocus();
 
-        LocalDate ldt = new LocalDate(mDatePicker.getYear(), mDatePicker.getMonth() + 1,
-                mDatePicker.getDayOfMonth());
-        return new DateData(ldt.toDate());
+            LocalDate ldt = new LocalDate(mDatePicker.getYear(), mDatePicker.getMonth() + 1,
+                    mDatePicker.getDayOfMonth());
+            return new DateData(ldt.toDate());
+        }
+        return null;
     }
 
     @Override
