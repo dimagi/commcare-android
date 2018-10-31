@@ -79,15 +79,10 @@ public class ModernHttpTask
             httpResponseProcessor.handleIOException(mException);
         } else {
             // route to appropriate callback based on http response code
-            try {
-                responseDataStream = requester.getResponseStream(mResponse);
-                ModernHttpRequester.processResponse(
-                        httpResponseProcessor,
-                        mResponse.code(),
-                        this);
-            } catch (IOException e) {
-                httpResponseProcessor.handleIOException(e);
-            }
+            ModernHttpRequester.processResponse(
+                    httpResponseProcessor,
+                    mResponse.code(),
+                    this);
         }
     }
 
@@ -102,7 +97,7 @@ public class ModernHttpTask
     }
 
     @Override
-    public InputStream getResponseStream() {
-        return responseDataStream;
+    public InputStream getResponseStream() throws IOException{
+        return requester.getResponseStream(mResponse);
     }
 }
