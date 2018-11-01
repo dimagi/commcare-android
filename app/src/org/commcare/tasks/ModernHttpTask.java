@@ -65,6 +65,9 @@ public class ModernHttpTask
     protected Void doTaskBackground(Void... params) {
         try {
             mResponse = requester.makeRequest();
+            if(mResponse.isSuccessful()) {
+                responseDataStream = requester.getResponseStream(mResponse);
+            }
         } catch (IOException e) {
             mException = e;
         }
@@ -97,7 +100,7 @@ public class ModernHttpTask
     }
 
     @Override
-    public InputStream getResponseStream() throws IOException{
-        return requester.getResponseStream(mResponse);
+    public InputStream getResponseStream() {
+        return responseDataStream;
     }
 }
