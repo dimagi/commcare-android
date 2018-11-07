@@ -1,8 +1,6 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import com.android.builder.core.DefaultManifestParser
 
-import java.util.function.BooleanSupplier
-
 ////////////
 // README //
 ////////////
@@ -349,12 +347,7 @@ android {
             // next to play store version
 
             // grab commcare version from manifest
-            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile, new BooleanSupplier() {
-                @Override
-                boolean getAsBoolean() {
-                    return true
-                }
-            }, null)
+            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile)
             def ccVersion = manifestParser.getVersionName()
             // convert numbers to words to use in app id
             def ccVersionSafe = numbersToLetters(ccVersion)
