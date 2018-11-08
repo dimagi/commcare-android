@@ -84,7 +84,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                     ((CommCareSetupActivity)currentActivity).clearErrorMessage();
                 }
                 Intent intent = new IntentIntegrator(getActivity())
-                        .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
+                        .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
                         .createScanIntent();
                 currentActivity.startActivityForResult(intent, CommCareSetupActivity.BARCODE_CAPTURE);
             } catch (ActivityNotFoundException e) {
