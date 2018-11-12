@@ -122,7 +122,6 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         });
 
         finishButton.setOnClickListener(v -> {
-            finishButton.setEnabled(false);
             FirebaseAnalyticsUtil.reportFormNav(
                     AnalyticsParamValue.DIRECTION_FORWARD,
                     AnalyticsParamValue.NAV_BUTTON_PRESS);

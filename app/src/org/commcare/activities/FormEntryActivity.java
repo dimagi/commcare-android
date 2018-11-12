@@ -713,6 +713,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             return;
         }
+
         // save current answer; if headless, don't evaluate the constraints
         // before doing so.
         boolean wasScreenSaved =
@@ -724,6 +725,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // If a save task is already running, just let it do its thing
         if ((mSaveToDiskTask != null) &&
                 (mSaveToDiskTask.getStatus() != AsyncTask.Status.FINISHED)) {
+            return;
+        }
+
+        // A form save has already been triggered, ignore subsequent form saves
+        if (FormEntryActivity.mFormController.isFormSaveTriggered()) {
             return;
         }
 
@@ -988,6 +994,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * Call when the user is ready to save and return the current form as complete
      */
     protected void triggerUserFormComplete() {
+
         if (mFormController.isFormReadOnly()) {
             finishReturnInstance(false);
         } else {
