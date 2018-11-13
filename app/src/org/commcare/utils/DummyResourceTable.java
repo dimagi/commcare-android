@@ -207,7 +207,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void clear(CommCarePlatform instance) {
+    public void clearUpgrade(CommCarePlatform instance) {
     }
 
     @Override
