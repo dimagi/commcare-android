@@ -161,7 +161,7 @@ public class CommCareNoficationManager {
         createNotificationChannel(NOTIFICATION_CHANNEL_ERRORS_ID,
                 R.string.notification_channel_errors_title,
                 R.string.notification_channel_errors_description,
-                NotificationManager.IMPORTANCE_DEFAULT);
+                NotificationManager.IMPORTANCE_LOW);
 
         createNotificationChannel(NOTIFICATION_CHANNEL_USER_SESSION_ID,
                 R.string.notification_channel_user_session_title,
@@ -171,7 +171,7 @@ public class CommCareNoficationManager {
         createNotificationChannel(NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID,
                 R.string.notification_channel_server_communication_title,
                 R.string.notification_channel_server_communication_description,
-                NotificationManager.IMPORTANCE_DEFAULT);
+                NotificationManager.IMPORTANCE_LOW);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
