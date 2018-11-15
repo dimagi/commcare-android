@@ -2,8 +2,10 @@ package org.commcare.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import org.commcare.activities.CrashWarningActivity;
+import org.commcare.activities.SessionAwareCommCareActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -56,6 +58,9 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
             i.putExtra(WARNING_MESSAGE_KEY, ex.getMessage());
             ctx.startActivity(i);
             return true;
+        } else if (causedBySessionUnavailableException(ex)) {
+            SessionActivityRegistration.redirectToLogin(ctx);
+            return true;
         }
         return false;
     }
@@ -63,5 +68,10 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
     private static boolean causedByLocalizationException(Throwable ex) {
         return ex != null &&
                 (ex instanceof NoLocalizedTextException || causedByLocalizationException(ex.getCause()));
+    }
+
+    private static boolean causedBySessionUnavailableException(Throwable ex) {
+        return ex != null &&
+                (ex instanceof SessionUnavailableException || causedBySessionUnavailableException(ex.getCause()));
     }
 }
