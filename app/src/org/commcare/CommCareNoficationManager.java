@@ -161,7 +161,7 @@ public class CommCareNoficationManager {
         createNotificationChannel(NOTIFICATION_CHANNEL_ERRORS_ID,
                 R.string.notification_channel_errors_title,
                 R.string.notification_channel_errors_description,
-                NotificationManager.IMPORTANCE_LOW);
+                NotificationManager.IMPORTANCE_DEFAULT);
 
         createNotificationChannel(NOTIFICATION_CHANNEL_USER_SESSION_ID,
                 R.string.notification_channel_user_session_title,
