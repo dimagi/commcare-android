@@ -342,7 +342,7 @@ public class DrawActivity extends Activity {
             if (mBackgroundBitmapFile.exists()) {
                 mBitmap = MediaUtil.getBitmapScaledToContainer(
                         mBackgroundBitmapFile, w, h).copy(
-                        Bitmap.Config.ARGB_8888, true);
+                        Bitmap.Config.RGB_565, true);
                 // mBitmap =
                 // Bitmap.createScaledBitmap(BitmapFactory.decodeFile(mBackgroundBitmapFile.getPath()),
                 // w, h, true);
