@@ -3,6 +3,7 @@ package org.commcare.android.tests.formnav;
 import android.content.Intent;
 import android.os.Environment;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
 
 import org.commcare.CommCareApplication;
@@ -76,16 +77,14 @@ public class EndOfFormTest {
                 Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
                         .create().start().resume().get();
 
-        ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
+
 
         // enter an answer for the question
         QuestionsView questionsView = formEntryActivity.getODKView();
         IntegerWidget favoriteNumber = (IntegerWidget)questionsView.getWidgets().get(0);
         favoriteNumber.setAnswer("2");
-        assertTrue(nextButton.getTag().equals(FormEntryConstants.NAV_STATE_NEXT));
-        // Finish off the form even by clicking next.
-        // The form progress meter thinks there is more to do, but that is a bug.
-        nextButton.performClick();
+        View finishButton = formEntryActivity.findViewById(R.id.nav_btn_finish);
+        finishButton.performClick();
 
         ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
         while (!shadowFormEntryActivity.isFinishing()) {
