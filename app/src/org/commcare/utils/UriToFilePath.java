@@ -51,8 +51,14 @@ public class UriToFilePath {
                 }
             } else if (isDownloadsDocument(uri)) {
                 final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                Uri contentUri;
+                try {
+                    contentUri = ContentUris.withAppendedId(
+                            Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                } catch (NumberFormatException e) {
+                    // id is an actual Path instead of a row id, hence use the original uri as it is.
+                    contentUri = uri;
+                }
 
                 return getDataColumn(context, contentUri, null, null);
             } else if (isMediaDocument(uri)) {
@@ -159,10 +165,11 @@ public class UriToFilePath {
 
     /**
      * Gives the activities that can handle given intent permissions for given uri. Not doing so will result in a SecurityException from Android N upwards
+     *
      * @param context context of the activity requesting resolution for given intent
-     * @param intent intent that needs to get resolved
-     * @param uri uri for which permissions are to be given
-     * @param flags what permissions are to be given
+     * @param intent  intent that needs to get resolved
+     * @param uri     uri for which permissions are to be given
+     * @param flags   what permissions are to be given
      */
     public static void grantPermissionForUri(Context context, Intent intent, Uri uri, int flags) {
         List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);

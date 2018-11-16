@@ -17,6 +17,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.UITestInfoActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -214,7 +215,7 @@ public class CommCareSessionService extends Service {
         }
 
         // Set the icon, scrolling text and timestamp
-        Notification notification = new NotificationCompat.Builder(this)
+        Notification notification = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_ERRORS_ID)
                 .setContentTitle(notificationText)
                 .setContentText("Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate))
                 .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
@@ -237,7 +238,7 @@ public class CommCareSessionService extends Service {
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification notification = new NotificationCompat.Builder(this)
+        Notification notification = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
                 .setContentTitle(this.getString(R.string.expirenotification))
                 .setContentText("Click here to log back into your session")
                 .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
@@ -507,7 +508,8 @@ public class CommCareSessionService extends Service {
                 //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live? 
                 PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
 
-                submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this)
+                submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this,
+                        CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
                         .setContentTitle(getString(notificationId))
                         .setContentInfo(getSubmittedFormCount(1, totalItems))
                         .setContentText("0b transmitted")

@@ -77,27 +77,36 @@ public class SpinnerMultiWidget extends QuestionWidget {
         // click and selection behavior is defined here.
         button.setOnClickListener(v -> {
 
-            alert_builder.setTitle(mPrompt.getQuestionText()).setPositiveButton(R.string.ok,
-                    (dialog, id) -> {
-                        boolean first = true;
-                        selectionText.setText("");
-                        for (int i = 0; i < selections.length; i++) {
-                            if (selections[i]) {
+            alert_builder.setTitle(mPrompt.getQuestionText());
 
-                                if (first) {
-                                    first = false;
-                                    selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected)
-                                            + answerItems[i].toString());
-                                    selectionText.setVisibility(View.VISIBLE);
-                                } else {
-                                    selectionText.setText(selectionText.getText() + ", "
-                                            + answerItems[i].toString());
+            if (mPrompt.isReadOnly()) {
+                alert_builder.setNegativeButton(R.string.cancel,
+                        (dialog, id) -> {
+                            dialog.dismiss();
+                        });
+            } else {
+                alert_builder.setPositiveButton(R.string.ok,
+                        (dialog, id) -> {
+                            boolean first = true;
+                            selectionText.setText("");
+                            for (int i = 0; i < selections.length; i++) {
+                                if (selections[i]) {
+
+                                    if (first) {
+                                        first = false;
+                                        selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected)
+                                                + answerItems[i].toString());
+                                        selectionText.setVisibility(View.VISIBLE);
+                                    } else {
+                                        selectionText.setText(selectionText.getText() + ", "
+                                                + answerItems[i].toString());
+                                    }
                                 }
                             }
-                        }
 
-                        widgetEntryChanged();
-                    });
+                            widgetEntryChanged();
+                        });
+            }
 
             alert_builder.setMultiChoiceItems(answerItems, selections,
                     (dialog, which, isChecked) -> {

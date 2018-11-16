@@ -38,6 +38,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -251,6 +252,10 @@ public class CommCareApp implements AppFilePathBuilder {
                         "Unable to get app db handle to clear orphaned files");
             }
             return true;
+        } else {
+            SizeBoundUniqueVector<Resource> missingResources = new SizeBoundUniqueVector<>(1);
+            missingResources.add(profile);
+            global.setMissingResources(missingResources);
         }
 
         String failureReason = profile == null ? "profle being null" : "profile status value " + String.valueOf(profile.getStatus());

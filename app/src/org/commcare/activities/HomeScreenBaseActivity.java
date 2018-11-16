@@ -760,14 +760,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 // Otherwise, we want to keep proceeding in order
                 // to keep running the workflow
             } else {
-                CommCareApplication.notificationManager().reportNotificationMessage(
-                        NotificationMessageFactory.message(
-                                NotificationMessageFactory.StockMessages.FormEntry_Unretrievable));
-                Toast.makeText(this,
-                        "Error while trying to read the form! See the notification",
-                        Toast.LENGTH_LONG).show();
-                Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
-                        "Form Entry did not return a form");
                 clearSessionAndExit(currentState, false);
                 return false;
             }

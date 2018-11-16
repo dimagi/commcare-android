@@ -45,6 +45,7 @@ import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.SessionStateUninitException;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUiFramework;
 import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.CommCareAlertDialog;
@@ -914,5 +915,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void performCallout(CalloutData callout, int id) {
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
+    }
+
+    protected String getLocalizedString(int stringResource) {
+        return StringUtils.getStringRobust(this, stringResource);
     }
 }

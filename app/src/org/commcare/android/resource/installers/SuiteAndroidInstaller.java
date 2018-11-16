@@ -16,8 +16,10 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.StringUtils;
 import org.commcare.xml.AndroidSuiteParser;
 import org.commcare.xml.SuiteParser;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -25,6 +27,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
+import org.jsoup.helper.StringUtil;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -125,9 +128,11 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     public boolean verifyInstallation(Resource r,
                                       Vector<MissingMediaException> problems,
                                       CommCarePlatform platform) {
+        InputStream suiteStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
-            Suite suite = AndroidSuiteParser.buildVerifyParser(local.getStream(), new DummyResourceTable()).parse();
+            suiteStream = local.getStream();
+            Suite suite = AndroidSuiteParser.buildVerifyParser(suiteStream, new DummyResourceTable()).parse();
             Hashtable<String, Entry> mHashtable = suite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
@@ -145,6 +150,8 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             Logger.log(LogTypes.TYPE_RESOURCES, "Suite validation failed with: " + e.getMessage());
             Log.d(TAG, "Suite validation failed");
             e.printStackTrace();
+        } finally {
+            StreamsUtil.closeStream(suiteStream);
         }
 
         return problems.size() != 0;

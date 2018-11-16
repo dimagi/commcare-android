@@ -85,7 +85,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
 
     private void callOutToBarcodeScanner() {
         Intent intent = new IntentIntegrator(this)
-                .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
+                .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
                 .createScanIntent();
         startActivityForResult(intent, BARCODE_CAPTURE);
     }

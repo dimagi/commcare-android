@@ -31,6 +31,8 @@ HELP_MSG = """'capture' saves the current session for restoring later.
 """
 BASE_RECEIVER_CMD = "adb shell am broadcast -a"
 BASE_ACTIVITY_CMD = "adb shell am start -n"
+PACKAGE_NAME = "org.commcare.dalvik"
+DEBUG_CONTROL_RECEIVER = "org.commcare.provider.DebugControlsReceiver"
 
 
 # String -> None
@@ -64,7 +66,7 @@ def update():
     """
     extras = {"useLatestBuild": True}
     cmd = receiver_command("org.commcare.dalvik.api.action." +
-                           "RefreshToLatestBuildAction", extras)
+                           "RefreshToLatestBuildAction", extras, "org.commcare.provider.RefreshToLatestBuildReceiver")
     print(cmd)
     subprocess.call(cmd, shell=True)
 
@@ -105,12 +107,14 @@ def capture():
     subprocess.call(cmd, shell=True)
 
 
-def receiver_command(action, extras={}):
+def receiver_command(action, extras={}, receiverName=DEBUG_CONTROL_RECEIVER):
     """
     Build an ADB broadcast command.
     """
     cmd = "{} {}".format(BASE_RECEIVER_CMD, action)
-    return cmd + get_extras_string(extras)
+    cmd += get_extras_string(extras)
+    cmd += " -n {}/{}".format(PACKAGE_NAME, receiverName)
+    return cmd
 
 
 # String String String Boolean -> None
