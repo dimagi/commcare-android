@@ -47,12 +47,14 @@ import static org.commcare.utils.AndroidCommCarePlatform.UPGRADE_RESOURCE_TABLE_
 class AppDatabaseUpgrader {
 
     private final Context context;
+    private  long startTime;
 
     public AppDatabaseUpgrader(Context context) {
         this.context = context;
     }
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        startTime = System.currentTimeMillis();
         if (oldVersion == 1) {
             if (upgradeOneTwo(db)) {
                 oldVersion = 2;
@@ -93,9 +95,11 @@ class AppDatabaseUpgrader {
             }
         }
 
+        Log.d("data-change", "Starting 8-10 " + getTime());
         if (oldVersion == 8) {
             if (upgradeEightTen(db)) {
                 oldVersion = 10;
+                Log.d("data-change", "Completed 8-10 " + getTime());
             }
         }
 
@@ -105,14 +109,20 @@ class AppDatabaseUpgrader {
             }
         }
 
+        Log.d("data-change", "Starting 10 - 11 " + getTime());
         if (oldVersion == 10) {
             if (upgradeTenEleven(db)) {
+                Log.d("data-change", "Completed 10 -11 " + getTime());
                 oldVersion = 11;
             }
         }
 
         //NOTE: If metadata changes are made to the Resource model, they need to be
         //managed by changing the TwoThree updater to maintain that metadata.
+    }
+
+    private long getTime() {
+        return System.currentTimeMillis() - startTime;
     }
 
     private boolean upgradeOneTwo(SQLiteDatabase db) {
@@ -241,22 +251,27 @@ class AppDatabaseUpgrader {
         boolean success;
         db.beginTransaction();
         try {
+            Log.d("data-change", "starting global update" + getTime());
             upgradeXFormAndroidInstallerV1(GLOBAL_RESOURCE_TABLE_NAME, db);
+            Log.d("data-change", "starting upgrade update" + getTime());
             upgradeXFormAndroidInstallerV1(UPGRADE_RESOURCE_TABLE_NAME, db);
+            Log.d("data-change", "starting recovery update" + getTime());
             upgradeXFormAndroidInstallerV1(RECOVERY_RESOURCE_TABLE_NAME, db);
 
             // Create FormDef table
             TableBuilder builder = new TableBuilder(FormDefRecord.class);
             db.execSQL(builder.getTableCreateString());
 
+            Log.d("data-change", "starting form provider update" + getTime());
             migrateFormProvider(db);
+            Log.d("data-change", "completed form provider update" + getTime());
             db.setTransactionSuccessful();
             success = true;
         } finally {
             db.endTransaction();
         }
 
-
+        Log.d("data-change", "starting form provider delete" + getTime());
         // Delete entries from FormsProvider if migration has been successful
         if (success) {
             try {
@@ -267,6 +282,7 @@ class AppDatabaseUpgrader {
                 Logger.exception("Error while deleting FormsProvider entries during app db migration", e);
             }
         }
+        Log.d("data-change", "completed form provider delete" + getTime());
         return success;
     }
 
