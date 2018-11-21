@@ -27,12 +27,6 @@ import java.util.HashMap;
 public abstract class GetAndParseActor {
 
     protected static final String APP_ID = "app_id";
-    protected static final String DEVICE_ID = "device_id";
-    protected static final String APP_VERSION = "app_version";
-    protected static final String CC_VERSION = "cc_version";
-    protected static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
-    protected static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
-    protected static final String LAST_SYNC_TIME_PARAM = "last_sync_time";
 
     private final String requestName;
     private final String logTag;

@@ -18,8 +18,8 @@ public class PromptCCReinstallActivity extends PromptActivity {
     }
 
     @Override
-    String getActionString() {
-        return "reinstalling";
+    String getHelpTextResource() {
+        return "reinstall.prompt.help.text";
     }
 
     @Override

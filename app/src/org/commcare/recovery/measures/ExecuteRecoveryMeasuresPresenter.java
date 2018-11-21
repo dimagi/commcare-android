@@ -169,6 +169,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     private void reinstallApp(CommCareApp currentApp, String profileRef, int authority) {
+        mRecoveryState = RECOVERY_STATE_TASK_IN_PROGRESS;
         ResourceEngineTask<ExecuteRecoveryMeasuresActivity> task
                 = new sResourceEngineTask(
                 currentApp,
@@ -177,7 +178,6 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
                 true);
         task.connect(mActivity);
         task.execute(profileRef);
-        mRecoveryState = RECOVERY_STATE_TASK_IN_PROGRESS;
     }
 
     private void launchActivity(Class activity, int requestCode) {

@@ -34,8 +34,8 @@ public class PromptCczUpdateActivity extends PromptActivity {
     }
 
     @Override
-    String getActionString() {
-        return "updating";
+    String getHelpTextResource() {
+        return "ccz.update.prompt.help.text";
     }
 
     @Override

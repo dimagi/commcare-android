@@ -38,8 +38,8 @@ public class PromptApkUpdateActivity extends PromptActivity {
     }
 
     @Override
-    String getActionString() {
-        return "updating";
+    String getHelpTextResource() {
+        return "update.prompt.help.text";
     }
 
     @Override

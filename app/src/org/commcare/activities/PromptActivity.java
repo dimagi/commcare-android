@@ -12,6 +12,8 @@ import android.widget.TextView;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.PromptItem;
+import org.commcare.views.ManagedUi;
+import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -19,6 +21,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * Created by amstone326 on 4/19/17.
  */
+@ManagedUi(R.layout.prompt_view)
 public abstract class PromptActivity extends CommCareActivity {
 
     protected static final int DO_AN_UPDATE = 1;
@@ -27,11 +30,18 @@ public abstract class PromptActivity extends CommCareActivity {
 
     protected PromptItem toPrompt;
 
+    @UiElement(value = R.id.prompt_title)
     protected TextView promptTitle;
+    @UiElement(value = R.id.action_button)
     protected Button actionButton;
+    @UiElement(value = R.id.do_later_button)
     protected Button doLaterButton;
+    @UiElement(value = R.id.image_cue)
     protected ImageView imageCue;
+    @UiElement(value = R.id.instructions)
     protected TextView instructions;
+    @UiElement(value = R.id.help_text)
+    protected TextView helpText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,20 +58,11 @@ public abstract class PromptActivity extends CommCareActivity {
     }
 
     private void setupUI() {
-        setContentView(R.layout.prompt_view);
-        promptTitle = findViewById(R.id.prompt_title);
-        actionButton = findViewById(R.id.action_button);
-        doLaterButton = findViewById(R.id.do_later_button);
-        imageCue = findViewById(R.id.image_cue);
-        instructions = findViewById(R.id.instructions);
-
         if (getInstructionsStringKey() != null) {
             instructions.setText(Localization.get(getInstructionsStringKey()));
         }
 
-        TextView helpText = findViewById(R.id.help_text);
-        helpText.setText(Localization.get("prompt.help.text", getActionString()));
-
+        helpText.setText(Localization.get(getHelpTextResource()));
         doLaterButton.setOnClickListener(v -> PromptActivity.this.finish());
 
         if (inForceMode()) {
@@ -75,7 +76,7 @@ public abstract class PromptActivity extends CommCareActivity {
 
     abstract void refreshPromptObject();
 
-    abstract String getActionString();
+    abstract String getHelpTextResource();
 
     abstract void setUpTypeSpecificUIComponents();
 
@@ -111,7 +112,7 @@ public abstract class PromptActivity extends CommCareActivity {
 
     protected void launchCurrentAppOnPlayStore() {
         String appPackageName = getPackageName();
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             appPackageName = appPackageName.replace(".debug", "");
         }
         try {
@@ -124,7 +125,7 @@ public abstract class PromptActivity extends CommCareActivity {
     }
 
     protected String getCurrentClientName() {
-        return (BuildConfig.APPLICATION_ID.equals("org.commcare.lts") ? "CommCare LTS" : "CommCare");
+        return getString(R.string.app_name);
     }
 
     protected boolean inForceMode() {
