@@ -81,7 +81,6 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
-import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
@@ -729,7 +728,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         // A form save has already been triggered, ignore subsequent form saves
-        if (FormEntryActivity.mFormController.isFormSaveTriggered()) {
+        if (FormEntryActivity.mFormController.isFormSaveComplete()) {
             return;
         }
 

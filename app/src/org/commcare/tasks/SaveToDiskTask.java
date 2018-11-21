@@ -97,7 +97,6 @@ public class SaveToDiskTask extends
             return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
-        FormEntryActivity.mFormController.setFormSaveTriggered(true);
         FormEntryActivity.mFormController.postProcessInstance();
 
         try {
@@ -124,6 +123,7 @@ public class SaveToDiskTask extends
             return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
+        FormEntryActivity.mFormController.markFormSaveProcessComplete(true);
         if (exitAfterSave) {
             FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
             Logger.log(LogTypes.TYPE_FORM_ENTRY,
