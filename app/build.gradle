@@ -17,13 +17,13 @@ apply plugin: 'io.fabric'
 
 repositories {
     mavenCentral()
+    google()
     jcenter()
     // for local aar inclusion
     flatDir {
         dirs 'libs'
     }
     maven { url 'https://maven.fabric.io/public' }
-    google()
     maven { url "https://jitpack.io" }
 }
 
