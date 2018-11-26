@@ -418,7 +418,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                             break group_skip;
                         case FormEntryController.EVENT_END_OF_FORM:
                             // auto-advance questions might advance past the last form quesion
-                            activity.triggerUserFormComplete();
+                            refreshCurrentView();
                             break group_skip;
                         case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                             createRepeatDialog();

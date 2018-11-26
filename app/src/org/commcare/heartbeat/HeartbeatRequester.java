@@ -94,6 +94,7 @@ public class HeartbeatRequester extends GetAndParseActor {
             attemptApkUpdateParse(responseAsJson);
             attemptCczUpdateParse(responseAsJson);
         }
+        DriftHelper.clearMaxDriftSinceLastHeartbeat();
     }
 
     private static void attemptApkUpdateParse(JSONObject responseAsJson) {

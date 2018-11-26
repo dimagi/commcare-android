@@ -22,6 +22,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
@@ -121,7 +122,19 @@ public class UpdateTask
         } catch (UnfullfilledRequirementsException e) {
             ResourceInstallUtils.logInstallError(e,
                     "App resources are incompatible with this device|");
-            return new ResultAndError<>(AppInstallStatus.IncompatibleReqs, e.getMessage());
+            String error;
+            if (e.isVersionMismatchException()) {
+                error = Localization.get("update.version.mismatch", new String[]{e.getRequiredVersionString(), e.getAvailableVesionString()});
+                error += " ";
+                if (e.getRequirementType() == UnfullfilledRequirementsException.RequirementType.MAJOR_APP_VERSION) {
+                    error += Localization.get("update.major.mismatch");
+                } else if (e.getRequirementType() == UnfullfilledRequirementsException.RequirementType.MINOR_APP_VERSION) {
+                    error += Localization.get("update.minor.mismatch");
+                }
+            } else {
+                error = e.getMessage();
+            }
+            return new ResultAndError<>(AppInstallStatus.IncompatibleReqs, error);
         } catch (UnresolvedResourceException e) {
             return new ResultAndError<>(ResourceInstallUtils.processUnresolvedResource(e), e.getMessage());
         } catch (Exception e) {

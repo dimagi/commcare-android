@@ -171,7 +171,7 @@ public class CommCareNoficationManager {
         createNotificationChannel(NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID,
                 R.string.notification_channel_server_communication_title,
                 R.string.notification_channel_server_communication_description,
-                NotificationManager.IMPORTANCE_DEFAULT);
+                NotificationManager.IMPORTANCE_LOW);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
