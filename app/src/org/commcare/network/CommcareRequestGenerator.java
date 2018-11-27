@@ -209,7 +209,8 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 parts,
                 HTTPMethod.MULTIPART_POST,
                 new Pair(username, password),
-                null);
+                null,
+               false);
 
         return requester.makeRequest();
     }
