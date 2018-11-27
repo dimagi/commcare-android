@@ -16,6 +16,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'io.fabric'
 
 repositories {
+    google()
     mavenCentral()
     jcenter()
     // for local aar inclusion
@@ -23,7 +24,6 @@ repositories {
         dirs 'libs'
     }
     maven { url 'https://maven.fabric.io/public' }
-    google()
     maven { url "https://jitpack.io" }
 }
 
