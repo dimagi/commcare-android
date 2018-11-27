@@ -4,9 +4,8 @@ import org.commcare.interfaces.PromptItem;
 
 public class CommCareReinstallPrompt extends PromptItem {
 
-    public static final CommCareReinstallPrompt INSTANCE = new CommCareReinstallPrompt();
 
-    private CommCareReinstallPrompt() {
+    public CommCareReinstallPrompt() {
     }
 
     @Override

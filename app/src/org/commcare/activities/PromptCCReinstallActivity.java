@@ -11,7 +11,7 @@ public class PromptCCReinstallActivity extends PromptActivity {
     @Override
     void refreshPromptObject() {
         if (AppUtils.notOnLatestCCVersion()) {
-            toPrompt = CommCareReinstallPrompt.INSTANCE;
+            toPrompt = new CommCareReinstallPrompt();
         } else {
             toPrompt = null;
         }
