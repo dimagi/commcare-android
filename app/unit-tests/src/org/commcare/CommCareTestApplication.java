@@ -249,7 +249,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     @Override
     public ModernHttpRequester buildHttpRequester(Context context, String url, Map<String, String> params,
                                                   HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
-                                                  HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith, HttpResponseProcessor responseProcessor) {
+                                                  HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith, HttpResponseProcessor responseProcessor, boolean b) {
         return new ModernHttpRequesterMock(new AndroidCacheDirSetup(context),
                 url,
                 params,
@@ -258,7 +258,8 @@ public class CommCareTestApplication extends CommCareApplication implements Test
                 parts,
                 CommCareNetworkServiceGenerator.createCommCareNetworkService(
                         HttpUtils.getCredential(usernameAndPasswordToAuthWith),
-                        DeveloperPreferences.isEnforceSecureEndpointEnabled()),
+                        DeveloperPreferences.isEnforceSecureEndpointEnabled(),
+                        true),
                 method,
                 responseProcessor);
     }
