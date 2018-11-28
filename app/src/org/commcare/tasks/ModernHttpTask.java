@@ -58,7 +58,8 @@ public class ModernHttpTask
                 null,
                 method,
                 usernameAndPasswordToAuthWith,
-                null);
+                null,
+                method.equals(HTTPMethod.GET) ? true : false);
     }
 
     @Override

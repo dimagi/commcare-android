@@ -1101,7 +1101,7 @@ public class CommCareApplication extends MultiDexApplication {
     public ModernHttpRequester buildHttpRequester(Context context, String url, Map<String, String> params,
                                                   HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
                                                   HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
-                                                  @Nullable HttpResponseProcessor responseProcessor) {
+                                                  @Nullable HttpResponseProcessor responseProcessor, boolean retry) {
         return new ModernHttpRequester(new AndroidCacheDirSetup(context),
                 url,
                 params,
@@ -1110,7 +1110,8 @@ public class CommCareApplication extends MultiDexApplication {
                 parts,
                 CommCareNetworkServiceGenerator.createCommCareNetworkService(
                         HttpUtils.getCredential(usernameAndPasswordToAuthWith),
-                        DeveloperPreferences.isEnforceSecureEndpointEnabled()),
+                        DeveloperPreferences.isEnforceSecureEndpointEnabled(),
+                        retry),
                 method,
                 responseProcessor);
     }
@@ -1118,6 +1119,6 @@ public class CommCareApplication extends MultiDexApplication {
     public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
                                                   HashMap headers, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
                                                   @Nullable HttpResponseProcessor responseProcessor) {
-        return buildHttpRequester(context, url, params, headers, null, null, HTTPMethod.GET, usernameAndPasswordToAuthWith, responseProcessor);
+        return buildHttpRequester(context, url, params, headers, null, null, HTTPMethod.GET, usernameAndPasswordToAuthWith, responseProcessor, true);
     }
 }

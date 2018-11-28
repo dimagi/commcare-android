@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.SyncCapableCommCareActivity;
 import org.commcare.android.database.user.models.FormRecord;
@@ -184,8 +185,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     try {
                         records[i] = processor.process(record);
                         userDb.setTransactionSuccessful();
-                    }
-                    finally {
+                    } finally {
                         userDb.endTransaction();
                     }
                 } catch (InvalidStructureException | XmlPullParserException |
@@ -299,6 +299,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     //Time to Send!
                     try {
                         try {
+                            if (StringUtils.isEmpty(record.getFilePath())) {
+                                throw new FileNotFoundException("File path empty for formrecord " +
+                                        record.getID() + " with xmlns " + record.getFormNamespace());
+                            }
                             folder = new File(record.getFilePath()).getCanonicalFile().getParentFile();
                         } catch (FileNotFoundException e) {
                             //This will put us in the same "Missing Form" handling path as below
@@ -322,8 +326,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                 // A processing failure indicates that there there is no point in
                                 // trying that submission again immediately
                                 break;
-                            }
-                            else {
+                            } else {
                                 attemptsMade++;
                             }
                         }
@@ -371,8 +374,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     // This record was either quarantined or deleted due to an error during the
                     // pre-processing phase
                     results[i] = FormUploadResult.RECORD_FAILURE;
-                }
-                else {
+                } else {
                     results[i] = FormUploadResult.FULL_SUCCESS;
                 }
             } catch (SessionUnavailableException sue) {
@@ -385,8 +387,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     }
 
     /**
-     *
-     * @param results the array of submission results
+     * @param results      the array of submission results
      * @param currentIndex - the index of the submission we are about to attempt
      * @return true if there was a failure in submitting the previous form that indicates future
      * submission attempts will also fail. (We permit proceeding if there was a local problem with
