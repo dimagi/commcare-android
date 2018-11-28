@@ -94,7 +94,6 @@ public class SaveToDiskTask extends
         } catch (XPathException xpe) {
             String cleanedMessage = "An error in your form prevented it from saving: \n" +
                     xpe.getMessage();
-
             return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
@@ -124,6 +123,7 @@ public class SaveToDiskTask extends
             return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
+        FormEntryActivity.mFormController.markFormSaveProcessComplete(true);
         if (exitAfterSave) {
             FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
             Logger.log(LogTypes.TYPE_FORM_ENTRY,
@@ -216,7 +216,7 @@ public class SaveToDiskTask extends
             if (!instanceXml.delete()) {
                 Log.e(TAG,
                         "Error deleting " + instanceXml.getAbsolutePath()
-                        + " prior to renaming submission.xml");
+                                + " prior to renaming submission.xml");
                 return;
             }
 
