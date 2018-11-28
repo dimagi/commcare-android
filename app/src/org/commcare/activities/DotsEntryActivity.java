@@ -388,8 +388,8 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     private View curday() {
         final ViewGroup dayView = (ViewGroup)View.inflate(this, R.layout.dotsdoses, null);
         TableRow[] rows = new TableRow[4];
-        rows[0] = (TableRow)dayView.findViewById(R.id.dots_dose_one);
-        rows[1] = (TableRow)dayView.findViewById(R.id.dots_dose_two);
+        rows[0] = dayView.findViewById(R.id.dots_dose_one);
+        rows[1] = dayView.findViewById(R.id.dots_dose_two);
         //rows[2] = (TableRow)dayView.findViewById(R.id.dots_dose_three);
         //rows[3] = (TableRow)dayView.findViewById(R.id.dots_dose_four);
         
@@ -432,7 +432,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
             prev.setOnClickListener(v -> tryMove(-1));
         }
         
-        Button done = (Button)dayView.findViewById(R.id.btn_dots_doses_done);
+        Button done = dayView.findViewById(R.id.btn_dots_doses_done);
         done.setOnClickListener(v -> DotsEntryActivity.this.cancelDayEdit(curday));
         return dayView;
     }
@@ -453,13 +453,13 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         c.roll(Calendar.DATE, dotsData.days().length - dayIndex + 1);
         
         ViewGroup doseView = (ViewGroup)View.inflate(this, R.layout.dotsdose, null);
-        TextView dosename = (TextView)doseView.findViewById(R.id.text_dosename);
-        TableLayout table = (TableLayout)doseView.findViewById(R.id.dose_table);
+        TextView dosename = doseView.findViewById(R.id.text_dosename);
+        TableLayout table = doseView.findViewById(R.id.dose_table);
         table.setPadding(0,0,2,0);
         table.setShrinkAllColumns(true);
         
-        TableRow doses = (TableRow)table.findViewById(R.id.dose_status);
-        TableRow selfReported = (TableRow)table.findViewById(R.id.self_report_row);
+        TableRow doses = table.findViewById(R.id.dose_status);
+        TableRow selfReported = table.findViewById(R.id.self_report_row);
         
         dosename.setText(DotsDetailView.labels[d.getMaxReg() -1 ][regimenIndex]);
         

@@ -12,11 +12,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.core.network.AuthenticationInterceptor;
-import org.commcare.core.network.HTTPMethod;
-import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.dalvik.R;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
@@ -36,7 +34,6 @@ import org.javarosa.core.util.OrderedHashtable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -105,7 +102,7 @@ public class QueryRequestActivity
     }
 
     private void buildPromptUI() {
-        LinearLayout promptsLayout = (LinearLayout)findViewById(R.id.query_prompts);
+        LinearLayout promptsLayout = findViewById(R.id.query_prompts);
         OrderedHashtable<String, DisplayUnit> userInputDisplays =
                 remoteQuerySessionManager.getNeededUserInputDisplays();
         int promptCount = 1;

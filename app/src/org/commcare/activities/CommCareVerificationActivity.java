@@ -78,7 +78,7 @@ public class CommCareVerificationActivity
             setContentView(R.layout.missing_multimedia_layout);
         }
 
-        Button retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
+        Button retryButton = findViewById(R.id.screen_multimedia_retry);
         retryButton.setOnClickListener(this);
         retryButton.setText(Localization.get("verify.retry"));
 
@@ -87,12 +87,12 @@ public class CommCareVerificationActivity
         this.fromManager = this.getIntent().
                 getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         if (fromManager) {
-            Button skipButton = (Button)findViewById(R.id.skip_verification_button);
+            Button skipButton = findViewById(R.id.skip_verification_button);
             skipButton.setVisibility(View.VISIBLE);
             skipButton.setOnClickListener(this);
         }
 
-        missingMediaPrompt = (TextView)findViewById(R.id.MissingMediaPrompt);
+        missingMediaPrompt = findViewById(R.id.MissingMediaPrompt);
 
         loadStateFromBundle(savedInstanceState);
 

@@ -240,7 +240,7 @@ public class ListMultiWidget extends QuestionWidget {
         for (int i = 0; i < j; i++) {
 
             // no checkbox group so find by id + offset
-            CheckBox c = ((CheckBox)findViewById(CHECKBOX_ID + i));
+            CheckBox c = findViewById(CHECKBOX_ID + i);
             if (c.isChecked()) {
                 c.setChecked(false);
             }
@@ -252,7 +252,7 @@ public class ListMultiWidget extends QuestionWidget {
     public IAnswerData getAnswer() {
         Vector<Selection> vc = new Vector<>();
         for (int i = 0; i < mItems.size(); i++) {
-            CheckBox c = ((CheckBox)findViewById(CHECKBOX_ID + i));
+            CheckBox c = findViewById(CHECKBOX_ID + i);
             if (c.isChecked()) {
                 vc.add(new Selection(mItems.get(i)));
             }

@@ -140,12 +140,12 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
 
         // action buttons
-        btnDayUp = (Button)findViewById(R.id.dayupbtn);
-        btnMonthUp = (Button)findViewById(R.id.monthupbtn);
-        btnYearUp = (Button)findViewById(R.id.yearupbtn);
-        btnDayDown = (Button)findViewById(R.id.daydownbtn);
-        btnMonthDown = (Button)findViewById(R.id.monthdownbtn);
-        btnYearDown = (Button)findViewById(R.id.yeardownbtn);
+        btnDayUp = findViewById(R.id.dayupbtn);
+        btnMonthUp = findViewById(R.id.monthupbtn);
+        btnYearUp = findViewById(R.id.yearupbtn);
+        btnDayDown = findViewById(R.id.daydownbtn);
+        btnMonthDown = findViewById(R.id.monthdownbtn);
+        btnYearDown = findViewById(R.id.yeardownbtn);
 
         // button click listeners
         btnDayUp.setOnClickListener(v -> {
@@ -219,10 +219,10 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
     protected void initText() {
         // Date fields
-        txtDay = (TextView)findViewById(R.id.daytxt);
-        txtMonth = (TextView)findViewById(R.id.monthtxt);
-        txtYear = (TextView)findViewById(R.id.yeartxt);
-        txtGregorian = (TextView)findViewById(R.id.dateGregorian);
+        txtDay = findViewById(R.id.daytxt);
+        txtMonth = findViewById(R.id.monthtxt);
+        txtYear = findViewById(R.id.yeartxt);
+        txtGregorian = findViewById(R.id.dateGregorian);
     }
 
     protected void inflateView(Context context) {

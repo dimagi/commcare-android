@@ -88,7 +88,7 @@ public class FormRecordListActivityTest {
     private static ShadowListView assertSavedFormEntries(int expectedFormCount,
                                                          FormRecordListActivity savedFormActivity) {
         ListView entityList =
-                (ListView)savedFormActivity.findViewById(R.id.screen_entity_select_list);
+                savedFormActivity.findViewById(R.id.screen_entity_select_list);
         IncompleteFormListAdapter adapter =
                 (IncompleteFormListAdapter)entityList.getAdapter();
         adapter.setFormFilter(FormRecordListActivity.FormRecordFilter.Submitted);
