@@ -21,7 +21,6 @@
     </style>
 
     <style name="PreferenceTheme" parent="AppBaseTheme">
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
         <item name="alertDialogTheme">@style/Theme.AppCompat.Light.Dialog.Alert</item>
     </style>
 
