@@ -32,6 +32,7 @@ import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.CalloutData;
@@ -121,6 +122,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        updateLayoutDirection();
 
         FragmentManager fm = this.getSupportFragmentManager();
 
@@ -919,5 +922,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     protected String getLocalizedString(int stringResource) {
         return StringUtils.getStringRobust(this, stringResource);
+    }
+
+    /**
+     * Updates layout direction depending on currently set locale.
+     * If {@link MainConfigurablePreferences#isLocaleRTL()} returns <code>TRUE</code>,
+     * it will set all views/layouts to {@link View#LAYOUT_DIRECTION_RTL}.
+     */
+    protected void updateLayoutDirection() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && MainConfigurablePreferences.isLocaleRTL())
+            getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
     }
 }

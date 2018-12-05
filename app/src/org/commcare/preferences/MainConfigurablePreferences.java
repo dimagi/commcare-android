@@ -34,6 +34,7 @@ public class MainConfigurablePreferences
     public final static String SHOW_PASSWORD_OPTION = "cc-password-entry-show-behavior";
     public final static String PREFS_LOCALE_KEY = "cur_locale";
     public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
+    public final static String PREF_IS_LOCALE_RTL = "is_cur_locale_rtl";
 
     // Fake settings that really act as buttons to open a new activity or choice dialog
     private final static String DEVELOPER_SETTINGS = "developer-settings-button";
@@ -229,6 +230,16 @@ public class MainConfigurablePreferences
     public static void setCurrentLocale(String locale) {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         prefs.edit().putString(PREFS_LOCALE_KEY, locale).apply();
+        updateLocaleRTL(locale);
     }
 
+    private static void updateLocaleRTL(String currentLocale) {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        prefs.edit().putBoolean(PREF_IS_LOCALE_RTL, currentLocale.equals("ach")).apply();
+    }
+
+    public static boolean isLocaleRTL() {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return prefs.getBoolean(PREF_IS_LOCALE_RTL, false);
+    }
 }
