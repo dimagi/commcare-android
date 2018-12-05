@@ -23,7 +23,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:layout_alignParentEnd="true">
 
             <ImageView
                 android:layout_width="@dimen/numeric_badge_width_for_list"

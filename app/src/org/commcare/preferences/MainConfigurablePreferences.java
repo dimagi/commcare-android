@@ -245,7 +245,9 @@ public class MainConfigurablePreferences
     }
 
     public static boolean isLocaleRTL() {
+        if (CommCareApplication.instance().getCurrentApp() == null) return false;
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return prefs.getBoolean(PREF_IS_LOCALE_RTL, false);
+//        return true;
     }
 }

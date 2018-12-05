@@ -20,7 +20,8 @@
             android:textColor="@color/cc_brand_text"
             android:textSize="@dimen/font_size_medium"
             android:layout_alignParentLeft="true"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:layout_alignParentStart="true" />
 
         <ImageButton
             android:id="@+id/clear_search_button"
@@ -29,7 +30,8 @@
             android:layout_alignParentRight="true"
             android:background="@null"
             android:padding="@dimen/entity_item_image_margins"
-            android:src="@drawable/close_cross_icon"/>
+            android:src="@drawable/close_cross_icon"
+            android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
     <LinearLayout
@@ -128,14 +130,16 @@
                 android:layout_toLeftOf="@+id/barcodeButton"
                 android:maxLines="3"
                 android:inputType="textImeMultiLine"
-                android:imeOptions="actionDone"/>
+                android:imeOptions="actionDone"
+                android:layout_toStartOf="@+id/barcodeButton" />
 
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:src="@drawable/barcode"
-                android:id="@+id/barcodeButton"/>
+                android:id="@+id/barcodeButton"
+                android:layout_alignParentEnd="true" />
         </RelativeLayout>
     </LinearLayout>
 

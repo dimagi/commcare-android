@@ -17,7 +17,9 @@
         android:id="@+id/card_body"
         card_view:cardElevation="4dp"
         card_view:cardUseCompatPadding="true"
-        card_view:contentPadding="8dp">
+        card_view:contentPadding="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -29,7 +31,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
-                android:padding="@dimen/entity_item_image_margins"/>
+                android:padding="@dimen/entity_item_image_margins"
+                android:layout_alignParentStart="true" />
 
             <TextView
                 android:id="@+id/text"
@@ -39,14 +42,18 @@
                 android:layout_toRightOf="@id/icon"
                 android:layout_toLeftOf="@+id/right_aligned_container"
                 android:paddingLeft="@dimen/entity_item_image_margins"
-                android:textSize="@dimen/font_size_large"/>
+                android:textSize="@dimen/font_size_large"
+                android:layout_toEndOf="@id/icon"
+                android:layout_toStartOf="@+id/right_aligned_container"
+                android:paddingStart="@dimen/entity_item_image_margins" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:id="@id/right_aligned_container"
                 android:orientation="horizontal"
-                android:layout_alignParentRight="true">
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true">
 
                 <org.commcare.views.media.AudioPlaybackButton
                     android:id="@+id/audio"
@@ -58,7 +65,9 @@
                     android:focusableInTouchMode="false"
                     android:paddingLeft="@dimen/min_button_padding"
                     android:paddingRight="@dimen/min_button_padding"
-                    android:visibility="gone"/>
+                    android:visibility="gone"
+                    android:paddingStart="@dimen/min_button_padding"
+                    android:paddingEnd="@dimen/min_button_padding" />
 
                 <ImageView
                     android:id="@+id/launch_action"
@@ -70,7 +79,8 @@
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:padding="@dimen/min_button_padding"
-                    android:src="@drawable/icon_chevron_right_attnpos"/>
+                    android:src="@drawable/icon_chevron_right_attnpos"
+                    android:layout_toEndOf="@+id/text" />
 
             </LinearLayout>
 

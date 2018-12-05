@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingRight="16dp"
-        />
+        android:paddingEnd="16dp" />
 
     <TextView
         android:id="@+id/hev_primary_text"
@@ -21,7 +21,7 @@
         android:textStyle="bold"
         android:textAppearance="@android:style/TextAppearance.Large"
         android:paddingBottom="8dp"
-        />
+        android:layout_toEndOf="@id/hev_icon" />
 
     <TextView
         android:id="@+id/hev_secondary_text"
@@ -31,5 +31,6 @@
         android:layout_toRightOf="@id/hev_icon"
         android:layout_below="@id/hev_primary_text"
         android:textColor="@color/cc_dark_warm_accent_text"
-        android:textAppearance="@android:style/TextAppearance.Small"/>
+        android:textAppearance="@android:style/TextAppearance.Small"
+        android:layout_toEndOf="@id/hev_icon" />
 </RelativeLayout>

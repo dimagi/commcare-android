@@ -17,5 +17,7 @@
         android:paddingRight="@dimen/standard_spacer"
         android:scaleType="fitCenter"
         android:src="@drawable/commcare_logo"
-        android:visibility="visible"/>
+        android:visibility="visible"
+        android:paddingStart="@dimen/standard_spacer"
+        android:paddingEnd="@dimen/standard_spacer" />
 </LinearLayout>

@@ -47,7 +47,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingLeft="@dimen/standard_spacer_half"
-                        android:paddingRight="@dimen/standard_spacer_half">
+                        android:paddingRight="@dimen/standard_spacer_half"
+                        android:paddingEnd="@dimen/standard_spacer_half"
+                        android:paddingStart="@dimen/standard_spacer_half">
 
                         <include layout="@layout/grid_header_top_banner"/>
                     </FrameLayout>
@@ -66,7 +68,9 @@
                             android:orientation="vertical"
                             android:paddingBottom="@dimen/content_start"
                             android:paddingLeft="@dimen/login_box_margins"
-                            android:paddingRight="@dimen/login_box_margins">
+                            android:paddingRight="@dimen/login_box_margins"
+                            android:paddingStart="@dimen/login_box_margins"
+                            android:paddingEnd="@dimen/login_box_margins">
 
                             <TextView
                                 android:id="@+id/welcome_msg"
@@ -98,7 +102,8 @@
                                 android:imeOptions="actionNext"
                                 android:inputType="text"
                                 android:nextFocusDown="@+id/edit_password"
-                                android:textSize="@dimen/text_medium">
+                                android:textSize="@dimen/text_medium"
+                                android:drawableStart="@drawable/icon_user_neutral50">
 
                                 <requestFocus/>
                             </AutoCompleteTextView>
@@ -119,7 +124,8 @@
                                     android:imeOptions="actionDone"
                                     android:inputType="textPassword"
                                     android:nextFocusUp="@+id/edit_username"
-                                    android:textSize="@dimen/text_medium"/>
+                                    android:textSize="@dimen/text_medium"
+                                    android:drawableStart="@drawable/icon_lock_neutral50" />
 
                                 <Button
                                     android:id="@+id/show_password"
@@ -133,7 +139,8 @@
                                     android:src="@drawable/close_cross_icon"
                                     android:textColor="@color/cc_brand_color"
                                     android:textSize="@dimen/font_size_dp_medium"
-                                    android:visibility="invisible"/>
+                                    android:visibility="invisible"
+                                    android:layout_alignEnd="@+id/edit_password" />
                             </RelativeLayout>
 
 

@@ -22,14 +22,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/standard_spacer_half"
-            android:layout_marginRight="@dimen/standard_spacer_half"/>
+            android:layout_marginRight="@dimen/standard_spacer_half"
+            android:layout_marginStart="@dimen/standard_spacer_half"
+            android:layout_marginEnd="@dimen/standard_spacer_half" />
 
         <ImageView
             android:id="@+id/geoImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/standard_spacer_half"
-            android:layout_marginRight="@dimen/standard_spacer_half"/>
+            android:layout_marginRight="@dimen/standard_spacer_half"
+            android:layout_marginEnd="@dimen/standard_spacer_half"
+            android:layout_marginStart="@dimen/standard_spacer_half" />
 
         <TextView
             android:id="@+id/geoText"
