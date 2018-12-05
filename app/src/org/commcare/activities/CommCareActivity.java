@@ -930,7 +930,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * it will set all views/layouts to {@link View#LAYOUT_DIRECTION_RTL}.
      */
     protected void updateLayoutDirection() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && MainConfigurablePreferences.isLocaleRTL())
-            getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            if (MainConfigurablePreferences.isLocaleRTL()) {
+                getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+            } else {
+                getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+            }
+        }
     }
 }

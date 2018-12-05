@@ -1,10 +1,12 @@
 package org.commcare.preferences;
 
-import android.content.DialogInterface;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.support.annotation.NonNull;
+import android.support.v4.text.TextUtilsCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceScreen;
 
@@ -19,6 +21,7 @@ import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class MainConfigurablePreferences
@@ -227,15 +230,18 @@ public class MainConfigurablePreferences
         }
     }
 
-    public static void setCurrentLocale(String locale) {
+    public static void setCurrentLocale(String currentLocale) {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        prefs.edit().putString(PREFS_LOCALE_KEY, locale).apply();
-        updateLocaleRTL(locale);
+        prefs.edit().putString(PREFS_LOCALE_KEY, currentLocale).apply();
+        updateLocaleRTLPrefs(currentLocale);
     }
 
-    private static void updateLocaleRTL(String currentLocale) {
+    @SuppressLint("ApplySharedPref")
+    private static void updateLocaleRTLPrefs(String locale) {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        prefs.edit().putBoolean(PREF_IS_LOCALE_RTL, currentLocale.equals("ach")).apply();
+        prefs.edit().putBoolean(PREF_IS_LOCALE_RTL,
+                TextUtilsCompat.getLayoutDirectionFromLocale(new Locale(locale)) == ViewCompat.LAYOUT_DIRECTION_RTL)
+                .commit();
     }
 
     public static boolean isLocaleRTL() {
