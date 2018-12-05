@@ -60,6 +60,7 @@
         tools:replace="android:label,android:icon, android:allowBackup"
         android:name="org.commcare.CommCareApplication"
         android:icon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
         android:label="@string/application_name"
         android:hardwareAccelerated="true"
         android:theme="@style/AppBaseTheme">
