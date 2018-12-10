@@ -1,5 +1,6 @@
 package org.commcare.utils;
 
+import android.app.Activity;
 import android.os.Build;
 import android.view.View;
 
@@ -21,5 +22,15 @@ public class LayoutDirectionUtilCompat {
                 view.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
             }
         }
+    }
+
+    /**
+     * Updates activity's layout direction, setting it to either {@link android.view.View#LAYOUT_DIRECTION_RTL} or {@link android.view.View#LAYOUT_DIRECTION_LTR}.
+     *
+     * @param activity  activity to be updated.
+     * @param isRTL
+     */
+    public static void updateLayoutDirection(Activity activity, boolean isRTL) {
+        updateLayoutDirection(activity.getWindow().getDecorView(), isRTL);
     }
 }

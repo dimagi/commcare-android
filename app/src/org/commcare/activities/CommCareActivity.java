@@ -123,7 +123,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // update layout direction
-        LayoutDirectionUtilCompat.updateLayoutDirection(getWindow().getDecorView(), MainConfigurablePreferences.isLocaleRTL());
+        LayoutDirectionUtilCompat.updateLayoutDirection(this, MainConfigurablePreferences.isLocaleRTL());
 
         FragmentManager fm = this.getSupportFragmentManager();
 
