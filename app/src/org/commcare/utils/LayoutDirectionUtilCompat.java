@@ -3,6 +3,7 @@ package org.commcare.utils;
 import android.app.Activity;
 import android.os.Build;
 import android.view.View;
+import android.widget.ImageView;
 
 public class LayoutDirectionUtilCompat {
     private LayoutDirectionUtilCompat() {
@@ -27,10 +28,24 @@ public class LayoutDirectionUtilCompat {
     /**
      * Updates activity's layout direction, setting it to either {@link android.view.View#LAYOUT_DIRECTION_RTL} or {@link android.view.View#LAYOUT_DIRECTION_LTR}.
      *
-     * @param activity  activity to be updated.
+     * @param activity activity to be updated.
      * @param isRTL
      */
     public static void updateLayoutDirection(Activity activity, boolean isRTL) {
         updateLayoutDirection(activity.getWindow().getDecorView(), isRTL);
+    }
+
+    /**
+     * Updates image view's layout direction.
+     *
+     * @param view  view to be updated.
+     * @param isRTL
+     */
+    public static void updateImageViewDirection(View view, boolean isRTL) {
+        if (isRTL) {
+            view.setScaleX(-1f);
+        } else {
+            view.setScaleX(1f);
+        }
     }
 }

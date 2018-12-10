@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
@@ -88,6 +89,7 @@ import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.FileUtil;
@@ -220,6 +222,18 @@ public class CommCareApplication extends MultiDexApplication {
             AppUtils.checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
         }
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(ChangeLocaleUtil.setLocale(base));
+        Log.d("CommCareApplication", "attachBaseContext()");
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        ChangeLocaleUtil.setLocale(this);
     }
 
     private void initNotifications() {

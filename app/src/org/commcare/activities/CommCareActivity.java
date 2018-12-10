@@ -42,6 +42,7 @@ import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidUtil;
+import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.LayoutDirectionUtilCompat;
@@ -119,11 +120,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private ContainerFragment<Bundle> managedUiState;
     private boolean isMainScreenBlocked;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // update layout direction
-        LayoutDirectionUtilCompat.updateLayoutDirection(this, MainConfigurablePreferences.isLocaleRTL());
 
         FragmentManager fm = this.getSupportFragmentManager();
 
@@ -306,6 +306,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onDestroy() {
         super.onDestroy();
         disposableEventHost.dispose();
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(ChangeLocaleUtil.setLocale(base));
+        Log.d("CommCareActivity", "attachBaseContext()");
     }
 
     /**

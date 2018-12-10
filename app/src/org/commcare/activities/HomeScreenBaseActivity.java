@@ -395,8 +395,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 MainConfigurablePreferences.setCurrentLocale(selectedLocale);
                 Localization.setLocale(selectedLocale);
             }
-            // first update layout direction
-            LayoutDirectionUtilCompat.updateLayoutDirection(this, MainConfigurablePreferences.isLocaleRTL());
             // rebuild home buttons in case language changed;
             if (uiController != null) {
                 uiController.setupUI();
