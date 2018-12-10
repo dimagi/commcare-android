@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -10,13 +9,13 @@ import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Toast;
 
 import org.commcare.activities.components.FormEntryConstants;
@@ -518,7 +517,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         if (backExitsForm) {
             backIconId = R.drawable.icon_exit;
         } else {
-            backIconId = R.drawable.icon_back;
+            if (MainConfigurablePreferences.isLocaleRTL())
+                backIconId = R.drawable.icon_next;
+            else
+                backIconId = R.drawable.icon_back;
         }
         DialogChoiceItem backItem = new DialogChoiceItem(backText, backIconId, backListener);
 
@@ -549,7 +551,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         if (nextExitsForm) {
             skipIconId = R.drawable.icon_done;
         } else {
-            skipIconId = R.drawable.icon_next;
+            if (MainConfigurablePreferences.isLocaleRTL())
+                skipIconId = R.drawable.icon_back;
+            else
+                skipIconId = R.drawable.icon_next;
         }
         DialogChoiceItem skipItem = new DialogChoiceItem(skipText, skipIconId, skipListener);
 
@@ -604,7 +609,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             if (index.equals(q.getFormId())) {
 
                 if (q.getAnswer() instanceof InvalidData) {
-                    constraintText = ((InvalidData)q.getAnswer()).getErrorMessage();
+                    constraintText = ((InvalidData) q.getAnswer()).getErrorMessage();
                 }
 
                 q.notifyInvalid(constraintText, requestFocus);
