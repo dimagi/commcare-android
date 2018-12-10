@@ -122,8 +122,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        LayoutDirectionUtilCompat.updateLayoutDirection(getWindow().getDecorView(), MainConfigurablePreferences.isLocaleRTL());
+        // update layout direction
+        LayoutDirectionUtilCompat.updateLayoutDirection(getWindow().getDecorView(), MainConfigurablePreferences.isLocaleRTL());
 
         FragmentManager fm = this.getSupportFragmentManager();
 

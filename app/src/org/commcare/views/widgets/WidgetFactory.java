@@ -7,7 +7,9 @@ import android.util.Log;
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.utils.AndroidArrayDataSource;
+import org.commcare.utils.LayoutDirectionUtilCompat;
 import org.javarosa.core.model.ComboboxFilterRule;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
@@ -16,7 +18,6 @@ import org.javarosa.core.model.MultiWordFilterRule;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.StandardFilterRule;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.util.CalendarUtils;
 
@@ -82,6 +83,9 @@ public class WidgetFactory {
                 questionWidget = new StringWidget(context, fep, false);
                 break;
         }
+
+        // Update RTL if needed
+        LayoutDirectionUtilCompat.updateLayoutDirection(questionWidget, MainConfigurablePreferences.isLocaleRTL());
 
         // Apply all of the QuestionDataExtensions registered with this widget's associated
         // QuestionDef to the widget

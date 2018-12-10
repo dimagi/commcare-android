@@ -12,6 +12,7 @@ import android.support.annotation.IdRes;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
@@ -174,14 +175,14 @@ public class MediaLayout extends RelativeLayout {
     }
 
     private void addAudioVideoButtonsToView(RelativeLayout questionTextPane) {
-        RelativeLayout.LayoutParams textParams =
-                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        LayoutParams textParams =
+                new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-        RelativeLayout.LayoutParams audioParams =
-                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        LayoutParams audioParams =
+                new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-        RelativeLayout.LayoutParams videoParams =
-                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        LayoutParams videoParams =
+                new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
         // Add the audioButton and videoButton (if applicable) and view
         // (containing text) to the relative layout.
@@ -189,25 +190,43 @@ public class MediaLayout extends RelativeLayout {
             if (videoButton == null) {
                 audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    audioParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+                    textParams.addRule(RelativeLayout.START_OF, audioButton.getId());
+                }
                 questionTextPane.addView(audioButton, audioParams);
             } else {
                 audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
                 videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 videoParams.addRule(RelativeLayout.BELOW, audioButton.getId());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    audioParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+                    textParams.addRule(RelativeLayout.START_OF, audioButton.getId());
+                    videoParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+                }
                 questionTextPane.addView(audioButton, audioParams);
                 questionTextPane.addView(videoButton, videoParams);
             }
         } else if (videoButton != null) {
             videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             textParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                videoParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+                textParams.addRule(RelativeLayout.START_OF, videoButton.getId());
+            }
             questionTextPane.addView(videoButton, videoParams);
         } else {
             //Audio and Video are both null, let text bleed to right
             textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                textParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+            }
         }
         if (viewText.getVisibility() != GONE) {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+                textParams.addRule(RelativeLayout.ALIGN_PARENT_START);
             questionTextPane.addView(viewText, textParams);
         }
     }
@@ -328,7 +347,7 @@ public class MediaLayout extends RelativeLayout {
     @SuppressWarnings("deprecation")
     private int getScreenMinimumDimension() {
         Display display =
-                ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
+                ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
                         .getDefaultDisplay();
 
         int width, height;

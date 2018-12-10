@@ -28,6 +28,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.StringUtils;
@@ -328,7 +329,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 AudioController.INSTANCE.releaseCurrentMediaEntity();
                 QuestionsView next = createView();
                 if (showSwipeAnimation) {
-                    showView(next, AnimationType.LEFT);
+                    showView(next, MainConfigurablePreferences.isLocaleRTL() ? AnimationType.RIGHT : AnimationType.LEFT);
                 } else {
                     showView(next, AnimationType.FADE, false);
                 }
@@ -411,7 +412,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                         case FormEntryController.EVENT_QUESTION:
                             QuestionsView next = createView();
                             if (!resuming) {
-                                showView(next, AnimationType.RIGHT);
+                                showView(next, MainConfigurablePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
                             } else {
                                 showView(next, AnimationType.FADE, false);
                             }
@@ -432,7 +433,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                                     && FormEntryActivity.mFormController.getQuestionPrompts().length != 0) {
                                 QuestionsView nextGroupView = createView();
                                 if (!resuming) {
-                                    showView(nextGroupView, AnimationType.RIGHT);
+                                    showView(nextGroupView, MainConfigurablePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
                                 } else {
                                     showView(nextGroupView, AnimationType.FADE, false);
                                 }

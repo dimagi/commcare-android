@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.javarosa.form.api.FormController;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.views.ClippingFrame;
@@ -57,6 +58,11 @@ public class FormNavigationUI {
 
         ImageButton nextButton = activity.findViewById(R.id.nav_btn_next);
         ImageButton prevButton = activity.findViewById(R.id.nav_btn_prev);
+
+        if (MainConfigurablePreferences.isLocaleRTL()) {
+            nextButton.setScaleX(-1f);
+            prevButton.setScaleX(-1f);
+        }
 
         ClippingFrame finishButton = activity.
                 findViewById(R.id.nav_btn_finish);
