@@ -129,6 +129,12 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             activity.triggerUserFormComplete();
         });
 
+        if (MainConfigurablePreferences.isLocaleRTL()) {
+            finishButton.findViewById(R.id.nav_image_finish).setScaleX(-1f);
+            nextButton.setScaleX(-1f);
+            prevButton.setScaleX(-1f);
+        }
+
         multiIntentDispatchButton.setOnClickListener(v -> activity.fireCompoundIntentDispatch());
 
 
