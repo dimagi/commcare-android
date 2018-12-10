@@ -44,6 +44,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.DetailCalloutListener;
+import org.commcare.utils.LayoutDirectionUtilCompat;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.StringUtils;
@@ -59,7 +60,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -123,7 +123,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        updateLayoutDirection();
+//        LayoutDirectionUtilCompat.updateLayoutDirection(getWindow().getDecorView(), MainConfigurablePreferences.isLocaleRTL());
 
         FragmentManager fm = this.getSupportFragmentManager();
 
@@ -922,20 +922,5 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     protected String getLocalizedString(int stringResource) {
         return StringUtils.getStringRobust(this, stringResource);
-    }
-
-    /**
-     * Updates layout direction depending on currently set locale.
-     * If {@link MainConfigurablePreferences#isLocaleRTL()} returns <code>TRUE</code>,
-     * it will set all views/layouts to {@link View#LAYOUT_DIRECTION_RTL}.
-     */
-    protected void updateLayoutDirection() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            if (MainConfigurablePreferences.isLocaleRTL()) {
-                getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-            } else {
-                getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-            }
-        }
     }
 }
