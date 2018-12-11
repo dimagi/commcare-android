@@ -237,6 +237,7 @@
         <item name="android:background">@color/cc_light_cool_accent_bg</item>
         <item name="android:textColor">@color/cc_light_cool_accent_text</item>
         <item name="android:drawableRight">@drawable/icon_chevron_right_brand</item>
+        <item name="android:drawableEnd">@drawable/icon_chevron_left_brand</item>
     </style>
 
     <style name="PromptedUpdateButtonBase">

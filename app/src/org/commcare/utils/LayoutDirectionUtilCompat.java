@@ -36,12 +36,12 @@ public class LayoutDirectionUtilCompat {
     }
 
     /**
-     * Updates image view's layout direction.
+     * Updates view's layout direction by mirroring it.
      *
      * @param view  view to be updated.
      * @param isRTL
      */
-    public static void updateImageViewDirection(View view, boolean isRTL) {
+    public static void mirrorView(View view, boolean isRTL) {
         if (isRTL) {
             view.setScaleX(-1f);
         } else {
