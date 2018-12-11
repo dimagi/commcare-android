@@ -289,7 +289,10 @@ public class MediaLayout extends RelativeLayout {
                     mImageView.setId(IMAGE_VIEW_ID);
                     mediaPane = mImageView;
 
-                    LayoutDirectionUtilCompat.mirrorView(mImageView);
+                    // ignore this image, everythin else should be mirrored if needed
+                    if (!imageURI.toLowerCase().endsWith("/success.png")) {
+                        LayoutDirectionUtilCompat.mirrorView(mImageView);
+                    }
                 }
             } else {
                 // An error hasn't been logged. We should have an image, but the file doesn't

@@ -20,6 +20,7 @@ import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.CachingAsyncImageLoader;
+import org.commcare.utils.LayoutDirectionUtilCompat;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityActionViewUtils;
 import org.commcare.views.EntityView;
@@ -282,7 +283,9 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
                 getAction(position),
                 commCareActivity);
 
-        LayoutDirectionUtilCompat.updateImageViewDirection(actionCardView.findViewById(R.id.launch_action), MainConfigurablePreferences.isLocaleRTL());
+        // Update action view's images direction
+        LayoutDirectionUtilCompat.mirrorView(actionCardView.findViewById(R.id.launch_action));
+        LayoutDirectionUtilCompat.mirrorView(actionCardView.findViewById(R.id.icon));
         return actionCardView;
     }
 

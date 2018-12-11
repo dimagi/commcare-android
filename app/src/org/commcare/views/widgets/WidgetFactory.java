@@ -84,9 +84,6 @@ public class WidgetFactory {
                 break;
         }
 
-        // Update RTL if needed
-        LayoutDirectionUtilCompat.updateLayoutDirection(questionWidget, MainConfigurablePreferences.isLocaleRTL());
-
         // Apply all of the QuestionDataExtensions registered with this widget's associated
         // QuestionDef to the widget
         for (QuestionDataExtension extension : fep.getQuestion().getExtensions()) {
