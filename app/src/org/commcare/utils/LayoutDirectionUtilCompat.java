@@ -48,4 +48,18 @@ public class LayoutDirectionUtilCompat {
             view.setScaleX(1f);
         }
     }
+
+    /**
+     * Updates view's layout direction by mirroring it. It will use view's context to determine if view should be mirrored.
+     *
+     * @param view view to be updated.
+     */
+    public static void mirrorView(View view) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 &&
+                view.getContext().getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+            view.setScaleX(-1f);
+        } else {
+            view.setScaleX(1f);
+        }
+    }
 }

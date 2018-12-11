@@ -27,6 +27,7 @@ import org.commcare.dalvik.R;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.LayoutDirectionUtilCompat;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.QRCodeEncoder;
 import org.commcare.views.ResizingImageView;
@@ -287,6 +288,8 @@ public class MediaLayout extends RelativeLayout {
                     mImageView.setImageBitmap(b);
                     mImageView.setId(IMAGE_VIEW_ID);
                     mediaPane = mImageView;
+
+                    LayoutDirectionUtilCompat.mirrorView(mImageView);
                 }
             } else {
                 // An error hasn't been logged. We should have an image, but the file doesn't
