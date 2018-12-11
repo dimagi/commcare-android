@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
@@ -16,7 +17,7 @@ import java.io.IOException;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class AudioPlaybackButtonBase extends LinearLayout {
+public abstract class AudioPlaybackButtonBase extends RelativeLayout {
 
     private final static String TAG = AudioPlaybackButtonBase.class.getSimpleName();
     /**
