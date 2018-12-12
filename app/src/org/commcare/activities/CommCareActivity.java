@@ -743,10 +743,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if (isHorizontalSwipe(this, e1, e2) && !isMainScreenBlocked) {
-            if (velocityX <= 0) {
+            if (MainConfigurablePreferences.isLocaleRTL()) {
+                if (velocityX <= 0) {
+                    return onBackwardSwipe();
+                }
                 return onForwardSwipe();
+            } else {
+                if (velocityX <= 0) {
+                    return onForwardSwipe();
+                }
+                return onBackwardSwipe();
             }
-            return onBackwardSwipe();
         }
 
         return false;
