@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ScreenPinnedButton">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/cc_attention_positive_bg</item>
+        <item name="android:drawableEnd">@drawable/icon_chevron_left_attnpos</item>
+        <item name="android:textColor">@color/cc_attention_positive_text</item>
+        <item name="android:gravity">left|end|center_vertical</item>
+        <item name="android:paddingLeft">@dimen/content_min_margin</item>
+        <item name="android:paddingRight">@dimen/content_min_margin</item>
+        <item name="android:textSize">@dimen/text_large</item>
+    </style>
+
+    <style name="ScreenPinnedButtonNeutral" parent="@style/ScreenPinnedButton">
+        <item name="android:background">@color/cc_light_cool_accent_bg</item>
+        <item name="android:textColor">@color/cc_light_cool_accent_text</item>
+        <item name="android:drawableEnd">@drawable/icon_chevron_left_brand</item>
+    </style>
+</resources>
