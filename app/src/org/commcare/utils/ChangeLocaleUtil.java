@@ -57,10 +57,7 @@ public class ChangeLocaleUtil {
      */
     public static Context setLocale(Context context) {
         try {
-            if (BuildConfig.DEBUG)
-                return updateResources(context, Localization.getCurrentLocale().equals("hin") ? "ar" : Localization.getCurrentLocale());
-            else
-                return updateResources(context, Localization.getCurrentLocale());
+            return updateResources(context, Localization.getCurrentLocale());
         } catch (Exception ignored) {
         }
         return context;

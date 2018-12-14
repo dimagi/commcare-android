@@ -46,6 +46,7 @@ public class MainConfigurablePreferences
     private static final int REQUEST_DEVELOPER_PREFERENCES = 1;
 
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
+
     static {
         keyToTitleMap.put(DEVELOPER_SETTINGS, "settings.developer.options");
         keyToTitleMap.put(DISABLE_ANALYTICS, "home.menu.disable.analytics");
@@ -120,7 +121,7 @@ public class MainConfigurablePreferences
 
     private void startDeveloperOptions() {
         Intent intent = new Intent(getActivity(), SessionAwarePreferenceActivity.class);
-        intent.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE,CommCarePreferenceActivity.PREF_TYPE_DEVELOPER);
+        intent.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_DEVELOPER);
         startActivityForResult(intent, REQUEST_DEVELOPER_PREFERENCES);
     }
 
@@ -147,8 +148,7 @@ public class MainConfigurablePreferences
             if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
                 getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM);
                 getActivity().finish();
-            }
-            else if (resultCode == DeveloperPreferences.RESULT_DEV_OPTIONS_DISABLED) {
+            } else if (resultCode == DeveloperPreferences.RESULT_DEV_OPTIONS_DISABLED) {
                 configureDevPreferencesButton();
             }
         }
@@ -230,6 +230,8 @@ public class MainConfigurablePreferences
         }
     }
 
+    private static Boolean isRtl = null;
+
     public static void setCurrentLocale(String currentLocale) {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         prefs.edit().putString(PREFS_LOCALE_KEY, currentLocale).apply();
@@ -239,15 +241,17 @@ public class MainConfigurablePreferences
     @SuppressLint("ApplySharedPref")
     private static void updateLocaleRTLPrefs(String locale) {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        isRtl = TextUtilsCompat.getLayoutDirectionFromLocale(new Locale(locale)) == ViewCompat.LAYOUT_DIRECTION_RTL;
         prefs.edit().putBoolean(PREF_IS_LOCALE_RTL,
-                TextUtilsCompat.getLayoutDirectionFromLocale(new Locale(locale)) == ViewCompat.LAYOUT_DIRECTION_RTL)
+                isRtl)
                 .commit();
     }
 
     public static boolean isLocaleRTL() {
+        if (isRtl != null) return isRtl;
         if (CommCareApplication.instance().getCurrentApp() == null) return false;
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return prefs.getBoolean(PREF_IS_LOCALE_RTL, false);
-//        return true;
+        isRtl = prefs.getBoolean(PREF_IS_LOCALE_RTL, false);
+        return isRtl;
     }
 }
