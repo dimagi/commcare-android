@@ -3,7 +3,6 @@ package org.commcare.utils;
 import android.app.Activity;
 import android.os.Build;
 import android.view.View;
-import android.widget.ImageView;
 
 public class LayoutDirectionUtilCompat {
     private LayoutDirectionUtilCompat() {
@@ -55,11 +54,7 @@ public class LayoutDirectionUtilCompat {
      * @param view view to be updated.
      */
     public static void mirrorView(View view) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 &&
-                view.getContext().getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
-            view.setScaleX(-1f);
-        } else {
-            view.setScaleX(1f);
-        }
+        mirrorView(view, Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 &&
+                view.getContext().getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL);
     }
 }
