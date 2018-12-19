@@ -4,7 +4,6 @@ import org.javarosa.core.reference.Reference;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,9 +39,9 @@ class ArchiveFileReference implements Reference {
     @Override
     public InputStream getStream() throws IOException {
         File file = new File(getLocalURI());
-
+        //CTS: Removed a thing here that created an empty file. Not sure why that was there.
         if (!file.exists()) {
-            throw new FileNotFoundException("No file exists at " + file.getAbsolutePath());
+            throw new IOException("No file exists at " + file.getAbsolutePath());
         }
         return new FileInputStream(file);
 

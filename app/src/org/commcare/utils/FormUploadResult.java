@@ -1,9 +1,5 @@
 package org.commcare.utils;
 
-import android.support.annotation.Nullable;
-
-import org.commcare.modern.util.Pair;
-
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */

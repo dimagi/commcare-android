@@ -10,7 +10,6 @@ import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
-import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
