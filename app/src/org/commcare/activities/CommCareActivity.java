@@ -32,7 +32,7 @@ import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
-import org.commcare.preferences.MainConfigurablePreferences;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.CalloutData;
@@ -42,10 +42,8 @@ import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidUtil;
-import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.DetailCalloutListener;
-import org.commcare.utils.LayoutDirectionUtilCompat;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.StringUtils;
@@ -310,8 +308,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     protected void attachBaseContext(Context base) {
-        super.attachBaseContext(ChangeLocaleUtil.setLocale(base));
-        Log.d("CommCareActivity", "attachBaseContext()");
+        super.attachBaseContext(LocalePreferences.generateContextWithUpdatedLocale(base));
     }
 
     /**
@@ -743,7 +740,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if (isHorizontalSwipe(this, e1, e2) && !isMainScreenBlocked) {
-            if (MainConfigurablePreferences.isLocaleRTL()) {
+            if (LocalePreferences.isLocaleRTL()) {
                 if (velocityX <= 0) {
                     return onBackwardSwipe();
                 }

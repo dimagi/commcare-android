@@ -27,7 +27,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.preferences.MainConfigurablePreferences;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.StringUtils;
@@ -128,7 +128,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             activity.triggerUserFormComplete();
         });
 
-        if (MainConfigurablePreferences.isLocaleRTL()) {
+        if (LocalePreferences.isLocaleRTL()) {
             finishButton.findViewById(R.id.nav_image_finish).setScaleX(-1f);
             nextButton.setScaleX(-1f);
             prevButton.setScaleX(-1f);
@@ -334,7 +334,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 AudioController.INSTANCE.releaseCurrentMediaEntity();
                 QuestionsView next = createView();
                 if (showSwipeAnimation) {
-                    showView(next, MainConfigurablePreferences.isLocaleRTL() ? AnimationType.RIGHT : AnimationType.LEFT);
+                    showView(next, LocalePreferences.isLocaleRTL() ? AnimationType.RIGHT : AnimationType.LEFT);
                 } else {
                     showView(next, AnimationType.FADE, false);
                 }
@@ -417,7 +417,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                         case FormEntryController.EVENT_QUESTION:
                             QuestionsView next = createView();
                             if (!resuming) {
-                                showView(next, MainConfigurablePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
+                                showView(next, LocalePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
                             } else {
                                 showView(next, AnimationType.FADE, false);
                             }
@@ -438,7 +438,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                                     && FormEntryActivity.mFormController.getQuestionPrompts().length != 0) {
                                 QuestionsView nextGroupView = createView();
                                 if (!resuming) {
-                                    showView(nextGroupView, MainConfigurablePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
+                                    showView(nextGroupView, LocalePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
                                 } else {
                                     showView(nextGroupView, AnimationType.FADE, false);
                                 }
@@ -517,7 +517,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         if (backExitsForm) {
             backIconId = R.drawable.icon_exit;
         } else {
-            if (MainConfigurablePreferences.isLocaleRTL())
+            if (LocalePreferences.isLocaleRTL())
                 backIconId = R.drawable.icon_next;
             else
                 backIconId = R.drawable.icon_back;
@@ -551,7 +551,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         if (nextExitsForm) {
             skipIconId = R.drawable.icon_done;
         } else {
-            if (MainConfigurablePreferences.isLocaleRTL())
+            if (LocalePreferences.isLocaleRTL())
                 skipIconId = R.drawable.icon_back;
             else
                 skipIconId = R.drawable.icon_next;

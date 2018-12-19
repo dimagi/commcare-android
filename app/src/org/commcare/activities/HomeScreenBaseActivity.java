@@ -36,7 +36,7 @@ import org.commcare.preferences.AdvancedActionsPreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.preferences.MainConfigurablePreferences;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.preferences.PrefValues;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -60,7 +60,6 @@ import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
-import org.commcare.utils.LayoutDirectionUtilCompat;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
@@ -392,7 +391,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 Localization.setLocale("default");
             } else {
                 String selectedLocale = localeCodes[position];
-                MainConfigurablePreferences.setCurrentLocale(selectedLocale);
+                LocalePreferences.saveCurrentLocale(selectedLocale);
                 Localization.setLocale(selectedLocale);
             }
             // rebuild home buttons in case language changed;

@@ -1,12 +1,9 @@
 package org.commcare.preferences;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.support.annotation.NonNull;
-import android.support.v4.text.TextUtilsCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceScreen;
 
@@ -21,7 +18,6 @@ import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class MainConfigurablePreferences
@@ -37,7 +33,6 @@ public class MainConfigurablePreferences
     public final static String SHOW_PASSWORD_OPTION = "cc-password-entry-show-behavior";
     public final static String PREFS_LOCALE_KEY = "cur_locale";
     public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
-    public final static String PREF_IS_LOCALE_RTL = "is_cur_locale_rtl";
 
     // Fake settings that really act as buttons to open a new activity or choice dialog
     private final static String DEVELOPER_SETTINGS = "developer-settings-button";
@@ -228,30 +223,5 @@ public class MainConfigurablePreferences
         } else {
             return path;
         }
-    }
-
-    private static Boolean isRtl = null;
-
-    public static void setCurrentLocale(String currentLocale) {
-        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        prefs.edit().putString(PREFS_LOCALE_KEY, currentLocale).apply();
-        updateLocaleRTLPrefs(currentLocale);
-    }
-
-    @SuppressLint("ApplySharedPref")
-    private static void updateLocaleRTLPrefs(String locale) {
-        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        isRtl = TextUtilsCompat.getLayoutDirectionFromLocale(new Locale(locale)) == ViewCompat.LAYOUT_DIRECTION_RTL;
-        prefs.edit().putBoolean(PREF_IS_LOCALE_RTL,
-                isRtl)
-                .commit();
-    }
-
-    public static boolean isLocaleRTL() {
-        if (isRtl != null) return isRtl;
-        if (CommCareApplication.instance().getCurrentApp() == null) return false;
-        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        isRtl = prefs.getBoolean(PREF_IS_LOCALE_RTL, false);
-        return isRtl;
     }
 }

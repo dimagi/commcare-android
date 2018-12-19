@@ -78,6 +78,7 @@ import org.commcare.network.HttpUtils;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
@@ -89,7 +90,6 @@ import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
-import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.FileUtil;
@@ -111,6 +111,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -222,18 +223,14 @@ public class CommCareApplication extends MultiDexApplication {
             AppUtils.checkForIncompletelyUninstalledApps();
             initializeAnAppOnStartup();
         }
-    }
 
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(ChangeLocaleUtil.setLocale(base));
-        Log.d("CommCareApplication", "attachBaseContext()");
+        LocalePreferences.saveDeviceLocale(Locale.getDefault().getLanguage());
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        ChangeLocaleUtil.setLocale(this);
+        LocalePreferences.saveDeviceLocale(newConfig.locale.getLanguage());
     }
 
     private void initNotifications() {
