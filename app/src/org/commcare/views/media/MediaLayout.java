@@ -188,25 +188,20 @@ public class MediaLayout extends RelativeLayout {
         // Add the audioButton and videoButton (if applicable) and view
         // (containing text) to the relative layout.
         if (audioButton != null) {
-            if (videoButton == null) {
-                audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    audioParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-                    textParams.addRule(RelativeLayout.START_OF, audioButton.getId());
-                }
-                questionTextPane.addView(audioButton, audioParams);
-            } else {
-                audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
+            audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                audioParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+                textParams.addRule(RelativeLayout.START_OF, audioButton.getId());
+            }
+            questionTextPane.addView(audioButton, audioParams);
+
+            if (videoButton != null) {
                 videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 videoParams.addRule(RelativeLayout.BELOW, audioButton.getId());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    audioParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-                    textParams.addRule(RelativeLayout.START_OF, audioButton.getId());
                     videoParams.addRule(RelativeLayout.ALIGN_PARENT_END);
                 }
-                questionTextPane.addView(audioButton, audioParams);
                 questionTextPane.addView(videoButton, videoParams);
             }
         } else if (videoButton != null) {

@@ -30,6 +30,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
+import org.commcare.utils.LayoutDirectionUtilCompat;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.UserfacingErrorHandling;
@@ -129,9 +130,9 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         });
 
         if (LocalePreferences.isLocaleRTL()) {
-            finishButton.findViewById(R.id.nav_image_finish).setScaleX(-1f);
-            nextButton.setScaleX(-1f);
-            prevButton.setScaleX(-1f);
+            LayoutDirectionUtilCompat.mirrorView(finishButton.findViewById(R.id.nav_image_finish), true);
+            LayoutDirectionUtilCompat.mirrorView(nextButton, true);
+            LayoutDirectionUtilCompat.mirrorView(prevButton, true);
         }
 
         multiIntentDispatchButton.setOnClickListener(v -> activity.fireCompoundIntentDispatch());
