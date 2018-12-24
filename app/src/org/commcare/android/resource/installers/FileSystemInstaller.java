@@ -20,6 +20,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -87,7 +88,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                 inputFileStream = ref.getStream();
             } catch (FileNotFoundException e) {
                 // Means the reference wasn't valid so let it keep iterating through options.
-                return false;
+                throw new UnresolvedResourceException(r, Localization.get("install.error.file.not.found", r.getDescriptor()), true);
             }
 
             File tempFile = new File(CommCareApplication.instance().getTempFilePath());
