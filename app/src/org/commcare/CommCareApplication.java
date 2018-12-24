@@ -224,13 +224,13 @@ public class CommCareApplication extends MultiDexApplication {
             initializeAnAppOnStartup();
         }
 
-        LocalePreferences.saveDeviceLocale(Locale.getDefault().getLanguage());
+        LocalePreferences.saveDeviceLocale(Locale.getDefault());
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        LocalePreferences.saveDeviceLocale(newConfig.locale.getLanguage());
+        LocalePreferences.saveDeviceLocale(newConfig.locale);
     }
 
     private void initNotifications() {

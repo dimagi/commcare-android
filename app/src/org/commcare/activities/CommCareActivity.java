@@ -306,11 +306,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         disposableEventHost.dispose();
     }
 
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(LocalePreferences.generateContextWithUpdatedLocale(base));
-    }
-
     /**
      * Attaches a reactivex disposable to the lifecycle of this activity, so the disposable
      * will be cancelled / halted when this activity is destroyed.

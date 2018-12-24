@@ -391,7 +391,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 Localization.setLocale("default");
             } else {
                 String selectedLocale = localeCodes[position];
-                LocalePreferences.saveCurrentLocale(selectedLocale);
                 Localization.setLocale(selectedLocale);
             }
             // rebuild home buttons in case language changed;
