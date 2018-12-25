@@ -399,8 +399,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             }
             rebuildOptionsMenu();
             dismissAlertDialog();
-            // recreate activity because context could be changed for locale
-            recreate();
         };
 
         dialog.setChoiceItems(buildLocaleChoices(), listClickListener);
