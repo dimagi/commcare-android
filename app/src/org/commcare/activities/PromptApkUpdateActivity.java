@@ -31,7 +31,7 @@ public class PromptApkUpdateActivity extends PromptActivity {
     @Override
     void refreshPromptObject() {
         if (getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false)) {
-            toPrompt = AppUtils.notOnLatestCCVersion() ? UpdateToPrompt.DUMMY_APK_PROMPT_FOR_RECOVERY_MEASURE : null;
+            toPrompt = UpdateToPrompt.DUMMY_APK_PROMPT_FOR_RECOVERY_MEASURE;
         } else {
             toPrompt = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
         }
@@ -62,5 +62,10 @@ public class PromptApkUpdateActivity extends PromptActivity {
     @Override
     String getInstructionsStringKey() {
         return null;
+    }
+
+    @Override
+    protected boolean isUpdateComplete() {
+        return !AppUtils.notOnLatestCCVersion();
     }
 }

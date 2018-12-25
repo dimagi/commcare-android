@@ -380,6 +380,7 @@
     <string name="recovery_forms_state_unavailable">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable">No network connection. Please check your internet and try again.</string>
     <string name="recovery_app_manager">Go to App Manager</string>
+  
     <string name="notification_channel_errors_title">Errors</string>
     <string name="notification_channel_errors_description">Notifications for error messages when something breaks say on installing a CommCare app or while syncing forms with server</string>
     <string name="notification_channel_user_session_title">User Session</string>

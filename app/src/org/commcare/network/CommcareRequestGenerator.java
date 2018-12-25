@@ -201,7 +201,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             params.put(SUBMIT_MODE, SUBMIT_MODE_DEMO);
         }
 
-       requester = CommCareApplication.instance().buildHttpRequester(
+        requester = CommCareApplication.instance().buildHttpRequester(
                 CommCareApplication.instance(),
                 url,
                 params,
@@ -210,7 +210,8 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 parts,
                 HTTPMethod.MULTIPART_POST,
                 new AuthInfo.ProvidedAuth(username, password),
-                null);
+                null,
+                false);
 
         return requester.makeRequest();
     }

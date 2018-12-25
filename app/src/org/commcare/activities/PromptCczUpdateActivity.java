@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.heartbeat.UpdateToPrompt;
@@ -53,6 +54,11 @@ public class PromptCczUpdateActivity extends PromptActivity {
     @Override
     String getInstructionsStringKey() {
         return null;
+    }
+
+    @Override
+    protected boolean isUpdateComplete() {
+        return !AppUtils.notOnLatestAppVersion();
     }
 
     private void launchUpdateActivity() {

@@ -1030,11 +1030,12 @@ public class CommCareApplication extends MultiDexApplication {
         return app.noficationManager;
     }
 
+
     public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
                                                   HashMap headers, AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor) {
         return buildHttpRequester(context, url, params, headers, null, null,
-                HTTPMethod.GET, authInfo, responseProcessor);
+                HTTPMethod.GET, authInfo, responseProcessor, true);
     }
 
     public ModernHttpRequester buildHttpRequester(Context context, String url,
@@ -1043,7 +1044,7 @@ public class CommCareApplication extends MultiDexApplication {
                                                   List<MultipartBody.Part> parts,
                                                   HTTPMethod method,
                                                   AuthInfo authInfo,
-                                                  @Nullable HttpResponseProcessor responseProcessor) {
+                                                  @Nullable HttpResponseProcessor responseProcessor, boolean retry) {
 
         CommCareNetworkService networkService;
         if (authInfo instanceof AuthInfo.NoAuth) {
@@ -1051,7 +1052,7 @@ public class CommCareApplication extends MultiDexApplication {
         } else {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
-                    DeveloperPreferences.isEnforceSecureEndpointEnabled());
+                    DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry);
         }
 
         return new ModernHttpRequester(new AndroidCacheDirSetup(context),
@@ -1064,5 +1065,4 @@ public class CommCareApplication extends MultiDexApplication {
                 method,
                 responseProcessor);
     }
-
 }

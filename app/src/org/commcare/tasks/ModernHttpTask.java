@@ -58,14 +58,15 @@ public class ModernHttpTask
                 null,
                 method,
                 authInfo,
-                null);
+                null,
+                method.equals(HTTPMethod.GET) ? true : false);
     }
 
     @Override
     protected Void doTaskBackground(Void... params) {
         try {
             mResponse = requester.makeRequest();
-            if(mResponse.isSuccessful()) {
+            if (mResponse.isSuccessful()) {
                 responseDataStream = requester.getResponseStream(mResponse);
             }
         } catch (IOException e) {

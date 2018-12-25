@@ -46,15 +46,19 @@ public abstract class PromptActivity extends CommCareActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (toPrompt == null) {
-            refreshPromptObject();
-        }
+        refreshPromptIfNull();
         if (savedInstanceState == null &&
                 !getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false)) {
             // on initial activity load only
             toPrompt.incrementTimesSeen();
         }
         setupUI();
+    }
+
+    private void refreshPromptIfNull() {
+        if (toPrompt == null) {
+            refreshPromptObject();
+        }
     }
 
     private void setupUI() {
@@ -85,16 +89,18 @@ public abstract class PromptActivity extends CommCareActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == DO_AN_UPDATE) {
-            refreshPromptObject();
-            if (toPrompt == null) {
+            if (isUpdateComplete()) {
                 finish();
-            } else {
+            }else {
+                refreshPromptObject();
                 updateVisibilities();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
+
+    protected abstract boolean isUpdateComplete();
 
     private void updateVisibilities() {
         if (inForceMode()) {
@@ -129,9 +135,6 @@ public abstract class PromptActivity extends CommCareActivity {
     }
 
     protected boolean inForceMode() {
-        if (toPrompt == null) {
-            refreshPromptObject();
-        }
         return toPrompt.isForced();
     }
 

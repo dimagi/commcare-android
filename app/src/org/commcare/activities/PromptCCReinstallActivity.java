@@ -10,11 +10,8 @@ public class PromptCCReinstallActivity extends PromptActivity {
 
     @Override
     void refreshPromptObject() {
-        if (AppUtils.notOnLatestCCVersion()) {
-            toPrompt = new CommCareReinstallPrompt();
-        } else {
-            toPrompt = null;
-        }
+        toPrompt = new CommCareReinstallPrompt();
+
     }
 
     @Override
@@ -36,6 +33,11 @@ public class PromptCCReinstallActivity extends PromptActivity {
     @Override
     String getInstructionsStringKey() {
         return "apk.reinstall.instructions";
+    }
+
+    @Override
+    protected boolean isUpdateComplete() {
+        return !AppUtils.notOnLatestCCVersion();
     }
 
 }
