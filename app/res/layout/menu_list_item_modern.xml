@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.commcare.views.ShrinkingLinearLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -49,7 +49,8 @@
         android:id="@+id/row_txt"
         style="@style/ListContentWithoutBadge"
         android:layout_height="@dimen/list_text_height"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:gravity="start"
         android:layout_weight="1"
         android:ellipsize="end"
         android:maxLines="2"/>
@@ -61,4 +62,4 @@
         android:layout_width="wrap_content"
         android:background="@color/transparent_background"/>
 
-</org.commcare.views.ShrinkingLinearLayout>
+</LinearLayout>
