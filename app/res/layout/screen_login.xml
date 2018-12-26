@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:RectangleButtonWithText="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
-    xmlns:RectangleButtonWithText="http://schemas.android.com/apk/res-auto"
     android:background="@color/cc_core_bg"
     android:orientation="vertical">
 
@@ -11,9 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <RelativeLayout
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/screen_login_main"
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="fill_parent">
 
@@ -29,7 +29,7 @@
                     android:id="@+id/str_version"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="@style/VersionIdText"/>
+                    android:textAppearance="@style/VersionIdText" />
             </LinearLayout>
 
             <ScrollView
@@ -46,12 +46,12 @@
                         android:id="@+id/screen_login_banner_pane"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:paddingEnd="@dimen/standard_spacer_half"
                         android:paddingLeft="@dimen/standard_spacer_half"
                         android:paddingRight="@dimen/standard_spacer_half"
-                        android:paddingEnd="@dimen/standard_spacer_half"
                         android:paddingStart="@dimen/standard_spacer_half">
 
-                        <include layout="@layout/grid_header_top_banner"/>
+                        <include layout="@layout/grid_header_top_banner" />
                     </FrameLayout>
 
                     <LinearLayout
@@ -67,10 +67,10 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:paddingBottom="@dimen/content_start"
+                            android:paddingEnd="@dimen/login_box_margins"
                             android:paddingLeft="@dimen/login_box_margins"
                             android:paddingRight="@dimen/login_box_margins"
-                            android:paddingStart="@dimen/login_box_margins"
-                            android:paddingEnd="@dimen/login_box_margins">
+                            android:paddingStart="@dimen/login_box_margins">
 
                             <TextView
                                 android:id="@+id/welcome_msg"
@@ -79,7 +79,7 @@
                                 android:layout_gravity="center"
                                 android:layout_margin="@dimen/content_min_margin"
                                 android:textColor="@color/cc_neutral_color"
-                                android:textSize="@dimen/text_medium"/>
+                                android:textSize="@dimen/text_medium" />
 
                             <Spinner
                                 android:id="@+id/app_selection_spinner"
@@ -89,7 +89,7 @@
                                 android:layout_marginBottom="@dimen/cell_padding_vertical"
                                 android:gravity="center"
                                 android:textSize="@dimen/text_medium"
-                                android:visibility="gone"/>
+                                android:visibility="gone" />
 
                             <AutoCompleteTextView
                                 android:id="@+id/edit_username"
@@ -98,19 +98,21 @@
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/login_edit_text"
                                 android:drawableLeft="@drawable/icon_user_neutral50"
+                                android:drawableStart="@drawable/icon_user_neutral50"
                                 android:hint="Username"
                                 android:imeOptions="actionNext"
                                 android:inputType="text"
                                 android:nextFocusDown="@+id/edit_password"
+                                android:textAlignment="viewStart"
                                 android:textSize="@dimen/text_medium"
-                                android:drawableStart="@drawable/icon_user_neutral50">
+                                tools:ignore="RtlCompat">
 
-                                <requestFocus/>
+                                <requestFocus />
                             </AutoCompleteTextView>
 
                             <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                            android:layout_width="wrap_content"
-                                            android:layout_height="wrap_content">
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
 
                                 <EditText
                                     android:id="@+id/edit_password"
@@ -120,18 +122,21 @@
                                     android:layout_marginBottom="@dimen/content_start"
                                     android:background="@drawable/login_edit_text"
                                     android:drawableLeft="@drawable/icon_lock_neutral50"
+                                    android:drawableStart="@drawable/icon_lock_neutral50"
                                     android:hint="Password"
                                     android:imeOptions="actionDone"
                                     android:inputType="textPassword"
                                     android:nextFocusUp="@+id/edit_username"
+                                    android:textAlignment="viewStart"
                                     android:textSize="@dimen/text_medium"
-                                    android:drawableStart="@drawable/icon_lock_neutral50" />
+                                    tools:ignore="RtlCompat" />
 
                                 <Button
                                     android:id="@+id/show_password"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_alignBottom="@+id/edit_password"
+                                    android:layout_alignEnd="@+id/edit_password"
                                     android:layout_alignRight="@+id/edit_password"
                                     android:layout_alignTop="@+id/edit_password"
                                     android:background="@android:color/transparent"
@@ -139,10 +144,8 @@
                                     android:src="@drawable/close_cross_icon"
                                     android:textColor="@color/cc_brand_color"
                                     android:textSize="@dimen/font_size_dp_medium"
-                                    android:visibility="invisible"
-                                    android:layout_alignEnd="@+id/edit_password" />
+                                    android:visibility="invisible" />
                             </RelativeLayout>
-
 
 
                             <CheckBox
@@ -152,7 +155,7 @@
                                 android:layout_marginBottom="@dimen/standard_spacer"
                                 android:text="@string/restore_session_prompt"
                                 android:textSize="16dp"
-                                android:visibility="gone"/>
+                                android:visibility="gone" />
 
                             <TextView
                                 android:id="@+id/primed_password_message"
@@ -160,7 +163,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_margin="@dimen/standard_spacer"
                                 android:textSize="@dimen/font_size_medium"
-                                android:visibility="gone"/>
+                                android:visibility="gone" />
 
                             <Button
                                 android:id="@+id/login_button"
@@ -171,7 +174,7 @@
                                 android:nextFocusUp="@+id/edit_password"
                                 android:paddingBottom="@dimen/content_start"
                                 android:paddingTop="@dimen/content_start"
-                                android:textColor="@color/cc_neutral_bg"/>
+                                android:textColor="@color/cc_neutral_bg" />
 
                             <LinearLayout
                                 android:id="@+id/screen_login_error_view"
@@ -196,6 +199,7 @@
                                     android:layout_height="wrap_content"
                                     android:background="@drawable/tile_drop_shadow_small_margins"
                                     android:visibility="gone">
+
                                     <org.commcare.views.RectangleButtonWithText
                                         android:id="@+id/btn_view_notifications"
                                         android:layout_width="match_parent"
@@ -203,7 +207,7 @@
 
                                         RectangleButtonWithText:backgroundColor="@color/cc_attention_negative_bg"
                                         RectangleButtonWithText:img="@drawable/ic_list_error"
-                                        RectangleButtonWithText:textColor="@color/cc_attention_negative_text"/>
+                                        RectangleButtonWithText:textColor="@color/cc_attention_negative_text" />
 
                                 </FrameLayout>
                             </LinearLayout>
@@ -214,7 +218,7 @@
             </ScrollView>
         </RelativeLayout>
 
-        <include layout="@layout/component_drop_shadow"/>
+        <include layout="@layout/component_drop_shadow" />
     </FrameLayout>
 
     <!-- Dummy item to give focus to when we want to prevent keyboard from showing -->
@@ -224,6 +228,6 @@
         android:layout_height="0px"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:orientation="horizontal"/>
+        android:orientation="horizontal" />
 
 </LinearLayout>

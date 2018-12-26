@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -32,6 +33,8 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.LocalePreferences;
+import org.commcare.utils.LayoutDirectionUtilCompat;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
@@ -392,8 +395,15 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void setStyleDefault() {
         setLoginBoxesColorNormal();
-        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50), null, null, null);
-        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
+        Drawable usernameDrawable = getResources().getDrawable(R.drawable.icon_user_neutral50);
+        Drawable passwordDrawable = getResources().getDrawable(R.drawable.icon_lock_neutral50);
+        if (LocalePreferences.isLocaleRTL()) {
+            username.setCompoundDrawablesWithIntrinsicBounds(null, null, usernameDrawable, null);
+            passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(null, null, passwordDrawable, null);
+        } else {
+            username.setCompoundDrawablesWithIntrinsicBounds(usernameDrawable, null, null, null);
+            passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(passwordDrawable, null, null, null);
+        }
         setupLoginButton();
         if (loginButton.isEnabled()) {
             clearErrorMessage();
