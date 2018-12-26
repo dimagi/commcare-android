@@ -17,6 +17,7 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
@@ -27,6 +28,7 @@ import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.util.LoggerInterface;
+import org.commcare.utils.LayoutDirectionUtilCompat;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.media.AudioPlaybackButton;
@@ -157,6 +159,8 @@ public class MenuAdapter extends BaseAdapter {
         // set up the image, if available
         setupImageView(menuViewHolder.iconView, menuDisplayable, getImageViewDimenResource());
         setupBadgeView(menuViewHolder.badgeView, menuDisplayable, i);
+
+        LayoutDirectionUtilCompat.mirrorView(menuViewHolder.iconView);
 
         menuListItem.setTag(menuViewHolder);
         return menuListItem;
