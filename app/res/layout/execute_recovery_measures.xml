@@ -1,60 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:gravity="center"
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent">
 
-    <ImageView
-        android:id="@+id/screen_login_top_banner"
-        android:layout_centerHorizontal="true"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:src="@drawable/icon_color"/>
-
-    <TextView
+    <RelativeLayout
         android:gravity="center"
-        android:id="@+id/detail"
-        android:layout_below="@id/screen_login_top_banner"
-        android:layout_centerHorizontal="true"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:padding="@dimen/activity_vertical_margin"
-        android:textSize="@dimen/standard_spacer_double"
-        tools:text="App recovery has been initiated due to a problem with your app."/>
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin">
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
-        android:id="@+id/progress_bar"
-        android:layout_below="@id/detail"
-        android:layout_centerHorizontal="true"
-        android:layout_gravity="center"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:paddingTop="@dimen/standard_spacer_double"
-        android:visibility="gone"/>
+        <ImageView
+            android:id="@+id/screen_login_top_banner"
+            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:src="@drawable/icon_color"/>
 
-    <TextView
-        android:id="@+id/status_tv"
-        android:layout_below="@id/progress_bar"
-        android:layout_centerHorizontal="true"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:paddingTop="@dimen/standard_spacer"
-        android:visibility="gone"
-        tools:text="2 out of 5 done"/>
+        <TextView
+            android:gravity="center"
+            android:id="@+id/detail"
+            android:layout_below="@id/screen_login_top_banner"
+            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:padding="@dimen/activity_vertical_margin"
+            android:textSize="@dimen/standard_spacer_double"
+            tools:text="App recovery has been initiated due to a problem with your app."/>
 
-    <Button
-        android:id="@+id/retry_button"
-        android:layout_below="@id/status_tv"
-        android:layout_centerHorizontal="true"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_spacer_large"
-        android:layout_width="wrap_content"
-        android:text="@string/recovery_measure_retry"
-        android:visibility="gone"/>
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:id="@+id/progress_bar"
+            android:layout_below="@id/detail"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:paddingTop="@dimen/standard_spacer_double"
+            android:visibility="gone"/>
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/status_tv"
+            android:layout_below="@id/progress_bar"
+            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:paddingTop="@dimen/standard_spacer"
+            android:visibility="gone"
+            tools:text="2 out of 5 done"/>
+
+        <Button
+            android:id="@+id/retry_button"
+            android:layout_below="@id/status_tv"
+            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_spacer_large"
+            android:layout_width="wrap_content"
+            android:text="@string/recovery_measure_retry"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+</ScrollView>

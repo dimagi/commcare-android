@@ -45,7 +45,7 @@ public class TaskConnectorFragment<R> extends Fragment {
         }
     }
 
-    private boolean isCurrentTaskRunning() {
+    public boolean isCurrentTaskRunning() {
         return this.currentTask != null &&
                 this.currentTask.getStatus() == AsyncTask.Status.RUNNING;
     }

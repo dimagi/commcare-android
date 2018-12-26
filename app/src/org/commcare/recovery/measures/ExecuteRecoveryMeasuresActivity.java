@@ -163,4 +163,8 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
         super.onDestroy();
         mPresenter.onActivityDestroy();
     }
+
+    public String getStatus() {
+        return statusTv.getText().toString();
+    }
 }

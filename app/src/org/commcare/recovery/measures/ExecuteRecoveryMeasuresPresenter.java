@@ -29,7 +29,6 @@ import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
@@ -57,26 +56,15 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     private UpdateTask updateTask;
     private @RecoveryMeasure.RecoveryMeasureStatus
     int mLastExecutionStatus;
+    private String mLastDisplayStatus;
 
     private static final int REINSTALL_TASK_ID = 1;
     static final int OFFLINE_INSTALL_REQUEST = 1001;
 
-
-    static final int RECOVERY_STATE_NONE = 0;
-    static final int RECOVERY_STATE_TASK_IN_PROGRESS = 1;
-    static final int RECOVERY_STATE_APP_UPDATE_IN_PROGRESS = 2;
-
     private static final String TAG = ExecuteRecoveryMeasuresPresenter.class.getSimpleName();
     private static final String CURRENTLY_EXECUTING_ID = "currently-executing-id";
-    private static final String RECOVERY_STATE = "recovery_state";
-
-    @IntDef({RECOVERY_STATE_NONE, RECOVERY_STATE_TASK_IN_PROGRESS, RECOVERY_STATE_APP_UPDATE_IN_PROGRESS})
-    @Retention(RetentionPolicy.SOURCE)
-    @interface RecoveryState {
-    }
-
-    @RecoveryState
-    private int mRecoveryState = RECOVERY_STATE_NONE;
+    private static final String LAST_STATUS = "LAST_STATUS";
+    private static final String LAST_DISPLAY_STATUS = "LAST_DISPLAY_STATUS";
 
     ExecuteRecoveryMeasuresPresenter(ExecuteRecoveryMeasuresActivity activity) {
         mActivity = activity;
@@ -84,26 +72,33 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
 
     @Override
     public void start() {
-        executePendingMeasures();
+        if (mLastExecutionStatus == STATUS_FAILED) {
+            mActivity.enableRetry();
+            updateStatus(mLastDisplayStatus);
+        } else {
+            // If update task in progress, connect to it and do nothing
+            // or if any other task in progress, do nothing and
+            // let activity connect to it through stateholder as usual.
+            // Otherwise execute any pending measure.
+            if (!(connectToUpdateTask() || mActivity.aTaskInProgress())) {
+                executePendingMeasures();
+            }
+        }
     }
 
     // recursively executes measures one after another
     void executePendingMeasures() {
-        if (mRecoveryState == RECOVERY_STATE_NONE) {
-            mActivity.enableLoadingIndicator();
-            mCurrentMeasure = getNextMeasureToExecute();
-            if (mCurrentMeasure != null) {
-                mLastExecutionStatus = executeMeasure();
-                if (mLastExecutionStatus == STATUS_EXECUTED) {
-                    markMeasureAsExecuted();
-                    executePendingMeasures();
-                }
-            } else {
-                // Nothing to execute
-                mActivity.runFinish();
+        mActivity.enableLoadingIndicator();
+        mCurrentMeasure = getNextMeasureToExecute();
+        if (mCurrentMeasure != null) {
+            mLastExecutionStatus = executeMeasure();
+            if (mLastExecutionStatus == STATUS_EXECUTED) {
+                markMeasureAsExecuted();
+                executePendingMeasures();
             }
-        } else if (mRecoveryState == RECOVERY_STATE_APP_UPDATE_IN_PROGRESS) {
-            connectToUpdateTask();
+        } else {
+            // Nothing to execute
+            mActivity.runFinish();
         }
     }
 
@@ -162,14 +157,13 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
             }
         } catch (Exception e) {
             // If anything goes wrong in the recovery measure execution, just count that as a failure
-            mActivity.updateStatus("Failed to execute ");
+            updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_faiure));
             Logger.exception(String.format("Encountered exception while executing recovery measure of type %s", mCurrentMeasure.getType()), e);
         }
         return STATUS_FAILED;
     }
 
     private void reinstallApp(CommCareApp currentApp, String profileRef, int authority) {
-        mRecoveryState = RECOVERY_STATE_TASK_IN_PROGRESS;
         ResourceEngineTask<ExecuteRecoveryMeasuresActivity> task
                 = new sResourceEngineTask(
                 currentApp,
@@ -187,7 +181,6 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     private void executeAutoUpdate() {
-        mRecoveryState = RECOVERY_STATE_APP_UPDATE_IN_PROGRESS;
         String ref = ResourceInstallUtils.getDefaultProfileRef();
         try {
             updateTask = UpdateTask.getNewInstance();
@@ -201,7 +194,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
 
     }
 
-    private void connectToUpdateTask() {
+    private boolean connectToUpdateTask() {
         updateTask = UpdateTask.getRunningInstance();
         if (updateTask != null) {
             try {
@@ -210,10 +203,13 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
                 Log.e(TAG, "Attempting to register a TaskListener to an already " +
                         "registered task.");
             }
+            return true;
         }
+        return false;
     }
 
     private void updateStatus(String status) {
+        mLastDisplayStatus = status;
         if (mActivity != null) {
             mActivity.updateStatus(status);
         }
@@ -226,7 +222,6 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
 
     private void onAsyncExecutionSuccess() {
         mLastExecutionStatus = STATUS_EXECUTED;
-        mRecoveryState = RECOVERY_STATE_NONE;
         markMeasureAsExecuted();
         // so that we pick back up with the next measure, if there are any more
         executePendingMeasures();
@@ -308,14 +303,16 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     @Override
     public void saveInstanceState(Bundle out) {
         out.putInt(CURRENTLY_EXECUTING_ID, mCurrentMeasure != null ? mCurrentMeasure.getID() : -1);
-        out.putInt(RECOVERY_STATE, mRecoveryState);
+        out.putInt(LAST_STATUS, mLastExecutionStatus);
+        out.putString(LAST_DISPLAY_STATUS, mLastDisplayStatus);
     }
 
     @Override
     public void loadSaveInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             setMeasureFromId(savedInstanceState.getInt(CURRENTLY_EXECUTING_ID));
-            mRecoveryState = savedInstanceState.getInt(RECOVERY_STATE);
+            mLastExecutionStatus = savedInstanceState.getInt(LAST_STATUS);
+            mLastDisplayStatus = savedInstanceState.getString(LAST_DISPLAY_STATUS);
         }
     }
 
@@ -357,7 +354,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
                     mActivity,
                     R.string.recovery_measure_app_update_progress,
                     new String[]{"" + progress, "" + max});
-            mActivity.updateStatus(msg);
+            updateStatus(msg);
         }
     }
 
@@ -368,7 +365,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
             onAsyncExecutionSuccess();
             updateStatus("");
         } else {
-            updateStatus(appInstallStatusResultAndError.errorMessage);
+            updateStatus(StringUtils.getStringRobust(mActivity,R.string.recovery_measure_known_error, appInstallStatusResultAndError.errorMessage));
             onAsyncExecutionFailure(appInstallStatusResultAndError.data.name());
         }
     }
