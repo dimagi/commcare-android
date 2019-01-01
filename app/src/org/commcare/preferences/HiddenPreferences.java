@@ -2,6 +2,7 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -61,6 +62,9 @@ public class HiddenPreferences {
 
     // Boolean pref to determine whether user has already been through the update information form
     public final static String SHOW_XFORM_UPDATE_INFO = "show-xform-update-info";
+
+    // last known filepath where ccz was installed from
+    private static final String LAST_KNOWN_CCZ_LOCATION = "last_known_ccz_location";
 
     /**
      * @return How many seconds should a user session remain open before expiring?
@@ -279,5 +283,17 @@ public class HiddenPreferences {
     public static int getLatestAppVersion() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getInt(LATEST_APP_VERSION, -1);
+    }
+
+    public static void setLastKnownCczLocation(String cczPath) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(LAST_KNOWN_CCZ_LOCATION, cczPath).apply();
+    }
+
+    @Nullable
+    public static String getLastKnownCczLocation() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(LAST_KNOWN_CCZ_LOCATION, null);
     }
 }

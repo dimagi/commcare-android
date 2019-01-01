@@ -19,6 +19,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.UnzipTask;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.UriToFilePath;
@@ -82,7 +83,11 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             }
         });
 
-        btnInstallArchive.setOnClickListener(v -> createArchive(editFileLocation.getText().toString()));
+        btnInstallArchive.setOnClickListener(v -> {
+            String archivePath = editFileLocation.getText().toString();
+            HiddenPreferences.setLastKnownCczLocation(archivePath);
+            createArchive(archivePath);
+        });
 
         // avoid keyboard pop-up
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);

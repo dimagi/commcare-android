@@ -3,8 +3,10 @@ package org.commcare.recovery.measures;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.modern.util.Pair;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.templates.CommCareTask;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.xml.ElementParser;
@@ -15,6 +17,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.zip.ZipFile;
 
 public class ScanCczTask extends CommCareTask<Void, File, File, ExecuteRecoveryMeasuresActivity> {
@@ -85,10 +88,14 @@ public class ScanCczTask extends CommCareTask<Void, File, File, ExecuteRecoveryM
 
 
     private File[] getPathsToScan() {
-        return new File[]{
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-        };
+        String lastKnownCczLocation = HiddenPreferences.getLastKnownCczLocation();
+        ArrayList<File> filePathsToScan = new ArrayList<>(3);
+        if(!StringUtils.isEmpty(lastKnownCczLocation)){
+            filePathsToScan.add(new File(lastKnownCczLocation));
+        }
+        filePathsToScan.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+        filePathsToScan.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS));
+        return filePathsToScan.toArray(new File[filePathsToScan.size()]);
     }
 
     @Override
