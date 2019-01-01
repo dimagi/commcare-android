@@ -90,14 +90,11 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         if (mLastExecutionStatus == STATUS_FAILED) {
             mActivity.enableRetry();
             updateStatus(mLastDisplayStatus);
-        } else {
+        } else if (!(connectToUpdateTask() || mActivity.aTaskInProgress()) && mLastExecutionStatus != STATUS_WAITING) {
             // If update task in progress, connect to it and do nothing
-            // or if any other task in progress, do nothing and
-            // let activity connect to it through stateholder as usual.
-            // Otherwise execute any pending measure.
-            if (!(connectToUpdateTask() || mActivity.aTaskInProgress())) {
-                executePendingMeasures();
-            }
+            // or if any other task in progress, do nothing and let activity connect to it through stateholder as usual.
+            // Otherwise if we are not waiting on a measure,  execute any pending measures.
+            executePendingMeasures();
         }
     }
 
