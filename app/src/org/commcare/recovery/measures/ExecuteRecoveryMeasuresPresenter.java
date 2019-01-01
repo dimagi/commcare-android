@@ -11,6 +11,7 @@ import android.util.Log;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.AppManagerActivity;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.activities.PromptActivity;
 import org.commcare.activities.PromptApkUpdateActivity;
@@ -498,6 +499,12 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         mLastDisplayStatus = null;
         mLastExecutionStatus = -1;
         cczSelectionEnabled = false;
+    }
+
+    public void launchAppManager() {
+        Intent i = new Intent(mActivity, AppManagerActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mActivity.startActivity(i);
     }
 
     static class sResourceEngineTask extends ResourceEngineTask<ExecuteRecoveryMeasuresActivity> {

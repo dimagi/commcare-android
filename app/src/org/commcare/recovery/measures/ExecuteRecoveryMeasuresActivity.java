@@ -3,11 +3,14 @@ package org.commcare.recovery.measures;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.commcare.activities.AppManagerActivity;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.dalvik.R;
@@ -18,6 +21,7 @@ import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
+import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
 
@@ -33,6 +37,8 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
 
     protected static final int PROMPT_APK_UPDATE = 1;
     protected static final int PROMPT_APK_REINSTALL = 2;
+
+    private static final int MENU_APP_MANAGER = Menu.FIRST;
 
     private ExecuteRecoveryMeasuresPresenter mPresenter;
 
@@ -88,6 +94,23 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
         selectCczBt.setVisibility(View.GONE);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case MENU_APP_MANAGER:
+                mPresenter.launchAppManager();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     public void onSaveInstanceState(Bundle out) {
@@ -192,10 +215,6 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     protected void onDestroy() {
         super.onDestroy();
         mPresenter.onActivityDestroy();
-    }
-
-    public String getStatus() {
-        return statusTv.getText().toString();
     }
 
     public void updateCcz(File update) {
