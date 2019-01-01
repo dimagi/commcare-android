@@ -1,10 +1,10 @@
 package org.commcare.recovery.measures;
 
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -12,11 +12,11 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareSetupActivity;
-import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.PromptActivity;
 import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.PromptCCReinstallActivity;
 import org.commcare.dalvik.R;
+import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.BasePresenterContract;
@@ -27,19 +27,22 @@ import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
+import org.commcare.tasks.UnzipTask;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.PropertyUtils;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.io.File;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.commcare.engine.resource.ResourceInstallUtils.getProfileReference;
+import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_REINSTALL_AND_UPDATE;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_UPDATE;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_REINSTALL;
@@ -50,7 +53,6 @@ import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_WAITING;
 
 public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, TaskListener<Integer, ResultAndError<AppInstallStatus>> {
 
-
     private final ExecuteRecoveryMeasuresActivity mActivity;
     private RecoveryMeasure mCurrentMeasure;
     private UpdateTask updateTask;
@@ -58,13 +60,21 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     int mLastExecutionStatus;
     private String mLastDisplayStatus;
 
+    private String mTargetPath;
+    private String mAppArchivePath;
+    private boolean cczSelectionEnabled;
+
     private static final int REINSTALL_TASK_ID = 1;
     static final int OFFLINE_INSTALL_REQUEST = 1001;
+    static final int REQUEST_CCZ = 2001;
 
     private static final String TAG = ExecuteRecoveryMeasuresPresenter.class.getSimpleName();
-    private static final String CURRENTLY_EXECUTING_ID = "currently-executing-id";
-    private static final String LAST_STATUS = "LAST_STATUS";
-    private static final String LAST_DISPLAY_STATUS = "LAST_DISPLAY_STATUS";
+
+    private static final String CURRENT_MEASUERE_ID_KEY = "current_measure_id";
+    private static final String LAST_STATUS_KEY = "last_status";
+    private static final String LAST_DISPLAY_STATUS_KEY = "last_display_status";
+    private static final String ARCHIVE_PATH_KEY = "archive_path";
+    private static final String CCZ_SELECTION_ENABLED_KEY = "ccz_selection_enabled";
 
     ExecuteRecoveryMeasuresPresenter(ExecuteRecoveryMeasuresActivity activity) {
         mActivity = activity;
@@ -72,6 +82,10 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
 
     @Override
     public void start() {
+        if (cczSelectionEnabled) {
+            enableCczSelection();
+        }
+
         if (mLastExecutionStatus == STATUS_FAILED) {
             mActivity.enableRetry();
             updateStatus(mLastDisplayStatus);
@@ -124,8 +138,15 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         try {
             switch (mCurrentMeasure.getType()) {
                 case MEASURE_TYPE_APP_REINSTALL_AND_UPDATE:
+//                    if (AppUtils.notOnLatestAppVersion()) {
+//                        showInstallMethodChooser();
+//                        return STATUS_WAITING;
+//                    } else {
+//                        return STATUS_EXECUTED;
+//                    }
+                case MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE:
                     if (AppUtils.notOnLatestAppVersion()) {
-                        showInstallMethodChooser();
+                        initateAutoCczScan();
                         return STATUS_WAITING;
                     } else {
                         return STATUS_EXECUTED;
@@ -163,7 +184,15 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         return STATUS_FAILED;
     }
 
-    private void reinstallApp(CommCareApp currentApp, String profileRef, int authority) {
+    private void initateAutoCczScan() {
+        ScanCczTask scanCczTask = new ScanCczTask();
+        scanCczTask.connect(mActivity);
+        scanCczTask.executeParallel();
+        updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_ccz_scan_in_progress));
+    }
+
+    private void reinstallApp(String profileRef, int authority) {
+        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         ResourceEngineTask<ExecuteRecoveryMeasuresActivity> task
                 = new sResourceEngineTask(
                 currentApp,
@@ -264,20 +293,16 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     private void doOnlineAppInstall() {
-        reinstallApp(CommCareApplication.instance().getCurrentApp(),
-                getProfileReference(),
-                Resource.RESOURCE_AUTHORITY_REMOTE);
+        reinstallApp(getProfileReference(), Resource.RESOURCE_AUTHORITY_REMOTE);
     }
 
     private void showOfflineInstallActivity() {
-        Intent i = new Intent(mActivity, InstallArchiveActivity.class);
+        Intent i = new Intent(mActivity, ExecuteRecoveryMeasuresActivity.class);
         mActivity.startActivityForResult(i, OFFLINE_INSTALL_REQUEST);
     }
 
     public void doOfflineAppInstall(String profileRef) {
-        reinstallApp(CommCareApplication.instance().getCurrentApp(),
-                profileRef,
-                Resource.RESOURCE_AUTHORITY_LOCAL);
+        reinstallApp(profileRef, Resource.RESOURCE_AUTHORITY_LOCAL);
     }
 
     public boolean shouldAllowBackPress() {
@@ -302,17 +327,21 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
 
     @Override
     public void saveInstanceState(Bundle out) {
-        out.putInt(CURRENTLY_EXECUTING_ID, mCurrentMeasure != null ? mCurrentMeasure.getID() : -1);
-        out.putInt(LAST_STATUS, mLastExecutionStatus);
-        out.putString(LAST_DISPLAY_STATUS, mLastDisplayStatus);
+        out.putInt(CURRENT_MEASUERE_ID_KEY, mCurrentMeasure != null ? mCurrentMeasure.getID() : -1);
+        out.putInt(LAST_STATUS_KEY, mLastExecutionStatus);
+        out.putString(LAST_DISPLAY_STATUS_KEY, mLastDisplayStatus);
+        out.putString(ARCHIVE_PATH_KEY, mAppArchivePath);
+        out.putBoolean(CCZ_SELECTION_ENABLED_KEY, cczSelectionEnabled);
     }
 
     @Override
     public void loadSaveInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            setMeasureFromId(savedInstanceState.getInt(CURRENTLY_EXECUTING_ID));
-            mLastExecutionStatus = savedInstanceState.getInt(LAST_STATUS);
-            mLastDisplayStatus = savedInstanceState.getString(LAST_DISPLAY_STATUS);
+            setMeasureFromId(savedInstanceState.getInt(CURRENT_MEASUERE_ID_KEY));
+            mLastExecutionStatus = savedInstanceState.getInt(LAST_STATUS_KEY);
+            mLastDisplayStatus = savedInstanceState.getString(LAST_DISPLAY_STATUS_KEY);
+            mAppArchivePath = savedInstanceState.getString(ARCHIVE_PATH_KEY);
+            cczSelectionEnabled = savedInstanceState.getBoolean(CCZ_SELECTION_ENABLED_KEY, false);
         }
     }
 
@@ -343,6 +372,85 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         }
     }
 
+    public void updateCcz(File archive) {
+        mAppArchivePath = archive.getAbsolutePath();
+        mActivity.updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_ccz_found_scan_in_progress));
+        mActivity.showReinstall();
+    }
+
+    public void onCCZScanComplete() {
+        mActivity.hideReinstall();
+        if (mAppArchivePath != null) {
+            unZipCcz(mAppArchivePath);
+        } else {
+            // no ccz found, allow user to manually locate ccz or retry
+            updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_no_ccz_found));
+            enableCczSelection();
+            mActivity.enableRetry();
+            mActivity.disableLoadingIndicator();
+        }
+    }
+
+    private void enableCczSelection() {
+        cczSelectionEnabled = true;
+        mActivity.enableCczSelection();
+    }
+
+
+    public void onCczScanFailed(Exception e) {
+        updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_ccz_scan_failed));
+        onAsyncExecutionFailure(e.getMessage());
+        mActivity.enableCczSelection();
+    }
+
+    public void unZipCcz(String filePath) {
+        // Clear any targetPath that might have got set earlier
+        if (mTargetPath != null) {
+            new File(mTargetPath).delete();
+        }
+        mTargetPath = CommCareApplication.instance().getAndroidFsTemp() + PropertyUtils.genUUID();
+        UnzipTask unzipTask = new sUnzipTask();
+        unzipTask.connect(mActivity);
+        unzipTask.executeParallel(new String[]{filePath, mTargetPath});
+        mActivity.enableLoadingIndicator();
+    }
+
+    public void onUnzipSuccessful() {
+        ArchiveFileRoot afr = CommCareApplication.instance().getArchiveFileRoot();
+        String mGUID = afr.addArchiveFile(mTargetPath);
+        String ref = "jr://archive/" + mGUID + "/profile.ccpr";
+        doOfflineAppInstall(ref);
+    }
+
+    public void updateUnZipProgress(String update) {
+        mActivity.updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_unzip_progress,update);
+    }
+
+    public void onUnzipFailure(Exception e) {
+        updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_unzip_error));
+        onAsyncExecutionFailure(e.getMessage());
+        mActivity.enableCczSelection();
+    }
+
+    public void selectCczFromFileSystem() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        try {
+            mActivity.startActivityForResult(intent, REQUEST_CCZ);
+        } catch (ActivityNotFoundException e) {
+            updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_select_ccz_no_file_browser));
+        }
+    }
+
+    public void updateCczFromIntent(Intent intent) {
+        String filePath = FileUtil.getFileLocationFromIntent(intent);
+        if (filePath != null) {
+            mAppArchivePath = filePath;
+            unZipCcz(filePath);
+        } else {
+            updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_invalid_ccz_path));
+        }
+    }
 
     // Update Task Listeners
     @Override
@@ -365,16 +473,32 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
             onAsyncExecutionSuccess();
             updateStatus("");
         } else {
-            updateStatus(StringUtils.getStringRobust(mActivity,R.string.recovery_measure_known_error, appInstallStatusResultAndError.errorMessage));
+            updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_known_error, appInstallStatusResultAndError.errorMessage));
             onAsyncExecutionFailure(appInstallStatusResultAndError.data.name());
         }
     }
 
     @Override
     public void handleTaskCancellation() {
-        onAsyncExecutionFailure("update task cancelled");
+        onAsyncExecutionFailure(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_update_cancelled));
     }
 
+    public void reinstallFromScannedCcz() {
+        unZipCcz(mAppArchivePath);
+    }
+
+    public void retry() {
+        clearState();
+        executePendingMeasures();
+    }
+
+    private void clearState() {
+        mAppArchivePath = null;
+        mCurrentMeasure = null;
+        mLastDisplayStatus = null;
+        mLastExecutionStatus = -1;
+        cczSelectionEnabled = false;
+    }
 
     static class sResourceEngineTask extends ResourceEngineTask<ExecuteRecoveryMeasuresActivity> {
         sResourceEngineTask(CommCareApp currentApp, int taskId, boolean shouldSleep, int authority, boolean reinstall) {
@@ -396,6 +520,25 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         protected void deliverError(ExecuteRecoveryMeasuresActivity receiver,
                                     Exception e) {
             receiver.failUnknown(AppInstallStatus.UnknownFailure);
+        }
+    }
+
+    static class sUnzipTask extends UnzipTask<ExecuteRecoveryMeasuresActivity> {
+        @Override
+        protected void deliverResult(ExecuteRecoveryMeasuresActivity receiver, Integer result) {
+            if (result > 0) {
+                receiver.onUnzipSuccessful();
+            }
+        }
+
+        @Override
+        protected void deliverUpdate(ExecuteRecoveryMeasuresActivity receiver, String... update) {
+            receiver.updateUnZipProgress(update[0]);
+        }
+
+        @Override
+        protected void deliverError(ExecuteRecoveryMeasuresActivity receiver, Exception e) {
+            receiver.onUnzipFailure(e);
         }
     }
 }

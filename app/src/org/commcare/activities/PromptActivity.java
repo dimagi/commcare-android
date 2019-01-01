@@ -91,7 +91,7 @@ public abstract class PromptActivity extends CommCareActivity {
         if (requestCode == DO_AN_UPDATE) {
             if (isUpdateComplete()) {
                 finish();
-            }else {
+            } else {
                 refreshPromptObject();
                 updateVisibilities();
             }
@@ -135,7 +135,10 @@ public abstract class PromptActivity extends CommCareActivity {
     }
 
     protected boolean inForceMode() {
-        return toPrompt.isForced();
+        if (toPrompt != null) {
+            return toPrompt.isForced();
+        }
+        return false;
     }
 
     @Override

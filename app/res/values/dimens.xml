@@ -126,4 +126,7 @@
     <!-- Should be font medium SP x 4, roughly -->
     <dimen name="rectangle_button_height">60sp</dimen>
 
+    <!--action button on center of screen-->
+    <dimen name="center_button_width">180dp</dimen>
+
 </resources>

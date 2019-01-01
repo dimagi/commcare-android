@@ -57,8 +57,28 @@
             android:layout_centerHorizontal="true"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/standard_spacer_large"
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/center_button_width"
             android:text="@string/recovery_measure_retry"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/reinstall_button"
+            android:layout_below="@id/retry_button"
+            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_spacer_large"
+            android:layout_width="@dimen/center_button_width"
+            android:text="@string/recovery_measure_reinstall"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/select_ccz_button"
+            android:layout_below="@id/reinstall_button"
+            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_spacer_large"
+            android:layout_width="@dimen/center_button_width"
+            android:text="@string/recovery_measure_select_ccz"
             android:visibility="gone"/>
 
     </RelativeLayout>

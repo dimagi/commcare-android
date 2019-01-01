@@ -32,6 +32,7 @@ public class RecoveryMeasure extends Persisted {
 
     public static final String MEASURE_TYPE_APP_UPDATE = "app_update";
     public static final String MEASURE_TYPE_APP_REINSTALL_AND_UPDATE = "app_reinstall_and_update";
+    public static final String MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE = "app_offline_reinstall_and_update";
     public static final String MEASURE_TYPE_CC_REINSTALL = "cc_reinstall";
     public static final String MEASURE_TYPE_CC_UPDATE = "cc_update";
 
@@ -57,7 +58,7 @@ public class RecoveryMeasure extends Persisted {
     }
 
     @StringDef({MEASURE_TYPE_APP_REINSTALL_AND_UPDATE, MEASURE_TYPE_APP_UPDATE,
-            MEASURE_TYPE_CC_REINSTALL, MEASURE_TYPE_CC_UPDATE})
+            MEASURE_TYPE_CC_REINSTALL, MEASURE_TYPE_CC_UPDATE, MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE})
     @Retention(RetentionPolicy.SOURCE)
     private @interface MeasureType {
     }

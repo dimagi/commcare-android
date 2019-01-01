@@ -380,7 +380,7 @@
     <string name="recovery_forms_state_unavailable">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable">No network connection. Please check your internet and try again.</string>
     <string name="recovery_app_manager">Go to App Manager</string>
-  
+
     <string name="notification_channel_errors_title">Errors</string>
     <string name="notification_channel_errors_description">Notifications for error messages when something breaks say on installing a CommCare app or while syncing forms with server</string>
     <string name="notification_channel_user_session_title">User Session</string>
@@ -395,9 +395,23 @@
     <string name="recovery_measure_reinstall_offline_method">Reinstall Using CCZ</string>
     <string name="recovery_measure_detail">Recovery procedures have been initiated for your CommCare App due to a problem with it. Please wait...</string>
     <string name="recovery_measure_faiure">An error occurred when CommCare tried to execute a recovery measure. We will try again later. If the problem persists please contact helpdesk</string>
-    <string name="recovery_measure_retry">Retry</string>
+    <string name="recovery_measure_retry">Retry Recovery</string>
     <string name="recovery_measure_app_reinstall_progress">Reinstalling %1$s out of %2$s resources</string>
     <string name="recovery_measure_app_update_progress">Updating %1$s out of %2$s resources</string>
     <string name="recovery_measure_known_error">An error occurred during recovery. Error details - \n %1$s</string>
+    <string name="recovery_measure_ccz_scan_in_progress">Scanning your phone for ccz files</string>
+    <string name="recovery_measure_ccz_found_scan_in_progress">We found a CCZ file for the app on your phone.We are still scanning your device to see if there is a newer CCZ file present.
+        You can wait for the scan to complete or click reinstall below to immediately reinstal the app</string>
+    <string name="recovery_measure_reinstall">Reinstall</string>
+    <string name="recovery_measure_no_ccz_found">No CCZ file found for your app. You can manually locate CCZ file by clicking \"Select CCZ\" button below.
+        In case you can not find CCZ file on your phone, please contact your help desk.</string>
+    <string name="recovery_measure_select_ccz">Select CCZ</string>
+    <string name="recovery_measure_select_ccz_no_file_browser">You need a file manager to access the files on this device.
+        You have not installed a file manager, please go to the Google Play Store and download a file manager, then return to this screen.</string>
+    <string name="recovery_measure_invalid_ccz_path">Unable to process the CCZ file you selected. Please retry</string>
+    <string name="recovery_measure_ccz_scan_failed">An error occurred while loacting CCZ file on your phone. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
+    <string name="recovery_measure_unzip_error">An error occurred while installing the app from CCZ file. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
+    <string name="recovery_measure_update_cancelled">Update cancelled</string>
+    <string name="recovery_measure_unzip_progress">Unzipping..</string>
 
 </resources>

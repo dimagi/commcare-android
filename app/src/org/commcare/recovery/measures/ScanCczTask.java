@@ -1,0 +1,108 @@
+package org.commcare.recovery.measures;
+
+import android.os.Environment;
+import android.support.annotation.Nullable;
+
+import org.commcare.CommCareApplication;
+import org.commcare.modern.util.Pair;
+import org.commcare.tasks.templates.CommCareTask;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.ZipFile;
+
+public class ScanCczTask extends CommCareTask<Void, File, File, ExecuteRecoveryMeasuresActivity> {
+
+
+    private static final String CCZ_EXTENSION = ".ccz";
+    private static final String PROFILE_FILE_NAME = "profile.ccpr";
+
+    private File latestProfileFile = null;
+
+    @Override
+    protected File doTaskBackground(Void... voids) {
+        locateAppCcz(getPathsToScan());
+        return latestProfileFile;
+    }
+
+    @Nullable
+    private void locateAppCcz(File[] files) {
+        int latestVersion = -1;
+        for (File f : files) {
+            if (f.isDirectory()) {
+                locateAppCcz(f.listFiles());
+            } else if (f.isFile() && f.getName().endsWith(CCZ_EXTENSION)) {
+                try {
+                    Pair<String, Integer> profileIdAndVersion = getProfileIdAndVersionFromCcz(f);
+                    String currentAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                    if (currentAppId.contentEquals(profileIdAndVersion.first)) {
+                        // We have a match, if it's the latest version till now, return the ccz in update
+                        if (profileIdAndVersion.second > latestVersion) {
+                            latestVersion = profileIdAndVersion.second;
+                            latestProfileFile = f;
+                            publishProgress(latestProfileFile);
+                        }
+                    }
+                } catch (IOException | InvalidStructureException | XmlPullParserException | UnfullfilledRequirementsException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // Unzip profile and parses id and version from it
+    private Pair<String, Integer> getProfileIdAndVersionFromCcz(File f) throws IOException, UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException {
+        InputStream profileStream = null;
+        ZipFile zipFile = null;
+        try {
+            zipFile = new ZipFile(f);
+            profileStream = zipFile.getInputStream(zipFile.getEntry(PROFILE_FILE_NAME));
+            return getProfileParser(profileStream).parse();
+        } finally {
+            StreamsUtil.closeStream(profileStream);
+            if (zipFile != null) {
+                zipFile.close();
+            }
+        }
+    }
+
+    private ElementParser<Pair<String, Integer>> getProfileParser(InputStream profileStream) throws IOException {
+        return new ElementParser<Pair<String, Integer>>(ElementParser.instantiateParser(profileStream)) {
+            @Override
+            public Pair<String, Integer> parse() throws InvalidStructureException {
+                int version = parseInt(parser.getAttributeValue(null, "version"));
+                String uniqueId = parser.getAttributeValue(null, "uniqueid");
+                return new Pair<>(uniqueId, version);
+            }
+        };
+    }
+
+
+    private File[] getPathsToScan() {
+        return new File[]{
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+        };
+    }
+
+    @Override
+    protected void deliverResult(ExecuteRecoveryMeasuresActivity activity, File archive) {
+       activity.onCczScanComplete();
+    }
+
+    @Override
+    protected void deliverUpdate(ExecuteRecoveryMeasuresActivity activity, File... archive) {
+        activity.updateCcz(archive[0]);
+    }
+
+    @Override
+    protected void deliverError(ExecuteRecoveryMeasuresActivity activity, Exception e) {
+        activity.onCczScanFailed(e);
+    }
+}

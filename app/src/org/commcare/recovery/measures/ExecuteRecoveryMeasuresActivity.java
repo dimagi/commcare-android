@@ -19,7 +19,10 @@ import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
+import java.io.File;
+
 import static org.commcare.recovery.measures.ExecuteRecoveryMeasuresPresenter.OFFLINE_INSTALL_REQUEST;
+import static org.commcare.recovery.measures.ExecuteRecoveryMeasuresPresenter.REQUEST_CCZ;
 
 /**
  * Created by amstone326 on 5/22/18.
@@ -42,6 +45,12 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     @UiElement(value = R.id.retry_button)
     private Button retryBt;
 
+    @UiElement(value = R.id.reinstall_button)
+    private Button reinstallBt;
+
+    @UiElement(value = R.id.select_ccz_button)
+    private Button selectCczBt;
+
     @UiElement(value = R.id.progress_bar)
     private ProgressBar progressBar;
 
@@ -57,10 +66,26 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     private void setUpUI() {
         detailTv.setText(StringUtils.getStringRobust(this, R.string.recovery_measure_detail));
         retryBt.setOnClickListener(v -> {
-            retryBt.setVisibility(View.GONE);
-            statusTv.setVisibility(View.GONE);
-            mPresenter.executePendingMeasures();
+            resetLayout();
+            mPresenter.retry();
         });
+
+        reinstallBt.setOnClickListener(v -> {
+            resetLayout();
+            mPresenter.reinstallFromScannedCcz();
+        });
+
+        selectCczBt.setOnClickListener(v -> {
+            resetLayout();
+            mPresenter.selectCczFromFileSystem();
+        });
+    }
+
+    private void resetLayout() {
+        retryBt.setVisibility(View.GONE);
+        statusTv.setVisibility(View.GONE);
+        reinstallBt.setVisibility(View.GONE);
+        selectCczBt.setVisibility(View.GONE);
     }
 
 
@@ -80,6 +105,11 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
             case OFFLINE_INSTALL_REQUEST:
                 if (resultCode == Activity.RESULT_OK) {
                     mPresenter.doOfflineAppInstall(intent.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE));
+                }
+                break;
+            case REQUEST_CCZ:
+                if (resultCode == Activity.RESULT_OK) {
+                    mPresenter.updateCczFromIntent(intent);
                 }
                 break;
         }
@@ -166,5 +196,41 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
 
     public String getStatus() {
         return statusTv.getText().toString();
+    }
+
+    public void updateCcz(File update) {
+        mPresenter.updateCcz(update);
+    }
+
+    public void onCczScanComplete() {
+        mPresenter.onCCZScanComplete();
+    }
+
+    public void onCczScanFailed(Exception e) {
+        mPresenter.onCczScanFailed(e);
+    }
+
+    public void onUnzipSuccessful() {
+        mPresenter.onUnzipSuccessful();
+    }
+
+    public void updateUnZipProgress(String update) {
+        mPresenter.updateUnZipProgress(update);
+    }
+
+    public void onUnzipFailure(Exception e) {
+        mPresenter.onUnzipFailure(e);
+    }
+
+    public void showReinstall() {
+        reinstallBt.setVisibility(View.VISIBLE);
+    }
+
+    public void hideReinstall() {
+        reinstallBt.setVisibility(View.GONE);
+    }
+
+    public void enableCczSelection() {
+        selectCczBt.setVisibility(View.VISIBLE);
     }
 }
