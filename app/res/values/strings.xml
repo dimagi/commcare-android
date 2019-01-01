@@ -412,6 +412,6 @@
     <string name="recovery_measure_ccz_scan_failed">An error occurred while loacting CCZ file on your phone. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
     <string name="recovery_measure_unzip_error">An error occurred while installing the app from CCZ file. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
     <string name="recovery_measure_update_cancelled">Update cancelled</string>
-    <string name="recovery_measure_unzip_progress">Unzipping..</string>
+    <string name="recovery_measure_unzip_progress">Unzipping.. %1$s</string>
 
 </resources>

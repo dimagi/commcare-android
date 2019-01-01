@@ -423,7 +423,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     public void updateUnZipProgress(String update) {
-        mActivity.updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_unzip_progress,update);
+        mActivity.updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_unzip_progress, update));
     }
 
     public void onUnzipFailure(Exception e) {
